@@ -48,8 +48,9 @@ jest.mock('../api/deviceTriggers/observer')
 const MAX_WAIT_TIME = 4 * 1000
 
 import '../cronjobs'
+import { registerAllMethodsForTest } from '../../__mocks__/helpers/methods'
 
-import '../api/peripheralDevice'
+registerAllMethodsForTest()
 import {
 	CoreSystem,
 	NrcsIngestDataCache,

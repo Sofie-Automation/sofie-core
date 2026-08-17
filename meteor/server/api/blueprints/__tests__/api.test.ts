@@ -16,11 +16,12 @@ import { SupressLogMessages } from '../../../../__mocks__/suppressLogging'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { Meteor } from 'meteor/meteor'
 import * as CoreSystemAPI from '../../../coreSystem'
+import { registerAllMethodsForTest } from '../../../../__mocks__/helpers/methods'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../deviceTriggers/observer')
 
-require('../../peripheralDevice.ts') // include in order to create the Meteor methods needed
+registerAllMethodsForTest()
 
 const DEFAULT_CONNECTION: Meteor.Connection = {
 	id: 'mockConnectionId',

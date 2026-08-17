@@ -13,6 +13,9 @@ import { RundownLayouts } from '../../collections'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
 import { shelfLayoutsRouter } from '../rundownLayouts'
 import { callKoaRoute } from '../../../__mocks__/koa-util'
+import { registerAllMethodsForTest } from '../../../__mocks__/helpers/methods'
+
+registerAllMethodsForTest()
 
 describe('Rundown Layouts', () => {
 	let env: DefaultEnvironment

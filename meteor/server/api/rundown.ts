@@ -1,8 +1,7 @@
 import _ from 'underscore'
 import { check } from '../lib/check'
 import { logger } from '../logging'
-import { registerClassToMeteorMethods } from '../methods'
-import { NewRundownAPI, RundownAPIMethods } from '@sofie-automation/meteor-lib/dist/api/rundown'
+import { NewRundownAPI } from '@sofie-automation/meteor-lib/dist/api/rundown'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { PackageInfo } from '../coreSystem'
@@ -129,9 +128,8 @@ export namespace ClientRundownAPI {
 	}
 }
 
-class ServerRundownAPIClass extends MethodContextAPI implements NewRundownAPI {
-	async rundownPlaylistNeedsResync(playlistId: RundownPlaylistId) {
+export class ServerRundownAPIClass extends MethodContextAPI implements NewRundownAPI {
+	async rundownPlaylistNeedsResync(playlistId: RundownPlaylistId): Promise<string[]> {
 		return ClientRundownAPI.rundownPlaylistNeedsResync(this, playlistId)
 	}
 }
-registerClassToMeteorMethods(RundownAPIMethods, ServerRundownAPIClass, false)

@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { check, Match } from '../lib/check'
-import { registerClassToMeteorMethods } from '../methods'
-import { NewRundownLayoutsAPI, RundownLayoutsAPIMethods } from '@sofie-automation/meteor-lib/dist/api/rundownLayouts'
+import { NewRundownLayoutsAPI } from '@sofie-automation/meteor-lib/dist/api/rundownLayouts'
 import {
 	RundownLayoutType,
 	RundownLayoutBase,
@@ -151,17 +150,16 @@ async function apiRemoveRundownLayout(context: MethodContext, id: RundownLayoutI
 	await removeRundownLayout(id)
 }
 
-class ServerRundownLayoutsAPI extends MethodContextAPI implements NewRundownLayoutsAPI {
+export class ServerRundownLayoutsAPI extends MethodContextAPI implements NewRundownLayoutsAPI {
 	async createRundownLayout(
 		name: string,
 		type: RundownLayoutType,
 		showStyleBaseId: ShowStyleBaseId,
 		regionId: CustomizableRegions
-	) {
+	): Promise<RundownLayoutId> {
 		return apiCreateRundownLayout(this, name, type, showStyleBaseId, regionId)
 	}
-	async removeRundownLayout(rundownLayoutId: RundownLayoutId) {
+	async removeRundownLayout(rundownLayoutId: RundownLayoutId): Promise<void> {
 		return apiRemoveRundownLayout(this, rundownLayoutId)
 	}
 }
-registerClassToMeteorMethods(RundownLayoutsAPIMethods, ServerRundownLayoutsAPI, false)
