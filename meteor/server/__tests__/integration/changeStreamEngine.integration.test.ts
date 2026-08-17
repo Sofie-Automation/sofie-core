@@ -99,7 +99,10 @@ describe('change-stream engine (integration)', () => {
 			() => undefined
 		)
 		const deps: ObserveMultiplexerDeps<TestDoc> = {
-			snapshot: async () => collection.find({}).toArray() as unknown as Promise<TestDoc[]>,
+			snapshot: async () => ({
+				docs: (await collection.find({}).toArray()) as unknown as TestDoc[],
+				operationTime: undefined,
+			}),
 			subscribeFeed: (onChange, onReconnect) =>
 				feed.subscribe(onChange as (c: ChangeStreamDocument<any>) => void, onReconnect),
 		}
@@ -201,7 +204,10 @@ describe('change-stream engine (integration)', () => {
 			() => undefined
 		)
 		const deps: ObserveMultiplexerDeps<TestDoc> = {
-			snapshot: async () => collection.find({}).toArray() as unknown as Promise<TestDoc[]>,
+			snapshot: async () => ({
+				docs: (await collection.find({}).toArray()) as unknown as TestDoc[],
+				operationTime: undefined,
+			}),
 			subscribeFeed: (onChange, onReconnect) =>
 				feed.subscribe(onChange as (c: ChangeStreamDocument<any>) => void, onReconnect),
 		}

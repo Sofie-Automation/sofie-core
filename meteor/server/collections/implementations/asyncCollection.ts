@@ -21,7 +21,7 @@ import { profiler } from '../../api/profiler'
 import { logger } from '../../logging'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { AsyncOnlyMongoCollection, MinimalMongoCursor } from '../collection'
-import { getMongoDb } from '../mongoConnection'
+import { getMongoClient, getMongoDb } from '../mongoConnection'
 import {
 	observeChangesViaChangeStream,
 	observeViaChangeStream,
@@ -75,8 +75,21 @@ export class WrappedAsyncMongoCollection<
 		return {
 			// Note: fetch full documents (no projection) - the multiplexer projects in JS so the snapshot
 			// and the change-event documents are projected identically.
-			snapshot: async () =>
-				this._rawCollection.find(selector as any).toArray() as unknown as Promise<DBInterface[]>,
+			//
+			// Read inside a session so the cluster time the snapshot reflects can be reported alongside it:
+			// the change stream resumes from at-or-before this point, and the multiplexer uses the time to
+			// discard replayed events the snapshot already accounts for.
+			snapshot: async () => {
+				const session = getMongoClient().startSession()
+				try {
+					const docs = (await this._rawCollection
+						.find(selector as any, { session })
+						.toArray()) as unknown as DBInterface[]
+					return { docs, operationTime: session.operationTime }
+				} finally {
+					await session.endSession()
+				}
+			},
 			subscribeFeed: (onChange, onResync) => subscribeToCollectionChangeFeed(collectionName, onChange, onResync),
 		}
 	}

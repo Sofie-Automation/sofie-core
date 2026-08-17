@@ -64,7 +64,18 @@ export function makeMultiplexer(
 		() => undefined
 	)
 	const deps: ObserveMultiplexerDeps<TestDoc> = {
-		snapshot: async () => collection.find(selector as any).toArray() as unknown as Promise<TestDoc[]>,
+		// Read in a session so the snapshot's cluster time can be reported, exactly as production does
+		snapshot: async () => {
+			const session = client.startSession()
+			try {
+				const docs = (await collection
+					.find(selector as any, { session })
+					.toArray()) as unknown as TestDoc[]
+				return { docs, operationTime: session.operationTime }
+			} finally {
+				await session.endSession()
+			}
+		},
 		subscribeFeed: (onChange, onReconnect) =>
 			feed.subscribe(onChange as (c: ChangeStreamDocument<any>) => void, onReconnect),
 	}

@@ -21,7 +21,7 @@ function makeHarness(initial: TestDoc[] = []) {
 	const feedSubs: Array<{ onChange: (c: any) => void; onResync: () => void }> = []
 	const feedStop = jest.fn()
 	const deps: ObserveMultiplexerDeps<TestDoc> = {
-		snapshot: jest.fn(async () => docs.map((d) => ({ ...d }))),
+		snapshot: jest.fn(async () => ({ docs: docs.map((d) => ({ ...d })), operationTime: undefined })),
 		subscribeFeed: jest.fn((onChange, onResync) => {
 			const s = { onChange, onResync }
 			feedSubs.push(s)

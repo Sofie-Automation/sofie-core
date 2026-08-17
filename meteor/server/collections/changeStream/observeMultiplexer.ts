@@ -1,4 +1,4 @@
-import type { ChangeStreamDocument } from 'mongodb'
+import type { ChangeStreamDocument, Timestamp } from 'mongodb'
 import clone from 'fast-clone'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import {
@@ -16,10 +16,20 @@ import { CollectionFeedHandle } from './collectionChangeFeed'
 
 type Doc = { _id: ProtectedString<any> }
 
+export interface SnapshotResult<TDoc extends Doc> {
+	docs: TDoc[]
+	/**
+	 * The cluster time the snapshot was read at, if known. Change events older than this are already
+	 * reflected in `docs` and must be discarded - see {@link ObserveMultiplexer.processEvent}. Omit only
+	 * where no change stream is involved (the value is then simply not used for filtering).
+	 */
+	operationTime: Timestamp | undefined
+}
+
 /** What the multiplexer needs from the outside world — injectable so the logic is testable without mongo */
 export interface ObserveMultiplexerDeps<TDoc extends Doc> {
 	/** Fetch the full set of documents currently matching the selector (NO projection - we project in JS) */
-	snapshot: () => Promise<TDoc[]>
+	snapshot: () => Promise<SnapshotResult<TDoc>>
 	/**
 	 * Subscribe to the collection's change feed. `onResync` is invoked once the stream is established
 	 * (on first attach AND after any reconnect); the multiplexer responds by (re-)running its snapshot,
@@ -70,6 +80,8 @@ export class ObserveMultiplexer<TDoc extends Doc> {
 	#feedHandle: CollectionFeedHandle | undefined
 	#queue: Promise<void> = Promise.resolve()
 	#stopped = false
+	/** Cluster time of the most recent snapshot; change events older than this are already reflected in it */
+	#snapshotOperationTime: Timestamp | undefined
 	/**
 	 * If the eager initial snapshot fails, the error is stashed here (instead of being logged-and-ignored
 	 * like ongoing live events) so it can be surfaced to the observe caller via {@link #addSubscriber} -
@@ -218,13 +230,26 @@ export class ObserveMultiplexer<TDoc extends Doc> {
 	// --- core: snapshot/resync and per-event transitions -----------------------------------------
 
 	async #sync(): Promise<void> {
-		this.#view.applySnapshot(await this.#deps.snapshot())
+		const { docs, operationTime } = await this.#deps.snapshot()
+		this.#view.applySnapshot(docs)
+		if (operationTime) this.#snapshotOperationTime = operationTime
 		await this.#flushPending()
 	}
 
 	async #processEvent(change: ChangeStreamDocument<any>): Promise<void> {
+		// The stream resumes from a point at or before our snapshot was read, so it replays events the
+		// snapshot already accounts for. Most are harmless no-op diffs, but an insert/replace carries its
+		// own point-in-time document, which would revert a document the snapshot has since moved past.
+		if (this.#isBeforeSnapshot(change)) return
+
 		this.#view.applyChange(change)
 		await this.#flushPending()
+	}
+
+	#isBeforeSnapshot(change: ChangeStreamDocument<any>): boolean {
+		const snapshotAt = this.#snapshotOperationTime
+		const changeAt = (change as { clusterTime?: Timestamp }).clusterTime
+		return !!snapshotAt && !!changeAt && changeAt.lessThan(snapshotAt)
 	}
 
 	/** Fan the transitions the view just buffered out to all live subscribers, in order. */
