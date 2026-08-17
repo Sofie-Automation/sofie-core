@@ -47,6 +47,49 @@ export function StudioParentDevices({ studioId }: Readonly<StudioParentDevicesPr
 	const [unsavedOverrides, setUnsavedOverrides] = useState<SomeObjectOverrideOp[] | undefined>(undefined)
 	const [unsavedAssignments, setUnsavedAssignments] = useState<Record<string, PeripheralDeviceId | undefined>>({})
 
+	const persistedOverrides = studio?.peripheralDeviceSettings?.deviceSettings.overrides ?? []
+
+	const isOverrideOpForItem = useCallback((opPath: string, itemId: string): boolean => {
+		return opPath === itemId || opPath.startsWith(`${itemId}.`)
+	}, [])
+
+	const getOpsForItem = useCallback(
+		(ops: SomeObjectOverrideOp[], itemId: string): SomeObjectOverrideOp[] => {
+			return ops.filter((op) => isOverrideOpForItem(op.path, itemId))
+		},
+		[isOverrideOpForItem]
+	)
+
+	const removeOpsForItem = useCallback(
+		(ops: SomeObjectOverrideOp[], itemId: string): SomeObjectOverrideOp[] => {
+			return ops.filter((op) => !isOverrideOpForItem(op.path, itemId))
+		},
+		[isOverrideOpForItem]
+	)
+
+	const hasUnsavedOverrideForItem = useCallback(
+		(itemId: string): boolean => {
+			const currentOverrides = unsavedOverrides ?? persistedOverrides
+			const currentItemOps = getOpsForItem(currentOverrides, itemId)
+			const persistedItemOps = getOpsForItem(persistedOverrides, itemId)
+
+			return JSON.stringify(currentItemOps) !== JSON.stringify(persistedItemOps)
+		},
+		[getOpsForItem, persistedOverrides, unsavedOverrides]
+	)
+
+	const hasUnsavedAssignmentForItem = useCallback(
+		(itemId: string): boolean => {
+			return itemId in unsavedAssignments
+		},
+		[unsavedAssignments]
+	)
+
+	const hasUnsavedChangesForItem = useCallback(
+		(itemId: string): boolean => hasUnsavedOverrideForItem(itemId) || hasUnsavedAssignmentForItem(itemId),
+		[hasUnsavedAssignmentForItem, hasUnsavedOverrideForItem]
+	)
+
 	const deviceSettings = useMemo(() => {
 		const base =
 			studio?.peripheralDeviceSettings?.deviceSettings ?? wrapDefaultObject<Record<string, StudioDeviceSettings>>({})
@@ -97,31 +140,76 @@ export function StudioParentDevices({ studioId }: Readonly<StudioParentDevicesPr
 		}))
 	}, [])
 
-	const discardChanges = useCallback(() => {
-		setUnsavedOverrides(undefined)
-		setUnsavedAssignments({})
-	}, [])
+	const discardItemChanges = useCallback(
+		(itemId: string) => {
+			setUnsavedAssignments((prev) => {
+				if (!(itemId in prev)) return prev
 
-	const saveChanges = useCallback(() => {
-		if (studio?._id && unsavedOverrides) {
-			Studios.update(studio._id, {
-				$set: {
-					'peripheralDeviceSettings.deviceSettings.overrides': unsavedOverrides,
-				},
+				const next = { ...prev }
+				delete next[itemId]
+				return next
 			})
-			setUnsavedOverrides(undefined)
-		}
-		if (Object.keys(unsavedAssignments).length > 0) {
-			Promise.all(
-				Object.entries<PeripheralDeviceId | undefined>(unsavedAssignments).map(async ([configId, deviceId]) => {
-					return MeteorCall.studio.assignConfigToPeripheralDevice(studioId, configId, deviceId ?? null)
+
+			setUnsavedOverrides((prev) => {
+				const currentOverrides = prev ?? persistedOverrides
+				const currentWithoutItem = removeOpsForItem(currentOverrides, itemId)
+				const persistedItemOps = getOpsForItem(persistedOverrides, itemId)
+				const nextOverrides = [...currentWithoutItem, ...persistedItemOps]
+
+				if (JSON.stringify(nextOverrides) === JSON.stringify(persistedOverrides)) {
+					return undefined
+				}
+
+				return nextOverrides
+			})
+		},
+		[getOpsForItem, persistedOverrides, removeOpsForItem]
+	)
+
+	const saveItemChanges = useCallback(
+		(itemId: string) => {
+			const hasUnsavedOverride = hasUnsavedOverrideForItem(itemId)
+			const hasUnsavedAssignment = hasUnsavedAssignmentForItem(itemId)
+
+			if (studio?._id && hasUnsavedOverride) {
+				const currentOverrides = unsavedOverrides ?? persistedOverrides
+				const currentItemOps = getOpsForItem(currentOverrides, itemId)
+				const persistedWithoutItem = removeOpsForItem(persistedOverrides, itemId)
+				const nextPersistedOverrides = [...persistedWithoutItem, ...currentItemOps]
+
+				Studios.update(studio._id, {
+					$set: {
+						'peripheralDeviceSettings.deviceSettings.overrides': nextPersistedOverrides,
+					},
 				})
-			).catch((e) => {
-				console.error('Failed to save assignments', e)
-			})
-			setUnsavedAssignments({})
-		}
-	}, [studio?._id, unsavedOverrides, unsavedAssignments, studioId])
+			}
+
+			if (hasUnsavedAssignment) {
+				MeteorCall.studio
+					.assignConfigToPeripheralDevice(studioId, itemId, unsavedAssignments[itemId] ?? null)
+					.catch((e) => {
+						console.error('Failed to save assignment', e)
+					})
+
+				setUnsavedAssignments((prev) => {
+					const next = { ...prev }
+					delete next[itemId]
+					return next
+				})
+			}
+		},
+		[
+			getOpsForItem,
+			hasUnsavedAssignmentForItem,
+			hasUnsavedOverrideForItem,
+			persistedOverrides,
+			removeOpsForItem,
+			studio?._id,
+			studioId,
+			unsavedAssignments,
+			unsavedOverrides,
+		]
+	)
 
 	const hasCurrentDevice = wrappedDeviceSettings.find((d) => d.type === 'normal')
 
@@ -142,9 +230,9 @@ export function StudioParentDevices({ studioId }: Readonly<StudioParentDevicesPr
 				devices={wrappedDeviceSettings}
 				overrideHelper={overrideHelper}
 				createItemWithId={addNewItem}
-				hasUnsavedChanges={!!unsavedOverrides || Object.keys(unsavedAssignments).length > 0}
-				saveChanges={saveChanges}
-				discardChanges={discardChanges}
+				hasUnsavedChangesForItem={hasUnsavedChangesForItem}
+				saveItemChanges={saveItemChanges}
+				discardItemChanges={discardItemChanges}
 				unsavedAssignments={unsavedAssignments}
 				changeAssignment={changeAssignment}
 			/>
@@ -172,9 +260,9 @@ interface ParentDevicesTableProps {
 	devices: WrappedOverridableItem<StudioDeviceSettings>[]
 	overrideHelper: OverrideOpHelper
 	createItemWithId: (id: string) => void
-	hasUnsavedChanges: boolean
-	saveChanges: () => void
-	discardChanges: () => void
+	hasUnsavedChangesForItem: (itemId: string) => boolean
+	saveItemChanges: (itemId: string) => void
+	discardItemChanges: (itemId: string) => void
 	// maps configId to peripheralDeviceId when not saved yet
 	unsavedAssignments: Record<string, PeripheralDeviceId | undefined>
 	changeAssignment: (configId: string, deviceId: PeripheralDeviceId | undefined) => void
@@ -184,9 +272,9 @@ function GenericParentDevicesTable({
 	devices,
 	overrideHelper,
 	createItemWithId,
-	hasUnsavedChanges,
-	saveChanges,
-	discardChanges,
+	hasUnsavedChangesForItem,
+	saveItemChanges,
+	discardItemChanges,
 	unsavedAssignments,
 	changeAssignment,
 }: Readonly<ParentDevicesTableProps>): JSX.Element {
@@ -332,9 +420,9 @@ function GenericParentDevicesTable({
 										editItemWithId={toggleExpanded}
 										item={item}
 										overrideHelper={overrideHelper}
-										hasUnsavedChanges={hasUnsavedChanges}
-										saveChanges={saveChanges}
-										discardChanges={discardChanges}
+										hasUnsavedChanges={hasUnsavedChangesForItem(item.id)}
+										saveChanges={() => saveItemChanges(item.id)}
+										discardChanges={() => discardItemChanges(item.id)}
 										currentAssignment={
 											item.id in unsavedAssignments ? unsavedAssignments[item.id] : peripheralDevice?._id
 										}

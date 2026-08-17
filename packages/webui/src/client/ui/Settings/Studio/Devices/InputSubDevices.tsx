@@ -31,6 +31,7 @@ export function StudioInputSubDevices({ studioId, studioDevices }: Readonly<Stud
 	const studio = useTracker(() => Studios.findOne(studioId), [studioId])
 
 	const [unsavedOverrides, setUnsavedOverrides] = useState<SomeObjectOverrideOp[] | undefined>(undefined)
+	const [updatedIds, setUpdatedIds] = useState(new Map<string, string>())
 
 	const baseSettings = useMemo(
 		() => studio?.peripheralDeviceSettings?.inputDevices ?? wrapDefaultObject({}),
@@ -59,6 +60,44 @@ export function StudioInputSubDevices({ studioId, studioDevices }: Readonly<Stud
 		}
 		return baseSettings
 	}, [baseSettings, unsavedOverrides])
+
+	const persistedOverrides = baseSettings.overrides
+
+	const isOverrideOpForItem = useCallback((opPath: string, itemId: string): boolean => {
+		return opPath === itemId || opPath.startsWith(`${itemId}.`)
+	}, [])
+
+	const getOpsForItem = useCallback(
+		(ops: SomeObjectOverrideOp[], itemId: string): SomeObjectOverrideOp[] => {
+			return ops.filter((op) => isOverrideOpForItem(op.path, itemId))
+		},
+		[isOverrideOpForItem]
+	)
+
+	const removeOpsForItems = useCallback(
+		(ops: SomeObjectOverrideOp[], itemIds: string[]): SomeObjectOverrideOp[] => {
+			return ops.filter((op) => !itemIds.some((itemId) => isOverrideOpForItem(op.path, itemId)))
+		},
+		[isOverrideOpForItem]
+	)
+
+	const getRelatedItemIds = useCallback(
+		(itemId: string): string[] => {
+			const related = new Set<string>([itemId])
+
+			for (const [oldId, newId] of updatedIds.entries()) {
+				if (newId === itemId) {
+					related.add(oldId)
+				}
+				if (oldId === itemId) {
+					related.add(newId)
+				}
+			}
+
+			return Array.from(related)
+		},
+		[updatedIds]
+	)
 
 	const batchedOverrideHelper = useOverrideOpHelper(setUnsavedOverrides, settingsWithOverrides)
 	const instantSaveOverrideHelper = useOverrideOpHelper(saveOverrides, settingsWithOverrides)
@@ -102,8 +141,6 @@ export function StudioInputSubDevices({ studioId, studioDevices }: Readonly<Stud
 		})
 	}, [wrappedSubDevices, settingsWithOverrides.overrides])
 
-	const [updatedIds, setUpdatedIds] = useState(new Map<string, string>())
-
 	const updateObjectId = useCallback(
 		(oldId: string, newId: string) => {
 			if (oldId === newId) return
@@ -114,27 +151,76 @@ export function StudioInputSubDevices({ studioId, studioDevices }: Readonly<Stud
 		[batchedOverrideHelper, setUpdatedIds]
 	)
 
-	const discardChanges = useCallback(() => {
-		setUnsavedOverrides(undefined)
-		setUpdatedIds(new Map<string, string>())
-	}, [])
+	const hasUnsavedChangesForItem = useCallback(
+		(itemId: string): boolean => {
+			const relatedIds = getRelatedItemIds(itemId)
+			const currentOverrides = unsavedOverrides ?? persistedOverrides
+			const currentItemOps = relatedIds.flatMap((id) => getOpsForItem(currentOverrides, id))
+			const persistedItemOps = relatedIds.flatMap((id) => getOpsForItem(persistedOverrides, id))
 
-	const saveChanges = useCallback(() => {
-		if (studio?._id && unsavedOverrides) {
+			return (
+				JSON.stringify(currentItemOps) !== JSON.stringify(persistedItemOps) ||
+				relatedIds.some((id) => updatedIds.has(id) || Array.from(updatedIds.values()).includes(id))
+			)
+		},
+		[getOpsForItem, getRelatedItemIds, persistedOverrides, unsavedOverrides, updatedIds]
+	)
+
+	const discardItemChanges = useCallback(
+		(itemId: string) => {
+			const relatedIds = getRelatedItemIds(itemId)
+			const currentOverrides = unsavedOverrides ?? persistedOverrides
+			const currentWithoutItem = removeOpsForItems(currentOverrides, relatedIds)
+			const persistedItemOps = relatedIds.flatMap((id) => getOpsForItem(persistedOverrides, id))
+			const nextOverrides = [...currentWithoutItem, ...persistedItemOps]
+
+			if (JSON.stringify(nextOverrides) === JSON.stringify(persistedOverrides)) {
+				setUnsavedOverrides(undefined)
+			} else {
+				setUnsavedOverrides(nextOverrides)
+			}
+
+			setUpdatedIds((prev) => {
+				const next = new Map<string, string>()
+				for (const [oldId, newId] of prev.entries()) {
+					if (!relatedIds.includes(oldId) && !relatedIds.includes(newId)) {
+						next.set(oldId, newId)
+					}
+				}
+				return next
+			})
+		},
+		[getOpsForItem, getRelatedItemIds, persistedOverrides, removeOpsForItems, unsavedOverrides]
+	)
+
+	const saveItemChanges = useCallback(
+		(itemId: string) => {
+			if (!studio?._id) return
+
+			const relatedIds = getRelatedItemIds(itemId)
+			const currentOverrides = unsavedOverrides ?? persistedOverrides
+			const currentItemOps = relatedIds.flatMap((id) => getOpsForItem(currentOverrides, id))
+			const persistedWithoutItem = removeOpsForItems(persistedOverrides, relatedIds)
+			const nextPersistedOverrides = [...persistedWithoutItem, ...currentItemOps]
+
 			Studios.update(studio._id, {
 				$set: {
-					'peripheralDeviceSettings.inputDevices.overrides': unsavedOverrides,
+					'peripheralDeviceSettings.inputDevices.overrides': nextPersistedOverrides,
 				},
 			})
-			setUnsavedOverrides(undefined)
-		}
 
-		if (updatedIds.size > 0) {
-			setUpdatedIds(new Map<string, string>())
-		}
-	}, [studio?._id, unsavedOverrides])
-
-	const hasUnsavedChanges = useMemo(() => !!unsavedOverrides || updatedIds.size > 0, [unsavedOverrides, updatedIds])
+			setUpdatedIds((prev) => {
+				const next = new Map<string, string>()
+				for (const [oldId, newId] of prev.entries()) {
+					if (!relatedIds.includes(oldId) && !relatedIds.includes(newId)) {
+						next.set(oldId, newId)
+					}
+				}
+				return next
+			})
+		},
+		[getOpsForItem, getRelatedItemIds, persistedOverrides, removeOpsForItems, studio?._id, unsavedOverrides]
+	)
 
 	return (
 		<div className="mb-4">
@@ -153,9 +239,9 @@ export function StudioInputSubDevices({ studioId, studioDevices }: Readonly<Stud
 				overrideHelper={batchedOverrideHelper}
 				peripheralDevices={filteredPeripheralDevices}
 				instantSaveOverrideHelper={instantSaveOverrideHelper}
-				hasUnsavedChanges={hasUnsavedChanges}
-				saveChanges={saveChanges}
-				discardChanges={discardChanges}
+				hasUnsavedChangesForItem={hasUnsavedChangesForItem}
+				saveItemChanges={saveItemChanges}
+				discardItemChanges={discardItemChanges}
 				updateObjectId={updateObjectId}
 				updatedIds={updatedIds}
 			/>

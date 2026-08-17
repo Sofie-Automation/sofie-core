@@ -34,9 +34,9 @@ export interface SubDevicesTableProps {
 	overrideHelper: OverrideOpHelper
 	instantSaveOverrideHelper: OverrideOpHelper
 	peripheralDevices: PeripheralDevice[]
-	hasUnsavedChanges: boolean
-	saveChanges: () => void
-	discardChanges: () => void
+	hasUnsavedChangesForItem: (itemId: string) => boolean
+	saveItemChanges: (itemId: string) => void
+	discardItemChanges: (itemId: string) => void
 	updateObjectId: (oldId: string, newId: string) => void
 	updatedIds: Map<string, string>
 }
@@ -44,10 +44,10 @@ export function GenericSubDevicesTable({
 	subDevices,
 	overrideHelper,
 	peripheralDevices,
-	hasUnsavedChanges,
+	hasUnsavedChangesForItem,
 	instantSaveOverrideHelper,
-	saveChanges,
-	discardChanges,
+	saveItemChanges,
+	discardItemChanges,
 	updateObjectId,
 	updatedIds,
 }: Readonly<SubDevicesTableProps>): JSX.Element {
@@ -165,9 +165,9 @@ export function GenericSubDevicesTable({
 										editItemWithId={toggleExpanded}
 										item={item}
 										overrideHelper={overrideHelper}
-										hasUnsavedChanges={hasUnsavedChanges}
-										saveChanges={saveChanges}
-										discardChanges={discardChanges}
+										hasUnsavedChanges={hasUnsavedChangesForItem(item.id)}
+										saveChanges={() => saveItemChanges(item.id)}
+										discardChanges={() => discardItemChanges(item.id)}
 										updateObjectId={updateObjectId}
 										updatedIds={updatedIds}
 									/>
