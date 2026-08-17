@@ -1,10 +1,3 @@
-/**
- * The header to use for user permissions
- * This is currently limited to a small set that sockjs supports: https://github.com/sockjs/sockjs-node/blob/46d2f846653a91822a02794b852886c7f137378c/lib/session.js#L137-L150
- * Any other headers are not exposed in a way we can access, no matter how deep we look into meteor internals.
- */
-export const USER_PERMISSIONS_HEADER = 'dnt'
-
 export interface UserPermissions {
 	studio: boolean
 	configure: boolean

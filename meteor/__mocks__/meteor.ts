@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type, @typescript-eslint/only-throw-error */
-import { USER_PERMISSIONS_HEADER } from '@sofie-automation/meteor-lib/dist/userPermissions'
 
 let controllableDefer = false
 
@@ -96,6 +95,8 @@ export namespace MeteorMock {
 	export const absolutePath = process.cwd()
 
 	function getMethodContext() {
+		const { USER_PERMISSIONS_HEADER } = require('../server/security/auth')
+
 		return {
 			connection: {
 				clientAddress: '1.1.1.1',
@@ -113,7 +114,8 @@ export namespace MeteorMock {
 		private _stack?: string
 		constructor(
 			public error: number,
-			public reason?: string
+			public reason?: string,
+			public details?: unknown
 		) {
 			const e = new $.Error('')
 			let stack: string = e.stack || ''
@@ -131,9 +133,6 @@ export namespace MeteorMock {
 		}
 		get message(): string {
 			return this.toString()
-		}
-		get details(): any {
-			return undefined
 		}
 		get errorType(): string {
 			return 'Meteor.Error'
@@ -229,6 +228,10 @@ export namespace MeteorMock {
 
 	export function startup(fcn: Function): void {
 		mockStartupFunctions.push(fcn)
+	}
+
+	export function onConnection(_callback: (connection: any) => void): void {
+		// no-op in tests; the standalone DDP server / Connections.ts register a handler here at import time
 	}
 
 	export function publish(publicationName: string, handler: Function): any {

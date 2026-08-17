@@ -96,6 +96,7 @@ export namespace MongoMock {
 			}
 
 			return {
+				collectionName: this._name,
 				_fetchRaw: () => {
 					return docs
 				},

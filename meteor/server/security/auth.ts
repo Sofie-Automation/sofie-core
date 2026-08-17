@@ -1,13 +1,16 @@
-import {
-	parseUserPermissions,
-	USER_PERMISSIONS_HEADER,
-	UserPermissions,
-} from '@sofie-automation/meteor-lib/dist/userPermissions'
+import { parseUserPermissions, UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { Meteor } from 'meteor/meteor'
 import Koa from 'koa'
 import { triggerWriteAccess } from './securityVerify'
 import { logger } from '../logging'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+
+/**
+ * The header to use for user permissions
+ * This is currently limited to a small set that sockjs supports: https://github.com/sockjs/sockjs-node/blob/46d2f846653a91822a02794b852886c7f137378c/lib/session.js#L137-L150
+ * Any other headers are not exposed in a way we can access, no matter how deep we look into meteor internals.
+ */
+export const USER_PERMISSIONS_HEADER = (process.env.SOFIE_PERMISSIONS_HEADER || 'dnt').toLowerCase() // Future: swap this to 'x-sofie-permissions or something
 
 export type RequestCredentials = Meteor.Connection | Koa.ParameterizedContext
 

@@ -9,7 +9,8 @@ import { CustomPublishMeteor, PublishIfDocument } from './lib/customPublication/
 
 // The Prometheus gauge is registered globally by name, so it must live at module scope rather than on
 // the registry instance, otherwise constructing a second registry (e.g. in tests) would throw.
-const MeteorPublicationsGauge = new MetricsGauge({
+// Exported so the standalone DDP server can track its own subscriptions under a distinct `server` label.
+export const MeteorPublicationsGauge = new MetricsGauge({
 	name: `sofie_meteor_publication_subscribers_total`,
 	help: 'Number of subscribers on a publication (ignoring arguments)',
 	labelNames: ['publication', 'server'],
@@ -47,7 +48,14 @@ function dropLeadingParams(signature: string[] | undefined, count: number): stri
 
 /** The Meteor implementation of `PublicationContext`, adapting a Meteor `Subscription`. */
 class MeteorPublicationContext implements PublicationContext {
-	constructor(private readonly subscription: Subscription) {}
+	private readonly abort = new AbortController()
+	constructor(private readonly subscription: Subscription) {
+		this.subscription.onStop(() => this.abort.abort())
+	}
+
+	get signal(): AbortSignal {
+		return this.abort.signal
+	}
 
 	get connection(): Meteor.Connection | null {
 		return this.subscription.connection
@@ -176,7 +184,9 @@ export class PublicationRegistry {
 	getSignatures(): { [publicationName: string]: string[] } {
 		const signatures: { [publicationName: string]: string[] } = {}
 		for (const [name, publication] of this.publications) {
-			if (publication.signature) signatures[name] = publication.signature
+			if (publication.signature && !publication.isCustom) {
+				signatures[name] = publication.signature
+			}
 		}
 		return signatures
 	}
@@ -188,7 +198,7 @@ export class PublicationRegistry {
 
 		for (const [name, publication] of this.publications) {
 			const { callback } = publication
-			const publicationGauge = MeteorPublicationsGauge.labels({ publication: name, server: 'meteor' }) // Future: custom ddp server should use a dynamic name instead of hardcoded
+			const publicationGauge = MeteorPublicationsGauge.labels({ publication: name, server: 'meteor' })
 
 			Meteor.publish(name, async function (...args: any[]): Promise<any> {
 				publicationGauge.inc()

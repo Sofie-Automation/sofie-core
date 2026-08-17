@@ -29,7 +29,8 @@ export type MinimalMongoCursor<T extends { _id: ProtectedString<any> }> = Pick<
 	MongoCursor<T>,
 	'fetchAsync' | 'observeChangesAsync' | 'observeAsync' | 'countAsync'
 	// | 'forEach' | 'map' |
->
+> & { readonly collectionName: string | null }
+
 /**
  * A stripped down version of Meteor's Mongo.Collection, with only the async methods
  */
@@ -130,6 +131,9 @@ export class WrappedAsyncMongoCollection<
 		}
 		try {
 			const res = this._collection.find((selector ?? {}) as any, options as any)
+			// The underlying Meteor cursor doesn't carry its collection name; attach it so publications can
+			// identify which collection the documents belong to.
+			;(res as { collectionName: string | null }).collectionName = this.name
 			if (span) span.end()
 			return res
 		} catch (e) {
