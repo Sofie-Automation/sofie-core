@@ -13,7 +13,7 @@
 		/* Pretty Modern Browsers */ url('../../fonts/Overpass/Overpass-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
 }
 
-body.prompter-scrollbar {
+.prompter-scrollbar {
 	&::-webkit-scrollbar {
 		width: 20px;
 		height: 20px;
