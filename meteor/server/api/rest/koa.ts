@@ -122,8 +122,8 @@ function getExtendedMeteorRuntimeConfig() {
 		...({
 			sofieVersionExtended: versionExtended,
 			enableHeaderAuth: ENABLE_HEADER_AUTH,
+			DDP_DEFAULT_CONNECTION_URL: STANDALONE_DDP_SERVER_PATH,
 		} satisfies IExtendedSettings),
-		DDP_DEFAULT_CONNECTION_URL: STANDALONE_DDP_SERVER_PATH,
 	})})`
 }
 
