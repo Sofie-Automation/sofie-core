@@ -7,8 +7,9 @@
 import _ from 'underscore'
 import { Meteor } from 'meteor/meteor'
 import type { MethodRegistry } from '../../../methodRegistry'
+import type { PublicationRegistry } from '../../../publicationRegistry'
+import type { PublicationContext } from '../../../publications/lib/lib'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { MeteorPublications, MeteorPublicationSignatures } from '../../../publications/lib/lib'
 import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { logger } from '../../../logging'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
@@ -18,6 +19,20 @@ import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { PeripheralDevicePubSub } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 
 const LEGACY_API_VERSION = 0
+
+/**
+ * A no-op publication context for the legacy REST path: there is no live subscription, the callback is
+ * only invoked to obtain its cursor, which is then fetched once. There is no connection, so any
+ * publication that requires one will reject (matching the historical behaviour).
+ */
+const legacyRestPublicationContext: PublicationContext = {
+	connection: null,
+	onStop: () => undefined,
+	ready: () => undefined,
+	added: () => undefined,
+	changed: () => undefined,
+	removed: () => undefined,
+}
 
 /**
  * Takes an array of strings and converts them to Null, Boolean, Number, String primitives or Objects, if the string
@@ -54,10 +69,14 @@ function typeConvertUrlParameters(args: any[]) {
 	return convertedArgs
 }
 
-export function createLegacyApiRouter(methodRegistry: MethodRegistry): KoaRouter {
+export function createLegacyApiRouter(
+	methodRegistry: MethodRegistry,
+	publicationRegistry: PublicationRegistry
+): KoaRouter {
 	const router = new KoaRouter()
 
 	const methodSignatures = methodRegistry.getSignatures()
+	const publicationSignatures = publicationRegistry.getSignatures()
 
 	const index = {
 		version: `${LEGACY_API_VERSION}`,
@@ -87,9 +106,9 @@ export function createLegacyApiRouter(methodRegistry: MethodRegistry): KoaRouter
 	}
 
 	function exposePublication(pubName: string, pubValue: string) {
-		const signature = MeteorPublicationSignatures[pubValue] || []
+		const signature = publicationSignatures[pubValue] || []
 
-		const f = MeteorPublications[pubValue]
+		const f = publicationRegistry.getCursorPublication(pubValue)
 
 		if (f) {
 			let resource = `/publication/${pubName}`
@@ -103,12 +122,10 @@ export function createLegacyApiRouter(methodRegistry: MethodRegistry): KoaRouter
 
 			assignRoute(router, 'GET', resource, signature.length, async (args) => {
 				const convArgs = typeConvertUrlParameters(args)
-				const cursor = await f.apply(
-					{
-						ready: () => null,
-					},
-					convArgs
-				)
+				const cursor = (await f(legacyRestPublicationContext, ...convArgs)) as
+					| { fetch: () => unknown }
+					| null
+					| undefined
 
 				if (cursor) return cursor.fetch()
 				return []

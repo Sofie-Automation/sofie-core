@@ -27,11 +27,11 @@ import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	CustomPublishCollection,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	SetupObserversResult,
 	TriggerUpdate,
 } from '../../../lib/customPublication'
+import type { PublicationRegistry } from '../../../publicationRegistry'
 import { logger } from '../../../logging'
 import { ContentCache, PartInstanceFields, createReactiveContentCache } from './reactiveContentCache'
 import { RundownContentObserver } from './rundownContentObserver'
@@ -500,31 +500,33 @@ function updatePartAndSegmentInfoForExistingDocs(
 	})
 }
 
-meteorCustomPublish(
-	CorelibPubSub.uiPieceContentStatuses,
-	CustomCollectionName.UIPieceContentStatuses,
-	async function (pub, rundownPlaylistId: RundownPlaylistId | null) {
-		check(rundownPlaylistId, Match.Maybe(String))
+export function registerRundownContentStatusUIPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		CorelibPubSub.uiPieceContentStatuses,
+		CustomCollectionName.UIPieceContentStatuses,
+		async (_context, pub, rundownPlaylistId: RundownPlaylistId | null) => {
+			check(rundownPlaylistId, Match.Maybe(String))
 
-		triggerWriteAccessBecauseNoCheckNecessary()
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		if (!rundownPlaylistId) {
-			logger.info(`Pub.${CustomCollectionName.UIPieceContentStatuses}: Not playlistId`)
-			return
+			if (!rundownPlaylistId) {
+				logger.info(`Pub.${CustomCollectionName.UIPieceContentStatuses}: Not playlistId`)
+				return
+			}
+
+			await setUpCollectionOptimizedObserver<
+				UIPieceContentStatus,
+				UIPieceContentStatusesArgs,
+				UIPieceContentStatusesState,
+				UIPieceContentStatusesUpdateProps
+			>(
+				`pub_${CorelibPubSub.uiPieceContentStatuses}_${rundownPlaylistId}`,
+				{ rundownPlaylistId },
+				setupUIPieceContentStatusesPublicationObservers,
+				manipulateUIPieceContentStatusesPublicationData,
+				pub,
+				100
+			)
 		}
-
-		await setUpCollectionOptimizedObserver<
-			UIPieceContentStatus,
-			UIPieceContentStatusesArgs,
-			UIPieceContentStatusesState,
-			UIPieceContentStatusesUpdateProps
-		>(
-			`pub_${CorelibPubSub.uiPieceContentStatuses}_${rundownPlaylistId}`,
-			{ rundownPlaylistId },
-			setupUIPieceContentStatusesPublicationObservers,
-			manipulateUIPieceContentStatusesPublicationData,
-			pub,
-			100
-		)
-	}
-)
+	)
+}
