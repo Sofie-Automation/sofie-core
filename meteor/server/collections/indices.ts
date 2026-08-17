@@ -23,9 +23,8 @@ export function registerIndex<DBInterface extends { _id: ProtectedString<any> }>
 ): void {
 	if (!Meteor.isServer) return // only used server-side
 
-	const collectionName = collection.rawCollection().collectionName
-	// const collectionName = collection['name']
-	if (!collectionName) throw new Meteor.Error(500, `Error: collection.rawCollection.collectionName not set`)
+	const collectionName = collection.name
+	if (!collectionName) throw new Meteor.Error(500, `Error: collection.name not set`)
 	if (!registeredIndexes[collectionName]) registeredIndexes[collectionName] = { collection: collection, indexes: [] }
 
 	registeredIndexes[collectionName].indexes.push(index)

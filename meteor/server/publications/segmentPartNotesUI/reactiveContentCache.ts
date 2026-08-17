@@ -1,6 +1,6 @@
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { ReactiveCacheCollection } from '../lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -51,18 +51,18 @@ export const partInstanceFieldSpecifier = literal<
 })
 
 export interface ContentCache {
-	Rundowns: ReactiveCacheCollection<Pick<Rundown, RundownFields>>
-	Segments: ReactiveCacheCollection<Pick<DBSegment, SegmentFields>>
-	Parts: ReactiveCacheCollection<Pick<DBPart, PartFields>>
-	PartInstances: ReactiveCacheCollection<Pick<PartInstance, PartInstanceFields>>
+	Rundowns: InMemoryMongoCollection<Pick<Rundown, RundownFields>>
+	Segments: InMemoryMongoCollection<Pick<DBSegment, SegmentFields>>
+	Parts: InMemoryMongoCollection<Pick<DBPart, PartFields>>
+	PartInstances: InMemoryMongoCollection<Pick<PartInstance, PartInstanceFields>>
 }
 
 export function createReactiveContentCache(): ContentCache {
 	const cache: ContentCache = {
-		Rundowns: new ReactiveCacheCollection<Pick<Rundown, RundownFields>>('rundowns'),
-		Segments: new ReactiveCacheCollection<Pick<DBSegment, SegmentFields>>('segments'),
-		Parts: new ReactiveCacheCollection<Pick<DBPart, PartFields>>('parts'),
-		PartInstances: new ReactiveCacheCollection<Pick<PartInstance, PartInstanceFields>>('partInstances'),
+		Rundowns: new InMemoryMongoCollection<Pick<Rundown, RundownFields>>('rundowns'),
+		Segments: new InMemoryMongoCollection<Pick<DBSegment, SegmentFields>>('segments'),
+		Parts: new InMemoryMongoCollection<Pick<DBPart, PartFields>>('parts'),
+		PartInstances: new InMemoryMongoCollection<Pick<PartInstance, PartInstanceFields>>('partInstances'),
 	}
 
 	return cache

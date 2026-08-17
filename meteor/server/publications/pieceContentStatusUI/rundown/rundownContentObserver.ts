@@ -93,12 +93,12 @@ export class RundownContentObserver {
 					{
 						added: (doc) => {
 							const newDoc = convertShowStyleBase(doc)
-							this.#cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+							this.#cache.ShowStyleSourceLayers.replace({ ...newDoc, _id: doc._id })
 							this.updateBlueprintIds()
 						},
 						changed: (doc) => {
 							const newDoc = convertShowStyleBase(doc)
-							this.#cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+							this.#cache.ShowStyleSourceLayers.replace({ ...newDoc, _id: doc._id })
 							this.updateBlueprintIds()
 						},
 						removed: (doc) => {
@@ -138,7 +138,7 @@ export class RundownContentObserver {
 	}
 
 	private async initContentObservers(rundownIds: RundownId[]) {
-		// Subscribe to the database, and pipe any updates into the ReactiveCacheCollections
+		// Subscribe to the database, and pipe any updates into the cache collections
 		this.#observers = await waitForAllObserversReady([
 			Rundowns.observeChanges(
 				{
@@ -265,7 +265,7 @@ export class RundownContentObserver {
 		Meteor.bindEnvironment(() => {
 			if (this.#disposed) return
 
-			const newShowStyleBaseIds = _.uniq(this.#cache.Rundowns.find({}).map((rd) => rd.showStyleBaseId))
+			const newShowStyleBaseIds = _.uniq(this.#cache.Rundowns.findFetch({}).map((rd) => rd.showStyleBaseId))
 
 			if (!equivalentArrays(newShowStyleBaseIds, this.#showStyleBaseIds)) {
 				logger.silly(
@@ -283,7 +283,7 @@ export class RundownContentObserver {
 		Meteor.bindEnvironment(() => {
 			if (this.#disposed) return
 
-			const newBlueprintIds = _.uniq(this.#cache.ShowStyleSourceLayers.find({}).map((rd) => rd.blueprintId))
+			const newBlueprintIds = _.uniq(this.#cache.ShowStyleSourceLayers.findFetch({}).map((rd) => rd.blueprintId))
 
 			if (!equivalentArrays(newBlueprintIds, this.#blueprintIds)) {
 				logger.silly(`optimized observer changed ids ${JSON.stringify(newBlueprintIds)} ${this.#blueprintIds}`)

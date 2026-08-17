@@ -38,8 +38,7 @@ async function setupIndexes(removeOldIndexes = false): Promise<Array<IndexSpecif
 	const removeIndexes: IndexSpecification[] = []
 	await Promise.all(
 		Object.entries<CollectionIndexes<any>>(registeredIndexes).map(async ([collectionName, targetInfo]) => {
-			const rawCollection = targetInfo.collection.rawCollection()
-			const existingIndexes = (await rawCollection.indexes()) as any[]
+			const existingIndexes = await targetInfo.collection.getIndexes()
 
 			const targetIndexes: IndexSpecifier<any>[] = [...targetInfo.indexes, { _id: 1 }]
 
@@ -56,7 +55,7 @@ async function setupIndexes(removeOldIndexes = false): Promise<Array<IndexSpecif
 						// The existing index does not exist in our specified list of indexes, and should be removed.
 						if (removeOldIndexes) {
 							logger.info(`Removing index: ${JSON.stringify(existingIndex.key)}`)
-							rawCollection.dropIndex(existingIndex.name).catch((e) => {
+							targetInfo.collection.dropIndex(existingIndex.name).catch((e) => {
 								logger.warn(
 									`Failed to drop index: ${JSON.stringify(existingIndex.key)}: ${stringifyError(e)}`
 								)

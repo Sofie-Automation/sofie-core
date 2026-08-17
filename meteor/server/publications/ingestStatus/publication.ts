@@ -19,7 +19,6 @@ import {
 import { checkAccessAndGetPeripheralDevice } from '../../security/check'
 import { check } from '../../lib/check'
 import { IngestRundownStatus } from '@sofie-automation/shared-lib/dist/ingest/rundownStatus'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { createIngestRundownStatus } from './createIngestRundownStatus'
 import { assertConnectionHasOneOfPermissions } from '../../security/auth'
@@ -57,42 +56,42 @@ async function setupIngestRundownStatusPublicationObservers(
 		const contentObserver = await RundownContentObserver.create(rundownIds, cache)
 
 		const innerQueries = [
-			cache.Playlists.find({}).observeChanges(
+			cache.Playlists.observeChanges(
 				{
-					added: (docId) => triggerUpdate({ invalidatePlaylistIds: [protectString(docId)] }),
-					changed: (docId) => triggerUpdate({ invalidatePlaylistIds: [protectString(docId)] }),
-					removed: (docId) => triggerUpdate({ invalidatePlaylistIds: [protectString(docId)] }),
+					added: (docId) => triggerUpdate({ invalidatePlaylistIds: [docId] }),
+					changed: (docId) => triggerUpdate({ invalidatePlaylistIds: [docId] }),
+					removed: (docId) => triggerUpdate({ invalidatePlaylistIds: [docId] }),
 				},
 				{ nonMutatingCallbacks: true }
 			),
-			cache.Rundowns.find({}).observeChanges(
+			cache.Rundowns.observeChanges(
 				{
 					added: (docId) => {
-						triggerUpdate({ invalidateRundownIds: [protectString(docId)] })
+						triggerUpdate({ invalidateRundownIds: [docId] })
 						contentObserver.checkPlaylistIds()
 					},
 					changed: (docId) => {
-						triggerUpdate({ invalidateRundownIds: [protectString(docId)] })
+						triggerUpdate({ invalidateRundownIds: [docId] })
 						contentObserver.checkPlaylistIds()
 					},
 					removed: (docId) => {
-						triggerUpdate({ invalidateRundownIds: [protectString(docId)] })
+						triggerUpdate({ invalidateRundownIds: [docId] })
 						contentObserver.checkPlaylistIds()
 					},
 				},
 				{ nonMutatingCallbacks: true }
 			),
-			cache.Parts.find({}).observe({
+			cache.Parts.observe({
 				added: (doc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId] }),
 				changed: (doc, oldDoc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId, oldDoc.rundownId] }),
 				removed: (doc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId] }),
 			}),
-			cache.PartInstances.find({}).observe({
+			cache.PartInstances.observe({
 				added: (doc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId] }),
 				changed: (doc, oldDoc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId, oldDoc.rundownId] }),
 				removed: (doc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId] }),
 			}),
-			cache.NrcsIngestData.find({}).observe({
+			cache.NrcsIngestData.observe({
 				added: (doc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId] }),
 				changed: (doc, oldDoc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId, oldDoc.rundownId] }),
 				removed: (doc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId] }),
@@ -147,7 +146,7 @@ async function manipulateIngestRundownStatusPublicationData(
 
 		// Include anything where the playlist has changed
 		if (updateProps.invalidatePlaylistIds && updateProps.invalidatePlaylistIds.length > 0) {
-			const rundownsToUpdate = state.contentCache.Rundowns.find(
+			const rundownsToUpdate = state.contentCache.Rundowns.findFetch(
 				{
 					playlistId: { $in: updateProps.invalidatePlaylistIds },
 				},
@@ -156,7 +155,7 @@ async function manipulateIngestRundownStatusPublicationData(
 						_id: 1,
 					},
 				}
-			).fetch() as Pick<DBRundown, '_id'>[]
+			) as Pick<DBRundown, '_id'>[]
 
 			for (const rundown of rundownsToUpdate) {
 				regenerateForRundownIds.add(rundown._id)

@@ -3,9 +3,10 @@ import { AllPubSubNames, AllPubSubTypes } from '@sofie-automation/meteor-lib/dis
 import { MetricsGauge } from '@sofie-automation/corelib/dist/prometheus'
 import { extractFunctionSignature } from './lib'
 import { logger } from './logging'
-import { MinimalMongoCursor } from './collections/implementations/asyncCollection'
-import { PublicationContext, PublishDocType } from './publications/lib/lib'
+import { MinimalMongoCursor } from './collections/collection'
+import { driveSubscriptionFromCursor, PublicationContext, PublishDocType } from './publications/lib/lib'
 import { CustomPublishMeteor, PublishIfDocument } from './lib/customPublication/publish'
+import { isCursorLike } from './ddp-server/subscriptionDispatch'
 
 // The Prometheus gauge is registered globally by name, so it must live at module scope rather than on
 // the registry instance, otherwise constructing a second registry (e.g. in tests) would throw.
@@ -208,9 +209,19 @@ export class PublicationRegistry {
 				publicationGauge.inc()
 				this.onStop(() => publicationGauge.dec())
 
-				const callbackRes = await callback(new MeteorPublicationContext(this), ...args)
+				const context = new MeteorPublicationContext(this)
+				const result = await callback(context, ...args)
+
+				if (isCursorLike(result)) {
+					await driveSubscriptionFromCursor(context, result as MinimalMongoCursor<any>)
+				} else if (result) {
+					throw new Error(
+						'Publication callback returned a non-cursor value, but was not a custom publication. Only cursors or null are allowed.'
+					)
+				}
+
 				// If no value is returned, return an empty array so that meteor marks the subscription as ready
-				return callbackRes || []
+				return []
 			})
 		}
 	}

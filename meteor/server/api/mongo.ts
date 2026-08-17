@@ -3,7 +3,8 @@ import { MongoAPI } from '@sofie-automation/meteor-lib/dist/api/mongo'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { logger } from '../logging'
-import { collectionsAllowDenyCache, collectionsCache } from '../collections/collection'
+import { collectionsAllowDenyCache } from '../collections/collection'
+import { Collections } from '../collections/lib'
 import { Meteor } from 'meteor/meteor'
 import { checkHasOneOfPermissions, parseConnectionPermissions } from '../security/auth'
 import { triggerWriteAccess } from '../security/securityVerify'
@@ -40,7 +41,7 @@ export class MongoAPIClass extends MethodContextAPI implements MongoAPI {
 		const validator = collectionsAllowDenyCache.get(collectionName)
 		if (!validator) throw new Meteor.Error(403, `Not allowed to update collection: "${collectionName}`)
 
-		const collection = collectionsCache.get(collectionName)
+		const collection = Collections.get(collectionName)
 		if (!collection) throw new Meteor.Error(403, `Unknown collection: "${collectionName}`)
 
 		const permissions = parseConnectionPermissions(this.connection)
@@ -90,7 +91,7 @@ export class MongoAPIClass extends MethodContextAPI implements MongoAPI {
 		if (!isAllowed) throw new Meteor.Error(403, `Not allowed to update collection: "${collectionName}"`)
 
 		// Perform update
-		return collection.updateAsync(currentDocument._id, modifier)
+		return collection.mutableCollection.updateAsync(currentDocument._id, modifier)
 	}
 
 	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

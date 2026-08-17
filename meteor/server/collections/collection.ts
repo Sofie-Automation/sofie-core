@@ -3,27 +3,26 @@ import {
 	MongoBulkWriteOperation,
 	MongoModifier,
 	MongoQuery,
-	ObserveChangesOptions,
+	ObserveCallbacks,
+	ObserveChangesCallbacks,
+	FindObserveChangesOptions,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Meteor } from 'meteor/meteor'
-import { Mongo } from 'meteor/mongo'
-import { NpmModuleMongodb } from 'meteor/npm-mongo'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
-import type { Collection as RawCollection } from 'mongodb'
+import type { CreateIndexesOptions, IndexDescriptionInfo } from 'mongodb'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { registerCollection } from './lib'
-import { WrappedMockCollection } from './implementations/mock'
+import { createMockCollection } from './implementations/mock'
 import { WrappedAsyncMongoCollection } from './implementations/asyncCollection'
 import { WrappedReadOnlyMongoCollection } from './implementations/readonlyWrapper'
+import { isInMockMode } from './mongoConnection'
 import {
 	FieldNames,
 	IndexSpecifier,
-	ObserveCallbacks,
-	ObserveChangesCallbacks,
+	MongoLiveQueryHandle,
 	UpdateOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'
-import { MinimalMongoCursor } from './implementations/asyncCollection'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 
 export interface CustomMongoAllowRules<DBInterface> {
@@ -41,22 +40,6 @@ export interface CustomMongoAllowRules<DBInterface> {
 export const collectionsAllowDenyCache = new Map<string, CustomMongoAllowRules<any>>()
 
 /**
- * Map of current collection objects.
- * Future: Could this weakly hold the collections?
- */
-export const collectionsCache = new Map<string, Mongo.Collection<any>>()
-export function getOrCreateMongoCollection(name: string): Mongo.Collection<any> {
-	const collection = collectionsCache.get(name)
-	if (collection) {
-		return collection
-	}
-
-	const newCollection = new Mongo.Collection(name)
-	collectionsCache.set(name, newCollection)
-	return newCollection
-}
-
-/**
  * Create a fully featured MongoCollection
  * @param name Name of the collection in mongodb
  * @param allowRules The 'allow' rules for publications. Set to `false` to make readonly
@@ -65,8 +48,6 @@ export function createAsyncOnlyMongoCollection<DBInterface extends { _id: Protec
 	name: CollectionName,
 	allowRules: CustomMongoAllowRules<DBInterface> | false
 ): AsyncOnlyMongoCollection<DBInterface> {
-	const collection = getOrCreateMongoCollection(name)
-
 	if (allowRules) {
 		if (allowRules.requiredPermissions.length === 0)
 			throw new Meteor.Error(403, `No permissions specified for collection "${name}"`)
@@ -74,7 +55,7 @@ export function createAsyncOnlyMongoCollection<DBInterface extends { _id: Protec
 		collectionsAllowDenyCache.set(name, allowRules as CustomMongoAllowRules<any>)
 	}
 
-	const wrappedCollection = wrapMeteorCollectionIntoAsyncCollection<DBInterface>(collection, name)
+	const wrappedCollection = createWrappedCollection<DBInterface>(name)
 
 	registerCollection(name, wrappedCollection)
 
@@ -89,9 +70,7 @@ export function createAsyncOnlyMongoCollection<DBInterface extends { _id: Protec
 export function createAsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: ProtectedString<any> }>(
 	name: CollectionName
 ): AsyncOnlyReadOnlyMongoCollection<DBInterface> {
-	const collection = getOrCreateMongoCollection(name)
-
-	const mutableCollection = wrapMeteorCollectionIntoAsyncCollection<DBInterface>(collection, name)
+	const mutableCollection = createWrappedCollection<DBInterface>(name)
 	const readonlyCollection = new WrappedReadOnlyMongoCollection<DBInterface>(mutableCollection)
 
 	registerCollection(name, readonlyCollection)
@@ -99,17 +78,39 @@ export function createAsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id
 	return readonlyCollection
 }
 
-function wrapMeteorCollectionIntoAsyncCollection<DBInterface extends { _id: ProtectedString<any> }>(
-	collection: Mongo.Collection<DBInterface>,
+function createWrappedCollection<DBInterface extends { _id: ProtectedString<any> }>(
 	name: CollectionName
-) {
-	if ((collection as any)._isMock) {
-		// We use a special one in tests, to add some async which naturally doesn't happen in the collection
-		return new WrappedMockCollection<DBInterface>(collection, name)
+): AsyncOnlyMongoCollection<DBInterface> {
+	if (isInMockMode()) {
+		// In unit tests there is no real database, so back the collection with the in-memory mock
+		return createMockCollection<DBInterface>(name)
 	} else {
-		// Override the default mongodb methods, because the errors thrown by them doesn't contain the proper call stack
-		return new WrappedAsyncMongoCollection<DBInterface>(collection, name)
+		// Backed by the native mongodb driver (CRUD) and the change-stream observe engine
+		return new WrappedAsyncMongoCollection<DBInterface>(name)
 	}
+}
+
+/**
+ * A minimal mongo cursor, with only the async methods used by the codebase.
+ * This is intentionally only the observe methods, kept for publication usage to avoid a larger refactor
+ */
+export interface MinimalMongoCursor<T extends { _id: ProtectedString<any> }> {
+	readonly collectionName: string | null
+
+	/**
+	 * Watch a query. Receive callbacks as the result set changes.
+	 * @param callbacks Functions to call to deliver the result set as it changes
+	 */
+	observeAsync(callbacks: ObserveCallbacks<T>): Promise<MongoLiveQueryHandle>
+	/**
+	 * Watch a query. Receive callbacks as the result set changes. Only the differences between the old and new documents are passed to the callbacks.
+	 * @param callbacks Functions to call to deliver the result set as it changes
+	 * @param options { nonMutatingCallbacks: boolean }
+	 */
+	observeChangesAsync(
+		callbacks: ObserveChangesCallbacks<T>,
+		options?: { nonMutatingCallbacks?: boolean | undefined }
+	): Promise<MongoLiveQueryHandle>
 }
 
 /**
@@ -173,19 +174,13 @@ export interface AsyncOnlyMongoCollection<
  * A minimal Async only wrapping around the base Mongo.Collection type
  */
 export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: ProtectedString<any> }> {
-	name: string | null
+	readonly name: string
 
 	/**
 	 * Get a mutable handle to the collection
 	 * Warning: This can be unsafe to use if the job-worker is processing a job
 	 */
-	mutableCollection: AsyncOnlyMongoCollection<DBInterface>
-
-	/**
-	 * Returns the [`Collection`](http://mongodb.github.io/node-mongodb-native/3.0/api/Collection.html) object corresponding to this collection from the
-	 * [npm `mongodb` driver module](https://www.npmjs.com/package/mongodb) which is wrapped by `Mongo.Collection`.
-	 */
-	rawCollection(): RawCollection<DBInterface>
+	readonly mutableCollection: AsyncOnlyMongoCollection<DBInterface>
 
 	/**
 	 * Find and return multiple documents
@@ -223,8 +218,7 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 	observeChanges(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
-		findOptions?: Omit<FindOptions<DBInterface>, 'fields'>,
-		callbackOptions?: ObserveChangesOptions
+		options?: FindObserveChangesOptions<DBInterface>
 	): Promise<Meteor.LiveQueryHandle>
 
 	/**
@@ -234,7 +228,7 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 	observe(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
-		options?: Omit<FindOptions<DBInterface>, 'fields'>
+		options?: FindObserveChangesOptions<DBInterface>
 	): Promise<Meteor.LiveQueryHandle>
 
 	/**
@@ -243,5 +237,22 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 	 */
 	countDocuments(selector?: MongoQuery<DBInterface>, options?: FindOptions<DBInterface>): Promise<number>
 
-	createIndex(indexSpec: IndexSpecifier<DBInterface>, options?: NpmModuleMongodb.CreateIndexesOptions): void
+	/**
+	 * Ensure an index exists on this collection.
+	 * Note: this is fire-and-forget; the index is created in the background and failures are logged.
+	 * @param indexSpec The fields to index, e.g. `{ rundownId: 1, _rank: 1 }`
+	 * @param options Options for the index, e.g. `{ unique: true }`
+	 */
+	createIndex(indexSpec: IndexSpecifier<DBInterface>, options?: CreateIndexesOptions): void
+
+	/**
+	 * List the indexes that currently exist on this collection in the database
+	 */
+	getIndexes(): Promise<IndexDescriptionInfo[]>
+
+	/**
+	 * Drop an index from this collection
+	 * @param indexName The name of the index to drop
+	 */
+	dropIndex(indexName: string): Promise<void>
 }

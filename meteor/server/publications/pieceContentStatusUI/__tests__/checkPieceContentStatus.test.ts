@@ -45,7 +45,7 @@ const mockMediaObjectsCollection = MongoMock.getInnerMockCollection<MediaObject>
 
 describe('lib/mediaObjects', () => {
 	beforeEach(async () => {
-		await mockMediaObjectsCollection.removeAsync({})
+		mockMediaObjectsCollection.remove({})
 	})
 
 	describe('buildFormatString', () => {
@@ -277,7 +277,7 @@ describe('lib/mediaObjects', () => {
 			packageContainers: applyAndValidateOverrides(mockDefaultStudio.packageContainersWithOverrides).obj,
 		}
 
-		await mockMediaObjectsCollection.insertAsync(
+		mockMediaObjectsCollection.insert(
 			literal<MediaObject>({
 				_id: protectString(''),
 				_attachments: {},
@@ -341,7 +341,7 @@ describe('lib/mediaObjects', () => {
 			})
 		)
 
-		await mockMediaObjectsCollection.insertAsync(
+		mockMediaObjectsCollection.insert(
 			literal<MediaObject>({
 				_id: protectString(''),
 				_attachments: {},
@@ -576,7 +576,7 @@ describe('lib/mediaObjects', () => {
 			packageContainers: applyAndValidateOverrides(mockDefaultStudio.packageContainersWithOverrides).obj,
 		}
 
-		await mockMediaObjectsCollection.insertAsync(
+		mockMediaObjectsCollection.insert(
 			literal<MediaObject>({
 				_id: protectString(''),
 				_attachments: {},
@@ -663,7 +663,7 @@ describe('lib/mediaObjects', () => {
 			type: SourceLayerType.LIVE_SPEAK,
 		})
 
-		await mockMediaObjectsCollection.insertAsync(
+		mockMediaObjectsCollection.insert(
 			literal<MediaObject>({
 				_id: protectString(''),
 				_attachments: {},
@@ -859,7 +859,7 @@ describe('lib/mediaObjects', () => {
 		const mockOwnerId = protectString<RundownId>('rundown0')
 
 		async function insertMediaObject(mediaId: string): Promise<void> {
-			await mockMediaObjectsCollection.insertAsync(
+			mockMediaObjectsCollection.insert(
 				literal<MediaObject>({
 					_id: protectString(''),
 					_attachments: {},

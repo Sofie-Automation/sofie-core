@@ -13,7 +13,7 @@
 		"install:packages": "cd packages && yarn install",
 		"start": "yarn install && run install-and-build && run dev",
 		"install-and-build": "node ./scripts/install-and-build.mjs",
-		"dev": "node ./scripts/run.mjs",
+		"dev": "node --env-file-if-exists=.env ./scripts/run.mjs",
 		"restart:meteor": "node ./scripts/meteor-force-restart.js",
 		"build:packages": "cd packages && run build",
 		"test:packages": "cd packages && run test",

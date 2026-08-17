@@ -18,7 +18,7 @@ import { JobQueueWithClasses } from '@sofie-automation/shared-lib/dist/lib/JobQu
 import { StudioDeviceTriggerManager } from './StudioDeviceTriggerManager'
 import { StudioObserver } from './StudioObserver'
 import { Studios } from '../../collections'
-import { ReactiveCacheCollection } from '../../publications/lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { TagsService } from './TagsService'
 
@@ -97,10 +97,10 @@ Meteor.startup(async () => {
 })
 
 // TODO: These actually don't have to be reactiveCacheCollections, they can be a plain Meteor in-memory collection
-export const DeviceTriggerMountedActions = new ReactiveCacheCollection<DeviceTriggerMountedAction>(
+export const DeviceTriggerMountedActions = new InMemoryMongoCollection<DeviceTriggerMountedAction>(
 	'deviceTriggerMountedActions'
 )
-export const DeviceTriggerMountedActionAdlibsPreview = new ReactiveCacheCollection<PreviewWrappedAdLib>(
+export const DeviceTriggerMountedActionAdlibsPreview = new InMemoryMongoCollection<PreviewWrappedAdLib>(
 	'deviceTriggerMountedActionAdlibsPreview'
 )
 
@@ -130,10 +130,10 @@ export async function receiveInputDeviceTrigger(
 	if (!actionManager)
 		throw new Meteor.Error(500, `No Studio Action Manager available to handle trigger in Studio "${studioId}"`)
 
-	const mountedActions = DeviceTriggerMountedActions.find({
+	const mountedActions = DeviceTriggerMountedActions.findFetch({
 		deviceId,
 		deviceTriggerId: triggerId,
-	}).fetch()
+	})
 
 	for (const mountedAction of mountedActions) {
 		if (values && !_.isMatch(values, mountedAction.values)) return

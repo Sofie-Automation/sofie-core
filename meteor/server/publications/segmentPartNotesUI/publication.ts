@@ -9,7 +9,6 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { groupByToMap, literal, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	CustomPublishCollection,
 	setUpCollectionOptimizedObserver,
@@ -81,27 +80,27 @@ async function setupUISegmentPartNotesPublicationObservers(
 			const obs1 = await RundownContentObserver.create(rundownIds, cache)
 
 			const innerQueries = [
-				cache.Segments.find({}).observeChanges({
-					added: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
+				cache.Segments.observeChanges({
+					added: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
+					changed: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
+					removed: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
 				}),
-				cache.Parts.find({}).observe({
+				cache.Parts.observe({
 					added: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
 					changed: (doc, oldDoc) =>
 						triggerUpdate({ invalidateSegmentIds: [doc.segmentId, oldDoc.segmentId] }),
 					removed: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
 				}),
-				cache.PartInstances.find({}).observe({
+				cache.PartInstances.observe({
 					added: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
 					changed: (doc, oldDoc) =>
 						triggerUpdate({ invalidateSegmentIds: [doc.segmentId, oldDoc.segmentId] }),
 					removed: (doc) => triggerUpdate({ invalidateSegmentIds: [doc.segmentId] }),
 				}),
-				cache.Rundowns.find({}).observeChanges({
-					added: (id) => triggerUpdate({ invalidateRundownIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ invalidateRundownIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ invalidateRundownIds: [protectString(id)] }),
+				cache.Rundowns.observeChanges({
+					added: (id) => triggerUpdate({ invalidateRundownIds: [id] }),
+					changed: (id) => triggerUpdate({ invalidateRundownIds: [id] }),
+					removed: (id) => triggerUpdate({ invalidateRundownIds: [id] }),
 				}),
 			]
 
@@ -148,7 +147,7 @@ export async function manipulateUISegmentPartNotesPublicationData(
 		// Remove all the notes
 		collection.remove(null)
 
-		state.contentCache.Segments.find({}).forEach((segment) => {
+		state.contentCache.Segments.findFetch({}).forEach((segment) => {
 			updateNotesForSegment(args, updateContext, collection, segment)
 		})
 	} else {
@@ -157,7 +156,7 @@ export async function manipulateUISegmentPartNotesPublicationData(
 		// Figure out the Rundowns which have changed, but may not have updated the segments/parts
 		const changedRundownIdsSet = new Set(updateProps.invalidateRundownIds)
 		if (changedRundownIdsSet.size > 0) {
-			state.contentCache.Segments.find({}).forEach((segment) => {
+			state.contentCache.Segments.findFetch({}).forEach((segment) => {
 				if (changedRundownIdsSet.has(segment.rundownId)) {
 					regenerateForSegmentIds.add(segment._id)
 				}
@@ -189,9 +188,9 @@ interface UpdateNotesData {
 }
 function compileUpdateNotesData(cache: ReadonlyDeep<ContentCache>): UpdateNotesData {
 	return {
-		rundownsCache: normalizeArrayToMap(cache.Rundowns.find({}).fetch(), '_id'),
-		parts: groupByToMap(cache.Parts.find({}).fetch(), 'segmentId'),
-		partInstances: groupByToMap(cache.PartInstances.find({}).fetch(), 'segmentId'),
+		rundownsCache: normalizeArrayToMap(cache.Rundowns.findFetch({}), '_id'),
+		parts: groupByToMap(cache.Parts.findFetch({}), 'segmentId'),
+		partInstances: groupByToMap(cache.PartInstances.findFetch({}), 'segmentId'),
 	}
 }
 

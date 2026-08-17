@@ -48,10 +48,10 @@ export class RundownContentObserver {
 					},
 					{
 						added: (doc) => {
-							cache.Playlists.upsert(doc._id, doc)
+							cache.Playlists.replace(doc)
 						},
 						changed: (doc) => {
-							cache.Playlists.upsert(doc._id, doc)
+							cache.Playlists.replace(doc)
 						},
 						removed: (doc) => {
 							cache.Playlists.remove(doc._id)
@@ -74,8 +74,6 @@ export class RundownContentObserver {
 				cache.Rundowns.link(),
 				{
 					projection: rundownFieldSpecifier,
-				},
-				{
 					nonMutatingCallbacks: true,
 				}
 			),
@@ -88,8 +86,6 @@ export class RundownContentObserver {
 				cache.Parts.link(),
 				{
 					projection: partFieldSpecifier,
-				},
-				{
 					nonMutatingCallbacks: true,
 				}
 			),
@@ -100,8 +96,8 @@ export class RundownContentObserver {
 					orphaned: { $exists: false },
 				},
 				cache.PartInstances.link(),
-				{ projection: partInstanceFieldSpecifier },
 				{
+					projection: partInstanceFieldSpecifier,
 					nonMutatingCallbacks: true,
 				}
 			),
@@ -114,8 +110,6 @@ export class RundownContentObserver {
 				cache.NrcsIngestData.link(),
 				{
 					projection: nrcsIngestDataCacheObjSpecifier,
-				},
-				{
 					nonMutatingCallbacks: true,
 				}
 			),
@@ -130,7 +124,9 @@ export class RundownContentObserver {
 		Meteor.bindEnvironment(() => {
 			if (this.#disposed) return
 
-			const playlistIds = Array.from(new Set(this.#cache.Rundowns.find({}).map((rundown) => rundown.playlistId)))
+			const playlistIds = Array.from(
+				new Set(this.#cache.Rundowns.findFetch({}).map((rundown) => rundown.playlistId))
+			)
 
 			if (!equivalentArrays(playlistIds, this.#playlistIds)) {
 				this.#playlistIds = playlistIds

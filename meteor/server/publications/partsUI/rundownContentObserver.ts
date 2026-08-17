@@ -47,11 +47,11 @@ export class RundownContentObserver {
 				{
 					added: (doc) => {
 						const newDoc = convertStudioSettingsDoc(doc)
-						cache.StudioSettings.upsert(doc._id, { $set: newDoc as Partial<Document> })
+						cache.StudioSettings.replace(newDoc)
 					},
 					changed: (doc) => {
 						const newDoc = convertStudioSettingsDoc(doc)
-						cache.StudioSettings.upsert(doc._id, { $set: newDoc as Partial<Document> })
+						cache.StudioSettings.replace(newDoc)
 					},
 					removed: (doc) => {
 						cache.StudioSettings.remove(doc._id)

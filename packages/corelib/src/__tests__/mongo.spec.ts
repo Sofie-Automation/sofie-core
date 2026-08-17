@@ -1,5 +1,13 @@
 import { protectString, ProtectedString } from '../protectedString.js'
-import { FindOptions, mongoFindOptions, mongoModify, MongoQuery, mongoWhere } from '../mongo.js'
+import {
+	FindOptions,
+	makeMongoSortComparator,
+	mongoFindOptions,
+	mongoModify,
+	mongoProjectDocument,
+	MongoQuery,
+	mongoWhere,
+} from '../mongo.js'
 
 describe('mongoFindOptions', () => {
 	const rawDocs = ['1', '2', '3', '4', '5', '6', '7'].map((s) => ({ _id: protectString(s) }))
@@ -167,6 +175,53 @@ describe('mongoFindOptions', () => {
 				val2: 'c',
 			},
 		])
+	})
+})
+
+describe('makeMongoSortComparator', () => {
+	interface D {
+		_id: ProtectedString<any>
+		a?: number
+		b?: number
+	}
+	const d = (id: string, props: Partial<D> = {}): D => ({ _id: protectString(id), ...props })
+	const sortedIds = (docs: D[], cmp: (x: D, y: D) => number) =>
+		[...docs].sort(cmp).map((x) => x._id as unknown as string)
+
+	test('sorts by a single key, ascending and descending', () => {
+		const docs = [d('x', { a: 3 }), d('y', { a: 1 }), d('z', { a: 2 })]
+		expect(sortedIds(docs, makeMongoSortComparator<D>({ a: 1 }))).toEqual(['y', 'z', 'x'])
+		expect(sortedIds(docs, makeMongoSortComparator<D>({ a: -1 }))).toEqual(['x', 'z', 'y'])
+	})
+
+	test('applies sort keys in order (primary then secondary)', () => {
+		const docs = [d('p', { a: 1, b: 2 }), d('q', { a: 1, b: 1 }), d('r', { a: 0, b: 9 })]
+		// a asc → r first; p/q tie on a → b asc breaks it (q before p)
+		expect(sortedIds(docs, makeMongoSortComparator<D>({ a: 1, b: 1 }))).toEqual(['r', 'q', 'p'])
+	})
+
+	test('breaks ties on _id ascending, regardless of input order', () => {
+		const docs = [d('c', { a: 5 }), d('a', { a: 5 }), d('b', { a: 5 })]
+		expect(sortedIds(docs, makeMongoSortComparator<D>({ a: 1 }))).toEqual(['a', 'b', 'c'])
+	})
+
+	test('with no sort spec, orders purely by _id ascending', () => {
+		const docs = [d('c'), d('a'), d('b')]
+		expect(sortedIds(docs, makeMongoSortComparator<D>(undefined))).toEqual(['a', 'b', 'c'])
+		expect(sortedIds(docs, makeMongoSortComparator<D>({}))).toEqual(['a', 'b', 'c'])
+	})
+
+	test('missing/null values sort lowest (before present values)', () => {
+		const docs = [d('x', { a: 2 }), d('y'), d('z', { a: 1 })] // y has no `a`
+		expect(sortedIds(docs, makeMongoSortComparator<D>({ a: 1 }))).toEqual(['y', 'z', 'x'])
+		// descending: present values sort high-to-low, missing still lowest → stays last
+		expect(sortedIds(docs, makeMongoSortComparator<D>({ a: -1 }))).toEqual(['x', 'z', 'y'])
+	})
+
+	test('is a total order: result is independent of input order', () => {
+		const base = [d('a', { a: 1 }), d('b', { a: 1 }), d('c', { a: 2 })]
+		const cmp = makeMongoSortComparator<D>({ a: 1 })
+		expect(sortedIds([...base].reverse(), cmp)).toEqual(sortedIds(base, cmp))
 	})
 })
 
@@ -385,12 +440,9 @@ describe('mongoModify', () => {
 	})
 
 	describe('full-document replace', () => {
-		test('replaces the doc when the modifier has no operators, keeping the _id', () => {
+		test('throws when the modifier has no atomic operators (matches MongoDB; use replace instead)', () => {
 			const doc = makeDoc()
-			const result = mongoModify<Doc>(selector, doc, { name: 'fresh', rank: 5 } as any)
-			expect(result.name).toBe('fresh')
-			expect(result.rank).toBe(5)
-			expect(result._id).toEqual(protectString('id0'))
+			expect(() => mongoModify<Doc>(selector, doc, { name: 'fresh', rank: 5 } as any)).toThrow(/atomic operators/)
 		})
 	})
 
@@ -407,5 +459,109 @@ describe('mongoModify', () => {
 		expect(doc.name).toBe('multi')
 		expect(doc.values).toEqual([1, 2, 3, 4])
 		expect('rank' in doc).toBe(false)
+	})
+})
+
+describe('mongoProjectDocument', () => {
+	interface NestedDoc {
+		_id: ProtectedString<any>
+		name: string
+		val: number
+		meta: { a: number; b: number }
+		items: Array<{ name: string; value: number }>
+	}
+	const doc: NestedDoc = {
+		_id: protectString('1'),
+		name: 'foo',
+		val: 5,
+		meta: { a: 1, b: 2 },
+		items: [
+			{ name: 'x', value: 10 },
+			{ name: 'y', value: 20 },
+		],
+	}
+
+	test('no projection returns the same document', () => {
+		expect(mongoProjectDocument(doc, undefined)).toBe(doc)
+	})
+
+	test('include projection keeps only listed fields (plus _id)', () => {
+		expect(mongoProjectDocument(doc, { name: 1 } as any)).toEqual({ _id: '1', name: 'foo' })
+	})
+
+	test('include projection can exclude _id', () => {
+		expect(mongoProjectDocument(doc, { name: 1, _id: 0 } as any)).toEqual({ name: 'foo' })
+	})
+
+	test('exclude projection drops listed fields, keeps the rest (incl _id)', () => {
+		expect(mongoProjectDocument(doc, { meta: 0, items: 0 } as any)).toEqual({
+			_id: '1',
+			name: 'foo',
+			val: 5,
+		})
+	})
+
+	test('exclude projection can also drop _id', () => {
+		expect(mongoProjectDocument(doc, { meta: 0, items: 0, _id: 0 } as any)).toEqual({
+			name: 'foo',
+			val: 5,
+		})
+	})
+
+	test('dotted include path projects nested fields', () => {
+		expect(mongoProjectDocument(doc, { 'meta.a': 1, _id: 0 } as any)).toEqual({ meta: { a: 1 } })
+	})
+
+	test('dotted include path projects fields out of array elements', () => {
+		expect(mongoProjectDocument(doc, { 'items.name': 1, _id: 0 } as any)).toEqual({
+			items: [{ name: 'x' }, { name: 'y' }],
+		})
+	})
+
+	test('nested-object include form behaves like dotted notation', () => {
+		// `{ meta: { a: 1 } }` is equivalent to `{ 'meta.a': 1 }` in MongoDB
+		expect(mongoProjectDocument(doc, { meta: { a: 1 }, _id: 0 } as any)).toEqual({ meta: { a: 1 } })
+	})
+
+	test('nested-object include form does not over-include sibling fields', () => {
+		expect(mongoProjectDocument(doc, { name: 1, meta: { a: 1 } } as any)).toEqual({
+			_id: '1',
+			name: 'foo',
+			meta: { a: 1 },
+		})
+	})
+
+	test('nested-object include form projects out of array elements', () => {
+		expect(mongoProjectDocument(doc, { items: { name: 1 }, _id: 0 } as any)).toEqual({
+			items: [{ name: 'x' }, { name: 'y' }],
+		})
+	})
+
+	test('nested-object exclude form drops only the nested field', () => {
+		// `{ meta: { a: 0 } }` is equivalent to `{ 'meta.a': 0 }` and must NOT be treated as an include
+		expect(mongoProjectDocument(doc, { meta: { a: 0 } } as any)).toEqual({
+			_id: '1',
+			name: 'foo',
+			val: 5,
+			meta: { b: 2 },
+			items: [
+				{ name: 'x', value: 10 },
+				{ name: 'y', value: 20 },
+			],
+		})
+	})
+
+	test('mixing nested include and exclude rules throws', () => {
+		expect(() => mongoProjectDocument(doc, { meta: { a: 1 }, val: 0 } as any)).toThrow()
+	})
+
+	test('mixing include and exclude rules throws', () => {
+		expect(() => mongoProjectDocument(doc, { name: 1, val: 0 } as any)).toThrow()
+	})
+
+	test('does not mutate the source document', () => {
+		const before = JSON.parse(JSON.stringify(doc))
+		mongoProjectDocument(doc, { meta: 0 } as any)
+		expect(doc).toEqual(before)
 	})
 })

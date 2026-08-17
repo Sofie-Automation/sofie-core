@@ -12,7 +12,7 @@ import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowSt
 import { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { ReactiveCacheCollection } from '../../publications/lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 
 export type RundownPlaylistFields =
 	| '_id'
@@ -141,16 +141,16 @@ export const adLibPieceFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pi
 })
 
 export interface ContentCache {
-	RundownPlaylists: ReactiveCacheCollection<Pick<DBRundownPlaylist, RundownPlaylistFields>>
-	ShowStyleBases: ReactiveCacheCollection<DBShowStyleBase>
-	Segments: ReactiveCacheCollection<Pick<DBSegment, SegmentFields>>
-	Parts: ReactiveCacheCollection<Pick<DBPart, PartFields>>
-	PartInstances: ReactiveCacheCollection<Pick<DBPartInstance, PartInstanceFields>>
-	AdLibPieces: ReactiveCacheCollection<Pick<AdLibPiece, AdLibPieceFields>>
-	AdLibActions: ReactiveCacheCollection<Pick<AdLibAction, AdLibActionFields>>
-	RundownBaselineAdLibPieces: ReactiveCacheCollection<Pick<RundownBaselineAdLibItem, AdLibPieceFields>>
-	RundownBaselineAdLibActions: ReactiveCacheCollection<Pick<RundownBaselineAdLibAction, AdLibActionFields>>
-	TriggeredActions: ReactiveCacheCollection<DBTriggeredActions>
+	RundownPlaylists: InMemoryMongoCollection<Pick<DBRundownPlaylist, RundownPlaylistFields>>
+	ShowStyleBases: InMemoryMongoCollection<DBShowStyleBase>
+	Segments: InMemoryMongoCollection<Pick<DBSegment, SegmentFields>>
+	Parts: InMemoryMongoCollection<Pick<DBPart, PartFields>>
+	PartInstances: InMemoryMongoCollection<Pick<DBPartInstance, PartInstanceFields>>
+	AdLibPieces: InMemoryMongoCollection<Pick<AdLibPiece, AdLibPieceFields>>
+	AdLibActions: InMemoryMongoCollection<Pick<AdLibAction, AdLibActionFields>>
+	RundownBaselineAdLibPieces: InMemoryMongoCollection<Pick<RundownBaselineAdLibItem, AdLibPieceFields>>
+	RundownBaselineAdLibActions: InMemoryMongoCollection<Pick<RundownBaselineAdLibAction, AdLibActionFields>>
+	TriggeredActions: InMemoryMongoCollection<DBTriggeredActions>
 }
 
 type ReactionWithCache = (cache: ContentCache) => void
@@ -173,28 +173,33 @@ export function createReactiveContentCache(
 	}
 
 	const cache: ContentCache = {
-		RundownPlaylists: new ReactiveCacheCollection<Pick<DBRundownPlaylist, RundownPlaylistFields>>(
+		RundownPlaylists: new InMemoryMongoCollection<Pick<DBRundownPlaylist, RundownPlaylistFields>>(
 			'rundownPlaylists',
-			innerReaction
+			{ onChange: innerReaction }
 		),
-		ShowStyleBases: new ReactiveCacheCollection<DBShowStyleBase>('showStyleBases', innerReaction),
-		Segments: new ReactiveCacheCollection<Pick<DBSegment, SegmentFields>>('segments', innerReaction),
-		PartInstances: new ReactiveCacheCollection<Pick<DBPartInstance, PartInstanceFields>>(
-			'partInstances',
-			innerReaction
-		),
-		Parts: new ReactiveCacheCollection<Pick<DBPart, PartFields>>('parts', innerReaction),
-		AdLibPieces: new ReactiveCacheCollection<Pick<AdLibPiece, AdLibPieceFields>>('adLibPieces', innerReaction),
-		AdLibActions: new ReactiveCacheCollection<Pick<AdLibAction, AdLibActionFields>>('adLibActions', innerReaction),
-		RundownBaselineAdLibPieces: new ReactiveCacheCollection<Pick<RundownBaselineAdLibItem, AdLibPieceFields>>(
+		ShowStyleBases: new InMemoryMongoCollection<DBShowStyleBase>('showStyleBases', { onChange: innerReaction }),
+		Segments: new InMemoryMongoCollection<Pick<DBSegment, SegmentFields>>('segments', { onChange: innerReaction }),
+		PartInstances: new InMemoryMongoCollection<Pick<DBPartInstance, PartInstanceFields>>('partInstances', {
+			onChange: innerReaction,
+		}),
+		Parts: new InMemoryMongoCollection<Pick<DBPart, PartFields>>('parts', { onChange: innerReaction }),
+		AdLibPieces: new InMemoryMongoCollection<Pick<AdLibPiece, AdLibPieceFields>>('adLibPieces', {
+			onChange: innerReaction,
+		}),
+		AdLibActions: new InMemoryMongoCollection<Pick<AdLibAction, AdLibActionFields>>('adLibActions', {
+			onChange: innerReaction,
+		}),
+		RundownBaselineAdLibPieces: new InMemoryMongoCollection<Pick<RundownBaselineAdLibItem, AdLibPieceFields>>(
 			'rundownBaselineAdLibPieces',
-			innerReaction
+			{ onChange: innerReaction }
 		),
-		RundownBaselineAdLibActions: new ReactiveCacheCollection<Pick<RundownBaselineAdLibAction, AdLibActionFields>>(
+		RundownBaselineAdLibActions: new InMemoryMongoCollection<Pick<RundownBaselineAdLibAction, AdLibActionFields>>(
 			'rundownBaselineAdLibActions',
-			innerReaction
+			{ onChange: innerReaction }
 		),
-		TriggeredActions: new ReactiveCacheCollection<DBTriggeredActions>('triggeredActions', innerReaction),
+		TriggeredActions: new InMemoryMongoCollection<DBTriggeredActions>('triggeredActions', {
+			onChange: innerReaction,
+		}),
 	}
 
 	innerReaction()

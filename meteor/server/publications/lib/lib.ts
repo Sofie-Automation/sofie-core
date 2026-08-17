@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor'
 import { AllPubSubCollections, AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import type { MinimalMongoCursor } from '../../collections/implementations/asyncCollection'
+import { MinimalMongoCursor } from '../../collections/collection'
 
 /**
  * The context handed to a publication callback.

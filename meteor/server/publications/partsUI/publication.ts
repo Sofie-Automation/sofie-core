@@ -18,7 +18,6 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { RundownsObserver } from '../lib/rundownsObserver'
 import { RundownContentObserver } from './rundownContentObserver'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { extractRanks, findMarkerPosition, modifyPartForQuickLoop, stringsToIndexLookup } from '../lib/quickLoop'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../../security/securityVerify'
 import type { PublicationRegistry } from '../../publicationRegistry'
@@ -72,12 +71,12 @@ async function setupUIPartsPublicationObservers(
 			const obs1 = await RundownContentObserver.create(playlist.studioId, playlist._id, rundownIds, cache)
 
 			const innerQueries = [
-				cache.Segments.find({}).observeChanges({
-					added: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
+				cache.Segments.observeChanges({
+					added: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
+					changed: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
+					removed: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
 				}),
-				cache.Parts.find({}).observe({
+				cache.Parts.observe({
 					added: (doc) => triggerUpdate({ invalidatePartIds: [doc._id] }),
 					changed: (doc, oldDoc) => {
 						if (doc._rank !== oldDoc._rank) {
@@ -90,12 +89,12 @@ async function setupUIPartsPublicationObservers(
 					},
 					removed: (doc) => triggerUpdate({ invalidatePartIds: [doc._id] }),
 				}),
-				cache.RundownPlaylists.find({}).observeChanges({
+				cache.RundownPlaylists.observeChanges({
 					added: () => triggerUpdate({ invalidateQuickLoop: true }),
 					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
 					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
 				}),
-				cache.StudioSettings.find({}).observeChanges({
+				cache.StudioSettings.observeChanges({
 					added: () => triggerUpdate({ invalidateQuickLoop: true }),
 					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
 					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
@@ -142,7 +141,7 @@ export async function manipulateUIPartsPublicationData(
 	if (!studioSettings) return
 
 	const rundownRanks = stringsToIndexLookup(playlist.rundownIdsInOrder as unknown as string[])
-	const segmentRanks = extractRanks(state.contentCache.Segments.find({}).fetch())
+	const segmentRanks = extractRanks(state.contentCache.Segments.findFetch({}))
 
 	const quickLoopStartPosition =
 		playlist.quickLoop?.start &&
@@ -168,7 +167,7 @@ export async function manipulateUIPartsPublicationData(
 	const invalidatedSegmentsSet = new Set(updateProps?.invalidateSegmentIds ?? [])
 	const invalidatedPartsSet = new Set(updateProps?.invalidatePartIds ?? [])
 
-	state.contentCache.Parts.find({}).forEach((part) => {
+	state.contentCache.Parts.findFetch({}).forEach((part) => {
 		if (
 			updateProps?.invalidateQuickLoop ||
 			invalidatedSegmentsSet.has(part.segmentId) ||
