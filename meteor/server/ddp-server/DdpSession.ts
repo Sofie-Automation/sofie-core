@@ -1,6 +1,5 @@
 import { WebSocket, RawData } from 'ws'
 import type { IncomingMessage } from 'http'
-import { Meteor } from 'meteor/meteor'
 import { logger } from '../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { MethodRegistry } from '../methodRegistry'
@@ -25,6 +24,7 @@ import type { MinimalMongoCursor } from '../collections/collection'
 import { SUPPORTED_DDP_VERSIONS } from './config'
 import { SessionCollectionView } from './SessionCollectionView'
 import { DdpPublicationContext, SessionPublicationApi } from './DdpPublicationContext'
+import type { DDPClientConnection } from './types'
 
 export interface DdpSessionOptions {
 	heartbeatInterval: number
@@ -40,7 +40,7 @@ export interface DdpSessionOptions {
  * before being sent to the client — matching what the client's minimongo expects.
  */
 export class DdpSession implements SessionPublicationApi {
-	readonly connection: Meteor.Connection
+	readonly connection: DDPClientConnection
 	private readonly fireClose: () => void
 	private readonly socket: WebSocket
 	private readonly registry: MethodRegistry

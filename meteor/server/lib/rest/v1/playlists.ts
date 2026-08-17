@@ -13,7 +13,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { QueueNextSegmentResult, TakeNextPartResult } from '@sofie-automation/corelib/dist/worker/studio'
 import { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
-import { Meteor } from 'meteor/meteor'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 /* *************************************************************************
 This file contains types and interfaces that are used by the REST API.
@@ -28,7 +28,7 @@ export interface PlaylistsRestAPI {
 	 * @param event User event string
 	 */
 	getAllRundownPlaylists(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>>
 	/**
@@ -41,7 +41,7 @@ export interface PlaylistsRestAPI {
 	 * @param rehearsal Whether to activate into rehearsal mode.
 	 */
 	activate(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		rehearsal: boolean
@@ -50,7 +50,7 @@ export interface PlaylistsRestAPI {
 	 * Activates AdLibs testing mode.
 	 */
 	activateAdLibTesting(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		rundownId: RundownId
@@ -64,7 +64,7 @@ export interface PlaylistsRestAPI {
 	 * @param rundownPlaylistId Playlist to deactivate.
 	 */
 	deactivate(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId
 	): Promise<ClientAPI.ClientResponse<void>>
@@ -81,7 +81,7 @@ export interface PlaylistsRestAPI {
 	 * @param triggerMode A string to specify a particular variation for the AdLibAction, valid actionType strings are to be read from the status API.
 	 */
 	executeAdLib(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		adLibId: AdLibActionId | RundownBaselineAdLibActionId | PieceId | BucketAdLibId,
@@ -103,7 +103,7 @@ export interface PlaylistsRestAPI {
 	 * @param triggerMode A string to specify a particular variation for the AdLibAction, valid actionType strings are to be read from the status API.
 	 */
 	executeBucketAdLib(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		bucketId: BucketId,
@@ -123,7 +123,7 @@ export interface PlaylistsRestAPI {
 	 * @param ignoreQuickLoop When moving the next part it should ignore any of the boundaries set by the QuickLoop feature
 	 */
 	moveNextPart(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		delta: number,
@@ -141,7 +141,7 @@ export interface PlaylistsRestAPI {
 	 * @param delta Amount to move next Segment point by (+/-)
 	 */
 	moveNextSegment(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		delta: number
@@ -156,7 +156,7 @@ export interface PlaylistsRestAPI {
 	 * @param rundownPlaylistId Playlist to reload.
 	 */
 	reloadPlaylist(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId
 	): Promise<ClientAPI.ClientResponse<void>>
@@ -169,7 +169,7 @@ export interface PlaylistsRestAPI {
 	 * @param rundownPlaylistId Playlist to reset.
 	 */
 	resetPlaylist(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId
 	): Promise<ClientAPI.ClientResponse<void>>
@@ -185,7 +185,7 @@ export interface PlaylistsRestAPI {
 	 * @param partId Part to set as next.
 	 */
 	setNextPart(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		partId: PartId
@@ -202,7 +202,7 @@ export interface PlaylistsRestAPI {
 	 * @param segmentId Segment to set as next.
 	 */
 	setNextSegment(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		segmentId: SegmentId
@@ -219,7 +219,7 @@ export interface PlaylistsRestAPI {
 	 * @param segmentId Segment to set as next.
 	 */
 	queueNextSegment(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		segmentId: SegmentId
@@ -235,7 +235,7 @@ export interface PlaylistsRestAPI {
 	 * @param fromPartInstanceId Part instance this take is for, used as a safety guard against performing multiple takes when only one was intended.
 	 */
 	take(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		fromPartInstanceId: PartInstanceId | undefined
@@ -250,7 +250,7 @@ export interface PlaylistsRestAPI {
 	 * @param sourceLayerIds Target SourceLayers.
 	 */
 	clearSourceLayers(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		sourceLayerIds: string[]
@@ -267,7 +267,7 @@ export interface PlaylistsRestAPI {
 	 * @param sourceLayerId Target SourceLayer.
 	 */
 	recallStickyPiece(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		sourceLayerId: string
@@ -283,7 +283,7 @@ export interface PlaylistsRestAPI {
 	 * @param startPaused Whether to start paused.
 	 */
 	tTimerStartCountdown(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex,
@@ -301,7 +301,7 @@ export interface PlaylistsRestAPI {
 	 * @param startPaused Whether to start paused.
 	 */
 	tTimerStartFreeRun(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex,
@@ -315,7 +315,7 @@ export interface PlaylistsRestAPI {
 	 * @param timerIndex Index of the timer (1-3).
 	 */
 	tTimerPause(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex
@@ -328,7 +328,7 @@ export interface PlaylistsRestAPI {
 	 * @param timerIndex Index of the timer (1-3).
 	 */
 	tTimerResume(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex
@@ -341,7 +341,7 @@ export interface PlaylistsRestAPI {
 	 * @param timerIndex Index of the timer (1-3).
 	 */
 	tTimerRestart(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex
@@ -355,7 +355,7 @@ export interface PlaylistsRestAPI {
 	 * @param timerIndex Index of the timer (1-3).
 	 */
 	tTimerClearProjected(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex
@@ -371,7 +371,7 @@ export interface PlaylistsRestAPI {
 	 * @param externalId Part externalId (will be resolved by the worker)
 	 */
 	tTimerSetProjectedAnchorPart(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex,
@@ -389,7 +389,7 @@ export interface PlaylistsRestAPI {
 	 * @param paused If true, the projection is treated as paused (doesn't count down with time)
 	 */
 	tTimerSetProjectedTime(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex,
@@ -407,7 +407,7 @@ export interface PlaylistsRestAPI {
 	 * @param paused If true, the projection is treated as paused (doesn't count down with time)
 	 */
 	tTimerSetProjectedDuration(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		rundownPlaylistId: RundownPlaylistId,
 		timerIndex: RundownTTimerIndex,

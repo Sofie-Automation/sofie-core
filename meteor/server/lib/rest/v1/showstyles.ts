@@ -1,6 +1,6 @@
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Meteor } from 'meteor/meteor'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 /* *************************************************************************
 This file contains types and interfaces that are used by the REST API.
@@ -16,7 +16,7 @@ export interface ShowStylesRestAPI {
 	 * @param event User event string
 	 */
 	getShowStyleBases(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>>
 	/**
@@ -27,7 +27,7 @@ export interface ShowStylesRestAPI {
 	 * @param showStyleBase ShowStyleBase to insert
 	 */
 	addShowStyleBase(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		showStyleBase: APIShowStyleBase
 	): Promise<ClientAPI.ClientResponse<string>>
@@ -40,7 +40,7 @@ export interface ShowStylesRestAPI {
 	 * @param showStyleBaseId ShowStyleBaseId to fetch
 	 */
 	getShowStyleBase(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<ClientAPI.ClientResponse<APIShowStyleBase>>
@@ -54,7 +54,7 @@ export interface ShowStylesRestAPI {
 	 * @param showStyleBase ShowStyleBase to insert
 	 */
 	addOrUpdateShowStyleBase(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		showStyleBase: APIShowStyleBase
@@ -68,7 +68,7 @@ export interface ShowStylesRestAPI {
 	 * @param showStyleBaseId ShowStyleBaseId to fetch
 	 */
 	getShowStyleConfig(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<ClientAPI.ClientResponse<object>>
@@ -82,7 +82,7 @@ export interface ShowStylesRestAPI {
 	 * @param object Blueprint configuration object
 	 */
 	updateShowStyleConfig(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		config: object
@@ -96,7 +96,7 @@ export interface ShowStylesRestAPI {
 	 * @param showStyleBaseId ShowStyleBase to update or insert
 	 */
 	deleteShowStyleBase(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<ClientAPI.ClientResponse<void>>
@@ -109,7 +109,7 @@ export interface ShowStylesRestAPI {
 	 * @param showStyleBaseId ShowStyleBase to fetch ShowStyleVariants for
 	 */
 	getShowStyleVariants(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		showStyleBaseId: ShowStyleBaseId
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>>
@@ -123,7 +123,7 @@ export interface ShowStylesRestAPI {
 	 * @param showStyleVariant ShowStyleVariant to add
 	 */
 	addShowStyleVariant(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		showStyleVariant: APIShowStyleVariant
@@ -138,7 +138,7 @@ export interface ShowStylesRestAPI {
 	 * @param showStyleVariant ShowStyleVariant to fetch
 	 */
 	getShowStyleVariant(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		showStyleVariant: ShowStyleVariantId
@@ -155,7 +155,7 @@ export interface ShowStylesRestAPI {
 	 * @param showStyleVariant ShowStyleVariant to add/update
 	 */
 	addOrUpdateShowStyleVariant(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		showStyleVariantId: ShowStyleVariantId,
@@ -171,7 +171,7 @@ export interface ShowStylesRestAPI {
 	 * @param showStyleVariantId ShowStyleVariant to delete
 	 */
 	deleteShowStyleVariant(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		showStyleVariantId: ShowStyleVariantId
@@ -187,7 +187,7 @@ export interface ShowStylesRestAPI {
 	 * @param action Action to perform
 	 */
 	showStyleBaseAction(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		showStyleBaseId: ShowStyleBaseId,
 		action: ShowStyleBaseAction

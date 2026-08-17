@@ -1,15 +1,15 @@
 // not really middlewares
 
-import { Meteor } from 'meteor/meteor'
 import { APIHandler } from './types'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import idempotencyService from './idempotencyService'
 import rateLimitingService from './rateLimitingService'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 export function makeIdempotent<T, Params, Body, Response>(
 	handler: APIHandler<T, Params, Body, Response>
 ): APIHandler<T, Params, Body, Response> {
-	return async (serverAPI: T, connection: Meteor.Connection, event: string, params: Params, body: Body) => {
+	return async (serverAPI: T, connection: DDPClientConnection, event: string, params: Params, body: Body) => {
 		const idempotencyKey = connection.httpHeaders['idempotency-key']
 		if (typeof idempotencyKey !== 'string' || idempotencyKey.length <= 0) {
 			throw UserError.create(UserErrorMessage.IdempotencyKeyMissing, undefined, 400)
@@ -25,7 +25,7 @@ export function makeRateLimited<T, Params, Body, Response>(
 	handler: APIHandler<T, Params, Body, Response>,
 	resourceName: string
 ): APIHandler<T, Params, Body, Response> {
-	return async (serverAPI: T, connection: Meteor.Connection, event: string, params: Params, body: Body) => {
+	return async (serverAPI: T, connection: DDPClientConnection, event: string, params: Params, body: Body) => {
 		if (!rateLimitingService.isAllowedToAccess(resourceName)) {
 			throw UserError.create(UserErrorMessage.RateLimitExceeded, undefined, 429)
 		}

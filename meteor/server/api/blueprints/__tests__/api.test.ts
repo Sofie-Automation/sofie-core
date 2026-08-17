@@ -14,17 +14,18 @@ import '../../../../__mocks__/_extendJest'
 import { Blueprints, CoreSystem } from '../../../collections'
 import { SupressLogMessages } from '../../../../__mocks__/suppressLogging'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import { Meteor } from 'meteor/meteor'
 import * as CoreSystemAPI from '../../../coreSystem'
 import { makeMeteorCallForTest } from '../../../../__mocks__/helpers/methods'
+import { DDPClientConnection } from '../../../ddp-server/types'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../deviceTriggers/observer')
 
 const MeteorCall = makeMeteorCallForTest({ methods: BlueprintAPIMethods, class: ServerBlueprintAPI })
 
-const DEFAULT_CONNECTION: Meteor.Connection = {
+const DEFAULT_CONNECTION: DDPClientConnection = {
 	id: 'mockConnectionId',
+	signal: new AbortController().signal, // noop signal for tests
 	close: () => undefined,
 	onClose: () => undefined,
 	clientAddress: '127.0.0.1',

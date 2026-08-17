@@ -30,6 +30,7 @@ import { logger } from '../../../logging'
 import { runIngestOperation } from '../../ingest/lib'
 import { validateAPIPartPayload, validateAPIRundownPayload, validateAPISegmentPayload } from './typeConversion'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 // Hoisted out of the `validate*` methods below, which run once per segment and once per part on the ingest
 // path. Constructing a schema per field per item would be needless allocation.
@@ -338,7 +339,7 @@ class IngestServerAPI implements IngestRestAPI {
 	// Playlists
 
 	async getPlaylists(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<Array<PlaylistResponse>>> {
@@ -352,7 +353,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async getPlaylist(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string
@@ -368,7 +369,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async deletePlaylists(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<undefined>> {
@@ -389,7 +390,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async deletePlaylist(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string
@@ -418,7 +419,7 @@ class IngestServerAPI implements IngestRestAPI {
 	// Rundowns
 
 	async getRundowns(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string
@@ -435,7 +436,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async getRundown(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -480,7 +481,7 @@ class IngestServerAPI implements IngestRestAPI {
 	 * unique within a studio, regardless of which playlist it belongs to.
 	 */
 	async postRundown(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string | undefined,
@@ -547,7 +548,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async putRundowns(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -594,7 +595,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async putRundown(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -632,7 +633,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async deleteRundowns(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string
@@ -657,7 +658,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async deleteRundown(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -682,7 +683,7 @@ class IngestServerAPI implements IngestRestAPI {
 	// Segments
 
 	async getSegments(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -703,7 +704,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async getSegment(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -726,7 +727,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async postSegment(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -761,7 +762,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async putSegments(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -816,7 +817,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async putSegment(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -853,7 +854,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async deleteSegments(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -882,7 +883,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async deleteSegment(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -912,7 +913,7 @@ class IngestServerAPI implements IngestRestAPI {
 	// Parts
 
 	async getParts(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -936,7 +937,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async getPart(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -962,7 +963,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async postPart(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -1001,7 +1002,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async putParts(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -1049,7 +1050,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async putPart(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -1090,7 +1091,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async deleteParts(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,
@@ -1123,7 +1124,7 @@ class IngestServerAPI implements IngestRestAPI {
 	}
 
 	async deletePart(
-		_connection: Meteor.Connection,
+		_connection: DDPClientConnection,
 		_event: string,
 		studioId: StudioId,
 		playlistId: string,

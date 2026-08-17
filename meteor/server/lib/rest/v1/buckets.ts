@@ -1,7 +1,7 @@
-import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { BucketId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { IngestAdlib } from '@sofie-automation/blueprints-integration'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 export interface BucketsRestAPI {
 	/**
@@ -12,7 +12,7 @@ export interface BucketsRestAPI {
 	 * @param inputs Migration data to apply
 	 */
 	getAllBuckets(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string
 	): Promise<ClientAPI.ClientResponse<Array<APIBucketComplete>>>
 
@@ -24,7 +24,7 @@ export interface BucketsRestAPI {
 	 * @param inputs Migration data to apply
 	 */
 	getBucket(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		bucketId: BucketId
 	): Promise<ClientAPI.ClientResponse<APIBucketComplete>>
@@ -37,7 +37,7 @@ export interface BucketsRestAPI {
 	 * @param bucket Bucket to add
 	 */
 	addBucket(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		bucket: APIBucket
 	): Promise<ClientAPI.ClientResponse<BucketId>>
@@ -50,7 +50,7 @@ export interface BucketsRestAPI {
 	 * @param bucketId Id of the bucket to delete
 	 */
 	deleteBucket(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		bucketId: BucketId
 	): Promise<ClientAPI.ClientResponse<void>>
@@ -63,7 +63,7 @@ export interface BucketsRestAPI {
 	 * @param bucketId Id of the bucket to empty
 	 */
 	emptyBucket(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		bucketId: BucketId
 	): Promise<ClientAPI.ClientResponse<void>>
@@ -76,7 +76,7 @@ export interface BucketsRestAPI {
 	 * @param adLibId Id of the bucket adlib to delete
 	 */
 	deleteBucketAdLib(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		externalId: string
 	): Promise<ClientAPI.ClientResponse<void>>
@@ -92,7 +92,7 @@ export interface BucketsRestAPI {
 	 * @param ingestItem Adlib to be imported
 	 */
 	importAdLibToBucket(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		bucketId: BucketId,
 		showStyleBaseId: ShowStyleBaseId,
