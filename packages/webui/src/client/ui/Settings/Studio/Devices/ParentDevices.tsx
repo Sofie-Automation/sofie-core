@@ -187,15 +187,23 @@ export function StudioParentDevices({ studioId }: Readonly<StudioParentDevicesPr
 			if (hasUnsavedAssignment) {
 				MeteorCall.studio
 					.assignConfigToPeripheralDevice(studioId, itemId, unsavedAssignments[itemId] ?? null)
+					.then(() => {
+						setUnsavedAssignments((prev) => {
+							const next = { ...prev }
+							delete next[itemId]
+							return next
+						})
+					})
 					.catch((e) => {
 						console.error('Failed to save assignment', e)
+						doModalDialog({
+							title: t('Failed to save assignment'),
+							message: t('Failed to save assignment: {{errorMessage}}', { errorMessage: e.message }),
+							acceptOnly: true,
+							yes: t('OK'),
+							onAccept: () => {},
+						})
 					})
-
-				setUnsavedAssignments((prev) => {
-					const next = { ...prev }
-					delete next[itemId]
-					return next
-				})
 			}
 		},
 		[

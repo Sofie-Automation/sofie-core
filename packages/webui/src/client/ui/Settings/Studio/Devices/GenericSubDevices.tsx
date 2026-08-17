@@ -93,7 +93,7 @@ export function GenericSubDevicesTable({
 				),
 			})
 		},
-		[t, instantSaveOverrideHelper]
+		[t, discardItemChanges, hasUnsavedChangesForItem, instantSaveOverrideHelper, t]
 	)
 
 	const peripheralDeviceOptions = useMemo(() => {
