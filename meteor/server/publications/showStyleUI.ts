@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -7,7 +8,7 @@ import { DBShowStyleBase, UIShowStyleBase } from '@sofie-automation/corelib/dist
 import { Complete, literal } from '@sofie-automation/corelib/dist/lib'
 import { SetupObserversResult, setUpOptimizedObserverArray, TriggerUpdate } from '../lib/customPublication'
 import { ShowStyleBases } from '../collections'
-import { check } from 'meteor/check'
+import { check } from '../lib/check'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 import type { PublicationRegistry } from '../publicationRegistry'
 
@@ -90,7 +91,7 @@ export function registerShowStyleUIPublications(registry: PublicationRegistry): 
 		MeteorPubSub.uiShowStyleBase,
 		CustomCollectionName.UIShowStyleBase,
 		async (_context, pub, showStyleBaseId: ShowStyleBaseId) => {
-			check(showStyleBaseId, String)
+			check(showStyleBaseId, z.string())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 

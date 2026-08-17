@@ -1,8 +1,9 @@
+import { z } from 'zod'
 import _ from 'underscore'
 import { logger } from '../../logging'
 import { Meteor } from 'meteor/meteor'
 import { BlueprintManifestSet } from '@sofie-automation/blueprints-integration'
-import { check, Match } from '../../lib/check'
+import { check } from '../../lib/check'
 import { retrieveBlueprintAsset, uploadBlueprint, uploadBlueprintAsset } from './api'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import path from 'path'
@@ -36,8 +37,8 @@ blueprintsRouter.post(
 			const blueprintNames = ctx.query['name']
 			const blueprintName: string | undefined = Array.isArray(blueprintNames) ? blueprintNames[0] : blueprintNames
 
-			check(blueprintId, String)
-			check(blueprintName, Match.Maybe(String))
+			check(blueprintId, z.string())
+			check(blueprintName, z.string().nullish())
 
 			const body = ctx.request.body || ctx.req.body
 			if (!body) throw new Meteor.Error(400, 'Restore Blueprint: Missing request body')

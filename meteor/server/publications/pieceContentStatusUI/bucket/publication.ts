@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { PackageInfo } from '@sofie-automation/blueprints-integration'
 import {
 	BucketAdLibActionId,
@@ -37,7 +38,7 @@ import {
 import { BucketContentObserver } from './bucketContentObserver'
 import { regenerateForBucketActionIds, regenerateForBucketAdLibIds } from './regenerateForItem'
 import { PieceContentStatusStudio } from '../checkPieceContentStatus'
-import { check } from 'meteor/check'
+import { check } from '../../../lib/check'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../../../security/securityVerify'
 import { PieceContentStatusMessageFactory } from '../messageFactory'
 
@@ -273,8 +274,8 @@ export function registerBucketContentStatusUIPublications(registry: PublicationR
 		MeteorPubSub.uiBucketContentStatuses,
 		CustomCollectionName.UIBucketContentStatuses,
 		async (_context, pub, studioId: StudioId, bucketId: BucketId) => {
-			check(studioId, String)
-			check(bucketId, String)
+			check(studioId, z.string())
+			check(bucketId, z.string())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 

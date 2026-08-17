@@ -1,7 +1,8 @@
+import { z } from 'zod'
 import { FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { BucketAdLibActions, BucketAdLibs, Buckets } from '../collections'
-import { check, Match } from 'meteor/check'
+import { check, zAnyArray } from '../lib/check'
 import { StudioId, BucketId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
@@ -14,8 +15,8 @@ export function registerBucketsPublications(registry: PublicationRegistry): void
 	registry.publish(
 		CorelibPubSub.buckets,
 		async (_context, studioId: StudioId, bucketId: BucketId | null, _token: string | undefined) => {
-			check(studioId, String)
-			check(bucketId, Match.Maybe(String))
+			check(studioId, z.string())
+			check(bucketId, z.string().nullish())
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -35,9 +36,9 @@ export function registerBucketsPublications(registry: PublicationRegistry): void
 	registry.publish(
 		CorelibPubSub.bucketAdLibPieces,
 		async (_context, studioId: StudioId, bucketId: BucketId | null, showStyleVariantIds: ShowStyleVariantId[]) => {
-			check(studioId, String)
-			check(bucketId, Match.Maybe(String))
-			check(showStyleVariantIds, Array)
+			check(studioId, z.string())
+			check(bucketId, z.string().nullish())
+			check(showStyleVariantIds, zAnyArray)
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 
@@ -61,9 +62,9 @@ export function registerBucketsPublications(registry: PublicationRegistry): void
 	registry.publish(
 		CorelibPubSub.bucketAdLibActions,
 		async (_context, studioId: StudioId, bucketId: BucketId | null, showStyleVariantIds: ShowStyleVariantId[]) => {
-			check(studioId, String)
-			check(bucketId, Match.Maybe(String))
-			check(showStyleVariantIds, Array)
+			check(studioId, z.string())
+			check(bucketId, z.string().nullish())
+			check(showStyleVariantIds, zAnyArray)
 
 			triggerWriteAccessBecauseNoCheckNecessary()
 

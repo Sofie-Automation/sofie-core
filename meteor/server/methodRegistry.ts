@@ -28,6 +28,16 @@ export type MethodWrapper = (
  *  - `class` instances must implement `TApi` — either directly, or via the DDP null-arg replacement
  *    (`ReplaceOptionalWithNullInMethodArguments`) that some of the classes apply. The union accepts
  *    both conventions without forcing every class to adopt the same one.
+ *
+ * TODO (follow-up): argument validation should move here. Today it is ~670 inline `check()` calls at the top
+ * of handler bodies (see ./lib/check.ts), which means nothing guarantees a method validates its arguments at
+ * all — `handleMethodMessage` passes the raw DDP `params` straight through, and the `securityVerify` audit
+ * only covers access control. A sibling `schemas: Record<keyof TApi, z.ZodTuple>` would be completeness-checked
+ * by the same `satisfies` that already covers `methods`, be validated centrally in `registerApi`, let the
+ * handler parameter types be derived with `z.infer`, and give the `null`→`undefined` coercion that
+ * `ReplaceOptionalWithNullInMethodArguments` currently only models in the type system somewhere real to
+ * happen. `z.toJSONSchema()` would additionally let the REST v1 schemas generate `packages/openapi/api/*.yaml`
+ * rather than being hand-kept in sync with it.
  */
 export interface MethodApiRegistration<TApi> {
 	methods: Record<keyof TApi, string>

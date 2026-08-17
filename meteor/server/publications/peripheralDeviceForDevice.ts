@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { PeripheralDevice, PeripheralDeviceCategory } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDevices, Studios } from '../collections'
@@ -15,7 +16,7 @@ import {
 	StudioPlayoutDevice,
 } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { check } from 'meteor/check'
+import { check } from '../lib/check'
 import {
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubCollectionsNames,
@@ -210,7 +211,7 @@ export function registerPeripheralDeviceForDevicePublications(registry: Publicat
 		PeripheralDevicePubSub.peripheralDeviceForDevice,
 		PeripheralDevicePubSubCollectionsNames.peripheralDeviceForDevice,
 		async (context, pub, deviceId: PeripheralDeviceId, token: string | undefined) => {
-			check(deviceId, String)
+			check(deviceId, z.string())
 
 			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
