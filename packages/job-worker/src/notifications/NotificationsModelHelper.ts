@@ -8,7 +8,14 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 import { getHash } from '@sofie-automation/corelib/dist/hash'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { assertNever, flatten, omit, type Complete } from '@sofie-automation/corelib/dist/lib'
+import {
+	assertNever,
+	clone,
+	deleteAllUndefinedProperties,
+	flatten,
+	omit,
+	type Complete,
+} from '@sofie-automation/corelib/dist/lib'
 import { StudioId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { isEqual } from 'underscore'
 import type { MongoBulkWriteOperation } from '../db/collections.js'
@@ -108,7 +115,9 @@ export class NotificationsModelHelper implements INotificationsModel {
 		const notificationsForCategory = this.#getOrCreateCategoryEntry(category)
 
 		const fullCategory = this.#getFullCategoryName(category)
-		notificationsForCategory.updatedNotifications.set(notification.id, {
+
+		// Clone and strip all undefined properties
+		const newNotification = clone({
 			_id: protectString(getHash(`${this.#context.studioId}:${fullCategory}:${notification.id}`)),
 			category: fullCategory,
 			localId: notification.id,
@@ -116,6 +125,9 @@ export class NotificationsModelHelper implements INotificationsModel {
 			message: notification.message,
 			relatedTo: translateRelatedToIntoDbType(this.#context.studioId, this.#playlistId, notification.relatedTo),
 		} satisfies Complete<Omit<DBNotificationObj, 'created' | 'modified'>>)
+		deleteAllUndefinedProperties(newNotification)
+
+		notificationsForCategory.updatedNotifications.set(notification.id, newNotification)
 	}
 
 	clearAllNotifications(category: string): void {
@@ -145,9 +157,7 @@ export class NotificationsModelHelper implements INotificationsModel {
 	/** Whether any notification changes are pending that have not yet been saved to the database */
 	get hasChanges(): boolean {
 		for (const notificationsForCategory of this.#notificationsByCategory.values()) {
-			if (notificationsForCategory.updatedNotifications.size > 0 || notificationsForCategory.removeAllMissing) {
-				return true
-			}
+			if (categoryHasChanges(notificationsForCategory)) return true
 		}
 		return false
 	}
@@ -255,6 +265,41 @@ export class NotificationsModelHelper implements INotificationsModel {
 			await this.#context.directCollections.Notifications.bulkWrite(allUpdates)
 		}
 	}
+}
+
+/**
+ * Whether the operations queued for a category will result in any modification to the database.
+ * If the database state hasn't been loaded, the effect of the queued operations is unknown so they are assumed to be
+ * changes.
+ */
+function categoryHasChanges(notificationsForCategory: NotificationsLoadState): boolean {
+	const { dbNotifications, updatedNotifications, removeAllMissing } = notificationsForCategory
+
+	// Nothing has been queued
+	if (updatedNotifications.size === 0 && !removeAllMissing) return false
+
+	// The database state is unknown, so assume the queued operations will change something
+	if (!dbNotifications) return true
+
+	for (const [localId, updatedNotification] of updatedNotifications) {
+		const dbNotification = dbNotifications.get(localId)
+
+		if (updatedNotification === null) {
+			// Marked for deletion, which is only a change if it exists in the database
+			if (dbNotification) return true
+		} else if (!dbNotification || !isEqual(omit(dbNotification, 'created', 'modified'), updatedNotification)) {
+			return true
+		}
+	}
+
+	if (removeAllMissing) {
+		// Any notification in the database which isn't being kept will be deleted
+		for (const localId of dbNotifications.keys()) {
+			if (!updatedNotifications.get(localId)) return true
+		}
+	}
+
+	return false
 }
 
 function translateRelatedToIntoDbType(
