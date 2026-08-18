@@ -77,7 +77,10 @@ export interface RelativeResolvedEndCap {
 
 export interface PieceInstanceWithTimings extends ReadonlyDeep<PieceInstance> {
 	/**
-	 * This is a maximum end point of the pieceInstance.
+	 * This is a maximum end point of the pieceInstance, in the same timespace as the pieceInstance.piece.enable.start,
+	 * meaning that it is relative to the start of the PartInstance, and not the start of the PartInstance's preroll and
+	 * may need to be correctly translated to the timeline timespace.
+	 *
 	 * If the pieceInstance also has a enable.duration or userDuration set then the shortest one will need to be used
 	 * This can be:
 	 *  - '100', if relative to the start of the part
