@@ -1,6 +1,6 @@
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { ReactiveCacheCollection } from '../lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -35,7 +35,7 @@ export const partFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBP
 	invalidReason: 1,
 })
 
-export type PartInstanceFields = '_id' | 'segmentId' | 'rundownId' | 'orphaned' | 'reset' | 'part'
+export type PartInstanceFields = '_id' | 'segmentId' | 'rundownId' | 'orphaned' | 'reset' | 'part' | 'invalidReason'
 export const partInstanceFieldSpecifier = literal<
 	MongoFieldSpecifierOnesStrict<Pick<PartInstance, PartInstanceFields>>
 >({
@@ -44,25 +44,25 @@ export const partInstanceFieldSpecifier = literal<
 	rundownId: 1,
 	orphaned: 1,
 	reset: 1,
+	invalidReason: 1,
 	// @ts-expect-error Deep not supported
+	'part._id': 1,
 	'part.title': 1,
 })
 
 export interface ContentCache {
-	Rundowns: ReactiveCacheCollection<Pick<Rundown, RundownFields>>
-	Segments: ReactiveCacheCollection<Pick<DBSegment, SegmentFields>>
-	Parts: ReactiveCacheCollection<Pick<DBPart, PartFields>>
-	DeletedPartInstances: ReactiveCacheCollection<Pick<PartInstance, PartInstanceFields>>
+	Rundowns: InMemoryMongoCollection<Pick<Rundown, RundownFields>>
+	Segments: InMemoryMongoCollection<Pick<DBSegment, SegmentFields>>
+	Parts: InMemoryMongoCollection<Pick<DBPart, PartFields>>
+	PartInstances: InMemoryMongoCollection<Pick<PartInstance, PartInstanceFields>>
 }
 
 export function createReactiveContentCache(): ContentCache {
 	const cache: ContentCache = {
-		Rundowns: new ReactiveCacheCollection<Pick<Rundown, RundownFields>>('rundowns'),
-		Segments: new ReactiveCacheCollection<Pick<DBSegment, SegmentFields>>('segments'),
-		Parts: new ReactiveCacheCollection<Pick<DBPart, PartFields>>('parts'),
-		DeletedPartInstances: new ReactiveCacheCollection<Pick<PartInstance, PartInstanceFields>>(
-			'deletedPartInstances'
-		),
+		Rundowns: new InMemoryMongoCollection<Pick<Rundown, RundownFields>>('rundowns'),
+		Segments: new InMemoryMongoCollection<Pick<DBSegment, SegmentFields>>('segments'),
+		Parts: new InMemoryMongoCollection<Pick<DBPart, PartFields>>('parts'),
+		PartInstances: new InMemoryMongoCollection<Pick<PartInstance, PartInstanceFields>>('partInstances'),
 	}
 
 	return cache

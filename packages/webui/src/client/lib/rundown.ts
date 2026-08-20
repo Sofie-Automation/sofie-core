@@ -1,7 +1,7 @@
-import { PartUi } from '../ui/SegmentTimeline/SegmentTimelineContainer.js'
+import type { PartUi } from '../ui/SegmentTimeline/SegmentTimelineContainer.js'
 import { Timecode } from '@sofie-automation/corelib/dist/index'
-import { Settings } from '../lib/Settings.js'
-import { TFunction } from 'react-i18next'
+import { DEFAULT_DISPLAY_DURATION } from '@sofie-automation/shared-lib/dist/core/constants'
+import type { TFunction } from 'i18next'
 import {
 	getResolvedSegment as getResolvedSegmentBase,
 	getSegmentsWithPartInstances as getSegmentsWithPartInstancesBase,
@@ -9,30 +9,30 @@ import {
 } from '@sofie-automation/corelib/dist/playout/stateCacheResolver'
 import {
 	SourceLayerType,
-	IBlueprintActionManifestDisplay,
-	IBlueprintActionManifestDisplayContent,
+	type IBlueprintActionManifestDisplay,
+	type IBlueprintActionManifestDisplayContent,
 } from '@sofie-automation/blueprints-integration'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getCurrentTime } from './systemTime.js'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { IAdLibListItem } from '../ui/Shelf/AdLibListItem.js'
-import { BucketAdLibItem, BucketAdLibUi } from '../ui/Shelf/RundownViewBuckets.js'
-import { FindOptions } from '../collections/lib.js'
+import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { IAdLibListItem } from '../ui/Shelf/AdLibListItem.js'
+import type { BucketAdLibItem, BucketAdLibUi } from '../ui/Shelf/RundownViewBuckets.js'
+import type { FindOptions } from '../collections/lib.js'
 import { getShowHiddenSourceLayers } from './localStorage.js'
-import { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
-import { AdLibPieceUi } from './shelf.js'
-import { PieceId, PieceInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { AdLibPieceUi } from './shelf.js'
+import type { PieceId, PieceInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstances, Pieces, Segments } from '../collections/index.js'
-import { Piece, PieceStatusCode, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { type Piece, PieceStatusCode, type PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { assertNever } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { FindOneOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { FindOneOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { RundownPlaylistClientUtil } from './rundownPlaylistUtil.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 import { invalidateAfter } from './invalidatingTime'
-import {
+import type {
 	PieceInstancesForPartInstanceContext,
 	PieceInstancesForPartInstanceWrapperOptions,
 	ResolvedSegmentContext,
@@ -40,6 +40,8 @@ import {
 	ResolvedSegmentWrapperOptions,
 	SegmentsWithPartInstancesWrapperParams,
 } from '@sofie-automation/corelib/src/playout/stateCacheResolverTypes.js'
+import type { AdLibAction } from '@sofie-automation/corelib/src/dataModel/AdlibAction.js'
+import type { RundownBaselineAdLibAction } from '@sofie-automation/corelib/src/dataModel/RundownBaselineAdLibAction.js'
 
 const segmentsFindOne = (selector: SegmentId | MongoQuery<DBSegment>, options: FindOneOptions<DBSegment>) =>
 	Segments.findOne(selector, options)
@@ -127,7 +129,7 @@ export namespace RundownUtils {
 	export function getSegmentDuration(
 		parts: Array<PartUi>,
 		// pieces: Map<PartId, CalculateTimingsPiece[]>,
-		display?: boolean
+		displayDuration?: number
 	): number {
 		return parts.reduce((memo, part) => {
 			return (
@@ -135,7 +137,7 @@ export namespace RundownUtils {
 				(part.instance.timings?.duration ||
 					calculatePartInstanceExpectedDurationWithTransition(part.instance) ||
 					part.renderedDuration ||
-					(display ? Settings.defaultDisplayDuration : 0))
+					(displayDuration ?? 0))
 			)
 		}, 0)
 	}
@@ -265,6 +267,36 @@ export namespace RundownUtils {
 		)
 	}
 
+	/** Format a duration (ms) to a timecode string, showing hours only when needed. e.g. "23:45" or "1:23:45" */
+	export function formatDiffToTimecodeHours(milliseconds: number): string {
+		return formatDiffToTimecode(milliseconds, false, true, true, false, true)
+	}
+
+	/**
+	 * Format a live countdown timer (ms). Shows "+" for positive, blank prefix when negative (rounds toward zero),
+	 * using hard-floor rounding so the display doesn't jump ahead of the actual value.
+	 */
+	export function formatDiffToTimecodeCountdown(milliseconds: number): string {
+		return formatDiffToTimecode(milliseconds, true, false, true, false, true, '', false, true)
+	}
+
+	/**
+	 * Format a budget/remaining duration (ms) with a "+" prefix for positive values (time remaining)
+	 * and an en-dash for negative values (over budget).
+	 */
+	export function formatDiffToTimecodeWithSign(milliseconds: number): string {
+		return formatDiffToTimecode(milliseconds, false, false, true, false, true, '+')
+	}
+
+	/**
+	 * Format an over/under diff (ms) with "+" for positive, en-dash for negative, smart-floor rounding,
+	 * and smart-hours. Used for start-time diffs and over/under clocks.
+	 * Pass `floorTime: true` to use hard-floor rounding (display won't jump ahead of the actual value).
+	 */
+	export function formatDiffToTimecodeOverUnder(milliseconds: number, floorTime?: boolean): string {
+		return formatDiffToTimecode(milliseconds, true, false, true, true, true, undefined, floorTime, floorTime)
+	}
+
 	export function isInsideViewport(
 		scrollLeft: number,
 		scrollWidth: number,
@@ -342,7 +374,8 @@ export namespace RundownUtils {
 				invalidateAfter: options?.pieceInstanceSimulation ? invalidateAfter : undefined,
 				includeDisabledPieces: options?.includeDisabledPieces ?? false,
 				showHiddenSourceLayers: getShowHiddenSourceLayers(),
-				defaultDisplayDuration: Settings.defaultDisplayDuration,
+				defaultDisplayDuration:
+					segmentContext.studio?.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION,
 			},
 		})
 	}
@@ -379,6 +412,15 @@ export namespace RundownUtils {
 			return true
 		}
 		return false
+	}
+
+	export function isRundownBaselineAdLibAction(
+		adLibAction: AdLibAction | RundownBaselineAdLibAction
+	): adLibAction is RundownBaselineAdLibAction {
+		if (adLibAction['partId'] !== undefined) {
+			return false
+		}
+		return true
 	}
 
 	export function isAdlibActionContent(

@@ -1,4 +1,4 @@
-import { useCallback, MouseEvent } from 'react'
+import { useCallback, type MouseEvent } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { catchError } from '../../lib/lib.js'
 

@@ -43,7 +43,7 @@ import { createPlayoutModelFromIngestModel } from '../playout/model/implementati
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { updateSegmentIdsForAdlibbedPartInstances } from './commit/updateSegmentIdsForAdlibbedPartInstances.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { AnyBulkWriteOperation } from 'mongodb'
+import { MongoBulkWriteOperation } from '@sofie-automation/corelib/dist/mongo'
 
 export type BeforePartMapItem = { id: PartId; rank: number }
 export type BeforeIngestOperationPartMap = ReadonlyMap<SegmentId, Array<BeforePartMapItem>>
@@ -222,6 +222,12 @@ export async function CommitIngestOperation(
 				ingestModel
 			)
 
+			// Capture which Parts have pending changes before the save clears the changed flags
+			const changedPartIds = new Set<PartId>()
+			for (const part of ingestModel.getAllOrderedParts()) {
+				if (part.hasChanges()) changedPartIds.add(part.part._id)
+			}
+
 			// Start the save
 			const pSaveIngest = ingestModel.saveAllToDatabase(playlistLock)
 			pSaveIngest.catch(() => null) // Ensure promise isn't reported as unhandled
@@ -230,7 +236,7 @@ export async function CommitIngestOperation(
 
 			try {
 				// sync changes to the 'selected' partInstances
-				await syncChangesToPartInstances(context, playoutModel, ingestModel)
+				await syncChangesToPartInstances(context, playoutModel, ingestModel, changedPartIds)
 
 				// update the quickloop in case we did any changes to things involving marker
 				playoutModel.updateQuickLoopState()
@@ -369,7 +375,7 @@ async function updatePartInstancesSegmentIds(
 			return 0
 		})
 
-		const writeOps: AnyBulkWriteOperation<DBPartInstance>[] = []
+		const writeOps: MongoBulkWriteOperation<DBPartInstance>[] = []
 
 		logger.debug(`updatePartInstancesSegmentIds: renameRules: ${JSON.stringify(renameRules)}`)
 

@@ -1,8 +1,8 @@
 import ClassNames from 'classnames'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { PartUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { PartUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
 import {
 	useSubscription,
@@ -18,11 +18,11 @@ import { PieceNameContainer } from '../PieceIcons/PieceName.js'
 import { Timediff } from './Timediff.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import { CountdownType, PieceLifespan } from '@sofie-automation/blueprints-integration'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PieceCountdownContainer } from '../PieceIcons/PieceCountdown.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { DashboardLayout, RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import {
+import type { DashboardLayout, RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
+import type {
 	RundownId,
 	RundownLayoutId,
 	RundownPlaylistId,
@@ -30,12 +30,12 @@ import {
 	ShowStyleVariantId,
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
+import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { ShelfDashboardLayout } from '../Shelf/ShelfDashboardLayout.js'
 import { parse as queryStringParse } from 'query-string'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
-import { RundownTimingContext } from '../../lib/rundownTiming.js'
+import type { RundownTimingContext } from '../../lib/rundownTiming.js'
 import { UIShowStyleBases, UIStudios } from '../Collections.js'
 import {
 	PieceInstances,
@@ -51,9 +51,9 @@ import { useRundownAndShowStyleIdsForPlaylist } from '../util/useRundownAndShowS
 import { RundownPlaylistClientUtil } from '../../lib/rundownPlaylistUtil.js'
 import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownHeader/CurrentPartOrSegmentRemaining.js'
 import { RundownStatusBar } from './RundownStatusBar.js'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 import { OverUnderChip } from '../../lib/Components/OverUnderChip.js'
 
 // TODO: We have another definition of this in the Director screen, and there is also another SegmentUI type. We should look into clearing this up.

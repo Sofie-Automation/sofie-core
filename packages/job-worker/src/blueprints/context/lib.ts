@@ -1,6 +1,6 @@
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { DBPart, PartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import {
 	deserializePieceTimelineObjectsBlob,
@@ -15,6 +15,7 @@ import {
 import { DBRundown, Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import {
 	CoreUserEditingDefinition,
+	CoreUserEditingDefinitionState,
 	CoreUserEditingDefinitionAction,
 	CoreUserEditingDefinitionForm,
 	CoreUserEditingProperties,
@@ -35,6 +36,7 @@ import {
 	IBlueprintAdLibPieceDB,
 	IBlueprintConfig,
 	IBlueprintMutatablePart,
+	IBlueprintMutatablePartInstance,
 	IBlueprintPartDB,
 	IBlueprintPartInstance,
 	IBlueprintPiece,
@@ -51,6 +53,7 @@ import {
 	IBlueprintShowStyleVariant,
 	IOutputLayer,
 	ISourceLayer,
+	NoteSeverity,
 	PieceAbSessionInfo,
 	RundownPlaylistTiming,
 } from '@sofie-automation/blueprints-integration'
@@ -69,6 +72,7 @@ import {
 	UserEditingProperties,
 	UserEditingDefinitionSofieDefault,
 	UserEditingType,
+	UserEditingDefinitionState,
 } from '@sofie-automation/blueprints-integration/dist/userEditing'
 import type { PlayoutMutatablePart } from '../../playout/model/PlayoutPartInstanceModel.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
@@ -131,6 +135,7 @@ export const PlayoutMutatablePartSampleKeys = allKeysOfObject<PlayoutMutatablePa
 	disableNextInTransition: true,
 	outTransition: true,
 	expectedDuration: true,
+	availablePostrollDuration: true,
 	holdMode: true,
 	shouldNotifyCurrentPlayingPart: true,
 	ingestNotifyPartExternalId: true,
@@ -218,6 +223,7 @@ export function convertPartInstanceToBlueprints(partInstance: ReadonlyDeep<DBPar
 		previousPartEndState: clone(partInstance.previousPartEndState),
 		orphaned: partInstance.orphaned,
 		blockTakeUntil: partInstance.blockTakeUntil,
+		invalidReason: partInstance.invalidReason ? clone(partInstance.invalidReason.message) : undefined,
 	}
 
 	return obj
@@ -240,6 +246,12 @@ function convertPieceGenericToBlueprintsInner(piece: ReadonlyDeep<PieceGeneric>)
 		allowDirectPlay: clone<IBlueprintPieceDB['allowDirectPlay']>(piece.allowDirectPlay),
 		expectedPackages: clone<ExpectedPackage.Any[] | undefined>(piece.expectedPackages),
 		hasSideEffects: piece.hasSideEffects,
+		userEditOperations: piece.userEditOperations
+			? translateUserEditsToBlueprint(piece.userEditOperations)
+			: undefined,
+		userEditProperties: piece.userEditProperties
+			? translateUserEditPropertiesToBlueprint(piece.userEditProperties)
+			: undefined,
 		content: {
 			...cloneObject(piece.content),
 			timelineObjects: deserializePieceTimelineObjectsBlob(piece.timelineObjectsString),
@@ -264,8 +276,6 @@ export function convertPieceToBlueprints(piece: ReadonlyDeep<PieceInstancePiece>
 		pieceType: piece.pieceType,
 		extendOnHold: piece.extendOnHold,
 		notInVision: piece.notInVision,
-		userEditOperations: translateUserEditsToBlueprint(piece.userEditOperations),
-		userEditProperties: translateUserEditPropertiesToBlueprint(piece.userEditProperties),
 		excludeDuringPartKeepalive: piece.excludeDuringPartKeepalive,
 		displayAbChannel: piece.displayAbChannel,
 	}
@@ -319,6 +329,7 @@ export function convertPartToBlueprints(part: ReadonlyDeep<DBPart>): IBlueprintP
 		disableNextInTransition: part.disableNextInTransition,
 		outTransition: clone(part.outTransition),
 		expectedDuration: part.expectedDuration,
+		availablePostrollDuration: part.availablePostrollDuration,
 		holdMode: part.holdMode,
 		shouldNotifyCurrentPlayingPart: part.shouldNotifyCurrentPlayingPart,
 		ingestNotifyPartExternalId: part.ingestNotifyPartExternalId,
@@ -382,6 +393,8 @@ export function convertAdLibActionToBlueprints(action: ReadonlyDeep<AdLibAction>
 		triggerModes: clone<IBlueprintActionTriggerMode[] | undefined>(action.triggerModes), // TODO - type mismatch
 		expectedPlayoutItems: clone<ExpectedPlayoutItemGeneric[] | undefined>(action.expectedPlayoutItems),
 		expectedPackages: clone<ExpectedPackage.Any[] | undefined>(action.expectedPackages),
+		userEditOperations: translateUserEditsToBlueprint(action.userEditOperations),
+		userEditProperties: translateUserEditPropertiesToBlueprint(action.userEditProperties),
 	}
 
 	return obj
@@ -401,7 +414,9 @@ export function convertSegmentToBlueprints(segment: ReadonlyDeep<DBSegment>): IB
 		isHidden: segment.isHidden,
 		identifier: segment.identifier,
 		displayAs: segment.displayAs,
-		showShelf: segment.showShelf,
+		displayMinishelf: segment.displayMinishelf,
+		// Legacy compatibility field. This should never be set by Core.
+		showShelf: undefined,
 		segmentTiming: segment.segmentTiming,
 		userEditOperations: translateUserEditsToBlueprint(segment.userEditOperations),
 		userEditProperties: translateUserEditPropertiesToBlueprint(segment.userEditProperties),
@@ -424,7 +439,6 @@ export function convertRundownToBlueprints(rundown: ReadonlyDeep<DBRundown>): IB
 		privateData: clone(rundown.privateData),
 		publicData: clone(rundown.publicData),
 		playlistExternalId: rundown.playlistExternalId,
-		endOfRundownIsShowBreak: rundown.endOfRundownIsShowBreak,
 		_id: unprotectString(rundown._id),
 		showStyleVariantId: unprotectString(rundown.showStyleVariantId),
 		playlistId: unprotectString(rundown.playlistId),
@@ -563,6 +577,15 @@ function translateUserEditsToBlueprint(
 	return _.compact(
 		userEdits.map((userEdit) => {
 			switch (userEdit.type) {
+				case UserEditingType.STATE:
+					return literal<UserEditingDefinitionState>({
+						type: UserEditingType.STATE,
+						id: userEdit.id,
+						label: omit(userEdit.label, 'namespaces'),
+						icon: userEdit.icon,
+						iconInactive: userEdit.iconInactive,
+						isActive: userEdit.isActive,
+					})
 				case UserEditingType.ACTION:
 					return literal<UserEditingDefinitionAction>({
 						type: UserEditingType.ACTION,
@@ -626,6 +649,15 @@ export function translateUserEditsFromBlueprint(
 	return _.compact(
 		userEdits.map((userEdit) => {
 			switch (userEdit.type) {
+				case UserEditingType.STATE:
+					return literal<CoreUserEditingDefinitionState>({
+						type: UserEditingType.STATE,
+						id: userEdit.id,
+						label: wrapTranslatableMessageFromBlueprints(userEdit.label, blueprintIds),
+						icon: userEdit.icon,
+						iconInactive: userEdit.iconInactive,
+						isActive: userEdit.isActive,
+					})
 				case UserEditingType.ACTION:
 					return literal<CoreUserEditingDefinitionAction>({
 						type: UserEditingType.ACTION,
@@ -714,6 +746,39 @@ export function convertPartialBlueprintMutablePartToCore(
 
 	return playoutUpdatePart
 }
+
+export interface PlayoutMutatablePartInstance extends Omit<IBlueprintMutatablePartInstance, 'invalidReason'> {
+	invalidReason?: PartInvalidReason
+}
+
+/**
+ * Converts a partial IBlueprintMutatablePartInstance and wraps translatable messages with blueprint namespace
+ */
+export function convertPartialBlueprintMutatablePartInstanceToCore(
+	instanceProps: Partial<IBlueprintMutatablePartInstance>,
+	blueprintId: BlueprintId
+): Partial<PlayoutMutatablePartInstance> {
+	const result: Partial<PlayoutMutatablePartInstance> = {
+		...instanceProps,
+		invalidReason: undefined,
+	}
+
+	if (instanceProps.invalidReason) {
+		result.invalidReason = {
+			message: wrapTranslatableMessageFromBlueprints(instanceProps.invalidReason, [blueprintId]),
+			severity: NoteSeverity.ERROR,
+		}
+	} else if ('invalidReason' in instanceProps) {
+		// Explicitly clearing invalidReason
+		result.invalidReason = undefined
+	} else {
+		// Not touching invalidReason at all
+		delete result.invalidReason
+	}
+
+	return result
+}
+
 export function createBlueprintQuickLoopInfo(playlist: ReadonlyDeep<DBRundownPlaylist>): BlueprintQuickLookInfo | null {
 	const playlistLoopProps = playlist.quickLoop
 	if (!playlistLoopProps) return null

@@ -15,7 +15,7 @@ We support almost all features of these devices except fairlight audio, camera c
 - Full control of keyers
 - Full control of DVE's
 - Control of media pools
-- Control of auxilliaries
+- Control of auxiliaries
 
 ## CasparCG&nbsp;Server<a id="casparcg"></a>
 

@@ -47,7 +47,7 @@ exports[`Test recieved mos ingest payloads mosRoCreate 2`] = `
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -359,7 +359,7 @@ exports[`Test recieved mos ingest payloads mosRoCreate: replace existing 2`] = `
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -664,7 +664,7 @@ exports[`Test recieved mos ingest payloads mosRoFullStory: Valid data 2`] = `
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -989,7 +989,7 @@ exports[`Test recieved mos ingest payloads mosRoReadyToAir: Update ro 2`] = `
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -1303,7 +1303,7 @@ exports[`Test recieved mos ingest payloads mosRoStatus: Update ro 2`] = `
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -1617,7 +1617,7 @@ exports[`Test recieved mos ingest payloads mosRoStoryDelete: Remove segment 2`] 
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -1898,7 +1898,7 @@ exports[`Test recieved mos ingest payloads mosRoStoryInsert: Into segment 2`] = 
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -2224,7 +2224,7 @@ exports[`Test recieved mos ingest payloads mosRoStoryInsert: New segment 2`] = `
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -2558,7 +2558,7 @@ exports[`Test recieved mos ingest payloads mosRoStoryMove: Move whole segment to
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -2875,7 +2875,7 @@ exports[`Test recieved mos ingest payloads mosRoStoryMove: Within segment 2`] = 
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -3192,7 +3192,7 @@ exports[`Test recieved mos ingest payloads mosRoStoryReplace: Same segment 2`] =
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -3508,7 +3508,7 @@ exports[`Test recieved mos ingest payloads mosRoStorySwap: Swap across segments 
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -3817,7 +3817,7 @@ exports[`Test recieved mos ingest payloads mosRoStorySwap: Swap across segments2
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -4158,7 +4158,7 @@ exports[`Test recieved mos ingest payloads mosRoStorySwap: With first in same se
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",
@@ -4475,7 +4475,7 @@ exports[`Test recieved mos ingest payloads mosRoStorySwap: Within same segment 2
   "created": 0,
   "externalId": "SLENPS01;P_NDSL\\W;68E40DE6-2D08-487D-aaaaa",
   "importVersions": {
-    "blueprint": "0.0.0",
+    "blueprint": "mockShowStyleBlueprintHash",
     "core": "0.0.0-test",
     "showStyleBase": "",
     "showStyleVariant": "",

@@ -1,8 +1,8 @@
-import { ITranslatableMessage } from '../lib/translations.js'
-import { PartId, ShowStyleBaseId, StudioId, TriggeredActionId } from '../core/model/Ids.js'
-import { ProtectedString } from '../lib/protectedString.js'
-import { ISourceLayer, IOutputLayer, SourceLayerType, SomeActionIdentifier } from '../core/model/ShowStyle.js'
-import { PieceLifespan } from '../core/model/Rundown.js'
+import type { ITranslatableMessage } from '../lib/translations.js'
+import type { PartId, ShowStyleBaseId, StudioId, TriggeredActionId } from '../core/model/Ids.js'
+import type { ProtectedString } from '../lib/protectedString.js'
+import type { ISourceLayer, IOutputLayer, SourceLayerType, SomeActionIdentifier } from '../core/model/ShowStyle.js'
+import type { PieceLifespan } from '../core/model/Rundown.js'
 
 export type DeviceTriggerMountedActionId = ProtectedString<'deviceTriggerMountedActionId'>
 

@@ -1,14 +1,14 @@
-import { IAdLibListItem } from '../../AdLibListItem.js'
+import type { IAdLibListItem } from '../../AdLibListItem.js'
 import { RundownUtils } from '../../../../lib/rundown.js'
-import { Piece, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import type { Piece, PieceUi } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import InspectorTitle from './InspectorTitle.js'
-import { BucketAdLibUi } from '../../RundownViewBuckets.js'
-import { AdLibPieceUi } from '../../../../lib/shelf.js'
+import type { BucketAdLibUi } from '../../RundownViewBuckets.js'
+import type { AdLibPieceUi } from '../../../../lib/shelf.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { ReadonlyDeep } from 'type-fest'
-import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { ReadonlyDeep } from 'type-fest'
+import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export default function DefaultItemRenderer(
 	props: Readonly<{

@@ -13,8 +13,10 @@ const tmpRules = {
 }
 
 const extendedRules = await generateEslintConfig({
-	// tsconfigName: 'tsconfig.eslint.json',
-	ignores: ['.meteor', 'public', 'scripts', 'server/_force_restart.js', '/packages/'],
+	// The tests and mocks are not part of this package's own tsconfig, they are type-checked as part of the
+	// shared test project over in `packages`. eslint needs to be told about both to cover every file.
+	tsconfigName: ['tsconfig.json', '../packages/tsconfig.test.json'],
+	ignores: ['.meteor', 'public', 'scripts', 'server/_force_restart.js', '/packages/', '_build', 'dist'],
 
 	// disableNodeRules: true,
 })
@@ -33,6 +35,14 @@ extendedRules.push({
 		'n/file-extension-in-import': ['error', 'never'], // Meteor breaks on importing ts files with a js extension
 
 		...tmpRules,
+	},
+})
+extendedRules.push({
+	files: ['server/worker/worker.ts'],
+	rules: {
+		// require('../_force_restart') only exists in dev, not in prod builds; can't use an
+		// inline eslint-disable since it'd be "unused" (and stripped by --fix) locally
+		'n/no-missing-require': 'off',
 	},
 })
 

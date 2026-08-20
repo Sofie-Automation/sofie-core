@@ -1,11 +1,11 @@
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
-import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { MethodContextAPI } from '../../methodContext'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 export type APIHandler<T, Params, Body, Response> = (
 	serverAPI: T,
-	connection: Meteor.Connection,
+	connection: DDPClientConnection,
 	event: string,
 	params: Params,
 	body: Body
@@ -18,7 +18,7 @@ export type APIRegisterHook<T> = <Params, Body, Response>(
 	serverAPIFactory: APIFactory<T>,
 	handler: (
 		serverAPI: T,
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		params: Params,
 		body: Body
@@ -30,5 +30,5 @@ export interface APIFactory<T> {
 }
 
 export interface ServerAPIContext {
-	getMethodContext(connection: Meteor.Connection): MethodContextAPI
+	getMethodContext(connection: DDPClientConnection): MethodContextAPI
 }

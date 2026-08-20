@@ -1,25 +1,24 @@
-import React, { PropsWithChildren } from 'react'
+import React, { type PropsWithChildren } from 'react'
 import { Meteor } from 'meteor/meteor'
 import { withTracker } from '../../../lib/ReactMeteorData/react-meteor-data.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { RundownTiming, TimeEventArgs } from './RundownTiming.js'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { RundownTiming, type TimeEventArgs } from './RundownTiming.js'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import {
-	MinimalPartInstance,
+	type MinimalPartInstance,
 	RundownTimingCalculator,
-	RundownTimingContext,
-	TimingId,
+	type RundownTimingContext,
+	type TimingId,
 	findPartInstancesInQuickLoop,
 } from '../../../lib/rundownTiming.js'
-import { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { RundownPlaylistCollectionUtil } from '../../../collections/rundownPlaylistUtil.js'
+import type { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+
 import { sortPartInstancesInSortedSegments } from '@sofie-automation/corelib/dist/playout/playlist'
 import { RundownPlaylistClientUtil } from '../../../lib/rundownPlaylistUtil.js'
 import { getCurrentTime } from '../../../lib/systemTime.js'
-import { IRundownTimingProviderValues, RundownTimingProviderContext } from './withTiming.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import { type IRundownTimingProviderValues, RundownTimingProviderContext } from './withTiming.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 import {
 	deduplicatePartInstancesForQuickLoop,
 	wrapPartToTemporaryInstance,
@@ -44,16 +43,13 @@ interface IRundownTimingProviderProps {
 	 * onto TIMING_DEFAULT_REFRESH_INTERVAL.
 	 */
 	refreshInterval?: number
-	/** Fallback duration for Parts that have no as-played duration of their own. */
-	defaultDuration?: number
+	/** Fallback duration for Parts that have no as-played duration of their own (the Studio's `defaultDisplayDuration`). */
+	defaultDuration: number
 }
 
 interface IRundownTimingProviderState {}
 interface IRundownTimingProviderTrackedProps {
-	rundowns: Array<Rundown>
-	currentRundown: Rundown | undefined
 	partInstances: Array<MinimalPartInstance>
-	partInstancesMap: Map<PartId, MinimalPartInstance>
 	segments: DBSegment[]
 	segmentsMap: Map<SegmentId, DBSegment>
 	partsInQuickLoop: Record<TimingId, boolean>
@@ -72,19 +68,13 @@ export const RundownTimingProvider = withTracker<
 >(({ playlist }) => {
 	if (!playlist) {
 		return {
-			rundowns: [],
-			currentRundown: undefined,
 			partInstances: [],
-			partInstancesMap: new Map(),
 			segments: [],
 			segmentsMap: new Map(),
 			partsInQuickLoop: {},
 		}
 	}
 
-	const partInstancesMap = new Map<PartId, MinimalPartInstance>()
-
-	const rundowns = RundownPlaylistCollectionUtil.getRundownsOrdered(playlist)
 	const segments = RundownPlaylistClientUtil.getSegments(playlist)
 	const segmentsMap = new Map<SegmentId, DBSegment>(segments.map((segment) => [segment._id, segment]))
 	const unorderedParts = RundownPlaylistClientUtil.getUnorderedParts(playlist)
@@ -121,10 +111,6 @@ export const RundownTimingProvider = withTracker<
 		playlist.previousPartsInfo?.[0]?.partInstanceId
 	)
 
-	const currentRundown = currentPartInstance
-		? rundowns.find((r) => r._id === currentPartInstance.rundownId)
-		: rundowns[0]
-
 	let partInstances: MinimalPartInstance[] = []
 
 	const allPartIds: Set<PartId> = new Set()
@@ -147,10 +133,7 @@ export const RundownTimingProvider = withTracker<
 	const partsInQuickLoop = findPartInstancesInQuickLoop(playlist, partInstances)
 
 	return {
-		rundowns,
-		currentRundown,
 		partInstances,
-		partInstancesMap,
 		segments,
 		segmentsMap,
 		partsInQuickLoop,
@@ -277,16 +260,13 @@ export const RundownTimingProvider = withTracker<
 		}
 
 		private updateDurations(now: number, isSynced: boolean) {
-			const { playlist, rundowns, currentRundown, partInstances, partInstancesMap, segmentsMap } = this.props
+			const { playlist, partInstances, segmentsMap } = this.props
 
 			const updatedDurations = this.timingCalculator.updateDurations(
 				now,
 				isSynced,
 				playlist,
-				rundowns,
-				currentRundown,
 				partInstances,
-				partInstancesMap,
 				segmentsMap,
 				this.props.defaultDuration,
 				this.props.partsInQuickLoop

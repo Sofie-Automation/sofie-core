@@ -1,10 +1,10 @@
-import { ISourceLayer } from '@sofie-automation/blueprints-integration'
-import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { ISourceLayer } from '@sofie-automation/blueprints-integration'
+import type { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RundownLayoutsAPI } from '../../../../lib/rundownLayouts.js'
 import { RundownLayouts } from '../../../../collections/index.js'
-import { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
+import type { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { EditAttribute } from '../../../../lib/EditAttribute.js'
 import { LabelActual } from '../../../../lib/Components/LabelAndOverrides.js'
@@ -63,17 +63,6 @@ export default function RundownViewLayoutSettings({ sourceLayers, item, layouts 
 					attribute={'miniShelfLayout'}
 					obj={item}
 					options={filterLayouts(layouts, RundownLayoutsAPI.isLayoutForMiniShelf)}
-					type="dropdown"
-					collection={RundownLayouts}
-				></EditAttribute>
-			</label>
-
-			<label className="field">
-				<LabelActual label={t('Rundown Header Layout')} />
-				<EditAttribute
-					attribute={'rundownHeaderLayout'}
-					obj={item}
-					options={filterLayouts(layouts, RundownLayoutsAPI.isLayoutForRundownHeader)}
 					type="dropdown"
 					collection={RundownLayouts}
 				></EditAttribute>
@@ -151,16 +140,6 @@ export default function RundownViewLayoutSettings({ sourceLayers, item, layouts 
 					collection={RundownLayouts}
 				></EditAttribute>
 				<span className="text-s dimmed field-hint">{t('Hide rundown divider between rundowns in a playlist')}</span>
-			</label>
-
-			<label className="field">
-				<LabelActual label={t('Show Breaks as Segments')} />
-				<EditAttribute
-					attribute={'showBreaksAsSegments'}
-					obj={item}
-					type="checkbox"
-					collection={RundownLayouts}
-				></EditAttribute>
 			</label>
 
 			<label className="field">

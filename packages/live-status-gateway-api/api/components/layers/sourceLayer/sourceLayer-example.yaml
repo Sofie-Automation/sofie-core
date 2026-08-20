@@ -1,0 +1,6 @@
+id: 'sl_camera'
+name: 'Camera'
+abbreviation: 'CAM'
+isHidden: false
+type: 1
+rank: 0

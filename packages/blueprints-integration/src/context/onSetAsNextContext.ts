@@ -1,5 +1,6 @@
 import {
 	IBlueprintMutatablePart,
+	IBlueprintMutatablePartInstance,
 	IBlueprintPart,
 	IBlueprintPartInstance,
 	IBlueprintPiece,
@@ -75,10 +76,16 @@ export interface IOnSetAsNextContext
 	/** Update a piecesInstance */
 	updatePieceInstance(pieceInstanceId: string, piece: Partial<IBlueprintPiece>): Promise<IBlueprintPieceInstance>
 
-	/** Update a partInstance */
+	/**
+	 * Update a partInstance
+	 * @param part Which part to update
+	 * @param props Properties of the Part itself
+	 * @param instanceProps Properties of the PartInstance (runtime state)
+	 */
 	updatePartInstance(
 		part: 'current' | 'next',
-		props: Partial<IBlueprintMutatablePart>
+		props: Partial<IBlueprintMutatablePart>,
+		instanceProps?: Partial<IBlueprintMutatablePartInstance>
 	): Promise<IBlueprintPartInstance>
 
 	/**

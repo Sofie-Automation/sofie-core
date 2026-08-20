@@ -1,5 +1,4 @@
-import React from 'react'
-import { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
+import type { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import { useTiming } from '../RundownTiming/withTiming'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { calculateTTimerDiff, calculateTTimerOverUnder } from '../../../lib/tTimerUtils'
@@ -13,7 +12,8 @@ interface IProps {
 }
 
 export const RundownHeaderTimers: React.FC<IProps> = ({ tTimers }) => {
-	useTiming()
+	const timing = useTiming()
+	const now = timing.currentTime ?? getCurrentTime()
 
 	const activeTimers = tTimers.filter((t) => t.mode).slice(0, 2)
 	if (activeTimers.length == 0) return null
@@ -22,7 +22,7 @@ export const RundownHeaderTimers: React.FC<IProps> = ({ tTimers }) => {
 		<div className="rundown-header__clocks-timers">
 			{activeTimers.map((timer) => (
 				<div key={timer.index} className="rundown-header__clocks-timers__row">
-					<SingleTimer timer={timer} />
+					<SingleTimer timer={timer} now={now} />
 				</div>
 			))}
 		</div>
@@ -31,17 +31,17 @@ export const RundownHeaderTimers: React.FC<IProps> = ({ tTimers }) => {
 
 interface ISingleTimerProps {
 	timer: RundownTTimer
+	now: number
 }
 
-function SingleTimer({ timer }: Readonly<ISingleTimerProps>) {
-	const now = getCurrentTime()
+function SingleTimer({ timer, now }: Readonly<ISingleTimerProps>) {
 	const mode = timer.mode
 	if (!mode) return null
 	const isRunning = !!timer.state && !timer.state.paused
 
 	const diff = calculateTTimerDiff(timer, now)
 	const overUnder = calculateTTimerOverUnder(timer, now)
-	const timeStr = RundownUtils.formatDiffToTimecode(Math.abs(diff), false, true, true, false, true)
+	const timeStr = RundownUtils.formatDiffToTimecodeHours(Math.abs(diff))
 	const isCountingDown = mode.type === 'countdown' && diff < 0 && isRunning
 
 	return (

@@ -1,0 +1,6 @@
+id: 'ol_pgm'
+name: 'PGM'
+isFlattened: false
+isPGM: true
+sourceLayerIds:
+  - 'sl_camera'

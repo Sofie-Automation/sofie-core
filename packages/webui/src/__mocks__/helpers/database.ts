@@ -1,24 +1,24 @@
 import _ from 'underscore'
-import { DBStudio, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { DBStudio, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
 	PieceLifespan,
-	IOutputLayer,
-	ISourceLayer,
+	type IOutputLayer,
+	type ISourceLayer,
 	SourceLayerType,
 	IBlueprintPieceType,
 } from '@sofie-automation/blueprints-integration'
-import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
-import { ICoreSystem, SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
-import { literal, getRandomId, Complete, normalizeArray } from '@sofie-automation/corelib/dist/lib'
+import type { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
+import { type ICoreSystem, SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { literal, getRandomId, type Complete, normalizeArray } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { EmptyPieceTimelineObjectsBlob, Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
-import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
+import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { EmptyPieceTimelineObjectsBlob, type Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
+import type { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { restartRandomId } from '../random.js'
 import { MongoMock } from '../mongo.js'
 import { defaultRundownPlaylist, defaultStudio } from '../defaultCollectionObjects.js'
@@ -26,7 +26,7 @@ import {
 	applyAndValidateOverrides,
 	wrapDefaultObject,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import {
+import type {
 	BlueprintId,
 	RundownId,
 	RundownPlaylistId,
@@ -36,7 +36,6 @@ import {
 import {
 	AdLibPieces,
 	CoreSystem,
-	Parts,
 	Pieces,
 	RundownBaselineAdLibPieces,
 	RundownPlaylists,
@@ -46,6 +45,7 @@ import {
 	ShowStyleVariants,
 	Studios,
 } from '../../client/collections/index.js'
+import { UIParts } from '../../client/ui/Collections.js'
 
 export enum LAYER_IDS {
 	SOURCE_CAM0 = 'cam0',
@@ -369,7 +369,7 @@ export async function setupDefaultRundown(
 		title: 'Part 0 0',
 		expectedDurationWithTransition: undefined,
 	}
-	MongoMock.getInnerMockCollection(Parts).insert(part00)
+	MongoMock.getInnerMockCollection(UIParts).insert(part00)
 
 	const piece000: Piece = {
 		_id: protectString(rundownId + '_piece000'),
@@ -437,7 +437,7 @@ export async function setupDefaultRundown(
 		title: 'Part 0 1',
 		expectedDurationWithTransition: undefined,
 	}
-	MongoMock.getInnerMockCollection(Parts).insert(part01)
+	MongoMock.getInnerMockCollection(UIParts).insert(part01)
 
 	const piece010: Piece = {
 		_id: protectString(rundownId + '_piece010'),
@@ -477,7 +477,7 @@ export async function setupDefaultRundown(
 		title: 'Part 1 0',
 		expectedDurationWithTransition: undefined,
 	}
-	MongoMock.getInnerMockCollection(Parts).insert(part10)
+	MongoMock.getInnerMockCollection(UIParts).insert(part10)
 
 	const part11: DBPart = {
 		_id: protectString(rundownId + '_part1_1'),
@@ -488,7 +488,7 @@ export async function setupDefaultRundown(
 		title: 'Part 1 1',
 		expectedDurationWithTransition: undefined,
 	}
-	MongoMock.getInnerMockCollection(Parts).insert(part11)
+	MongoMock.getInnerMockCollection(UIParts).insert(part11)
 
 	const part12: DBPart = {
 		_id: protectString(rundownId + '_part1_2'),
@@ -499,7 +499,7 @@ export async function setupDefaultRundown(
 		title: 'Part 1 2',
 		expectedDurationWithTransition: undefined,
 	}
-	MongoMock.getInnerMockCollection(Parts).insert(part12)
+	MongoMock.getInnerMockCollection(UIParts).insert(part12)
 
 	const segment2: DBSegment = {
 		_id: protectString(rundownId + '_segment2'),

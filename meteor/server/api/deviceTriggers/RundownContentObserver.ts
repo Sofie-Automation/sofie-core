@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { RundownId, RundownPlaylistId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	PartInstances,
@@ -24,18 +23,17 @@ import {
 	segmentFieldSpecifier,
 } from './reactiveContentCache'
 import { waitForAllObserversReady } from '../../publications/lib/lib'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 const REACTIVITY_DEBOUNCE = 20
 
 type ChangedHandler = (cache: ContentCache) => () => void
 
 export class RundownContentObserver {
-	#observers: Meteor.LiveQueryHandle[] = []
+	#observers: LiveQueryHandleSync[] = []
 	#cache: ContentCache
 	#cancelCache: () => void
-	#cleanup: (() => void) | undefined = () => {
-		throw new Error('RundownContentObserver.#cleanup has not been set!')
-	}
+	#cleanup: (() => void) | undefined
 	#disposed = false
 
 	private constructor(onChanged: ChangedHandler) {

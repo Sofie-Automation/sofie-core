@@ -2,22 +2,22 @@ import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Escape from '../../../lib/Escape'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { type Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { ContextMenu, MenuItem, ContextMenuTrigger, hideMenu, showMenu } from '@jstarpl/react-contextmenu'
 import { contextMenuHoldToDisplayTime, useRundownViewEventBusListener } from '../../../lib/lib'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons'
 import {
-	ActivateRundownPlaylistEvent,
-	DeactivateRundownPlaylistEvent,
-	IEventContext,
+	type ActivateRundownPlaylistEvent,
+	type DeactivateRundownPlaylistEvent,
+	type IEventContext,
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { UserPermissionsContext } from '../../UserPermissions'
 import { checkRundownTimes, useRundownPlaylistOperations } from './useRundownPlaylistOperations.js'
 import { reloadRundownPlaylistClick } from '../RundownNotifier'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 import { isAnyLoopMarkerDefined, isLoopLocked } from '@sofie-automation/corelib/src/playout/stateCacheResolver'
 
 export const RUNDOWN_CONTEXT_MENU_ID = 'rundown-context-menu'
@@ -26,6 +26,7 @@ interface RundownContextMenuProps {
 	playlist: DBRundownPlaylist
 	studio: UIStudio
 	firstRundown: Rundown | undefined
+	lockView?: boolean
 	onShow?: () => void
 	onHide?: () => void
 }
@@ -39,6 +40,7 @@ export function RundownContextMenu({
 	playlist,
 	studio,
 	firstRundown,
+	lockView,
 	onShow,
 	onHide,
 }: Readonly<RundownContextMenuProps>): JSX.Element {
@@ -133,8 +135,12 @@ export function RundownContextMenu({
 							})}
 						</MenuItem>
 						<MenuItem onClick={operations.takeRundownSnapshot}>{t('Store Snapshot')}</MenuItem>
-						<MenuItem divider />
-						<MenuItem onClick={() => history.push('/')}>{t('Close Rundown')}</MenuItem>
+						{!lockView && (
+							<>
+								<MenuItem divider />
+								<MenuItem onClick={() => history.push('/')}>{t('Close Rundown')}</MenuItem>
+							</>
+						)}
 					</React.Fragment>
 				) : (
 					<React.Fragment>

@@ -1,9 +1,9 @@
 import classNames from 'classnames'
-import React, { useCallback, useEffect, useState } from 'react'
-import { AdLibPieceUi } from '../../../lib/shelf.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import { useCallback, useEffect, useState } from 'react'
+import type { AdLibPieceUi } from '../../../lib/shelf.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 
 interface IProps {
@@ -49,7 +49,6 @@ export function LinePartIndicator({
 			)
 				return
 			setIsMenuOpen(false)
-			window.removeEventListener('mousedown', onClickAway)
 		},
 		[element]
 	)
@@ -58,14 +57,16 @@ export function LinePartIndicator({
 		const shouldBeOpen = !isMenuOpen
 		setIsMenuOpen(shouldBeOpen)
 		onClickExternal?.(e)
-		window.addEventListener('mousedown', onClickAway)
 	}
 
 	useEffect(() => {
+		if (!isMenuOpen) return
+		window.addEventListener('mousedown', onClickAway)
+
 		return () => {
 			window.removeEventListener('mousedown', onClickAway)
 		}
-	}, [])
+	}, [isMenuOpen, onClickAway])
 
 	return (
 		<>

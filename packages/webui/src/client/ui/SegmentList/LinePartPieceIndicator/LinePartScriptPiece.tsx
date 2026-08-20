@@ -1,12 +1,12 @@
 import { SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { useContext, useMemo, useRef } from 'react'
+import { useContext, useEffect, useMemo, useRef } from 'react'
 import {
 	PreviewPopUpContext,
-	IPreviewPopUpSession,
+	type IPreviewPopUpSession,
 	convertSourceLayerItemToPreview,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
 import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
-import { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IProps {
 	pieces: PieceExtended[]
@@ -37,12 +37,26 @@ export function LinePartScriptPiece({ pieces }: IProps): JSX.Element {
 
 	function onMouseEnter(e: React.PointerEvent<HTMLDivElement>) {
 		// setHover(true)
+		if (previewSession.current) {
+			previewSession.current.close()
+			previewSession.current = null
+		}
+
 		if (previewProps?.contents && previewProps.contents.length > 0)
-			previewSession.current = previewContext.requestPreview(e.target as any, previewProps.contents, {
+			previewSession.current = previewContext.requestPreview(e.currentTarget, previewProps.contents, {
 				...previewProps.options,
 				initialOffsetX: e.screenX,
 			})
 	}
+
+	useEffect(() => {
+		return () => {
+			if (previewSession.current) {
+				previewSession.current.close()
+				previewSession.current = null
+			}
+		}
+	}, [])
 
 	function onMouseLeave() {
 		if (previewSession.current) {

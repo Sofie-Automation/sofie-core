@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
+import type { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
+import type { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import Tooltip from 'rc-tooltip'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons'
@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { DisplayFormattedTime } from '../../RundownList/DisplayFormattedTime.js'
 import { PackageWorkStatus } from './PackageWorkStatus.js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import type { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 
 /** How long to wait before considering an unchanged package to not be "working" annymore */
 const WORKING_TIMEOUT = 2000

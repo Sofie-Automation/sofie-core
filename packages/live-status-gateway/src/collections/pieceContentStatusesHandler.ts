@@ -58,6 +58,7 @@ export class PieceContentStatusesHandler extends PublicationCollection<
 				this.setupSubscription(this._currentPlaylistId)
 			}
 		} else {
+			this.stopSubscription()
 			this.clearAndNotify()
 		}
 	}

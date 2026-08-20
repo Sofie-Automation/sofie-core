@@ -1,11 +1,6 @@
+import { z } from 'zod'
 import { check } from '../lib/check'
-import { registerClassToMeteorMethods } from '../methods'
-import {
-	CreateAdlibTestingRundownOption,
-	NewShowStylesAPI,
-	ShowStylesAPIMethods,
-} from '@sofie-automation/meteor-lib/dist/api/showStyles'
-import { Meteor } from 'meteor/meteor'
+import { CreateAdlibTestingRundownOption, NewShowStylesAPI } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { getRandomId, omit } from '@sofie-automation/corelib/dist/lib'
@@ -23,6 +18,7 @@ import { RundownLayouts, ShowStyleBases, ShowStyleVariants, Studios } from '../c
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const PERMISSIONS_FOR_MANAGE_SHOWSTYLES: Array<keyof UserPermissions> = ['configure']
 
@@ -186,12 +182,12 @@ export async function removeShowStyleVariant(
 	context: MethodContext,
 	showStyleVariantId: ShowStyleVariantId
 ): Promise<void> {
-	check(showStyleVariantId, String)
+	check(showStyleVariantId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_SHOWSTYLES)
 
 	const showStyleVariant = await ShowStyleVariants.findOneAsync(showStyleVariantId)
-	if (!showStyleVariant) throw new Meteor.Error(404, `showStyleVariant "${showStyleVariantId}" not found`)
+	if (!showStyleVariant) throw new SofieError(404, `showStyleVariant "${showStyleVariantId}" not found`)
 
 	await ShowStyleVariants.removeAsync(showStyleVariant._id)
 }
@@ -201,13 +197,13 @@ export async function reorderShowStyleVariant(
 	showStyleVariantId: ShowStyleVariantId,
 	rank: number
 ): Promise<void> {
-	check(showStyleVariantId, String)
-	check(rank, Number)
+	check(showStyleVariantId, z.string())
+	check(rank, z.number())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_SHOWSTYLES)
 
 	const showStyleVariant = await ShowStyleVariants.findOneAsync(showStyleVariantId)
-	if (!showStyleVariant) throw new Meteor.Error(404, `showStyleVariant "${showStyleVariantId}" not found`)
+	if (!showStyleVariant) throw new SofieError(404, `showStyleVariant "${showStyleVariantId}" not found`)
 
 	await ShowStyleVariants.updateAsync(showStyleVariantId, {
 		$set: {
@@ -282,31 +278,30 @@ async function getCreateAdlibTestingRundownOptions(context: MethodContext): Prom
 	return options
 }
 
-class ServerShowStylesAPI extends MethodContextAPI implements NewShowStylesAPI {
-	async insertShowStyleBase() {
+export class ServerShowStylesAPI extends MethodContextAPI implements NewShowStylesAPI {
+	async insertShowStyleBase(): Promise<ShowStyleBaseId> {
 		return insertShowStyleBase(this)
 	}
-	async insertShowStyleVariant(showStyleBaseId: ShowStyleBaseId) {
+	async insertShowStyleVariant(showStyleBaseId: ShowStyleBaseId): Promise<ShowStyleVariantId> {
 		return insertShowStyleVariant(this, showStyleBaseId)
 	}
-	async importShowStyleVariant(showStyleVariant: DBShowStyleVariant) {
+	async importShowStyleVariant(showStyleVariant: DBShowStyleVariant): Promise<ShowStyleVariantId> {
 		return importShowStyleVariant(this, showStyleVariant)
 	}
-	async importShowStyleVariantAsNew(showStyleVariant: Omit<DBShowStyleVariant, '_id'>) {
+	async importShowStyleVariantAsNew(showStyleVariant: Omit<DBShowStyleVariant, '_id'>): Promise<ShowStyleVariantId> {
 		return importShowStyleVariantAsNew(this, showStyleVariant)
 	}
-	async removeShowStyleBase(showStyleBaseId: ShowStyleBaseId) {
+	async removeShowStyleBase(showStyleBaseId: ShowStyleBaseId): Promise<void> {
 		return removeShowStyleBase(this, showStyleBaseId)
 	}
-	async removeShowStyleVariant(showStyleVariantId: ShowStyleVariantId) {
+	async removeShowStyleVariant(showStyleVariantId: ShowStyleVariantId): Promise<void> {
 		return removeShowStyleVariant(this, showStyleVariantId)
 	}
-	async reorderShowStyleVariant(showStyleVariantId: ShowStyleVariantId, newRank: number) {
+	async reorderShowStyleVariant(showStyleVariantId: ShowStyleVariantId, newRank: number): Promise<void> {
 		return reorderShowStyleVariant(this, showStyleVariantId, newRank)
 	}
 
-	async getCreateAdlibTestingRundownOptions() {
+	async getCreateAdlibTestingRundownOptions(): Promise<CreateAdlibTestingRundownOption[]> {
 		return getCreateAdlibTestingRundownOptions(this)
 	}
 }
-registerClassToMeteorMethods(ShowStylesAPIMethods, ServerShowStylesAPI, false)

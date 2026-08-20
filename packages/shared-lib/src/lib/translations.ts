@@ -1,4 +1,4 @@
-export { TranslationsBundle, TranslationsBundleType, I18NextData, ITranslatableMessage }
+export { type TranslationsBundle, TranslationsBundleType, type I18NextData, type ITranslatableMessage }
 
 enum TranslationsBundleType {
 	/** i18next JSON data */

@@ -5,3 +5,4 @@ enum:
   - none
   - forward-time
   - back-time
+  - duration

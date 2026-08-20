@@ -56,6 +56,13 @@ export interface IBlueprintMutatablePart<TPrivateData = unknown, TPublicData = u
 	/** Expected duration of the line, in milliseconds */
 	expectedDuration?: number
 
+	/**
+	 * How long this Part may continue after its `expectedDuration` when transitions/keepalive require overlap.
+	 *
+	 * If omitted, this is treated as `0`, so transitions/keepalive must complete by `expectedDuration`.
+	 */
+	availablePostrollDuration?: number
+
 	/** Whether this segment line supports being used in HOLD */
 	holdMode?: PartHoldMode
 

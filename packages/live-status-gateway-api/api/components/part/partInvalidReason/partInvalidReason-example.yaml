@@ -1,0 +1,3 @@
+message: 'Invalid clip reference'
+severity: warning
+color: '#ff0000'

@@ -5,16 +5,15 @@ import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
 import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
 import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton.js'
 import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
-import { PartUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
+import type { PartUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
 import { PartCountdown } from '../RundownView/RundownTiming/PartCountdown.js'
 import { SegmentDuration } from '../RundownView/RundownTiming/SegmentDuration.js'
-import { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTranslation } from 'react-i18next'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { IContextMenuContext } from '../RundownView.js'
+import type { RundownViewPlaylist } from '../../lib/rundownPlaylistProjection.js'
+import type { IContextMenuContext } from '../RundownView.js'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { CriticalIconSmall, WarningIconSmall } from '../../lib/ui/icons/notifications.js'
-import { SegmentTimeAnchorTime } from '../RundownView/RundownTiming/SegmentTimeAnchorTime.js'
 
 export function SegmentListHeader({
 	isDetached,
@@ -40,7 +39,7 @@ export function SegmentListHeader({
 	isDetached: boolean
 	isDetachedStick: boolean
 	segment: SegmentUi
-	playlist: DBRundownPlaylist
+	playlist: RundownViewPlaylist
 	parts: Array<PartUi>
 	segmentNoteCounts: SegmentNoteCounts
 	highlight: boolean
@@ -116,38 +115,28 @@ export function SegmentListHeader({
 				{segment.name}
 			</h2>
 			<div className="segment-opl__counters">
-				{segment.segmentTiming?.expectedStart || segment.segmentTiming?.expectedEnd ? (
-					<div className={classNames('segment-opl__expectedTime')} onClick={onTimeUntilClick}>
-						<SegmentTimeAnchorTime
-							segment={segment}
-							isLiveSegment={isLiveSegment}
-							labelClassName="segment-timeline__expectedTime__label"
+				<div
+					className={classNames('segment-opl__timeUntil', {
+						'segment-opl__timeUntil--time-of-day': useTimeOfDayCountdowns,
+					})}
+					onClick={onTimeUntilClick}
+				>
+					{playlist && parts && parts.length > 0 && showCountdownToSegment && (
+						<PartCountdown
+							partId={countdownToPartId}
+							hideOnZero={!useTimeOfDayCountdowns}
+							useWallClock={useTimeOfDayCountdowns}
+							playlist={playlist}
+							label={
+								useTimeOfDayCountdowns ? (
+									<span className="segment-timeline__timeUntil__label">{t('On Air At')}</span>
+								) : (
+									<span className="segment-timeline__timeUntil__label">{t('On Air In')}</span>
+								)
+							}
 						/>
-					</div>
-				) : (
-					<div
-						className={classNames('segment-opl__timeUntil', {
-							'segment-opl__timeUntil--time-of-day': useTimeOfDayCountdowns,
-						})}
-						onClick={onTimeUntilClick}
-					>
-						{playlist && parts && parts.length > 0 && showCountdownToSegment && (
-							<PartCountdown
-								partId={countdownToPartId}
-								hideOnZero={!useTimeOfDayCountdowns}
-								useWallClock={useTimeOfDayCountdowns}
-								playlist={playlist}
-								label={
-									useTimeOfDayCountdowns ? (
-										<span className="segment-timeline__timeUntil__label">{t('On Air At')}</span>
-									) : (
-										<span className="segment-timeline__timeUntil__label">{t('On Air In')}</span>
-									)
-								}
-							/>
-						)}
-					</div>
-				)}
+					)}
+				</div>
 			</div>
 			{(criticalNotes > 0 || warningNotes > 0) && (
 				<div className="segment-opl__notes">

@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useRef } from 'react'
+import { type ChangeEvent, useCallback, useRef } from 'react'
 import Form from 'react-bootstrap/esm/Form'
 
 interface IToggleSwitchControlProps {

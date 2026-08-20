@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import 'moment/min/locales'
 import { parse as queryStringParse } from 'query-string'
@@ -35,7 +35,6 @@ import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-d
 import { ErrorBoundary } from '../lib/ErrorBoundary.js'
 import { PrompterView } from './Prompter/PrompterView.js'
 import { ModalDialogGlobalContainer, doModalDialog } from '../lib/ModalDialog.js'
-import { Settings } from '../lib/Settings.js'
 import { DocumentTitleProvider } from '../lib/DocumentTitleProvider.js'
 import { catchError, firstIfArray, isRunningInPWA } from '../lib/lib.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
@@ -83,39 +82,33 @@ export const App: React.FC = function App() {
 	}, [lastStart])
 
 	const mountPWAFullScreenTrigger = useCallback(() => {
-		document.addEventListener(
-			'mousedown',
-			(event) => {
-				event.preventDefault()
+		const onMouseDown = (event: MouseEvent) => {
+			event.preventDefault()
 
-				document.documentElement
-					.requestFullscreen({
-						navigationUI: 'auto',
+			document.documentElement
+				.requestFullscreen({
+					navigationUI: 'auto',
+				})
+				.then(() => {
+					document.addEventListener('fullscreenchange', mountPWAFullScreenTrigger, {
+						once: true,
 					})
-					.then(() => {
-						document.addEventListener('fullscreenchange', mountPWAFullScreenTrigger, {
-							once: true,
-						})
-					})
-					.catch(catchError('documentElement.requestFullscreen'))
+				})
+				.catch(catchError('documentElement.requestFullscreen'))
 
-				// Use Keyboard API to lock the keyboard and disable all browser shortcuts
-				if (!('keyboard' in navigator))
-					return // but we check for its availability, so it should be fine.
-					// Keyboard Lock: https://wicg.github.io/keyboard-lock/
-				;(navigator.keyboard as any).lock().catch(catchError('keyboard.lock'))
-			},
-			{
-				once: true,
-				passive: false,
-			}
-		)
+			// Use Keyboard API to lock the keyboard and disable all browser shortcuts
+			if (!('keyboard' in navigator))
+				return // but we check for its availability, so it should be fine.
+				// Keyboard Lock: https://wicg.github.io/keyboard-lock/
+			;(navigator.keyboard as any).lock().catch(catchError('keyboard.lock'))
+		}
+		document.addEventListener('mousedown', onMouseDown, {
+			once: true,
+			passive: false,
+		})
 	}, [])
 
 	useEffect(() => {
-		if (Settings.customizationClassName) {
-			document.body.classList.add(Settings.customizationClassName)
-		}
 		const uiZoom = featureFlags.zoom
 		if (uiZoom !== 1) {
 			document.documentElement.style.fontSize = uiZoom * 16 + 'px'

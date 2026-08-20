@@ -35,6 +35,7 @@ import {
 	handleRestoreRundownsInPlaylistToDefaultOrder,
 } from '../../rundownPlaylists.js'
 import { handleGeneratePlaylistSnapshot, handleRestorePlaylistSnapshot } from '../../playout/snapshot.js'
+import { handleOnSystemSnapshotCreated } from '../../playout/snapshotHooks.js'
 import {
 	handleBlueprintFixUpConfigForStudio,
 	handleBlueprintIgnoreFixUpConfigForStudio,
@@ -42,6 +43,7 @@ import {
 	handleBlueprintValidateConfigForStudio,
 } from '../../playout/upgrade.js'
 import { handleTimelineTriggerTime, handleOnPlayoutPlaybackChanged } from '../../playout/timings/index.js'
+import { handleOnExternalEvents } from '../../playout/externalEvents.js'
 import { handleExecuteAdlibAction } from '../../playout/adlibAction.js'
 import { handleTakeNextPart } from '../../playout/take.js'
 import { handleClearQuickLoopMarkers, handleSetQuickLoopMarker } from '../../playout/quickLoopMarkers.js'
@@ -98,6 +100,7 @@ export const studioJobHandlers: StudioJobHandlers = {
 
 	[StudioJobs.OnPlayoutPlaybackChanged]: handleOnPlayoutPlaybackChanged,
 	[StudioJobs.OnTimelineTriggerTime]: handleTimelineTriggerTime,
+	[StudioJobs.OnExternalEvents]: handleOnExternalEvents,
 
 	[StudioJobs.RecalculateTTimerProjections]: handleRecalculateTTimerProjections,
 
@@ -112,6 +115,7 @@ export const studioJobHandlers: StudioJobHandlers = {
 
 	[StudioJobs.GeneratePlaylistSnapshot]: handleGeneratePlaylistSnapshot,
 	[StudioJobs.RestorePlaylistSnapshot]: handleRestorePlaylistSnapshot,
+	[StudioJobs.OnSystemSnapshotCreated]: handleOnSystemSnapshotCreated,
 	[StudioJobs.DebugCrash]: handleDebugCrash,
 
 	[StudioJobs.BlueprintUpgradeForStudio]: handleBlueprintUpgradeForStudio,

@@ -1,11 +1,11 @@
-import { SourceLayerType, ISourceLayer } from '@sofie-automation/blueprints-integration'
-import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { IPropsHeader } from './PieceIcon.js'
+import type { SourceLayerType, ISourceLayer } from '@sofie-automation/blueprints-integration'
+import type { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { IPropsHeader } from './PieceIcon.js'
 import { UIShowStyleBases } from '../Collections.js'
 import { PieceInstances } from '../../collections/index.js'
-import { ReadonlyDeep } from 'type-fest'
-import { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { ReadonlyDeep } from 'type-fest'
+import type { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export interface IFoundPieceInstance {
 	sourceLayer: ISourceLayer | undefined

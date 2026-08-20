@@ -8,8 +8,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { EditAttribute } from '../../../../lib/EditAttribute.js'
 import { RedirectToBlueprintButton } from '../../../../lib/SettingsNavigation.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { LabelActual } from '../../../../lib/Components/LabelAndOverrides.js'
 
 interface SelectBlueprintProps {

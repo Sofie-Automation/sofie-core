@@ -1,6 +1,6 @@
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { i18nTranslator } from '../../ui/i18n.js'
-import { JSONSchema, TypeName } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
+import { type JSONSchema, TypeName } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import { getSchemaUIField, SchemaFormUIField } from '@sofie-automation/blueprints-integration'
 import { joinObjectPathFragments } from '@sofie-automation/corelib/dist/lib'
 

@@ -60,6 +60,7 @@ interface SubscriptionRequestDetails {
 enum SubscriptionName {
 	STUDIO = 'studio',
 	ACTIVE_PLAYLIST = 'activePlaylist',
+	RESOLVED_PLAYLIST = 'resolvedPlaylist',
 	ACTIVE_PIECES = 'activePieces',
 	SEGMENTS = 'segments',
 	AD_LIBS = 'adLibs',
@@ -142,6 +143,7 @@ interface PlaylistStatus {
 	 * Whether this playlist is currently active or in rehearsal
 	 */
 	activationStatus: PlaylistActivationStatus
+	additionalProperties?: Record<string, any>
 }
 
 /**
@@ -205,6 +207,10 @@ interface CurrentPartStatus {
 	 * User-presentable name of the part
 	 */
 	name: string
+	/**
+	 * Whether this part was created by an adlib
+	 */
+	createdByAdLib: boolean
 	/**
 	 * If this part will progress to the next automatically
 	 */
@@ -347,6 +353,10 @@ interface CurrentSegmentPart {
 	 */
 	name: string
 	/**
+	 * Whether this part was created by an adlib
+	 */
+	createdByAdLib: boolean
+	/**
 	 * If this part will progress to the next automatically
 	 */
 	autoNext?: boolean
@@ -371,6 +381,10 @@ interface PartStatus {
 	 * User-presentable name of the part
 	 */
 	name: string
+	/**
+	 * Whether this part was created by an adlib
+	 */
+	createdByAdLib: boolean
 	/**
 	 * If this part will progress to the next automatically
 	 */
@@ -423,6 +437,7 @@ enum ActivePlaylistTimingMode {
 	NONE = 'none',
 	FORWARD_MINUS_TIME = 'forward-time',
 	BACK_MINUS_TIME = 'back-time',
+	DURATION = 'duration',
 }
 
 /**
@@ -595,6 +610,463 @@ interface TimerStatePaused {
 	 * Optional timestamp when the timer should pause. Typically null when already paused.
 	 */
 	pauseTime?: number | null
+}
+
+/**
+ * Resolved playlist details, including the base playlist status.
+ */
+interface ResolvedPlaylistEvent {
+	/**
+	 * Unique id of the playlist
+	 */
+	id: string
+	/**
+	 * Id normally sourced from the ingest system
+	 */
+	externalId: string
+	/**
+	 * The user defined playlist name
+	 */
+	name: string
+	/**
+	 * Whether this playlist is currently active or in rehearsal
+	 */
+	activationStatus: PlaylistActivationStatus
+	event: 'resolvedPlaylist'
+	/**
+	 * Instance id of the current part, if any
+	 */
+	currentPartInstanceId: string | null
+	/**
+	 * Instance id of the next part, if any
+	 */
+	nextPartInstanceId: string | null
+	/**
+	 * Blueprint-defined playout state, used to expose arbitrary information about playout
+	 */
+	playoutState?: any
+	/**
+	 * Optional arbitrary data
+	 */
+	publicData?: any
+	/**
+	 * Timing information about the playlist using absolute Unix timestamps (ms) and expected duration.
+	 */
+	timing: ResolvedPlaylistTiming
+	/**
+	 * Status of the 3 T-timers in the playlist
+	 */
+	tTimers: TTimerStatus[]
+	/**
+	 * Information about the current quickLoop, if any
+	 */
+	quickLoop?: ActivePlaylistQuickLoop | null
+	/**
+	 * The rundowns in the playlist, in rank order
+	 */
+	rundowns: ResolvedRundown[]
+	additionalProperties?: Record<string, any>
+}
+
+/**
+ * Timing information about the playlist using absolute Unix timestamps (ms) and expected duration.
+ */
+interface ResolvedPlaylistTiming {
+	/**
+	 * Whether the playlist is forward-timed from a start time or back-timed from an end time
+	 */
+	type: ResolvedPlaylistTimingType
+	/**
+	 * Unix timestamp (ms) when the playlist actually started playback (first timed part confirmed started). Null until known.
+	 */
+	startedPlayback: number | null
+	/**
+	 * Expected duration of the playlist (ms). Null when unknown/unavailable.
+	 */
+	expectedDurationMs: number | null
+	/**
+	 * Unix timestamp (ms) when the playlist is expected/projected to end. Null when it cannot be resolved from timing configuration.
+	 */
+	expectedEnd: number | null
+}
+
+/**
+ * Whether the playlist is forward-timed from a start time or back-timed from an end time
+ */
+enum ResolvedPlaylistTimingType {
+	FORWARD = 'forward',
+	BACK = 'back',
+}
+
+/**
+ * A rundown within a resolved playlist
+ */
+interface ResolvedRundown {
+	/**
+	 * Unique id of the rundown
+	 */
+	id: string
+	/**
+	 * Id normally sourced from the ingest system
+	 */
+	externalId: string
+	/**
+	 * User-presentable name of the rundown
+	 */
+	name: string
+	/**
+	 * Rank for ordering
+	 */
+	rank: number
+	/**
+	 * Optional description
+	 */
+	description?: string
+	/**
+	 * Optional arbitrary data
+	 */
+	publicData?: any
+	/**
+	 * Segments in this rundown
+	 */
+	segments: ResolvedSegment[]
+}
+
+/**
+ * A segment within a resolved rundown
+ */
+interface ResolvedSegment {
+	/**
+	 * Unique id of the segment
+	 */
+	id: string
+	/**
+	 * Id normally sourced from the ingest system
+	 */
+	externalId: string
+	/**
+	 * User-facing identifier from the source system
+	 */
+	identifier: string
+	/**
+	 * Name of the segment
+	 */
+	name: string
+	/**
+	 * Rank for ordering
+	 */
+	rank: number
+	/**
+	 * Whether the segment is hidden
+	 */
+	isHidden: boolean
+	/**
+	 * Source layers used in this segment
+	 */
+	sourceLayers: SourceLayer[]
+	/**
+	 * Output layers used in this segment
+	 */
+	outputLayers: OutputLayer[]
+	/**
+	 * Optional arbitrary data
+	 */
+	publicData?: any
+	/**
+	 * Timing information about the segment, relative to the start of the segment
+	 */
+	timing: ResolvedSegmentTiming
+	/**
+	 * Parts in this segment
+	 */
+	parts: ResolvedPart[]
+	additionalProperties?: Record<string, any>
+}
+
+/**
+ * Definition of a source layer used in a segment
+ */
+interface SourceLayer {
+	/**
+	 * Unique id of the source layer
+	 */
+	id: string
+	/**
+	 * User-presentable name of the source layer
+	 */
+	name: string
+	/**
+	 * Abbreviation for display
+	 */
+	abbreviation: string
+	/**
+	 * Whether the source layer is hidden in the UI
+	 */
+	isHidden: boolean
+	/**
+	 * Source layer content type (numeric enum)
+	 */
+	type: number
+	/**
+	 * Rank for ordering
+	 */
+	rank: number
+}
+
+/**
+ * Definition of an output layer used in a segment
+ */
+interface OutputLayer {
+	/**
+	 * Unique id of the output layer
+	 */
+	id: string
+	/**
+	 * User-presentable name of the output layer
+	 */
+	name: string
+	/**
+	 * Whether the output layer is flattened
+	 */
+	isFlattened: boolean
+	/**
+	 * Whether PGM treatment should be in effect
+	 */
+	isPGM: boolean
+	/**
+	 * The set of sourceLayer ids that feed this output layer
+	 */
+	sourceLayerIds: string[]
+}
+
+/**
+ * Timing information about the segment, relative to the start of the segment
+ */
+interface ResolvedSegmentTiming {
+	/**
+	 * Start offset of the segment (ms). For segments, this is typically 0.
+	 */
+	startMs: number
+	/**
+	 * End offset of the segment (ms) from the beginning of the segment
+	 */
+	endMs: number
+	/**
+	 * Planned/budget duration for the segment (ms)
+	 */
+	budgetDurationMs: number
+}
+
+/**
+ * A part within a resolved segment
+ */
+interface ResolvedPart {
+	/**
+	 * Unique id of the part
+	 */
+	id: string
+	/**
+	 * User-presentable name of the part
+	 */
+	name: string
+	/**
+	 * Whether this part was created by an adlib
+	 */
+	createdByAdLib: boolean
+	/**
+	 * If this part will progress to the next automatically
+	 */
+	autoNext?: boolean
+	/**
+	 * Unique id of the part instance
+	 */
+	instanceId: string
+	/**
+	 * Id normally sourced from the ingest system
+	 */
+	externalId: string
+	/**
+	 * Rank for ordering
+	 */
+	rank: number
+	/**
+	 * Whether this part is invalid and should not be taken
+	 */
+	invalid: boolean
+	/**
+	 * Whether this part is floated and cannot be taken/nexted
+	 */
+	floated: boolean
+	/**
+	 * Whether this part is excluded from normal timing calculations
+	 */
+	untimed: boolean
+	/**
+	 * Optional explanation for why the part is invalid
+	 */
+	invalidReason?: PartInvalidReason
+	/**
+	 * Set only for the current or next part
+	 */
+	state?: ResolvedPartState
+	/**
+	 * Optional arbitrary data
+	 */
+	publicData?: any
+	/**
+	 * Timing information about the part, relative to the start of the segment
+	 */
+	timing: ResolvedPartTiming
+	/**
+	 * Pieces in this part
+	 */
+	pieces: ResolvedPiece[]
+	additionalProperties?: Record<string, any>
+}
+
+/**
+ * Optional explanation for why the part is invalid
+ */
+interface PartInvalidReason {
+	/**
+	 * Human-readable message explaining why the part is invalid
+	 */
+	message: string
+	/**
+	 * Severity hint for displaying the invalid reason
+	 */
+	severity?: NotificationSeverity
+	/**
+	 * Optional UI color hint
+	 */
+	color?: string
+}
+
+/**
+ * Severity level of the notification.
+ */
+enum NotificationSeverity {
+	WARNING = 'warning',
+	ERROR = 'error',
+	INFO = 'info',
+}
+
+/**
+ * Set only for the current or next part
+ */
+enum ResolvedPartState {
+	CURRENT = 'current',
+	NEXT = 'next',
+}
+
+/**
+ * Timing information about the part, relative to the start of the segment
+ */
+interface ResolvedPartTiming {
+	/**
+	 * Start offset of the part (ms) from the beginning of the segment
+	 */
+	startMs: number
+	/**
+	 * Resolved duration of the part (ms)
+	 */
+	durationMs: number
+	/**
+	 * Unix timestamp (ms) when the part was planned to start playback
+	 */
+	plannedStartedPlayback?: number
+	/**
+	 * Unix timestamp (ms) when the part was reported when it actually started playback
+	 */
+	reportedStartedPlayback?: number
+	/**
+	 * Milliseconds into the part where playback started when taken (eg via “Play/Set Next from Here”; 0 = from the beginning)
+	 */
+	playOffsetMs?: number
+	/**
+	 * Unix timestamp (ms) when the part was set as next
+	 */
+	setAsNext?: number
+	/**
+	 * Unix timestamp (ms) when the part was taken
+	 */
+	take?: number
+}
+
+/**
+ * A piece within a resolved part
+ */
+interface ResolvedPiece {
+	/**
+	 * Unique id of the piece
+	 */
+	id: string
+	/**
+	 * Unique id of the piece instance
+	 */
+	instanceId?: string
+	/**
+	 * Id normally sourced from the ingest system
+	 */
+	externalId: string
+	/**
+	 * User-facing name of the piece
+	 */
+	name: string
+	/**
+	 * Priority of the piece
+	 */
+	priority: number
+	/**
+	 * Id of the source layer for this piece
+	 */
+	sourceLayerId: string
+	/**
+	 * Id of the output layer for this piece
+	 */
+	outputLayerId: string
+	/**
+	 * Whether this piece was created by an adlib
+	 */
+	createdByAdLib: boolean
+	/**
+	 * Whether this piece is invalid and should be ignored
+	 */
+	invalid: boolean
+	/**
+	 * Optional arbitrary data
+	 */
+	publicData?: any
+	/**
+	 * Timing information about the piece, relative to the start of the part
+	 */
+	timing: ResolvedPieceTiming
+	/**
+	 * Optional tags attached to this piece
+	 */
+	tags?: string[]
+	/**
+	 * Optional AB playback session assignments for this piece
+	 */
+	abSessions?: AbSessionAssignment[]
+}
+
+/**
+ * Timing information about the piece, relative to the start of the part
+ */
+interface ResolvedPieceTiming {
+	/**
+	 * Start offset of the piece (ms) from the beginning of the part
+	 */
+	startMs?: number
+	/**
+	 * Resolved duration of the piece (ms)
+	 */
+	durationMs?: number
+	/**
+	 * Preroll duration for the piece (ms)
+	 */
+	prerollMs?: number
 }
 
 interface ActivePiecesEvent {
@@ -956,15 +1428,6 @@ interface NotificationObj {
 	modified?: number
 }
 
-/**
- * Severity level of the notification.
- */
-enum NotificationSeverity {
-	WARNING = 'warning',
-	ERROR = 'error',
-	INFO = 'info',
-}
-
 interface NotificationTargetRundown {
 	/**
 	 * Possible NotificationTarget types
@@ -1031,6 +1494,7 @@ export type Slash =
 	| NotificationsEvent
 	| PackagesEvent
 	| PongEvent
+	| ResolvedPlaylistEvent
 	| SegmentsEvent
 	| StudioEvent
 	| SubscriptionStatusError
@@ -1075,6 +1539,21 @@ export {
 	TimerModeTimeOfDay,
 	TimerStateRunning,
 	TimerStatePaused,
+	ResolvedPlaylistEvent,
+	ResolvedPlaylistTiming,
+	ResolvedPlaylistTimingType,
+	ResolvedRundown,
+	ResolvedSegment,
+	SourceLayer,
+	OutputLayer,
+	ResolvedSegmentTiming,
+	ResolvedPart,
+	PartInvalidReason,
+	NotificationSeverity,
+	ResolvedPartState,
+	ResolvedPartTiming,
+	ResolvedPiece,
+	ResolvedPieceTiming,
 	ActivePiecesEvent,
 	SegmentsEvent,
 	Segment,
@@ -1091,7 +1570,6 @@ export {
 	BucketAdLibStatus,
 	NotificationsEvent,
 	NotificationObj,
-	NotificationSeverity,
 	NotificationTargetRundown,
 	NotificationTargetType,
 	NotificationTargetRundownPlaylist,

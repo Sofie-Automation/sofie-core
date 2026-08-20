@@ -7,15 +7,15 @@ import { RunMigrationResult, GetMigrationStatusResult } from '@sofie-automation/
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MigrationStepCore } from '@sofie-automation/meteor-lib/dist/migrations'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { MeteorCall } from '../../api/methods'
+import { MigrationAPIMethods } from '@sofie-automation/meteor-lib/dist/api/migration'
+import { ServerMigrationAPI } from '../api'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { ShowStyleBases, ShowStyleVariants, Studios } from '../../collections'
 import { getCoreSystemAsync } from '../../coreSystem/collection'
 import fs from 'fs'
+import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
 
-require('../../api/peripheralDevice.ts') // include in order to create the Meteor methods needed
-require('../api') // include in order to create the Meteor methods needed
-require('../../api/blueprints/api.ts') // include in order to create the Meteor methods needed
+const MeteorCall = makeMeteorCallForTest({ methods: MigrationAPIMethods, class: ServerMigrationAPI })
 
 require('../migrations') // include in order to create the migration steps
 

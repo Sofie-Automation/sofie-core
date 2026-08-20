@@ -1,8 +1,8 @@
+import { z } from 'zod'
 import _ from 'underscore'
 import { check } from '../lib/check'
 import { logger } from '../logging'
-import { registerClassToMeteorMethods } from '../methods'
-import { NewRundownAPI, RundownAPIMethods } from '@sofie-automation/meteor-lib/dist/api/rundown'
+import { NewRundownAPI } from '@sofie-automation/meteor-lib/dist/api/rundown'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { PackageInfo } from '../coreSystem'
@@ -66,7 +66,7 @@ export namespace ClientRundownAPI {
 		_context: MethodContext,
 		playlistId: RundownPlaylistId
 	): Promise<string[]> {
-		check(playlistId, String)
+		check(playlistId, z.string())
 		triggerWriteAccessBecauseNoCheckNecessary()
 
 		const rundowns = await Rundowns.findFetchAsync(
@@ -108,11 +108,11 @@ export namespace ClientRundownAPI {
 				const blueprint = (await Blueprints.findOneAsync(showStyleBase.blueprintId, {
 					projection: {
 						_id: 1,
-						blueprintVersion: 1,
+						blueprintHash: 1,
 					},
-				})) as Pick<Blueprint, '_id' | 'blueprintVersion'>
-				if (!blueprint.blueprintVersion) return 'missing blueprint'
-				if (rundown.importVersions.blueprint !== (blueprint.blueprintVersion || 0)) return 'blueprint'
+				})) as Pick<Blueprint, '_id' | 'blueprintHash'>
+				if (!blueprint.blueprintHash) return 'missing blueprint'
+				if (rundown.importVersions.blueprint !== blueprint.blueprintHash) return 'blueprint'
 
 				const studio = (await Studios.findOneAsync(rundown.studioId, {
 					projection: {
@@ -122,6 +122,8 @@ export namespace ClientRundownAPI {
 				})) as Pick<DBStudio, '_id' | '_rundownVersionHash'>
 				if (!studio) return 'missing studio'
 				if (rundown.importVersions.studio !== (studio._rundownVersionHash || 0)) return 'studio'
+
+				return undefined // no errors
 			})
 		)
 
@@ -129,9 +131,8 @@ export namespace ClientRundownAPI {
 	}
 }
 
-class ServerRundownAPIClass extends MethodContextAPI implements NewRundownAPI {
-	async rundownPlaylistNeedsResync(playlistId: RundownPlaylistId) {
+export class ServerRundownAPIClass extends MethodContextAPI implements NewRundownAPI {
+	async rundownPlaylistNeedsResync(playlistId: RundownPlaylistId): Promise<string[]> {
 		return ClientRundownAPI.rundownPlaylistNeedsResync(this, playlistId)
 	}
 }
-registerClassToMeteorMethods(RundownAPIMethods, ServerRundownAPIClass, false)

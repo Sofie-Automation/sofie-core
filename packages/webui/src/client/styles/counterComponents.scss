@@ -92,19 +92,34 @@
 
 .counter-component__planned-end {
 	color: #ffffff;
-	letter-spacing: 0%;
 	text-align: right;
+	line-height: 1;
 
-	letter-spacing: 0.01em;
+	letter-spacing: 0.02em;
 	font-variation-settings:
-		'slnt' -7,
-		'wdth' 70,
-		'wght' 500;
+		'wdth' 85,
+		'wght' 400,
+		'slnt' -5,
+		'GRAD' 0,
+		'opsz' 40,
+		'XOPQ' 96,
+		'XTRA' 468,
+		'YOPQ' 79,
+		'YTAS' 750,
+		'YTFI' 738,
+		'YTLC' 548,
+		'YTDE' -203,
+		'YTUC' 712;
 }
 
 .counter-component__time-to-planned-end {
-	color: $general-countdown-to-next-color;
+	color: #ffffff;
 	letter-spacing: 0%;
+
+	&.countdown {
+		justify-content: center;
+		transition: none;
+	}
 
 	letter-spacing: 0.01em;
 	font-variation-settings:
@@ -121,12 +136,21 @@
 		'slnt' 0,
 		'wdth' 70,
 		'wght' 500;
+
+	.countdown__counter {
+		color: inherit;
+		margin-left: 0;
+	}
 }
 
 .counter-component__time-since-planned-end {
 	color: $over-under-over-color;
-	text-align: right;
-	margin-left: 1.2vw;
+	text-align: center;
+
+	&.countdown {
+		justify-content: center;
+		transition: none;
+	}
 
 	letter-spacing: 0.01em;
 	font-variation-settings:
@@ -143,4 +167,9 @@
 		'slnt' 0,
 		'wdth' 70,
 		'wght' 600;
+
+	.countdown__counter {
+		color: inherit;
+		margin-left: 0;
+	}
 }

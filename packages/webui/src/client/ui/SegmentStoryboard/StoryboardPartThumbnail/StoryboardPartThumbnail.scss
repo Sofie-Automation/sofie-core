@@ -1,6 +1,7 @@
 @use 'sass:color';
 
 @import '../../../styles/variables';
+@import '../../../styles/checkerboard';
 
 .segment-storyboard__part__thumbnail {
 	position: relative;
@@ -10,7 +11,7 @@
 	overflow: hidden;
 	cursor: default;
 
-	@include item-type-colors();
+	@include item-type-colors;
 	@include missing-overlay();
 
 	// LiveSpeak needs a bit of special set up, because the thumbnail may make the dual-color setup invisible
@@ -21,6 +22,18 @@
 	&.remote-speak {
 		background-color: var(--segment-layer-background-remote-speak-1);
 		background-repeat: repeat-x;
+	}
+
+	&.splits {
+		> .dashboard-panel__panel__button__layer-background {
+			z-index: 0;
+		}
+
+		> .segment-storyboard__thumbnail__split-layout,
+		> .segment-storyboard__thumbnail__label {
+			position: relative;
+			z-index: 1;
+		}
 	}
 
 	&.segment-storyboard__part__thumbnail--placeholder {
@@ -45,7 +58,58 @@
 
 		> .segment-storyboard__thumbnail__item {
 			flex: 1 1;
-			@include item-type-colors();
+			position: relative;
+			overflow: hidden;
+			min-height: 0;
+			@include item-type-colors;
+
+			> img,
+			.segment-storyboard__thumbnail__item__image {
+				position: absolute;
+				inset: 0;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				display: block;
+			}
+		}
+	}
+
+	> .segment-storyboard__thumbnail__split-layout {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		overflow: hidden;
+		@include checkerboard-background;
+
+		> .box,
+		> .background {
+			position: absolute;
+			transform: translate(-50%, -50%);
+			overflow: hidden;
+		}
+
+		> .video-preview {
+			position: absolute;
+			transform: translate(-50%, -50%);
+			overflow: hidden;
+
+			.video-preview__image {
+				position: absolute;
+				inset: 0;
+				display: block;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				object-position: center;
+				z-index: 1;
+			}
+		}
+
+		& > * {
+			@include item-type-colors;
 		}
 	}
 
@@ -77,6 +141,8 @@
 			left: 0;
 			right: 0;
 			margin: 0;
+			z-index: 2;
+			pointer-events: none;
 		}
 
 		&.segment-storyboard__thumbnail__label--sm {

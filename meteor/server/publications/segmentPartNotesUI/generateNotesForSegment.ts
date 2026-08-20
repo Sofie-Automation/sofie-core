@@ -155,5 +155,31 @@ export function generateNotesForSegment(
 		}
 	}
 
+	// Generate notes for runtime invalidReason on PartInstances
+	// This is distinct from planned invalidReason on Parts - these are runtime validation issues
+	for (const partInstance of partInstances) {
+		// Skip if the PartInstance has been reset (no longer relevant) or has no runtime invalidReason
+		if (partInstance.reset || !partInstance.invalidReason) continue
+
+		notes.push({
+			_id: protectString(`${segment._id}_partinstance_${partInstance._id}_invalid_runtime`),
+			playlistId,
+			rundownId: partInstance.rundownId,
+			segmentId: segment._id,
+			note: {
+				type: partInstance.invalidReason.severity ?? NoteSeverity.ERROR,
+				message: partInstance.invalidReason.message,
+				rank: segment._rank,
+				origin: {
+					segmentId: partInstance.segmentId,
+					partId: partInstance.part._id,
+					rundownId: partInstance.rundownId,
+					segmentName: segment.name,
+					name: partInstance.part.title,
+				},
+			},
+		})
+	}
+
 	return notes
 }

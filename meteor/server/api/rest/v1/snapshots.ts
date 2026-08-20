@@ -1,6 +1,6 @@
-import { Meteor } from 'meteor/meteor'
+import { z } from 'zod'
 import { SnapshotId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check } from 'meteor/check'
+import { check } from '../../../lib/check'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { logger } from '../../../logging'
 import { storeRundownPlaylistSnapshot, storeSystemSnapshot } from '../../snapshot'
@@ -15,16 +15,18 @@ import {
 } from '../../../lib/rest/v1'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { checkAccessToPlaylist } from '../../../security/check'
+import type { DDPClientConnection } from '../../../ddp-server/types'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export class SnapshotsServerAPI implements SnapshotsRestAPI {
 	constructor(private context: ServerAPIContext) {}
 
 	async storeSystemSnapshot(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		_event: string,
 		options: APISystemSnapshotOptions
 	): Promise<ClientAPI.ClientResponse<SnapshotId>> {
-		check(options.reason, String)
+		check(options.reason, z.string())
 		return ClientAPI.responseSuccess(
 			await storeSystemSnapshot(
 				this.context.getMethodContext(connection),
@@ -35,13 +37,13 @@ export class SnapshotsServerAPI implements SnapshotsRestAPI {
 	}
 
 	async storePlaylistSnapshot(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		_event: string,
 		options: APIPlaylistSnapshotOptions
 	): Promise<ClientAPI.ClientResponse<SnapshotId>> {
 		const playlistId = protectString(options.rundownPlaylistId)
-		check(playlistId, String)
-		check(options.reason, String)
+		check(playlistId, z.string())
+		check(options.reason, z.string())
 		const access = await checkAccessToPlaylist(connection, playlistId)
 		return ClientAPI.responseSuccess(
 			await storeRundownPlaylistSnapshot(access, playlistSnapshotOptionsFrom(options), options.reason)
@@ -74,7 +76,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<SnapshotsRestAPI>)
 					logger.info(`API POST: Store Playlist Snapshot`)
 					return await serverAPI.storePlaylistSnapshot(connection, event, body)
 				}
-				throw new Meteor.Error(400, `Invalid snapshot type`)
+				throw new SofieError(400, `Invalid snapshot type`)
 			}),
 			SNAPSHOT_RESOURCE
 		)

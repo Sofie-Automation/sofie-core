@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { useTranslation } from 'react-i18next'
 import { getAllCurrentAndDeletedItemsFromOverrides } from '../../util/OverrideOpHelper.js'
 import { PackageContainersPickers } from './PackageContainerPickers.js'

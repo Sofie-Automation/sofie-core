@@ -50,7 +50,7 @@ import { RundownNote } from '@sofie-automation/corelib/dist/dataModel/Notes'
 import { diffAndReturnLatestObjects } from './utils.js'
 import _ from 'underscore'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { IBlueprintRundown } from '@sofie-automation/blueprints-integration'
+import type { BlueprintExternalEventSubscription, IBlueprintRundown } from '@sofie-automation/blueprints-integration'
 import { getCurrentTime, getSystemVersion } from '../../../lib/index.js'
 import { WrappedShowStyleBlueprint } from '../../../blueprints/cache.js'
 import { SaveIngestModelHelper } from './SaveIngestModel.js'
@@ -363,13 +363,17 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 
 	replaceSegment(rawSegment: IngestReplaceSegmentType): IngestSegmentModel {
 		const segment: DBSegment = {
-			...rawSegment,
+			...clone(rawSegment),
 			_id: this.getSegmentIdFromExternalId(rawSegment.externalId),
 			rundownId: this.rundownId,
 		}
+		// Strip undefined properties so the generated doc matches the stored form (Mongo drops undefined);
+		// otherwise `key: undefined` props break the `_.isEqual` diff and falsely flag an unchanged re-ingest
+		deleteAllUndefinedProperties(segment)
+
 		const oldSegment = this.segmentsImpl.get(segment._id)
 
-		const newSegment = new IngestSegmentModelImpl(true, segment, [], oldSegment?.segmentModel)
+		const newSegment = new IngestSegmentModelImpl(!oldSegment, segment, [], oldSegment?.segmentModel)
 		this.segmentsImpl.set(segment._id, {
 			segmentModel: newSegment,
 			deleted: false,
@@ -409,7 +413,8 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 		showStyleBlueprint: ReadonlyDeep<WrappedShowStyleBlueprint>,
 		source: RundownSource,
 		rundownNotes: RundownNote[],
-		userEditOperations: CoreUserEditingDefinition[] | undefined
+		userEditOperations: CoreUserEditingDefinition[] | undefined,
+		externalEventSubscriptions: BlueprintExternalEventSubscription[] | undefined
 	): ReadonlyDeep<DBRundown> {
 		const newRundown = literal<Complete<DBRundown>>({
 			...clone(rundownData as Complete<IBlueprintRundown>),
@@ -420,13 +425,14 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 			showStyleVariantId: showStyleVariant._id,
 			showStyleBaseId: showStyleBase._id,
 			userEditOperations: clone(userEditOperations),
+			externalEventSubscriptions: clone(externalEventSubscriptions),
 			orphaned: undefined,
 
 			importVersions: {
 				studio: this.context.studio._rundownVersionHash,
 				showStyleBase: showStyleBase._rundownVersionHash,
 				showStyleVariant: showStyleVariant._rundownVersionHash,
-				blueprint: showStyleBlueprint.blueprint.blueprintVersion,
+				blueprint: showStyleBlueprint.blueprintHash,
 				core: getSystemVersion(),
 			},
 
@@ -584,6 +590,61 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 
 	/** BaseModel */
 
+	/** The first change made to this model since it was loaded (as an Error), or undefined if unchanged.
+	 * Shared by `hasChanges()` and `assertNoChanges()`. */
+	#findFirstChange(): Error | undefined {
+		// Once disposed, it no longer has any changes
+		if (this.#disposed) return undefined
+
+		if (this.#rundownHasChanged) return new Error(`Failed no changes in model assertion, Rundown has been changed`)
+
+		if (this.#rundownBaselineObjsWithChanges.size)
+			return new Error(`Failed no changes in model assertion, RundownBaselineObjs has been changed`)
+
+		if (this.#rundownBaselineAdLibPiecesWithChanges.size)
+			return new Error(`Failed no changes in model assertion, RundownBaselineAdlibPieces has been changed`)
+
+		if (this.#rundownBaselineAdLibActionsWithChanges.size)
+			return new Error(`Failed no changes in model assertion, RundownBaselineAdlibActions has been changed`)
+
+		if (this.#rundownBaselineExpectedPackagesStore.hasChanges)
+			return new Error(`Failed no changes in model assertion, RundownBaselineExpectedPackages has been changed`)
+
+		for (const segment of this.segmentsImpl.values()) {
+			if (segment.deleted) {
+				return new Error(`Failed no changes in model assertion, Segment has been changed`)
+			} else {
+				const err = segment.segmentModel.checkNoChanges()
+				if (err) return err
+			}
+		}
+
+		if (this.#piecesWithChanges.size) {
+			return new Error(`Failed no changes in model assertion, Rundown Pieces have been changed`)
+		} else {
+			for (const piece of this.#piecesImpl.values()) {
+				if (!piece) {
+					return new Error(`Failed no changes in model assertion, Rundown Pieces have been changed`)
+				}
+			}
+		}
+
+		// Notifications are persisted by saveAllToDatabase(), so pending notification changes must count too
+		if (this.#notificationsHelper.hasChanges)
+			return new Error(`Failed no changes in model assertion, Notifications have been changed`)
+
+		return undefined
+	}
+
+	hasChanges(): boolean {
+		const span = this.context.startSpan('IngestModelImpl.hasChanges')
+		try {
+			return this.#findFirstChange() !== undefined
+		} finally {
+			if (span) span.end()
+		}
+	}
+
 	/**
 	 * Assert that no changes should have been made to the model, will throw an Error otherwise. This can be used in
 	 * place of `saveAllToDatabase()`, when the code controlling the model expects no changes to have been made and any
@@ -593,60 +654,14 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 		// Once disposed, it no longer has any changes
 		if (this.#disposed) return
 
-		function logOrThrowError(error: Error) {
-			if (!IS_PRODUCTION) {
-				throw error
-			} else {
-				logger.error(error)
-			}
-		}
-
 		const span = this.context.startSpan('IngestModelImpl.assertNoChanges')
 		try {
-			if (this.#rundownHasChanged)
-				logOrThrowError(new Error(`Failed no changes in model assertion, Rundown has been changed`))
-
-			if (this.#rundownBaselineObjsWithChanges.size)
-				logOrThrowError(new Error(`Failed no changes in model assertion, RundownBaselineObjs has been changed`))
-
-			if (this.#rundownBaselineAdLibPiecesWithChanges.size)
-				logOrThrowError(
-					new Error(`Failed no changes in model assertion, RundownBaselineAdlibPieces has been changed`)
-				)
-
-			if (this.#rundownBaselineAdLibActionsWithChanges.size)
-				logOrThrowError(
-					new Error(`Failed no changes in model assertion, RundownBaselineAdlibActions has been changed`)
-				)
-
-			if (this.#rundownBaselineExpectedPackagesStore.hasChanges)
-				logOrThrowError(
-					new Error(`Failed no changes in model assertion, RundownBaselineExpectedPackages has been changed`)
-				)
-
-			for (const segment of this.segmentsImpl.values()) {
-				if (segment.deleted) {
-					logOrThrowError(new Error(`Failed no changes in model assertion, Segment has been changed`))
-					break
+			const error = this.#findFirstChange()
+			if (error) {
+				if (!IS_PRODUCTION) {
+					throw error
 				} else {
-					const err = segment.segmentModel.checkNoChanges()
-					if (err) {
-						logOrThrowError(err)
-						break
-					}
-				}
-			}
-
-			if (this.#piecesWithChanges.size) {
-				logOrThrowError(new Error(`Failed no changes in model assertion, Rundown Pieces have been changed`))
-			} else {
-				for (const piece of this.#piecesImpl.values()) {
-					if (!piece) {
-						logOrThrowError(
-							new Error(`Failed no changes in model assertion, Rundown Pieces have been changed`)
-						)
-						break
-					}
+					logger.error(error)
 				}
 			}
 		} finally {

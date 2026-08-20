@@ -79,6 +79,8 @@
 	}
 
 	&__digit {
+		white-space: nowrap;
+
 		&--dimmed {
 			opacity: 0.4;
 			color: #ffffff;

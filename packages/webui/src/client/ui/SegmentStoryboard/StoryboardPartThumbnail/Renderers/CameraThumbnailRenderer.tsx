@@ -1,5 +1,5 @@
 import { getSizeClassForLabel } from '../../utils/getLabelClass.js'
-import { IProps } from './ThumbnailRendererFactory.js'
+import type { IProps } from './ThumbnailRendererFactory.js'
 
 export function CameraThumbnailRenderer({ pieceInstance }: Readonly<IProps>): JSX.Element {
 	return (

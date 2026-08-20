@@ -9,11 +9,11 @@
 	"scripts": {
 		"prepare": "husky",
 		"postinstall": "run install:packages && run install:meteor",
-		"install:meteor": "yarn restart:meteor && cd meteor && meteor --version && meteor npm install -g yarn && node ../scripts/fix-windows-yarn.js && yarn install",
+		"install:meteor": "cd meteor && yarn install",
 		"install:packages": "cd packages && yarn install",
 		"start": "yarn install && run install-and-build && run dev",
 		"install-and-build": "node ./scripts/install-and-build.mjs",
-		"dev": "node ./scripts/run.mjs",
+		"dev": "node --env-file-if-exists=.env ./scripts/run.mjs",
 		"restart:meteor": "node ./scripts/meteor-force-restart.js",
 		"build:packages": "cd packages && run build",
 		"test:packages": "cd packages && run test",
@@ -23,7 +23,6 @@
 		"test:meteor": "cd meteor && run test",
 		"lint:meteor": "cd meteor && yarn lint",
 		"unit:meteor": "cd meteor && yarn unit",
-		"meteor:run": "cd meteor && yarn start",
 		"lint": "run lint:meteor && run lint:packages",
 		"lint:fix": "run lint:meteor --fix && run lint:packages --fix",
 		"unit": "run unit:meteor && run unit:packages",
@@ -31,18 +30,17 @@
 		"validate:release:meteor": "cd meteor && yarn validate:prod-dependencies && yarn license-validate && yarn lint && yarn test",
 		"validate:release:packages": "cd packages && run validate:dependencies && run test",
 		"validate:versions": "node scripts/checkForMultipleVersions.mjs",
-		"meteor": "cd meteor && meteor",
 		"docs:serve": "cd packages && run docs:serve",
 		"reset": "node scripts/reset.mjs",
 		"test-all": "yarn install && run install-and-build && run check-types && run lint:packages && run lint:meteor && run test:packages && run test:meteor"
 	},
 	"devDependencies": {
-		"concurrently": "^9.2.1",
+		"concurrently": "^10.0.3",
 		"husky": "^9.1.7",
-		"lint-staged": "^16.4.0",
+		"lint-staged": "^17.1.1",
 		"rimraf": "^6.1.3",
-		"semver": "^7.7.4",
-		"snyk-nodejs-lockfile-parser": "^2.7.0"
+		"semver": "^7.8.5",
+		"snyk-nodejs-lockfile-parser": "^2.10.0"
 	},
-	"packageManager": "yarn@4.14.1"
+	"packageManager": "yarn@4.17.0"
 }

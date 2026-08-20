@@ -1,5 +1,5 @@
 import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { ReactiveCacheCollection } from '../lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import type { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import type { NrcsIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
@@ -77,22 +77,22 @@ export const nrcsIngestDataCacheObjSpecifier = literal<MongoFieldSpecifierOnesSt
 export interface ContentCache {
 	RundownIds: RundownId[]
 
-	Playlists: ReactiveCacheCollection<PlaylistCompact>
-	Rundowns: ReactiveCacheCollection<RundownCompact>
-	NrcsIngestData: ReactiveCacheCollection<NrcsIngestDataCacheObjCompact>
-	Parts: ReactiveCacheCollection<PartCompact>
-	PartInstances: ReactiveCacheCollection<PartInstanceCompact>
+	Playlists: InMemoryMongoCollection<PlaylistCompact>
+	Rundowns: InMemoryMongoCollection<RundownCompact>
+	NrcsIngestData: InMemoryMongoCollection<NrcsIngestDataCacheObjCompact>
+	Parts: InMemoryMongoCollection<PartCompact>
+	PartInstances: InMemoryMongoCollection<PartInstanceCompact>
 }
 
 export function createReactiveContentCache(rundownIds: RundownId[]): ContentCache {
 	const cache: ContentCache = {
 		RundownIds: rundownIds,
 
-		Playlists: new ReactiveCacheCollection<PlaylistCompact>('playlists'),
-		Rundowns: new ReactiveCacheCollection<RundownCompact>('rundowns'),
-		NrcsIngestData: new ReactiveCacheCollection<NrcsIngestDataCacheObjCompact>('nrcsIngestData'),
-		Parts: new ReactiveCacheCollection<PartCompact>('parts'),
-		PartInstances: new ReactiveCacheCollection<PartInstanceCompact>('partInstances'),
+		Playlists: new InMemoryMongoCollection<PlaylistCompact>('playlists'),
+		Rundowns: new InMemoryMongoCollection<RundownCompact>('rundowns'),
+		NrcsIngestData: new InMemoryMongoCollection<NrcsIngestDataCacheObjCompact>('nrcsIngestData'),
+		Parts: new InMemoryMongoCollection<PartCompact>('parts'),
+		PartInstances: new InMemoryMongoCollection<PartInstanceCompact>('partInstances'),
 	}
 
 	return cache

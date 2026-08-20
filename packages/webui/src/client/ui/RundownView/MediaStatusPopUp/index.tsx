@@ -3,20 +3,21 @@ import { useTranslation } from 'react-i18next'
 // import classNames from 'classnames'
 // import Tooltip from 'rc-tooltip'
 // import { TOOLTIP_DEFAULT_DELAY } from '../../lib/lib.js'
-import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	MediaStatus,
-	MediaStatusListItem as IMediaStatusListItem,
+	type MediaStatusListItem as IMediaStatusListItem,
 	sortItems,
-	SortBy,
-	SortOrder,
+	type SortBy,
+	type SortOrder,
 } from '../../MediaStatus/MediaStatus.js'
 import { MediaStatusPopUpItem } from './MediaStatusPopUpItem.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { MediaStatusPopUpHeader } from './MediaStatusPopUpHeader.js'
 import { RundownPlaylists } from '../../../collections/index.js'
+import { UIStudios } from '../../Collections.js'
 import { MediaStatusPopUpSegmentRule } from './MediaStatusPopUpSegmentRule.js'
 import { mapOrFallback, useDebounce } from '../../../lib/lib.js'
 import { Spinner } from '../../../lib/Spinner.js'
@@ -60,23 +61,27 @@ export function MediaStatusPopUp({ playlistId }: Readonly<IProps>): JSX.Element 
 
 	const playlistIds = useMemo(() => [playlistId], [playlistId])
 
-	const { currentPartInstanceId, nextPartInstanceId } = useTracker(
+	const { currentPartInstanceId, nextPartInstanceId, followOnAirSegmentsHistory } = useTracker(
 		() => {
 			const playlist = RundownPlaylists.findOne(playlistId, {
 				projection: {
 					nextPartInfo: 1,
 					currentPartInfo: 1,
+					studioId: 1,
 				},
 			})
+			const studio = playlist && UIStudios.findOne(playlist.studioId)
 			return {
 				currentPartInstanceId: playlist?.currentPartInfo?.partInstanceId,
 				nextPartInstanceId: playlist?.nextPartInfo?.partInstanceId,
+				followOnAirSegmentsHistory: studio?.settings.followOnAirSegmentsHistory ?? 0,
 			}
 		},
 		[playlistId],
 		{
 			currentPartInstanceId: undefined,
 			nextPartInstanceId: undefined,
+			followOnAirSegmentsHistory: 0,
 		}
 	)
 
@@ -134,6 +139,7 @@ export function MediaStatusPopUp({ playlistId }: Readonly<IProps>): JSX.Element 
 															partId={item.partId}
 															segmentId={item.segmentId}
 															partInstanceId={item.partInstanceId}
+															followOnAirSegmentsHistory={followOnAirSegmentsHistory}
 															partIdentifier={item.partIdentifier}
 															segmentIdentifier={item.segmentIdentifier}
 															sourceLayerName={item.sourceLayerName}

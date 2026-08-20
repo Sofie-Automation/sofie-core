@@ -1,23 +1,23 @@
 import * as React from 'react'
-import { DBStudio, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { DBStudio, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { useTranslation } from 'react-i18next'
 import { Accessor } from '@sofie-automation/blueprints-integration'
 import { Studios } from '../../../../collections/index.js'
-import { DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
+import type { DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
 import {
 	useOverrideOpHelper,
-	WrappedOverridableItem,
-	WrappedOverridableItemNormal,
+	type WrappedOverridableItem,
+	type WrappedOverridableItemNormal,
 } from '../../util/OverrideOpHelper.js'
 import { LabelAndOverridesForMultiSelect } from '../../../../lib/Components/LabelAndOverrides'
 import {
 	applyAndValidateOverrides,
-	ObjectWithOverrides,
-	SomeObjectOverrideOp,
+	type ObjectWithOverrides,
+	type SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { MultiSelectInputControl } from '../../../../lib/Components/MultiSelectInput'
 import { useMemo } from 'react'
-import { StudioPackageContainerSettings } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
+import type { StudioPackageContainerSettings } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
 
 interface PackageContainersPickersProps {
 	studio: DBStudio

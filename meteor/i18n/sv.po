@@ -1,0 +1,4686 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: i18next-conv\n"
+"mime-version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"POT-Creation-Date: 2026-08-06T05:52:15.185Z\n"
+"PO-Revision-Date: 2026-08-06T05:52:15.185Z\n"
+"Language: sv\n"
+
+msgid " The index of the Atem media/clip banks"
+msgstr " Indexet för Atem media/klippbanker"
+
+msgid "({{time}} ago)"
+msgstr "(för {{time}} sedan)"
+
+msgid "({{timecode}})"
+msgstr "({{timecode}})"
+
+msgid ""
+"(Comma separated list. Empty - will store snapshots of all Rundown "
+"Playlists)"
+msgstr ""
+
+msgid "(Default)"
+msgstr "(Standard)"
+
+msgid "(in: {{time}})"
+msgstr "(om: {{time}})"
+
+msgid "(Optional) A name/identifier of the local network where the Atem is located"
+msgstr "(Valfritt) Ett namn/identifierare för det lokala nätverket där Atem finns"
+
+msgid "(Optional) A name/identifier of the local network where the share is located"
+msgstr ""
+"(Valfritt) Ett namn / ID för det lokala nätverket som den delade mappen "
+"finns på"
+
+msgid ""
+"(Optional) A name/identifier of the local network where the share is "
+"located, leave empty if globally accessible"
+msgstr ""
+"(Valfritt) Ett namn / ID för det lokala nätverket som den delade mappen "
+"finns på, lämna tomt som den finns globalt tillgänglig"
+
+msgid "(Optional) This could be the name of the compute"
+msgstr "(Valfritt) detta kan vara namnet på datorn"
+
+msgid ""
+"(Optional) This could be the name of the computer on which the local folder "
+"is on"
+msgstr "(Valfritt) detta kan vara namnet på datorn som den lokala mappen ligger på"
+
+msgid "(Unknown playlist)"
+msgstr "(Okänd spellista)"
+
+msgid "(Unknown rundown)"
+msgstr "(Okänd körschema)"
+
+msgid ""
+"(what happened and when, what should have happened, what could have "
+"triggered the problems, etcetera...)"
+msgstr ""
+"(vad var det som hände och när, vad borde ha hänt, vad kan ha orsakat "
+"problemen, etc...)"
+
+msgid "{{actionName}} failed! More information can be found in the system log."
+msgstr "{{actionName}} misslyckades! Mer information finns i systemloggen."
+
+msgid "{{currentRundownName}} - {{rundownPlaylistName}}"
+msgstr "{{currentRundownName}} - {{rundownPlaylistName}}"
+
+msgid "{{currentRundownName}} - {{rundownPlaylistName}} (Looping)"
+msgstr "{{currentRundownName}} - {{rundownPlaylistName}} (loopar)"
+
+msgid "{{days}} days, {{hours}} h {{minutes}} min {{seconds}} s ago"
+msgstr ""
+"för {{days}} dagar, {{hours}} timmar, {{minutes}} minuter och {{seconds}} "
+"sekunder sedan"
+
+msgid "{{frames}} black frames detected in the clip"
+msgstr "{{frames}} svartrutor hittade i klippet"
+
+msgid "{{frames}} black frames detected within the clip"
+msgstr "{{frames}} svartrutor hittade inuti klippet"
+
+msgid "{{frames}} freeze frames detected in the clip"
+msgstr "{{frames}} frysrutor hittade i klippet"
+
+msgid "{{frames}} freeze frames detected within the clip"
+msgstr "{{frames}} frysrutor hittade inuti klippet"
+
+msgid "{{hours}} h {{minutes}} min {{seconds}} s ago"
+msgstr "för {{hours}} t {{minutes}} min {{seconds}} s sedan"
+
+msgid "{{indexCount}} indexes was removed."
+msgstr "{{indexCount}} index togs bort."
+
+msgid "{{minutes}} min {{seconds}} s ago"
+msgstr "för {{minutes}} min {{seconds}} s sedan"
+
+msgid "{{nrcsName}} Connection"
+msgstr "{{nrcsName}}-anslutning"
+
+msgid "{{prevStatements}} and {{finalStatement}}"
+msgstr "{{prevStatements}} och {{finalStatement}}"
+
+msgid "{{prevStatements}} or {{finalStatement}}"
+msgstr "{{prevStatements}} eller {{finalStatement}}"
+
+msgid ""
+"{{reason}} {{sourceLayer}} exists, but is not yet ready on the playout "
+"system"
+msgstr "{{reason}} {{sourceLayer}} finns, men är inte redo på utspelningssystemet än"
+
+msgid "{{rundownPlaylistName}} (Looping)"
+msgstr "{{rundownPlaylistName}} (Loopande)"
+
+msgid "{{seconds}} s ago"
+msgstr "för {{seconds}} s sedan"
+
+msgid "{{showStyleVariant}} – {{showStyleBase}}"
+msgstr "{{showStyleVariant}} – {{showStyleBase}}"
+
+msgid "{{sourceLayer}} can't be found on the playout system"
+msgstr "{{sourceLayer}} kan inte hittas på utspelningssystemet"
+
+msgid "{{sourceLayer}} doesn't have both audio & video"
+msgstr "{{sourceLayer}} har inte både ljud och video"
+
+msgid "{{sourceLayer}} has {{audioStreams}} audio streams"
+msgstr "{{sourceLayer}} har {{audioStreams}} ljudströmmar"
+
+msgid "{{sourceLayer}} has the wrong format: {{format}}"
+msgstr "{{sourceLayer}} har fel format: {{format}}"
+
+msgid "{{sourceLayer}} has unsupported source: {{containerLabels}}"
+msgstr "{{sourceLayer}} har en källa som inte stöds: {{containerLabels}}"
+
+msgid "{{sourceLayer}} is being ingested"
+msgstr "{{sourceLayer}} håller på att läsas in"
+
+msgid ""
+"{{sourceLayer}} is in a placeholder state for an unknown workflow-defined "
+"reason"
+msgstr ""
+
+msgid "{{sourceLayer}} is in an unknown state: \"{{status}}\""
+msgstr "{{sourceLayer}} är i ett okänt tillstånd: \"{{status}}\""
+
+msgid "{{sourceLayer}} is missing"
+msgstr "{{sourceLayer}} saknas"
+
+msgid "{{sourceLayer}} is missing a file path"
+msgstr "{{sourceLayer}} saknar en filsökväg"
+
+msgid "{{sourceLayer}} is not yet ready on the playout system"
+msgstr "{{sourceLayer}} är inte redo på utspelningssystemet än"
+
+msgid "{{sourceLayer}} is transferring to the playout system"
+msgstr "{{sourceLayer}} överförs till utspelningssystemet"
+
+msgid ""
+"{{sourceLayer}} is transferring to the playout system but cannot be played "
+"yet"
+msgstr "{{sourceLayer}} överförs till utspelningssystemet men kan inte spelas än"
+
+msgid "{{studioName}}: Active Rundown"
+msgstr "{{studioName}}: Aktivt körschema"
+
+msgid "{{studioName}}: Presenter screen"
+msgstr "{{studioName}}: Programledarskärm"
+
+msgid "{{studioName}}: Prompter"
+msgstr "{{studioName}}: Prompter"
+
+msgid "14 = 7 lines, 20 = 5 lines"
+msgstr "14 = 7 rader, 20 = 5 rader"
+
+msgid "A device must be assigned to the config to edit the settings"
+msgstr ""
+"En enhet måste tilldelas konfigurationen för att kunna redigera "
+"inställningarna"
+
+msgid ""
+"A Full System Snapshot contains all system settings (studios, showstyles, "
+"blueprints, devices, etc.)"
+msgstr ""
+"En fullständig backup innehåller alla systeminställningar (studior, "
+"showstyles, blueprints, enheter etc.)"
+
+msgid "a second"
+msgstr "en sekund"
+
+msgid ""
+"A snapshot of the current Running Order has been created for "
+"troubleshooting."
+msgstr "En backup av det aktuella körschemat har skapats för senare felsökning."
+
+msgid "A Studio Snapshot contains all system settings related to that studio"
+msgstr ""
+"En studiobackup innehåller alla systeminställningar relaterade till den "
+"studion"
+
+msgid "AB Channel Display"
+msgstr "AB Channel Display"
+
+msgid "AB Playout devices"
+msgstr "AB Playout-enheter"
+
+msgid "AB Resolver Channel Display"
+msgstr "AB Resolver Channel Display"
+
+msgid "Abort"
+msgstr "Avbryt"
+
+msgid "Aborting all Media Workflows"
+msgstr "Avbryter alla mediearbetsflöden"
+
+msgid "Aborting Media Workflow"
+msgstr "Avbryter mediearbetsflöde"
+
+msgid "Accessor ID"
+msgstr "Accessor-ID"
+
+msgid "Accessor Type"
+msgstr "Typ av tillbehör"
+
+msgid "Accessors"
+msgstr "Tillbehör"
+
+msgid "Action"
+msgstr "Åtgärd"
+
+msgid "Action {{actionName}} done!"
+msgstr "Åtgärd {{actionName}} klar!"
+
+msgid "Action {{actionName}} failed: {{error}}"
+msgstr "Åtgärd {{actionName}} misslyckades: {{error}}"
+
+msgid "Action Buttons"
+msgstr "Åtgärdsknappar"
+
+msgid "Action Triggers"
+msgstr "Triggrar för åtgärder"
+
+msgid "Activate \"On Air\""
+msgstr "Aktivera \"On Air\""
+
+msgid "Activate \"Rehearsal\""
+msgstr "Aktivera \"Repetitionsläget\""
+
+msgid "Activate (On-Air)"
+msgstr "Aktivera (On-Air)"
+
+msgid "Activate (Rehearsal)"
+msgstr "Aktivera (repetitionsläge)"
+
+msgid "Activate On Air"
+msgstr "Aktivera On Air"
+
+msgid "Activate Rundown"
+msgstr "Aktivera körschema"
+
+msgid "Activating Hold"
+msgstr "Aktiverar HOLD"
+
+msgid "Activating Rundown Playlist"
+msgstr "Aktiverar körschemat"
+
+msgid "Active"
+msgstr "Aktiv"
+
+msgid "Active Rundown"
+msgstr "Aktivt körschema"
+
+msgid "Active Rundown View"
+msgstr "Aktiv körschemavy"
+
+msgid "Ad-Lib"
+msgstr "Ad-Lib"
+
+msgid "Ad-Lib Action"
+msgstr "Ad-Lib-åtgärd"
+
+msgid "Add"
+msgstr "Lägg till"
+
+msgid "Add {{filtersTitle}}"
+msgstr "Lägg till {{filtersTitle}}"
+
+msgid "Add a playout device to the studio in order to configure the route sets"
+msgstr ""
+"Lägg till en utspelningsenhet till studion för att konfigurera "
+"omdirigeringarna"
+
+msgid "Add a playout device to the studio in order to edit the layer mappings"
+msgstr ""
+"Lägg till en utspelningsenhet till studion för att redigera "
+"lagermappningarna"
+
+msgid "Add Action Trigger"
+msgstr "Lägg till Action Trigger"
+
+msgid "Add button"
+msgstr "Lägg till-knapp"
+
+msgid "Add filter"
+msgstr "Lägg till filter"
+
+msgid "Add some source layers (e.g. Graphics) for your data to appear in rundowns"
+msgstr ""
+"Lägg till några källager (t.ex. grafik) för att dina data ska visas i en "
+"körschema"
+
+msgid "AdLib"
+msgstr "AdLib"
+
+msgid "AdLib Actions are not supported in the current Rundown"
+msgstr "AdLib-kommandon stöds inte i det aktuella körschemat"
+
+msgid "AdLib could not be found!"
+msgstr "Adlibben kunde inte hittas!"
+
+msgid "AdLib filter"
+msgstr "AdLib-filter"
+
+msgid "Adlib Rank"
+msgstr "AdLib Rank"
+
+msgid "Adlib rundowns are not supported for this ShowStyle!"
+msgstr "AdLib-körscheman stöds inte för denna Programstil!"
+
+msgid "Adlib Testing"
+msgstr "AdLib Testning"
+
+msgid "AdLib Testing"
+msgstr "AdLib-testning"
+
+msgid "AdLibs can be only placed in a currently playing part!"
+msgstr "AdLibs kan endast placeras i en aktiv punkt!"
+
+msgid "AdLibs on this layer can be queued"
+msgstr "AdLibs på detta lager kan köas"
+
+msgid "All additional source layers must have active pieces"
+msgstr "Alla ytterligare källager måste ha aktiva innehållspunkter"
+
+msgid "All connections working correctly"
+msgstr "Alla anslutningar fungerar korrekt"
+
+msgid "All devices working correctly"
+msgstr "Alla enheter fungerar korrekt"
+
+msgid "All is well, go get a"
+msgstr "Allt är bra, gå och hämta en"
+
+msgid "All Screens in a MultiViewer"
+msgstr "Alla skärmar i en MultiViewer"
+
+msgid "All steps"
+msgstr "Alla steg"
+
+msgid "Allow direct playing pieces"
+msgstr "Tillåt direktspelande innehållspunkter"
+
+msgid "Allow disabling of Pieces"
+msgstr "Tillåt inaktivering av innehållspunkter"
+
+msgid "Allow grabbing the segment timelines to scroll them"
+msgstr ""
+
+msgid "Allow grabbing the timeline"
+msgstr ""
+
+msgid "Allow HOLD mode"
+msgstr "Tillåt HOLD-läge"
+
+msgid "Allow infinites from AdLib testing to persist"
+msgstr "Tillåt oändligheter från AdLib-testning att bestå"
+
+msgid "Allow Read access"
+msgstr "Tillåt läsåtkomst"
+
+msgid "Allow Rundowns to be reset while on-air"
+msgstr "Tillåt Körscheman att återställas under sändning"
+
+msgid "Allow Write access"
+msgstr "Tillåt skrivåtkomst"
+
+msgid "Also Require Source Layers"
+msgstr "Kräver också källager"
+
+msgid "Amount of entries exceeds the limt of 10 000 items."
+msgstr "Antalet anmälda överskrider gränsen på 10 000 artiklar."
+
+msgid "An error while performing the take, playout may be impacted"
+msgstr "Ett fel inträffade vid tagningen, utspelningen kan ha påverkats"
+
+msgid "An error while setting the next Part, playout may be impacted"
+msgstr "Ett fel inträffade vid tagning av nästa punkt, utspelningen kan ha påverkats"
+
+msgid "An internal error occured!"
+msgstr "Ett internt fel inträffade!"
+
+msgid "Another Rundown is Already Active!"
+msgstr "Ett annat körschema är redan aktivt!"
+
+msgid "Answers"
+msgstr "Svar"
+
+msgid ""
+"Any AB Playout devices here will only be active when this or another "
+"RouteSet that includes them is active"
+msgstr ""
+
+msgid "APM Enabled"
+msgstr "APM aktiverad"
+
+msgid "APM Transaction Sample Rate"
+msgstr "Samplingsfrekvens för APM-transaktioner"
+
+msgid "Append"
+msgstr "Lägg till"
+
+msgid "Append or Replace"
+msgstr "Lägg till eller ersätt"
+
+msgid "Append rows"
+msgstr "Lägg till rader"
+
+msgid "Application credentials"
+msgstr "Applikationsuppgifter"
+
+msgid "Application Performance Monitoring"
+msgstr "Övervakning av applikationsprestanda"
+
+msgid "Apply"
+msgstr "Tillämpa"
+
+msgid "Apply blueprint upgrades"
+msgstr "Använd blueprints-uppgraderingar"
+
+msgid "Apply Config"
+msgstr "Använd konfiguration"
+
+msgid "Are you sure you want to activate Rehearsal Mode?"
+msgstr "Är du säker på att du vill aktivera repetitionsläget?"
+
+msgid ""
+"Are you sure you want to deactivate this Rundown\n"
+"(This will clear the outputs)"
+msgstr ""
+
+msgid ""
+"Are you sure you want to deactivate this rundown?\n"
+"(This will clear the outputs.)"
+msgstr ""
+
+msgid "Are you sure you want to delete output layer \"{{outputId}}\"?"
+msgstr "Är du säker på att du vill ta bort utgångslagret \"{{outputId}}\"?"
+
+msgid "Are you sure you want to delete source layer \"{{sourceLayerId}}\"?"
+msgstr "Är du säker på att du vill ta bort källskiktet \"{{sourceLayerId}}\"?"
+
+msgid "Are you sure you want to delete the \"{{name}}\" rundown?"
+msgstr "Är du säker på att du vill ta bort körschemat \"{{name}}\"?"
+
+msgid "Are you sure you want to delete the blueprint \"{{blueprintId}}\"?"
+msgstr "Är du säker på att du vill ta bort blueprinten \"{{blueprintId}}\"?"
+
+msgid "Are you sure you want to delete the shelf layout \"{{name}}\"?"
+msgstr "Är du säker på att du vill ta bort hyllayouten \"{{name}}\"?"
+
+msgid "Are you sure you want to delete the show style \"{{showStyleId}}\"?"
+msgstr "Är du säker på att du vill ta bort programstilen \"{{showStyleId}}\"?"
+
+msgid "Are you sure you want to delete the studio \"{{studioId}}\"?"
+msgstr "Är du säker på att du vill ta bort studion \"{{studioId}}\"?"
+
+msgid "Are you sure you want to delete this AdLib?"
+msgstr "Är du säker på att du vill ta bort denna AdLib?"
+
+msgid "Are you sure you want to delete this Bucket?"
+msgstr "Är du säker på att du vill ta bort den här behållaren?"
+
+msgid "Are you sure you want to delete this device: \"{{deviceId}}\"?"
+msgstr "Är du säker på att du vill ta bort den här enheten: \"{{deviceId}}\"?"
+
+msgid "Are you sure you want to empty (remove all adlibs inside) this Bucket?"
+msgstr "Är du säker på att du vill tömma (ta bort alla adlibs i) den här behållaren?"
+
+msgid ""
+"Are you sure you want to force the migration? This will bypass the "
+"migration checks, so be sure to verify that the values in the settings are "
+"correct!"
+msgstr ""
+
+msgid "Are you sure you want to import the contents of the file \"{{fileName}}\"?"
+msgstr "Är du säker på att du vill importera innehållet i filen \"{{fileName}}\"?"
+
+msgid "Are you sure you want to re-sync the \"{{name}}\" rundown?"
+msgstr "Är du säker på att du vill synkronisera om körschemat \"{{name}}\"?"
+
+msgid ""
+"Are you sure you want to re-sync the Rundown?\n"
+"(If the currently playing Part has been changed, this can affect the output)"
+msgstr ""
+
+msgid "Are you sure you want to remove {{type}} \"{{deviceId}}\"?"
+msgstr "Är du säker på att du vill ta bort {{type}} \"{{deviceId}}\"?"
+
+msgid "Are you sure you want to remove all Variants in the table?"
+msgstr "Är du säker på att du vill ta bort alla varianter i tabellen?"
+
+msgid ""
+"Are you sure you want to remove exclusivity group \"{{eGroupName}}\"?\n"
+"Route Sets assigned to this group will be reset to no group."
+msgstr ""
+
+msgid "Are you sure you want to remove mapping for layer \"{{mappingId}}\"?"
+msgstr "Är du säker på att du vill ta bort mappning för lagret \"{{mappingId}}\"?"
+
+msgid "Are you sure you want to remove the AB Player \"{{playerId}}\"?"
+msgstr "Är du säker på att du vill ta bort AB-spelaren \"{{playerId}}\"?"
+
+msgid ""
+"Are you sure you want to remove the device \"{{deviceName}}\" and all of "
+"it's sub-devices?"
+msgstr ""
+
+msgid "Are you sure you want to remove the Package Container \"{{containerId}}\"?"
+msgstr "Är du säker på att du vill ta bort paketbehållaren \"{{containerId}}\"?"
+
+msgid ""
+"Are you sure you want to remove the Package Container Accessor "
+"\"{{accessorId}}\"?"
+msgstr ""
+
+msgid ""
+"Are you sure you want to remove the Route from \"{{sourceLayerId}}\" to "
+"\"{{newLayerId}}\"?"
+msgstr ""
+
+msgid "Are you sure you want to remove the Route Set \"{{routeId}}\"?"
+msgstr "Är du säker på att du vill ta bort omdirigeringen \"{{routeId}}\"?"
+
+msgid "Are you sure you want to remove the Variant \"{{showStyleVariantId}}\"?"
+msgstr "Är du säker på att du vill ta bort varianten \"{{showStyleVariantId}}\"?"
+
+msgid ""
+"Are you sure you want to replace the blueprints with the file "
+"\"{{fileName}}\"?"
+msgstr ""
+
+msgid ""
+"Are you sure you want to reset all overrides for Packing Container "
+"\"{{id}}\"?"
+msgstr ""
+
+msgid ""
+"Are you sure you want to reset all overrides for the mapping for layer "
+"\"{{mappingId}}\"?"
+msgstr ""
+
+msgid ""
+"Are you sure you want to reset all overrides for the output layer "
+"\"{{outputLayerId}}\"?"
+msgstr ""
+
+msgid "Are you sure you want to reset all overrides for the selected row?"
+msgstr ""
+"Är du säker på att du vill återställa alla åsidosättningar för den valda "
+"raden?"
+
+msgid ""
+"Are you sure you want to reset all overrides for the source layer "
+"\"{{sourceLayerId}}\"?"
+msgstr ""
+
+msgid ""
+"Are you sure you want to reset the database version?\n"
+"Only do this if you plan on running the migration right after."
+msgstr ""
+
+msgid "Are you sure you want to restart this device?"
+msgstr "Är du säker på att du vill starta om den här enheten?"
+
+msgid ""
+"Are you sure you want to restart this Sofie Automation Server Core: "
+"{{name}}?"
+msgstr ""
+
+msgid ""
+"Are you sure you want to restore the system from the snapshot file "
+"\"{{fileName}}\"?"
+msgstr ""
+
+msgid "Are you sure you want to skip the fix up config step for {{name}}"
+msgstr "Är du säker på att du vill hoppa över konfigurationssteget för {{name}}"
+
+msgid ""
+"Are you sure you want to update the blueprints from the file "
+"\"{{fileName}}\"?"
+msgstr ""
+
+msgid ""
+"Are you sure you want to upload the shelf layout from the file "
+"\"{{fileName}}\"?"
+msgstr ""
+
+msgid ""
+"Are you sure, do you really want to REMOVE the Snapshot "
+"\"{{snapshotName}}\"?\r\n"
+"This cannot be undone!!"
+msgstr ""
+
+msgid "Are you sure?"
+msgstr "Är du säker?"
+
+msgid ""
+"Are you sure? This will cause the whole Sofie system to be unresponsive "
+"several seconds!"
+msgstr ""
+
+msgid "Around 10 minutes ago"
+msgstr "För cirka 10 minuter sedan"
+
+msgid "Assign"
+msgstr "Tilldela"
+
+msgid "Assigned Show Styles"
+msgstr "Tilldelade programstilar"
+
+msgid "Assigned Studios"
+msgstr "Tilldelade Studios"
+
+msgid "Attached Subdevices"
+msgstr "Bifogade underenheter"
+
+msgid "Audio Mixing"
+msgstr "Ljudmix"
+
+msgid "Authorize App Access"
+msgstr "Auktorisera appåtkomst"
+
+msgid "Auto"
+msgstr "Auto"
+
+msgid "Auto-rewind segment when leaving it"
+msgstr ""
+
+msgid "AutoNext in QuickLoop behavior"
+msgstr "AutoNext i QuickLoop-beteende"
+
+msgid "Available Screens for Studio {{studioId}}"
+msgstr "Tillgängliga skärmar för Studio {{studioId}}"
+
+msgid "Bad"
+msgstr "Dåligt"
+
+msgid "Bank Index"
+msgstr "Bankindex"
+
+msgid "Base URL"
+msgstr "Bas-URL"
+
+msgid "Base url to the resource (example: http://myserver/folder)"
+msgstr "Bas-url till resursen (exempel: http://minserver/mapp)"
+
+msgid "Baseline needs reload, this studio may not work until reloaded"
+msgstr ""
+"Baseline behöver laddas om, den här studion kanske inte fungerar förrän den "
+"har laddats om"
+
+msgid "Behavior"
+msgstr "Beteende"
+
+msgid "Blueprint"
+msgstr "Blueprint"
+
+msgid "Blueprint config has changed"
+msgstr "Blueprint-konfigurationen har ändrats"
+
+msgid "Blueprint config preset"
+msgstr "Blueprint-konfigurationsförinställning"
+
+msgid ""
+"Blueprint config preset has been changed. From \"{{ oldValue }}\", to \"{{ "
+"newValue }}\""
+msgstr ""
+
+msgid "Blueprint config preset is missing"
+msgstr "Blueprint-konfigurationsförinställning saknas"
+
+msgid "Blueprint config preset not set"
+msgstr "Blueprint-konfigurationsförinställning inte inställd"
+
+msgid "Blueprint Configuration"
+msgstr "Blueprint-konfiguration"
+
+msgid "Blueprint has a new version"
+msgstr "Blueprint har en ny version"
+
+msgid "Blueprint has been changed. From \"{{ oldValue }}\", to \"{{ newValue }}\""
+msgstr "Blueprinten har ändrats. Från \"{{oldValue}}\", till \"{{newValue}}\""
+
+msgid "Blueprint ID"
+msgstr "Blueprint ID"
+
+msgid "Blueprint Name"
+msgstr "Blueprint namn"
+
+msgid "Blueprint not found!"
+msgstr "Blueprint hittades inte!"
+
+msgid "Blueprint not set"
+msgstr "Blueprint inte inställd"
+
+msgid "Blueprint Type"
+msgstr "Typ av blueprint"
+
+msgid "Blueprint Version"
+msgstr "Blueprint version"
+
+msgid "Blueprints"
+msgstr "Blueprints"
+
+msgid "Blueprints updated successfully."
+msgstr "Blueprints har uppdaterats."
+
+msgid "Bottom"
+msgstr "Nederst"
+
+msgid "Box color"
+msgstr "Box färg"
+
+msgid "BREAK"
+msgstr "BREAK"
+
+msgid "Break In"
+msgstr "Bryt in"
+
+msgid "Bucket AdLib is not compatible with this Rundown!"
+msgstr "Behållar-AdLib är inte kompatibel med detta körschema!"
+
+msgid "Bucket not found!"
+msgstr "Behållaren hittades inte!"
+
+msgid "Button"
+msgstr "Knapp"
+
+msgid "Button height scale factor"
+msgstr "Skalfaktor för knapphöjd"
+
+msgid "Button mapping"
+msgstr "Knappmappning"
+
+msgid "Button width scale factor"
+msgstr "Skalfaktor för knappbredd"
+
+msgid "By Parts"
+msgstr "Efter punkter"
+
+msgid "By Segments"
+msgstr "Efter segment"
+
+msgid "Camera"
+msgstr "Kamera"
+
+msgid "Camera Screen"
+msgstr "Kameraskärm"
+
+msgid "Can Generate Adlib Testing Rundown"
+msgstr "Kan generera AdLib Testing Körschema"
+
+msgid "Can not be used during a hold!"
+msgstr "Kan inte användas under HOLD!"
+
+msgid "Cancel"
+msgstr "Avbryt"
+
+msgid "Cancel currently pressed hotkey"
+msgstr "Avbryt nuvarande nedtryckta kortkommando"
+
+msgid "Cannot activate HOLD before a part has been taken!"
+msgstr "Kan inte aktivera HOLD innan en punkt har tagits!"
+
+msgid "Cannot activate HOLD between the current and next parts"
+msgstr "Kan inte aktivera HOLD mellan nuvarande och nästa punkt"
+
+msgid "Cannot activate HOLD once an adlib has been used"
+msgstr "Kan inte aktivera HOLD när en AdLib är aktiv"
+
+msgid "Cannot cancel HOLD once it has been taken"
+msgstr "Det går inte att avbryta HOLD när det väl har valts"
+
+msgid "Cannot connect to the {{platformName}}: {{reason}}"
+msgstr "Kan inte ansluta till {{platformName}}: {{reason}}"
+
+msgid "Cannot perform take for {{duration}}ms"
+msgstr "Kan inte göra en tagning i ytterligare {{duration}} ms"
+
+msgid "Cannot play this AdLib because it is marked as Floated"
+msgstr "Det går inte att spela denna AdLib eftersom den är markerad som Floated"
+
+msgid "Cannot play this AdLib because it is marked as Invalid"
+msgstr "Det går inte att spela upp denna AdLib eftersom den är markerad som ogiltig"
+
+msgid "Cannot play this adlib because source layer is not queueable"
+msgstr "Det går inte att spela upp denna adlib eftersom källskiktet inte är köbart"
+
+msgid "Cannot remove the rundown \"{{name}}\" while it is on-air."
+msgstr "Det går inte att ta bort körschemat \"{{name}}\" medan det är aktivt."
+
+msgid "Cannot take close to an AUTO"
+msgstr "Kan inte gå till nästa punkt nära en AUTO"
+
+msgid "Cannot take during a transition"
+msgstr "Kan inte gå till nästa punkt under en övergång"
+
+msgid "Cannot take unplayable AdLib"
+msgstr "Kan inte spela en ospelbar AdLib"
+
+msgid "CasparCG on device \"{{deviceName}}\" restarting..."
+msgstr "CasparCG på enheten \"{{deviceName}}\" startar om..."
+
+msgid "Center"
+msgstr "Centrera"
+
+msgid "Change to fullscreen mode"
+msgstr "Byt till helskärmsläge"
+
+msgid "Channel Name"
+msgstr "Kanalnamn"
+
+msgid ""
+"Check layer types to select all layers of that type, or check individual "
+"layers for more specific filtering."
+msgstr ""
+
+msgid "Check the console for troubleshooting data from device \"{{deviceName}}\"!"
+msgstr "Kontrollera konsolen för felsökning av data från enheten \"{{deviceName}}\"!"
+
+msgid ""
+"Clean up old data (eg. evaluations, user action logs) that is older than "
+"this, in milliseconds"
+msgstr ""
+
+msgid "Cleanup"
+msgstr "Rengöring"
+
+msgid "Cleanup old data"
+msgstr "Rensa gamla data"
+
+msgid "Cleanup old database indexes"
+msgstr "Rensa gamla databasindex"
+
+msgid "Clear {{layerName}}"
+msgstr "Rensa {{layerName}}"
+
+msgid "Clear filter"
+msgstr "Rensa filter"
+
+msgid "Clear queued segment"
+msgstr "Rensa köat segment"
+
+msgid "Clear QuickLoop"
+msgstr "Rensa QuickLoop"
+
+msgid "Clear QuickLoop End"
+msgstr "Rensa QuickLoop End"
+
+msgid "Clear QuickLoop Start"
+msgstr "Rensa QuickLoop Start"
+
+msgid "Clear Source Layer"
+msgstr "Rensa källager"
+
+msgid "Clear value"
+msgstr "Rensa värde"
+
+msgid "Clearing SourceLayer"
+msgstr "Rensa SourceLayer"
+
+msgid "Click anywhere for fullscreen"
+msgstr "Klicka var som helst för helskärm"
+
+msgid "Click on a rundown to control your studio"
+msgstr "Klicka på ett körschema för att styra din studio"
+
+msgid "Click or press Enter for fullscreen"
+msgstr "Klicka eller tryck på Enter för helskärm"
+
+msgid "Click to show available Package Containers"
+msgstr "Klicka för att visa tillgängliga förpackningsbehållare"
+
+msgid "Click to show available Show Styles"
+msgstr ""
+
+msgid "Client IP"
+msgstr "Klients IP"
+
+msgid "Clip starts with {{frames}} black frames"
+msgstr "Klippet börjar med {{frames}} svarta ramar"
+
+msgid "Clip starts with {{frames}} freeze frames"
+msgstr "Klippet börjar med {{frames}} frysa ramar"
+
+msgid "Clips"
+msgstr "Klipp"
+
+msgid "Close"
+msgstr "Stäng"
+
+msgid "Close Properties Panel"
+msgstr "Stäng egenskapspanelen"
+
+msgid "Close Rundown"
+msgstr ""
+
+msgid "Comma-separated list of studio labels to filter by. Leave empty for all."
+msgstr ""
+"Kommaseparerad lista över studioetiketter att filtrera efter. Lämna tomt "
+"för alla."
+
+msgid "Comma-separated speeds in px/frame"
+msgstr "Kommaseparerade hastigheter i px/bildruta"
+
+msgid "Compact"
+msgstr ""
+
+msgid "Compatible Studios"
+msgstr "Kompatibla studior"
+
+msgid "Completed with warnings"
+msgstr "Kompletterad med varningar"
+
+msgid "Config Fix Up must be run or ignored before the configuration can be edited"
+msgstr ""
+"Config Fix Up måste köras eller ignoreras innan konfigurationen kan "
+"redigeras"
+
+msgid "Config for {{name}} fix failed"
+msgstr "Konfigurationen för {{name}}-korrigeringen misslyckades"
+
+msgid "Config for {{name}} fixed successfully"
+msgstr "Konfigurationen för {{name}} har åtgärdats"
+
+msgid "Config for {{name}} upgraded failed"
+msgstr "Konfigurationen för uppgraderingen av {{name}} misslyckades"
+
+msgid "Config for {{name}} upgraded successfully"
+msgstr "Konfigurationen för {{name}} har uppgraderats"
+
+msgid "Config has not been applied before"
+msgstr "Konfiguration har inte tillämpats tidigare"
+
+msgid "Config ID: "
+msgstr "Konfigurations-ID: "
+
+msgid "Config looks good"
+msgstr "Konfigurationen ser bra ut"
+
+msgid "Config preset"
+msgstr "Konfigurationsförinställning"
+
+msgid "Config preset is missing"
+msgstr "Konfigurationsförinställning saknas"
+
+msgid "Config preset not set"
+msgstr "Konfigurationsförinställning inte inställd"
+
+msgid "Config requires fixing up before it can be validated"
+msgstr "Konfigurationen kräver korrigering innan den kan valideras"
+
+msgid ""
+"Config value \"{{ name }}\" has changed. From \"{{ oldValue }}\", to \"{{ "
+"newValue }}\""
+msgstr ""
+
+msgid "Configurable Screens"
+msgstr "Konfigurerbara skärmar"
+
+msgid ""
+"Configuration for this Gateway has moved to the Studio Peripheral Device "
+"settings"
+msgstr ""
+
+msgid "Configure display options"
+msgstr "Konfigurera visningsalternativ"
+
+msgid ""
+"Configure which pieces should display their assigned AB resolver channel "
+"(e.g., \"Server A\") on various screens. This helps operators identify "
+"which video server is playing each clip."
+msgstr ""
+
+msgid "Confirm"
+msgstr "Bekräfta"
+
+msgid "Connect some devices to the playout gateway"
+msgstr "Anslut vissa enheter till playout-gatewayen"
+
+msgid "Connect to {{deviceName}}"
+msgstr "Anslut till {{deviceName}}"
+
+msgid "Connected"
+msgstr "Ansluten"
+
+msgid "Connected App Containers"
+msgstr "Anslutna appbehållare"
+
+msgid "Connected Expectation Managers"
+msgstr "Anslutna förväntningschefer"
+
+msgid "Connected to the {{platformName}}."
+msgstr "Ansluten till {{platformName}}."
+
+msgid "Connected Workers"
+msgstr "Anslutna arbetare"
+
+msgid "Connecting to the {{platformName}}"
+msgstr "Ansluter till {{platformName}}"
+
+msgid "Container Status"
+msgstr "Behållarstatus"
+
+msgid "Control mode"
+msgstr "Kontrolläge"
+
+msgid "Control modes"
+msgstr "Kontrollägen"
+
+msgid ""
+"Controls for exposed Route Sets will be displayed to the producer within "
+"the Rundown View in the Switchboard."
+msgstr ""
+
+msgid "Core"
+msgstr "Core"
+
+msgid "Core + Worker processing time"
+msgstr "Core + Arbetarbearbetningstid"
+
+msgid "Core System settings"
+msgstr "Systeminställningar"
+
+msgid ""
+"Could not create a snapshot for the evaluation, because the previous one "
+"was created just moments ago. If you want another snapshot, try again in a "
+"couple of seconds."
+msgstr ""
+
+msgid "Could not get system status. Please consult system administrator."
+msgstr "Det gick inte att hämta systemstatus. Kontakta systemadministratören."
+
+msgid "Could not restart core: {{err}}"
+msgstr "Kunde inte starta om Core: {{err}}"
+
+msgid "Could not restart Playout Gateway \"{{playoutDeviceName}}\"."
+msgstr "Det gick inte att starta om Playout Gateway \"{{playoutDeviceName}}\"."
+
+msgid "Count down to freeze-frame"
+msgstr ""
+
+msgid "Create Adlib Testing Rundown"
+msgstr "Skapa AdLib Testing Körschema"
+
+msgid "Create new Bucket"
+msgstr "Skapa ny behållare"
+
+msgid "Created"
+msgstr "Skapad"
+
+msgid "Creating a new Bucket"
+msgstr "Skapa en ny behållare"
+
+msgid "Creating Adlib Testing Rundown"
+msgstr "Skapar ett AdLib-test-Körschema"
+
+msgid "Creating Snapshot for debugging"
+msgstr "Tar en backup för senare felsökning"
+
+msgid "Critical problems"
+msgstr "Kritiska problem"
+
+msgid "Critical Problems"
+msgstr "Kritiska problem"
+
+msgid "Cron jobs"
+msgstr ""
+
+msgid "Current Part"
+msgstr "Nuvarande punkt"
+
+msgid "Current part can contain next pieces"
+msgstr "Nuvarande punkt kan ha innehåll från nästa punkt"
+
+msgid "Current Segment"
+msgstr "Nuvarande segment"
+
+msgid "Custom Classes"
+msgstr "Anpassade klasser"
+
+msgid "Custom Hotkey Labels"
+msgstr "Anpassade kortkommandonetiketter"
+
+msgid "Database connection to {{database}} lost"
+msgstr "Tappat databasanslutning till {{database}}"
+
+msgid "Deactivate"
+msgstr "Inaktivera"
+
+msgid "Deactivate \"On Air\""
+msgstr "Inaktivera \"On Air\""
+
+msgid "Deactivate Rundown"
+msgstr "Inaktivera Körschema"
+
+msgid "Deactivate Studio"
+msgstr ""
+
+msgid "Deactivating other Rundown Playlist, and activating this one"
+msgstr "Inaktivera annat Körschema och aktivera detta istället"
+
+msgid "Deactivating Rundown Playlist"
+msgstr "Inaktiverar körschemat"
+
+msgid "Debug"
+msgstr "Felsök"
+
+msgid "Debug mode"
+msgstr "Felsökningsläge"
+
+msgid "Debug State"
+msgstr ""
+
+msgid "Default"
+msgstr "Standard"
+
+msgid "Default (hide)"
+msgstr "Standard (dölj)"
+
+msgid "Default Layout"
+msgstr "Standardlayout"
+
+msgid "Default Part Display Duration"
+msgstr ""
+
+msgid "Default Shelf Display Options"
+msgstr ""
+
+msgid "Default shelf height"
+msgstr ""
+
+msgid "Default State"
+msgstr "Standardtillstånd"
+
+msgid "Default Timeline Time Scale"
+msgstr ""
+
+msgid ""
+"Default value used to toggle Shelf options when the 'display' URL argument "
+"is not provided"
+msgstr ""
+
+msgid "Default zoom factor of the timelines in the UI"
+msgstr ""
+
+msgid "Delete"
+msgstr "Radera"
+
+msgid "Delete Action Trigger"
+msgstr ""
+
+msgid "Delete layout?"
+msgstr "Ta bort layout?"
+
+msgid "Delete mapping"
+msgstr "Ta bort mappning"
+
+msgid "Delete output layer"
+msgstr "Ta bort utgångslager"
+
+msgid "Delete rundown?"
+msgstr "Ta bort körschema?"
+
+msgid "Delete source layer"
+msgstr "Ta bort källager"
+
+msgid "Delete this AdLib"
+msgstr "Ta bort denna AdLib"
+
+msgid "Delete this Blueprint?"
+msgstr "Vill du ta bort den här planen?"
+
+msgid "Delete this Bucket"
+msgstr "Ta bort den här behållaren"
+
+msgid "Delete this item?"
+msgstr "Vill du ta bort det här objektet?"
+
+msgid "Delete this output?"
+msgstr "Vill du ta bort denna utgång?"
+
+msgid "Delete this Show Style?"
+msgstr "Vill du ta bort den här programstilen?"
+
+msgid "Delete this Studio?"
+msgstr "Vill du ta bort den här studion?"
+
+msgid "Device"
+msgstr "Enhet"
+
+msgid "Device \"{{deviceName}}\" restarting..."
+msgstr "Enheten \"{{deviceName}}\" startar om..."
+
+msgid "Device {{deviceName}} is disconnected"
+msgstr "Enheten {{deviceName}} är frånkopplad"
+
+msgid "Device ID"
+msgstr "Enhets-ID"
+
+msgid "Device is already attached to another studio."
+msgstr "Enheten är redan ansluten till en annan studio."
+
+msgid "Device is missing configuration schema"
+msgstr "Enheten saknar konfigurationsschema"
+
+msgid "Device is of unknown type"
+msgstr "Enheten är av okänd typ"
+
+msgid "Device Name"
+msgstr "Enhetens namn"
+
+msgid "Device not found"
+msgstr "Enheten hittades inte"
+
+msgid "Device Triggers"
+msgstr "Enhets triggers"
+
+msgid "Device Type"
+msgstr "Enhetstyp"
+
+msgid "Devices"
+msgstr "Enheter"
+
+msgid "Devices with issues"
+msgstr "Enheter med problem"
+
+msgid "Did you have any problems with the broadcast?"
+msgstr "Hade du några problem med sändningen?"
+
+msgid "Diff"
+msgstr "Diff"
+
+msgid "Director Screen"
+msgstr "Producentskärm"
+
+msgid "Director's Screen"
+msgstr "Producentens skärm"
+
+msgid "Disable"
+msgstr "Inaktivera"
+
+msgid "Disable blur border"
+msgstr ""
+
+msgid "Disable Context Menu"
+msgstr "Inaktivera snabbmenyn"
+
+msgid "Disable follow take"
+msgstr "Inaktivera följning av on-air-punkter"
+
+msgid "Disable hints by adding this to the URL:"
+msgstr "Inaktivera tips genom att lägga till detta i URL:en:"
+
+msgid "Disable next Piece"
+msgstr "Inaktivera nästa Innehållspunkt"
+
+msgid ""
+"Disable the blur border around the Rundown view when it is not in focus and "
+"studio mode is enabled"
+msgstr ""
+
+msgid "Disable the hover Inspector when hovering over the button"
+msgstr "Inaktivera hover Inspector när du håller muspekaren över knappen"
+
+msgid "Disable the next element"
+msgstr "Inaktivera nästa element"
+
+msgid "Disable version check"
+msgstr "Inaktivera versionskontroll"
+
+msgid "Disabled"
+msgstr "Inaktiverad"
+
+msgid "Disabling next Piece"
+msgstr "Inaktiverar nästa Innehållspunkt"
+
+msgid "Disconnected"
+msgstr "Frånkopplad"
+
+msgid ""
+"Discriminant property \"{{ discProperty }}\" used, but is undefined for "
+"variant at index {{ index }}"
+msgstr ""
+
+msgid "Dismiss"
+msgstr "Avfärda"
+
+msgid "Dismiss all notifications"
+msgstr "Avvisa alla aviseringar"
+
+msgid "Display AB channel assignments on:"
+msgstr "Visa AB-kanaltilldelningar på:"
+
+msgid "Display AdLibs in a column in List View"
+msgstr "Visa AdLibs i en kolumn i listvyn"
+
+msgid "Display in a column in List View"
+msgstr "Visas i en kolumn i listvyn"
+
+msgid "Display name of the Package Container"
+msgstr "Visningsnamn för paketbehållaren"
+
+msgid "Display piece duration for source layers"
+msgstr "Visa innehållspunktlängden för källager"
+
+msgid "Display Rank"
+msgstr "Visa rankning"
+
+msgid "Display Style"
+msgstr "Visa stil"
+
+msgid "Display Take buttons"
+msgstr "Visa Tagnings-knappar"
+
+msgid ""
+"Do you really want to remove just the rundown \"{{rundownName}}\" in the "
+"playlist {{playlistName}} from Sofie? \n"
+"\n"
+"This cannot be undone!"
+msgstr ""
+
+msgid "Do you really want to restore the snapshot \"{{snapshotName}}\"?"
+msgstr "Vill du verkligen återställa backuppen \"{{snapshotName}}\"?"
+
+msgid "Do you want to activate this Rundown?"
+msgstr "Vill du aktivera detta körschemat?"
+
+msgid ""
+"Do you want to append these to existing Action Triggers, or do you want to "
+"replace them?"
+msgstr ""
+"Vill du lägga till dessa till befintliga åtgärdstriggers, eller vill du "
+"ersätta dem?"
+
+msgid "Do you want to do this?"
+msgstr "Vill du göra det här?"
+
+msgid "Do you want to execute {{actionName}}? This may the disrupt the output"
+msgstr "Vill du köra {{actionName}}? Detta kan störa utgången"
+
+msgid "Do you want to restart CasparCG Server \"{{device}}\"?"
+msgstr "Vill du starta om CasparCG Server \"{{device}}\"?"
+
+msgid "Do you want to restart the Playout Gateway?"
+msgstr "Vill du starta om Playout Gateway?"
+
+msgid "Documentation is available at"
+msgstr "Dokumentation finns på"
+
+msgid "Documents to be removed:"
+msgstr "Dokument som ska tas bort:"
+
+msgid "Does NOT support HEAD requests"
+msgstr "Stöder INTE HEAD-förfrågningar"
+
+msgid "Done"
+msgstr "Klart"
+
+msgid "Download Action Triggers"
+msgstr "Ladda ner åtgärdstriggers"
+
+msgid "Drag to reorder or move out of playlist"
+msgstr "Dra för att ändra ordning eller flytta ut från spellistan"
+
+msgid "Drop Rundown here to move it out of its current Playlist"
+msgstr "Släpp körschema här för att flytta den från dess nuvarande spellista"
+
+msgid "Dropzone URL"
+msgstr "Dropzone URL"
+
+msgid "Duplicate Action Trigger"
+msgstr ""
+
+msgid "Duration"
+msgstr "Längd"
+
+msgid "DURATION"
+msgstr "LÄNGD"
+
+msgid "e.g., Studio A,Studio B"
+msgstr "t.ex. Studio A, Studio B"
+
+msgid "Edit"
+msgstr "Redigera"
+
+msgid "Edit Action Trigger"
+msgstr ""
+
+msgid "Edit in Nora"
+msgstr "Redigera i Nora"
+
+msgid "Edit mapping"
+msgstr "Redigera mappning"
+
+msgid "Edit Mode"
+msgstr "Redigera läge"
+
+msgid "Edit output layer"
+msgstr "Redigera utgångslager"
+
+msgid "Edit Part Properties"
+msgstr "Redigera delegenskaper"
+
+msgid "Edit Piece Properties"
+msgstr "Redigera innehållspunktegenskaper"
+
+msgid "Edit Segment Properties"
+msgstr "Redigera segmentegenskaper"
+
+msgid "Edit source layer"
+msgstr "Redigera källager"
+
+msgid "Edit Support Panel"
+msgstr "Redigera supportpanel"
+
+msgid "Empty"
+msgstr "Tom"
+
+msgid "Empty this Bucket"
+msgstr "Töm den här behållaren"
+
+msgid "Emptying Bucket"
+msgstr "Tömmer behållare"
+
+msgid "Enable"
+msgstr "Aktivera"
+
+msgid "Enable \"Play from Anywhere\""
+msgstr ""
+
+msgid "Enable AdLib Testing, for testing AdLibs before taking the first Part"
+msgstr "Aktivera AdLib-testning för att testa AdLibs innan du tar den första delen"
+
+msgid "Enable automatic storage of Rundown Playlist snapshots periodically"
+msgstr "Aktivera automatisk lagring av backupper av körscheman med jämna mellanrum"
+
+msgid "Enable Buckets"
+msgstr "Aktivera behållare"
+
+msgid "Enable CasparCG restart job"
+msgstr "Aktivera CasparCG omstartsjobb"
+
+msgid "Enable configuration mode by adding ?configure=1 to the address bar."
+msgstr ""
+"Aktivera konfigurationsläge genom att lägga till ?configure=1 i "
+"adressfältet."
+
+msgid "Enable Evaluation Form"
+msgstr "Aktivera utvärderingsformulär"
+
+msgid "Enable hints by adding this to the URL:"
+msgstr "Aktivera tips genom att lägga till detta i URLen:"
+
+msgid "Enable QuickLoop"
+msgstr "Aktivera QuickLoop"
+
+msgid "Enable search toolbar"
+msgstr "Aktivera sökverktygsfältet"
+
+msgid "Enable User Editing"
+msgstr "Aktivera användarredigering"
+
+msgid "Enabled"
+msgstr "Aktiverad"
+
+msgid "Enabled on all Parts, applying QuickLoop Fallback Part Duration if needed"
+msgstr ""
+"Aktiverad på alla delar, tillämpar QuickLoop Fallback Part Duration om det "
+"behövs"
+
+msgid "Enabled, but skipping parts with undefined or 0 duration"
+msgstr "Aktiverad, men hoppar över punkter med odefinierad eller 0 längd"
+
+msgid ""
+"Enables internal monitoring of blocked main thread. Logs when there is an "
+"issue, but (unverified) might cause issues in itself."
+msgstr ""
+
+msgid "End of script"
+msgstr "Slut på manus"
+
+msgid "Error"
+msgstr "Fel"
+
+msgid "Error when checking for cleaning up"
+msgstr "Fel vid kontroll av städning"
+
+msgid "Error: The ShowStyle of this Rundown was not found."
+msgstr "Fel: Programstilen för detta körschema hittades inte."
+
+msgid "Error: The studio of this Rundown was not found."
+msgstr "Fel: Studion för denna Körschema hittades inte."
+
+msgid "Est. End"
+msgstr "Est. Slut"
+
+msgid "Estimated end"
+msgstr "Uppskattad sluttid"
+
+msgid "Evaluations"
+msgstr "Utvärderingar"
+
+msgid "Exclusivity group"
+msgstr "Exklusivitetsgrupp"
+
+msgid "Exclusivity Group ID"
+msgstr "Exklusivitetsgrupp-ID"
+
+msgid "Exclusivity Group Name"
+msgstr "Exklusivitetsgruppsnamn"
+
+msgid "Exclusivity Groups"
+msgstr "Exklusivitetsgrupper"
+
+msgid "Execute"
+msgstr "Utför"
+
+msgid "Execute User Operation"
+msgstr "Utför användaråtgärd"
+
+msgid "Executed {{actionName}} on device \"{{deviceName}}\": {{response}}"
+msgstr "Körde {{actionName}} på enheten \"{{deviceName}}\": {{response}}"
+
+msgid "Executed {{actionName}} on device \"{{deviceName}}\"..."
+msgstr "Körde {{actionName}} på enheten \"{{deviceName}}\"..."
+
+msgid "Executes within the currently open Rundown, requires a Client-side trigger."
+msgstr ""
+"Körs inom den för närvarande öppna Rundown, kräver en utlösare på "
+"klientsidan."
+
+msgid "Execution times"
+msgstr "Utförandetider"
+
+msgid "Exit"
+msgstr "Avsluta"
+
+msgid "Expectation Manager"
+msgstr "Förväntningschef"
+
+msgid "Expected End"
+msgstr "Förväntad sluttid"
+
+msgid "Expected End Time"
+msgstr "Förväntad sluttid"
+
+msgid "Expected Start"
+msgstr "Förväntad starttid"
+
+msgid "Export"
+msgstr "Exportera"
+
+msgid "Export visible"
+msgstr "Exportera synliga"
+
+msgid "Expose as user selectable layout"
+msgstr "Exponera som användarvalbar layout"
+
+msgid "Expose layout as a standalone page"
+msgstr "Visa layout som en fristående sida"
+
+msgid "External message queue has unsent messages."
+msgstr "Extern meddelandekö har osända meddelanden."
+
+msgid "Failed to activate"
+msgstr "Det gick inte att aktivera"
+
+msgid "Failed to add a new Show Style Variant: {{errorMessage}}"
+msgstr "Det gick inte att lägga till en ny programstilsvariant: {{errorMessage}}"
+
+msgid "Failed to assign AB player for {{pieceNames}}"
+msgstr "Det gick inte att tilldela AB-spelare för {{pieceNames}}"
+
+msgid "Failed to assign non-critical AB player for {{pieceNames}}"
+msgstr "Det gick inte att tilldela icke-kritisk AB-spelare för {{pieceNames}}"
+
+msgid "Failed to compare config changes"
+msgstr "Det gick inte att jämföra konfigurationsändringar"
+
+msgid "Failed to copy Show Style Variant: {{errorMessage}}"
+msgstr "Det gick inte att kopiera programstilsvariant: {{errorMessage}}"
+
+msgid "Failed to delete Show Style Variant: {{errorMessage}}"
+msgstr "Det gick inte att ta bort programstilsvariant: {{errorMessage}}"
+
+msgid ""
+"Failed to execute {{actionName}} on device: \"{{deviceName}}\": "
+"{{errorMessage}}"
+msgstr ""
+
+msgid "Failed to execute take"
+msgstr "Det gick inte att utföra tagningen"
+
+msgid "Failed to generate adlib rundown! {{message}}"
+msgstr "Det gick inte att generera AdLib-körschema! {{message}}"
+
+msgid "Failed to import new Show Style Variants: {{errorMessage}}"
+msgstr "Det gick inte att importera nya programstilsvarianter: {{errorMessage}}"
+
+msgid ""
+"Failed to import Show Style Variant {{name}}. Make sure it is not already "
+"imported."
+msgstr ""
+
+msgid "Failed to remove all Show Style Variants: {{errorMessage}}"
+msgstr "Det gick inte att ta bort alla programstilsvarianter: {{errorMessage}}"
+
+msgid "Failed to reorderShow Style Variant: {{errorMessage}}"
+msgstr "Det gick inte att ordna om programstilsvariant: {{errorMessage}}"
+
+msgid "Failed to reset OAuth credentials: {{errorMessage}}"
+msgstr "Det gick inte att återställa OAuth-uppgifter: {{errorMessage}}"
+
+msgid "Failed to restart CasparCG on device: \"{{deviceName}}\": {{errorMessage}}"
+msgstr ""
+"Det gick inte att starta om CasparCG på enheten: \"{{deviceName}}\": "
+"{{errorMessage}}"
+
+msgid "Failed to restart device: \"{{deviceName}}\": {{errorMessage}}"
+msgstr "Det gick inte att starta om enheten: \"{{deviceName}}\": {{errorMessage}}"
+
+msgid "Failed to update blueprints: {{errorMessage}}"
+msgstr "Det gick inte att uppdatera blueprints: {{errorMessage}}"
+
+msgid "Failed to update config: {{errorMessage}}"
+msgstr "Det gick inte att uppdatera konfigurationen: {{errorMessage}}"
+
+msgid "Failed to upload OAuth credentials: {{errorMessage}}"
+msgstr "Det gick inte att ladda upp OAuth-uppgifter: {{errorMessage}}"
+
+msgid "Failed to upload shelf layout: {{errorMessage}}"
+msgstr "Det gick inte att ladda upp hyllayout: {{errorMessage}}"
+
+msgid "Failed to validate config"
+msgstr "Det gick inte att validera konfigurationen"
+
+msgid "Fatal"
+msgstr "Dödlig"
+
+msgid "File path to the folder of the local folder"
+msgstr "Filsökväg till mappen för den lokala mappen"
+
+msgid "Filter by Output Layer"
+msgstr "Filtrera efter utgångs-lager"
+
+msgid "Filter by Source Layer"
+msgstr "Filtrera efter käll-lager"
+
+msgid "Filter disabled"
+msgstr "Filter inaktiverat"
+
+msgid "Filter Disabled"
+msgstr "Filter inaktiverat"
+
+msgid "Filter..."
+msgstr "Filtrera..."
+
+msgid "Filters"
+msgstr "Filter"
+
+msgid "Find Trigger..."
+msgstr "Hitta trigger..."
+
+msgid "Fine scroll"
+msgstr "Fin scroll"
+
+msgid "Fix Up Config"
+msgstr "Fixa Konfiguration"
+
+msgid "Fixed duration in Segment header"
+msgstr "Fast längd i segmentrubriken"
+
+msgid ""
+"Fixing this problem requires a restart to the host device. Are you sure you "
+"want to restart {{device}}?\n"
+"(This might affect output)"
+msgstr ""
+
+msgid "Floated Adlib"
+msgstr ""
+
+msgid "Floated AdLib"
+msgstr ""
+
+msgid "Folder path"
+msgstr "Mappsökväg"
+
+msgid "Folder path to shared folder"
+msgstr "Mappsökväg till delad mapp"
+
+msgid "Follow On-Air Segments History"
+msgstr ""
+
+msgid "Following"
+msgstr "Följer"
+
+msgid "Font size"
+msgstr "Teckenstorlek"
+
+msgid "for {{name}} fix skipped successfully"
+msgstr "för {{name}} korrigeringen hoppade över"
+
+msgid "Force"
+msgstr "Tvinga"
+
+msgid "Force (deactivate others)"
+msgstr "Tvinga (inaktivera andra)"
+
+msgid "Force Migration"
+msgstr "Tvinga migration"
+
+msgid "Force Migration (unsafe)"
+msgstr "Forcera migrering (osäker)"
+
+msgid "Force the Multi-gateway-mode"
+msgstr "Tvinga Multi-gateway-läget"
+
+msgid "Forward"
+msgstr "Framåt"
+
+msgid "Forward: {{forward}}"
+msgstr "Vidarebefordra: {{forward}}"
+
+msgid "Found no future pieces"
+msgstr "Hittade inga innehållspunkter framåt"
+
+msgid "Frame Rate"
+msgstr "Bildfrekvens"
+
+msgid "From"
+msgstr "Från"
+
+msgid "Full System Snapshot"
+msgstr "Systembackup"
+
+msgid "fullscreen"
+msgstr "helskärm"
+
+msgid "Gateway"
+msgstr "Gateway"
+
+msgid "General"
+msgstr "Allmän"
+
+msgid "Generated URL"
+msgstr "Genererad URL"
+
+msgid "Generating restart token"
+msgstr "Genererar omstartstoken"
+
+msgid "Generic Properties"
+msgstr "Generella inställningar"
+
+msgid "Generic Script"
+msgstr "Allmänt manus"
+
+msgid "Getting Started"
+msgstr "Komma igång"
+
+msgid "Global AdLib"
+msgstr "Globala AdLibs"
+
+msgid "Global AdLibs"
+msgstr "Globala AdLibs"
+
+msgid "Go to Live"
+msgstr "Gå till Live"
+
+msgid "Go to On Air line"
+msgstr "Gå till On Air-linjen"
+
+msgid "Go to On Air Segment"
+msgstr "Gå till On Air-segmentet"
+
+msgid "Good"
+msgstr "Bra"
+
+msgid "Graphics"
+msgstr "Grafik"
+
+msgid "GUI"
+msgstr "GUI"
+
+msgid "he default state of this Route Set"
+msgstr "standardtillståndet för denna omdirigeringen"
+
+msgid "Heading"
+msgstr "Rubrik"
+
+msgid "Height"
+msgstr "Höjd"
+
+msgid "Help & Support"
+msgstr "Hjälp & Support"
+
+msgid "Hide"
+msgstr "Dölj"
+
+msgid "Hide Countdown"
+msgstr "Dölj nedräkning"
+
+msgid "Hide default AdLib Start/Execute options"
+msgstr "Dölj standardalternativ för AdLib Start/Execute"
+
+msgid "Hide Diff"
+msgstr "Dölj Diff"
+
+msgid "Hide Diff Label"
+msgstr "Dölj skillnadsetikett"
+
+msgid "Hide duplicated AdLibs"
+msgstr "Dölj dubblerade AdLibs"
+
+msgid "Hide End Time"
+msgstr "Dölj sluttid"
+
+msgid "Hide for dynamically inserted parts"
+msgstr "Dölj för dynamiskt infogade punkter"
+
+msgid "Hide Label"
+msgstr "Dölj etikett"
+
+msgid "Hide over/under timer"
+msgstr "Dölj över/under timer"
+
+msgid "Hide Panel from view"
+msgstr "Dölj panelen från synen"
+
+msgid "Hide Planned End Label"
+msgstr "Dölj planerad slutetikett"
+
+msgid "Hide Planned Start"
+msgstr "Dölj planerad start"
+
+msgid "Hide Rundown Divider"
+msgstr "Dölj nedgångsavdelare"
+
+msgid "Hide rundown divider between rundowns in a playlist"
+msgstr "Dölj körschemeavdelare mellan körscheman i en spellista"
+
+msgid "Hide scrollbar"
+msgstr "Dölj rullningslisten"
+
+msgid "Hold"
+msgstr "HOLD"
+
+msgid "Hostname or IP address of the Atem"
+msgstr "Värdnamn eller IP-adress för Atem"
+
+msgid "Hotkey"
+msgstr "Kortkommando"
+
+msgid "How did the show go?"
+msgstr "Hur gick sändningen?"
+
+msgid ""
+"How many of the transactions to monitor. Set to -1 to log nothing (max "
+"performance), 0.5 to log 50% of the transactions, 1 to log all transactions"
+msgstr ""
+
+msgid ""
+"How many segments of history to show when scrolling back in time (0 = show "
+"current segment only)"
+msgstr ""
+
+msgid ""
+"How much preparation time to add to global pieces on the timeline before "
+"they are played"
+msgstr ""
+
+msgid "HTML that will be shown in the Support Panel"
+msgstr "HTML som kommer att visas i supportpanelen"
+
+msgid "Human-readable name of the layer"
+msgstr "Människoläsbart namn på lagret"
+
+msgid "Icon"
+msgstr "Ikon"
+
+msgid "Icon color"
+msgstr "Ikon färg"
+
+msgid "Id"
+msgstr "Id"
+
+msgid "ID"
+msgstr "ID"
+
+msgid ""
+"ID of the device (corresponds to the device ID in the peripheralDevice "
+"settings)"
+msgstr ""
+
+msgid "ID of the timeline-layer to map to some output"
+msgstr "ID för tidslinjeskiktet för att mappa till någon utgång"
+
+msgid "Idempotency-Key is already used"
+msgstr "Idempotency-Key används redan"
+
+msgid "Idempotency-Key is missing"
+msgstr "Idempotensnyckel saknas"
+
+msgid ""
+"If enabled, countdowns of videos will count down to the last freeze-frame "
+"of the video instead of to the end of the video"
+msgstr ""
+
+msgid "If set, only one Route Set will be active per exclusivity group"
+msgstr "Om vald, kommer endast en omdirigering att vara aktiv per exklusivitetsgrupp"
+
+msgid ""
+"If set, Package Manager assumes that the source doesn't support HEAD "
+"requests and will use GET instead. If false, HEAD requests will be sent to "
+"check availability."
+msgstr ""
+
+msgid "Ignore and apply"
+msgstr "Ignorera och tillämpa"
+
+msgid "Ignore QuickLoop"
+msgstr "Ignorera QuickLoop"
+
+msgid "Ignoring take as playing part has changed since TAKE was requested."
+msgstr ""
+"Ignorerar tagning eftersom punkten som spelas har ändrats sedan tagningen "
+"startade."
+
+msgid "Ignoring TAKES that are too quick after eachother ({{duration}} ms)"
+msgstr "Ignorerar tagningar som är för snabba efter varandra ({{duration}} ms)"
+
+msgid "Import"
+msgstr "Importera"
+
+msgid "Import error: {{errorMessage}}"
+msgstr "Importfel: {{errorMessage}}"
+
+msgid "Import file?"
+msgstr "Importera fil?"
+
+msgid "Importing an AdLib to the Bucket"
+msgstr "Importera en AdLib till behållaren"
+
+msgid "In"
+msgstr "Om"
+
+msgid "IN"
+msgstr "OM"
+
+msgid "in {{days}} days, {{hours}} h {{minutes}} min {{seconds}} s"
+msgstr "om {{days}} dagar, {{hours}} h {{minutes}} min {{seconds}} s"
+
+msgid "in {{hours}} h {{minutes}} min {{seconds}} s"
+msgstr "om {{hours}} t, {{minutes}} min, {{seconds}} s"
+
+msgid "in {{minutes}} min {{seconds}} s"
+msgstr "om {{minutes}} min {{seconds}} s"
+
+msgid "in {{seconds}} s"
+msgstr "om {{seconds}} s"
+
+msgid "In rehearsal"
+msgstr "I repetitionsläge"
+
+msgid "Include Clear Source Layer in Ad-Libs"
+msgstr "Inkludera Clear Source Layer i Ad-Libs"
+
+msgid "Include Global AdLibs"
+msgstr "Inkludera Global AdLibs"
+
+msgid "Indicate only one next piece per source layer"
+msgstr "Ange endast en nästa innehållspunkt per källager"
+
+msgid "Ingest Devices"
+msgstr "Inläsningsenheter"
+
+msgid "Ingest devices are needed to create rundowns"
+msgstr "Inläsningsenheter behövs för att skapa körscheman"
+
+msgid "Ingest from Snapshot"
+msgstr "Läs in från backupfil"
+
+msgid "Ingest Rundown Status"
+msgstr "Inläsningsstatus för körschema"
+
+msgid "Ingest Rundown Statuses"
+msgstr "Inläsningsstatus för körschema"
+
+msgid "Input Devices"
+msgstr "Inmatningsenheter"
+
+msgid "Input devices allow you to trigger Sofie actions remotely"
+msgstr "Inmatningsenheter låter dig trigga Sofie-åtgärder på distans"
+
+msgid "Installation name"
+msgstr "Installationsnamn"
+
+msgid "Insufficient {{resource}}: {{available}} available, {{required}} required"
+msgstr ""
+
+msgid "Internal Error generating RundownPlaylist"
+msgstr ""
+
+msgid "Internal ID"
+msgstr "Internt ID"
+
+msgid "Invalid AdLib"
+msgstr "Ogiltig AdLib"
+
+msgid "Invalid blueprint: \"{{blueprintId}}\""
+msgstr "Ogiltig blueprint: \"{{blueprintId}}\""
+
+msgid ""
+"Invalid config preset for blueprint: \"{{configPresetId}}\" "
+"({{blueprintId}})"
+msgstr ""
+
+msgid "Invert joystick"
+msgstr "Invertera joysticken"
+
+msgid "Is a Guest Input"
+msgstr "Är en gästinmatning"
+
+msgid "Is a Live Remote Input"
+msgstr "Är en Live Remote-ingång"
+
+msgid "Is collapsed by default"
+msgstr "Är komprimerad som standard"
+
+msgid "Is flattened"
+msgstr "Är tillplattad"
+
+msgid "Is hidden"
+msgstr "Är dold"
+
+msgid "Is Immutable"
+msgstr "Är oföränderlig"
+
+msgid "Is PGM Output"
+msgstr "Är PGM-utgång"
+
+msgid "ISA URLs"
+msgstr "ISA URL:er"
+
+msgid "Job Status"
+msgstr "Jobbstatus"
+
+msgid "Just now"
+msgstr "Nu precis"
+
+msgid "Key"
+msgstr "Nyckel"
+
+msgid "Key to use as the poison key (aborts hotkey actions). Leave empty to disable"
+msgstr ""
+
+msgid "Keyboard"
+msgstr "Tangentbord"
+
+msgid ""
+"Keyboard shortcuts and Stream Deck buttons will not work while filling out "
+"the form!"
+msgstr ""
+"OBS: Kortkommandon och Stream Deck-knappar fungerar inte medan formuläret "
+"fylls i!"
+
+msgid "Kill (debug)"
+msgstr "Stäng ner (för felsökning)"
+
+msgid "Label"
+msgstr "Etikett"
+
+msgid "Label contains"
+msgstr "Etiketten innehåller"
+
+msgid "Large"
+msgstr ""
+
+msgid "Last"
+msgstr "Sist"
+
+msgid "Last {{layerName}}"
+msgstr "Senaste {{layerName}}"
+
+msgid "Last modified"
+msgstr "Senast ändrad"
+
+msgid "Last seen"
+msgstr "Senast sedd"
+
+msgid "Last Seen"
+msgstr "Senast sedd"
+
+msgid "Last update"
+msgstr "Senaste uppdatering"
+
+msgid "Last updated"
+msgstr "Senast uppdaterad"
+
+msgid "Layer does not allow sticky pieces!"
+msgstr "Lagret tillåter inte \"orubbliga\" innehållspunkter!"
+
+msgid "Layer ID"
+msgstr "Lager-ID"
+
+msgid "Layer Mappings"
+msgstr "Lagermappningar"
+
+msgid "Layer Name"
+msgstr "Lagernamn"
+
+msgid "Leave Unsynced"
+msgstr "Lämna osynkroniserad"
+
+msgid "Less than a minute ago"
+msgstr "För mindre än en minut sedan"
+
+msgid "Less than five minutes ago"
+msgstr "För mindre än fem minuter sedan"
+
+msgid "Lighting"
+msgstr "Ljus"
+
+msgid "Limit"
+msgstr "Begränsa"
+
+msgid "Live line countdown requires Source Layer"
+msgstr ""
+
+msgid "Live Speak"
+msgstr "Live-speak"
+
+msgid "Loading"
+msgstr "Läser in"
+
+msgid "Loading..."
+msgstr "Läser in..."
+
+msgid "Local"
+msgstr "Lokal"
+
+msgid "Local Time"
+msgstr "Lokaltid"
+
+msgid "Logging level"
+msgstr "Loggningsnivå"
+
+msgid "Logo"
+msgstr "Logotyp"
+
+msgid "Lookahead Maximum Search Distance (Undefined = {{limit}})"
+msgstr "Lookahead Maximalt sökavstånd (odefinierat = {{limit}})"
+
+msgid "Lookahead Mode"
+msgstr "Lookahead-läge"
+
+msgid "Lookahead Target Objects (Undefined = 1)"
+msgstr "Lookahead-målobjekt (odefinierat = 1)"
+
+msgid "Loop End"
+msgstr "Loop Slut"
+
+msgid "Loop Start"
+msgstr "Loop Start"
+
+msgid "Loops to Start"
+msgstr "Loopar till Start"
+
+msgid "Lower Third"
+msgstr "Namnskylt"
+
+msgid "Manage Snapshots"
+msgstr "Hantera backupper"
+
+msgid "Mapping cannot be reset as it has no default values"
+msgstr "Mappningen kan inte återställas eftersom den inte har några standardvärden"
+
+msgid "Mapping Type"
+msgstr "Kartläggningstyp"
+
+msgid "Mappings"
+msgstr "Kartläggningar"
+
+msgid "Margin (%)"
+msgstr "Marginal (%)"
+
+msgid "Maximum data age"
+msgstr ""
+
+msgid "Maximum register limit"
+msgstr "Maximal registergräns"
+
+msgid "Media"
+msgstr "Media"
+
+msgid "Media Preview URL"
+msgstr ""
+
+msgid "Media Status"
+msgstr "Mediestatus"
+
+msgid "Media Type"
+msgstr "Medietyp"
+
+msgid "Memory troubleshooting"
+msgstr "Felsökning av minne"
+
+msgid "Menu"
+msgstr "Meny"
+
+msgid "Message"
+msgstr "Meddelande"
+
+msgid "Message Queue"
+msgstr "Meddelandekö"
+
+msgid "Message shown to users in the Evaluations form"
+msgstr "Meddelande som visas för användare i utvärderingsformuläret"
+
+msgid "Messages"
+msgstr "Meddelanden"
+
+msgid "Method"
+msgstr "Metod"
+
+msgid "Method ${method}"
+msgstr "Metod ${method}"
+
+msgid "MIDI Pedal"
+msgstr "MIDI-pedal"
+
+msgid "Migrate database"
+msgstr "Migrera databas"
+
+msgid "Migrations"
+msgstr "Migrationer"
+
+msgid "Mini shelf AdLib button size"
+msgstr ""
+
+msgid "Mini Shelf Layout"
+msgstr "Minihylla layout"
+
+msgid "Mini Shelf Layouts"
+msgstr "Minihylle-layouter"
+
+msgid "Minimum register limit"
+msgstr "Minsta registergräns"
+
+msgid "Minimum Take Span"
+msgstr "Minsta tid mellan tagningar"
+
+msgid "Minor Warning"
+msgstr "Mindre varning"
+
+msgid "Mirror horizontally"
+msgstr "Spegel horisontellt"
+
+msgid "Mirror vertically"
+msgstr "Spegel vertikalt"
+
+msgid "Mock Piece Content Status"
+msgstr ""
+
+msgid "Modal \"Confirm\" key"
+msgstr ""
+
+msgid "Mode: {{triggerMode}}"
+msgstr "Läge: {{triggerMode}}"
+
+msgid "Modify Shift register"
+msgstr "Ändra skiftregister"
+
+msgid "Modifying Bucket"
+msgstr "Ändra behållare"
+
+msgid "Modifying Bucket AdLib"
+msgstr "Ändra behållar-AdLib"
+
+msgid "Monitor blocked thread"
+msgstr "Övervaka blockerad tråd"
+
+msgid "More documentation available at:"
+msgstr "Mer dokumentation finns på:"
+
+msgid "More than 10 minutes ago"
+msgstr "Mer än 10 minuter sedan"
+
+msgid "More than 2 hours ago"
+msgstr "Mer än 2 timmar sedan"
+
+msgid "More than 30 minutes ago"
+msgstr "Mer än 30 minuter sedan"
+
+msgid "More than 5 hours ago"
+msgstr "Mer än 5 timmar sedan"
+
+msgid "More than a day ago"
+msgstr "Mer än en dag sedan"
+
+msgid "Mouse"
+msgstr "Mus"
+
+msgid "Move Next"
+msgstr "Flytta Nästa-punkten"
+
+msgid "Move Next backwards"
+msgstr "Flytta Nästa-punkten bakåt"
+
+msgid "Move Next forwards"
+msgstr "Flytta Nästa-punkten framåt"
+
+msgid "Move Next to the following segment"
+msgstr "Flytta Nästa-punkten till nästa segment"
+
+msgid "Move Next to the previous segment"
+msgstr "Flytta Nästa-punkten till föregående segment"
+
+msgid "Move Parts"
+msgstr "Flytta punkter"
+
+msgid "Move Segments"
+msgstr "Flytta segment"
+
+msgid "Moving Next"
+msgstr "Flyttar Nästa-punkten"
+
+msgid "Multi-gateway-mode delay time"
+msgstr "Multi-gateway-läge fördröjningstid"
+
+msgid "Multilingual description, editing will overwrite"
+msgstr "Flerspråkig beskrivning, redigering kommer att skrivas över"
+
+msgid "My name is {{name}}"
+msgstr "Jag heter {{name}}"
+
+msgid "Name"
+msgstr "Namn"
+
+msgid "Network address"
+msgstr "Nätverksadress"
+
+msgid "Network Id"
+msgstr "Nätverks-ID"
+
+msgid "New Bucket"
+msgstr "Ny behållare"
+
+msgid "New Filter"
+msgstr "Nytt filter"
+
+msgid "New Layer"
+msgstr "Nytt lager"
+
+msgid "New Layout"
+msgstr "Ny layout"
+
+msgid "New Output"
+msgstr "Ny utgång"
+
+msgid "New Source"
+msgstr "Ny källa"
+
+msgid "Next"
+msgstr "Nästa"
+
+msgid "Next Loop at"
+msgstr "Nästa loop vid"
+
+msgid "Next Part"
+msgstr "Nästa punkt"
+
+msgid "Next scheduled show"
+msgstr "Nästa schemalagda sändning"
+
+msgid "Next Segment"
+msgstr "Nästa segment"
+
+msgid "Nintendo Joy-Con"
+msgstr "Nintendo Joy-Con"
+
+msgid "No"
+msgstr "Nej"
+
+msgid "No Action Triggers set up."
+msgstr "Inga åtgärdstriggers är inställda."
+
+msgid "No actions available"
+msgstr "Inga tillgängliga åtgärder"
+
+msgid ""
+"No Ad-Lib matches in the current state of Rundown: "
+"\"{{rundownPlaylistName}}\""
+msgstr ""
+
+msgid "No camera-related source layers found"
+msgstr "Inga kamerarelaterade källager hittades"
+
+msgid "No changes"
+msgstr "Inga ändringar"
+
+msgid "No gateways are configured"
+msgstr "Inga gateways är konfigurerade"
+
+msgid "No matching Action Trigger."
+msgstr "Ingen matchande Action Trigger."
+
+msgid "No matching Rundowns available to be used for preview"
+msgstr "Inga matchande körscheman tillgängliga för förhandsgranskning"
+
+msgid "No Media matches this filter"
+msgstr "Ingen media matchar detta filter"
+
+msgid "No Media required by this system"
+msgstr "Inga media krävs av detta system"
+
+msgid "No Media required for this Rundown"
+msgstr "Ingen media krävs för detta körschemat"
+
+msgid "No migrations to apply"
+msgstr "Inga migrationer att tillämpa"
+
+msgid "No name set"
+msgstr "Inget namn angivet"
+
+msgid "No Next point found, please set a part as Next before doing a TAKE."
+msgstr ""
+"Ingen nästa-punkt hittades, vänligen sätt en punkt som Nästa innan du gör "
+"en tagning."
+
+msgid "No notifications"
+msgstr "Inga aviseringar"
+
+msgid "No output channels set"
+msgstr "Inga utgångskanaler inställda"
+
+msgid "No output layers available"
+msgstr "Inga utgångslager tillgängliga"
+
+msgid "No PGM output"
+msgstr "Ingen PGM-utgång"
+
+msgid "No problems"
+msgstr "Inga problem"
+
+msgid "No schema has been provided for this mapping"
+msgstr "Inget schema har tillhandahållits för denna mappning"
+
+msgid "No source layers available"
+msgstr "Inga källager tillgängliga"
+
+msgid "No source layers set"
+msgstr "Inga källager har angetts"
+
+msgid "No status loaded"
+msgstr "Ingen status laddad"
+
+msgid "None"
+msgstr "Inga"
+
+msgid "Normal scrolling"
+msgstr "Normal rullning"
+
+msgid "Not Active"
+msgstr "Inte aktiv"
+
+msgid "Not Connected"
+msgstr "Ej ansluten"
+
+msgid "Not defined"
+msgstr "Ej definierad"
+
+msgid "Not Global"
+msgstr "Inte Global"
+
+msgid "Not in rehearsal"
+msgstr "Inte i repetitionsläge"
+
+msgid "Not queueable"
+msgstr "Ej köbar"
+
+msgid "Not set"
+msgstr "Inte inställt"
+
+msgid "Note: Core needs to be restarted to apply these settings"
+msgstr "Obs: Core måste startas om för att tillämpa dessa inställningar"
+
+msgid "Notes"
+msgstr "Anteckningar"
+
+msgid "Nothing to cleanup!"
+msgstr "Inget att rensa!"
+
+msgid "Nothing was found on layer!"
+msgstr "Inget hittades på lagret!"
+
+msgid "Now Active Rundown"
+msgstr "Aktivt körschema"
+
+msgid "NRCS Name"
+msgstr "NRCS-namn"
+
+msgid "OAuth credentials successfully reset"
+msgstr ""
+
+msgid "OAuth credentials successfully uploaded."
+msgstr ""
+
+msgid "Off"
+msgstr "Av"
+
+msgid "Off-line devices"
+msgstr "Frånkopplade enheter"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "On"
+msgstr "På"
+
+msgid "On Air"
+msgstr "On Air"
+
+msgid "On Air At"
+msgstr "Spelas vid"
+
+msgid "On Air In"
+msgstr "Spelas om"
+
+msgid "On Air Start Time"
+msgstr "Sändning starttid"
+
+msgid "On release"
+msgstr "Vid släpp"
+
+msgid "OnAir"
+msgstr "OnAir"
+
+msgid ""
+"One of these source layers must have a piece for the countdown to segment "
+"on-air to be show"
+msgstr ""
+
+msgid ""
+"One of these source layers must have an active piece for the live line "
+"countdown to be show"
+msgstr ""
+
+msgid "Only custom trigger modes will be shown"
+msgstr "Endast anpassade triggerlägen kommer att visas"
+
+msgid "Only Display AdLibs from Current Segment"
+msgstr "Visa endast AdLibs från aktuellt segment"
+
+msgid "Only Global"
+msgstr "Endast Global"
+
+msgid "Only Match Global AdLibs"
+msgstr "Matcha endast globala AdLibs"
+
+msgid ""
+"Only one rundown can be active at the same time. Currently active rundowns: "
+"{{names}}"
+msgstr ""
+"Endast ett körschema kan vara aktivt samtidigt. Nuvarande aktiva "
+"körscheman: {{names}}"
+
+msgid "Only Pieces present in rundown are sticky"
+msgstr "Endast innehållspunkter som kommer från körschemat är orubbliga"
+
+msgid "Open"
+msgstr "Öppna"
+
+msgid "Open Camera Screen"
+msgstr "Öppna kameraskärmen"
+
+msgid "Open Fullscreen"
+msgstr "Öppna helskärm"
+
+msgid "Open Presenter Screen"
+msgstr "Öppna Programledarskärm"
+
+msgid "Open Prompter"
+msgstr "Öppna Prompter"
+
+msgid "Open shelf by default"
+msgstr ""
+
+msgid "Operating Mode"
+msgstr "Driftläge"
+
+msgid "Operation"
+msgstr "Drift"
+
+msgid "Optional description of the action"
+msgstr "Valfri beskrivning av åtgärden"
+
+msgid ""
+"Optionally restrict AB channel display to specific output layers (e.g., "
+"only PGM). Leave empty to show for all output layers."
+msgstr ""
+
+msgid "Order 66?"
+msgstr ""
+
+msgid "Original Layer"
+msgstr "Ursprungligt lager"
+
+msgid "Original Layer not found"
+msgstr "Det ursprungliga lagret hittades inte"
+
+msgid "Other"
+msgstr "Övrigt"
+
+msgid "Out"
+msgstr "Ut"
+
+msgid "OUT"
+msgstr "UT"
+
+msgid "Output channels"
+msgstr "Utgångskanaler"
+
+msgid "Output Channels"
+msgstr "Utgångskanaler"
+
+msgid "Output channels are required for your studio to work"
+msgstr "Utgångskanaler krävs för att din studio ska fungera"
+
+msgid "Output Layer"
+msgstr "Utgångslager"
+
+msgid "Over"
+msgstr "Över"
+
+msgid "Overflow horizontally"
+msgstr "Fyll ut horisontellt"
+
+msgid "Overlay Screen"
+msgstr ""
+
+msgid "Package Container ID"
+msgstr "Paketbehållare-ID"
+
+msgid "Package Containers"
+msgstr "Paketbehållare"
+
+msgid "Package Containers to use for previews"
+msgstr "Paketbehållare att använda för förhandsvisningar"
+
+msgid "Package Containers to use for thumbnails"
+msgstr "Paketbehållare att använda för miniatyrbilder"
+
+msgid "Package Manager"
+msgstr "Pakethanterare"
+
+msgid "Package Manager is offline"
+msgstr "Pakethanteraren är offline"
+
+msgid "Package Manager status"
+msgstr "Pakethanterarens status"
+
+msgid "Package Manager: Restart Package Container"
+msgstr "Pakethanterare: Starta om Paketbehållare"
+
+msgid "Package Manager: Restart work"
+msgstr "Pakethanterare: Starta om arbetet"
+
+msgid "Package Status"
+msgstr "Paketstatus"
+
+msgid "Packages"
+msgstr "Paket"
+
+msgid "Parameters"
+msgstr "Parametrar"
+
+msgid "Parent Config ID"
+msgstr "Överordnad enhets-ID"
+
+msgid "Parent device is missing"
+msgstr "Överordnad enhet saknas"
+
+msgid "Parent Devices"
+msgstr "HuvudEnheter"
+
+msgid "part"
+msgstr "punkt"
+
+msgid "Part"
+msgstr "Punkt"
+
+msgid "Part Count Down"
+msgstr "Punktnedräkning"
+
+msgid "Part Count Up"
+msgstr "Punktuppräkning"
+
+msgid "Part duration is 0."
+msgstr "Punkten har en längd på 0."
+
+msgid "Part has issues and cannot be taken"
+msgstr "Det är et problem med punkten och den kan inte spelas"
+
+msgid "Parts Duration"
+msgstr "Punkters längd"
+
+msgid "Parts: {{delta}}"
+msgstr "Punkter: {{delta}}"
+
+msgid "Password"
+msgstr "Lösenord"
+
+msgid "Password for authentication"
+msgstr "Lösenord för autentisering"
+
+msgid "Peripheral Device is outdated"
+msgstr "Enheten är gammal"
+
+msgid "Peripheral Device not found!"
+msgstr "Enhet hittades inte!"
+
+msgid "Peripheral Devices"
+msgstr "Anslutna enheter"
+
+msgid "Pick"
+msgstr "Välj"
+
+msgid "Pick last"
+msgstr "Välj sista"
+
+msgid ""
+"Picks the first instance of an adLib per rundown, identified by uniqueness "
+"Id"
+msgstr ""
+
+msgid "Piece on selected source layers will have a duration label shown"
+msgstr "Innehållspunkt på valda källager kommer att visa en längd"
+
+msgid "Piece to take is already live!"
+msgstr "Innehållspunkten är redan live!"
+
+msgid "Piece to take is not directly playable!"
+msgstr "Innehållspunkten kan inte spelas direkt!"
+
+msgid "Piece to take was not found!"
+msgstr "Innehållspunkten kunde inte spelas (den hittades inte)!"
+
+msgid "Pieces on this layer are sticky"
+msgstr "Innehållspunkter på detta lager är orubbliga"
+
+msgid "Pieces on this layer can be cleared"
+msgstr "Innehållspunkter på detta lager kan rensas"
+
+msgid "Place label below panel"
+msgstr "Placera etiketten under panelen"
+
+msgid "Plan. Dur"
+msgstr "Plan. längd"
+
+msgid "Plan. End"
+msgstr "Plan. slut"
+
+msgid "Plan. Start"
+msgstr "Plan. start"
+
+msgid "Planned Duration"
+msgstr "Planerad längd"
+
+msgid "Planned End"
+msgstr "Planerad sluttid"
+
+msgid "Planned End text"
+msgstr "Planerad sluttext"
+
+msgid "Planned Start"
+msgstr "Planerad starttid"
+
+msgid "Planned Start Text"
+msgstr "Planerad start text."
+
+msgid "Play-out"
+msgstr "Utspelning"
+
+msgid "Playlist"
+msgstr "Spellista med körscheman"
+
+msgid "Playout Devices"
+msgstr "Utspelningsenheter"
+
+msgid "Playout devices are needed to control your studio hardware"
+msgstr "Utspelningsenheter behövs för att styra din studiohårdvara"
+
+msgid "Playout devices which uses this package container"
+msgstr "Utspelningsenheter som använder denna paketbehållare"
+
+msgid "Playout Gateway \"{{playoutDeviceName}}\" is now restarting."
+msgstr "Playout Gateway \"{{playoutDeviceName}}\" startar nu om."
+
+msgid ""
+"Please check the database related to the warnings above. If neccessary, you "
+"can"
+msgstr ""
+
+msgid "Please explain the problems you experienced"
+msgstr "Lämna en kommentar eller förklara problemet du hade"
+
+msgid "Please note: This action is irreversible!"
+msgstr "Observera: Denna åtgärd går inte att ångra!"
+
+msgid "Poison Key"
+msgstr ""
+
+msgid "Pool name"
+msgstr "Poolens namn"
+
+msgid "Pool PlayerId"
+msgstr "Pool PlayerId"
+
+msgid "Prepare Studio and Activate (Rehearsal)"
+msgstr "Förbered studio och aktivera (repetitionsläget)"
+
+msgid "Preparing for broadcast"
+msgstr "Förbereder för sändning"
+
+msgid "Preparing, please wait..."
+msgstr "Förbereder, vänta..."
+
+msgid "Presenter Layout"
+msgstr "Programledarskärm-layout"
+
+msgid "Presenter screen"
+msgstr "Programledarskärm"
+
+msgid "Presenter Screen"
+msgstr "Programledarskärm"
+
+msgid "Presenter View Layouts"
+msgstr "Programledarskärm-visningslayouter"
+
+msgid "Preserve position of segments when unsynced relative to other segments"
+msgstr ""
+"Bevara segmentens position när de inte synkroniseras i förhållande till "
+"andra segment"
+
+msgid "Previous"
+msgstr "Föregående"
+
+msgid "Previous work status reasons"
+msgstr "Orsaker till tidigare arbetsstatus"
+
+msgid "Prioritizing Media Workflow"
+msgstr "Prioritering av mediearbetsflöde"
+
+msgid "Priority"
+msgstr "Prioritet"
+
+msgid "Problems"
+msgstr "Problem"
+
+msgid "Profile name to be used by FileFlow when exporting the clips"
+msgstr "Profilnamn som ska användas av FileFlow vid export av klippen"
+
+msgid "Prompter"
+msgstr "Prompter"
+
+msgid "Prompter Screen"
+msgstr "Prompter-skärm"
+
+msgid "Properties"
+msgstr "Egenskaper"
+
+msgid ""
+"Property \"{{ propLabel }}\" does not have a discriminant property "
+"specified for variants"
+msgstr ""
+
+msgid "Property \"{{ propLabel }}\" does not have oneOf variants declared"
+msgstr ""
+
+msgid ""
+"Property \"{{ propLabel }}\" has a variant at index {{ index }} that is not "
+"an object and/or does not specify a discriminant"
+msgstr ""
+
+msgid "Quantel FileFlow Profile name"
+msgstr "Quantel FileFlow-profilnamn"
+
+msgid "Quantel FileFlow URL"
+msgstr "Quantel FileFlow URL"
+
+msgid "Quantel gateway URL"
+msgstr "Quantel gateway URL"
+
+msgid "Quantel transformer URL"
+msgstr "Quantel transformator URL"
+
+msgid "Quantel Zone ID"
+msgstr "Quantel Zone ID"
+
+msgid "Queue AdLib from Minishelf"
+msgstr "Köa AdLib från Minishelf"
+
+msgid "Queue all adlibs"
+msgstr "Köa alla adlibs"
+
+msgid "Queue segment"
+msgstr "Köa segment"
+
+msgid "Queue this AdLib"
+msgstr "Köa denna AdLib"
+
+msgid "Queued Messages"
+msgstr "Meddelanden i kö"
+
+msgid "Queueing next Segment"
+msgstr "Köar nästa segment"
+
+msgid "Quick Links"
+msgstr "Snabblänkar"
+
+msgid "QuickLoop Fallback Part Duration"
+msgstr "QuickLoop: standard punktlängd"
+
+msgid "Range: Forward max"
+msgstr "Räckvidd: Fram max"
+
+msgid "Range: Neutral max"
+msgstr "Räckvidd: Neutral max"
+
+msgid "Range: Neutral min"
+msgstr "Räckvidd: Neutral min"
+
+msgid "Range: Reverse min"
+msgstr "Räckvidd: Bakåt min"
+
+msgid "Rate limit exceeded"
+msgstr ""
+
+msgid "Re-check"
+msgstr "Kontrollera igen"
+
+msgid "Re-sync"
+msgstr "Läs in igen"
+
+msgid "Re-Sync"
+msgstr "Läs in igen"
+
+msgid "Re-sync Rundown"
+msgstr "Läs in körschema igen"
+
+msgid "Re-sync rundown data with {{nrcsName}}"
+msgstr "Läs in körschemadatan igen med {{nrcsName}}"
+
+msgid "Re-Sync rundown?"
+msgstr "Läs in körschema igen?"
+
+msgid "Re-Syncing Rundown"
+msgstr "Läser in körschema igen"
+
+msgid "Re-Syncing Rundown Playlist"
+msgstr "Läser in körschema igen"
+
+msgid "Read marker position"
+msgstr "Läsmarkörens position"
+
+msgid "Reads the ingest (NRCS) data, and pipes it through the blueprints"
+msgstr "Läser in NRCS-datan och kör den genom blueprints"
+
+msgid "Ready"
+msgstr "Redo"
+
+msgid "Reconnect now"
+msgstr "Återanslut nu"
+
+msgid "Reconnecting to the {{platformName}}"
+msgstr "Ansluter till {{platformName}}"
+
+msgid "Refreshing debug states"
+msgstr "Uppdaterar felsökningstillstånd"
+
+msgid "Register ID"
+msgstr "Register-ID"
+
+msgid "Rehearsal"
+msgstr "Repetitionsläge"
+
+msgid "Rehearsal end"
+msgstr "Repetition slut"
+
+msgid "Rehearsal mode is already active"
+msgstr "Är redan i repetitionsläget"
+
+msgid "Rehearsal mode is not allowed"
+msgstr "Repetitionsläget är inte tillåtet"
+
+msgid "Rehearsal State"
+msgstr "Repetitionsläge"
+
+msgid "Reload {{nrcsName}} Data"
+msgstr "Läs in {{nrcsName}}-data"
+
+msgid "Reload Baseline"
+msgstr "Ladda om grunddata"
+
+msgid "Reload NRCS Data"
+msgstr "Läs in NRCS-data"
+
+msgid "Reload statuses"
+msgstr "Ladda om statusar"
+
+msgid "Reloading Rundown Playlist Data"
+msgstr "Läser in körschemadata"
+
+msgid "Rem. Dur"
+msgstr "Längd kvar"
+
+msgid "Remaining duration"
+msgstr "Återstående längd"
+
+msgid "Remote"
+msgstr ""
+
+msgid "Remote Source"
+msgstr "Extern källa"
+
+msgid "Remote Speak"
+msgstr ""
+
+msgid "Remove"
+msgstr "Ta bort"
+
+msgid "Remove all Show Style Variants?"
+msgstr "Ta bort alla programstilsvarianter?"
+
+msgid "Remove all trimming"
+msgstr "Ta bort all trimning"
+
+msgid "Remove in-trimming"
+msgstr "Ta bort in-trimning"
+
+msgid "Remove indexes"
+msgstr "Ta bort index"
+
+msgid "Remove old data"
+msgstr "Ta bort gammal data"
+
+msgid "Remove old data from database"
+msgstr "Ta bort gammal data från databasen"
+
+msgid "Remove out-trimming"
+msgstr "Ta bort ut-trimmning"
+
+msgid "Remove rundown"
+msgstr "Ta bort körplan"
+
+msgid "Remove Snapshot"
+msgstr "Ta bort backupfil"
+
+msgid "Remove this AB PLayers from this Route Set?"
+msgstr "Ta bort denna AB-spelare från denna omdirigering?"
+
+msgid "Remove this device?"
+msgstr "Vill du ta bort den här enheten?"
+
+msgid "Remove this Device?"
+msgstr "Vill du ta bort den här enheten?"
+
+msgid "Remove this Exclusivity Group?"
+msgstr "Ta bort denna exklusivitetsgrupp?"
+
+msgid "Remove this item?"
+msgstr "Vill du ta bort det här objektet?"
+
+msgid "Remove this mapping?"
+msgstr "Vill du ta bort denna mappning?"
+
+msgid "Remove this Package Container Accessor?"
+msgstr ""
+
+msgid "Remove this Package Container?"
+msgstr "Vill du ta bort den här paketbehållaren?"
+
+msgid "Remove this Route from this Route Set?"
+msgstr "Ta bort denna omdirigering från uppsättingen?"
+
+msgid "Remove this Route Set?"
+msgstr "Vill du ta bort denna omdirigering?"
+
+msgid "Remove this Show Style Variant?"
+msgstr "Vill du ta bort denna programstils-variant?"
+
+msgid "Removing Bucket"
+msgstr "Ta bort behållare"
+
+msgid "Removing Bucket AdLib"
+msgstr "Ta bort AdLib i behållare"
+
+msgid "Removing Rundown"
+msgstr "Tar bort Körschemat"
+
+msgid "Removing Rundown Playlist"
+msgstr "Tar bort körschemat"
+
+msgid "Rename this AdLib"
+msgstr "Byt namn på denna AdLib"
+
+msgid "Rename this Bucket"
+msgstr "Byt namn på den här behållaren"
+
+msgid "Reording Rundowns in Playlist"
+msgstr "Ordnar om Körscheman i listan"
+
+msgid "Replace"
+msgstr "Byt ut"
+
+msgid "Replace Blueprints?"
+msgstr "Byta ut blueprints?"
+
+msgid "Replace rows"
+msgstr "Byt ut rader"
+
+msgid "Require All Additional Source Layers"
+msgstr "Kräv alla ytterligare källager"
+
+msgid "Require Piece on Source Layer"
+msgstr "Kräv Innehållspunkt på källskikt"
+
+msgid "Reset"
+msgstr "Återställ"
+
+msgid "Reset Action"
+msgstr "Återställ åtgärd"
+
+msgid "Reset All Versions"
+msgstr "Återställ alla versioner"
+
+msgid "Reset and Activate \"On Air\""
+msgstr "Återställ och aktivera \"On Air\""
+
+msgid "Reset App Credentials"
+msgstr "Återställ appuppgifter"
+
+msgid "Reset Database Version"
+msgstr "Återställ databasversion"
+
+msgid "Reset mapping to default values"
+msgstr "Återställ mappningen till standardvärden"
+
+msgid "Reset Package Container to default values"
+msgstr "Återställ paketbehållare till standardvärden"
+
+msgid "Reset row to default values"
+msgstr "Återställ raden till standardvärden"
+
+msgid "Reset Rundown"
+msgstr "Återställ körschema"
+
+msgid "Reset Sort Order"
+msgstr "Återställ sortering"
+
+msgid "Reset source layer to default values"
+msgstr "Återställ käll-lager till standardvärden"
+
+msgid "Reset this item?"
+msgstr "Återställ detta objekt?"
+
+msgid "Reset this mapping?"
+msgstr "Återställ denna mappning?"
+
+msgid "Reset this Package Container?"
+msgstr "Återställ denna paketbehållare?"
+
+msgid "Reset to default"
+msgstr "Återställ till standardvärde"
+
+msgid "Reset User Credentials"
+msgstr "Återställ användaruppgifter"
+
+msgid "Resetting and activating Rundown Playlist"
+msgstr "Återställer och aktiverar körschemat"
+
+msgid "Resetting Playlist to default order"
+msgstr "Återställer körscheman i spellistan till standardsortering"
+
+msgid "Resetting Rundown Playlist"
+msgstr "Återställer spellistan med körscheman"
+
+msgid "Resource Id"
+msgstr "Resurs-ID"
+
+msgid "Restart"
+msgstr "Starta om"
+
+msgid "Restart {{device}}"
+msgstr "Starta om {{device}}"
+
+msgid "Restart All Jobs"
+msgstr "Starta om alla jobb"
+
+msgid "Restart CasparCG Server"
+msgstr "Starta om CasparCG-server"
+
+msgid "Restart Container"
+msgstr "Starta om behållare"
+
+msgid "Restart Device"
+msgstr "Starta om enheten"
+
+msgid "Restart Playout"
+msgstr "Starta om utspelning"
+
+msgid "Restart this Device?"
+msgstr "Starta om denna enhet?"
+
+msgid "Restart this system?"
+msgstr "Starta om detta system?"
+
+msgid "Restarting Media Workflow"
+msgstr "Startar om mediearbetsflöde"
+
+msgid "Restarting Sofie Core"
+msgstr "Startar om Sofie Core"
+
+msgid "Restore"
+msgstr "Återställ"
+
+msgid "Restore Deleted Action"
+msgstr "Återställ borttagen åtgärd"
+
+msgid "Restore from Snapshot File"
+msgstr "Återställ från backupfil"
+
+msgid "Restore from Stored Snapshots"
+msgstr "Återställ från sparade backupper"
+
+msgid "Restore from this Snapshot file?"
+msgstr "Återställ från denna backupfil?"
+
+msgid "Restore Part from NRCS"
+msgstr "Återställ punkt från NRCS"
+
+msgid "Restore Segment from NRCS"
+msgstr "Återställ segment från NRCS"
+
+msgid "Restore Snapshot"
+msgstr "Återställ backup"
+
+msgid "Resync with NRCS"
+msgstr "Synkronisera med NRCS"
+
+msgid "Retry"
+msgstr "Försök igen"
+
+msgid "Return to list"
+msgstr "Återgå till listan"
+
+msgid "Reveal in Shelf"
+msgstr "Visa i hylla"
+
+msgid "Reverse speed map"
+msgstr "Omvänd hastighetskarta"
+
+msgid "Reverse speed map (left trigger)"
+msgstr "Bakåthastighetskarta (vänster avtryckare)"
+
+msgid "Rewind all Segments"
+msgstr "Återställ alla segment"
+
+msgid "Rewind segments to start"
+msgstr "Återställ alla segment till början"
+
+msgid "Rewind Segments to start"
+msgstr "Återställ alla segment till början"
+
+msgid "Right hand offset"
+msgstr "Höger offset"
+
+msgid "Role"
+msgstr "Roll"
+
+msgid "Route Set"
+msgstr "Omdirigeringsuppsättning"
+
+msgid "Route Set ID"
+msgstr "Omdirigeringsuppsättnings-ID"
+
+msgid "Route Set Name"
+msgstr "Omdirigeringsuppsättnings-namn"
+
+msgid "Route Sets"
+msgstr "Omdirigeringsuppsättningar"
+
+msgid "Route Type"
+msgstr "Omdirigeringstyp"
+
+msgid "Routed Mappings"
+msgstr "Omdirigerade mappningar"
+
+msgid "Routes"
+msgstr "Omdirigeringar"
+
+msgid "Row cannot be reset as it has no default values"
+msgstr "Raden kan inte återställas eftersom den inte har några standardvärden"
+
+msgid "Run automatic migration procedure"
+msgstr "Kör den automatiska migreringsproceduren"
+
+msgid "Run Migrations to get set up"
+msgstr "Kör Migrations för att komma igång"
+
+msgid "Rundown"
+msgstr "Körschema"
+
+msgid ""
+"Rundown {{rundownName}} in Playlist {{playlistName}} is missing in the data "
+"from {{nrcsName}}. You can either leave it in Sofie and mark it as Unsynced "
+"or remove the rundown from Sofie. What do you want to do?"
+msgstr ""
+
+msgid "Rundown & Shelf"
+msgstr "Körschema & Hylla"
+
+msgid "Rundown filter"
+msgstr "Körschemafilter"
+
+msgid "Rundown for piece \"{{pieceLabel}}\" could not be found."
+msgstr ""
+"Det gick inte att hitta ett körschema för innehållspunkten "
+"\"{{pieceLabel}}\"."
+
+msgid "Rundown Global Piece Prepare Time"
+msgstr "Längd för innehållspunkter i körschemat"
+
+msgid "Rundown is already doing a HOLD!"
+msgstr "Körschemat gör redan ett HOLD!"
+
+msgid "Rundown must be active!"
+msgstr "Körschemat måste vara aktivt!"
+
+msgid "Rundown must be playing or have a next!"
+msgstr "Körschemat måste vara aktivt eller ha en nästa-punkt satt!"
+
+msgid "Rundown must be playing!"
+msgstr "Körschemat måste vara aktivt!"
+
+msgid "Rundown Name"
+msgstr "Körschema Name"
+
+msgid "Rundown not found"
+msgstr "Körschema hittades inte"
+
+msgid ""
+"Rundown Playlist is active, please deactivate before preparing it for "
+"broadcast"
+msgstr ""
+"Körschemat är aktivt, vänligen inaktivera det innan du förbereder det för "
+"sändning"
+
+msgid "Rundown Playlist is active, please deactivate it before regenerating it."
+msgstr "Körschemat är aktivt, vänligen inaktivera det innan du återskapar det."
+
+msgid "Rundown Playlist names to store"
+msgstr "Körschemenamn att lagra"
+
+msgid "Rundown Playlist not found!"
+msgstr "Körschemat hittades inte!"
+
+msgid "Rundown View"
+msgstr ""
+
+msgid "Rundown View Layouts"
+msgstr "Körscheme-visningslayouter"
+
+msgid ""
+"RundownPlaylist is active but not in rehearsal, please deactivate it or set "
+"in in rehearsal to be able to reset it."
+msgstr ""
+"Körschemat är aktivt men inte i repetitionsläge, inaktivera det eller sätt "
+"det till repetitionsläge för att kunna återställa det."
+
+msgid "Rundowns"
+msgstr "Körscheman"
+
+msgid "Runtime error occurred"
+msgstr ""
+
+msgid "Save"
+msgstr "Spara"
+
+msgid "Save Changes"
+msgstr "Spara ändringar"
+
+msgid "Save to Bucket"
+msgstr "Spara till behållare"
+
+msgid "Saving AdLib to Bucket"
+msgstr "Sparar AdLib till behållare"
+
+msgid "Saving Evaluation"
+msgstr "Spara utvärdering"
+
+msgid "Scale"
+msgstr "Skala"
+
+msgid "Script is empty"
+msgstr "Skriptet är tomt"
+
+msgid "Search..."
+msgstr "Sök..."
+
+msgid "Seg. Budg."
+msgstr ""
+
+msgid "segment"
+msgstr "segment"
+
+msgid "Segment"
+msgstr "Segment"
+
+msgid "Segment Count Down"
+msgstr "Nedräkning för segment"
+
+msgid "Segment Count Up"
+msgstr "Uppräkning för segment"
+
+msgid "Segment countdown requires source layer"
+msgstr "Nedräkning för segment kräver källager"
+
+msgid "Segment no longer exists in {{nrcs}}"
+msgstr "Segmentet finns inte längre i {{nrcs}}"
+
+msgid "Segment was hidden in {{nrcs}}"
+msgstr "Segmentet doldes i {{nrcs}}"
+
+msgid "Segments: {{delta}}"
+msgstr "Segment: {{delta}}"
+
+msgid ""
+"Select a presenter layout. Leave as default to use the first available "
+"layout."
+msgstr ""
+
+msgid "Select Action"
+msgstr "Välj åtgärd"
+
+msgid "Select Compatible Show Styles"
+msgstr "Välj kompatibla programstilar"
+
+msgid "Select image"
+msgstr "Välj bild"
+
+msgid ""
+"Select one or more control modes. Leave all unchecked for default (mouse + "
+"keyboard)."
+msgstr ""
+
+msgid ""
+"Select source layers to display. Leave all unchecked to show all "
+"camera-related layers."
+msgstr ""
+
+msgid "Select visible Output Groups"
+msgstr "Välj synliga utgångsgrupper"
+
+msgid "Select visible Source Layers"
+msgstr "Välj synliga källager"
+
+msgid "Select which playout devices are using this package container"
+msgstr "Välj vilka utspelningsenheter som använder denna paketbehållare"
+
+msgid "Send message"
+msgstr "Skicka meddelande"
+
+msgid "Send message and Deactivate Rundown"
+msgstr "Skicka meddelande och inaktivera Körschema"
+
+msgid "Sent Messages"
+msgstr "Skickade meddelanden"
+
+msgid "Server"
+msgstr "Server"
+
+msgid "Server {{id}}"
+msgstr "Server {{id}}"
+
+msgid "Server ID"
+msgstr "Server-ID"
+
+msgid ""
+"Server ID. For sources, this should generally be omitted (or set to 0) so "
+"clip-searches are zone-wide. If set, clip-searches are limited to that "
+"server."
+msgstr ""
+
+msgid "Service {{service}} unavailable: {{reason}}"
+msgstr "Tjänsten {{service}} är inte tillgänglig: {{reason}}"
+
+msgid "Set"
+msgstr "Sätt"
+
+msgid "Set as QuickLoop End"
+msgstr "Sätt som QuickLoop-slutpunkt"
+
+msgid "Set as QuickLoop Start"
+msgstr "Sätt som QuickLoop-startpunkt"
+
+msgid "Set In & Out points"
+msgstr "Sätt in- och utpunkter"
+
+msgid "Set part as <strong>Next</strong>"
+msgstr "Sätt punkten som <strong>Nästa</strong>"
+
+msgid "Set segment as <strong>Next</strong>"
+msgstr "Sätt segmentet som <strong>Nästa</strong>"
+
+msgid "Setting as QuickLoop End"
+msgstr "Sätter som QuickLoop-slutpunkt"
+
+msgid "Setting as QuickLoop Start"
+msgstr "Sätter som QuickLoop-startpunkt"
+
+msgid "Setting Next"
+msgstr "Sätter Nästa-punkten"
+
+msgid "Setting Next Segment"
+msgstr "Sätter Nästa-segmentet"
+
+msgid "Settings"
+msgstr "Inställningar"
+
+msgid "Shelf"
+msgstr "Hylla"
+
+msgid "Shelf Layout"
+msgstr "Hyllayout"
+
+msgid "Shelf layout uploaded successfully."
+msgstr "Hyllalayouten har laddats upp."
+
+msgid "Shelf Layouts"
+msgstr "Hyll-layouter"
+
+msgid "Shortcuts"
+msgstr "Kortkommandon"
+
+msgid ""
+"Should a segment in the Rundown view automatically rewind after it stops "
+"being live"
+msgstr ""
+
+msgid "Show \"Remove snapshots\"-buttons"
+msgstr "Visa \"Ta bort backupfil\"-knappar"
+
+msgid "Show All"
+msgstr "Visa alla"
+
+msgid "Show config changes"
+msgstr "Visa konfigurationsändringar"
+
+msgid "Show End"
+msgstr "Programslut"
+
+msgid "Show entire On Air Segment"
+msgstr "Visa hela On Air-segmentet"
+
+msgid "Show Hotkeys"
+msgstr "Visa kortkommandon"
+
+msgid "Show Inspector"
+msgstr "Visa Inspekteringsfönster"
+
+msgid "Show issue"
+msgstr "Visa problemet"
+
+msgid "Show panel as a timeline"
+msgstr "Visa panelen som en tidslinje"
+
+msgid "Show part title"
+msgstr "Visa deltitel"
+
+msgid "Show Piece Icon Color"
+msgstr "Visa Innehållspunkt ikon färg"
+
+msgid "Show Rundown Name"
+msgstr "Visa körschema-namn"
+
+msgid "Show segment name"
+msgstr "Visa segmentnamn"
+
+msgid "Show Style"
+msgstr "Programstil"
+
+msgid "Show Style Base Name"
+msgstr "Programstilens basnamn"
+
+msgid "Show style not set"
+msgstr "Programstil inte inställd"
+
+msgid "Show Style Variants"
+msgstr "Programstilsvarianter"
+
+msgid "Show Styles"
+msgstr "Programstilar"
+
+msgid "Show thumbnails next to list items"
+msgstr "Visa miniatyrer bredvid listobjekt"
+
+msgid "ShowStyleBase not found!"
+msgstr "Programstil hittades inte!"
+
+msgid "Shuttle Keyboard (Contour ShuttleXpress / X-keys)"
+msgstr "Shuttle-tangentbord (Contour ShuttleXpress / X-keys)"
+
+msgid "Shuttle WebHID (Contour ShuttleXpress via browser)"
+msgstr "Shuttle WebHID (Contour ShuttleXpress via webbläsare)"
+
+msgid "Skip Fix Up Step"
+msgstr "Hoppa över detta steg"
+
+msgid "Slack Webhook URLs"
+msgstr "Slack Webhook-URL:er"
+
+msgid "Smooth scrolling"
+msgstr "Mjuk rullning"
+
+msgid "Snapshot remove failed: {{errorMessage}}"
+msgstr "Det gick inte att ta bort backuppen: {{errorMessage}}"
+
+msgid "Snapshot restore failed: {{errorMessage}}"
+msgstr "Återställning av backuppen misslyckades: {{errorMessage}}"
+
+msgid "Snapshot restored!"
+msgstr "Backuppen har återställts!"
+
+msgid "Sofie"
+msgstr "Sofie"
+
+msgid "Sofie Automation"
+msgstr "Sofie Automation"
+
+msgid "Sofie Automation Server"
+msgstr "Sofie Automation Server"
+
+msgid "Sofie Automation Server Core"
+msgstr "Sofie Automation Server Core"
+
+msgid "Sofie Automation Server Core will restart in {{time}}s..."
+msgstr "Sofie Automation Server Core kommer att starta om om {{time}}s..."
+
+msgid "Sofie Automation Server Core: {{name}}"
+msgstr "Sofie Automation Server Core: {{name}}"
+
+msgid "Sofie logo to be displayed in the header. Requires a page refresh."
+msgstr "Sofie-logotypen ska visas i rubriken. Kräver en uppdatering av sidan."
+
+msgid "some invalid reason"
+msgstr "någon ogiltig anledning"
+
+msgid "some message"
+msgstr "något meddelande"
+
+msgid "some reason"
+msgstr "någon anledning"
+
+msgid "something changed"
+msgstr "något ändrades"
+
+msgid ""
+"Something went wrong when creating the snapshot. Please contact the system "
+"administrator if the problem persists."
+msgstr ""
+
+msgid "Something went wrong, and it affected the output"
+msgstr "Någonting gick fel, och det påverkade sändningen"
+
+msgid "Something went wrong, but it didn't affect the output"
+msgstr "Någonting gick fel, men det påverkade inte sändningen"
+
+msgid ""
+"Something went wrong, please contact the system administrator if the "
+"problem persists."
+msgstr "Någonting gick fel, kontakta systemadministratören om problemet kvarstår."
+
+msgid "Source Abbreviation"
+msgstr "Källförkortning"
+
+msgid "Source Layer"
+msgstr "Källager"
+
+msgid "Source layer cannot be reset as it has no default values"
+msgstr "Källagret kan inte återställas eftersom det inte har några standardvärden"
+
+msgid "Source Layer Type"
+msgstr "Källagertyp"
+
+msgid "Source Layer Types"
+msgstr "Källagertyper"
+
+msgid "Source Layers"
+msgstr "Källager"
+
+msgid "Source Name"
+msgstr "Källnamn"
+
+msgid "Source Type"
+msgstr "Källtyp"
+
+msgid "Source/Output Layers"
+msgstr "Käll-/Utgångslager"
+
+msgid "Sources"
+msgstr "Källor"
+
+msgid "Space separated list of style class names to use when displaying the action"
+msgstr ""
+"Mellanslagsseparerad lista med stilklassnamn som ska användas när åtgärden "
+"visas"
+
+msgid "Specify additional layers where at least one layer must have an active piece"
+msgstr "Ange ytterligare lager där minst ett lager måste ha en aktiv innehållspunkt"
+
+msgid "Speed control"
+msgstr "Hastighetskontroll"
+
+msgid "Speed map"
+msgstr "Hastighetsmappning"
+
+msgid "Speed map (forward, right trigger)"
+msgstr "Hastighetsmappning (framåt, höger utlösare)"
+
+msgid "Split Screen"
+msgstr "Delad skärm"
+
+msgid "Splits"
+msgstr "Splittar"
+
+msgid "Standalone Shelf"
+msgstr "Fristående hylla"
+
+msgid "Start Here!"
+msgstr "Börja här!"
+
+msgid "Start In"
+msgstr "Start om"
+
+msgid "Start this AdLib"
+msgstr "Starta denna AdLib"
+
+msgid "Start time is close"
+msgstr "Starttiden är nära"
+
+msgid ""
+"Start with giving this browser configuration permissions by adding this to "
+"the URL: "
+msgstr ""
+
+msgid "Started"
+msgstr "Startade"
+
+msgid "Starting AdLib"
+msgstr "Startar AdLib"
+
+msgid "Starting Bucket AdLib"
+msgstr "Startar behållar-AdLib"
+
+msgid "Starting Global AdLib"
+msgstr "Startar Global AdLib"
+
+msgid "Starting Sticky Piece"
+msgstr "Startar orubblig innehållspunkt"
+
+msgid "State"
+msgstr "Tillstånd"
+
+msgid "State \"{{state}}\""
+msgstr "Tillstånd \"{{state}}\""
+
+msgid "Statistics"
+msgstr "Statistik"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Status Messages:"
+msgstr "Statusmeddelanden:"
+
+msgid "Sticky Piece"
+msgstr "Orubblig innehållspunkt"
+
+msgid "Store Snapshot"
+msgstr "Ta en backup"
+
+msgid "Studio"
+msgstr "Studio"
+
+msgid "Studio Baseline needs update: "
+msgstr "Studio Baseline behöver uppdateras: "
+
+msgid "Studio Labels"
+msgstr "Studioetiketter"
+
+msgid "Studio Name"
+msgstr "Studions namn"
+
+msgid "Studio not found!"
+msgstr "Studion hittades inte!"
+
+msgid "Studio Screen Graphics"
+msgstr "Studioskärmsgrafik"
+
+msgid "Studio Settings"
+msgstr "Studioinställningar"
+
+msgid "Studio Snapshot"
+msgstr "Studiobackup"
+
+msgid "Studios"
+msgstr "Studios"
+
+msgid "Style class names"
+msgstr "Programstilnamn"
+
+msgid "Subtract"
+msgstr "Subtrahera"
+
+msgid "Successfully restored snapshot"
+msgstr "Backuppen har återställts"
+
+msgid "Successfully stored snapshot"
+msgstr "Backuppen har sparats"
+
+msgid "Support Panel"
+msgstr "Supportpanel"
+
+msgid "Supported Audio Formats"
+msgstr "Ljudformat som stöds"
+
+msgid "Supported Media Formats"
+msgstr "Mediaformat som stöds"
+
+msgid "Switch Route Set"
+msgstr "Byt omdirigeringsuppsättning"
+
+msgid "Switch Segment View Mode"
+msgstr "Byt segmentvisningsläge"
+
+msgid "Switch to List View"
+msgstr "Byt till listvyn"
+
+msgid "Switch to Storyboard View"
+msgstr "Byt till kortvyn"
+
+msgid "Switch to Timeline View"
+msgstr "Byt till tidslinjevyn"
+
+msgid "Switchboard"
+msgstr "Växeltavla"
+
+msgid "Switchboard Panel"
+msgstr "Växeltavla"
+
+msgid "Switching operating mode to {{mode}}"
+msgstr "Byter driftläge till {{mode}}"
+
+msgid "Switching routing"
+msgstr "Växla omdirigering"
+
+msgid "System"
+msgstr "System"
+
+msgid "System has issues which need to be resolved"
+msgstr "Systemet har problem som måste lösas"
+
+msgid "System must have exactly one studio"
+msgstr "Systemet måste ha exakt en studio"
+
+msgid "System Status"
+msgstr "Systemstatus"
+
+msgid "System-wide"
+msgstr "Systemomfattande"
+
+msgid "System-wide Notification Message"
+msgstr "Systemomfattande meddelande"
+
+msgid "Table is not allowed to have `properties` defined"
+msgstr "Tabellen får inte ha \"properties\" definierad"
+
+msgid "Table is only allowed the wildcard `patternProperties`"
+msgstr "Tabellen är endast tillåtet med jokertecken \"patternProperties\""
+
+msgid "Tables are not supported here"
+msgstr "Tabeller stöds inte här"
+
+msgid "Tag"
+msgstr "Tagga"
+
+msgid "Tags must contain"
+msgstr "Taggar måste innehålla"
+
+msgid "Take"
+msgstr "Ta nästa punkt"
+
+msgid "Take a Full System Snapshot"
+msgstr "Ta en fullständig backup av systemet"
+
+msgid "Take a Snapshot"
+msgstr "Ta en backup"
+
+msgid "Take a Snapshot for studio \"{{studioName}}\" only"
+msgstr "Ta en backup endast för studio \"{{studioName}}\""
+
+msgid "Take and Download Memory Heap Snapshot"
+msgstr "Ladda ner Memory Heap Snapshot"
+
+msgid "Take System Snapshot"
+msgstr "Ta en systembackup"
+
+msgid "Take System Snapshot failed: {{errorMessage}}"
+msgstr "Systembackuppen misslyckades: {{errorMessage}}"
+
+msgid "Taking Piece"
+msgstr "Tar innehållspunkt"
+
+msgid "Technical reason: {{reason}}"
+msgstr "Teknisk orsak: {{reason}}"
+
+msgid "test"
+msgstr "testa"
+
+msgid "Test ERROR message"
+msgstr "Testa ERROR meddelande"
+
+msgid "Test Info message"
+msgstr "Testinformationsmeddelande"
+
+msgid "test partInstance"
+msgstr "test partInstance"
+
+msgid "test pieceInstance"
+msgstr "test innehållspunktinstans"
+
+msgid "test playlist"
+msgstr "testa spellistan"
+
+msgid "test rundown"
+msgstr "testa körschema"
+
+msgid "Test test"
+msgstr "Test test"
+
+msgid "Test Tools"
+msgstr "Testverktyg"
+
+msgid "test2"
+msgstr "test 2"
+
+msgid "Text"
+msgstr "Text"
+
+msgid "Text to show above show end time"
+msgstr "Text att visa ovanför sändningens sluttid"
+
+msgid "Text to show above show start time"
+msgstr "Text att visa ovanför sändningens starttid"
+
+msgid ""
+"The config UI is now driven by manifests fed by the device. This device "
+"needs updating to provide the configManifest to be configurable"
+msgstr ""
+
+msgid ""
+"The fallback duration (in milliseconds) to use to render parts when no "
+"duration is provided"
+msgstr ""
+
+msgid "The following parts no longer exist in {{nrcs}}: {{partNames}}"
+msgstr "Följande punkter finns inte längre i {{nrcs}}: {{partNames}}"
+
+msgid "The migration can be completed automatically."
+msgstr "Migreringen kan slutföras automatiskt."
+
+msgid ""
+"The migration consists of several phases, you will get more options after "
+"you've this migration"
+msgstr ""
+
+msgid "The migration was completed successfully!"
+msgstr "Migreringen slutfördes framgångsrikt!"
+
+msgid "The old data was removed."
+msgstr "De gamla uppgifterna togs bort."
+
+msgid ""
+"The planned end time has passed, are you sure you want to activate this "
+"Rundown?"
+msgstr ""
+"Den planerade sluttiden har passerat, är du säker på att du vill aktivera "
+"detta körschema?"
+
+msgid "The progress of all steps"
+msgstr "Förlopp för alla steg"
+
+msgid "The progress of steps required for playout"
+msgstr "Förlopp för utspelningskritiska steg "
+
+msgid ""
+"The rundown \"{{rundownName}}\" is not published or activated in "
+"{{nrcsName}}! No data updates will currently come through."
+msgstr ""
+"Körschemat \"{{rundownName}}\" är inte publicerat eller aktiverat i "
+"{{nrcsName}}! Inga datauppdateringar kommer för närvarande att appliceras."
+
+msgid "The rundown can not be reset while it is active"
+msgstr "Körschemat kan inte återställas medan det är aktivt"
+
+msgid ""
+"The Rundown was attempted to be moved out of the Playlist when it was on "
+"Air. Move it back and try again later."
+msgstr ""
+"Körschemat försökte flyttas ut ur spellistan när det var på sändning. "
+"Flytta tillbaka det och försök igen senare."
+
+msgid ""
+"The rundown you are trying to execute a take on is inactive, would you like "
+"to activate this rundown?"
+msgstr ""
+"Körschemat du försöker ta en punkt på är inaktivt, vill du aktivera detta "
+"körschema?"
+
+msgid ""
+"The rundown: \"{{rundownName}}\" will need to be deactivated in order to "
+"activate this one.\n"
+"\n"
+"Are you sure you want to activate this one anyway?"
+msgstr ""
+"Körschemat: \"{{rundownName}}\" måste inaktiveras för att aktivera detta.\n"
+"\n"
+"Är du säker på att du vill aktivera detta ändå?"
+
+msgid ""
+"The segment duration in the segment header always displays the planned "
+"duration instead of acting as a counter"
+msgstr ""
+
+msgid "The selected part cannot be played"
+msgstr "Den valda punkten kan inte spelas"
+
+msgid "The selected part does not exist"
+msgstr "Den valda punkten finns inte"
+
+msgid ""
+"The system configuration has been changed since importing this rundown. It "
+"might not run correctly"
+msgstr ""
+"Systemkonfigurationen har ändrats sedan detta körschema lästes in. Det "
+"kanske inte körs korrekt"
+
+msgid "The type of device to use for the output"
+msgstr "Typen av enhet som ska användas för utspelning"
+
+msgid "The type of mapping to use"
+msgstr "Vilken typ av mappning som ska användas"
+
+msgid "The way this Route Set should behave towards the user"
+msgstr "Hur denna omdirigeringen ska bete sig mot användaren"
+
+msgid "Then, run the migrations script:"
+msgstr "Kör sedan migreringsskriptet:"
+
+msgid "There are no AB Playout devices set up yet"
+msgstr "Det finns inga konfigurerade AB utspelningsenheter än"
+
+msgid "There are no Accessors set up."
+msgstr ""
+
+msgid "There are no active rundowns."
+msgstr "Det finns inga aktiva körscheman."
+
+msgid "There are no exclusivity groups set up."
+msgstr "Det finns inga inställda exklusiva grupper."
+
+msgid "There are no filters set up yet"
+msgstr "Det finns inga inställda filter än"
+
+msgid ""
+"There are no Playout Gateways connected and attached to this studio. Please "
+"contact the system administrator to start the Playout Gateway."
+msgstr ""
+
+msgid "There are no Route Sets set up."
+msgstr "Det finns inga omdirigeringar inställda."
+
+msgid "There are no routes set up yet"
+msgstr "Det finns inga omdirigeringar inställda än"
+
+msgid "There are no rundowns ingested into Sofie."
+msgstr "Det finns inga inlästa körscheman i Sofie."
+
+msgid "There are no sub-devices for this gateway"
+msgstr "Det finns inga underenheter för denna gateway"
+
+msgid "There is an unknown problem with the part."
+msgstr "Det finns ett okänt problem med punkten."
+
+msgid "There is an unspecified problem with the source."
+msgstr "Det finns ett ospecificerat problem med källan."
+
+msgid "There is no rundown active in this studio."
+msgstr "Det finns inget aktivt körschema i denna studio."
+
+msgid ""
+"There was an error when troubleshooting the device: \"{{deviceName}}\": "
+"{{errorMessage}}"
+msgstr ""
+
+msgid "There was an error: {{error}}"
+msgstr "Ett fel uppstod: {{error}}"
+
+msgid "This action has an invalid combination of filters"
+msgstr "Den här åtgärden har en ogiltig kombination av filter"
+
+msgid "This affects how much is logged to the console on the server"
+msgstr "Detta påverkar hur mycket som loggas till konsolen på servern"
+
+msgid "This blueprint has not provided a valid config schema"
+msgstr "Den här blueprinten innehåller inte ett giltigt konfigurationsschema"
+
+msgid "This Blueprint is not being used by any Show Style"
+msgstr "Denna blueprint används inte av någon programstil"
+
+msgid "This Blueprint is not compatible with any Studio"
+msgstr "Denna Blueprint är inte kompatibel med någon Studio"
+
+msgid "This clip ends with black frames after {{seconds}} seconds"
+msgstr "Det här klippet slutar med svarta ramar efter {{seconds}} sekunder"
+
+msgid "This clip ends with freeze frames after {{seconds}} seconds"
+msgstr "Det här klippet slutar med frysta bildrutor efter {{seconds}} sekunder"
+
+msgid "This could leave the configuration in a broken state"
+msgstr "Detta kan lämna konfigurationen i ett trasigt tillstånd"
+
+msgid "This enables or disables buckets in the UI - enabled is the default behavior"
+msgstr ""
+"Detta aktiverar eller inaktiverar behållare i användargränssnittet - "
+"aktiverat är standardbeteendet"
+
+msgid ""
+"This enables or disables the evaluationform in the UI - enabled is the "
+"default behavior"
+msgstr ""
+
+msgid "This feature enables the use of the Properties Panel and the Edit Mode"
+msgstr "Denna funktion möjliggör användning av egenskapspanelen och redigeringsläget"
+
+msgid "This has only been tested for the iNews gateway"
+msgstr "Detta har bara testats för iNews-gatewayen"
+
+msgid "This is not in it's normal setting"
+msgstr "Detta är inte i sin normala inställning"
+
+msgid ""
+"This migration consists of {{stepCount}} steps ({{ignoredStepCount}} steps "
+"are ignored)."
+msgstr ""
+
+msgid "This must be assigned to a device to be able to edit the settings"
+msgstr "Detta måste tilldelas en enhet för att kunna redigera inställningarna"
+
+msgid "This name will be shown in the title bar of the window"
+msgstr "Detta namn kommer att visas i fönstrets namnlist"
+
+msgid "This playlist is empty"
+msgstr "Denna spellista har inga körscheman"
+
+msgid ""
+"This requires the blueprints to implement the "
+"`generateAdlibTestingIngestRundown` method"
+msgstr ""
+
+msgid "This rundown has been unpublished from Sofie."
+msgstr "Det här körschemat har avpublicerats från Sofie."
+
+msgid "This rundown is currently active"
+msgstr "Det här körschemat är för närvarande aktivt"
+
+msgid "This rundown is now active. Are you sure you want to exit this screen?"
+msgstr "Det här körschemat är aktivt. Är du säker på att du vill lämna den här vyn?"
+
+msgid "This rundown will loop indefinitely"
+msgstr "Det här körschemat kommer att loopa för evigt"
+
+msgid "This Show Style is not compatible with any Studio"
+msgstr "Denna program-stilen är inte kompatibel med någon studio"
+
+msgid "This step is required for playout"
+msgstr "Detta steg krävs för utspelning"
+
+msgid "This studio doesn't exist."
+msgstr "Studion finns inte."
+
+msgid "This will remove {{indexCount}} old indexes, do you want to continue?"
+msgstr "Detta kommer att ta bort {{indexCount}} gamla index, vill du fortsätta?"
+
+msgid "Time from platform user event to Action received by Core"
+msgstr "Tid från användar-event till att Core mottagit åtgärden"
+
+msgid "Time since rehearsal end"
+msgstr "Tid sedan repetitionslägesslut"
+
+msgid "Time to planned start"
+msgstr "Tid kvar till planerad start"
+
+msgid "Time to rehearsal end"
+msgstr "Tid kvar till repetitionslägesslut"
+
+msgid "Timeline"
+msgstr "Tidslinje"
+
+msgid "Timeline Datastore"
+msgstr ""
+
+msgid "Times"
+msgstr "Tider"
+
+msgid "Timestamp"
+msgstr "Tidsstämpel"
+
+msgid "To inspect the memory heap snapshot, use Chrome DevTools"
+msgstr ""
+
+msgid "Today"
+msgstr "Idag"
+
+msgid "Toggle"
+msgstr "Växla"
+
+msgid "Toggle AdLibs on single mouse click"
+msgstr "Växla AdLibs med ett enda musklick"
+
+msgid "Toggle Shelf"
+msgstr "Visa/Dölj hylla"
+
+msgid "Toggle Support Panel"
+msgstr "Växla supportpanel"
+
+msgid "Toggled Label"
+msgstr "Växlad etikett"
+
+msgid "Tomorrow"
+msgstr "Imorgon"
+
+msgid "Tools"
+msgstr "Verktyg"
+
+msgid "Top"
+msgstr "Överst"
+
+msgid "Transition"
+msgstr "Övergång"
+
+msgid "Treat as Main content"
+msgstr "Behandla som huvudinnehåll"
+
+msgid "Trigger dead zone"
+msgstr "Utlösa dödzon"
+
+msgid "Trigger Mode"
+msgstr "Triggerläge"
+
+msgid "Triggered Actions failed to upload: {{errorMessage}}"
+msgstr "Det gick inte att ladda upp utlösta åtgärder: {{errorMessage}}"
+
+msgid "Triggered Actions uploaded successfully."
+msgstr "Utlösta åtgärder har laddats upp."
+
+msgid "Trim \"{{name}}\""
+msgstr "Trimma \"{{name}}\""
+
+msgid "Trimmed successfully."
+msgstr ""
+
+msgid "Trimming this clip has failed due to an error: {{error}}."
+msgstr "Trimningen av det här klippet misslyckades på grund av ett fel: {{error}}."
+
+msgid ""
+"Trimming this clip has timed out. It's possible that the story is currently "
+"locked for writing in {{nrcsName}} and will eventually be updated. Make "
+"sure that the story is not being edited by other users."
+msgstr ""
+
+msgid ""
+"Trimming this clip is taking longer than expected. It's possible that the "
+"story is locked for writing in {{nrcsName}}."
+msgstr ""
+
+msgid "Troubleshoot"
+msgstr "Felsök"
+
+msgid "TSR"
+msgstr ""
+
+msgid "Type"
+msgstr "Typ"
+
+msgid "Unable to check the system configuration for changes"
+msgstr "Det går inte att kontrollera systemkonfigurationen för ändringar"
+
+msgid "Unable to upgrade"
+msgstr "Det gick inte att uppgradera"
+
+msgid "Unassign"
+msgstr "Ta bort tilldelning"
+
+msgid "Unconfigured"
+msgstr "Okonfigurerad"
+
+msgid "Under"
+msgstr "Under"
+
+msgid "Undo"
+msgstr "Ångra"
+
+msgid "Undo Disable the next element"
+msgstr "Ångra inaktivering av nästa element"
+
+msgid "Undo Hold"
+msgstr "Ångra HOLD"
+
+msgid "Unknown"
+msgstr "Okänd"
+
+msgid "Unknown action"
+msgstr "Okänd åtgärd"
+
+msgid "Unknown error"
+msgstr "Okänt fel"
+
+msgid "Unknown Layer"
+msgstr "Okänt lager"
+
+msgid "Unknown Package \"{{packageId}}\""
+msgstr "Okänt paket \"{{packageId}}\""
+
+msgid "Unnamed blueprint"
+msgstr "Namnlös blueprint"
+
+msgid "Unnamed Show Style"
+msgstr "Namnlös programstil"
+
+msgid "Unnamed Studio"
+msgstr "Namnlös studio"
+
+msgid "Unnamed variant"
+msgstr "Namnlös variant"
+
+msgid "Unsupported array type \"{{ type }}\""
+msgstr "Matristyp \"{{type}}\" som inte stöds"
+
+msgid "Unsupported field type \"{{ type }}\""
+msgstr "Fälttyp \"{{type}}\" som inte stöds"
+
+msgid "Unsyncing Rundown"
+msgstr "Avsynkroniserar körschemat"
+
+msgid "Until"
+msgstr "Tills"
+
+msgid "Until end of rundown"
+msgstr "Tills slutet av körschemat"
+
+msgid "Until End of Rundown"
+msgstr "Tills slutet av körschemat"
+
+msgid "Until end of segment"
+msgstr "Tills slutet av segmentet"
+
+msgid "Until End of Segment"
+msgstr "Tills slutet av segmentet"
+
+msgid "Until end of showstyle"
+msgstr "Tills slutet av program-stilen"
+
+msgid "Until End of Showstyle"
+msgstr "Tills slutet av program-stilen"
+
+msgid "Until next rundown"
+msgstr "Tills nästa körschema"
+
+msgid "Until Next Rundown"
+msgstr "Tills nästa körschema"
+
+msgid "Until next segment"
+msgstr "Tills nästa segment"
+
+msgid "Until Next Segment"
+msgstr "Tills nästa segment"
+
+msgid "Until next take"
+msgstr "Tills nästa tagning"
+
+msgid "Until Next Take"
+msgstr "Tills nästa tagning"
+
+msgid "Update"
+msgstr "Uppdatera"
+
+msgid "Update Blueprints?"
+msgstr "Uppdatera blueprints?"
+
+msgid "Updated"
+msgstr "Uppdaterad"
+
+msgid "Upgrade config for {{name}}"
+msgstr "Uppgradera konfiguration för {{name}}"
+
+msgid "Upgrade Database"
+msgstr "Uppgradera databas"
+
+msgid "Upgrade required"
+msgstr "Uppgradering krävs"
+
+msgid "Upgrade Status"
+msgstr "Uppgraderingsstatus"
+
+msgid "Upload"
+msgstr "Ladda upp"
+
+msgid "Upload a new blueprint"
+msgstr "Ladda upp en ny blueprint"
+
+msgid "Upload a snapshot file"
+msgstr "Ladda upp en backupfil"
+
+msgid ""
+"Upload a snapshot file (restores additional info not directly related to a "
+"Playlist / Rundown, such as Packages, PackageWorkStatuses etc"
+msgstr ""
+
+msgid "Upload Blueprints"
+msgstr "Ladda upp blueprints"
+
+msgid "Upload Layout?"
+msgstr "Ladda upp layout?"
+
+msgid "Upload Snapshot"
+msgstr "Ladda upp backupfil"
+
+msgid "Upload Snapshot (for debugging)"
+msgstr "Ladda upp backupfil (för felsökning)"
+
+msgid "Upload stored Action Triggers"
+msgstr "Ladda upp sparade åtgärdstriggers"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "URL to the Quantel FileFlow Manager"
+msgstr "URL till Quantel FileFlow Manager"
+
+msgid "URL to the Quantel Gateway"
+msgstr "URL till Quantel Gateway"
+
+msgid "URL to the Quantel HTTP transformer"
+msgstr "URL till Quantel HTTP-transformer"
+
+msgid "URLs to the ISAs, in order of importance (comma separated)"
+msgstr "Webbadresser till ISA, i ordningsföljd (kommaseparerad)"
+
+msgid "Use {{nrcsName}} order"
+msgstr "Använd ordningen {{nrcsName}}"
+
+msgid "Use as default"
+msgstr "Använd som standard"
+
+msgid "Use color of primary piece as background of panel"
+msgstr "Använd färgen på den primära innehållspunkten som bakgrund på panelen"
+
+msgid "Use Trigger Mode"
+msgstr "Använd triggerläge"
+
+msgid "User Activity Log"
+msgstr "Aktivitetslogg"
+
+msgid "User ID"
+msgstr "Användar-ID"
+
+msgid "User Log"
+msgstr "Aktivitetslogg"
+
+msgid "User Name"
+msgstr "Användarnamn"
+
+msgid "Username for authentication"
+msgstr "Användarnamn för autentisering"
+
+msgid "Validate and Apply Config"
+msgstr "Validera och tillämpa konfiguration"
+
+msgid "Validation failed! {{message}}"
+msgstr ""
+
+msgid "Value"
+msgstr "Värde"
+
+msgid "Value between 0 and 1"
+msgstr "Värde mellan 0 och 1"
+
+msgid "Variants"
+msgstr "Varianter"
+
+msgid "version"
+msgstr "version"
+
+msgid "Version"
+msgstr "Version"
+
+msgid "Version for {{name}}: From {{fromVersion}} to {{toVersion}}"
+msgstr "Version för {{name}}: Från {{fromVersion}} till {{toVersion}}"
+
+msgid "View"
+msgstr "Visa"
+
+msgid "View Layout"
+msgstr "Visa layout"
+
+msgid "Waiting for action: {{actionName}}..."
+msgstr "Väntar på åtgärd: {{actionName}}..."
+
+msgid "Waiting for gateway to generate URL..."
+msgstr "Väntar på att gateway genererar URL..."
+
+msgid "Warning"
+msgstr "Varning"
+
+msgid "Warnings"
+msgstr "Varningar"
+
+msgid "Warnings During Migration"
+msgstr "Varningar under migrering"
+
+msgid "What type of bank"
+msgstr "Vilken typ av bank"
+
+msgid "When"
+msgstr "När"
+
+msgid "When disabled, any HOLD operations will be silently ignored"
+msgstr "När den är inaktiverad ignoreras alla HOLD-operationer tyst"
+
+msgid ""
+"When enabled, double clicking on certain pieces in the GUI will play them "
+"as adlibs"
+msgstr ""
+
+msgid ""
+"When enabled, this will override the piece content statuses to have no "
+"errors or warnings and display a mock preview. This should only be used for "
+"development!"
+msgstr ""
+
+msgid "When set, resources are considered immutable, ie they will not change"
+msgstr ""
+"När de är inställda anses resurserna vara oföränderliga, dvs de kommer inte "
+"att förändras"
+
+msgid ""
+"Which keyboard key is used as \"Confirm\" in modal dialogs etc. Use "
+"\"Enter\" to exclude the Numpad Enter key (eg. when it is dedicated for "
+"playout)"
+msgstr ""
+
+msgid "Width"
+msgstr "Bredd"
+
+msgid "Work description"
+msgstr "Arbetsbeskrivning"
+
+msgid "Work status"
+msgstr "Arbetsstatus"
+
+msgid "Work status reason"
+msgstr "Anledning till arbetsstatus"
+
+msgid "Work-in-progress"
+msgstr "Pågående arbete"
+
+msgid "Worker"
+msgstr "Arbetare"
+
+msgid "WorkForce"
+msgstr "Arbetskraft"
+
+msgid "X"
+msgstr "X"
+
+msgid "Xbox Controller"
+msgstr "Xbox Controller"
+
+msgid "Y"
+msgstr "Y"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "Yes, Take and Download Memory Heap Snapshot"
+msgstr "Ja, ta och ladda ner Memory Heap Snapshot"
+
+msgid "Yesterday"
+msgstr "Igår"
+
+msgid ""
+"You are in rehearsal mode, the broadcast starts in less than 1 minute. Do "
+"you want to go into On-Air mode?"
+msgstr ""
+"Du är i repetitionsläget. Sändningen startar om mindre än 1 minut. Vill du "
+"byta till On-Air-läget?"
+
+msgid "You need to run migrations to set the system up for operation."
+msgstr "Du måste köra migreringarna för att få igång systemet ordentligt."
+
+msgid "Your machine is offline and cannot connect to the {{platformName}}."
+msgstr "Din dator är offline och kan inte ansluta till {{platformName}}."
+
+msgid "Your name"
+msgstr "Ditt namn"
+
+msgid "Zone ID"
+msgstr "Zon-ID"
+
+msgid "Zoom In"
+msgstr "Zooma in"
+
+msgid "Zoom Out"
+msgstr "Zooma ut"
+
+msgctxt "one"
+msgid "{{count}} items"
+msgstr ""
+
+msgctxt "one"
+msgid "There are {{count}} documents that can be removed, do you want to continue?"
+msgstr "Det finns {{count}} dokument som kan tas bort, vill du fortsätta?"
+
+msgctxt "one"
+msgid "This layer is now rerouted by an active Route Set: {{routeSets}}"
+msgstr ""
+
+msgctxt "other"
+msgid "{{count}} items"
+msgstr ""
+
+msgctxt "other"
+msgid "There are {{count}} documents that can be removed, do you want to continue?"
+msgstr "Det finns {{count}} dokument som kan tas bort, vill du fortsätta?"
+
+msgctxt "other"
+msgid "This layer is now rerouted by an active Route Set: {{routeSets}}"
+msgstr ""

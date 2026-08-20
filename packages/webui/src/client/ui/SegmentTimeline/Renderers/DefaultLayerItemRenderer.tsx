@@ -1,7 +1,7 @@
 import ClassNames from 'classnames'
 import { getElementWidth } from '../../../utils/dimensions.js'
 
-import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
+import { CustomLayerItemRenderer, type ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
 type IProps = ICustomLayerItemProps
 interface IState {}
 
@@ -33,7 +33,10 @@ export class DefaultLayerItemRenderer extends CustomLayerItemRenderer<IProps, IS
 			super.componentDidUpdate(prevProps, prevState)
 		}
 
-		if (this.props.piece.instance.piece.name !== prevProps.piece.instance.piece.name) {
+		if (
+			this.props.piece.instance.piece.name !== prevProps.piece.instance.piece.name ||
+			this.customPieceIconsChanged(prevProps)
+		) {
 			this.updateAnchoredElsWidths()
 		}
 	}
@@ -73,6 +76,7 @@ export class DefaultLayerItemRenderer extends CustomLayerItemRenderer<IProps, IS
 						ref={this.setRightLabelRef}
 						style={this.getItemLabelOffsetRight()}
 					>
+						{this.renderCustomPieceIcons()}
 						{this.renderInfiniteIcon()}
 						{this.renderOverflowTimeLabel()}
 					</span>

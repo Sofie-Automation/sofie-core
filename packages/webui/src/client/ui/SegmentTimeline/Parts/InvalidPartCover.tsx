@@ -1,29 +1,37 @@
-import React, { useContext, useRef } from 'react'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { IPreviewPopUpSession, PreviewPopUpContext } from '../../PreviewPopUp/PreviewPopUpContext.js'
+import { useContext, useEffect, useRef } from 'react'
+import type { PartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { type IPreviewPopUpSession, PreviewPopUpContext } from '../../PreviewPopUp/PreviewPopUpContext.js'
 
 interface IProps {
 	className?: string
-	part: DBPart
-	align?: 'start' | 'center' | 'end'
+	/**
+	 * The effective invalidReason to display.
+	 * Can be from Part (planned) or PartInstance (runtime).
+	 */
+	invalidReason: PartInvalidReason | undefined
 }
 
-export function InvalidPartCover({ className, part }: Readonly<IProps>): JSX.Element {
-	const element = React.createRef<HTMLDivElement>()
+export function InvalidPartCover({ className, invalidReason }: Readonly<IProps>): JSX.Element {
+	const element = useRef<HTMLDivElement>(null)
 
 	const previewContext = useContext(PreviewPopUpContext)
 	const previewSession = useRef<IPreviewPopUpSession | null>(null)
 
-	function onMouseEnter(e: React.MouseEvent<HTMLDivElement>) {
+	function onMouseEnter() {
 		if (!element.current) {
 			return
 		}
 
-		if (part.invalidReason?.message && !previewSession.current) {
-			previewSession.current = previewContext.requestPreview(e.target as HTMLDivElement, [
+		if (previewSession.current) {
+			previewSession.current.close()
+			previewSession.current = null
+		}
+
+		if (invalidReason?.message && !previewSession.current) {
+			previewSession.current = previewContext.requestPreview(element.current, [
 				{
 					type: 'warning',
-					content: part.invalidReason?.message,
+					content: invalidReason.message,
 				},
 			])
 		}
@@ -35,6 +43,15 @@ export function InvalidPartCover({ className, part }: Readonly<IProps>): JSX.Ele
 			previewSession.current = null
 		}
 	}
+
+	useEffect(() => {
+		return () => {
+			if (previewSession.current) {
+				previewSession.current.close()
+				previewSession.current = null
+			}
+		}
+	}, [])
 
 	return (
 		<div className={className} ref={element} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>

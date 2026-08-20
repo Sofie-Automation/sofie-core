@@ -1,8 +1,8 @@
 import { ControllerAbstract } from './lib.js'
-import { PrompterViewContent, PrompterConfigMode } from '../PrompterView.js'
+import { type PrompterViewContent, PrompterConfigMode } from '../PrompterView.js'
 import Spline from 'cubic-spline'
 
-import webmidi, { Input, InputEventControlchange } from 'webmidi'
+import webmidi, { type Input, type InputEventControlchange } from 'webmidi'
 import { logger } from '../../../lib/logging.js'
 
 /**

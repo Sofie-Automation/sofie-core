@@ -17,12 +17,13 @@ interface IProps {
 function DimmedValue({ value, ms }: { readonly value: string; readonly ms?: number }): JSX.Element {
 	const parts = value.split(':')
 	const absDiff = ms !== undefined ? Math.abs(ms) : Infinity
+	const isOvertime = /^[+\-\u2013]/.test(value)
 
 	return (
 		<>
 			{parts.map((p, i) => {
 				const offset = 3 - parts.length
-				const isDimmed = absDiff < THRESHOLDS[i + offset]
+				const isDimmed = !isOvertime && absDiff < THRESHOLDS[i + offset] && parseInt(p, 10) === 0
 				return (
 					<React.Fragment key={`${i}:${p}`}>
 						<span className={classNames('countdown__digit', { 'countdown__digit--dimmed': isDimmed })}>{p}</span>

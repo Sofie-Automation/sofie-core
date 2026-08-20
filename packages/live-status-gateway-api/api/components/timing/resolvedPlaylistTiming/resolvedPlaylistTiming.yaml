@@ -1,0 +1,35 @@
+$defs:
+  resolvedPlaylistTimingType:
+    title: ResolvedPlaylistTimingType
+    type: string
+    description: Whether the playlist is forward-timed from a start time or back-timed from an end time
+    enum:
+      - forward
+      - back
+
+  resolvedPlaylistTiming:
+    type: object
+    title: ResolvedPlaylistTiming
+    description: Timing information about the playlist using absolute Unix timestamps (ms) and expected duration.
+    properties:
+      type:
+        $ref: '#/$defs/resolvedPlaylistTimingType'
+      startedPlayback:
+        description: Unix timestamp (ms) when the playlist actually started playback (first timed part confirmed started). Null until known.
+        oneOf:
+          - type: number
+          - type: 'null'
+      expectedDurationMs:
+        description: Expected duration of the playlist (ms). Null when unknown/unavailable.
+        oneOf:
+          - type: number
+          - type: 'null'
+      expectedEnd:
+        description: Unix timestamp (ms) when the playlist is expected/projected to end. Null when it cannot be resolved from timing configuration.
+        oneOf:
+          - type: number
+          - type: 'null'
+    required: [type, startedPlayback, expectedDurationMs, expectedEnd]
+    additionalProperties: false
+    examples:
+      - $ref: './resolvedPlaylistTiming-example.yaml'

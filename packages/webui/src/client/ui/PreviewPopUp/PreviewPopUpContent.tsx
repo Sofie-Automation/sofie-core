@@ -1,17 +1,17 @@
-import React from 'react'
 import { WarningIconSmall } from '../../lib/ui/icons/notifications.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { TFunction, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { VTPreviewElement } from './Previews/VTPreview.js'
 import { IFramePreview } from './Previews/IFramePreview.js'
 import { BoxLayoutPreview } from './Previews/BoxLayoutPreview.js'
 import { ScriptPreview } from './Previews/ScriptPreview.js'
 import { RundownUtils } from '../../lib/rundown.js'
-import { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
+import type { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { LayerInfoPreview } from './Previews/LayerInfoPreview.js'
-import { PreviewContentUI } from './PreviewPopUpContext.js'
+import type { PreviewContentUI } from './PreviewPopUpContext.js'
 
 interface PreviewPopUpContentProps {
 	content: PreviewContentUI
@@ -64,7 +64,7 @@ export function PreviewPopUpContent({ content, time }: PreviewPopUpContentProps)
 		case 'separationLine':
 			return <hr className="preview-popup__separation-line" />
 		case 'boxLayout':
-			return <BoxLayoutPreview content={content} />
+			return <BoxLayoutPreview content={content} time={time} />
 		case 'warning':
 			return (
 				<div className="preview-popUp__warning">

@@ -1,5 +1,5 @@
 import { clone, joinObjectPathFragments, objectPathSet } from '@sofie-automation/corelib/dist/lib'
-import {
+import type {
 	OverrideOpHelperForItemContentsBatcher,
 	WrappedOverridableItem,
 } from '../../../ui/Settings/util/OverrideOpHelper.js'

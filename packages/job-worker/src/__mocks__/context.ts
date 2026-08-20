@@ -12,12 +12,12 @@ import {
 	IBlueprintSegment,
 	ISegmentUserContext,
 	IShowStyleContext,
-	IStudioSettings,
 	IngestSegment,
 	PlaylistTimingType,
 	ShowStyleBlueprintManifest,
 	StudioBlueprintManifest,
 } from '@sofie-automation/blueprints-integration'
+import type { IStudioSettings } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import {
 	RundownId,
 	RundownPlaylistId,
@@ -243,6 +243,7 @@ export class MockJobContext implements JobContext {
 		return {
 			blueprintId: showStyle.blueprintId,
 			blueprint: this.#showStyleBlueprint,
+			blueprintHash: 'mockShowStyleBlueprintHash',
 		}
 	}
 	getShowStyleBlueprintConfig(showStyle: ReadonlyDeep<ProcessedShowStyleCompound>): ProcessedShowStyleConfig {

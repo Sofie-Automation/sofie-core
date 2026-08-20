@@ -1,12 +1,12 @@
 import classNames from 'classnames'
-import React, { CSSProperties, useCallback, useContext, useMemo, useRef } from 'react'
+import React, { type CSSProperties, useCallback, useContext, useEffect, useMemo, useRef } from 'react'
 import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import {
 	PreviewPopUpContext,
-	IPreviewPopUpSession,
+	type IPreviewPopUpSession,
 	convertSourceLayerItemToPreview,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
-import { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 
 interface IProps {
@@ -57,12 +57,26 @@ export const LinePartSecondaryPiece: React.FC<IProps> = React.memo(function Line
 			return
 		}
 
+		if (previewSession.current) {
+			previewSession.current.close()
+			previewSession.current = null
+		}
+
 		if (previewProps.contents.length > 0)
-			previewSession.current = previewContext.requestPreview(e.target as any, previewProps.contents, {
+			previewSession.current = previewContext.requestPreview(e.currentTarget, previewProps.contents, {
 				...previewProps.options,
 				initialOffsetX: e.screenX,
 			})
 	}
+
+	useEffect(() => {
+		return () => {
+			if (previewSession.current) {
+				previewSession.current.close()
+				previewSession.current = null
+			}
+		}
+	}, [])
 
 	const onPointerLeave = (e: React.PointerEvent<HTMLDivElement>) => {
 		if (e.pointerType !== 'mouse') {

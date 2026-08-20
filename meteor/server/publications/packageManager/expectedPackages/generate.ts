@@ -127,6 +127,7 @@ function generateExpectedPackageForDevice(
 		expectedPackage: {
 			...expectedPackage.package,
 			_id: expectedPackage._id,
+			rundownId: expectedPackage.rundownId ?? undefined,
 			sideEffect: packageSideEffect,
 		},
 		sources: combinedSources,
@@ -158,7 +159,11 @@ function calculateCombinedSource(
 		const packageAccessor: ReadonlyDeep<AccessorOnPackage.Any> | undefined = packageSource.accessors?.[accessorId]
 
 		if (packageAccessor && sourceAccessor && packageAccessor.type === sourceAccessor.type) {
-			combinedSource.accessors[accessorId] = deepExtend({}, sourceAccessor, packageAccessor)
+			combinedSource.accessors[accessorId] = deepExtend(
+				{},
+				clone<Accessor.Any>(sourceAccessor),
+				clone<AccessorOnPackage.Any>(packageAccessor)
+			)
 		} else if (packageAccessor) {
 			combinedSource.accessors[accessorId] = clone<AccessorOnPackage.Any>(packageAccessor)
 		} else if (sourceAccessor) {

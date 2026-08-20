@@ -1,13 +1,14 @@
-import React, { createContext, PropsWithChildren, ReactNode, useRef } from 'react'
+import React, { createContext, type PropsWithChildren, type ReactNode, useRef } from 'react'
 import _ from 'underscore'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { DEFAULT_DISPLAY_DURATION } from '@sofie-automation/shared-lib/dist/core/constants'
 import ClassNames from 'classnames'
 import { Meteor } from 'meteor/meteor'
 import { parse as queryStringParse } from 'query-string'
 import { Route } from 'react-router-dom'
-import { animate, AnimationPlaybackControls } from 'motion'
+import { animate, type AnimationPlaybackControls } from 'motion'
 import {
-	Translated,
+	type Translated,
 	useGlobalDelayedTrackerUpdateState,
 	useSubscription,
 	useSubscriptionIfEnabled,
@@ -15,8 +16,8 @@ import {
 	useTracker,
 } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 
-import { PartInstanceId, PieceId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { PartInstanceId, PieceId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { withTranslation } from 'react-i18next'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
@@ -32,11 +33,11 @@ import { RundownTimingProvider } from '../RundownView/RundownTiming/RundownTimin
 import { StudioScreenSaver } from '../StudioScreenSaver/StudioScreenSaver.js'
 import { PrompterControlManager } from './controller/manager.js'
 import { RundownStatusBar } from '../ClockView/RundownStatusBar.js'
-import { PrompterAPI, PrompterData, PrompterDataPart, PrompterDataPiece } from './prompter.js'
+import { PrompterAPI, type PrompterData, type PrompterDataPart, type PrompterDataPiece } from './prompter.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { MdDisplay } from './Formatted/MdDisplay.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { OverUnderChip } from '../../lib/Components/OverUnderChip.js'
 
 const DEFAULT_UPDATE_THROTTLE = 250 //ms
@@ -154,16 +155,15 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 	private _lastAnimation: AnimationPlaybackControls | null = null
 
 	private checkWindowScroll: number | null = null
+	private _onContextMenu = (e: Event) => {
+		e.preventDefault()
+	}
 
 	constructor(props: Translated<IProps & ITrackedProps>) {
 		super(props)
 		this.state = {
 			accessRequestCallbacks: [],
 		}
-		// Disable the context menu:
-		document.addEventListener('contextmenu', (e) => {
-			e.preventDefault()
-		})
 
 		const queryParams = queryStringParse(location.search, {
 			arrayFormat: 'comma',
@@ -276,6 +276,8 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			this.configOptions.showScroll ? 'vertical-overflow-only' : 'no-overflow'
 		)
 		document.body.setAttribute('data-bs-theme', 'dark')
+		// Disable the context menu:
+		document.addEventListener('contextmenu', this._onContextMenu)
 		window.addEventListener('scroll', this.onWindowScroll)
 
 		this.triggerCheckCurrentTakeMarkers()
@@ -302,6 +304,7 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			this.configOptions.showScroll ? 'vertical-overflow-only' : 'no-overflow'
 		)
 		document.body.removeAttribute('data-bs-theme')
+		document.removeEventListener('contextmenu', this._onContextMenu)
 		window.removeEventListener('scroll', this.onWindowScroll)
 	}
 
@@ -598,7 +601,10 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 					</div>
 				) : this.props.rundownPlaylist ? (
 					<>
-						<RundownTimingProvider playlist={this.props.rundownPlaylist}>
+						<RundownTimingProvider
+							playlist={this.props.rundownPlaylist}
+							defaultDuration={this.props.studio?.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION}
+						>
 							<Prompter
 								rundownPlaylistId={this.props.rundownPlaylist._id}
 								config={this.configOptions}

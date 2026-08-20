@@ -1,14 +1,14 @@
 import ClassNames from 'classnames'
 import * as React from 'react'
-import { DBStudio, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { DBStudio, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faPencilAlt, faPlus, faSync } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import { Studios } from '../../../../collections/index.js'
 import {
-	ObjectOverrideSetOp,
-	SomeObjectOverrideOp,
+	type ObjectOverrideSetOp,
+	type SomeObjectOverrideOp,
 	applyAndValidateOverrides,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import {
@@ -19,12 +19,12 @@ import {
 import { useToggleExpandHelper } from '../../../util/useToggleExpandHelper.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { TextInputControl } from '../../../../lib/Components/TextInput.js'
-import { DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
+import type { DropdownInputOption } from '../../../../lib/Components/DropdownInput.js'
 import { MultiSelectInputControl } from '../../../../lib/Components/MultiSelectInput.js'
 import {
-	OverrideOpHelper,
-	WrappedOverridableItem,
-	WrappedOverridableItemNormal,
+	type OverrideOpHelper,
+	type WrappedOverridableItem,
+	type WrappedOverridableItemNormal,
 	useOverrideOpHelper,
 } from '../../util/OverrideOpHelper.js'
 import { AccessorsTable } from './AccessorTable.js'

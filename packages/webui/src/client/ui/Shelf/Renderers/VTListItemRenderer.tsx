@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect, useContext } from 'react'
+import { useState, useRef, useEffect, useContext } from 'react'
 import ClassNames from 'classnames'
-import { ILayerItemRendererProps } from './ItemRendererFactory.js'
-import { VTContent, LiveSpeakContent } from '@sofie-automation/blueprints-integration'
-import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
+import type { ILayerItemRendererProps } from './ItemRendererFactory.js'
+import type { VTContent, LiveSpeakContent } from '@sofie-automation/blueprints-integration'
+import { getElementDocumentOffset, type OffsetPosition } from '../../../utils/positions.js'
 import { getElementWidth } from '../../../utils/dimensions.js'
 import { StyledTimecode } from '../../../lib/StyledTimecode.js'
 import { ActionAdLibHotkeyPreview } from '../../../lib/triggers/ActionAdLibHotkeyPreview.js'
@@ -10,7 +10,7 @@ import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { HourglassIconSmall } from '../../../lib/ui/icons/notifications.js'
 import {
 	PreviewPopUpContext,
-	IPreviewPopUpSession,
+	type IPreviewPopUpSession,
 	convertSourceLayerItemToPreview,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
 import { RundownUtils } from '../../../lib/rundown.js'
@@ -72,7 +72,7 @@ export const VTListItemRenderer: React.FunctionComponent<ILayerItemRendererProps
 			const left = e.pageX - itemIconPosition.left
 			const unprocessedPercentage = left / itemIconPosition.width
 			if (unprocessedPercentage <= 1 && !previewSession.current) {
-				previewSession.current = previewContext.requestPreview(e.target as any, previewContents, {
+				previewSession.current = previewContext.requestPreview(e.currentTarget, previewContents, {
 					...previewOptions,
 					time: hoverScrubTimePosition,
 				})
@@ -89,12 +89,25 @@ export const VTListItemRenderer: React.FunctionComponent<ILayerItemRendererProps
 		}
 	}
 
+	useEffect(() => {
+		return () => {
+			if (previewSession.current) {
+				previewSession.current.close()
+				previewSession.current = null
+			}
+		}
+	}, [])
+
 	const handleOnMouseMove = (e: React.MouseEvent) => {
 		if (itemIconPosition) {
 			const left = e.pageX - itemIconPosition.left
 			let unprocessedPercentage = left / itemIconPosition.width
 			if ((unprocessedPercentage > 1 || unprocessedPercentage < 0) && showMiniInspector) {
 				setShowMiniInspector(false)
+				if (previewSession.current) {
+					previewSession.current.close()
+					previewSession.current = null
+				}
 				return false
 			} else if (unprocessedPercentage >= 0 && unprocessedPercentage <= 1 && !showMiniInspector) {
 				setShowMiniInspector(true)

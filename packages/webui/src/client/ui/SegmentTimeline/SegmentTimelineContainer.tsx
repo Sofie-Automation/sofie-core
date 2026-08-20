@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react'
 import _ from 'underscore'
-import { SegmentTimeline, SegmentTimelineClass } from './SegmentTimeline.js'
+import { SegmentTimeline, type SegmentTimelineClass } from './SegmentTimeline.js'
 import {
 	computeSegmentDisplayDuration,
 	RundownTiming,
-	TimingEvent,
+	type TimingEvent,
 } from '../RundownView/RundownTiming/RundownTiming.js'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
 import { SpeechSynthesiser } from '../../lib/speechSynthesis.js'
@@ -12,37 +12,37 @@ import { getElementWidth } from '../../utils/dimensions.js'
 import { isMaintainingFocus, scrollToSegment, getHeaderHeight } from '../../lib/viewPort.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { Settings } from '../../lib/Settings.js'
 import RundownViewEventBus, {
 	RundownViewEvents,
-	GoToPartEvent,
-	GoToPartInstanceEvent,
+	type GoToPartEvent,
+	type GoToPartInstanceEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { SegmentTimelinePartClass } from './Parts/SegmentTimelinePart.js'
 import {
-	PartUi,
+	type PartUi,
 	withResolvedSegment,
-	IResolvedSegmentProps,
-	ITrackedResolvedSegmentProps,
-	IOutputLayerUi,
+	type IResolvedSegmentProps,
+	type ITrackedResolvedSegmentProps,
+	type IOutputLayerUi,
 } from '../SegmentContainer/withResolvedSegment.js'
 import { computeSegmentDuration, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
+import { DEFAULT_DISPLAY_DURATION, DEFAULT_TIME_SCALE } from '@sofie-automation/shared-lib/dist/core/constants'
 import { RundownViewShelf } from '../RundownView/RundownViewShelf.js'
-import { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { catchError, useDebounce } from '../../lib/lib.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { logger } from '../../lib/logging.js'
 import {
 	FALLBACK_ZOOM_FACTOR,
+	getMinimumZoomFactor,
 	LIVELINE_HISTORY_SIZE,
-	MINIMUM_ZOOM_FACTOR,
 	SIMULATED_PLAYBACK_HARD_MARGIN,
 	TIMELINE_RIGHT_PADDING,
 } from './Constants.js'
 import { UIPartInstances, UIParts } from '../Collections.js'
 import { RundownTimingProviderContext } from '../RundownView/RundownTiming/withTiming.js'
-import { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
+import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 
 // Kept for backwards compatibility
 export type { SegmentUi, PartUi, ISourceLayerUi, IOutputLayerUi } from '../SegmentContainer/withResolvedSegment.js'
@@ -144,11 +144,14 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 
 		isVisible: boolean
 		visibilityChangeTimeout: NodeJS.Timeout | undefined
+		initialShowEntireSegmentTimeout: NodeJS.Timeout | undefined
+		initialShowEntireSegmentRaf: number | undefined
 		rundownCurrentPartInstanceId: PartInstanceId | null = null
 		timelineDiv: HTMLDivElement | null = null
 		intersectionObserver: IntersectionObserver | undefined
 		mountedTime = 0
 		nextPartOffset = 0
+		isUnmounted = false
 
 		constructor(props: IProps & ITrackedResolvedSegmentProps) {
 			super(props)
@@ -183,6 +186,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		componentDidMount(): void {
+			this.isUnmounted = false
 			SpeechSynthesiser.init()
 
 			this.rundownCurrentPartInstanceId = this.props.playlist.currentPartInfo?.partInstanceId ?? null
@@ -194,11 +198,17 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 			RundownViewEventBus.on(RundownViewEvents.GO_TO_PART, this.onGoToPart)
 			RundownViewEventBus.on(RundownViewEvents.GO_TO_PART_INSTANCE, this.onGoToPartInstance)
 			// Delay is to ensure UI has settled before checking:
-			setTimeout(() => {
-				window.requestAnimationFrame(() => {
+			this.initialShowEntireSegmentTimeout = setTimeout(() => {
+				this.initialShowEntireSegmentTimeout = undefined
+				this.initialShowEntireSegmentRaf = window.requestAnimationFrame(() => {
+					this.initialShowEntireSegmentRaf = undefined
 					this.mountedTime = Date.now()
 					if (this.state.isLiveSegment && this.props.followLiveSegments && !this.isVisible) {
-						scrollToSegment(this.props.segmentId, true).catch((error) => {
+						scrollToSegment(
+							this.props.segmentId,
+							this.props.studio.settings.followOnAirSegmentsHistory ?? 0,
+							true
+						).catch((error) => {
 							if (!error.toString().match(/another scroll/)) console.warn(error)
 						})
 					}
@@ -252,7 +262,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 			// segment is stopping from being live
 			if (this.state.isLiveSegment === true && isLiveSegment === false) {
 				this.setState({ isLiveSegment: false }, () => {
-					if (Settings.autoRewindLeavingSegment) {
+					if (this.props.studio.settings.autoRewindLeavingSegment ?? true) {
 						this.onRewindSegment()
 						this.onShowEntireSegment()
 					}
@@ -349,14 +359,32 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		componentWillUnmount(): void {
+			this.isUnmounted = true
+			this.timelineDiv = null
+			this.rundownCurrentPartInstanceId = null
 			if (this.intersectionObserver && this.state.isLiveSegment && this.props.followLiveSegments) {
 				if (typeof this.props.onSegmentScroll === 'function') this.props.onSegmentScroll()
+			}
+
+			if (this.initialShowEntireSegmentTimeout) {
+				clearTimeout(this.initialShowEntireSegmentTimeout)
+				this.initialShowEntireSegmentTimeout = undefined
+			}
+			if (this.initialShowEntireSegmentRaf !== undefined) {
+				window.cancelAnimationFrame(this.initialShowEntireSegmentRaf)
+				this.initialShowEntireSegmentRaf = undefined
+			}
+
+			if (this.visibilityChangeTimeout) {
+				clearTimeout(this.visibilityChangeTimeout)
+				this.visibilityChangeTimeout = undefined
 			}
 
 			this.stopLive()
 			RundownViewEventBus.off(RundownViewEvents.REWIND_SEGMENTS, this.onRewindSegment)
 			RundownViewEventBus.off(RundownViewEvents.GO_TO_PART, this.onGoToPart)
 			RundownViewEventBus.off(RundownViewEvents.GO_TO_PART_INSTANCE, this.onGoToPartInstance)
+			this.onWindowResize.cancel()
 			window.removeEventListener('resize', this.onWindowResize)
 		}
 
@@ -373,6 +401,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}, 250)
 
 		onTimeScaleChange = (timeScaleVal: number) => {
+			if (this.isUnmounted) return
 			if (Number.isFinite(timeScaleVal) && timeScaleVal > 0) {
 				this.setState((state) => ({
 					timeScale: timeScaleVal,
@@ -382,6 +411,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		onCollapseOutputToggle = (outputLayer: IOutputLayerUi) => {
+			if (this.isUnmounted) return
 			const collapsedOutputs = { ...this.state.collapsedOutputs }
 			collapsedOutputs[outputLayer._id] =
 				outputLayer.isDefaultCollapsed && collapsedOutputs[outputLayer._id] === undefined
@@ -396,12 +426,17 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 		/** The user has scrolled scrollLeft seconds to the left in a child component */
 		onScroll = (scrollLeft: number) => {
+			if (this.isUnmounted) return
 			this.setState({
 				scrollLeft: Math.max(
 					0,
 					Math.min(
 						scrollLeft,
-						(computeSegmentDuration(this.context.durations, this.props.parts, true) || 1) -
+						(computeSegmentDuration(
+							this.context.durations,
+							this.props.parts,
+							this.props.studio.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION
+						) || 1) -
 							LIVELINE_HISTORY_SIZE / this.state.timeScale
 					)
 				),
@@ -411,6 +446,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		onRewindSegment = () => {
+			if (this.isUnmounted) return
 			if (!this.state.isLiveSegment) {
 				this.updateMaxTimeScale()
 					.then(() => {
@@ -425,6 +461,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		onGoToPartInner = (part: PartUi, zoomInToFit?: boolean) => {
+			if (this.isUnmounted) return
 			this.setState((state) => {
 				const timelineWidth = this.timelineDiv instanceof HTMLElement ? getElementWidth(this.timelineDiv) : 0 // unsure if this is good default/substitute
 				let newScale: number | undefined
@@ -492,6 +529,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		onAirLineRefresh = (e: TimingEvent) => {
+			if (this.isUnmounted) return
 			this.setState((state) => {
 				if (state.isLiveSegment && state.currentLivePart) {
 					const currentLivePartInstance = state.currentLivePart.instance
@@ -535,12 +573,14 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		}
 
 		visibleChanged = (entries: IntersectionObserverEntry[]) => {
+			if (this.isUnmounted) return
 			// Add a small debounce to ensure UI has settled before checking
 			if (this.visibilityChangeTimeout) {
 				clearTimeout(this.visibilityChangeTimeout)
 			}
 
 			this.visibilityChangeTimeout = setTimeout(() => {
+				if (this.isUnmounted) return
 				if (entries[0].intersectionRatio < 0.99 && !isMaintainingFocus() && Date.now() - this.mountedTime > 2000) {
 					if (typeof this.props.onSegmentScroll === 'function') this.props.onSegmentScroll()
 					this.isVisible = false
@@ -606,7 +646,10 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 			const livePosition = this.state.isLiveSegment ? this.state.livePosition : 0
 
 			let newScale = calculatedTimelineDivWidth / (segmentDisplayDuration - livePosition)
-			newScale = Math.min(MINIMUM_ZOOM_FACTOR, newScale)
+			newScale = Math.min(
+				getMinimumZoomFactor(this.props.studio.settings.defaultTimeScale ?? DEFAULT_TIME_SCALE),
+				newScale
+			)
 			if (!Number.isFinite(newScale) || newScale === 0) {
 				newScale = FALLBACK_ZOOM_FACTOR
 			}
@@ -695,7 +738,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 							showDurationSourceLayers={this.props.showDurationSourceLayers}
 						/>
 					)}
-					{this.props.segmentui.showShelf && this.props.adLibSegmentUi && (
+					{this.props.segmentui.displayMinishelf && this.props.adLibSegmentUi && (
 						<RundownViewShelf
 							studio={this.props.studio}
 							segment={this.props.segmentui}

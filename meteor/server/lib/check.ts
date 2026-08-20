@@ -1,59 +1,63 @@
-import { check as MeteorCheck, Match as orgMatch } from 'meteor/check'
+import { z } from 'zod'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
-/* tslint:disable variable-name */
-
-export function check(value: unknown, pattern: Match.Pattern): void {
-	// This is a wrapper for Meteor.check, since that asserts the returned type too strictly
-	if (checkDisabled) {
-		return
-	}
-
-	const passed = MeteorCheck(value, pattern)
-
-	return passed
-}
-// todo: checkTOBEMOVED
-export namespace Match {
-	export const Any = orgMatch.Any
-	// export const String = orgMatch.String
-	export const Integer = orgMatch.Integer
-	// export const Boolean = orgMatch.Boolean
-	// export const undefined = orgMatch.undefined
-	// export const Object = orgMatch.Object
-
-	export type Pattern = orgMatch.Pattern
-	export type PatternMatch<T extends Pattern> = orgMatch.PatternMatch<T>
-
-	export function Maybe<T extends Pattern>(
-		pattern: T
-	): orgMatch.Matcher<PatternMatch<T> | undefined | null> | undefined {
-		if (checkDisabled) return
-		return orgMatch.Maybe(pattern)
-	}
-	export function Optional<T extends Pattern>(pattern: T): orgMatch.Matcher<PatternMatch<T> | undefined> | undefined {
-		if (checkDisabled) return
-		return orgMatch.Optional(pattern)
-	}
-	export function ObjectIncluding<T extends { [key: string]: Pattern }>(
-		dico: T
-	): orgMatch.Matcher<PatternMatch<T>> | undefined {
-		if (checkDisabled) return
-		return orgMatch.ObjectIncluding(dico)
-	}
-	export function OneOf<T extends Pattern[]>(...patterns: T): orgMatch.Matcher<PatternMatch<T[number]>> | undefined {
-		if (checkDisabled) return
-		return orgMatch.OneOf(...patterns)
-	}
-	export function Where<T>(condition: (val: any) => val is T): orgMatch.Matcher<T> | undefined {
-		if (checkDisabled) return
-		return orgMatch.Where(condition)
-	}
-	export function test<T extends Pattern>(value: unknown, pattern: T): value is PatternMatch<T> {
-		if (checkDisabled) return true
-		return orgMatch.test(value, pattern)
-	}
-}
 let checkDisabled = false
+
+/**
+ * Format a zod error into a single-line, client-safe message.
+ *
+ * Note that zod's issue messages describe the *expected* type and the *received type* - never the received
+ * value - so this is safe to send across the DDP/HTTP boundary without leaking payload contents.
+ */
+function formatError(error: z.ZodError): string {
+	return error.issues
+		.map((issue) => (issue.path.length > 0 ? `${issue.message} in field ${issue.path.join('.')}` : issue.message))
+		.join('; ')
+}
+
+/**
+ * Assert that a value matches a schema, throwing a client-safe `SofieError` if it does not.
+ *
+ * This is the replacement for Meteor's `check()`. The `Match error: ` prefix is retained from Meteor's
+ * wording so that log filters and error matching keep working.
+ *
+ * Note: this deliberately does not narrow the type of `value`. Meteor's `check` asserted
+ * `value is Match.PatternMatch<T>`, which degraded the branded `ProtectedString` id types at the call site
+ * (`asserts value is string` on a `RundownPlaylistId` throws the brand away), so the assertion was stripped.
+ * The same reasoning applies here.
+ *
+ * TODO (follow-up): these are ~670 inline calls in handler bodies, which means nothing guarantees that a
+ * method or publication validates its arguments at all - it is convention, not structure. See the follow-up
+ * note on `MethodApiRegistration` in ../methodRegistry.ts for moving schemas onto the registrations.
+ */
+export function check(value: unknown, schema: z.ZodType): void {
+	if (checkDisabled) return
+
+	const result = schema.safeParse(value)
+	if (!result.success) {
+		throw new SofieError(400, `Match error: ${formatError(result.error)}`)
+	}
+}
+
+/**
+ * A plain object with any keys, the equivalent of Meteor's `Object` pattern (which desugared to
+ * `Match.ObjectIncluding({})`). Like Meteor's, this rejects arrays and `null`.
+ *
+ * Shared instance rather than a factory, as several of the call sites are on hot paths where allocating a
+ * schema per call would be wasteful.
+ */
+export const zPlainObject = z.looseObject({})
+
+/** An array with elements of any type, the equivalent of Meteor's `Array` pattern. */
+export const zAnyArray = z.array(z.unknown())
+
+/**
+ * Disable all `check()` calls process-wide.
+ *
+ * Used only by the `securityVerify` startup audit, which invokes every registered method with junk arguments
+ * to confirm each one performs an access check - argument validation has to be out of the way for that to
+ * reach the access check. Note this is a global mutable flag, so it is not concurrency-safe.
+ */
 export function disableChecks(): void {
 	checkDisabled = true
 }

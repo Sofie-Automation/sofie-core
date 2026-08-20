@@ -1,13 +1,12 @@
-import React from 'react'
 import { RundownTimingProvider } from './RundownTiming/RundownTimingProvider'
 import StudioContext from './StudioContext'
 import { RundownPlaylistOperationsContextProvider } from './RundownHeader/useRundownPlaylistOperations.js'
 import { PreviewPopUpContextProvider } from '../PreviewPopUp/PreviewPopUpContext'
 import { SelectedElementProvider } from './SelectedElementsContext'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { Settings } from '../../lib/Settings'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { DEFAULT_DISPLAY_DURATION } from '@sofie-automation/shared-lib/dist/core/constants'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 
 export function RundownViewContextProviders({
 	playlist,
@@ -22,7 +21,10 @@ export function RundownViewContextProviders({
 	onActivate: () => void
 }>): React.JSX.Element {
 	return (
-		<RundownTimingProvider playlist={playlist} defaultDuration={Settings.defaultDisplayDuration}>
+		<RundownTimingProvider
+			playlist={playlist}
+			defaultDuration={studio.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION}
+		>
 			<StudioContext.Provider value={studio}>
 				<RundownPlaylistOperationsContextProvider
 					studio={studio}

@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../../logging'
 import {
@@ -10,12 +9,13 @@ import {
 } from './reactiveContentCache'
 import { PartInstances, Parts, Rundowns, Segments } from '../../collections'
 import { waitForAllObserversReady } from '../lib/lib'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 export class RundownContentObserver {
-	readonly #observers: Meteor.LiveQueryHandle[]
+	readonly #observers: LiveQueryHandleSync[]
 	readonly #cache: ContentCache
 
-	private constructor(cache: ContentCache, observers: Meteor.LiveQueryHandle[]) {
+	private constructor(cache: ContentCache, observers: LiveQueryHandleSync[]) {
 		this.#cache = cache
 		this.#observers = observers
 	}
@@ -58,8 +58,12 @@ export class RundownContentObserver {
 				}
 			),
 			PartInstances.observeChanges(
-				{ rundownId: { $in: rundownIds }, reset: { $ne: true }, orphaned: 'deleted' },
-				cache.DeletedPartInstances.link(),
+				{
+					rundownId: { $in: rundownIds },
+					reset: { $ne: true },
+					$or: [{ invalidReason: { $exists: true } }, { orphaned: 'deleted' }],
+				},
+				cache.PartInstances.link(),
 				{ projection: partInstanceFieldSpecifier }
 			),
 		])

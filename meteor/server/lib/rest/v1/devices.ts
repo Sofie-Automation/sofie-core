@@ -1,6 +1,6 @@
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Meteor } from 'meteor/meteor'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 /* *************************************************************************
 This file contains types and interfaces that are used by the REST API.
@@ -16,7 +16,7 @@ export interface DevicesRestAPI {
 	 * @param event User event string
 	 */
 	getPeripheralDevices(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>>
 	/**
@@ -28,7 +28,7 @@ export interface DevicesRestAPI {
 	 * @param deviceId Device to get
 	 */
 	getPeripheralDevice(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		deviceId: PeripheralDeviceId
 	): Promise<ClientAPI.ClientResponse<APIPeripheralDevice>>
@@ -43,7 +43,7 @@ export interface DevicesRestAPI {
 	 * @param action Action to perform
 	 */
 	peripheralDeviceAction(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		deviceId: PeripheralDeviceId,
 		action: PeripheralDeviceAction

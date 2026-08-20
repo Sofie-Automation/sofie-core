@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import {
 	Translation,
 	TranslationsBundle as DBTranslationsBundle,
@@ -17,6 +16,7 @@ import {
 	TranslationsBundleId,
 	TranslationsBundleOriginId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
  * Insert or update translation bundles in the database.
@@ -39,19 +39,15 @@ export async function upsertBundles(
 		// originating blueprint and language
 		const _id = createBundleId(originId, language)
 
-		await TranslationsBundleCollection.upsertAsync(
+		await TranslationsBundleCollection.replaceAsync({
 			_id,
-			{
-				_id,
-				originId,
-				type,
-				namespace: unprotectString(originId),
-				language,
-				data: fromI18NextData(data),
-				hash: getHash(JSON.stringify(data)),
-			},
-			{ multi: false }
-		)
+			originId,
+			type,
+			namespace: unprotectString(originId),
+			language,
+			data: fromI18NextData(data),
+			hash: getHash(JSON.stringify(data)),
+		})
 	}
 }
 
@@ -78,7 +74,7 @@ function createBundleId(blueprintId: TranslationsBundleOriginId, language: strin
 export async function getBundle(bundleId: TranslationsBundleId): Promise<DBTranslationsBundle> {
 	const bundle = await TranslationsBundleCollection.findOneAsync(bundleId)
 	if (!bundle) {
-		throw new Meteor.Error(404, `Bundle "${bundleId}" not found`)
+		throw new SofieError(404, `Bundle "${bundleId}" not found`)
 	}
 
 	return bundle

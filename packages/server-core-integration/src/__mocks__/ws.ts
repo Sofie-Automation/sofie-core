@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { EventEmitter } from 'events'
-import { AnyMessage } from '../lib/ddpClient.js'
 import * as EJSON from 'ejson'
+import type { ClientMessage, ServerMessage } from '@sofie-automation/shared-lib/dist/ddp/messageTypes.js'
 // import * as util from 'util'
 
 const literal = <T>(t: T) => t
@@ -24,13 +24,13 @@ class MockWebSocket extends EventEmitter {
 	}
 
 	send(data: string): void {
-		const message = EJSON.parse(data) as AnyMessage
+		const message = EJSON.parse(data) as ClientMessage
 		// console.log(util.inspect(message, { depth: 10 }))
 		if (message.msg === 'connect') {
 			this.emit(
 				'message',
 				EJSON.stringify(
-					literal<AnyMessage>({
+					literal<ServerMessage>({
 						msg: 'connected',
 						session: 'wibble',
 					})
@@ -44,7 +44,7 @@ class MockWebSocket extends EventEmitter {
 				this.emit(
 					'message',
 					EJSON.stringify(
-						literal<AnyMessage>({
+						literal<ServerMessage>({
 							msg: 'result',
 							id: message.id,
 							result: message.params![0],
@@ -57,7 +57,7 @@ class MockWebSocket extends EventEmitter {
 				this.emit(
 					'message',
 					EJSON.stringify(
-						literal<AnyMessage>({
+						literal<ServerMessage>({
 							msg: 'result',
 							id: message.id,
 							result: { currentTime: Date.now() },
@@ -71,7 +71,7 @@ class MockWebSocket extends EventEmitter {
 					this.emit(
 						'message',
 						EJSON.stringify(
-							literal<AnyMessage>({
+							literal<ServerMessage>({
 								msg: 'result',
 								id: message.id,
 								result: {
@@ -80,11 +80,11 @@ class MockWebSocket extends EventEmitter {
 							})
 						)
 					)
-					if ((message.params![2] as any).messages[0].indexOf('Jest ') >= 0) {
+					if ((message.params![2] as any).statusDetails?.[0]?.message?.indexOf('Jest ') >= 0) {
 						this.emit(
 							'message',
 							EJSON.stringify(
-								literal<AnyMessage>({
+								literal<ServerMessage>({
 									msg: 'changed',
 									collection: 'peripheralDeviceForDevice',
 									id: 'JestTest',
@@ -96,7 +96,7 @@ class MockWebSocket extends EventEmitter {
 					this.emit(
 						'message',
 						EJSON.stringify(
-							literal<AnyMessage>({
+							literal<ServerMessage>({
 								msg: 'result',
 								id: message.id,
 								error: {
@@ -113,7 +113,7 @@ class MockWebSocket extends EventEmitter {
 				this.emit(
 					'message',
 					EJSON.stringify(
-						literal<AnyMessage>({
+						literal<ServerMessage>({
 							msg: 'result',
 							id: message.id,
 							result: message.params![3] ? undefined : message.params![2],
@@ -134,7 +134,7 @@ class MockWebSocket extends EventEmitter {
 				this.emit(
 					'message',
 					EJSON.stringify(
-						literal<AnyMessage>({
+						literal<ServerMessage>({
 							msg: 'result',
 							id: message.id,
 							result: message.params![0],
@@ -146,7 +146,7 @@ class MockWebSocket extends EventEmitter {
 			this.emit(
 				'message',
 				EJSON.stringify(
-					literal<AnyMessage>({
+					literal<ServerMessage>({
 						msg: 'result',
 						id: message.id,
 						error: {
@@ -165,7 +165,7 @@ class MockWebSocket extends EventEmitter {
 				this.emit(
 					'message',
 					EJSON.stringify(
-						literal<AnyMessage>({
+						literal<ServerMessage>({
 							msg: 'added',
 							collection: message.name,
 							id: this.cachedId,
@@ -177,7 +177,7 @@ class MockWebSocket extends EventEmitter {
 				this.emit(
 					'message',
 					EJSON.stringify(
-						literal<AnyMessage>({
+						literal<ServerMessage>({
 							msg: 'ready',
 							subs: [message.id],
 						})
@@ -190,7 +190,7 @@ class MockWebSocket extends EventEmitter {
 			this.emit(
 				'message',
 				JSON.stringify(
-					literal<AnyMessage>({
+					literal<ServerMessage>({
 						msg: 'removed',
 						collection: 'peripheralDeviceForDevice',
 						id: this.cachedId,
@@ -200,7 +200,7 @@ class MockWebSocket extends EventEmitter {
 			this.emit(
 				'message',
 				JSON.stringify(
-					literal<AnyMessage>({
+					literal<ServerMessage>({
 						msg: 'nosub',
 						id: message.id,
 					})

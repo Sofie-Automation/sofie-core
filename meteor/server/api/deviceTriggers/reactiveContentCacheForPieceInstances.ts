@@ -1,8 +1,7 @@
-import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { ReactiveCacheCollection } from '../../publications/lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
@@ -61,10 +60,10 @@ export const partInstanceFieldSpecifier = literal<
 })
 
 export interface ContentCache {
-	RundownPlaylists: ReactiveCacheCollection<Pick<DBRundownPlaylist, RundownPlaylistFields>>
-	ShowStyleBases: ReactiveCacheCollection<DBShowStyleBase>
-	PieceInstances: ReactiveCacheCollection<Pick<PieceInstance, PieceInstanceFields>>
-	PartInstances: ReactiveCacheCollection<Pick<DBPartInstance, PartInstanceFields>>
+	RundownPlaylists: InMemoryMongoCollection<Pick<DBRundownPlaylist, RundownPlaylistFields>>
+	ShowStyleBases: InMemoryMongoCollection<DBShowStyleBase>
+	PieceInstances: InMemoryMongoCollection<Pick<PieceInstance, PieceInstanceFields>>
+	PartInstances: InMemoryMongoCollection<Pick<DBPartInstance, PartInstanceFields>>
 }
 
 type ReactionWithCache = (cache: ContentCache) => void
@@ -74,32 +73,27 @@ export function createReactiveContentCache(
 	reactivityDebounce: number
 ): { cache: ContentCache; cancel: () => void } {
 	let isCancelled = false
-	const innerReaction = _.debounce(
-		Meteor.bindEnvironment(() => {
-			if (isCancelled) return
-			reaction(cache)
-		}),
-		reactivityDebounce
-	)
+	const innerReaction = _.debounce(() => {
+		if (isCancelled) return
+		reaction(cache)
+	}, reactivityDebounce)
 	const cancel = () => {
 		isCancelled = true
 		innerReaction.cancel()
 	}
 
 	const cache: ContentCache = {
-		RundownPlaylists: new ReactiveCacheCollection<Pick<DBRundownPlaylist, RundownPlaylistFields>>(
+		RundownPlaylists: new InMemoryMongoCollection<Pick<DBRundownPlaylist, RundownPlaylistFields>>(
 			'rundownPlaylists',
-			innerReaction
+			{ onChange: innerReaction }
 		),
-		ShowStyleBases: new ReactiveCacheCollection<DBShowStyleBase>('showStyleBases', innerReaction),
-		PieceInstances: new ReactiveCacheCollection<Pick<PieceInstance, PieceInstanceFields>>(
-			'pieceInstances',
-			innerReaction
-		),
-		PartInstances: new ReactiveCacheCollection<Pick<DBPartInstance, PartInstanceFields>>(
-			'partInstances',
-			innerReaction
-		),
+		ShowStyleBases: new InMemoryMongoCollection<DBShowStyleBase>('showStyleBases', { onChange: innerReaction }),
+		PieceInstances: new InMemoryMongoCollection<Pick<PieceInstance, PieceInstanceFields>>('pieceInstances', {
+			onChange: innerReaction,
+		}),
+		PartInstances: new InMemoryMongoCollection<Pick<DBPartInstance, PartInstanceFields>>('partInstances', {
+			onChange: innerReaction,
+		}),
 	}
 
 	innerReaction()

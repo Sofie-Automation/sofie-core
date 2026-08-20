@@ -1,10 +1,10 @@
+import { z } from 'zod'
 import { PartInstanceId, RundownPlaylistActivationId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { check } from 'meteor/check'
+import { check } from '../../lib/check'
 import {
 	CustomPublishCollection,
 	SetupObserversResult,
 	TriggerUpdate,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 } from '../../lib/customPublication'
 import { logger } from '../../logging'
@@ -17,8 +17,6 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { RundownsObserver } from '../lib/rundownsObserver'
 import { RundownContentObserver } from './rundownContentObserver'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { Match } from '../../lib/check'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import {
 	extractRanks,
@@ -27,6 +25,7 @@ import {
 	stringsToIndexLookup,
 } from '../lib/quickLoop'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../../security/securityVerify'
+import type { PublicationRegistry } from '../../publicationRegistry'
 
 interface UIPartInstancesArgs {
 	readonly playlistActivationId: RundownPlaylistActivationId
@@ -85,12 +84,12 @@ async function setupUIPartInstancesPublicationObservers(
 			)
 
 			const innerQueries = [
-				cache.Segments.find({}).observeChanges({
-					added: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-					changed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
-					removed: (id) => triggerUpdate({ invalidateSegmentIds: [protectString(id)] }),
+				cache.Segments.observeChanges({
+					added: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
+					changed: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
+					removed: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
 				}),
-				cache.PartInstances.find({}).observe({
+				cache.PartInstances.observe({
 					added: (doc) => triggerUpdate({ invalidatePartInstanceIds: [doc._id] }),
 					changed: (doc, oldDoc) => {
 						if (doc.part._rank !== oldDoc.part._rank) {
@@ -103,12 +102,12 @@ async function setupUIPartInstancesPublicationObservers(
 					},
 					removed: (doc) => triggerUpdate({ invalidatePartInstanceIds: [doc._id] }),
 				}),
-				cache.RundownPlaylists.find({}).observeChanges({
+				cache.RundownPlaylists.observeChanges({
 					added: () => triggerUpdate({ invalidateQuickLoop: true }),
 					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
 					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
 				}),
-				cache.StudioSettings.find({}).observeChanges({
+				cache.StudioSettings.observeChanges({
 					added: () => triggerUpdate({ invalidateQuickLoop: true }),
 					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
 					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
@@ -155,7 +154,7 @@ export async function manipulateUIPartInstancesPublicationData(
 	if (!studioSettings) return
 
 	const rundownRanks = stringsToIndexLookup(playlist.rundownIdsInOrder as unknown as string[])
-	const segmentRanks = extractRanks(state.contentCache.Segments.find({}).fetch())
+	const segmentRanks = extractRanks(state.contentCache.Segments.findFetch({}))
 
 	const quickLoopStartPosition =
 		playlist.quickLoop?.start &&
@@ -189,7 +188,7 @@ export async function manipulateUIPartInstancesPublicationData(
 	const invalidatedSegmentsSet = new Set(updateProps?.invalidateSegmentIds ?? [])
 	const invalidatedPartInstancesSet = new Set(updateProps?.invalidatePartInstanceIds ?? [])
 
-	state.contentCache.PartInstances.find({}).forEach((partInstance) => {
+	state.contentCache.PartInstances.findFetch({}).forEach((partInstance) => {
 		if (
 			updateProps?.invalidateQuickLoop ||
 			invalidatedSegmentsSet.has(partInstance.segmentId) ||
@@ -209,30 +208,32 @@ export async function manipulateUIPartInstancesPublicationData(
 	})
 }
 
-meteorCustomPublish(
-	MeteorPubSub.uiPartInstances,
-	CustomCollectionName.UIPartInstances,
-	async function (pub, playlistActivationId: RundownPlaylistActivationId | null) {
-		check(playlistActivationId, Match.Maybe(String))
+export function registerPartInstancesUIPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.uiPartInstances,
+		CustomCollectionName.UIPartInstances,
+		async (_context, pub, playlistActivationId: RundownPlaylistActivationId | null) => {
+			check(playlistActivationId, z.string().nullish())
 
-		triggerWriteAccessBecauseNoCheckNecessary()
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		if (!playlistActivationId) {
-			logger.info(`Pub.${CustomCollectionName.UISegmentPartNotes}: Not playlistActivationId`)
-			return
+			if (!playlistActivationId) {
+				logger.info(`Pub.${CustomCollectionName.UISegmentPartNotes}: Not playlistActivationId`)
+				return
+			}
+
+			await setUpCollectionOptimizedObserver<
+				Omit<DBPartInstance, PartInstanceOmitedFields>,
+				UIPartInstancesArgs,
+				UIPartInstancesState,
+				UIPartInstancesUpdateProps
+			>(
+				`pub_${MeteorPubSub.uiPartInstances}_${playlistActivationId}`,
+				{ playlistActivationId },
+				setupUIPartInstancesPublicationObservers,
+				manipulateUIPartInstancesPublicationData,
+				pub
+			)
 		}
-
-		await setUpCollectionOptimizedObserver<
-			Omit<DBPartInstance, PartInstanceOmitedFields>,
-			UIPartInstancesArgs,
-			UIPartInstancesState,
-			UIPartInstancesUpdateProps
-		>(
-			`pub_${MeteorPubSub.uiPartInstances}_${playlistActivationId}`,
-			{ playlistActivationId },
-			setupUIPartInstancesPublicationObservers,
-			manipulateUIPartInstancesPublicationData,
-			pub
-		)
-	}
-)
+	)
+}

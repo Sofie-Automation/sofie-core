@@ -7,9 +7,9 @@
  * Brought into this project for maintenance reasons, including conversion to Typescript.
  */
 import WebSocket from 'ws'
-import * as EJSON from 'ejson'
+import EJSON from 'ejson'
 import { EventEmitter } from 'events'
-import { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import type { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString.js'
 
 export interface DDPTLSOptions {
 	// Described in https://nodejs.org/api/tls.html#tls_tls_connect_options_callback
@@ -69,246 +69,30 @@ export interface Observer<Doc extends { _id: ProtectedString<any> | string }> {
 	stop: () => void
 }
 
-/** DDP message type for client requests to servers */
-export type ClientServer = 'connect' | 'ping' | 'pong' | 'method' | 'sub' | 'unsub'
-/** DDP message type for server requests to clients */
-export type ServerClient =
-	| 'failed'
-	| 'connected'
-	| 'result'
-	| 'updated'
-	| 'nosub'
-	| 'added'
-	| 'removed'
-	| 'changed'
-	| 'ready'
-	| 'ping'
-	| 'pong'
-	| 'error'
-/** All types of DDP messages */
-export type MessageType = ClientServer | ServerClient
+// The DDP message types are defined canonically in shared-lib, so this client and Sofie's standalone
+// DDP server share one definition and cannot drift. Import the shapes used in this client's
+// implementation, and re-export the subset that was previously part of this module's public API.
+import type {
+	ClientServer,
+	ServerClient,
+	MessageType,
+	DDPError,
+	ConnectedMessage,
+	FailedMessage,
+	PingMessage,
+	PongMessage,
+	NoSubMessage,
+	AddedMessage,
+	ChangedMessage,
+	RemovedMessage,
+	ReadyMessage,
+	ResultMessage,
+	UpdatedMessage,
+	ClientMessage,
+	ServerMessage,
+} from '@sofie-automation/shared-lib/dist/ddp/messageTypes.js'
 
-/**
- * Represents any DDP message sent from as a request or response from a server to a client.
- */
-export interface Message {
-	/** Kind of meteor message */
-	msg: MessageType
-}
-
-/**
- * DDP-specified error.
- * Note. Different fields to a Javascript error.
- */
-export interface DDPError {
-	error: string | number
-	reason?: string
-	message?: string
-	errorType: 'Meteor.Error'
-}
-
-/**
- * Request message to initiate a connection from a client to a server.
- */
-interface Connect extends Message {
-	msg: 'connect'
-	/** If trying to reconnect to an existing DDP session */
-	session?: string
-	/** The proposed protocol version */
-	version: string
-	/** Protocol versions supported by the client, in order of preference */
-	support: Array<string>
-}
-
-/**
- * Response message sent when a client's connection request was successful.
- */
-interface Connected extends Message {
-	msg: 'connected'
-	/** An identifier for the DDP session */
-	session: string
-}
-
-/**
- * Response message when a client's connection request was unsuccessful.
- */
-interface Failed extends Message {
-	msg: 'failed'
-	/** A suggested protocol version to connect with */
-	version: string
-}
-
-/**
- * Heartbeat request message. Can be sent from server to client or client to server.
- */
-interface Ping extends Message {
-	msg: 'ping'
-	/** Identifier used to correlate with response */
-	id?: string
-}
-
-/**
- * Heartbeat response message.
- */
-
-interface Pong extends Message {
-	msg: 'pong'
-	/** Same as received in the `ping` message */
-	id?: string
-}
-
-/**
- * Message from the client specifying the sets of information it is interested in.
- * The server should then send `added`, `changed` and `removed` messages matching
- * the subscribed types.
- */
-interface Sub extends Message {
-	msg: 'sub'
-	/** An arbitrary client-determined identifier for this subscription */
-	id: string
-	/** Name of the subscription */
-	name: string
-	/** Parameters to the subscription. Most be serializable to EJSON. */
-	params?: Array<unknown>
-}
-
-/**
- * Request to unsubscribe from messages related to an existing subscription.
- */
-interface UnSub extends Message {
-	msg: 'unsub'
-	/** The `id` passed to `sub` */
-	id: string
-}
-
-/**
- * Message sent when a subscription is unsubscribed. Contains an optional error if a
- * problem occurred.
- */
-interface NoSub extends Message {
-	msg: 'nosub'
-	/** The client `id` passed to `sub` for this subscription. */
-	id: string
-	/** An error raised by the subscription as it concludes, or sub-not-found */
-	error?: DDPError
-}
-
-/**
- * Notification that a document has been added to a collection.
- */
-interface Added extends Message {
-	msg: 'added'
-	/** Collection name */
-	collection: string
-	/** Document identifier */
-	id: string
-	/** Document values - serializable with EJSON */
-	fields?: { [attr: string]: unknown }
-}
-
-/**
- * Notification that a document has changed within a collection.
- */
-interface Changed extends Message {
-	msg: 'changed'
-	/** Collection name */
-	collection: string
-	/** Document identifier */
-	id: string
-	/** Document values - serializable with EJSON */
-	fields?: { [attr: string]: unknown }
-	/** Field names to delete */
-	cleared?: Array<string>
-}
-
-/**
- * Notification that a document has been removed from a collection.
- */
-interface Removed extends Message {
-	msg: 'removed'
-	/** Collection name */
-	collection: string
-	/** Document identifier */
-	id: string
-}
-
-/**
- * Message sent to client after an initial salvo of updates have sent a
- * complete set of initial data.
- */
-interface Ready extends Message {
-	msg: 'ready'
-	/** Identifiers passed to `sub` which have sent their initial batch of data */
-	subs: Array<string>
-}
-
-/**
- * Remote procedure call request request.
- */
-interface Method extends Message {
-	msg: 'method'
-	/** Method name */
-	method: string
-	/** Parameters to the method */
-	params?: Array<unknown>
-	/** An arbitrary client-determined identifier for this method call */
-	id: string
-	/** An arbitrary client-determined seed for pseudo-random generators  */
-	randomSeed?: string
-}
-
-/**
- * Remote procedure call response message, either an error or a return value _result_.
- */
-interface Result extends Message {
-	msg: 'result'
-	/** Method name */
-	id: string
-	/** An error thrown by the method, or method nor found */
-	error?: DDPError
-	/** Return value of the method */
-	result?: unknown
-}
-
-/**
- * Message sent to indicate that all side-effect changes to subscribed data caused by
- * a method have completed.
- */
-interface Updated extends Message {
-	msg: 'updated'
-	/** Identifiers passed to `method`, all of whose writes have been reflected in data messages */
-	methods: Array<string>
-}
-
-/**
- * Erroneous messages sent from the client to the server can result in receiving a top-level
- * `error` message in response.
- */
-interface ErrorMessage extends Message {
-	msg: 'error'
-	/** Description of the error */
-	reason: string
-	/** If the original message parsed properly, it is included here */
-	offendingMessage?: Message
-}
-
-export type AnyMessage =
-	| Connect
-	| Connected
-	| Failed
-	| Ping
-	| Pong
-	| Sub
-	| UnSub
-	| NoSub
-	| Added
-	| Changed
-	| Removed
-	| Ready
-	| Method
-	| Result
-	| Updated
-	| ErrorMessage
+export type { ClientServer, ServerClient, MessageType, DDPError }
 
 export type DDPClientEvents = {
 	failed: [error: Error]
@@ -445,7 +229,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 
 	///////////////////////////////////////////////////////////////////////////
 	// RAW, low level functions
-	private send(data: AnyMessage): void {
+	private send(data: ClientMessage): void {
 		if (data.msg !== 'connect' && this.isConnecting) {
 			this.endPendingMethodCalls()
 		} else {
@@ -454,7 +238,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 		}
 	}
 
-	private failed(data: Failed): void {
+	private failed(data: FailedMessage): void {
 		if (DDPClient.supportedDdpVersions.indexOf(data.version) !== -1) {
 			this.ddpVersionInt = data.version as '1' | 'pre2' | 'pre1'
 			this.connect()
@@ -464,14 +248,14 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 		}
 	}
 
-	private connected(data: Connected): void {
+	private connected(data: ConnectedMessage): void {
 		this.session = data.session
 		this.isConnecting = false
 		this.isReconnecting = false
 		this.emit('connected')
 	}
 
-	private result(data: Result): void {
+	private result(data: ResultMessage): void {
 		if (data.id) {
 			// console.log('Received result', data, this.callbacks, this.callbacks[data.id])
 			const cb = this.callbacks[data.id] || undefined
@@ -483,7 +267,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 		}
 	}
 
-	private updated(data: Updated): void {
+	private updated(data: UpdatedMessage): void {
 		if (data.methods) {
 			data.methods.forEach((method) => {
 				const cb = this.updatedCallbacks[method]
@@ -495,7 +279,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 		}
 	}
 
-	private nosub(data: NoSub): void {
+	private nosub(data: NoSubMessage): void {
 		if (data.id) {
 			const cb = this.callbacks[data.id]
 			if (cb) {
@@ -506,7 +290,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 		}
 	}
 
-	private added(data: Added): void {
+	private added(data: AddedMessage): void {
 		// console.log('Received added', data, this.maintainCollections)
 		if (this.maintainCollections) {
 			const name = data.collection
@@ -532,7 +316,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 		}
 	}
 
-	private removed(data: Removed): void {
+	private removed(data: RemovedMessage): void {
 		if (this.maintainCollections) {
 			const name = data.collection
 			const id = data.id || 'unknown'
@@ -551,7 +335,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 		}
 	}
 
-	private changed(data: Changed): void {
+	private changed(data: ChangedMessage): void {
 		if (this.maintainCollections) {
 			const name = data.collection
 			const id = data.id || 'unknown'
@@ -594,7 +378,7 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 		}
 	}
 
-	private ready(data: Ready): void {
+	private ready(data: ReadyMessage): void {
 		// console.log('Received ready', data, this.callbacks)
 		data.subs.forEach((id) => {
 			const cb = this.callbacks[id]
@@ -605,8 +389,8 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 		})
 	}
 
-	private ping(data: Ping): void {
-		this.send((data.id && ({ msg: 'pong', id: data.id } as Pong)) || ({ msg: 'pong' } as Pong))
+	private ping(data: PingMessage): void {
+		this.send((data.id && ({ msg: 'pong', id: data.id } as PongMessage)) || ({ msg: 'pong' } as PongMessage))
 	}
 
 	private messageWork: { [name in ServerClient]: (data: any) => void } = {
@@ -631,11 +415,9 @@ export class DDPClient extends EventEmitter<DDPClientEvents> {
 	// handle a message from the server
 	private message(rawData: string): void {
 		// console.log('Received message', rawData)
-		const data: Message = EJSON.parse(rawData)
+		const data: ServerMessage = EJSON.parse(rawData)
 
-		if (this.messageWork[data.msg as ServerClient]) {
-			this.messageWork[data.msg as ServerClient](data)
-		}
+		this.messageWork[data.msg]?.(data)
 	}
 
 	private getNextId(): string {

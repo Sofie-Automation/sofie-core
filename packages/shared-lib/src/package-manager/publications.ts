@@ -1,7 +1,7 @@
-import { ExpectedPackage, PackageContainer, PackageContainerOnPackage } from './package.js'
-import { ExpectedPackageId, PeripheralDeviceId, RundownId, RundownPlaylistId } from '../core/model/Ids.js'
-import { ProtectedString } from '../lib/protectedString.js'
-import { ReadonlyDeep } from 'type-fest'
+import type { ExpectedPackage, PackageContainer, PackageContainerOnPackage } from './package.js'
+import type { ExpectedPackageId, PeripheralDeviceId, RundownId, RundownPlaylistId } from '../core/model/Ids.js'
+import type { ProtectedString } from '../lib/protectedString.js'
+import type { ReadonlyDeep } from 'type-fest'
 
 export interface PackageManagerPlayoutContext {
 	_id: PeripheralDeviceId
@@ -30,6 +30,9 @@ export type PackageManagerExpectedPackageId = ProtectedString<'PackageManagerExp
 
 export type PackageManagerExpectedPackageBase = ReadonlyDeep<Omit<ExpectedPackage.Base, '_id'>> & {
 	_id: ExpectedPackageId
+
+	/** The ID of the rundown this package is associated with, if any */
+	rundownId: RundownId | undefined
 }
 
 export interface PackageManagerExpectedPackage {

@@ -12,6 +12,7 @@ import {
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubCollectionsNames,
 	ICoreHandler,
+	KubernetesRestarter,
 } from '@sofie-automation/server-core-integration'
 import * as Winston from 'winston'
 
@@ -35,7 +36,6 @@ export class CoreHandler implements ICoreHandler {
 	core: CoreConnection | undefined
 	logger: Winston.Logger
 	public _observers: Array<Observer<any>> = []
-	public connectedToCore = false
 	private _deviceOptions: DeviceConfig
 	private _coreMosHandlers: Array<CoreMosDeviceHandler> = []
 	private _onConnected?: () => any
@@ -43,6 +43,11 @@ export class CoreHandler implements ICoreHandler {
 	private _isDestroyed = false
 	private _executedFunctions = new Set<PeripheralDeviceCommandId>()
 	private _coreConfig?: CoreConfig
+	private _k8sRestarter?: KubernetesRestarter
+
+	public get connectedToCore(): boolean {
+		return !!this.core && this.core.connected
+	}
 
 	public static async create(
 		logger: Winston.Logger,
@@ -58,6 +63,9 @@ export class CoreHandler implements ICoreHandler {
 	private constructor(logger: Winston.Logger, deviceOptions: DeviceConfig) {
 		this.logger = logger
 		this._deviceOptions = deviceOptions
+		if (KubernetesRestarter.canUseK8sRestarter()) {
+			this._k8sRestarter = new KubernetesRestarter(this.logger, 'sofie-mos-gateway')
+		}
 	}
 
 	private async init(config: CoreConfig, tlsOptions: DDPTLSOptions): Promise<void> {
@@ -67,12 +75,10 @@ export class CoreHandler implements ICoreHandler {
 
 		this.core.onConnected(() => {
 			this.logger.info('Core Connected!')
-			this.connectedToCore = true
 			if (this._isInitialized) this.onConnectionRestored()
 		})
 		this.core.onDisconnected(() => {
 			this.logger.info('Core Disconnected!')
-			this.connectedToCore = false
 		})
 		this.core.onError((err) => {
 			this.logger.error('Core Error: ' + (typeof err === 'string' ? err : err.message || err.toString()))
@@ -91,24 +97,21 @@ export class CoreHandler implements ICoreHandler {
 
 		await this.updateCoreStatus()
 	}
-	getCoreStatus(): {
-		statusCode: StatusCode
-		messages: string[]
-	} {
+	getCoreStatus(): PeripheralDeviceAPI.PeripheralDeviceStatusObject {
 		let statusCode = StatusCode.GOOD
-		const messages: string[] = []
+		const statusDetails: Array<{ message: string }> = []
 
 		if (!this._isInitialized) {
 			statusCode = StatusCode.BAD
-			messages.push('Starting up...')
+			statusDetails.push({ message: 'Starting up...' })
 		}
 		if (this._isDestroyed) {
 			statusCode = StatusCode.FATAL
-			messages.push('Shut down')
+			statusDetails.push({ message: 'Shut down' })
 		}
 		return {
 			statusCode,
-			messages,
+			statusDetails,
 		}
 	}
 	async updateCoreStatus(): Promise<void> {
@@ -322,12 +325,19 @@ export class CoreHandler implements ICoreHandler {
 			}
 		})
 	}
-	killProcess(): void {
-		this.logger.info('KillProcess command received, shutting down in 1000ms!')
-		setTimeout(() => {
-			// eslint-disable-next-line n/no-process-exit
-			process.exit(0)
-		}, 1000)
+	async killProcess(): Promise<boolean> {
+		this.logger.debug('KillProcess command received for mos-gateway')
+		if (this._k8sRestarter) {
+			this.logger.debug('Running on kubernetes was true, restarting deployment')
+			return await this._k8sRestarter.restartKube()
+		} else {
+			this.logger.debug('killing process in 1000ms!')
+			setTimeout(() => {
+				// eslint-disable-next-line n/no-process-exit
+				process.exit(0)
+			}, 1000)
+			return true
+		}
 	}
 	pingResponse(message: string): true {
 		if (!this.core) {

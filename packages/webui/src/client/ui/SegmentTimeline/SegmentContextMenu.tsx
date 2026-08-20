@@ -1,21 +1,21 @@
-import * as React from 'react'
+import type * as React from 'react'
 import Escape from './../../lib/Escape.js'
 import { useTranslation } from 'react-i18next'
 import { ContextMenu, MenuItem } from '@jstarpl/react-contextmenu'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import {
-	DBRundownPlaylist,
-	QuickLoopMarker,
+	type QuickLoopMarker,
 	QuickLoopMarkerType,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { RundownViewPlaylist } from '../../lib/rundownPlaylistProjection.js'
 import { RundownUtils } from '../../lib/rundown.js'
-import { IContextMenuContext } from '../RundownView.js'
-import { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { IContextMenuContext } from '../RundownView.js'
+import type { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { UserEditOperationMenuItems } from '../UserEditOperations/RenderUserEditOperations.js'
-import { CoreUserEditingDefinition } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
-import { SelectedElement } from '../RundownView/SelectedElementsContext.js'
-import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance.js'
+import type { CoreUserEditingDefinition } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
+import type { SelectedElement } from '../RundownView/SelectedElementsContext.js'
+import type { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance.js'
 import { hasUserEditableContent } from '../UserEditOperations/PropertiesPanel.js'
 import {
 	isLoopLocked,
@@ -30,7 +30,7 @@ interface IProps {
 	onSetQuickLoopStart: (marker: QuickLoopMarker | null, e: any) => void
 	onSetQuickLoopEnd: (marker: QuickLoopMarker | null, e: any) => void
 	onEditProps: (element: SelectedElement) => void
-	playlist?: DBRundownPlaylist
+	playlist?: RundownViewPlaylist
 	studioMode: boolean
 	contextMenuContext: IContextMenuContext | null
 	enablePlayFromAnywhere: boolean
@@ -160,9 +160,8 @@ export function SegmentContextMenu({
 								rundownId={segment.rundownId}
 								targetName={segment.name}
 								operationTarget={{
+									target: 'segment' as const,
 									segmentExternalId: segment.externalId,
-									partExternalId: undefined,
-									pieceExternalId: undefined,
 								}}
 								userEditOperations={segment.userEditOperations}
 								isFormEditable={isSegmentEditAble}
@@ -267,23 +266,26 @@ export function SegmentContextMenu({
 							</>
 						)}
 
-						<UserEditOperationMenuItems
-							rundownId={part.instance.rundownId}
-							targetName={part.instance.part.title}
-							operationTarget={{
-								segmentExternalId: segment?.externalId,
-								partExternalId: part.instance.part.externalId,
-								pieceExternalId: undefined,
-							}}
-							userEditOperations={part.instance.part.userEditOperations}
-							isFormEditable={isPartEditAble}
-						/>
+						{segment && (
+							<UserEditOperationMenuItems
+								rundownId={part.instance.rundownId}
+								targetName={part.instance.part.title}
+								operationTarget={{
+									target: 'part' as const,
+									segmentExternalId: segment.externalId,
+									partExternalId: part.instance.part.externalId,
+								}}
+								userEditOperations={part.instance.part.userEditOperations}
+								isFormEditable={isPartEditAble}
+							/>
+						)}
 
 						{piece && piece.instance.piece.userEditOperations && (
 							<UserEditOperationMenuItems
 								rundownId={part.instance.rundownId}
 								targetName={piece.instance.piece.name}
 								operationTarget={{
+									target: 'piece' as const,
 									segmentExternalId: segment?.externalId,
 									partExternalId: part.instance.part.externalId,
 									pieceExternalId: piece.instance.piece.externalId,

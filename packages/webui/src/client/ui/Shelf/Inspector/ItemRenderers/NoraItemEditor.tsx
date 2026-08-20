@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { createMosObjectXmlStringNoraBluePrintPiece } from '../../../../lib/data/nora/browser-plugin-data.js'
-import { parseMosPluginMessageXml, MosPluginMessage } from '../../../../lib/parsers/mos/mosXml2Js.js'
-import { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { parseMosPluginMessageXml, type MosPluginMessage } from '../../../../lib/parsers/mos/mosXml2Js.js'
+import type { PieceGeneric } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { createMosAppInfoXmlString } from '../../../../lib/data/mos/plugin-support.js'
 import { logger } from '../../../../lib/logging.js'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 
 //TODO: figure out what the origin should be
 const LOCAL_ORIGIN = `${window.location.protocol}//${window.location.host}`
@@ -21,18 +21,11 @@ class NoraItemEditor extends React.Component<INoraEditorProps> {
 	iframe: HTMLIFrameElement | null = null
 
 	componentDidMount(): void {
-		this.setUpEventListeners(window)
+		window.addEventListener('message', this.onMessage)
 	}
 
-	componentDidUpdate(_prevProps: INoraEditorProps): void {
-		if (this.iframe && this.iframe.contentWindow) {
-			this.setUpEventListeners(this.iframe.contentWindow)
-		}
-		this.setUpEventListeners(window)
-
-		// if (JSON.stringify(prevProps.payload) !== JSON.stringify(this.props.payload)) {
-		// 	this.postIframePayload()
-		// }
+	componentWillUnmount(): void {
+		window.removeEventListener('message', this.onMessage)
 	}
 
 	shouldComponentUpdate(): boolean {
@@ -46,10 +39,8 @@ class NoraItemEditor extends React.Component<INoraEditorProps> {
 		}
 	}
 
-	private setUpEventListeners(target: Window) {
-		target.addEventListener('message', (event) => {
-			this.handleMessage(event)
-		})
+	private onMessage = (event: MessageEvent) => {
+		this.handleMessage(event)
 	}
 
 	private handleMessage(event: MessageEvent) {

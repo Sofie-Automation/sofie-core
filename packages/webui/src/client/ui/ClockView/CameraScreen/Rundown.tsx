@@ -1,15 +1,15 @@
 import { useContext } from 'react'
 import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
-import { Rundown as RundownObj } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { Rundown as RundownObj } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { Segments } from '../../../collections/index.js'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { Segment as SegmentComponent } from './Segment.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { UIShowStyleBases } from '../../Collections.js'
 import { RundownToShowStyleContext, StudioContext } from './index.js'
-import { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 interface IProps {
 	playlist: DBRundownPlaylist

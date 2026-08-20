@@ -1,15 +1,27 @@
 {
 	"extends": "@sofie-automation/code-standard-preset/ts/tsconfig.lib",
-	"include": ["*/src/**/__tests__/**/*", "*/src/**/__mocks__/**/*", "*/src/**/integrationTests/**/*"],
+	"include": [
+		"*/src/**/__tests__/**/*",
+		"*/src/**/__mocks__/**/*",
+		"*/src/**/integrationTests/**/*",
+		"../meteor/**/__tests__/**/*",
+		"../meteor/**/__mocks__/**/*"
+	],
 	"exclude": ["node_modules/**", "webui/**", "openapi/**"],
 	"compilerOptions": {
 		"baseUrl": "./",
+		// The preset maps '*' to '../node_modules/*', which for this directory is the repo-root tooling
+		// install rather than the workspace store. Clear it so plain node resolution is used.
+		"paths": {},
 		"resolveJsonModule": true,
 		"types": ["jest", "node"],
 		"composite": true,
 		"noEmit": true,
 		"skipLibCheck": true,
-		"importHelpers": false // To mitigate tslib errors which are meaningless
+		"importHelpers": false, // To mitigate tslib errors which are meaningless
+		"module": "node20",
+		"target": "es2024",
+		"lib": ["ES2024"]
 	},
 	"references": [
 		{ "path": "./blueprints-integration/tsconfig.build.json" },
@@ -20,6 +32,7 @@
 		{ "path": "./corelib/tsconfig.build.json" },
 		{ "path": "./shared-lib/tsconfig.build.json" },
 		{ "path": "./meteor-lib/tsconfig.build.json" },
-		{ "path": "./live-status-gateway/tsconfig.build.json" }
+		{ "path": "./live-status-gateway/tsconfig.build.json" },
+		{ "path": "../meteor/tsconfig.build.json" }
 	]
 }

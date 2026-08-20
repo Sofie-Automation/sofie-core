@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import ClassNames from 'classnames'
 import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownTiming/withTiming.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { SpeechSynthesiser } from '../../../lib/speechSynthesis.js'
-import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 import { Countdown } from './Countdown.js'
 
@@ -147,7 +147,7 @@ export const CurrentPartOrSegmentRemaining: React.FC<IPartRemainingProps> = (pro
 			className={ClassNames(props.className, Math.floor(displayTimecode / 1000) > 0 ? props.heavyClassName : undefined)}
 			role="timer"
 		>
-			{RundownUtils.formatDiffToTimecode(displayTimecode || 0, true, false, true, false, true, '', false, true)}
+			{RundownUtils.formatDiffToTimecodeCountdown(displayTimecode || 0)}
 		</span>
 	)
 }
@@ -166,7 +166,7 @@ export const RundownHeaderPartRemaining: React.FC<IPartRemainingProps> = (props)
 			label={props.label}
 			className={ClassNames(props.className, Math.floor(displayTimecode / 1000) > 0 ? props.heavyClassName : undefined)}
 		>
-			{RundownUtils.formatDiffToTimecode(displayTimecode || 0, true, false, true, false, true, '', false, true)}
+			{RundownUtils.formatDiffToTimecodeCountdown(displayTimecode || 0)}
 		</Countdown>
 	)
 }
@@ -187,7 +187,7 @@ export const RundownHeaderSegmentBudget: React.FC<{
 		<span className="rundown-header__timers-segment-remaining">
 			<span className="rundown-header__timers-segment-remaining__label">{label}</span>
 			<Countdown className={ClassNames(Math.floor(displayTimecode / 1000) > 0 ? 'overtime' : undefined)}>
-				{RundownUtils.formatDiffToTimecode(displayTimecode || 0, true, false, true, false, true, '', false, true)}
+				{RundownUtils.formatDiffToTimecodeCountdown(displayTimecode || 0)}
 			</Countdown>
 		</span>
 	)

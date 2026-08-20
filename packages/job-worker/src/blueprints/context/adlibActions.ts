@@ -2,6 +2,7 @@ import {
 	IActionExecutionContext,
 	IDataStoreActionExecutionContext,
 	IBlueprintMutatablePart,
+	IBlueprintMutatablePartInstance,
 	IBlueprintPart,
 	IBlueprintPartInstance,
 	IBlueprintPiece,
@@ -197,7 +198,7 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 		)
 	}
 
-	async moveNextPart(partDelta: number, segmentDelta: number, ignoreQuickloop?: boolean): Promise<void> {
+	async moveNextPart(partDelta: number, segmentDelta: number, ignoreQuickloop?: boolean): Promise<boolean> {
 		const selectedPart = selectNewPartWithOffsets(
 			this._context,
 			this._playoutModel,
@@ -205,14 +206,19 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 			segmentDelta,
 			ignoreQuickloop
 		)
-		if (selectedPart) await setNextPartFromPart(this._context, this._playoutModel, selectedPart, true)
+		if (selectedPart) {
+			await setNextPartFromPart(this._context, this._playoutModel, selectedPart, true)
+			return true
+		}
+		return false
 	}
 
 	async updatePartInstance(
 		part: 'current' | 'next',
-		props: Partial<IBlueprintMutatablePart>
+		props: Partial<IBlueprintMutatablePart>,
+		instanceProps: Partial<IBlueprintMutatablePartInstance> = {}
 	): Promise<IBlueprintPartInstance> {
-		return this.partAndPieceInstanceService.updatePartInstance(part, props)
+		return this.partAndPieceInstanceService.updatePartInstance(part, props, instanceProps)
 	}
 
 	async stopPiecesOnLayers(sourceLayerIds: string[], timeOffset?: number): Promise<string[]> {

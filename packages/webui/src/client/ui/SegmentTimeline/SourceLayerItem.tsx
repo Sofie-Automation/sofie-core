@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { ISourceLayerUi, IOutputLayerUi, PartUi } from './SegmentTimelineContainer.js'
+import type * as React from 'react'
+import type { ISourceLayerUi, IOutputLayerUi, PartUi } from './SegmentTimelineContainer.js'
 import {
 	SourceLayerType,
 	PieceLifespan,
@@ -16,28 +16,28 @@ import { SplitsSourceRenderer } from './Renderers/SplitsSourceRenderer.js'
 import { LocalLayerItemRenderer } from './Renderers/LocalLayerItemRenderer.js'
 
 import { DEBUG_MODE } from './SegmentTimelineDebugMode.js'
-import { getElementDocumentOffset, OffsetPosition } from '../../utils/positions.js'
+import { getElementDocumentOffset, type OffsetPosition } from '../../utils/positions.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import RundownViewEventBus, {
 	RundownViewEvents,
-	HighlightEvent,
+	type HighlightEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { pieceUiClassNames } from '../../lib/ui/pieceUiClassNames.js'
 import { TransitionSourceRenderer } from './Renderers/TransitionSourceRenderer.js'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 import { useSelectedElementsContext } from '../RundownView/SelectedElementsContext.js'
-import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { useCallback, useRef, useState, useEffect, useContext } from 'react'
 import { dragContext } from '../RundownView/DragContext.js'
 import {
 	convertSourceLayerItemToPreview,
-	IPreviewPopUpSession,
+	type IPreviewPopUpSession,
 	PreviewPopUpContext,
 } from '../PreviewPopUp/PreviewPopUpContext.js'
 import { useRundownViewEventBusListener } from '../../lib/lib.js'
 import { hasUserEditableContent } from '../UserEditOperations/PropertiesPanel.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 const LEFT_RIGHT_ANCHOR_SPACER = 15
 const MARGINAL_ANCHORED_WIDTH = 5
 
@@ -166,6 +166,15 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 	useEffect(() => {
 		return () => {
 			clearTimeout(highlightTimeout.current)
+			if (animFrameHandle.current !== undefined) {
+				cancelAnimationFrame(animFrameHandle.current)
+				animFrameHandle.current = undefined
+			}
+			if (previewSession.current) {
+				previewSession.current.close()
+				previewSession.current = null
+			}
+			itemElementRef.current = null
 		}
 	}, [])
 
@@ -241,14 +250,6 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 
 	const previewContext = useContext(PreviewPopUpContext)
 	const previewSession = useRef<IPreviewPopUpSession | null>(null)
-	const toggleMiniInspectorOn = useCallback(
-		(e: React.MouseEvent) => togglePreviewPopUp(e, true),
-		[piece, cursorTimePosition, contentStatus, timeScale]
-	)
-	const toggleMiniInspectorOff = useCallback(
-		(e: React.MouseEvent) => togglePreviewPopUp(e, false),
-		[piece, cursorTimePosition, contentStatus, timeScale]
-	)
 	const updatePos = useCallback(() => {
 		const elementPos = getElementDocumentOffset(itemElementRef.current) || {
 			top: 0,
@@ -270,13 +271,23 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 		}
 
 		animFrameHandle.current = requestAnimationFrame(updatePos)
-	}, [piece, contentStatus, timeScale])
+	}, [timeScale])
 	const togglePreviewPopUp = useCallback(
 		(e: React.MouseEvent, state: boolean) => {
+			if (animFrameHandle.current !== undefined) {
+				cancelAnimationFrame(animFrameHandle.current)
+				animFrameHandle.current = undefined
+			}
+
 			if (!state && previewSession.current) {
 				previewSession.current.close()
 				previewSession.current = null
 			} else {
+				if (previewSession.current) {
+					previewSession.current.close()
+					previewSession.current = null
+				}
+
 				const { contents: previewContents, options: previewOptions } = convertSourceLayerItemToPreview(
 					layer.type,
 					piece.instance.piece,
@@ -288,7 +299,7 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 				)
 
 				if (previewContents.length) {
-					previewSession.current = previewContext.requestPreview(e.target as any, previewContents, {
+					previewSession.current = previewContext.requestPreview(e.currentTarget, previewContents, {
 						...previewOptions,
 						time: cursorTimePosition,
 						initialOffsetX: e.screenX,
@@ -308,9 +319,27 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 				animFrameHandle.current = requestAnimationFrame(updatePos)
 			} else if (animFrameHandle.current !== undefined) {
 				cancelAnimationFrame(animFrameHandle.current)
+				animFrameHandle.current = undefined
 			}
 		},
-		[piece, cursorTimePosition, contentStatus, timeScale]
+		[
+			piece,
+			cursorTimePosition,
+			contentStatus,
+			updatePos,
+			layer.type,
+			previewContext,
+			props.piece.renderedDuration,
+			props.piece.renderedInPoint,
+		]
+	)
+	const toggleMiniInspectorOn = useCallback(
+		(e: React.MouseEvent) => togglePreviewPopUp(e, true),
+		[piece, cursorTimePosition, contentStatus, timeScale, togglePreviewPopUp]
+	)
+	const toggleMiniInspectorOff = useCallback(
+		(e: React.MouseEvent) => togglePreviewPopUp(e, false),
+		[piece, cursorTimePosition, contentStatus, timeScale, togglePreviewPopUp]
 	)
 	const moveMiniInspector = useCallback((e: MouseEvent | any) => {
 		cursorRawPosition.current = {
@@ -552,9 +581,12 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 
 			return {
 				transform: 'translate(' + targetPos.toString() + 'px,  0)',
+				maxWidth: `${elementWidth}px`,
 			}
 		}
-		return {}
+		return {
+			maxWidth: `${elementWidth}px`,
+		}
 	}
 	const setAnchoredElsWidths = (leftAnchoredWidth: number, rightAnchoredWidth: number) => {
 		// anchored labels will sometimes erroneously report some width. Discard if it's marginal.

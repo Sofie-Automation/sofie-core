@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Rundowns } from '../../collections'
 import { literal } from '@sofie-automation/corelib/dist/lib'
@@ -7,6 +6,7 @@ import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { PromiseDebounce } from '../../publications/lib/PromiseDebounce'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { logger } from '../../logging'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 const REACTIVITY_DEBOUNCE = 20
 
@@ -18,7 +18,7 @@ const rundownFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBRundo
 })
 
 export class RundownsObserver {
-	#rundownsLiveQuery!: Meteor.LiveQueryHandle
+	#rundownsLiveQuery!: LiveQueryHandleSync
 	#rundownIds: Set<RundownId> = new Set<RundownId>()
 	#changed: ChangedHandler | undefined
 	#cleanup: (() => void) | undefined

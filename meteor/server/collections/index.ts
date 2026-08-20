@@ -9,7 +9,6 @@ import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collect
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
 import { PeripheralDeviceCommand } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceCommand'
 import { WorkerThreadStatus } from '@sofie-automation/corelib/dist/dataModel/WorkerThreads'
-import { Meteor } from 'meteor/meteor'
 import { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { Evaluation } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
@@ -233,8 +232,9 @@ const removeOldCommands = () => {
 		logger.error(`Failed to cleanup old PeripheralDeviceCommands: ${stringifyError(e)}`)
 	})
 }
-Meteor.startup(async () => {
-	Meteor.setInterval(() => removeOldCommands(), 5 * 60 * 1000)
+
+export async function startRundownVersionHashObservers(): Promise<void> {
+	setInterval(() => removeOldCommands(), 5 * 60 * 1000)
 
 	await Promise.allSettled([
 		ObserveChangesForHash(ShowStyleBases, '_rundownVersionHash', ['blueprintConfigWithOverrides', 'blueprintId']),
@@ -246,4 +246,4 @@ Meteor.startup(async () => {
 
 		ObserveChangesForHash(Studios, '_rundownVersionHash', ['blueprintConfigWithOverrides']),
 	])
-})
+}

@@ -1,0 +1,3 @@
+type: countdown
+duration: 120000
+stopAtZero: true

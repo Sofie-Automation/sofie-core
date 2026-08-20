@@ -1,11 +1,11 @@
 import classNames from 'classnames'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useTiming } from './withTiming.js'
 import { RundownUtils } from '../../../lib/rundown.js'
-import { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
+import type { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { getPartInstanceTimingId } from '../../../lib/rundownTiming.js'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
 
 interface ISegmentDurationProps {

@@ -1,5 +1,5 @@
 import { ControllerAbstract, LONGPRESS_TIME } from './lib.js'
-import { PrompterViewContent, PrompterConfigMode } from '../PrompterView.js'
+import { type PrompterViewContent, PrompterConfigMode } from '../PrompterView.js'
 import { NotificationCenter, Notification, NoticeLevel } from '../../../lib/notifications/notifications.js'
 
 const LOCALSTORAGE_MODE = 'prompter-controller-mouseish'

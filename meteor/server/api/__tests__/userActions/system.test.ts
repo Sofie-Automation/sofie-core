@@ -1,4 +1,5 @@
-import { MeteorCall } from '../../methods'
+import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
+import { ServerUserActionAPI } from '../../userActions'
 import {
 	PeripheralDevice,
 	PeripheralDeviceCategory,
@@ -22,8 +23,9 @@ import {
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { StudioPlayoutDevice } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { makeMeteorCallForTest } from '../../../../__mocks__/helpers/methods'
 
-require('../../userActions') // include in order to create the Meteor methods needed
+const MeteorCall = makeMeteorCallForTest({ methods: UserActionAPIMethods, class: ServerUserActionAPI })
 
 describe('User Actions - Disable Peripheral SubDevice', () => {
 	let env: DefaultEnvironment

@@ -6,6 +6,7 @@ import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objec
 import { ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ShowStyleBases, ShowStyleVariants, Studios } from '../collections'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
+import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 /**
  * This file contains system specific migration steps.
@@ -37,6 +38,7 @@ export const addSteps = addMigrationSteps('0.1.0', [
 					allowPieceDirectPlay: false,
 					enableBuckets: true,
 					enableEvaluationForm: true,
+					shelfAdlibButtonSize: ShelfButtonSize.LARGE,
 				}),
 				mappingsWithOverrides: wrapDefaultObject({}),
 				blueprintConfigWithOverrides: wrapDefaultObject({}),

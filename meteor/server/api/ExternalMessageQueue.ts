@@ -1,12 +1,8 @@
-import { Meteor } from 'meteor/meteor'
+import { z } from 'zod'
 import { check } from '../lib/check'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { deferAsync, getCurrentTime } from '../lib/lib'
-import { registerClassToMeteorMethods } from '../methods'
-import {
-	NewExternalMessageQueueAPI,
-	ExternalMessageQueueAPIMethods,
-} from '@sofie-automation/meteor-lib/dist/api/ExternalMessageQueue'
+import { NewExternalMessageQueueAPI } from '@sofie-automation/meteor-lib/dist/api/ExternalMessageQueue'
 import { StatusObject, setSystemStatus } from '../systemStatus/systemStatus'
 import { MethodContextAPI, MethodContext } from './methodContext'
 import { ExternalMessageQueueObjId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -15,14 +11,15 @@ import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataMode
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const USER_PERMISSIONS_FOR_EXTERNAL_MESSAGES: Array<keyof UserPermissions> = ['configure', 'studio', 'service']
 
-let updateExternalMessageQueueStatusTimeout = 0
+let updateExternalMessageQueueStatusTimeout: NodeJS.Timeout | null = null
 function updateExternalMessageQueueStatus(): void {
 	if (!updateExternalMessageQueueStatusTimeout) {
-		updateExternalMessageQueueStatusTimeout = Meteor.setTimeout(() => {
-			updateExternalMessageQueueStatusTimeout = 0
+		updateExternalMessageQueueStatusTimeout = setTimeout(() => {
+			updateExternalMessageQueueStatusTimeout = null
 			deferAsync(async () => {
 				const query: MongoQuery<ExternalMessageQueueObj> = {
 					sent: { $not: { $gt: 0 } },
@@ -53,7 +50,7 @@ function updateExternalMessageQueueStatus(): void {
 	}
 }
 
-Meteor.startup(async () => {
+export async function startExternalMessageQueueStatusMonitor(): Promise<void> {
 	await ExternalMessageQueue.observeChanges(
 		{
 			sent: { $not: { $gt: 0 } },
@@ -68,10 +65,10 @@ Meteor.startup(async () => {
 
 	updateExternalMessageQueueStatus()
 	// triggerdoMessageQueue(5000)
-})
+}
 
 async function removeExternalMessage(context: MethodContext, messageId: ExternalMessageQueueObjId): Promise<void> {
-	check(messageId, String)
+	check(messageId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...USER_PERMISSIONS_FOR_EXTERNAL_MESSAGES)
 
@@ -79,12 +76,12 @@ async function removeExternalMessage(context: MethodContext, messageId: External
 	await ExternalMessageQueue.removeAsync(messageId)
 }
 async function toggleHold(context: MethodContext, messageId: ExternalMessageQueueObjId): Promise<void> {
-	check(messageId, String)
+	check(messageId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...USER_PERMISSIONS_FOR_EXTERNAL_MESSAGES)
 
 	const existingMessage = await ExternalMessageQueue.findOneAsync(messageId)
-	if (!existingMessage) throw new Meteor.Error(404, `ExternalMessage "${messageId}" not found!`)
+	if (!existingMessage) throw new SofieError(404, `ExternalMessage "${messageId}" not found!`)
 
 	await ExternalMessageQueue.updateAsync(messageId, {
 		$set: {
@@ -93,12 +90,12 @@ async function toggleHold(context: MethodContext, messageId: ExternalMessageQueu
 	})
 }
 async function retry(context: MethodContext, messageId: ExternalMessageQueueObjId): Promise<void> {
-	check(messageId, String)
+	check(messageId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...USER_PERMISSIONS_FOR_EXTERNAL_MESSAGES)
 
 	const existingMessage = await ExternalMessageQueue.findOneAsync(messageId)
-	if (!existingMessage) throw new Meteor.Error(404, `ExternalMessage "${messageId}" not found!`)
+	if (!existingMessage) throw new SofieError(404, `ExternalMessage "${messageId}" not found!`)
 
 	const tryGap = getCurrentTime() - 1 * 60 * 1000
 	await ExternalMessageQueue.updateAsync(messageId, {
@@ -114,15 +111,14 @@ async function retry(context: MethodContext, messageId: ExternalMessageQueueObjI
 	})
 	// triggerdoMessageQueue(1000)
 }
-class ServerExternalMessageQueueAPI extends MethodContextAPI implements NewExternalMessageQueueAPI {
-	async remove(messageId: ExternalMessageQueueObjId) {
+export class ServerExternalMessageQueueAPI extends MethodContextAPI implements NewExternalMessageQueueAPI {
+	async remove(messageId: ExternalMessageQueueObjId): Promise<void> {
 		return removeExternalMessage(this, messageId)
 	}
-	async toggleHold(messageId: ExternalMessageQueueObjId) {
+	async toggleHold(messageId: ExternalMessageQueueObjId): Promise<void> {
 		return toggleHold(this, messageId)
 	}
-	async retry(messageId: ExternalMessageQueueObjId) {
+	async retry(messageId: ExternalMessageQueueObjId): Promise<void> {
 		return retry(this, messageId)
 	}
 }
-registerClassToMeteorMethods(ExternalMessageQueueAPIMethods, ServerExternalMessageQueueAPI, false)

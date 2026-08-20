@@ -1,4 +1,4 @@
-import {
+import type {
 	PartInstanceId,
 	RundownLayoutId,
 	RundownPlaylistActivationId,
@@ -8,56 +8,51 @@ import {
 	createPartCurrentTimes,
 	processAndPrunePieceInstanceTimings,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
 	CustomizableRegions,
-	DashboardLayout,
-	DashboardLayoutFilter,
+	type DashboardLayout,
+	type DashboardLayoutFilter,
 	PieceDisplayStyle,
-	RequiresActiveLayers,
-	RundownLayout,
-	RundownLayoutAdLibRegion,
-	RundownLayoutBase,
-	RundownLayoutColoredBox,
-	RundownLayoutElementBase,
+	type RequiresActiveLayers,
+	type RundownLayout,
+	type RundownLayoutAdLibRegion,
+	type RundownLayoutBase,
+	type RundownLayoutColoredBox,
+	type RundownLayoutElementBase,
 	RundownLayoutElementType,
-	RundownLayoutEndWords,
-	RundownLayoutExternalFrame,
-	RundownLayoutFilterBase,
-	RundownLayoutMiniRundown,
-	RundownLayoutNextBreakTiming,
-	RundownLayoutNextInfo,
-	RundownLayoutPartName,
-	RundownLayoutPartTiming,
-	RundownLayoutPieceCountdown,
-	RundownLayoutPlaylistEndTimer,
-	RundownLayoutPlaylistName,
-	RundownLayoutPlaylistStartTimer,
-	RundownLayoutPresenterView,
-	RundownLayoutRundownHeader,
-	RundownLayoutSegmentName,
-	RundownLayoutSegmentTiming,
-	RundownLayoutShelfBase,
-	RundownLayoutShowStyleDisplay,
-	RundownLayoutStudioName,
-	RundownLayoutSytemStatus,
-	RundownLayoutTextLabel,
-	RundownLayoutTimeOfDay,
+	type RundownLayoutExternalFrame,
+	type RundownLayoutFilterBase,
+	type RundownLayoutMiniRundown,
+	type RundownLayoutNextInfo,
+	type RundownLayoutPartName,
+	type RundownLayoutPartTiming,
+	type RundownLayoutPieceCountdown,
+	type RundownLayoutPlaylistEndTimer,
+	type RundownLayoutPlaylistName,
+	type RundownLayoutPlaylistStartTimer,
+	type RundownLayoutPresenterView,
+	type RundownLayoutSegmentName,
+	type RundownLayoutSegmentTiming,
+	type RundownLayoutShelfBase,
+	type RundownLayoutStudioName,
+	type RundownLayoutTextLabel,
+	type RundownLayoutTimeOfDay,
 	RundownLayoutType,
-	RundownLayoutWithFilters,
-	RundownViewLayout,
+	type RundownLayoutWithFilters,
+	type RundownViewLayout,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { getCurrentTime } from './systemTime.js'
 import { invalidateAt } from './invalidatingTime.js'
 import { memoizedIsolatedAutorun } from './memoizedIsolatedAutorun.js'
 import { PieceInstances } from '../collections/index.js'
-import { ReadonlyDeep } from 'type-fest'
-import { TFunction } from 'i18next'
+import type { ReadonlyDeep } from 'type-fest'
+import type { TFunction } from 'i18next'
 import _ from 'underscore'
 import { UIPartInstances } from '../ui/Collections.js'
-import { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 export interface LayoutDescriptor {
 	supportedFilters: RundownLayoutElementType[]
@@ -200,7 +195,6 @@ class RundownLayoutsRegistry {
 	private shelfLayouts: Map<RundownLayoutType, LayoutDescriptor> = new Map()
 	private rundownViewLayouts: Map<RundownLayoutType, LayoutDescriptor> = new Map()
 	private miniShelfLayouts: Map<RundownLayoutType, LayoutDescriptor> = new Map()
-	private rundownHeaderLayouts: Map<RundownLayoutType, LayoutDescriptor> = new Map()
 	private presenterViewLayouts: Map<RundownLayoutType, LayoutDescriptor> = new Map()
 
 	public registerShelfLayout(id: RundownLayoutType, description: LayoutDescriptor) {
@@ -213,10 +207,6 @@ class RundownLayoutsRegistry {
 
 	public registerMiniShelfLayout(id: RundownLayoutType, description: LayoutDescriptor) {
 		this.miniShelfLayouts.set(id, description)
-	}
-
-	public registerRundownHeaderLayouts(id: RundownLayoutType, description: LayoutDescriptor) {
-		this.rundownHeaderLayouts.set(id, description)
 	}
 
 	public registerPresenterViewLayout(id: RundownLayoutType, description: LayoutDescriptor) {
@@ -233,10 +223,6 @@ class RundownLayoutsRegistry {
 
 	public isMiniShelfLayout(regionId: CustomizableRegions) {
 		return regionId === CustomizableRegions.MiniShelf
-	}
-
-	public isRundownHeaderLayout(regionId: CustomizableRegions) {
-		return regionId === CustomizableRegions.RundownHeader
 	}
 
 	public isPresenterViewLayout(regionId: CustomizableRegions) {
@@ -276,12 +262,6 @@ class RundownLayoutsRegistry {
 				title: t('Mini Shelf Layouts'),
 				layouts: this.wrapToCustomizableRegionLayout(this.miniShelfLayouts, t),
 				navigationLink: (studioId, layoutId) => `/activeRundown/${studioId}?miniShelfLayout=${layoutId}`,
-			},
-			{
-				_id: CustomizableRegions.RundownHeader,
-				title: t('Rundown Header Layouts'),
-				layouts: this.wrapToCustomizableRegionLayout(this.rundownHeaderLayouts, t),
-				navigationLink: (studioId, layoutId) => `/activeRundown/${studioId}?rundownHeaderLayout=${layoutId}`,
 			},
 			{
 				_id: CustomizableRegions.PresenterView,
@@ -328,27 +308,6 @@ export namespace RundownLayoutsAPI {
 	registry.registerRundownViewLayout(RundownLayoutType.RUNDOWN_VIEW_LAYOUT, {
 		supportedFilters: [],
 	})
-	registry.registerRundownHeaderLayouts(RundownLayoutType.RUNDOWN_HEADER_LAYOUT, {
-		supportedFilters: [],
-	})
-	registry.registerRundownHeaderLayouts(RundownLayoutType.DASHBOARD_LAYOUT, {
-		filtersTitle: 'Layout Elements',
-		supportedFilters: [
-			RundownLayoutElementType.PIECE_COUNTDOWN,
-			RundownLayoutElementType.PLAYLIST_START_TIMER,
-			RundownLayoutElementType.PLAYLIST_END_TIMER,
-			RundownLayoutElementType.NEXT_BREAK_TIMING,
-			RundownLayoutElementType.END_WORDS,
-			RundownLayoutElementType.SEGMENT_TIMING,
-			RundownLayoutElementType.PART_TIMING,
-			RundownLayoutElementType.TEXT_LABEL,
-			RundownLayoutElementType.PLAYLIST_NAME,
-			RundownLayoutElementType.TIME_OF_DAY,
-			RundownLayoutElementType.SHOWSTYLE_DISPLAY,
-			RundownLayoutElementType.SYSTEM_STATUS,
-			RundownLayoutElementType.COLORED_BOX,
-		],
-	})
 	registry.registerPresenterViewLayout(RundownLayoutType.CLOCK_PRESENTER_VIEW_LAYOUT, {
 		supportedFilters: [],
 	})
@@ -359,7 +318,6 @@ export namespace RundownLayoutsAPI {
 			RundownLayoutElementType.TEXT_LABEL,
 			RundownLayoutElementType.SEGMENT_TIMING,
 			RundownLayoutElementType.PLAYLIST_END_TIMER,
-			RundownLayoutElementType.NEXT_BREAK_TIMING,
 			RundownLayoutElementType.TIME_OF_DAY,
 			RundownLayoutElementType.PLAYLIST_NAME,
 			RundownLayoutElementType.STUDIO_NAME,
@@ -393,10 +351,6 @@ export namespace RundownLayoutsAPI {
 		return registry.isMiniShelfLayout(layout.regionId)
 	}
 
-	export function isLayoutForRundownHeader(layout: RundownLayoutBase): layout is RundownLayoutRundownHeader {
-		return registry.isRundownHeaderLayout(layout.regionId)
-	}
-
 	export function isRundownViewLayout(layout: RundownLayoutBase): layout is RundownViewLayout {
 		return layout.type === RundownLayoutType.RUNDOWN_VIEW_LAYOUT
 	}
@@ -409,10 +363,6 @@ export namespace RundownLayoutsAPI {
 	export function isDashboardLayout(layout: RundownLayoutBase): layout is DashboardLayout {
 		// we need to check if filters are defined, because DashboardLayout is a RundownLayoutWithFilters, and RundownLayoutBase doesn't require it
 		return layout.type === RundownLayoutType.DASHBOARD_LAYOUT && (layout as DashboardLayout).filters !== undefined
-	}
-
-	export function isRundownHeaderLayout(layout: RundownLayoutBase): layout is RundownLayoutRundownHeader {
-		return layout.type === RundownLayoutType.RUNDOWN_HEADER_LAYOUT
 	}
 
 	export function isDefaultLayout(layout: RundownLayoutBase): boolean {
@@ -457,14 +407,6 @@ export namespace RundownLayoutsAPI {
 		return element.type === RundownLayoutElementType.PLAYLIST_END_TIMER
 	}
 
-	export function isNextBreakTiming(element: RundownLayoutElementBase): element is RundownLayoutNextBreakTiming {
-		return element.type === RundownLayoutElementType.NEXT_BREAK_TIMING
-	}
-
-	export function isEndWords(element: RundownLayoutElementBase): element is RundownLayoutEndWords {
-		return element.type === RundownLayoutElementType.END_WORDS
-	}
-
 	export function isSegmentTiming(element: RundownLayoutElementBase): element is RundownLayoutSegmentTiming {
 		return element.type === RundownLayoutElementType.SEGMENT_TIMING
 	}
@@ -487,14 +429,6 @@ export namespace RundownLayoutsAPI {
 
 	export function isTimeOfDay(element: RundownLayoutElementBase): element is RundownLayoutTimeOfDay {
 		return element.type === RundownLayoutElementType.TIME_OF_DAY
-	}
-
-	export function isSystemStatus(element: RundownLayoutElementBase): element is RundownLayoutSytemStatus {
-		return element.type === RundownLayoutElementType.SYSTEM_STATUS
-	}
-
-	export function isShowStyleDisplay(element: RundownLayoutElementBase): element is RundownLayoutShowStyleDisplay {
-		return element.type === RundownLayoutElementType.SHOWSTYLE_DISPLAY
 	}
 
 	export function isSegmentName(element: RundownLayoutElementBase): element is RundownLayoutSegmentName {

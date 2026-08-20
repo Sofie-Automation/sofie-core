@@ -1,6 +1,6 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FilterType, IGUIContextFilterLink } from '@sofie-automation/blueprints-integration'
+import type { FilterType, IGUIContextFilterLink } from '@sofie-automation/blueprints-integration'
 import classNames from 'classnames'
 import { usePopper } from 'react-popper'
 import { sameWidth } from '../../../../../../lib/popperUtils.js'

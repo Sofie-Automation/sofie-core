@@ -1,13 +1,12 @@
-import React from 'react'
 import Tooltip from 'rc-tooltip'
 import { useTranslation } from 'react-i18next'
 import ClassNames from 'classnames'
-import { PackageContainerStatusDB } from '@sofie-automation/corelib/dist/dataModel/PackageContainerStatus'
+import type { PackageContainerStatusDB } from '@sofie-automation/corelib/dist/dataModel/PackageContainerStatus'
 import { StatusCodePill } from '../StatusCodePill.js'
 import { doUserAction, UserAction } from '../../../lib/clientUserAction.js'
 import { MeteorCall } from '../../../lib/meteorApi.js'
-import { ExpectedPackageStatusAPI } from '@sofie-automation/blueprints-integration'
-import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import type { ExpectedPackageStatusAPI } from '@sofie-automation/blueprints-integration'
+import type { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import Button from 'react-bootstrap/Button'
 
 export const PackageContainerStatus: React.FC<{

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
@@ -7,8 +7,8 @@ import { logger } from './logging.js'
 import shajs from 'sha.js'
 import { SINGLE_USE_TOKEN_SALT } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import RundownViewEventBus, {
-	RundownViewEventBusEvents,
-	RundownViewEvents,
+	type RundownViewEventBusEvents,
+	type RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 
 export { isEventInInputField }

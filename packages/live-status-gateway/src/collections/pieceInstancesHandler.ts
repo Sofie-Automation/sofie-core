@@ -243,6 +243,7 @@ export class PieceInstancesHandler extends PublicationCollection<
 				this.clearAndNotify()
 			}
 		} else {
+			this.stopSubscription()
 			this.clearAndNotify()
 		}
 	}

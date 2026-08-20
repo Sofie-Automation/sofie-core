@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import ClassNames from 'classnames'
 import { logger } from '../logging.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'

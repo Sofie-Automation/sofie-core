@@ -1,19 +1,21 @@
 import * as React from 'react'
 
 import {
-	DashboardLayoutActionButton,
+	type DashboardLayoutActionButton,
 	ActionButtonType,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import { DashboardActionButton } from './DashboardActionButton.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { withTranslation } from 'react-i18next'
-import { Translated } from '../../lib/ReactMeteorData/react-meteor-data.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { Translated } from '../../lib/ReactMeteorData/react-meteor-data.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { doModalDialog } from '../../lib/ModalDialog.js'
 import { NoticeLevel, Notification, NotificationCenter } from '../../lib/notifications/notifications.js'
-import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	RundownHoldState,
+	type DBRundownPlaylist,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { hashSingleUseToken } from '../../lib/lib.js'
 import { UserError } from '@sofie-automation/corelib/dist/error'
@@ -26,7 +28,7 @@ export interface IDashboardButtonGroupProps {
 	onChangeQueueAdLib?: (isQueue: boolean, e: any) => void
 }
 
-export const DashboardActionButtonGroup = withTranslation()(
+export const DashboardActionButtonGroup: React.ComponentType<IDashboardButtonGroupProps> = withTranslation()(
 	class DashboardActionButtonGroup extends React.Component<Translated<IDashboardButtonGroupProps>> {
 		private take = (e: any) => {
 			if (this.props.studioMode) {

@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { Tracker } from 'meteor/tracker'
-import { Time } from '@sofie-automation/blueprints-integration'
+import type { Time } from '@sofie-automation/blueprints-integration'
 import { getCurrentTime } from './systemTime.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { MeteorCall } from '../lib/meteorApi.js'

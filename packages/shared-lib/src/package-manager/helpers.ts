@@ -1,4 +1,4 @@
-import { ExpectedPackage } from './package.js'
+import type { ExpectedPackage } from './package.js'
 
 // Note: These functions are copied from Package Manager
 

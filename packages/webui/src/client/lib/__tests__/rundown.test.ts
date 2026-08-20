@@ -1,39 +1,29 @@
 import {
 	setupDefaultStudioEnvironment,
-	DefaultEnvironment,
+	type DefaultEnvironment,
 	setupDefaultRundownPlaylist,
 	convertToUIStudio,
 } from '../../../__mocks__/helpers/database.js'
 import { RundownUtils } from '../rundown.js'
-import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import type { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { defaultPartInstance, defaultPiece, defaultPieceInstance } from '../../../__mocks__/defaultCollectionObjects.js'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PartInstances, PieceInstances, Pieces, RundownPlaylists } from '../../collections/index.js'
+import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import type { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PieceInstances, Pieces, RundownPlaylists } from '../../collections/index.js'
 import { MongoMock } from '../../../__mocks__/mongo.js'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { RundownPlaylistClientUtil } from '../rundownPlaylistUtil.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 import { convertToUIShowStyleBase } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { UIPartInstances } from '../../ui/Collections.js'
 
 const mockRundownPlaylistsCollection = MongoMock.getInnerMockCollection(RundownPlaylists)
-const mockPartInstancesCollection = MongoMock.getInnerMockCollection(PartInstances)
+const mockPartInstancesCollection = MongoMock.getInnerMockCollection(UIPartInstances)
 const mockPieceInstancesCollection = MongoMock.getInnerMockCollection(PieceInstances)
 const mockPiecesCollection = MongoMock.getInnerMockCollection(Pieces)
-
-// This is a hack, the tests should be rewritten to not use methods unrelated to the testee
-jest.mock('../../ui/Collections', () => {
-	const mockClientCollections = jest.requireActual('../../ui/Collections')
-	const mockLibCollections = jest.requireActual('../../collections/index')
-	return {
-		...mockClientCollections,
-		UIParts: mockLibCollections.Parts, // for most purposes they're equivalent
-		UIPartInstances: mockLibCollections.PartInstances, // for most purposes they're equivalent
-	}
-})
 
 describe('client/lib/rundown', () => {
 	let env: DefaultEnvironment

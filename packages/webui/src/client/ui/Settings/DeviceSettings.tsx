@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import {
-	PeripheralDevice,
+	type PeripheralDevice,
 	PeripheralDeviceType,
 	PERIPHERAL_SUBTYPE_PROCESS,
 	PeripheralDeviceCategory,
@@ -21,7 +21,7 @@ import {
 } from './components/GenericDeviceSettingsComponent.js'
 import { DevicePackageManagerSettings } from './DevicePackageManagerSettings.js'
 import { getExpectedLatency } from '@sofie-automation/corelib/dist/studio/playout'
-import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDevices } from '../../collections/index.js'
 import { useTranslation } from 'react-i18next'
 import { LabelActual } from '../../lib/Components/LabelAndOverrides.js'
@@ -84,7 +84,7 @@ export default function DeviceSettings(props: IDeviceSettingsProps): JSX.Element
 						<StatusCodePill
 							connected={device.connected}
 							statusCode={device.status?.statusCode}
-							messages={device.status?.messages}
+							statusDetails={device.status?.statusDetails}
 						/>
 					</div>
 					{device.type === PeripheralDeviceType.PACKAGE_MANAGER ? (

@@ -7,7 +7,7 @@ exports[`Timeline Multi-gateway mode In transitions inTransition with existing i
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -24,7 +24,7 @@ exports[`Timeline Multi-gateway mode Infinite Pieces Infinite Piece has stable t
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -41,7 +41,7 @@ exports[`Timeline Single-gateway mode Adlib pieces Current part with preroll 1`]
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -58,7 +58,7 @@ exports[`Timeline Single-gateway mode Adlib pieces Current part with preroll and
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -75,7 +75,7 @@ exports[`Timeline Single-gateway mode Basic rundown 1`] = `
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "blueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "mockShowStyleBlueprintHash",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -92,7 +92,7 @@ exports[`Timeline Single-gateway mode Basic rundown 2`] = `
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -109,7 +109,7 @@ exports[`Timeline Single-gateway mode In transitions Basic inTransition 1`] = `
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -126,7 +126,7 @@ exports[`Timeline Single-gateway mode In transitions Basic inTransition with con
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -143,7 +143,7 @@ exports[`Timeline Single-gateway mode In transitions Basic inTransition with con
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -160,7 +160,7 @@ exports[`Timeline Single-gateway mode In transitions Basic inTransition with pla
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -177,7 +177,7 @@ exports[`Timeline Single-gateway mode In transitions Preroll 1`] = `
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -194,7 +194,7 @@ exports[`Timeline Single-gateway mode In transitions inTransition disabled 1`] =
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -211,7 +211,7 @@ exports[`Timeline Single-gateway mode In transitions inTransition is disabled du
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -228,7 +228,7 @@ exports[`Timeline Single-gateway mode In transitions inTransition with existing 
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -245,7 +245,7 @@ exports[`Timeline Single-gateway mode In transitions inTransition with new infin
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -262,7 +262,7 @@ exports[`Timeline Single-gateway mode Infinite Pieces Infinite Piece has stable 
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -279,7 +279,7 @@ exports[`Timeline Single-gateway mode Out transitions Basic outTransition 1`] = 
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -296,7 +296,7 @@ exports[`Timeline Single-gateway mode Out transitions outTransition + inTransiti
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -313,7 +313,7 @@ exports[`Timeline Single-gateway mode Out transitions outTransition + preroll (2
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -330,7 +330,7 @@ exports[`Timeline Single-gateway mode Out transitions outTransition + preroll 1`
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },
@@ -347,7 +347,7 @@ exports[`Timeline Single-gateway mode Out transitions outTransition is disabled 
     "generated": 12345,
     "generationVersions": {
       "blueprintId": "studioBlueprint0",
-      "blueprintVersion": "0.0.0",
+      "blueprintVersion": "-",
       "core": "0.0.0-test",
       "studio": "asdf",
     },

@@ -1,8 +1,8 @@
 import ClassNames from 'classnames'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useTiming } from './withTiming.js'
 import { RundownUtils } from '../../../lib/rundown.js'
-import { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
+import type { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
 import { getPartInstanceTimingId } from '../../../lib/rundownTiming.js'
 
 interface IPartDurationProps {
@@ -48,15 +48,15 @@ export function PartDisplayDuration(props: IPartDurationProps): JSX.Element | nu
 				{props.label}
 				{props.fixed ? (
 					<span className={ClassNames(props.className)} role="timer">
-						{RundownUtils.formatDiffToTimecode(budget, false, false, true, false, true, '+')}
+						{RundownUtils.formatDiffToTimecodeWithSign(budget)}
 					</span>
 				) : props.countUp ? (
 					<span className={ClassNames(props.className)} role="timer">
-						{RundownUtils.formatDiffToTimecode(playedOut, false, false, true, false, true, '+')}
+						{RundownUtils.formatDiffToTimecodeWithSign(playedOut)}
 					</span>
 				) : (
 					<span className={ClassNames(props.className, duration < 0 ? 'negative' : undefined)} role="timer">
-						{RundownUtils.formatDiffToTimecode(duration, false, false, true, false, true, '+')}
+						{RundownUtils.formatDiffToTimecodeWithSign(duration)}
 					</span>
 				)}
 			</>

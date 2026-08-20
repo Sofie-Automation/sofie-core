@@ -1,4 +1,4 @@
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { useTranslation } from 'react-i18next'
 import { useTiming } from '../RundownTiming/withTiming'
@@ -20,7 +20,7 @@ export function RundownHeaderTimingDisplay({ playlist }: IRundownHeaderTimingDis
 	// Hide diff in untimed mode before first timing take
 	if (
 		PlaylistTiming.isPlaylistTimingNone(playlist.timing) &&
-		playlist.timing.expectedDuration === undefined &&
+		PlaylistTiming.getExpectedDuration(playlist.timing) === undefined &&
 		!playlist.startedPlayback
 	) {
 		return null

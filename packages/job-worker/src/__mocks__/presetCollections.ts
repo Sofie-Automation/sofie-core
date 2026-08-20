@@ -430,6 +430,7 @@ export async function setupMockPeripheralDevice(
 		created: 1234,
 		status: {
 			statusCode: StatusCode.GOOD,
+			statusDetails: [],
 		},
 		lastSeen: 1234,
 		lastConnected: 1234,

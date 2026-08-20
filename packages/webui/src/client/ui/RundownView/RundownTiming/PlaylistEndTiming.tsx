@@ -5,7 +5,7 @@ import { getCurrentTime } from '../../../lib/systemTime.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { useTiming } from './withTiming.js'
 import ClassNames from 'classnames'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getPlaylistTimingDiff } from '../../../lib/rundownTiming.js'
 import { isLoopRunning } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
@@ -55,7 +55,7 @@ export function PlaylistEndTiming({
 						role="timer"
 					>
 						{!hideDiffLabel && <span className="timing-clock-label right">{t('Diff')}</span>}
-						{RundownUtils.formatDiffToTimecode(overUnderClock, true, false, true, true, true, undefined, true, true)}
+						{RundownUtils.formatDiffToTimecodeOverUnder(overUnderClock, true)}
 					</span>
 				) : null
 			) : null}

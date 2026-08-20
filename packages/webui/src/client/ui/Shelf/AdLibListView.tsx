@@ -2,18 +2,18 @@ import { useEffect, useMemo, useRef } from 'react'
 import classNames from 'classnames'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { RundownUtils } from '../../lib/rundown.js'
-import { AdLibListItem, IAdLibListItem } from './AdLibListItem.js'
-import { AdLibPieceUi, AdlibSegmentUi } from '../../lib/shelf.js'
-import {
+import { AdLibListItem, type IAdLibListItem } from './AdLibListItem.js'
+import type { AdLibPieceUi, AdlibSegmentUi } from '../../lib/shelf.js'
+import type {
 	RundownLayoutFilter,
 	RundownLayoutFilterBase,
 } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
-import { BucketAdLibActionUi, BucketAdLibUi } from './RundownViewBuckets.js'
-import { IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
+import type { BucketAdLibActionUi, BucketAdLibUi } from './RundownViewBuckets.js'
+import type { IBlueprintActionTriggerMode } from '@sofie-automation/blueprints-integration'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
-import { SourceLayers, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { SourceLayers, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IListViewPropsHeader {
 	uiSegments: Array<AdlibSegmentUi>

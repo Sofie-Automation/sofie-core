@@ -1,4 +1,4 @@
-import { TFunction } from 'i18next'
+import type { TFunction } from 'i18next'
 import moment from 'moment'
 import { getCurrentTime } from '../../lib/systemTime.js'
 

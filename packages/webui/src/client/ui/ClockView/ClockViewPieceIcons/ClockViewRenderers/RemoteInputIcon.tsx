@@ -1,5 +1,3 @@
-import React from 'react'
-
 export function BaseRemoteInputIcon(props: Readonly<React.PropsWithChildren<{ className: string }>>): JSX.Element {
 	return <div className="clock-view-piece-icon">{props.children}</div>
 }

@@ -123,7 +123,7 @@ To be production ready, you will need to output an SDI or HDMI signal from your 
 
 #### Configuration
 
-You will need to add an additional consumer to your`caspar.config` file to output from your DeckLink card. After the screen consumer, add your new DeckLink consumer like so.
+You will need to add an additional consumer to your `casparcg.config` file to output from your DeckLink card. After the screen consumer, add your new DeckLink consumer like so.
 
 ```markup
 <channels>
@@ -153,13 +153,13 @@ You will need to add an additional consumer to your`caspar.config` file to outpu
 </channels>
 ```
 
-You may no longer need the screen consumer. If so, you can remove it and all of it's contents. This will dramatically improve overall performance.
+You may no longer need the screen consumer. If so, you can remove it and all of its contents. This will dramatically improve overall performance.
 
 ### Multiple DeckLink Cards \(Recommended Production Setup\)
 
 #### Required Hardware
 
-For a preferred production setup you want a minimum of two DeckLink Duo 2 cards. This is so you can use one card to preview your media, while your second card will support the program video and audio feeds. For CasparCG&nbsp;Server to recognize both cards, you need to add two additional channels to the `caspar.config` file.
+For a preferred production setup you want a minimum of two DeckLink Duo 2 cards. This is so you can use one card to preview your media, while your second card will support the program video and audio feeds. For CasparCG&nbsp;Server to recognize both cards, you need to add two additional channels to the `casparcg.config` file.
 
 ```markup
 <channels>

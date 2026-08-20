@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import Container from 'react-bootstrap/esm/Container'
 import Accordion from 'react-bootstrap/esm/Accordion'
 import { PresenterConfigForm } from './PresenterConfigForm'

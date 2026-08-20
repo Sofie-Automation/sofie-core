@@ -6,7 +6,7 @@ const GLOBAL_BLUEPRINT_ASSET_CACHE: Record<string, string> = {}
 export function BlueprintAssetIcon({ src, className }: { src: string; className?: string }): JSX.Element | null {
 	const url = useMemo(() => {
 		if (src.startsWith('data:')) return new URL(src)
-		return new URL(createPrivateApiPath('/blueprints/assets/' + src), location.href)
+		return new URL(createPrivateApiPath('blueprints/assets/' + src), location.href)
 	}, [src])
 	const [svgAsset, setSvgAsset] = useState<string | null>(GLOBAL_BLUEPRINT_ASSET_CACHE[url.href] ?? null)
 

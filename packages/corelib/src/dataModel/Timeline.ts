@@ -97,6 +97,10 @@ export function updateLookaheadLayer(obj: TimelineObjRundown): void {
 export interface TimelineCompleteGenerationVersions {
 	core: string
 	blueprintId: BlueprintId | undefined
+	/**
+	 * Blueprint code hash (`Blueprint.blueprintHash`) used when generating this timeline.
+	 * Field name is historical; value is not the semver blueprintVersion.
+	 */
 	blueprintVersion: string
 	studio: string
 }

@@ -1,8 +1,9 @@
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { useTranslation } from 'react-i18next'
 import { Countdown } from './Countdown'
 import { useTiming } from '../RundownTiming/withTiming'
+import { getCurrentTime } from '../../../lib/systemTime'
 
 export function RundownHeaderExpectedEnd({
 	playlist,
@@ -14,24 +15,24 @@ export function RundownHeaderExpectedEnd({
 	const { t } = useTranslation()
 	const timingDurations = useTiming()
 
-	const expectedStart = PlaylistTiming.getExpectedStart(playlist.timing)
+	const now = timingDurations.currentTime ?? getCurrentTime()
 	const expectedEnd = PlaylistTiming.getExpectedEnd(playlist.timing)
-	const now = timingDurations.currentTime ?? Date.now()
+	const startedPlayback = playlist.activationId ? playlist.startedPlayback : undefined
+	const estEnd = PlaylistTiming.getEstimatedEnd(
+		playlist.timing,
+		now,
+		timingDurations.remainingPlaylistDuration,
+		startedPlayback
+	)
 
-	// Use remainingPlaylistDuration which includes current part's remaining time
-	const estEnd =
-		timingDurations.remainingPlaylistDuration !== undefined
-			? Math.max(now, expectedStart ?? now) + timingDurations.remainingPlaylistDuration
-			: null
-
-	if (expectedEnd === undefined && estEnd === null) return null
+	if (expectedEnd === undefined && estEnd === undefined) return null
 
 	return (
 		<div className="rundown-header__show-timers-endtimes">
 			{!simplified && expectedEnd !== undefined ? (
 				<Countdown label={t('Plan. End')} time={expectedEnd} className="rundown-header__show-timers-countdown" />
 			) : null}
-			{estEnd !== null ? (
+			{estEnd !== undefined ? (
 				<Countdown label={t('Est. End')} time={estEnd} className="rundown-header__show-timers-countdown" />
 			) : null}
 		</div>

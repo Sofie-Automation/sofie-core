@@ -1,8 +1,7 @@
-import React from 'react'
 import { assertNever, clone } from '@sofie-automation/corelib/dist/lib'
-import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { CoreUserEditingDefinition } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
-import { JSONBlobParse, UserEditingType, UserOperationTarget } from '@sofie-automation/blueprints-integration'
+import type { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { CoreUserEditingDefinition } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
+import { JSONBlobParse, UserEditingType, type UserOperationTarget } from '@sofie-automation/blueprints-integration'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { MenuItem } from '@jstarpl/react-contextmenu'
 import { doModalDialog } from '../../lib/ModalDialog.js'
@@ -87,6 +86,8 @@ export function UserEditOperationMenuItems({
 							</MenuItem>
 						)
 					case UserEditingType.SOFIE:
+						return null
+					case UserEditingType.STATE:
 						return null
 					default:
 						assertNever(userEditOperation)

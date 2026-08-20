@@ -1,12 +1,12 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import Escape from './../../../lib/Escape.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { usePopper } from 'react-popper'
-import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { StoryboardSecondaryPiece } from '../../SegmentStoryboard/StoryboardPartSecondaryPieces/StoryboardSecondaryPiece.js'
 import StudioContext from '../../RundownView/StudioContext.js'
 import { catchError } from '../../../lib/lib.js'
-import { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 export function PieceIndicatorMenu({
 	pieces,
@@ -31,7 +31,7 @@ export function PieceIndicatorMenu({
 	}, [pieces.length])
 
 	useEffect(() => {
-		if (!indicatorMenuEl) return
+		if (!indicatorMenuEl || !indicatorMenuEl.isConnected) return
 
 		let timeout: NodeJS.Timeout | undefined = undefined
 
@@ -55,7 +55,7 @@ export function PieceIndicatorMenu({
 			indicatorMenuEl.removeEventListener('mouseenter', onMouseEnter)
 			indicatorMenuEl.removeEventListener('mouseleave', onMouseLeave)
 		}
-	}, [indicatorMenuEl])
+	}, [indicatorMenuEl, setIsOver])
 
 	useLayoutEffect(() => {
 		if (!indicatorMenuEl) return
@@ -78,7 +78,7 @@ export function PieceIndicatorMenu({
 						<div
 							className="segment-opl__piece-indicator-menu"
 							/** This is so that we avoid updating the state once the component has been unmounted */
-							ref={(el) => el !== null && setIndicatorMenuEl(el)}
+							ref={setIndicatorMenuEl}
 							style={styles.popper}
 							{...attributes.popper}
 						>

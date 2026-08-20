@@ -3,6 +3,7 @@ import { SegmentNote, PartNote } from '@sofie-automation/corelib/dist/dataModel/
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { RawPartNote, SegmentUserContext } from '../blueprints/context/index.js'
 import { WatchedPackagesHelper } from '../blueprints/context/watchedPackages.js'
 import { postProcessAdLibActions, postProcessAdLibPieces, postProcessPieces } from '../blueprints/postProcess.js'
@@ -235,6 +236,14 @@ async function generateSegmentWithBlueprints(
 
 	try {
 		const blueprintSegment = await blueprint.blueprint.getSegment(blueprintContext, ingestSegment)
+
+		const legacyShowShelf = (blueprintSegment?.segment as any)?.showShelf
+		if (legacyShowShelf !== undefined) {
+			blueprintContext.logWarning(
+				'Deprecated blueprint segment field "showShelf" used. Use "displayMinishelf" instead.'
+			)
+		}
+
 		return {
 			blueprintSegment,
 			blueprintNotes: blueprintContext.notes,
@@ -283,9 +292,28 @@ function updateModelWithGeneratedSegment(
 
 	const segmentNotes = extractAndWrapSegmentNotes(blueprintId, blueprintNotes, knownPartExternalIds)
 
+	const blueprintSegmentSegment = blueprintSegment.segment as any
+	const legacyShowShelf: boolean | undefined = blueprintSegmentSegment?.showShelf
+
+	// Normalize legacy blueprint output (showShelf) into the new field (displayMinishelf)
+	const sanitizedSegment = { ...(blueprintSegmentSegment ?? {}) }
+	delete sanitizedSegment.showShelf
+	if (sanitizedSegment.displayMinishelf === undefined && legacyShowShelf !== undefined) {
+		if (legacyShowShelf === true) {
+			sanitizedSegment.displayMinishelf = ShelfButtonSize.INHERIT
+		} else {
+			// showShelf === false means hidden, which is encoded by leaving displayMinishelf unset
+		}
+
+		logger.warn(
+			`Deprecated blueprint segment field "showShelf" used during ingest. ` +
+				`blueprintId=${blueprintId}, segmentExternalId=${ingestSegment.externalId}`
+		)
+	}
+
 	const segmentModel = ingestModel.replaceSegment(
 		literal<IngestReplaceSegmentType>({
-			...blueprintSegment.segment,
+			...sanitizedSegment,
 			externalId: ingestSegment.externalId,
 			_rank: ingestSegment.rank,
 			notes: segmentNotes,

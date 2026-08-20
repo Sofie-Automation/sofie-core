@@ -1,4 +1,4 @@
-import { ReactiveCacheCollection } from '../../lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { DBShowStyleBase, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
@@ -61,20 +61,20 @@ export const blueprintFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pic
 })
 
 export interface BucketContentCache {
-	BucketAdLibs: ReactiveCacheCollection<Pick<BucketAdLib, BucketAdLibFields>>
-	BucketAdLibActions: ReactiveCacheCollection<Pick<BucketAdLibAction, BucketActionFields>>
-	ShowStyleSourceLayers: ReactiveCacheCollection<SourceLayersDoc>
-	Blueprints: ReactiveCacheCollection<Pick<Blueprint, BlueprintFields>>
+	BucketAdLibs: InMemoryMongoCollection<Pick<BucketAdLib, BucketAdLibFields>>
+	BucketAdLibActions: InMemoryMongoCollection<Pick<BucketAdLibAction, BucketActionFields>>
+	ShowStyleSourceLayers: InMemoryMongoCollection<SourceLayersDoc>
+	Blueprints: InMemoryMongoCollection<Pick<Blueprint, BlueprintFields>>
 }
 
 export function createReactiveContentCache(): BucketContentCache {
 	const cache: BucketContentCache = {
-		BucketAdLibs: new ReactiveCacheCollection<Pick<BucketAdLib, BucketAdLibFields>>('bucketAdlibs'),
-		BucketAdLibActions: new ReactiveCacheCollection<Pick<BucketAdLibAction, BucketActionFields>>(
+		BucketAdLibs: new InMemoryMongoCollection<Pick<BucketAdLib, BucketAdLibFields>>('bucketAdlibs'),
+		BucketAdLibActions: new InMemoryMongoCollection<Pick<BucketAdLibAction, BucketActionFields>>(
 			'bucketAdlibActions'
 		),
-		ShowStyleSourceLayers: new ReactiveCacheCollection<SourceLayersDoc>('sourceLayers'),
-		Blueprints: new ReactiveCacheCollection<Pick<Blueprint, BlueprintFields>>('blueprints'),
+		ShowStyleSourceLayers: new InMemoryMongoCollection<SourceLayersDoc>('sourceLayers'),
+		Blueprints: new InMemoryMongoCollection<Pick<Blueprint, BlueprintFields>>('blueprints'),
 	}
 
 	return cache

@@ -80,7 +80,7 @@ export class QuickLoopService {
 
 	getUpdatedProps(hasJustSetMarker?: 'start' | 'end'): QuickLoopProps | undefined {
 		if (this.playoutModel.playlist.quickLoop == null) return undefined
-		const quickLoopProps = clone(this.playoutModel.playlist.quickLoop)
+		const quickLoopProps = clone<QuickLoopProps>(this.playoutModel.playlist.quickLoop)
 		const wasLoopRunning = quickLoopProps.running
 
 		this.resetDynamicallyInsertedPartOverrideIfNoLongerNeeded(quickLoopProps)
@@ -145,12 +145,12 @@ export class QuickLoopService {
 		if (!this.playoutModel.playlist.quickLoop) return undefined
 
 		if (this.playoutModel.playlist.quickLoop.locked) {
-			const quickLoopProps = clone(this.playoutModel.playlist.quickLoop)
+			const quickLoopProps = clone<QuickLoopProps>(this.playoutModel.playlist.quickLoop)
 			quickLoopProps.running = false
 			return quickLoopProps
 		}
 
-		const quickLoopProps = clone(this.playoutModel.playlist.quickLoop)
+		const quickLoopProps = clone<QuickLoopProps>(this.playoutModel.playlist.quickLoop)
 		delete quickLoopProps.start
 		delete quickLoopProps.end
 		quickLoopProps.running = false

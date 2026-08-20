@@ -53,24 +53,19 @@ jobs:
     if: ${{ needs.check-publish.outputs.can-publish == '1' }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: ".node-version"
-      - uses: ./.github/actions/setup-meteor
       - name: Prepare Environment
         run: |
           corepack enable
 
           yarn config set cacheFolder /home/runner/publish-docs-cache
           yarn install
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          yarn meteor lint
-
           cd packages
           yarn build:all
         env:
@@ -103,11 +98,11 @@ jobs:
         node-version: [22.x]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
       - name: Prepare Environment
@@ -141,24 +136,19 @@ jobs:
     if: ${{ needs.check-publish.outputs.can-publish == '1' }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: ".node-version"
-      - uses: ./.github/actions/setup-meteor
       - name: Prepare Environment
         run: |
           corepack enable
 
           yarn config set cacheFolder /home/runner/lint-core-cache
-          yarn
-
-          # setup zodern:types. No linters are setup, so this simply installs the packages
-          yarn meteor lint
-        env:
+          yarn        env:
           CI: true
       - name: Bump version
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -221,12 +211,12 @@ jobs:
       id-token: write # scoped for as short as possible, as this gives write access to npm
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: ".node-version"
 
@@ -271,9 +261,11 @@ jobs:
 
           yarn lerna publish from-package --tag-version-prefix='' --dist-tag $NPM_TAG --yes
 
-          NEW_VERSION=$(node -p "require('./lerna.json').version")
+          LERNA_VERSION=$(node -p "require('./lerna.json').version")
+          NEW_VERSION=$(node -p "require('./shared-lib/package.json').version")
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "**Published:** $NEW_VERSION as $NPM_TAG" >> $GITHUB_STEP_SUMMARY
+          echo "**Published:** $LERNA_VERSION as $NPM_TAG" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
         env:
           NPM_CONFIG_PROVENANCE: true
           CI: true

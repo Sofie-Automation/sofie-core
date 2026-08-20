@@ -1,7 +1,7 @@
-import { ISourceLayer } from '@sofie-automation/blueprints-integration'
-import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { ISourceLayer } from '@sofie-automation/blueprints-integration'
+import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export interface IDefaultRendererProps {
 	layer: ISourceLayer

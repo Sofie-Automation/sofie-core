@@ -1,15 +1,21 @@
 import { useCallback, useMemo } from 'react'
-import { MappingExt, MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { IBlueprintConfig, ISourceLayer, SchemaFormUIField } from '@sofie-automation/blueprints-integration'
+import type { MappingExt, MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import { type IBlueprintConfig, type ISourceLayer, SchemaFormUIField } from '@sofie-automation/blueprints-integration'
 import { groupByToMapFunc, literal } from '@sofie-automation/corelib/dist/lib'
 import { useTranslation } from 'react-i18next'
-import { ObjectWithOverrides, SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import type {
+	ObjectWithOverrides,
+	SomeObjectOverrideOp,
+} from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { useOverrideOpHelperForSimpleObject } from '../util/OverrideOpHelper.js'
-import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
+import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import deepmerge from 'deepmerge'
-import { SchemaFormSofieEnumDefinition, translateStringIfHasNamespaces } from '../../../lib/forms/schemaFormUtil.js'
+import {
+	type SchemaFormSofieEnumDefinition,
+	translateStringIfHasNamespaces,
+} from '../../../lib/forms/schemaFormUtil.js'
 import { useToggleExpandHelper } from '../../util/useToggleExpandHelper.js'
-import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { ConfigCategoryEntry } from './CategoryEntry.js'
 
 interface BlueprintConfigSchemaSettingsProps {

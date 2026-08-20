@@ -14,3 +14,6 @@ $defs:
     oneOf:
       - $ref: '#/$defs/timerStateRunning'
       - $ref: '#/$defs/timerStatePaused'
+    examples:
+      - $ref: './timerStateRunning-example.yaml'
+      - $ref: './timerStatePaused-example.yaml'

@@ -1,5 +1,5 @@
 import { PeripheralDevices } from '../../../../collections/index.js'
-import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { useTracker } from '../../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { StudioPlayoutSubDevices } from './PlayoutSubDevices.js'
 import { StudioInputSubDevices } from './InputSubDevices.js'

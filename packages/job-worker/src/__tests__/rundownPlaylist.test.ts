@@ -85,7 +85,7 @@ describe('Rundown', () => {
 			playlist0.externalId,
 			allRundowns
 		)
-		await context.mockCollections.RundownPlaylists.update(playlist0._id, rundownPlaylist)
+		await context.mockCollections.RundownPlaylists.replace(rundownPlaylist)
 		expect(rundownPlaylist.rundownIdsInOrder).toEqual(['rundown00', 'rundown01', 'rundown02'])
 
 		const getRundownIDs = async (id: RundownPlaylistId) => {

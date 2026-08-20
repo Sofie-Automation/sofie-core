@@ -1,12 +1,12 @@
 import * as React from 'react'
-import { StudioRouteSet, StudioAbPlayerDisabling } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { StudioRouteSet, StudioAbPlayerDisabling } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { doModalDialog } from '../../../../lib/ModalDialog.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { useTranslation } from 'react-i18next'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { LabelAndOverrides } from '../../../../lib/Components/LabelAndOverrides.js'
-import {
+import type {
 	OverrideOpHelper,
 	OverrideOpHelperForItemContents,
 	WrappedOverridableItemNormal,

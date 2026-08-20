@@ -5,11 +5,11 @@ import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/p
 import {
 	CustomPublish,
 	CustomPublishCollection,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	SetupObserversResult,
 	TriggerUpdate,
 } from '../../lib/customPublication'
+import type { PublicationRegistry } from '../../publicationRegistry'
 import {
 	ContentCache,
 	CoreSystemFields,
@@ -60,25 +60,25 @@ async function setupBlueprintUpgradeStatusPublicationObservers(
 	return [
 		mongoObserver,
 
-		cache.CoreSystem.find({}).observeChanges({
+		cache.CoreSystem.observeChanges({
 			added: () => triggerUpdate({ invalidateSystem: true }),
 			changed: () => triggerUpdate({ invalidateSystem: true }),
 			removed: () => triggerUpdate({ invalidateSystem: true }),
 		}),
-		cache.Studios.find({}).observeChanges({
-			added: (id) => triggerUpdate({ invalidateStudioIds: [protectString(id)] }),
-			changed: (id) => triggerUpdate({ invalidateStudioIds: [protectString(id)] }),
-			removed: (id) => triggerUpdate({ invalidateStudioIds: [protectString(id)] }),
+		cache.Studios.observeChanges({
+			added: (id) => triggerUpdate({ invalidateStudioIds: [id] }),
+			changed: (id) => triggerUpdate({ invalidateStudioIds: [id] }),
+			removed: (id) => triggerUpdate({ invalidateStudioIds: [id] }),
 		}),
-		cache.ShowStyleBases.find({}).observeChanges({
-			added: (id) => triggerUpdate({ invalidateShowStyleBaseIds: [protectString(id)] }),
-			changed: (id) => triggerUpdate({ invalidateShowStyleBaseIds: [protectString(id)] }),
-			removed: (id) => triggerUpdate({ invalidateShowStyleBaseIds: [protectString(id)] }),
+		cache.ShowStyleBases.observeChanges({
+			added: (id) => triggerUpdate({ invalidateShowStyleBaseIds: [id] }),
+			changed: (id) => triggerUpdate({ invalidateShowStyleBaseIds: [id] }),
+			removed: (id) => triggerUpdate({ invalidateShowStyleBaseIds: [id] }),
 		}),
-		cache.Blueprints.find({}).observeChanges({
-			added: (id) => triggerUpdate({ invalidateBlueprintIds: [protectString(id)] }),
-			changed: (id) => triggerUpdate({ invalidateBlueprintIds: [protectString(id)] }),
-			removed: (id) => triggerUpdate({ invalidateBlueprintIds: [protectString(id)] }),
+		cache.Blueprints.observeChanges({
+			added: (id) => triggerUpdate({ invalidateBlueprintIds: [id] }),
+			changed: (id) => triggerUpdate({ invalidateBlueprintIds: [id] }),
+			removed: (id) => triggerUpdate({ invalidateBlueprintIds: [id] }),
 		}),
 	]
 }
@@ -115,7 +115,7 @@ export async function manipulateBlueprintUpgradeStatusPublicationData(
 	const studioBlueprintsMap = new Map<BlueprintId, BlueprintMapEntry>()
 	const showStyleBlueprintsMap = new Map<BlueprintId, BlueprintMapEntry>()
 	const systemBlueprintsMap = new Map<BlueprintId, BlueprintMapEntry>()
-	state.contentCache.Blueprints.find({}).forEach((blueprint) => {
+	state.contentCache.Blueprints.findFetch({}).forEach((blueprint) => {
 		switch (blueprint.blueprintType) {
 			case BlueprintManifestType.SHOWSTYLE:
 				showStyleBlueprintsMap.set(blueprint._id, {
@@ -153,15 +153,15 @@ export async function manipulateBlueprintUpgradeStatusPublicationData(
 		// Remove all the notes
 		collection.remove(null)
 
-		state.contentCache.Studios.find({}).forEach((studio) => {
+		state.contentCache.Studios.findFetch({}).forEach((studio) => {
 			updateStudioUpgradeStatus(collection, studioBlueprintsMap, studio)
 		})
 
-		state.contentCache.ShowStyleBases.find({}).forEach((showStyleBase) => {
+		state.contentCache.ShowStyleBases.findFetch({}).forEach((showStyleBase) => {
 			updateShowStyleUpgradeStatus(collection, showStyleBlueprintsMap, showStyleBase)
 		})
 
-		state.contentCache.CoreSystem.find({}).forEach((coreSystem) => {
+		state.contentCache.CoreSystem.findFetch({}).forEach((coreSystem) => {
 			updateCoreSystemUpgradeStatus(collection, systemBlueprintsMap, coreSystem)
 		})
 	} else {
@@ -170,7 +170,7 @@ export async function manipulateBlueprintUpgradeStatusPublicationData(
 
 		if (updateProps.invalidateBlueprintIds) {
 			// Find Studios whose blueprint triggered an invalidation
-			const invalidatedStudios = state.contentCache.Studios.find({
+			const invalidatedStudios = state.contentCache.Studios.findFetch({
 				blueprintId: { $in: updateProps.invalidateBlueprintIds },
 			})
 			for (const studio of invalidatedStudios) {
@@ -178,7 +178,7 @@ export async function manipulateBlueprintUpgradeStatusPublicationData(
 			}
 
 			// Find ShowStyleBases whose blueprint triggered an invalidation
-			const invalidatedShowStyles = state.contentCache.ShowStyleBases.find({
+			const invalidatedShowStyles = state.contentCache.ShowStyleBases.findFetch({
 				blueprintId: { $in: updateProps.invalidateBlueprintIds },
 			})
 			for (const showStyle of invalidatedShowStyles) {
@@ -211,7 +211,7 @@ export async function manipulateBlueprintUpgradeStatusPublicationData(
 		}
 
 		if (updateProps.invalidateSystem) {
-			state.contentCache.CoreSystem.find({}).forEach((coreSystem) => {
+			state.contentCache.CoreSystem.findFetch({}).forEach((coreSystem) => {
 				updateCoreSystemUpgradeStatus(collection, systemBlueprintsMap, coreSystem)
 			})
 		}
@@ -284,12 +284,14 @@ export async function createBlueprintUpgradeStatusSubscriptionHandle(
 	)
 }
 
-meteorCustomPublish(
-	MeteorPubSub.uiBlueprintUpgradeStatuses,
-	CustomCollectionName.UIBlueprintUpgradeStatuses,
-	async function (pub) {
-		assertConnectionHasOneOfPermissions(this.connection, 'configure', 'service')
+export function registerBlueprintUpgradeStatusPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.uiBlueprintUpgradeStatuses,
+		CustomCollectionName.UIBlueprintUpgradeStatuses,
+		async (context, pub) => {
+			assertConnectionHasOneOfPermissions(context.connection, 'configure', 'service')
 
-		await createBlueprintUpgradeStatusSubscriptionHandle(pub)
-	}
-)
+			await createBlueprintUpgradeStatusSubscriptionHandle(pub)
+		}
+	)
+}

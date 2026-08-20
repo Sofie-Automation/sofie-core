@@ -1,6 +1,6 @@
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Meteor } from 'meteor/meteor'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
+import type { DDPClientConnection } from '../../../ddp-server/types'
 
 /* *************************************************************************
 This file contains types and interfaces that are used by the REST API.
@@ -15,7 +15,7 @@ export interface BlueprintsRestAPI {
 	 * @param event User event string
 	 */
 	getAllBlueprints(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string
 	): Promise<ClientAPI.ClientResponse<Array<{ id: string }>>>
 	/**
@@ -28,7 +28,7 @@ export interface BlueprintsRestAPI {
 	 * @param blueprintId Blueprint to fetch
 	 */
 	getBlueprint(
-		connection: Meteor.Connection,
+		connection: DDPClientConnection,
 		event: string,
 		blueprintId: BlueprintId
 	): Promise<ClientAPI.ClientResponse<APIBlueprint>>

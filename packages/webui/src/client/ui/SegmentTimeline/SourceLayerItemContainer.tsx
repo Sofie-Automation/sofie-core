@@ -1,12 +1,7 @@
-import { ISourceLayerItemProps, SourceLayerItem } from './SourceLayerItem.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { type ISourceLayerItemProps, SourceLayerItem } from './SourceLayerItem.js'
 import { useContentStatusForPieceInstance } from './withMediaObjectStatus.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
-interface IPropsHeader extends Omit<ISourceLayerItemProps, 'contentStatus'> {
-	playlist: DBRundownPlaylist
-	studio: UIStudio
-}
+type IPropsHeader = Omit<ISourceLayerItemProps, 'contentStatus'>
 
 export function SourceLayerItemContainer(props: IPropsHeader): JSX.Element {
 	const contentStatus = useContentStatusForPieceInstance(props.piece.instance)

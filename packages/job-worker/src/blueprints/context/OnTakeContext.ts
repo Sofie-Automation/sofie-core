@@ -1,5 +1,6 @@
 import {
 	IBlueprintMutatablePart,
+	IBlueprintMutatablePartInstance,
 	IBlueprintPart,
 	IBlueprintPartInstance,
 	IBlueprintPiece,
@@ -131,9 +132,10 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 
 	async updatePartInstance(
 		part: 'current' | 'next',
-		props: Partial<IBlueprintMutatablePart>
+		props: Partial<IBlueprintMutatablePart>,
+		instanceProps: Partial<IBlueprintMutatablePartInstance> = {}
 	): Promise<IBlueprintPartInstance> {
-		return this.partAndPieceInstanceService.updatePartInstance(part, props)
+		return this.partAndPieceInstanceService.updatePartInstance(part, props, instanceProps)
 	}
 
 	async stopPiecesOnLayers(sourceLayerIds: string[], timeOffset?: number): Promise<string[]> {

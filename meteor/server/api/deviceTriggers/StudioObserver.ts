@@ -8,7 +8,6 @@ import {
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import EventEmitter from 'events'
-import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -21,8 +20,9 @@ import { RundownContentObserver } from './RundownContentObserver'
 import { RundownsObserver } from './RundownsObserver'
 import { RundownPlaylists, Rundowns, ShowStyleBases } from '../../collections'
 import { PromiseDebounce } from '../../publications/lib/PromiseDebounce'
-import { MinimalMongoCursor } from '../../collections/implementations/asyncCollection'
 import { PieceInstancesObserver } from './PieceInstancesObserver'
+import { MinimalMongoCursor } from '../../collections/collection'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 type RundownContentChangeHandler = (showStyleBaseId: ShowStyleBaseId, cache: ContentCache) => () => void
 type PieceInstancesChangeHandler = (showStyleBaseId: ShowStyleBaseId, cache: PieceInstancesContentCache) => () => void
@@ -62,10 +62,10 @@ interface StudioObserverProps {
 }
 
 export class StudioObserver extends EventEmitter {
-	#playlistInStudioLiveQuery: Meteor.LiveQueryHandle
-	#showStyleOfRundownLiveQuery: Meteor.LiveQueryHandle | undefined
-	#rundownsLiveQuery: Meteor.LiveQueryHandle | undefined
-	#pieceInstancesLiveQuery: Meteor.LiveQueryHandle | undefined
+	#playlistInStudioLiveQuery: LiveQueryHandleSync
+	#showStyleOfRundownLiveQuery: LiveQueryHandleSync | undefined
+	#rundownsLiveQuery: LiveQueryHandleSync | undefined
+	#pieceInstancesLiveQuery: LiveQueryHandleSync | undefined
 
 	showStyleBaseId: ShowStyleBaseId | undefined
 
@@ -103,48 +103,46 @@ export class StudioObserver extends EventEmitter {
 	}
 
 	private updatePlaylistInStudio = _.debounce(
-		Meteor.bindEnvironment(
-			(
-				state: {
-					activePlaylist: Pick<DBRundownPlaylist, RundownPlaylistFields>
-				} | null
-			): void => {
-				if (this.#disposed) return
+		(
+			state: {
+				activePlaylist: Pick<DBRundownPlaylist, RundownPlaylistFields>
+			} | null
+		): void => {
+			if (this.#disposed) return
 
-				const activePlaylistId = state?.activePlaylist?._id
-				const activationId = state?.activePlaylist?.activationId
-				const currentRundownId =
-					state?.activePlaylist?.currentPartInfo?.rundownId ?? state?.activePlaylist?.nextPartInfo?.rundownId
+			const activePlaylistId = state?.activePlaylist?._id
+			const activationId = state?.activePlaylist?.activationId
+			const currentRundownId =
+				state?.activePlaylist?.currentPartInfo?.rundownId ?? state?.activePlaylist?.nextPartInfo?.rundownId
 
-				if (!activePlaylistId || !activationId || !currentRundownId) {
-					this.#showStyleOfRundownLiveQuery?.stop()
-					this.currentProps = undefined
-					return
-				}
-
-				if (
-					currentRundownId === this.currentProps?.currentRundownId &&
-					activePlaylistId === this.currentProps?.activePlaylistId &&
-					activationId === this.currentProps?.activationId
-				)
-					return
-
+			if (!activePlaylistId || !activationId || !currentRundownId) {
 				this.#showStyleOfRundownLiveQuery?.stop()
-				this.#showStyleOfRundownLiveQuery = undefined
-
-				this.nextProps = {
-					activePlaylistId,
-					activationId,
-					currentRundownId,
-				}
-
-				this.#showStyleOfRundownLiveQuery = this.setupShowStyleOfRundownObserver(currentRundownId)
+				this.currentProps = undefined
+				return
 			}
-		),
+
+			if (
+				currentRundownId === this.currentProps?.currentRundownId &&
+				activePlaylistId === this.currentProps?.activePlaylistId &&
+				activationId === this.currentProps?.activationId
+			)
+				return
+
+			this.#showStyleOfRundownLiveQuery?.stop()
+			this.#showStyleOfRundownLiveQuery = undefined
+
+			this.nextProps = {
+				activePlaylistId,
+				activationId,
+				currentRundownId,
+			}
+
+			this.#showStyleOfRundownLiveQuery = this.setupShowStyleOfRundownObserver(currentRundownId)
+		},
 		REACTIVITY_DEBOUNCE
 	)
 
-	private setupShowStyleOfRundownObserver = (rundownId: RundownId): Meteor.LiveQueryHandle => {
+	private setupShowStyleOfRundownObserver = (rundownId: RundownId): LiveQueryHandleSync => {
 		return observerChain()
 			.next(
 				'currentRundown',
@@ -212,6 +210,8 @@ export class StudioObserver extends EventEmitter {
 		this.nextProps = undefined
 
 		const { activePlaylistId, activationId } = this.currentProps
+		const rundownContentChanged = this.#rundownContentChanged
+		const pieceInstancesChanged = this.#pieceInstancesChanged
 
 		this.showStyleBaseId = showStyleBaseId
 
@@ -219,7 +219,7 @@ export class StudioObserver extends EventEmitter {
 			logger.silly(`Creating new RundownContentObserver`)
 
 			const obs1 = await RundownContentObserver.create(activePlaylistId, showStyleBaseId, rundownIds, (cache) => {
-				return this.#rundownContentChanged(showStyleBaseId, cache)
+				return rundownContentChanged(showStyleBaseId, cache)
 			})
 
 			return () => {
@@ -228,11 +228,9 @@ export class StudioObserver extends EventEmitter {
 		})
 
 		this.#pieceInstancesLiveQuery = await PieceInstancesObserver.create(activationId, showStyleBaseId, (cache) => {
-			const cleanupChanges = this.#pieceInstancesChanged(showStyleBaseId, cache)
+			const cleanupChanges = pieceInstancesChanged(showStyleBaseId, cache)
 
-			return () => {
-				cleanupChanges?.()
-			}
+			return () => cleanupChanges?.()
 		})
 
 		if (this.#disposed) {
@@ -249,5 +247,6 @@ export class StudioObserver extends EventEmitter {
 		this.#playlistInStudioLiveQuery.stop()
 		this.updatePlaylistInStudio.cancel()
 		this.#rundownsLiveQuery?.stop()
+		this.#pieceInstancesLiveQuery?.stop()
 	}
 }

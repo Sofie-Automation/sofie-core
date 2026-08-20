@@ -1,0 +1,28 @@
+$defs:
+  sourceLayer:
+    type: object
+    title: SourceLayer
+    description: Definition of a source layer used in a segment
+    properties:
+      id:
+        type: string
+        description: Unique id of the source layer
+      name:
+        type: string
+        description: User-presentable name of the source layer
+      abbreviation:
+        type: string
+        description: Abbreviation for display
+      isHidden:
+        type: boolean
+        description: Whether the source layer is hidden in the UI
+      type:
+        type: number
+        description: Source layer content type (numeric enum)
+      rank:
+        type: number
+        description: Rank for ordering
+    required: [id, name, abbreviation, isHidden, type, rank]
+    additionalProperties: false
+    examples:
+      - $ref: './sourceLayer-example.yaml'

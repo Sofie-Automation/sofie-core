@@ -1,5 +1,4 @@
 import { deferAsync, getCurrentTime } from './lib/lib'
-import { Meteor } from 'meteor/meteor'
 import { logger } from './logging'
 import { sendTrace } from './api/integration/influx'
 import { PeripheralDevices } from './collections'
@@ -11,65 +10,68 @@ const connectionsGauge = new MetricsGauge({
 	help: 'Number of open ddp connections',
 })
 
-Meteor.onConnection((conn: Meteor.Connection) => {
+/**
+ * Track a newly-opened DDP connection (from either Meteor's built-in server or the standalone DDP
+ * server). Updates the open-connection metrics.
+ */
+export function trackConnectionOpen(connectionId: string, clientAddress: string): void {
 	// This is called whenever a new ddp-connection is opened (ie a web-client or a peripheral-device)
+	connections.add(connectionId)
+	logger.debug(`Client connected: "${connectionId}", "${clientAddress}"`)
+	traceConnections()
+}
 
-	const connectionId: string = conn.id
-	// var clientAddress = conn.clientAddress; // ip-adress
-
-	connections.add(conn.id)
-	logger.debug(`Client connected: "${conn.id}", "${conn.clientAddress}"`)
+/**
+ * Track a closed DDP connection. Updates metrics, and marks any PeripheralDevices that were bound to this
+ * connection (and their children) as offline.
+ */
+export function trackConnectionClose(connectionId: string, clientAddress: string): void {
+	connections.delete(connectionId)
+	logger.debug(`Client disconnected: "${connectionId}", "${clientAddress}"`)
 	traceConnections()
 
-	conn.onClose(() => {
-		// called when a connection is closed
-		connections.delete(conn.id)
-		logger.debug(`Client disconnected: "${conn.id}", "${conn.clientAddress}"`)
-		traceConnections()
+	if (!connectionId) return
 
-		if (connectionId) {
-			deferAsync(async () => {
-				const devices = await PeripheralDevices.findFetchAsync({
-					connectionId: connectionId,
-				})
+	deferAsync(async () => {
+		const devices = await PeripheralDevices.findFetchAsync({
+			connectionId: connectionId,
+		})
 
-				for (const device of devices) {
-					// set the status of the machine to offline:
+		for (const device of devices) {
+			// set the status of the machine to offline:
 
-					await PeripheralDevices.updateAsync(device._id, {
-						$set: {
-							lastSeen: getCurrentTime(),
-							connected: false,
-							// connectionId: ''
-						},
-					})
-					await PeripheralDevices.updateAsync(
-						{
-							parentDeviceId: device._id,
-						},
-						{
-							$set: {
-								lastSeen: getCurrentTime(),
-								connected: false,
-								// connectionId: ''
-							},
-						},
-						{ multi: true }
-					)
-				}
+			await PeripheralDevices.updateAsync(device._id, {
+				$set: {
+					lastSeen: getCurrentTime(),
+					connected: false,
+					// connectionId: ''
+				},
 			})
+			await PeripheralDevices.updateAsync(
+				{
+					parentDeviceId: device._id,
+				},
+				{
+					$set: {
+						lastSeen: getCurrentTime(),
+						connected: false,
+						// connectionId: ''
+					},
+				},
+				{ multi: true }
+			)
 		}
 	})
-})
+}
 
-let logTimeout: number | undefined = undefined
+let logTimeout: NodeJS.Timeout | undefined = undefined
 function traceConnections() {
 	connectionsGauge.set(connections.size)
 
 	if (logTimeout) {
 		clearTimeout(logTimeout)
 	}
-	logTimeout = Meteor.setTimeout(() => {
+	logTimeout = setTimeout(() => {
 		logTimeout = undefined
 		logger.debug(`Connection count: ${connections.size}`)
 
@@ -83,7 +85,7 @@ function traceConnections() {
 	}, 1000)
 }
 
-Meteor.startup(async () => {
+export async function markAllPeripheralDevicesOffline(): Promise<void> {
 	// Reset the connection status of the devices
 
 	await PeripheralDevices.updateAsync(
@@ -98,4 +100,4 @@ Meteor.startup(async () => {
 		},
 		{ multi: true }
 	)
-})
+}

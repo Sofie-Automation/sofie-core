@@ -1,5 +1,5 @@
-import { Time } from '../../lib/lib.js'
-import { StudioId, TimelineDatastoreEntryId } from './Ids.js'
+import type { Time } from '../../lib/lib.js'
+import type { StudioId, TimelineDatastoreEntryId } from './Ids.js'
 
 export enum DatastorePersistenceMode {
 	Temporary = 'temporary',

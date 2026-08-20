@@ -5,10 +5,10 @@
  */
 
 import _ from 'underscore'
-import { Meteor } from 'meteor/meteor'
-import { MeteorMethodSignatures } from '../../../methods'
+import type { MethodRegistry } from '../../../methodRegistry'
+import type { PublicationRegistry } from '../../../publicationRegistry'
+import type { PublicationContext } from '../../../publications/lib/lib'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { MeteorPublications, MeteorPublicationSignatures } from '../../../publications/lib/lib'
 import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { logger } from '../../../logging'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
@@ -16,8 +16,24 @@ import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { PeripheralDevicePubSub } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
+import { MethodContext } from '../../methodContext'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const LEGACY_API_VERSION = 0
+
+/**
+ * A no-op publication context for the legacy REST path: there is no live subscription, the callback is
+ * only invoked to obtain its cursor, which is then fetched once. There is no connection, so any
+ * publication that requires one will reject (matching the historical behaviour).
+ */
+const legacyRestPublicationContext: Omit<PublicationContext, 'signal'> = {
+	connection: null,
+	onStop: () => undefined,
+	ready: () => undefined,
+	added: () => undefined,
+	changed: () => undefined,
+	removed: () => undefined,
+}
 
 /**
  * Takes an array of strings and converts them to Null, Boolean, Number, String primitives or Objects, if the string
@@ -54,8 +70,14 @@ function typeConvertUrlParameters(args: any[]) {
 	return convertedArgs
 }
 
-export function createLegacyApiRouter(): KoaRouter {
+export function createLegacyApiRouter(
+	methodRegistry: MethodRegistry,
+	publicationRegistry: PublicationRegistry
+): KoaRouter {
 	const router = new KoaRouter()
+
+	const methodSignatures = methodRegistry.getSignatures()
+	const publicationSignatures = publicationRegistry.getSignatures()
 
 	const index = {
 		version: `${LEGACY_API_VERSION}`,
@@ -66,7 +88,7 @@ export function createLegacyApiRouter(): KoaRouter {
 	// Expose all user actions:
 
 	for (const [methodName, methodValue] of Object.entries<any>(UserActionAPIMethods)) {
-		const signature = MeteorMethodSignatures[methodValue] || []
+		const signature = methodSignatures[methodValue] || []
 
 		let resource = `/action/${methodName}`
 		let docString = `/api/${LEGACY_API_VERSION}${resource}`
@@ -80,14 +102,27 @@ export function createLegacyApiRouter(): KoaRouter {
 
 		assignRoute(router, 'POST', resource, signature.length, async (args) => {
 			const convArgs = typeConvertUrlParameters(args)
-			return Meteor.callAsync(methodValue, ...convArgs)
+
+			const handler = methodRegistry.get(methodValue)
+			if (!handler) {
+				throw new SofieError(404, `Method "${methodValue}" not found`)
+			}
+
+			const context: MethodContext = {
+				connection: null,
+				unblock: () => null,
+			}
+
+			// Call the method, and see if
+			// it calls triggerWriteAccess()
+			return handler.apply(context, convArgs)
 		})
 	}
 
 	function exposePublication(pubName: string, pubValue: string) {
-		const signature = MeteorPublicationSignatures[pubValue] || []
+		const signature = publicationSignatures[pubValue] || []
 
-		const f = MeteorPublications[pubValue]
+		const f = publicationRegistry.getCursorPublication(pubValue)
 
 		if (f) {
 			let resource = `/publication/${pubName}`
@@ -100,16 +135,21 @@ export function createLegacyApiRouter(): KoaRouter {
 			index.GET.push(docString)
 
 			assignRoute(router, 'GET', resource, signature.length, async (args) => {
-				const convArgs = typeConvertUrlParameters(args)
-				const cursor = await f.apply(
-					{
-						ready: () => null,
-					},
-					convArgs
-				)
+				const abort = new AbortController()
 
-				if (cursor) return cursor.fetch()
-				return []
+				try {
+					const convArgs = typeConvertUrlParameters(args)
+					const cursor = (await f({ ...legacyRestPublicationContext, signal: abort.signal }, ...convArgs)) as
+						| { fetch: () => unknown }
+						| null
+						| undefined
+
+					if (cursor) return cursor.fetch()
+					return []
+				} finally {
+					// Ensure the publication is torn down, even if the fetch fails.
+					abort.abort()
+				}
 			})
 		}
 	}
@@ -187,9 +227,8 @@ function assignRoute(
 			const code = ClientAPI.isClientResponseError(result) ? 500 : 200
 			sendResult(ctx, code, result)
 		} catch (e: any) {
-			if (e.error && e.reason) {
-				// is Meteor.Error
-				sendResult(ctx, e.error, String(e.reason))
+			if (e instanceof SofieError && e.reason) {
+				sendResult(ctx, e.error, e.reason)
 			} else {
 				sendResult(ctx, 500, String(e))
 			}

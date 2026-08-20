@@ -1,25 +1,31 @@
 import _ from 'underscore'
+import path from 'path'
+import os from 'os'
+import { promises as fsp } from 'fs'
 import { setupDefaultStudioEnvironment, packageBlueprint } from '../../../../__mocks__/helpers/database'
-import { literal, getRandomId } from '@sofie-automation/corelib/dist/lib'
+import { literal, getRandomId, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 import { SYSTEM_ID, ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
-import { insertBlueprint, uploadBlueprint } from '../api'
-import { MeteorCall } from '../../methods'
+import { insertBlueprint, uploadBlueprint, uploadBlueprintAsset, ServerBlueprintAPI } from '../api'
+import { BlueprintAPIMethods } from '@sofie-automation/meteor-lib/dist/api/blueprint'
 import '../../../../__mocks__/_extendJest'
 import { Blueprints, CoreSystem } from '../../../collections'
 import { SupressLogMessages } from '../../../../__mocks__/suppressLogging'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import { Meteor } from 'meteor/meteor'
+import * as CoreSystemAPI from '../../../coreSystem'
+import { makeMeteorCallForTest } from '../../../../__mocks__/helpers/methods'
+import { DDPClientConnection } from '../../../ddp-server/types'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../deviceTriggers/observer')
 
-require('../../peripheralDevice.ts') // include in order to create the Meteor methods needed
+const MeteorCall = makeMeteorCallForTest({ methods: BlueprintAPIMethods, class: ServerBlueprintAPI })
 
-const DEFAULT_CONNECTION: Meteor.Connection = {
+const DEFAULT_CONNECTION: DDPClientConnection = {
 	id: 'mockConnectionId',
+	signal: new AbortController().signal, // noop signal for tests
 	close: () => undefined,
 	onClose: () => undefined,
 	clientAddress: '127.0.0.1',
@@ -49,7 +55,7 @@ describe('Test blueprint management api', () => {
 
 				blueprintId: '',
 				blueprintType: BlueprintManifestType.SYSTEM,
-				blueprintHash: getRandomId(),
+				blueprintHash: getRandomString(),
 
 				studioConfigSchema: JSONBlobStringify({}),
 				showStyleConfigSchema: JSONBlobStringify({}),
@@ -79,7 +85,7 @@ describe('Test blueprint management api', () => {
 			const initialBlueprintId = await getActiveSystemBlueprintId()
 
 			SupressLogMessages.suppressLogMessage(/Blueprint not found/i)
-			await expect(MeteorCall.blueprint.assignSystemBlueprint(protectString(''))).rejects.toThrowMeteor(
+			await expect(MeteorCall.blueprint.assignSystemBlueprint(protectString(''))).rejects.toThrowSofieError(
 				404,
 				'Blueprint not found'
 			)
@@ -93,7 +99,7 @@ describe('Test blueprint management api', () => {
 			SupressLogMessages.suppressLogMessage(/Blueprint not found/i)
 			await expect(
 				MeteorCall.blueprint.assignSystemBlueprint(protectString(blueprint._id + '_no'))
-			).rejects.toThrowMeteor(404, 'Blueprint not found')
+			).rejects.toThrowSofieError(404, 'Blueprint not found')
 
 			expect(await getActiveSystemBlueprintId()).toEqual(initialBlueprintId)
 		})
@@ -128,7 +134,7 @@ describe('Test blueprint management api', () => {
 			expect(initialBlueprintId).not.toEqual(blueprint._id)
 
 			SupressLogMessages.suppressLogMessage(/Blueprint not of type SYSTEM/i)
-			await expect(MeteorCall.blueprint.assignSystemBlueprint(blueprint._id)).rejects.toThrowMeteor(
+			await expect(MeteorCall.blueprint.assignSystemBlueprint(blueprint._id)).rejects.toThrowSofieError(
 				404,
 				'Blueprint not of type SYSTEM'
 			)
@@ -141,14 +147,15 @@ describe('Test blueprint management api', () => {
 	describe('removeBlueprint', () => {
 		test('undefined id', async () => {
 			SupressLogMessages.suppressLogMessage(/Match error/i)
-			await expect(MeteorCall.blueprint.removeBlueprint(undefined as any)).rejects.toThrow(
-				'Match error: Expected string, got undefined'
+			await expect(MeteorCall.blueprint.removeBlueprint(undefined as any)).rejects.toThrowSofieError(
+				400,
+				'Match error: Invalid input: expected string, received undefined'
 			)
 		})
 
 		test('empty id', async () => {
 			SupressLogMessages.suppressLogMessage(/Blueprint id/i)
-			await expect(MeteorCall.blueprint.removeBlueprint(protectString(''))).rejects.toThrowMeteor(
+			await expect(MeteorCall.blueprint.removeBlueprint(protectString(''))).rejects.toThrowSofieError(
 				404,
 				'Blueprint id "" was not found'
 			)
@@ -211,7 +218,7 @@ describe('Test blueprint management api', () => {
 
 	describe('uploadBlueprint', () => {
 		test('empty id', async () => {
-			await expect(uploadBlueprint(DEFAULT_CONNECTION, protectString(''), '0')).rejects.toThrowMeteor(
+			await expect(uploadBlueprint(DEFAULT_CONNECTION, protectString(''), '0')).rejects.toThrowSofieError(
 				400,
 				'Blueprint id "" is not valid'
 			)
@@ -224,7 +231,7 @@ describe('Test blueprint management api', () => {
 		test('body not a manifest', async () => {
 			await expect(
 				uploadBlueprint(DEFAULT_CONNECTION, protectString('blueprint99'), `({default: (() => 5)()})`)
-			).rejects.toThrowMeteor(400, 'Blueprint blueprint99 returned a manifest of type number')
+			).rejects.toThrowSofieError(400, 'Blueprint blueprint99 returned a manifest of type number')
 		})
 		test('manifest missing blueprintType', async () => {
 			const blueprintStr = packageBlueprint({}, () => {
@@ -245,7 +252,7 @@ describe('Test blueprint management api', () => {
 			})
 			await expect(
 				uploadBlueprint(DEFAULT_CONNECTION, protectString('blueprint99'), blueprintStr)
-			).rejects.toThrowMeteor(
+			).rejects.toThrowSofieError(
 				400,
 				`Blueprint blueprint99 returned a manifest of unknown blueprintType "undefined"`
 			)
@@ -273,7 +280,7 @@ describe('Test blueprint management api', () => {
 
 			await expect(
 				uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
-			).rejects.toThrowMeteor(
+			).rejects.toThrowSofieError(
 				400,
 				`Cannot replace old blueprint (of type "showstyle") with new blueprint of type "studio"`
 			)
@@ -511,10 +518,51 @@ describe('Test blueprint management api', () => {
 
 			await expect(
 				uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
-			).rejects.toThrowMeteor(
+			).rejects.toThrowSofieError(
 				422,
 				`Cannot replace old blueprint "${existingBlueprint._id}" ("ss1") with new blueprint "show2"`
 			)
+		})
+		test('content hash is stable for identical code and changes when code changes', async () => {
+			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
+			const blueprintStr = packageBlueprint(
+				{
+					BLUEPRINT_TYPE,
+				},
+				() => {
+					return {
+						blueprintId: 'hash_stable',
+						blueprintType: BLUEPRINT_TYPE,
+						blueprintVersion: '0.0.1',
+						integrationVersion: '0.2.0',
+						TSRVersion: '0.3.0',
+						showStyleConfigSchema: JSON.stringify({}) as any,
+					}
+				}
+			)
+			const blueprintStrChanged = packageBlueprint(
+				{
+					BLUEPRINT_TYPE,
+				},
+				() => {
+					return {
+						blueprintId: 'hash_stable',
+						blueprintType: BLUEPRINT_TYPE,
+						blueprintVersion: '0.0.1', // same semver
+						integrationVersion: '0.2.0',
+						TSRVersion: '0.3.0',
+						showStyleConfigSchema: JSON.stringify({ changed: true }) as any,
+					}
+				}
+			)
+
+			const first = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_hash'), blueprintStr)
+			const second = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_hash'), blueprintStr)
+			expect(second.blueprintHash).toEqual(first.blueprintHash)
+
+			const third = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_hash'), blueprintStrChanged)
+			expect(third.blueprintHash).not.toEqual(first.blueprintHash)
+			expect(third.blueprintVersion).toEqual(first.blueprintVersion)
 		})
 		test('update - drop blueprintId', async () => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
@@ -543,10 +591,40 @@ describe('Test blueprint management api', () => {
 
 			await expect(
 				uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
-			).rejects.toThrowMeteor(
+			).rejects.toThrowSofieError(
 				422,
 				`Cannot replace old blueprint "${existingBlueprint._id}" ("ss1") with new blueprint ""`
 			)
+		})
+	})
+	describe('uploadBlueprintAsset', () => {
+		let storePath: string
+
+		beforeEach(async () => {
+			storePath = await fsp.mkdtemp(path.join(os.tmpdir(), 'sofie-blueprint-assets-'))
+			jest.spyOn(CoreSystemAPI, 'getSystemStorePath').mockReturnValue(storePath)
+		})
+
+		afterEach(async () => {
+			jest.restoreAllMocks()
+			await fsp.rm(storePath, { recursive: true, force: true })
+		})
+
+		test('writes decoded base64 payload to file', async () => {
+			const payload = Buffer.from('some fake binary data \u0000\u0001', 'utf8')
+			const fileId = 'myBlueprint/logo.bin'
+
+			await uploadBlueprintAsset(DEFAULT_CONNECTION, fileId, payload.toString('base64'))
+
+			const expectedFilePath = path.join(storePath, 'assets', fileId)
+			const writtenBuffer = await fsp.readFile(expectedFilePath)
+			expect(writtenBuffer.equals(payload)).toBeTruthy()
+		})
+
+		test('rejects path traversal attempts', async () => {
+			await expect(
+				uploadBlueprintAsset(DEFAULT_CONNECTION, '../outside.bin', Buffer.from('x').toString('base64'))
+			).rejects.toThrow('Asset name outside of asset storage path')
 		})
 	})
 })

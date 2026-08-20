@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { RundownId, RundownPlaylistActivationId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../../logging'
 import {
@@ -15,6 +14,7 @@ import { PartInstances, Parts, RundownPlaylists, Segments, Studios } from '../..
 import { waitForAllObserversReady } from '../lib/lib'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 
 function convertStudioSettingsDoc(doc: Pick<DBStudio, StudioFields>): StudioSettingsDoc {
 	return {
@@ -25,9 +25,9 @@ function convertStudioSettingsDoc(doc: Pick<DBStudio, StudioFields>): StudioSett
 
 export class RundownContentObserver {
 	readonly #cache: ContentCache
-	readonly #observers: Meteor.LiveQueryHandle[]
+	readonly #observers: LiveQueryHandleSync[]
 
-	private constructor(cache: ContentCache, observers: Meteor.LiveQueryHandle[]) {
+	private constructor(cache: ContentCache, observers: LiveQueryHandleSync[]) {
 		this.#cache = cache
 
 		this.#observers = observers
@@ -49,11 +49,11 @@ export class RundownContentObserver {
 				{
 					added: (doc) => {
 						const newDoc = convertStudioSettingsDoc(doc)
-						cache.StudioSettings.upsert(doc._id, { $set: newDoc as Partial<Document> })
+						cache.StudioSettings.replace(newDoc)
 					},
 					changed: (doc) => {
 						const newDoc = convertStudioSettingsDoc(doc)
-						cache.StudioSettings.upsert(doc._id, { $set: newDoc as Partial<Document> })
+						cache.StudioSettings.replace(newDoc)
 					},
 					removed: (doc) => {
 						cache.StudioSettings.remove(doc._id)

@@ -61,6 +61,12 @@ const handleUpdatedSegmentRanksWrapped = wrapGenericIngestJob(handleUpdatedSegme
 const handleRemovedPartWrapped = wrapGenericIngestJob(handleRemovedPart)
 const handleUpdatedPartWrapped = wrapGenericIngestJob(handleUpdatedPart)
 
+/** Op types recorded by the mock collections that represent a write to the database */
+const WRITE_OP_TYPES = ['insertOne', 'update', 'replace', 'bulkWrite', 'remove', 'removeOne']
+function countWriteOps(collection: { operations: ReadonlyArray<{ type: string }> }): number {
+	return collection.operations.filter((op) => WRITE_OP_TYPES.includes(op.type)).length
+}
+
 const externalId = 'abcde'
 const rundownData1: IngestRundown = {
 	externalId: externalId,
@@ -938,6 +944,150 @@ describe('Test ingest actions for rundowns and segments', () => {
 			segmentId: segmentsBefore[0]._id,
 		})
 		expect(partsAfter).toEqual(partsBefore)
+	})
+
+	const rundownDataDistinct: IngestRundown = {
+		externalId: externalId,
+		name: 'MyMockRundown',
+		type: 'mock',
+		payload: undefined,
+		segments: [
+			{
+				externalId: 'segment0',
+				name: 'Segment 0',
+				rank: 0,
+				payload: undefined,
+				parts: [
+					{ externalId: 'part0', name: 'Part 0', rank: 0, payload: undefined },
+					{ externalId: 'part1', name: 'Part 1', rank: 1, payload: undefined },
+				],
+			},
+			{
+				externalId: 'segment1',
+				name: 'Segment 1',
+				rank: 1,
+				payload: undefined,
+				parts: [{ externalId: 'part2', name: 'Part 2', rank: 0, payload: undefined }],
+			},
+		],
+	}
+
+	test('dataSegmentUpdate identical re-ingest skips the commit (no playlist rewrite)', async () => {
+		await recreateRundown(rundownDataDistinct)
+
+		// Discard the op-log recorded during the initial create
+		context.mockCollections.RundownPlaylists.clearOpLog()
+
+		const ingestSegment = clone(rundownDataDistinct.segments[0])
+		await handleUpdatedSegmentWrapped(context, {
+			rundownExternalId: externalId,
+			ingestSegment: ingestSegment,
+			isCreateAction: false,
+		})
+
+		// The segment regenerated to identical content, so the model has no changes and the commit
+		// phase must be skipped entirely. The RundownPlaylist must not be rewritten - that rewrite
+		// (and the PartInstance re-sync it drives) is the source of the UI "part jitter".
+		expect(countWriteOps(context.mockCollections.RundownPlaylists)).toBe(0)
+	})
+
+	test('dataSegmentUpdate with a real change still commits (playlist rewritten)', async () => {
+		await recreateRundown(rundownDataDistinct)
+
+		context.mockCollections.RundownPlaylists.clearOpLog()
+
+		const ingestSegment = clone(rundownDataDistinct.segments[0])
+		expect(ingestSegment.parts.pop()).toBeTruthy() // remove a part -> a genuine change
+
+		await handleUpdatedSegmentWrapped(context, {
+			rundownExternalId: externalId,
+			ingestSegment: ingestSegment,
+			isCreateAction: false,
+		})
+
+		// A genuine change must still run the commit, which rewrites the RundownPlaylist
+		expect(countWriteOps(context.mockCollections.RundownPlaylists)).toBeGreaterThan(0)
+	})
+
+	test('dataSegmentUpdate changing only the segment name still commits', async () => {
+		await recreateRundown(rundownDataDistinct)
+
+		context.mockCollections.RundownPlaylists.clearOpLog()
+
+		const ingestSegment = clone(rundownDataDistinct.segments[0])
+		ingestSegment.name = 'A different segment name' // segment-doc field change only
+
+		await handleUpdatedSegmentWrapped(context, {
+			rundownExternalId: externalId,
+			ingestSegment: ingestSegment,
+			isCreateAction: false,
+		})
+
+		expect(countWriteOps(context.mockCollections.RundownPlaylists)).toBeGreaterThan(0)
+
+		const segment = (await context.mockCollections.Segments.findOne({
+			externalId: ingestSegment.externalId,
+		})) as DBSegment
+		expect(segment.name).toBe('A different segment name')
+	})
+
+	test('dataSegmentUpdate identical re-ingest with pieces skips the commit', async () => {
+		// A rundown whose part carries pieces, so the ExpectedPackages/pieces change-tracking is exercised
+		const rundownWithPieces: IngestRundown = {
+			externalId: externalId,
+			name: 'MyMockRundown',
+			type: 'mock',
+			payload: undefined,
+			segments: [
+				{
+					externalId: 'segment0',
+					name: 'Segment 0',
+					rank: 0,
+					payload: undefined,
+					parts: [
+						{
+							externalId: 'part0',
+							name: 'Part 0',
+							rank: 0,
+							payload: {
+								pieces: [
+									literal<IBlueprintPiece>({
+										externalId: 'piece0',
+										name: 'Piece 0',
+										enable: { start: 0 },
+										sourceLayerId: '',
+										outputLayerId: '',
+										lifespan: PieceLifespan.WithinPart,
+										content: { timelineObjects: [] },
+									}),
+								],
+							},
+						},
+					],
+				},
+				{
+					externalId: 'segment1',
+					name: 'Segment 1',
+					rank: 1,
+					payload: undefined,
+					parts: [{ externalId: 'part2', name: 'Part 2', rank: 0, payload: undefined }],
+				},
+			],
+		}
+
+		await recreateRundown(rundownWithPieces)
+		await expect(context.mockCollections.Pieces.findFetch()).resolves.toHaveLength(1)
+
+		context.mockCollections.RundownPlaylists.clearOpLog()
+
+		// Re-ingest the (unchanged) segment that carries the piece, via the segment-level path
+		await handleUpdatedSegmentWrapped(context, {
+			rundownExternalId: externalId,
+			ingestSegment: clone(rundownWithPieces.segments[0]),
+			isCreateAction: false,
+		})
+
+		expect(countWriteOps(context.mockCollections.RundownPlaylists)).toBe(0)
 	})
 
 	test('dataSegmentUpdate remove a part', async () => {

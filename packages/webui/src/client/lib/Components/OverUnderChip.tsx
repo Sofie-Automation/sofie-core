@@ -1,10 +1,10 @@
-import { type CSSProperties } from 'react'
+import type { CSSProperties } from 'react'
 import classNames from 'classnames'
 import { RundownUtils } from '../rundown.js'
 import './OverUnderChip.scss'
 import { useTiming } from '../../ui/RundownView/RundownTiming/withTiming.js'
 import { getPlaylistTimingDiff } from '../rundownTiming.js'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/src/dataModel/RundownPlaylist/RundownPlaylist.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/src/dataModel/RundownPlaylist/RundownPlaylist.js'
 
 export type OverUnderChipFormat = 'playlistDiff' | 'timerPostfix'
 

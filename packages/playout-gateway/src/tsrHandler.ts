@@ -48,6 +48,17 @@ import {
 } from '@sofie-automation/server-core-integration'
 import { BaseRemoteDeviceIntegration } from 'timeline-state-resolver/dist/service/remoteDeviceInstance'
 import { TSRDeviceRegistry } from './tsrDeviceRegistry.js'
+import {
+	playoutDevicesTotalGauge,
+	playoutDeviceConnectedGauge,
+	playoutResolveDurationHistogram,
+	playoutTimelineAgeGauge,
+	playoutSlowSentCommandsCounter,
+	playoutSlowFulfilledCommandsCounter,
+	playoutCommandErrorsCounter,
+	playoutCommandsSentCounter,
+	playoutPlaybackCallbacksCounter,
+} from './playoutMetrics.js'
 
 const debug = Debug('playout-gateway')
 
@@ -71,6 +82,7 @@ export class TSRHandler {
 	// private _config: TSRConfig
 	private _coreHandler!: CoreHandler
 	private _triggerupdateExpectedPlayoutItemsTimeout: NodeJS.Timeout | null = null
+	private _triggerUpdateEventSubscriptionsTimeout: NodeJS.Timeout | null = null
 	private _coreTsrHandlers: { [deviceId: string]: CoreTSRDeviceHandler } = {}
 	private _observers: Array<Observer<any>> = []
 	private _cachedStudioId: StudioId | null = null
@@ -85,6 +97,7 @@ export class TSRHandler {
 	private _triggerUpdateDevicesTimeout: NodeJS.Timeout | undefined
 
 	private _debugStates: Map<string, object> = new Map()
+	private _pendingTimelineGeneratedAt: Map<string, number> = new Map()
 
 	constructor(logger: Logger) {
 		this.logger = logger
@@ -165,6 +178,13 @@ export class TSRHandler {
 			this.handleTSRTimelineCallback(time, objId, callbackName, data)
 		})
 		this.tsr.on('resolveDone', (timelineHash: string, resolveDuration: number) => {
+			playoutResolveDurationHistogram.observe(resolveDuration / 1000)
+			const generatedAt = this._pendingTimelineGeneratedAt.get(timelineHash)
+			if (generatedAt !== undefined) {
+				playoutTimelineAgeGauge.set((Date.now() - generatedAt) / 1000)
+				this._pendingTimelineGeneratedAt.delete(timelineHash)
+			}
+
 			// Make sure we only report back once, per update timeline
 			if (this._lastReportedObjHashes.includes(timelineHash)) return
 
@@ -216,17 +236,21 @@ export class TSRHandler {
 		this.tsr.connectionManager.on('connectionAdded', (id, container) => {
 			const coreTsrHandler = new CoreTSRDeviceHandler(this._coreHandler, Promise.resolve(container), id)
 			this._coreTsrHandlers[id] = coreTsrHandler
+			playoutDevicesTotalGauge.set(Object.keys(this._coreTsrHandlers).length)
 
 			// set the status to uninitialized for now:
 			coreTsrHandler.statusChanged(
 				{
 					statusCode: StatusCode.BAD,
 					messages: ['Device initialising...'],
+					statusDetails: [{ message: 'Device initialising...' }],
+					active: false,
 				},
 				false
 			)
 
 			this._triggerupdateExpectedPlayoutItems() // So that any recently created devices will get all the ExpectedPlayoutItems
+			this._triggerUpdateEventSubscriptions() // Ensure new device gets current external event subscriptions
 		})
 
 		this.tsr.connectionManager.on('connectionInitialised', (id) => {
@@ -248,10 +272,16 @@ export class TSRHandler {
 				return
 			}
 
+			const removedDeviceType = coreTsrHandler._device?.deviceType
+			const removedDeviceTypeName =
+				removedDeviceType !== undefined ? (DeviceType[removedDeviceType] ?? 'unknown') : 'unknown'
+
 			coreTsrHandler.dispose('removeSubDevice').catch((e) => {
 				this.logger.error('Failed to dispose of coreTsrHandler for ' + id + ': ' + e)
 			})
 			delete this._coreTsrHandlers[id]
+			playoutDevicesTotalGauge.set(Object.keys(this._coreTsrHandlers).length)
+			playoutDeviceConnectedGauge.set({ device_id: id, device_type: removedDeviceTypeName }, 0)
 		})
 
 		const fixLog = (id: string, e: string): string => {
@@ -259,20 +289,20 @@ export class TSRHandler {
 
 			return `Device "${device?.deviceName ?? id}" (${device?.instanceId ?? 'instance unknown'}): ` + e
 		}
-		const fixError = (id: string, e: Error): any => {
+		const fixError = (id: string, e: any): any => {
 			const device = this._coreTsrHandlers[id]?._device
 			const name = `Device "${device?.deviceName ?? id}" (${device?.instanceId ?? 'instance unknown'})`
 
-			if (!e || !('message' in e)) {
+			if (!e || typeof e !== 'object' || !('message' in e)) {
 				return {
-					message: name + ': ' + 'Unknown error: ' + JSON.stringify(e),
+					message: name + ': ' + 'Unknown error: ' + stringifyError(e, true),
 				}
 			}
 
 			return {
-				message: e.message && name + ': ' + e.message,
-				name: e.name && name + ': ' + e.name,
-				stack: e.stack && e.stack + '\nAt device' + name,
+				message: e.message !== undefined ? name + ': ' + e.message : undefined,
+				name: e.name !== undefined ? name + ': ' + e.name : undefined,
+				stack: e.stack !== undefined ? e.stack + '\nAt device' + name : undefined,
 			}
 		}
 		const fixContext = (...context: any[]): any => {
@@ -285,6 +315,13 @@ export class TSRHandler {
 			const coreTsrHandler = this._coreTsrHandlers[id]
 			if (!coreTsrHandler) return
 			if (!coreTsrHandler._device) return // Not initialized yet
+
+			const changedDeviceType = coreTsrHandler._device.deviceType
+			const changedDeviceTypeName = DeviceType[changedDeviceType] ?? 'unknown'
+			playoutDeviceConnectedGauge.set(
+				{ device_id: id, device_type: changedDeviceTypeName },
+				status.statusCode <= StatusCode.WARNING_MAJOR ? 1 : 0
+			)
 
 			coreTsrHandler.statusChanged(status)
 
@@ -315,6 +352,12 @@ export class TSRHandler {
 			}
 		})
 		this.tsr.connectionManager.on('connectionEvent:slowSentCommand', (id, info) => {
+			const deviceType0 = this._coreTsrHandlers[id]?._device?.deviceType
+			playoutSlowSentCommandsCounter.inc({
+				device_id: id,
+				device_type: deviceType0 !== undefined ? (DeviceType[deviceType0] ?? 'unknown') : 'unknown',
+			})
+
 			// If the internalDelay is too large, it should be logged as an error,
 			// since something took too long internally.
 
@@ -331,6 +374,12 @@ export class TSRHandler {
 			}
 		})
 		this.tsr.connectionManager.on('connectionEvent:slowFulfilledCommand', (id, info) => {
+			const deviceType1 = this._coreTsrHandlers[id]?._device?.deviceType
+			playoutSlowFulfilledCommandsCounter.inc({
+				device_id: id,
+				device_type: deviceType1 !== undefined ? (DeviceType[deviceType1] ?? 'unknown') : 'unknown',
+			})
+
 			// Note: we don't emit slow fulfilled commands as error, since
 			// the fulfillment of them lies on the device being controlled, not on us.
 
@@ -340,10 +389,22 @@ export class TSRHandler {
 			})
 		})
 		this.tsr.connectionManager.on('connectionEvent:commandError', (id, error, context) => {
+			const deviceType2 = this._coreTsrHandlers[id]?._device?.deviceType
+			playoutCommandErrorsCounter.inc({
+				device_id: id,
+				device_type: deviceType2 !== undefined ? (DeviceType[deviceType2] ?? 'unknown') : 'unknown',
+			})
+
 			// todo: handle this better
 			this.logger.error(fixError(id, error), { context })
 		})
-		this.tsr.connectionManager.on('connectionEvent:commandReport', (_id, commandReport) => {
+		this.tsr.connectionManager.on('connectionEvent:commandReport', (id, commandReport) => {
+			const deviceType3 = this._coreTsrHandlers[id]?._device?.deviceType
+			playoutCommandsSentCounter.inc({
+				device_id: id,
+				device_type: deviceType3 !== undefined ? (DeviceType[deviceType3] ?? 'unknown') : 'unknown',
+			})
+
 			if (this._reportAllCommands) {
 				// Todo: send these to Core
 				this.logger.info('commandReport', {
@@ -396,6 +457,14 @@ export class TSRHandler {
 		})
 		this.tsr.connectionManager.on('connectionEvent:timeTrace', (_id, trace) => {
 			sendTrace(trace)
+		})
+		this.tsr.connectionManager.on('connectionEvent:stateEvent', (_id, events) => {
+			this.logger.debug(
+				`connectionEvent:stateEvent: received ${events.length} event(s) from device "${_id}": ${events.map((e) => e.event).join(', ')}`
+			)
+			this._coreHandler.core.coreMethods
+				.reportExternalEvents(events.map((e) => ({ ...e, type: 'tsr' as const })))
+				.catch((e: unknown) => this.logger.error('Error when reporting external events to core', e))
 		})
 	}
 
@@ -480,6 +549,20 @@ export class TSRHandler {
 			this._triggerUpdateDatastore()
 		}
 		this._observers.push(timelineDatastoreObserver)
+
+		const externalEventSubscriptionsObserver = this._coreHandler.core.observe(
+			PeripheralDevicePubSubCollectionsNames.externalEventSubscriptions
+		)
+		externalEventSubscriptionsObserver.added = () => {
+			this._triggerUpdateEventSubscriptions()
+		}
+		externalEventSubscriptionsObserver.changed = () => {
+			this._triggerUpdateEventSubscriptions()
+		}
+		externalEventSubscriptionsObserver.removed = () => {
+			this._triggerUpdateEventSubscriptions()
+		}
+		this._observers.push(externalEventSubscriptionsObserver)
 	}
 	private resendStatuses(): void {
 		_.each(this._coreTsrHandlers, (tsrHandler) => {
@@ -589,6 +672,7 @@ export class TSRHandler {
 		}
 
 		const transformedTimeline = this._transformTimeline(deserializeTimelineBlob(timeline.timelineBlob))
+		this._pendingTimelineGeneratedAt.set(unprotectString(timeline.timelineHash), timeline.generated)
 		this.tsr.timelineHash = unprotectString(timeline.timelineHash)
 		this.tsr.setTimelineAndMappings(transformedTimeline, unprotectObject(mappingsObject.mappings))
 	}
@@ -677,6 +761,7 @@ export class TSRHandler {
 			}
 
 			this.tsr.connectionManager.setConnections(connections)
+			this._triggerUpdateEventSubscriptions() // Re-apply subscriptions after connection set changes
 		}
 	}
 
@@ -777,6 +862,55 @@ export class TSRHandler {
 	private _triggerUpdateDatastore() {
 		if (!this._initialized) return
 		this._updateDatastore().catch((e) => this.logger.error('Error in _updateDatastore', e))
+	}
+	private _triggerUpdateEventSubscriptions() {
+		if (!this._initialized) return
+		if (this._triggerUpdateEventSubscriptionsTimeout) {
+			clearTimeout(this._triggerUpdateEventSubscriptionsTimeout)
+		}
+		this._triggerUpdateEventSubscriptionsTimeout = setTimeout(() => {
+			this._updateEventSubscriptions().catch((e) => {
+				this.logger.error('Error in _updateEventSubscriptions', e)
+			})
+		}, 200)
+	}
+	private async _updateEventSubscriptions() {
+		const subscriptionDocs = this._coreHandler.core
+			.getCollection(PeripheralDevicePubSubCollectionsNames.externalEventSubscriptions)
+			.find({})
+
+		this.logger.debug(`_updateEventSubscriptions: ${subscriptionDocs.length} subscription doc(s) in collection`)
+
+		// Aggregate subscriptions, group by deviceId
+		const subscriptionsByDeviceId = new Map<string, Set<string>>()
+		for (const sub of subscriptionDocs) {
+			if (sub.type !== 'tsr') continue
+
+			let events = subscriptionsByDeviceId.get(sub.deviceId)
+			if (!events) {
+				events = new Set()
+				subscriptionsByDeviceId.set(sub.deviceId, events)
+			}
+			events.add(sub.event)
+		}
+
+		if (subscriptionsByDeviceId.size === 0) {
+			this.logger.debug('_updateEventSubscriptions: no subscriptions — clearing all devices')
+		}
+
+		await Promise.allSettled(
+			_.map(this.tsr.connectionManager.getConnections(), async (container) => {
+				const events = subscriptionsByDeviceId.get(container.deviceId) ?? new Set<string>()
+				this.logger.debug(
+					`_updateEventSubscriptions: setting ${events.size} event subscription(s) on device "${container.deviceId}": [${Array.from(events).join(', ')}]`
+				)
+				await container.device.setEventSubscriptions(Array.from(events)).catch((e) => {
+					this.logger.error(
+						`Error setting event subscriptions for device "${container.deviceId}": ${stringifyError(e)}`
+					)
+				})
+			})
+		)
 	}
 	private async _updateDatastore() {
 		const datastoreCollection = this._coreHandler.core.getCollection(
@@ -882,6 +1016,7 @@ export class TSRHandler {
 			return
 		}
 		const callbackName = callbackName0 as PeripheralDeviceAPI.PlayoutChangedType
+		playoutPlaybackCallbacksCounter.inc({ type: callbackName })
 		// debounce
 		if (this.changedResults && this.changedResults.rundownPlaylistId !== data.rundownPlaylistId) {
 			// The playlistId changed. Send what we have right away and reset:

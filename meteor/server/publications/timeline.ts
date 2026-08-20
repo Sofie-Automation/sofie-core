@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { getRoutedTimeline } from '@sofie-automation/meteor-lib/dist/collections/Timeline'
 import {
 	RoutedTimeline,
@@ -7,12 +8,10 @@ import {
 	serializeTimelineBlob,
 	TimelineBlob,
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import { meteorPublish } from './lib/lib'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import {
 	CustomPublish,
-	meteorCustomPublish,
 	SetupObserversResult,
 	setUpOptimizedObserverArray,
 	TriggerUpdate,
@@ -27,7 +26,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBTimelineDatastoreEntry } from '@sofie-automation/corelib/dist/dataModel/TimelineDatastore'
 import { Studios, Timeline, TimelineDatastore } from '../collections'
-import { check } from 'meteor/check'
+import { check } from '../lib/check'
 import { ResultingMappingRoutes, StudioLight } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import {
@@ -37,58 +36,61 @@ import {
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { checkAccessAndGetPeripheralDevice } from '../security/check'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import type { PublicationRegistry } from '../publicationRegistry'
 
-meteorPublish(CorelibPubSub.timelineDatastore, async function () {
-	assertConnectionHasOneOfPermissions(this.connection, 'testing')
+export function registerTimelinePublications(registry: PublicationRegistry): void {
+	registry.publish(CorelibPubSub.timelineDatastore, async (context) => {
+		assertConnectionHasOneOfPermissions(context.connection, 'testing')
 
-	return TimelineDatastore.findWithCursor({})
-})
+		return TimelineDatastore.findWithCursor({})
+	})
 
-meteorCustomPublish(
-	PeripheralDevicePubSub.timelineForDevice,
-	PeripheralDevicePubSubCollectionsNames.studioTimeline,
-	async function (pub, deviceId: PeripheralDeviceId, token: string | undefined) {
-		check(deviceId, String)
+	registry.customPublish(
+		PeripheralDevicePubSub.timelineForDevice,
+		PeripheralDevicePubSubCollectionsNames.studioTimeline,
+		async (context, pub, deviceId: PeripheralDeviceId, token: string | undefined) => {
+			check(deviceId, z.string())
 
-		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, this)
+			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
-		const studioId = peripheralDevice.studioAndConfigId?.studioId
-		if (!studioId) return
+			const studioId = peripheralDevice.studioAndConfigId?.studioId
+			if (!studioId) return
 
-		await createObserverForTimelinePublication(pub, studioId)
-	}
-)
-meteorPublish(
-	PeripheralDevicePubSub.timelineDatastoreForDevice,
-	async function (deviceId: PeripheralDeviceId, token: string | undefined) {
-		check(deviceId, String)
-
-		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, this)
-
-		const studioId = peripheralDevice.studioAndConfigId?.studioId
-		if (!studioId) return null
-
-		const modifier: FindOptions<DBTimelineDatastoreEntry> = {
-			fields: {},
+			await createObserverForTimelinePublication(pub, studioId)
 		}
+	)
+	registry.publish(
+		PeripheralDevicePubSub.timelineDatastoreForDevice,
+		async (context, deviceId: PeripheralDeviceId, token: string | undefined) => {
+			check(deviceId, z.string())
 
-		return TimelineDatastore.findWithCursor({ studioId }, modifier)
-	}
-)
+			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
-meteorCustomPublish(
-	MeteorPubSub.timelineForStudio,
-	PeripheralDevicePubSubCollectionsNames.studioTimeline,
-	async function (pub) {
-		assertConnectionHasOneOfPermissions(this.connection, 'testing')
+			const studioId = peripheralDevice.studioAndConfigId?.studioId
+			if (!studioId) return null
 
-		// Find the first studioId. There should only be one, but we don't know what it will be
-		const studioIds = await fetchStudioIds({})
-		if (studioIds.length < 1) throw new Error('No studios found')
+			const modifier: FindOptions<DBTimelineDatastoreEntry> = {
+				fields: {},
+			}
 
-		await createObserverForTimelinePublication(pub, studioIds[0])
-	}
-)
+			return TimelineDatastore.findWithCursor({ studioId }, modifier)
+		}
+	)
+
+	registry.customPublish(
+		MeteorPubSub.timelineForStudio,
+		PeripheralDevicePubSubCollectionsNames.studioTimeline,
+		async (context, pub) => {
+			assertConnectionHasOneOfPermissions(context.connection, 'testing')
+
+			// Find the first studioId. There should only be one, but we don't know what it will be
+			const studioIds = await fetchStudioIds({})
+			if (studioIds.length < 1) throw new Error('No studios found')
+
+			await createObserverForTimelinePublication(pub, studioIds[0])
+		}
+	)
+}
 
 interface RoutedTimelineArgs {
 	readonly studioId: StudioId

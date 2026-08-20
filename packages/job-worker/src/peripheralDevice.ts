@@ -1,6 +1,7 @@
 import { IBlueprintPlayoutDevice, TSR } from '@sofie-automation/blueprints-integration'
 import { PeripheralDeviceCommandId, PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import { PeripheralDevice, PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import { ReadonlyDeep } from 'type-fest'
 import { clone, Complete, getRandomId, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { JobContext } from './jobs/index.js'
 import { getCurrentTime } from './lib/index.js'
@@ -187,19 +188,41 @@ async function executePeripheralDeviceGenericFunction(
 	return result.promise
 }
 
+/**
+ * Lists TSR subdevices for blueprint use when no {@link PlayoutModel} is loaded.
+ *
+ * Used by snapshot hooks and other studio-scoped blueprint callbacks outside active playout.
+ */
+export async function listPlayoutDevicesForStudio(context: JobContext): Promise<IBlueprintPlayoutDevice[]> {
+	const parentDevices = await context.directCollections.PeripheralDevices.findFetch({
+		'studioAndConfigId.studioId': context.studioId,
+		type: PeripheralDeviceType.PLAYOUT,
+	})
+	return listPlayoutDevicesFromParentDevices(context, parentDevices)
+}
+
 export async function listPlayoutDevices(
 	context: JobContext,
 	playoutModel: PlayoutModel
 ): Promise<IBlueprintPlayoutDevice[]> {
-	const parentDevicesMap = normalizeArrayToMap(
-		playoutModel.peripheralDevices.filter(
-			(doc) => doc.studioAndConfigId?.studioId === context.studioId && doc.type === PeripheralDeviceType.PLAYOUT
-		),
-		'_id'
+	const parentDevices = playoutModel.peripheralDevices.filter(
+		(doc) => doc.studioAndConfigId?.studioId === context.studioId && doc.type === PeripheralDeviceType.PLAYOUT
 	)
+	return listPlayoutDevicesFromParentDevices(context, parentDevices)
+}
+
+/**
+ * Resolves playout-gateway subdevices for the given parent playout peripheral devices.
+ * Returns an empty list when there are no parent devices.
+ */
+async function listPlayoutDevicesFromParentDevices(
+	context: JobContext,
+	parentDevices: ReadonlyDeep<PeripheralDevice[]>
+): Promise<IBlueprintPlayoutDevice[]> {
+	const parentDevicesMap = normalizeArrayToMap(parentDevices, '_id')
 	const parentDeviceIds = Array.from(parentDevicesMap.keys())
 	if (parentDeviceIds.length === 0) {
-		throw new Error('No parent devices are configured')
+		return []
 	}
 
 	const devices = await context.directCollections.PeripheralDevices.findFetch({

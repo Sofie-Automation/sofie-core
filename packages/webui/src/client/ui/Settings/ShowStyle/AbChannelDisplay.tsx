@@ -2,9 +2,13 @@ import { SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { ShowStyleBases } from '../../../collections'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useMemo } from 'react'
-import { DBShowStyleBase, SourceLayers, OutputLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type {
+	DBShowStyleBase,
+	SourceLayers,
+	OutputLayers,
+} from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { ColumnPackedGrid, ColumnPackedGridGroup, ColumnPackedGridItem } from '../components/ColumnPackedGrid'
+import { ColumnPackedGrid, type ColumnPackedGridGroup, type ColumnPackedGridItem } from '../components/ColumnPackedGrid'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSync } from '@fortawesome/free-solid-svg-icons'
 import { sourceLayerTypeString } from '../../../lib/rundown.js'

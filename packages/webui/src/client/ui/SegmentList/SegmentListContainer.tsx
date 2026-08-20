@@ -3,8 +3,8 @@ import { meteorSubscribe } from '../../lib/meteorApi.js'
 import { useSubscription, useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import {
 	withResolvedSegment,
-	IResolvedSegmentProps,
-	ITrackedResolvedSegmentProps,
+	type IResolvedSegmentProps,
+	type ITrackedResolvedSegmentProps,
 } from '../SegmentContainer/withResolvedSegment.js'
 import { SpeechSynthesiser } from '../../lib/speechSynthesis.js'
 import { SegmentList } from './SegmentList.js'
@@ -214,7 +214,7 @@ export const SegmentListContainer = withResolvedSegment<IProps>(function Segment
 				onPieceDoubleClick={props.onPieceDoubleClick}
 				hideRundownHeader={props.hideRundownHeader}
 			/>
-			{props.segmentui.showShelf && props.adLibSegmentUi && (
+			{props.segmentui.displayMinishelf && props.adLibSegmentUi && (
 				<RundownViewShelf
 					studio={props.studio}
 					segment={props.segmentui}

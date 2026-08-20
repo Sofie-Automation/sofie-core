@@ -11,6 +11,7 @@ import { IBlueprintMutatablePart, PieceLifespan, Time } from '@sofie-automation/
 import { PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import { PlayoutPieceInstanceModel } from './PlayoutPieceInstanceModel.js'
 import { CoreUserEditingDefinition } from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions'
+import { PartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
 
 /**
  * Token returned when making a backup copy of a PlayoutPartInstanceModel
@@ -55,6 +56,14 @@ export interface PlayoutPartInstanceModel {
 	 * @param timestamp Timestampt to block until
 	 */
 	blockTakeUntil(timestamp: Time | null): void
+
+	/**
+	 * Set the invalid reason for this PartInstance.
+	 * This indicates a runtime validation issue that prevents taking the part.
+	 * This is distinct from the planned `invalidReason` on the Part itself.
+	 * @param reason The reason the part is invalid, or undefined to clear
+	 */
+	setInvalidReason(reason: PartInvalidReason | undefined): void
 
 	/**
 	 * Get a PieceInstance which belongs to this PartInstance

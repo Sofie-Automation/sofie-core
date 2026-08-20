@@ -1,5 +1,4 @@
 import { PeripheralDeviceId, RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Meteor } from 'meteor/meteor'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { assertConnectionHasOneOfPermissions, RequestCredentials } from './auth'
@@ -7,7 +6,8 @@ import { PeripheralDevices, RundownPlaylists, Rundowns } from '../collections'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { MethodContext } from '../api/methodContext'
 import { profiler } from '../api/profiler'
-import { SubscriptionContext } from '../publications/lib/lib'
+import { PublicationContext } from '../publications/lib/lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
  * Check that the current user has write access to the specified playlist, and ensure that the playlist exists
@@ -27,7 +27,7 @@ export async function checkAccessToPlaylist(
 			name: 1,
 		},
 	})) as Pick<DBRundownPlaylist, '_id' | 'studioId' | 'name'> | undefined
-	if (!playlist) throw new Meteor.Error(404, `RundownPlaylist "${playlistId}" not found`)
+	if (!playlist) throw new SofieError(404, `RundownPlaylist "${playlistId}" not found`)
 
 	return playlist
 }
@@ -53,7 +53,7 @@ export async function checkAccessToRundown(
 			source: 1,
 		},
 	})) as Pick<DBRundown, '_id' | 'studioId' | 'externalId' | 'showStyleVariantId' | 'source'> | undefined
-	if (!rundown) throw new Meteor.Error(404, `Rundown "${rundownId}" not found`)
+	if (!rundown) throw new SofieError(404, `Rundown "${rundownId}" not found`)
 
 	return rundown
 }
@@ -66,17 +66,17 @@ export type VerifiedRundownForUserAction = Pick<
 export async function checkAccessAndGetPeripheralDevice(
 	deviceId: PeripheralDeviceId,
 	token: string | undefined,
-	context: MethodContext | SubscriptionContext
+	context: MethodContext | PublicationContext
 ): Promise<PeripheralDevice> {
 	const span = profiler.startSpan('lib.checkAccessAndGetPeripheralDevice')
 
 	assertConnectionHasOneOfPermissions(context.connection, 'gateway')
 
 	// If no token, we will never match
-	if (!token) throw new Meteor.Error(401, `Not allowed access to peripheralDevice`)
+	if (!token) throw new SofieError(401, `Not allowed access to peripheralDevice`)
 
 	const device = await PeripheralDevices.findOneAsync({ _id: deviceId })
-	if (!device) throw new Meteor.Error(404, `PeripheralDevice "${deviceId}" not found`)
+	if (!device) throw new SofieError(404, `PeripheralDevice "${deviceId}" not found`)
 
 	// Check if the device has a token, and if it matches:
 	if (device.token && device.token === token) {
@@ -86,7 +86,7 @@ export async function checkAccessAndGetPeripheralDevice(
 
 	// If the device has a parent, try that for access control:
 	const parentDevice = device.parentDeviceId ? await PeripheralDevices.findOneAsync(device.parentDeviceId) : device
-	if (!parentDevice) throw new Meteor.Error(404, `PeripheralDevice parentDevice "${device.parentDeviceId}" not found`)
+	if (!parentDevice) throw new SofieError(404, `PeripheralDevice parentDevice "${device.parentDeviceId}" not found`)
 
 	// Check if the parent device has a token, and if it matches:
 	if (parentDevice.token && parentDevice.token === token) {
@@ -96,5 +96,5 @@ export async function checkAccessAndGetPeripheralDevice(
 
 	// No match for token found
 	span?.end()
-	throw new Meteor.Error(401, `Not allowed access to peripheralDevice`)
+	throw new SofieError(401, `Not allowed access to peripheralDevice`)
 }

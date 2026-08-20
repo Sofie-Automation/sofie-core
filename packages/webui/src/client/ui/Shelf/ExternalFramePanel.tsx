@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Meteor } from 'meteor/meteor'
 import _ from 'underscore'
 import ClassNames from 'classnames'
-import {
+import type {
 	RundownLayoutExternalFrame,
 	RundownLayoutBase,
 	DashboardLayoutExternalFrame,
@@ -11,37 +11,42 @@ import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { dashboardElementStyle } from './DashboardPanel.js'
 import { assertNever, getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { parseMosPluginMessageXml, MosPluginMessage } from '../../lib/parsers/mos/mosXml2Js.js'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { parseMosPluginMessageXml, type MosPluginMessage } from '../../lib/parsers/mos/mosXml2Js.js'
 import {
 	createMosAppInfoXmlString,
-	UIMetric as MOSUIMetric,
+	type UIMetric as MOSUIMetric,
 	UIMetricMode as MOSUIMetricMode,
 	Events as MOSEvents,
 } from '../../lib/data/mos/plugin-support.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { withTranslation } from 'react-i18next'
-import { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
+import type { Translated } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import {
-	DefaultUserOperationImportMOSItem,
+	type DefaultUserOperationImportMOSItem,
 	DefaultUserOperationsTypes,
-	IngestAdlib,
+	type IngestAdlib,
 	UserEditingType,
+	type UserOperationTarget,
 } from '@sofie-automation/blueprints-integration'
 import { MeteorCall } from '../../lib/meteorApi.js'
-import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown.js'
+import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown.js'
 import { Buckets, Rundowns, Segments } from '../../collections/index.js'
-import { BucketId, PartInstanceId, RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { MOS_DATA_IS_STRICT } from '@sofie-automation/meteor-lib/dist/mos'
-import { mosTypes, MOS } from '@sofie-automation/meteor-lib/dist/mos'
+import type {
+	BucketId,
+	PartInstanceId,
+	RundownId,
+	RundownPlaylistId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { MOS_DATA_IS_STRICT, mosTypes, MOS } from '@sofie-automation/meteor-lib/dist/mos'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
 import { logger } from '../../lib/logging.js'
 import RundownViewEventBus, {
-	ItemDroppedEvent,
+	type ItemDroppedEvent,
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { UIPartInstances, UIParts } from '../Collections.js'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 interface IProps {
 	layout: RundownLayoutBase
@@ -101,7 +106,7 @@ interface CurrentNextPartChangedSofieExternalMessage extends SofieExternalMessag
 	}
 }
 
-export const ExternalFramePanel = withTranslation()(
+export const ExternalFramePanel: React.ComponentType<IProps> = withTranslation()(
 	class ExternalFramePanel extends React.Component<Translated<IProps>> {
 		frame: HTMLIFrameElement | null = null
 		mounted = false
@@ -218,10 +223,10 @@ export const ExternalFramePanel = withTranslation()(
 			return undefined
 		}
 
-		private findPartId(el: HTMLElement): {
+		private findPartExternalId(el: HTMLElement): {
 			rundownId: RundownId | undefined
-			segmentId: string | undefined
-			partId: string | undefined
+			segmentExternalId: string | undefined
+			partExternalId: string | undefined
 		} {
 			while (el.dataset.partId === undefined && el.parentElement) {
 				el = el.parentElement
@@ -239,13 +244,13 @@ export const ExternalFramePanel = withTranslation()(
 
 					return {
 						rundownId: part?.rundownId,
-						segmentId: segment?.externalId,
-						partId: part?.externalId,
+						segmentExternalId: segment?.externalId,
+						partExternalId: part?.externalId,
 					}
 				}
 			}
 
-			return { rundownId: undefined, partId: undefined, segmentId: undefined }
+			return { rundownId: undefined, partExternalId: undefined, segmentExternalId: undefined }
 		}
 
 		private getShowStyleBaseId() {
@@ -289,10 +294,9 @@ export const ExternalFramePanel = withTranslation()(
 				return
 			}
 
-			const { rundownId, segmentId, partId } = this.findPartId(e.target)
-			if (rundownId && partId) {
-				console.log('pass to part', partId)
-				this.receiveMOSItemUserOp(e, rundownId, partId, segmentId, mosItem)
+			const { rundownId, segmentExternalId, partExternalId } = this.findPartExternalId(e.target)
+			if (rundownId && segmentExternalId && partExternalId) {
+				this.receiveMOSItemUserOp(e, rundownId, partExternalId, segmentExternalId, mosItem)
 				return
 			}
 		}
@@ -300,13 +304,17 @@ export const ExternalFramePanel = withTranslation()(
 		receiveMOSItemUserOp(
 			e: any,
 			rundownId: RundownId,
-			partId: string,
-			segmentId: string | undefined,
+			partExternalId: string,
+			segmentExternalId: string,
 			mosItem: MOS.IMOSItem
 		) {
 			const { t } = this.props
 
-			const operationTarget = { segmentExternalId: segmentId, partExternalId: partId, pieceExternalId: undefined }
+			const operationTarget: UserOperationTarget = {
+				target: 'part' as const,
+				segmentExternalId,
+				partExternalId,
+			}
 
 			doUserAction(t, e, UserAction.EXECUTE_USER_OPERATION, (e, ts) =>
 				MeteorCall.userAction.executeUserChangeOperation(
@@ -596,11 +604,10 @@ export const ExternalFramePanel = withTranslation()(
 
 		unregisterHandlers = () => {
 			document.removeEventListener('keydown', this.onKeyEvent)
-			document.removeEventListener('keydown', this.onKeyEvent)
+			document.removeEventListener('keyup', this.onKeyEvent)
 
 			document.removeEventListener('dragover', this.onDragOver)
 			document.removeEventListener('dragenter', this.onDragEnter)
-			document.removeEventListener('dragleave', this.onDragLeave)
 			document.removeEventListener('dragexit', this.onDragLeave)
 			document.removeEventListener('drop', this.onDrop)
 		}

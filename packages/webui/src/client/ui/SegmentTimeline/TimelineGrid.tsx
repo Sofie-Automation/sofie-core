@@ -5,11 +5,11 @@ import { RundownUtils } from '../../lib/rundown.js'
 
 import { getElementWidth, getElementHeight } from '../../utils/dimensions.js'
 import { onElementResize } from '../../lib/resizeObserver.js'
-import { PartUi } from './SegmentTimelineContainer.js'
+import type { PartUi } from './SegmentTimelineContainer.js'
 import { getCurrentTime } from '../../lib/systemTime.js'
 import { RundownTiming } from '../RundownView/RundownTiming/RundownTiming.js'
 import { SegmentTimelinePartClass } from './Parts/SegmentTimelinePart.js'
-import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownTimingProviderContext } from '../RundownView/RundownTiming/withTiming.js'
 
 // We're cheating a little: Fontface
@@ -43,6 +43,7 @@ interface ITimelineGridProps {
 	isLiveSegment: boolean
 	partInstances: PartUi[]
 	currentPartInstanceId: PartInstanceId | null
+	defaultDisplayDuration: number
 	onResize: (size: number[]) => void
 }
 
@@ -330,7 +331,7 @@ export class TimelineGrid extends React.Component<ITimelineGridProps> {
 				total += duration
 			})
 		} else {
-			total = RundownUtils.getSegmentDuration(this.props.partInstances, true)
+			total = RundownUtils.getSegmentDuration(this.props.partInstances, this.props.defaultDisplayDuration)
 		}
 		return total
 	}
@@ -414,7 +415,8 @@ export class TimelineGrid extends React.Component<ITimelineGridProps> {
 			nextProps.scrollLeft !== this.props.scrollLeft ||
 			nextProps.isLiveSegment !== this.props.isLiveSegment ||
 			nextProps.partInstances !== this.props.partInstances ||
-			nextProps.currentPartInstanceId !== this.props.currentPartInstanceId
+			nextProps.currentPartInstanceId !== this.props.currentPartInstanceId ||
+			nextProps.defaultDisplayDuration !== this.props.defaultDisplayDuration
 		) {
 			return true
 		}
@@ -429,7 +431,8 @@ export class TimelineGrid extends React.Component<ITimelineGridProps> {
 		if (
 			prevProps.isLiveSegment !== this.props.isLiveSegment ||
 			prevProps.partInstances !== this.props.partInstances ||
-			prevProps.currentPartInstanceId !== this.props.currentPartInstanceId
+			prevProps.currentPartInstanceId !== this.props.currentPartInstanceId ||
+			prevProps.defaultDisplayDuration !== this.props.defaultDisplayDuration
 		) {
 			this.lastTotalSegmentDuration = null
 		}
@@ -442,6 +445,11 @@ export class TimelineGrid extends React.Component<ITimelineGridProps> {
 	}
 
 	componentWillUnmount(): void {
+		if (typeof this.scheduledRepaint === 'number') {
+			window.cancelAnimationFrame(this.scheduledRepaint)
+			this.scheduledRepaint = null
+		}
+		this.contextResize.cancel()
 		if (this._resizeObserver) this._resizeObserver.disconnect()
 		window.removeEventListener(RundownTiming.Events.timeupdateLowResolution, this.onTimeupdate)
 		window.removeEventListener(RundownTiming.Events.timeupdateHighResolution, this.onTimeupdate)

@@ -6,10 +6,10 @@ coverage
 settings.json
 server/_force_restart.js
 public/
+/dist/
 
-# Ignore TV2-features:
-client/styles/tv2
-client/ui/Shelf/Keyboard
+# Ignore old meteor stuff
+/.meteor/
 
 .pnp.*
 .yarn/*
@@ -19,3 +19,9 @@ client/ui/Shelf/Keyboard
 !.yarn/sdks
 !.yarn/versions
 
+
+# Meteor Modern-Tools build context directories
+_build
+*/build-assets
+*/build-chunks
+.rsdoctor

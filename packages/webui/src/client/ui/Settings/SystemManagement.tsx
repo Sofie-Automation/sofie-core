@@ -1,26 +1,31 @@
 import React, { useCallback, useMemo } from 'react'
 import { useTracker, useSubscription } from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { ICoreSystem, SofieLogo } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { type ICoreSystem, SofieLogo } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { EditAttribute } from '../../lib/EditAttribute.js'
 import { doModalDialog } from '../../lib/ModalDialog.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { languageAnd } from '../../lib/language.js'
 import { TriggeredActionsEditor } from './components/triggeredActions/TriggeredActionsEditor.js'
-import { TFunction, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { Meteor } from 'meteor/meteor'
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { CoreSystem } from '../../collections/index.js'
-import { CollectionCleanupResult } from '@sofie-automation/meteor-lib/dist/api/system'
+import type { CollectionCleanupResult } from '@sofie-automation/meteor-lib/dist/api/system'
 import {
 	LabelActual,
 	LabelAndOverrides,
 	LabelAndOverridesForCheckbox,
+	LabelAndOverridesForDropdown,
+	LabelAndOverridesForInt,
 	LabelAndOverridesForMultiLineText,
 } from '../../lib/Components/LabelAndOverrides.js'
+import { IntInputControl } from '../../lib/Components/IntInput.js'
+import { DropdownInputControl, type DropdownInputOption } from '../../lib/Components/DropdownInput.js'
 import { catchError } from '../../lib/lib.js'
 import { SystemManagementBlueprint } from './SystemManagement/Blueprint.js'
-import { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import type { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { useOverrideOpHelperForSimpleObject } from './util/OverrideOpHelper.js'
 import { CheckboxControl } from '../../lib/Components/Checkbox.js'
 import {
@@ -59,6 +64,8 @@ export default function SystemManagement(): JSX.Element | null {
 			<SystemManagementMonitoring coreSystem={coreSystem} />
 
 			<SystemManagementCronJobs coreSystem={coreSystem} />
+
+			<SystemManagementKeyboard coreSystem={coreSystem} />
 
 			<SystemManagementCleanup />
 			<SystemManagementHeapSnapshot />
@@ -293,6 +300,59 @@ function SystemManagementCronJobs({ coreSystem }: Readonly<WithCoreSystemProps>)
 				>
 					{(value, handleUpdate) => <MultiLineTextInputControl value={value} handleUpdate={handleUpdate} />}
 				</LabelAndOverridesForMultiLineText>
+
+				<LabelAndOverridesForInt
+					label={t('Maximum data age')}
+					item={wrappedItem}
+					itemKey={'maximumDataAge'}
+					overrideHelper={overrideHelper}
+					hint={t('Clean up old data (eg. evaluations, user action logs) that is older than this, in milliseconds')}
+				>
+					{(value, handleUpdate) => <IntInputControl value={value} handleUpdate={handleUpdate} />}
+				</LabelAndOverridesForInt>
+			</div>
+		</>
+	)
+}
+
+const CONFIRM_KEY_CODE_OPTIONS: DropdownInputOption<'Enter' | 'AnyEnter'>[] = [
+	{ name: 'Enter', value: 'Enter', i: 0 },
+	{ name: 'Any Enter (including Numpad Enter)', value: 'AnyEnter', i: 1 },
+]
+
+function SystemManagementKeyboard({ coreSystem }: Readonly<WithCoreSystemProps>) {
+	const { t } = useTranslation()
+
+	const { wrappedItem, overrideHelper } = useCoreSystemSettingsWithOverrides(coreSystem)
+
+	return (
+		<>
+			<h2 className="my-4">{t('Keyboard')}</h2>
+			<div className="properties-grid">
+				<LabelAndOverridesForDropdown
+					label={t('Modal "Confirm" key')}
+					item={wrappedItem}
+					itemKey={'confirmKeyCode'}
+					overrideHelper={overrideHelper}
+					options={CONFIRM_KEY_CODE_OPTIONS}
+					hint={t(
+						'Which keyboard key is used as "Confirm" in modal dialogs etc. Use "Enter" to exclude the Numpad Enter key (eg. when it is dedicated for playout)'
+					)}
+				>
+					{(value, handleUpdate, options) => (
+						<DropdownInputControl options={options} value={value} handleUpdate={handleUpdate} />
+					)}
+				</LabelAndOverridesForDropdown>
+
+				<LabelAndOverrides
+					label={t('Poison Key')}
+					item={wrappedItem}
+					itemKey={'poisonKey'}
+					overrideHelper={overrideHelper}
+					hint={t('Key to use as the poison key (aborts hotkey actions). Leave empty to disable')}
+				>
+					{(value, handleUpdate) => <TextInputControl value={value} handleUpdate={handleUpdate} />}
+				</LabelAndOverrides>
 			</div>
 		</>
 	)

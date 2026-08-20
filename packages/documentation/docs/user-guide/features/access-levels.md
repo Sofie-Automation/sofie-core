@@ -54,7 +54,7 @@ It is known that secrets can be leaked to all clients who can connect to Sofie, 
 :::
 
 In this mode, we rely on Sofie being run behind a reverse-proxy which will inform Sofie of the permissions of each connection. This allows you to use your organisations preferred auth provider, and translate that into something that Sofie can understand.
-To enable this mode, you need to enable the `enableHeaderAuth` property in the [settings file](../configuration/sofie-core-settings.md)
+To enable this mode, set the `SOFIE_ENABLE_HEADER_AUTH` [environment variable](../configuration/sofie-core-settings.md) to `1` or `true`.
 
 Sofie expects that for each DDP connection or http request, the `dnt` header will be set containing a comma separated list of the levels from the above table. If the header is not defined or is empty, the connection will have view-only access to Sofie.
 This header can also contain simply `admin` to grant the connection permission to everything.

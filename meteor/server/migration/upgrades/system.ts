@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { logger } from '../../logging'
 import { Blueprints, CoreSystem } from '../../collections'
 import {
@@ -14,6 +13,12 @@ import { CoreSystemId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DEFAULT_CORE_TRIGGERS } from './defaultSystemActionTriggers'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
+import {
+	DEFAULT_MAXIMUM_DATA_AGE,
+	DEFAULT_CONFIRM_KEY_CODE,
+	DEFAULT_POISON_KEY,
+} from '@sofie-automation/shared-lib/dist/core/constants'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export async function runUpgradeForCoreSystem(coreSystemId: CoreSystemId): Promise<void> {
 	logger.info(`Running upgrade for CoreSystem`)
@@ -40,7 +45,7 @@ export async function runUpgradeForCoreSystem(coreSystemId: CoreSystemId): Promi
 		$set: {
 			'settingsWithOverrides.defaults': coreSystemSettings,
 			lastBlueprintConfig: {
-				blueprintHash: blueprint?.blueprintHash ?? protectString('default'),
+				blueprintHash: blueprint?.blueprintHash ?? 'default',
 				blueprintId: blueprint?._id ?? protectString('default'),
 				blueprintConfigPresetId: undefined,
 				config: {},
@@ -53,7 +58,7 @@ export async function runUpgradeForCoreSystem(coreSystemId: CoreSystemId): Promi
 
 async function loadCoreSystemAndBlueprint(coreSystemId: CoreSystemId) {
 	const coreSystem = await CoreSystem.findOneAsync(coreSystemId)
-	if (!coreSystem) throw new Meteor.Error(404, `CoreSystem "${coreSystemId}" not found!`)
+	if (!coreSystem) throw new SofieError(404, `CoreSystem "${coreSystemId}" not found!`)
 
 	if (!coreSystem.blueprintId) {
 		// No blueprint is valid
@@ -64,15 +69,15 @@ async function loadCoreSystemAndBlueprint(coreSystemId: CoreSystemId) {
 		}
 	}
 
-	// if (!showStyleBase.blueprintConfigPresetId) throw new Meteor.Error(500, 'ShowStyleBase is missing config preset')
+	// if (!showStyleBase.blueprintConfigPresetId) throw new SofieError(500, 'ShowStyleBase is missing config preset')
 
 	const blueprint = await Blueprints.findOneAsync({
 		_id: coreSystem.blueprintId,
 		blueprintType: BlueprintManifestType.SYSTEM,
 	})
-	if (!blueprint) throw new Meteor.Error(404, `Blueprint "${coreSystem.blueprintId}" not found!`)
+	if (!blueprint) throw new SofieError(404, `Blueprint "${coreSystem.blueprintId}" not found!`)
 
-	if (!blueprint.blueprintHash) throw new Meteor.Error(500, 'Blueprint is not valid')
+	if (!blueprint.blueprintHash) throw new SofieError(500, 'Blueprint is not valid')
 
 	const blueprintManifest = evalBlueprint(blueprint) as SystemBlueprintManifest
 
@@ -102,6 +107,9 @@ function generateDefaultSystemConfig(): BlueprintResultApplySystemConfig {
 				heading: '',
 				message: '',
 			},
+			maximumDataAge: DEFAULT_MAXIMUM_DATA_AGE,
+			confirmKeyCode: DEFAULT_CONFIRM_KEY_CODE,
+			poisonKey: DEFAULT_POISON_KEY,
 		},
 		triggeredActions: Object.values<IBlueprintTriggeredActions>(DEFAULT_CORE_TRIGGERS),
 	}

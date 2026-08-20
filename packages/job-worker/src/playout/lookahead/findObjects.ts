@@ -64,9 +64,13 @@ function getObjectMapForPiece(
 		for (const obj of objects) {
 			if (!shouldIncludeObjectOnTimeline(playoutState, obj)) continue
 
-			// Note: This is assuming that there is only one use of a layer in each piece.
-			if (typeof obj.layer === 'string' && !piece.objectMap.has(obj.layer)) {
-				piece.objectMap.set(obj.layer, obj)
+			if (typeof obj.layer === 'string') {
+				const existing = piece.objectMap.get(obj.layer)
+				if (existing) {
+					existing.push(obj)
+				} else {
+					piece.objectMap.set(obj.layer, [obj])
+				}
 			}
 		}
 	}
@@ -112,12 +116,14 @@ export function findLookaheadObjectsForPart(
 	for (const rawPiece of partInfo.pieces) {
 		if (shouldIgnorePiece(partInfo, rawPiece)) continue
 
-		const obj = getObjectMapForPiece(playoutState, rawPiece).get(layer)
+		const objs = getObjectMapForPiece(playoutState, rawPiece).get(layer) ?? []
 
 		// we only consider lookahead objects for lookahead and calculate the lookaheadOffset for each object.
-		const computedLookaheadObj = computeLookaheadObject(obj, rawPiece, partInfo, partInstanceId, nextTimeOffset)
-		if (computedLookaheadObj) {
-			allObjs.push(computedLookaheadObj)
+		for (const obj of objs) {
+			const computedLookaheadObj = computeLookaheadObject(obj, rawPiece, partInfo, partInstanceId, nextTimeOffset)
+			if (computedLookaheadObj) {
+				allObjs.push(computedLookaheadObj)
+			}
 		}
 	}
 
@@ -151,7 +157,7 @@ export function findLookaheadObjectsForPart(
 
 		const res: Array<LookaheadTimelineObject> = []
 		allObjs.map((obj) => {
-			const piece = partInfo.pieces.find((piece) => unprotectString(piece._id) === obj.pieceInstanceId)
+			const piece = partInfo.pieces.find((piece) => getBestPieceInstanceId(piece) === obj.pieceInstanceId)
 			if (!piece) return
 
 			// If there is a transition and this piece is abs0, it is assumed to be the primary piece and so does not need lookahead

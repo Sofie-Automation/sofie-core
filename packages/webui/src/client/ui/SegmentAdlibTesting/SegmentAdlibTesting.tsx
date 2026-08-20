@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
-import { IContextMenuContext } from '../RundownView.js'
-import { IOutputLayerUi, PartUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
+import type { IContextMenuContext } from '../RundownView.js'
+import type { IOutputLayerUi, PartUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { CriticalIconSmall, WarningIconSmall } from '../../lib/ui/icons/notifications.js'
 import { contextMenuHoldToDisplayTime, useCombinedRefs, useRundownViewEventBusListener } from '../../lib/lib.js'
@@ -12,25 +12,25 @@ import { lockPointer, unlockPointer } from '../../lib/viewPort.js'
 import { StoryboardPart } from '../SegmentStoryboard/StoryboardPart.js'
 import classNames from 'classnames'
 import {
-	GoToPartEvent,
-	GoToPartInstanceEvent,
+	type GoToPartEvent,
+	type GoToPartInstanceEvent,
 	RundownViewEvents,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { getElementWidth } from '../../utils/dimensions.js'
-import { HOVER_TIMEOUT } from '../Shelf/DashboardPieceButton.js'
 import { Meteor } from 'meteor/meteor'
 import { hidePointerLockCursor, showPointerLockCursor } from '../../lib/PointerLockCursor.js'
 import { motion } from 'motion/react'
 import { filterSecondarySourceLayers } from '../SegmentStoryboard/StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces.js'
-import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
-	DBRundownPlaylist,
+	type DBRundownPlaylist,
 	RundownHoldState,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 import { isLoopRunning } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+import { HOVER_TIMEOUT } from '../Shelf/DashboardPieceButton/types.js'
 
 interface IProps {
 	id: string
@@ -308,32 +308,35 @@ export const SegmentAdlibTesting = React.memo(
 			}
 		}
 
-		const onSegmentWheel = (e: WheelEvent) => {
-			let scrollDelta = 0
-			if (
-				(!e.ctrlKey && e.altKey && !e.metaKey && !e.shiftKey) ||
-				(e.ctrlKey && !e.metaKey && !e.shiftKey && e.altKey)
-			) {
-				// this.props.onScroll(Math.max(0, this.props.scrollLeft + e.deltaY / this.props.timeScale), e)
-				scrollDelta = e.deltaY * -1
-				e.preventDefault()
-			} else if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
-				// no modifier
-				if (e.deltaX !== 0) {
-					// this.props.onScroll(Math.max(0, this.props.scrollLeft + e.deltaX / this.props.timeScale), e)
-					scrollDelta = e.deltaX * -1
+		const onSegmentWheel = useCallback(
+			(e: WheelEvent) => {
+				let scrollDelta = 0
+				if (
+					(!e.ctrlKey && e.altKey && !e.metaKey && !e.shiftKey) ||
+					(e.ctrlKey && !e.metaKey && !e.shiftKey && e.altKey)
+				) {
+					// this.props.onScroll(Math.max(0, this.props.scrollLeft + e.deltaY / this.props.timeScale), e)
+					scrollDelta = e.deltaY * -1
 					e.preventDefault()
+				} else if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+					// no modifier
+					if (e.deltaX !== 0) {
+						// this.props.onScroll(Math.max(0, this.props.scrollLeft + e.deltaX / this.props.timeScale), e)
+						scrollDelta = e.deltaX * -1
+						e.preventDefault()
+					}
 				}
-			}
 
-			if (scrollDelta !== 0) {
-				setScrollLeft((value) => {
-					const newScrollLeft = Math.max(0, Math.min(value - scrollDelta, maxScrollLeft))
-					props.onScroll(newScrollLeft, e)
-					return newScrollLeft
-				})
-			}
-		}
+				if (scrollDelta !== 0) {
+					setScrollLeft((value) => {
+						const newScrollLeft = Math.max(0, Math.min(value - scrollDelta, maxScrollLeft))
+						props.onScroll(newScrollLeft, e)
+						return newScrollLeft
+					})
+				}
+			},
+			[maxScrollLeft, props.onScroll]
+		)
 
 		useEffect(() => {
 			if (!grabbed) return
@@ -420,7 +423,7 @@ export const SegmentAdlibTesting = React.memo(
 			return () => {
 				segment.removeEventListener('wheel', onSegmentWheel)
 			}
-		}, [innerRef.current])
+		}, [onSegmentWheel])
 
 		return (
 			<div

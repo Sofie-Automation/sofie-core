@@ -1,13 +1,13 @@
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { FindOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { FindOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { RundownPlaylistCollectionUtil } from '../collections/rundownPlaylistUtil.js'
 import { UIPartInstances, UIParts } from '../ui/Collections.js'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { Pieces, Segments } from '../collections/index.js'
-import { DBRundown, Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { RundownId, PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import type { DBRundown, Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import type { RundownId, PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { normalizeArrayFunc, groupByToMap } from '@sofie-automation/corelib/dist/lib'
 import {
 	sortSegmentsInRundowns,
@@ -16,7 +16,7 @@ import {
 } from '@sofie-automation/corelib/dist/playout/playlist'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import _ from 'underscore'
-import { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
+import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 
 export class RundownPlaylistClientUtil {
 	/** Returns all segments joined with their rundowns in their correct order for this RundownPlaylist */
@@ -25,16 +25,7 @@ export class RundownPlaylistClientUtil {
 		selector?: MongoQuery<DBSegment>,
 		options?: FindOptions<DBSegment>
 	): Array<{
-		rundown: Pick<
-			Rundown,
-			| '_id'
-			| 'name'
-			| 'playlistId'
-			| 'timing'
-			| 'showStyleBaseId'
-			| 'showStyleVariantId'
-			| 'endOfRundownIsShowBreak'
-		>
+		rundown: Pick<Rundown, '_id' | 'name' | 'playlistId' | 'timing' | 'showStyleBaseId' | 'showStyleVariantId'>
 		segments: DBSegment[]
 	}> {
 		const rundowns = RundownPlaylistCollectionUtil.getRundownsOrdered(playlist, undefined, {
@@ -44,7 +35,6 @@ export class RundownPlaylistClientUtil {
 				timing: 1,
 				showStyleBaseId: 1,
 				showStyleVariantId: 1,
-				endOfRundownIsShowBreak: 1,
 			},
 		})
 		const segments = Segments.find(
@@ -96,7 +86,6 @@ export class RundownPlaylistClientUtil {
 		currentPartInstance: PartInstance | undefined
 		nextPartInstance: PartInstance | undefined
 		previousPartInstance: PartInstance | undefined
-		partInstanceToCountTimeFrom: PartInstance | undefined
 	} {
 		let unorderedRundownIds = rundownIds0
 		if (!unorderedRundownIds) {
@@ -117,28 +106,12 @@ export class RundownPlaylistClientUtil {
 					}).fetch()
 				: []
 
-		const areAllPartsTimed = !!UIPartInstances.findOne({
-			rundownId: { $in: unorderedRundownIds },
-			['part.untimed']: { $ne: true },
-		})
-
-		const partInstanceToCountTimeFrom = UIPartInstances.findOne(
-			{
-				rundownId: { $in: unorderedRundownIds },
-				reset: { $ne: true },
-				takeCount: { $exists: true },
-				['part.untimed']: { $ne: areAllPartsTimed },
-			},
-			{ sort: { takeCount: 1 } }
-		)
-
 		return {
 			currentPartInstance: instances.find((inst) => inst._id === playlist.currentPartInfo?.partInstanceId),
 			nextPartInstance: instances.find((inst) => inst._id === playlist.nextPartInfo?.partInstanceId),
 			previousPartInstance: instances.find(
 				(inst) => inst._id === playlist.previousPartsInfo?.[0]?.partInstanceId
 			),
-			partInstanceToCountTimeFrom,
 		}
 	}
 

@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { PackageInfo } from '@sofie-automation/blueprints-integration'
 import {
 	BucketAdLibActionId,
@@ -14,14 +15,13 @@ import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib
 import { UIBucketContentStatus } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
 import { Buckets, MediaObjects, PackageContainerPackageStatuses, PackageInfos, Studios } from '../../../collections'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	CustomPublishCollection,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	TriggerUpdate,
 	SetupObserversResult,
 } from '../../../lib/customPublication'
+import type { PublicationRegistry } from '../../../publicationRegistry'
 import { BucketContentCache, createReactiveContentCache } from './bucketContentCache'
 import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import {
@@ -37,7 +37,7 @@ import {
 import { BucketContentObserver } from './bucketContentObserver'
 import { regenerateForBucketActionIds, regenerateForBucketAdLibIds } from './regenerateForItem'
 import { PieceContentStatusStudio } from '../checkPieceContentStatus'
-import { check } from 'meteor/check'
+import { check } from '../../../lib/check'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../../../security/securityVerify'
 import { PieceContentStatusMessageFactory } from '../messageFactory'
 
@@ -106,22 +106,22 @@ async function setupUIBucketContentStatusesPublicationObservers(
 	return [
 		BucketContentObserver.create(args.bucketId, contentCache),
 
-		contentCache.BucketAdLibs.find({}).observeChanges({
-			added: (id) => triggerUpdate(trackAdlibChange(protectString(id))),
-			changed: (id) => triggerUpdate(trackAdlibChange(protectString(id))),
-			removed: (id) => triggerUpdate(trackAdlibChange(protectString(id))),
+		contentCache.BucketAdLibs.observeChanges({
+			added: (id) => triggerUpdate(trackAdlibChange(id)),
+			changed: (id) => triggerUpdate(trackAdlibChange(id)),
+			removed: (id) => triggerUpdate(trackAdlibChange(id)),
 		}),
-		contentCache.BucketAdLibActions.find({}).observeChanges({
-			added: (id) => triggerUpdate(trackActionChange(protectString(id))),
-			changed: (id) => triggerUpdate(trackActionChange(protectString(id))),
-			removed: (id) => triggerUpdate(trackActionChange(protectString(id))),
+		contentCache.BucketAdLibActions.observeChanges({
+			added: (id) => triggerUpdate(trackActionChange(id)),
+			changed: (id) => triggerUpdate(trackActionChange(id)),
+			removed: (id) => triggerUpdate(trackActionChange(id)),
 		}),
-		contentCache.Blueprints.find({}).observeChanges({
+		contentCache.Blueprints.observeChanges({
 			added: () => triggerUpdate({ invalidateAll: true }),
 			changed: () => triggerUpdate({ invalidateAll: true }),
 			removed: () => triggerUpdate({ invalidateAll: true }),
 		}),
-		contentCache.ShowStyleSourceLayers.find({}).observeChanges({
+		contentCache.ShowStyleSourceLayers.observeChanges({
 			added: () => triggerUpdate({ invalidateAll: true }),
 			changed: () => triggerUpdate({ invalidateAll: true }),
 			removed: () => triggerUpdate({ invalidateAll: true }),
@@ -225,11 +225,11 @@ async function manipulateUIBucketContentStatusesPublicationData(
 
 		// force every piece to be regenerated
 		collection.remove(null)
-		regenerateAdlibIds = new Set(state.contentCache.BucketAdLibs.find({}).map((p) => p._id))
-		regenerateActionIds = new Set(state.contentCache.BucketAdLibActions.find({}).map((p) => p._id))
+		regenerateAdlibIds = new Set(state.contentCache.BucketAdLibs.findFetch({}).map((p) => p._id))
+		regenerateActionIds = new Set(state.contentCache.BucketAdLibActions.findFetch({}).map((p) => p._id))
 
 		// prepare the message factories
-		for (const showStyle of state.contentCache.ShowStyleSourceLayers.find({})) {
+		for (const showStyle of state.contentCache.ShowStyleSourceLayers.findFetch({})) {
 			const blueprint = state.contentCache.Blueprints.findOne(showStyle.blueprintId)
 			state.showStyleMessageFactories.set(showStyle._id, new PieceContentStatusMessageFactory(blueprint))
 		}
@@ -268,27 +268,29 @@ async function manipulateUIBucketContentStatusesPublicationData(
 	)
 }
 
-meteorCustomPublish(
-	MeteorPubSub.uiBucketContentStatuses,
-	CustomCollectionName.UIBucketContentStatuses,
-	async function (pub, studioId: StudioId, bucketId: BucketId) {
-		check(studioId, String)
-		check(bucketId, String)
+export function registerBucketContentStatusUIPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		MeteorPubSub.uiBucketContentStatuses,
+		CustomCollectionName.UIBucketContentStatuses,
+		async (_context, pub, studioId: StudioId, bucketId: BucketId) => {
+			check(studioId, z.string())
+			check(bucketId, z.string())
 
-		triggerWriteAccessBecauseNoCheckNecessary()
+			triggerWriteAccessBecauseNoCheckNecessary()
 
-		await setUpCollectionOptimizedObserver<
-			UIBucketContentStatus,
-			UIBucketContentStatusesArgs,
-			UIBucketContentStatusesState,
-			UIBucketContentStatusesUpdateProps
-		>(
-			`pub_${MeteorPubSub.uiBucketContentStatuses}_${studioId}_${bucketId}`,
-			{ studioId, bucketId },
-			setupUIBucketContentStatusesPublicationObservers,
-			manipulateUIBucketContentStatusesPublicationData,
-			pub,
-			100
-		)
-	}
-)
+			await setUpCollectionOptimizedObserver<
+				UIBucketContentStatus,
+				UIBucketContentStatusesArgs,
+				UIBucketContentStatusesState,
+				UIBucketContentStatusesUpdateProps
+			>(
+				`pub_${MeteorPubSub.uiBucketContentStatuses}_${studioId}_${bucketId}`,
+				{ studioId, bucketId },
+				setupUIBucketContentStatusesPublicationObservers,
+				manipulateUIBucketContentStatusesPublicationData,
+				pub,
+				100
+			)
+		}
+	)
+}

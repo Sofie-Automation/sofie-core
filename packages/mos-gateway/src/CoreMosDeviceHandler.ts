@@ -5,6 +5,8 @@ import {
 	Observer,
 	PeripheralDevicePubSub,
 	stringifyError,
+	CoreConnectionChild,
+	Queue,
 } from '@sofie-automation/server-core-integration'
 import {
 	IMOSConnectionStatus,
@@ -33,8 +35,12 @@ import _ from 'underscore'
 import { MosHandler } from './mosHandler.js'
 import { PartialDeep } from 'type-fest'
 import type { CoreHandler } from './coreHandler.js'
-import { CoreConnectionChild } from '@sofie-automation/server-core-integration/dist/lib/CoreConnectionChild'
-import { Queue } from '@sofie-automation/server-core-integration/dist/lib/queue'
+import {
+	mosDeviceConnectedGauge,
+	mosMessagesFailedCounter,
+	mosMessagesReceivedCounter,
+	mosQueueDepthGauge,
+} from './mosMetrics.js'
 
 function deepMatch(object: any, attrs: any, deep: boolean): boolean {
 	const keys = Object.keys(attrs)
@@ -146,7 +152,7 @@ export class CoreMosDeviceHandler {
 	}
 	onMosConnectionChanged(connectionStatus: IMOSConnectionStatus): void {
 		let statusCode: StatusCode
-		const messages: Array<string> = []
+		const statusDetails: Array<{ message: string }> = []
 
 		if (this._options.openMediaHotStandby) {
 			// OpenMedia treats secondary server as hot-standby
@@ -157,12 +163,12 @@ export class CoreMosDeviceHandler {
 				// Primary not connected is only bad if there is no secondary:
 				if (connectionStatus.SecondaryConnected) {
 					statusCode = StatusCode.GOOD
-					messages.push(connectionStatus.SecondaryStatus || 'Running NRCS on hot standby')
+					statusDetails.push({ message: connectionStatus.SecondaryStatus || 'Running NRCS on hot standby' })
 				} else {
 					statusCode = StatusCode.BAD
 					// Send messages for both connections
-					messages.push(connectionStatus.PrimaryStatus || 'Primary and hot standby are not connected')
-					messages.push(connectionStatus.SecondaryStatus || 'Primary and hot standby are not connected')
+					statusDetails.push({ message: connectionStatus.PrimaryStatus || 'Primary and hot standby are not connected' })
+					statusDetails.push({ message: connectionStatus.SecondaryStatus || 'Primary and hot standby are not connected' })
 				}
 			}
 		} else {
@@ -184,19 +190,31 @@ export class CoreMosDeviceHandler {
 			}
 
 			if (!connectionStatus.PrimaryConnected) {
-				messages.push(connectionStatus.PrimaryStatus || 'Primary not connected')
+				statusDetails.push({ message: connectionStatus.PrimaryStatus || 'Primary not connected' })
 			}
 			if (this._mosDevice.idSecondary && !connectionStatus.SecondaryConnected) {
-				messages.push(connectionStatus.SecondaryStatus || 'Fallback not connected')
+				statusDetails.push({ message: connectionStatus.SecondaryStatus || 'Fallback not connected' })
 			}
 		}
 
 		this.core
 			.setStatus({
 				statusCode: statusCode,
-				messages: messages,
+				statusDetails,
 			})
 			.catch((e) => this._coreParentHandler.logger.warn('Error when setting status:' + e))
+
+		const deviceId = this._mosDevice.idPrimary
+		mosDeviceConnectedGauge.set(
+			{ device_id: deviceId, connection: 'primary' },
+			connectionStatus.PrimaryConnected ? 1 : 0
+		)
+		if (this._mosDevice.idSecondary) {
+			mosDeviceConnectedGauge.set(
+				{ device_id: deviceId, connection: 'secondary' },
+				connectionStatus.SecondaryConnected ? 1 : 0
+			)
+		}
 	}
 	async getMachineInfo(): Promise<IMOSListMachInfo> {
 		const info: IMOSListMachInfo = {
@@ -432,14 +450,15 @@ export class CoreMosDeviceHandler {
 
 		await this.core.setStatus({
 			statusCode: StatusCode.BAD,
-			messages: ['Uninitialized'],
+			statusDetails: [{ message: 'Uninitialized' }],
 		})
 
 		if (subdevice === 'removeSubDevice') await this.core.unInitialize()
 		await this.core.destroy()
 	}
-	killProcess(): void {
-		this._coreParentHandler.killProcess()
+	async killProcess(): Promise<void> {
+		this._coreParentHandler.logger.info('CoreMosDeviceHandler killprocess received')
+		await this._coreParentHandler.killProcess()
 	}
 	/**
 	 * Convert mos-objects to look better over the wire
@@ -456,8 +475,15 @@ export class CoreMosDeviceHandler {
 			return this.fixMosData(attr)
 		}) as any
 
+		const deviceId = this._mosDevice.idPrimary
+		const commandName = methodName as string
+		mosMessagesReceivedCounter.inc({ device_id: deviceId, command: commandName })
+		mosQueueDepthGauge.inc({ device_id: deviceId })
+
 		// Make the commands be sent sequantially:
 		return this._messageQueue.putOnQueue(async () => {
+			mosQueueDepthGauge.dec({ device_id: deviceId })
+
 			// Log info about the sent command:
 			let msg = 'Command: ' + methodName
 			const attr0 = attrs[0] as any | undefined
@@ -476,6 +502,7 @@ export class CoreMosDeviceHandler {
 			const res = (this.core.coreMethods[methodName] as any)(...attrs)
 			return res.catch((e: any) => {
 				this._coreParentHandler.logger.info('MOS command rejected: ' + ((e && JSON.stringify(e)) || e))
+				mosMessagesFailedCounter.inc({ device_id: deviceId, command: commandName })
 				throw e
 			})
 		})

@@ -3,15 +3,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Escape from './Escape.js'
 // @ts-expect-error type linking issue
 import FocusBounder from 'react-focus-bounder'
-import { useTranslation } from 'react-i18next'
+import { useTranslation, withTranslation } from 'react-i18next'
 
 import ClassNames from 'classnames'
 import { logger } from './logging.js'
 import _ from 'underscore'
-import { withTranslation } from 'react-i18next'
-import { Translated } from './ReactMeteorData/ReactMeteorData.js'
-import { EditAttribute, EditAttributeType, IEditAttributeBaseProps } from './EditAttribute.js'
-import { Settings } from '../lib/Settings.js'
+import type { Translated } from './ReactMeteorData/ReactMeteorData.js'
+import { EditAttribute, type EditAttributeType, type IEditAttributeBaseProps } from './EditAttribute.js'
+import { DEFAULT_CONFIRM_KEY_CODE } from '@sofie-automation/shared-lib/dist/core/constants'
+import { getCoreSystemSettings } from '../collections/index.js'
 
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
@@ -376,7 +376,8 @@ class ModalDialogGlobalContainer0 extends React.Component<
 		} else return null
 	}
 }
-export const ModalDialogGlobalContainer = withTranslation()(ModalDialogGlobalContainer0)
+export const ModalDialogGlobalContainer: React.ComponentType<IModalDialogGlobalContainerProps> =
+	withTranslation()(ModalDialogGlobalContainer0)
 let modalDialogGlobalContainerSingleton: ModalDialogGlobalContainer0
 /**
  * Display a ModalDialog, callback on user input
@@ -408,7 +409,8 @@ export function isModalShowing(): boolean {
 }
 
 function isAcceptKey(code: string): boolean {
-	const acceptCodes = Settings.confirmKeyCode === 'AnyEnter' ? ['NumpadEnter', 'Enter'] : ['Enter']
+	const confirmKeyCode = getCoreSystemSettings()?.confirmKeyCode ?? DEFAULT_CONFIRM_KEY_CODE
+	const acceptCodes = confirmKeyCode === 'AnyEnter' ? ['NumpadEnter', 'Enter'] : ['Enter']
 	if (acceptCodes.includes(code)) return true
 
 	return false

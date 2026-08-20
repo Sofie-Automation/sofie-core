@@ -1,19 +1,35 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react'
-import {
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import type {
 	AdLibActionId,
 	PartId,
 	PartInstanceId,
 	PieceId,
+	RundownBaselineAdLibActionId,
 	RundownId,
 	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import type { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
+import type { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
+import type { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
+import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { Tracker } from 'meteor/tracker'
-import { Pieces, Segments } from '../../collections/index.js'
+import {
+	AdLibActions,
+	AdLibPieces,
+	Pieces,
+	RundownBaselineAdLibActions,
+	RundownBaselineAdLibPieces,
+	Segments,
+} from '../../collections/index.js'
 import { UIParts } from '../Collections.js'
+import type {
+	CoreUserEditingDefinition,
+	CoreUserEditingProperties,
+} from '@sofie-automation/corelib/dist/dataModel/UserEditingDefinitions.js'
+import type { ITranslatableMessage } from '@sofie-automation/shared-lib/dist/lib/translations.js'
 
 interface RundownElement {
 	type: 'rundown'
@@ -40,9 +56,24 @@ interface PieceElement {
 	elementId: PieceId
 }
 
+interface AdlibPieceElement {
+	type: 'adLibPiece'
+	elementId: PieceId
+}
+
+interface RundownBaselineAdLibPieceElement {
+	type: 'rundownBaselineAdLibPiece'
+	elementId: PieceId
+}
+
 interface AdlibActionElement {
-	type: 'adlibAction'
+	type: 'adLibAction'
 	elementId: AdLibActionId
+}
+
+interface RundownBaselineAdLibActionElement {
+	type: 'rundownBaselineAdLibAction'
+	elementId: RundownBaselineAdLibActionId
 }
 
 // Union types for all possible elements
@@ -52,7 +83,10 @@ export type SelectedElement =
 	| PartElement
 	| PartInstanceElement
 	| PieceElement
+	| AdlibPieceElement
+	| RundownBaselineAdLibPieceElement
 	| AdlibActionElement
+	| RundownBaselineAdLibActionElement
 type ElementId = SelectedElement['elementId']
 
 export interface SelectionContextType {
@@ -201,36 +235,129 @@ export const useElementSelection = (element: SelectedElement): { isSelected: boo
 	}
 }
 
+type LastValidSmallestElementRef =
+	| {
+			type: 'piece'
+			elementId: PieceId
+			element: Piece
+	  }
+	| {
+			type: 'adLibPiece'
+			elementId: PieceId
+			element: AdLibPiece
+	  }
+	| {
+			type: 'rundownBaselineAdLibPiece'
+			elementId: PieceId
+			element: AdLibPiece
+	  }
+	| {
+			type: 'adLibAction'
+			elementId: AdLibActionId
+			element: AdLibAction
+	  }
+	| {
+			type: 'rundownBaselineAdLibAction'
+			elementId: RundownBaselineAdLibActionId
+			element: RundownBaselineAdLibAction
+	  }
+
+export type SelectedObjects = {
+	piece: Piece | undefined
+	adLibPiece: AdLibPiece | undefined
+	rundownBaselineAdLibPiece: AdLibPiece | undefined
+	adLibAction: AdLibAction | undefined
+	rundownBaselineAdLibAction: RundownBaselineAdLibAction | undefined
+	part: DBPart | undefined
+	segment: DBSegment | undefined
+}
+
 export function useSelectedElements(
 	selectedElement: SelectedElement,
 	clearPendingChange: () => void
 ): {
-	piece: Piece | undefined
-	part: DBPart | undefined
-	segment: DBSegment | undefined
+	type: SelectedElement['type'] | undefined
 	rundownId: RundownId | undefined
+	selectedObjects: SelectedObjects
 } {
 	const [piece, setPiece] = useState<Piece | undefined>(undefined)
+	const [adLibPiece, setAdLibPiece] = useState<AdLibPiece | undefined>(undefined)
+	const [rundownBaselineAdLibPiece, setRundownBaselineAdLibPiece] = useState<AdLibPiece | undefined>(undefined)
+	const [adLibAction, setAdLibAction] = useState<AdLibAction | undefined>(undefined)
+	const [rundownBaselineAdLibAction, setRundownBaselineAdLibAction] = useState<RundownBaselineAdLibAction | undefined>(
+		undefined
+	)
 	const [part, setPart] = useState<DBPart | undefined>(undefined)
 	const [segment, setSegment] = useState<DBSegment | undefined>(undefined)
-	const rundownId = piece ? piece.startRundownId : part ? part.rundownId : segment?.rundownId
+	const rundownId = rundownBaselineAdLibAction
+		? rundownBaselineAdLibAction.rundownId
+		: adLibAction
+			? adLibAction.rundownId
+			: rundownBaselineAdLibPiece
+				? rundownBaselineAdLibPiece.rundownId
+				: adLibPiece
+					? adLibPiece.rundownId
+					: piece
+						? piece.startRundownId
+						: part
+							? part.rundownId
+							: segment?.rundownId
 
-	const lastValidPiece = useRef<Piece | undefined>(undefined)
+	const lastValidSmallestElement = useRef<LastValidSmallestElementRef | undefined>(undefined)
 
 	useEffect(() => {
 		clearPendingChange() // element id changed so any pending change is for an old element
 
 		const computation = Tracker.nonreactive(() =>
 			Tracker.autorun(() => {
-				let piece = Pieces.findOne(selectedElement?.elementId)
+				const type = selectedElement?.type
+				let piece = type === 'piece' ? Pieces.findOne(selectedElement?.elementId) : undefined
+				let adLibPiece = type === 'adLibPiece' ? AdLibPieces.findOne(selectedElement?.elementId) : undefined
+				let rundownBaselineAdLibPiece =
+					type === 'rundownBaselineAdLibPiece'
+						? RundownBaselineAdLibPieces.findOne(selectedElement?.elementId)
+						: undefined
+				let adLibAction = type === 'adLibAction' ? AdLibActions.findOne(selectedElement?.elementId) : undefined
+				let rundownBaselineAdLibAction =
+					type === 'rundownBaselineAdLibAction'
+						? RundownBaselineAdLibActions.findOne(selectedElement?.elementId)
+						: undefined
 
-				if (!piece && lastValidPiece.current && lastValidPiece.current._id === selectedElement?.elementId) {
-					piece = lastValidPiece.current
-				} else if (piece) {
-					lastValidPiece.current = piece
+				if (
+					!piece &&
+					!adLibPiece &&
+					!rundownBaselineAdLibPiece &&
+					!adLibAction &&
+					!rundownBaselineAdLibAction &&
+					lastValidSmallestElement.current
+				) {
+					switch (lastValidSmallestElement.current.type) {
+						case 'piece':
+							piece = lastValidSmallestElement.current.element
+							break
+						case 'adLibPiece':
+							adLibPiece = lastValidSmallestElement.current.element
+							break
+						case 'rundownBaselineAdLibPiece':
+							rundownBaselineAdLibPiece = lastValidSmallestElement.current.element
+							break
+						case 'adLibAction':
+							adLibAction = lastValidSmallestElement.current.element
+							break
+						case 'rundownBaselineAdLibAction':
+							rundownBaselineAdLibAction = lastValidSmallestElement.current.element
+							break
+					}
 				}
 
-				const part = UIParts.findOne({ _id: piece?.startPartId ?? selectedElement?.elementId })
+				setAdLibPiece(adLibPiece)
+				setRundownBaselineAdLibPiece(rundownBaselineAdLibPiece)
+				setAdLibAction(adLibAction)
+				setRundownBaselineAdLibAction(rundownBaselineAdLibAction)
+
+				const part = UIParts.findOne({
+					_id: piece?.startPartId ?? adLibPiece?.partId ?? adLibAction?.partId ?? selectedElement?.elementId,
+				})
 				const segment = Segments.findOne({ _id: part ? part.segmentId : selectedElement?.elementId })
 
 				setPiece(piece)
@@ -240,12 +367,97 @@ export function useSelectedElements(
 		)
 
 		return () => computation.stop()
-	}, [selectedElement?.elementId])
+	}, [selectedElement?.elementId, selectedElement?.type, clearPendingChange])
 
 	return {
-		piece,
-		part,
-		segment,
+		type: selectedElement?.type,
 		rundownId,
+		selectedObjects: {
+			piece,
+			adLibPiece,
+			rundownBaselineAdLibPiece,
+			adLibAction,
+			rundownBaselineAdLibAction,
+			part,
+			segment,
+		},
+	}
+}
+
+export function useSelectedObjectsUserEditProps(
+	type: SelectedElement['type'] | undefined,
+	selectedObjects: SelectedObjects
+): {
+	title: string | ITranslatableMessage | undefined
+	userEditOperations: CoreUserEditingDefinition[] | undefined
+	userEditProperties: CoreUserEditingProperties | undefined
+} {
+	switch (type) {
+		case 'segment': {
+			return {
+				title: selectedObjects.segment?.name,
+				userEditOperations: selectedObjects.segment?.userEditOperations,
+				userEditProperties: selectedObjects.segment?.userEditProperties,
+			}
+		}
+		case 'part': {
+			return {
+				title: selectedObjects.part?.title,
+				userEditOperations: selectedObjects.part?.userEditOperations,
+				userEditProperties: selectedObjects.part?.userEditProperties,
+			}
+		}
+		case 'piece': {
+			return {
+				title: selectedObjects.piece?.name,
+				userEditOperations: selectedObjects.piece?.userEditOperations,
+				userEditProperties: selectedObjects.piece?.userEditProperties,
+			}
+		}
+		case 'adLibPiece': {
+			return {
+				title: selectedObjects.adLibPiece?.name,
+				userEditOperations: selectedObjects.adLibPiece?.userEditOperations,
+				userEditProperties: selectedObjects.adLibPiece?.userEditProperties,
+			}
+		}
+		case 'rundownBaselineAdLibPiece': {
+			return {
+				title: selectedObjects.rundownBaselineAdLibPiece?.name,
+				userEditOperations: selectedObjects.rundownBaselineAdLibPiece?.userEditOperations,
+				userEditProperties: selectedObjects.rundownBaselineAdLibPiece?.userEditProperties,
+			}
+		}
+		case 'adLibAction': {
+			return {
+				title: selectedObjects.adLibAction?.display.label,
+				userEditOperations: selectedObjects.adLibAction?.userEditOperations,
+				userEditProperties: selectedObjects.adLibAction?.userEditProperties,
+			}
+		}
+		case 'rundownBaselineAdLibAction': {
+			return {
+				title: selectedObjects.rundownBaselineAdLibAction?.display.label,
+				userEditOperations: selectedObjects.rundownBaselineAdLibAction?.userEditOperations,
+				userEditProperties: selectedObjects.rundownBaselineAdLibAction?.userEditProperties,
+			}
+		}
+		case 'rundown': {
+			return {
+				title: undefined,
+				userEditOperations: undefined,
+				userEditProperties: undefined,
+			}
+		}
+		case 'partInstance': {
+			return {
+				title: selectedObjects.part?.title,
+				userEditOperations: selectedObjects.part?.userEditOperations,
+				userEditProperties: selectedObjects.part?.userEditProperties,
+			}
+		}
+		case undefined:
+		default:
+			return { title: undefined, userEditOperations: undefined, userEditProperties: undefined }
 	}
 }

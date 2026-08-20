@@ -1,12 +1,12 @@
 import { useState, useLayoutEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { RundownViewPlaylist } from '../../../lib/rundownPlaylistProjection.js'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { RundownUtils } from '../../../lib/rundown.js'
-import { PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
+import type { PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
 import { SegmentTimelinePart } from '../Parts/SegmentTimelinePart.js'
-import { ISourceLayer } from '@sofie-automation/blueprints-integration'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { ISourceLayer } from '@sofie-automation/blueprints-integration'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 
 export const SegmentTimelinePartHoverPreview = ({
 	showMiniInspector,
@@ -29,7 +29,7 @@ export const SegmentTimelinePartHoverPreview = ({
 	followingPart: PartUi | undefined
 
 	segment: SegmentUi
-	playlist: DBRundownPlaylist
+	playlist: RundownViewPlaylist
 	studio: UIStudio
 	collapsedOutputs: {
 		[key: string]: boolean

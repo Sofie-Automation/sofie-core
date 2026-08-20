@@ -34,6 +34,8 @@ export class SegmentTimelineZoomControls extends React.Component<IPropsHeader, I
 
 	private _isTouch = false
 	private resizeObserver: ResizeObserver | undefined
+	private _touchEndHandler: (() => void) | undefined
+	private _mouseUpHandler: (() => void) | undefined
 
 	SMALL_WIDTH_BREAKPOINT = 25
 
@@ -105,8 +107,16 @@ export class SegmentTimelineZoomControls extends React.Component<IPropsHeader, I
 	private zoomAreaEndMove() {
 		if (!this._isTouch) {
 			document.removeEventListener('mousemove', this.zoomAreaMove)
+			if (this._mouseUpHandler) {
+				document.removeEventListener('mouseup', this._mouseUpHandler)
+				this._mouseUpHandler = undefined
+			}
 		} else {
 			document.removeEventListener('touchmove', this.zoomAreaMove)
+			if (this._touchEndHandler) {
+				document.removeEventListener('touchend', this._touchEndHandler)
+				this._touchEndHandler = undefined
+			}
 		}
 
 		this.setState({
@@ -122,13 +132,10 @@ export class SegmentTimelineZoomControls extends React.Component<IPropsHeader, I
 
 		if (!this._isTouch) {
 			document.addEventListener('mousemove', this.zoomAreaMove)
-			document.addEventListener(
-				'mouseup',
-				() => {
-					this.zoomAreaEndMove()
-				},
-				{ once: true }
-			)
+			this._mouseUpHandler = () => {
+				this.zoomAreaEndMove()
+			}
+			document.addEventListener('mouseup', this._mouseUpHandler, { once: true })
 
 			clientX = (e as React.MouseEvent<HTMLDivElement>).clientX
 			clientY = (e as React.MouseEvent<HTMLDivElement>).clientY
@@ -136,9 +143,10 @@ export class SegmentTimelineZoomControls extends React.Component<IPropsHeader, I
 			const et = e as React.TouchEvent<HTMLDivElement>
 			if (et.touches.length === 1) {
 				document.addEventListener('touchmove', this.zoomAreaMove)
-				document.addEventListener('touchend', () => {
+				this._touchEndHandler = () => {
 					this.zoomAreaEndMove()
-				})
+				}
+				document.addEventListener('touchend', this._touchEndHandler)
 
 				clientX = et.touches[0].clientX
 				clientY = et.touches[0].clientY
@@ -179,6 +187,18 @@ export class SegmentTimelineZoomControls extends React.Component<IPropsHeader, I
 	}
 
 	componentWillUnmount(): void {
+		// Ensure any in-progress drag listeners are removed if the component unmounts mid-drag.
+		if (this.state.zoomAreaMoving) {
+			this.zoomAreaEndMove()
+		}
+		if (this._mouseUpHandler) {
+			document.removeEventListener('mouseup', this._mouseUpHandler)
+			this._mouseUpHandler = undefined
+		}
+		if (this._touchEndHandler) {
+			document.removeEventListener('touchend', this._touchEndHandler)
+			this._touchEndHandler = undefined
+		}
 		if (this.resizeObserver && this.parentElement) {
 			offElementResize(this.resizeObserver, this.parentElement)
 		}

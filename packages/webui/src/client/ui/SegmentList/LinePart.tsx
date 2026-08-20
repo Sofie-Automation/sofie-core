@@ -1,24 +1,25 @@
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import classNames from 'classnames'
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import { getElementDocumentOffset } from '../../utils/positions.js'
-import { IContextMenuContext } from '../RundownView.js'
+import type { IContextMenuContext } from '../RundownView.js'
 import { CurrentPartOrSegmentRemaining } from '../RundownView/RundownHeader/CurrentPartOrSegmentRemaining.js'
-import { SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
+import type { SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
 import { SegmentTimelinePartElementId } from '../SegmentTimeline/Parts/SegmentTimelinePart.js'
 import { LinePartIdentifier } from './LinePartIdentifier.js'
 import { LinePartPieceIndicators } from './LinePartPieceIndicators.js'
 import { LinePartTimeline } from './LinePartTimeline.js'
 import { LinePartTitle } from './LinePartTitle.js'
 import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownView/RundownTiming/withTiming.js'
-import { RundownTimingContext, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
+import { type RundownTimingContext, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
 import { LoopingIcon } from '../../lib/ui/icons/looping.js'
-import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
-import { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
+import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
+import { isPartInstanceInvalid } from '../../lib/partInstanceUtil.js'
 
 interface IProps {
 	segment: SegmentUi
@@ -85,6 +86,9 @@ export function LinePart({
 	const isOutsideActiveQuickLoop =
 		isPlaylistLooping && !isInsideQuickLoop && !isEntirePlaylistLooping && !isNextPart && !hasAlreadyPlayed
 
+	// Check for both planned and runtime invalidReason
+	const isInvalid = isPartInstanceInvalid(part.instance)
+
 	const getPartContext = useCallback(() => {
 		const partElement = document.querySelector('#' + SegmentTimelinePartElementId + part.instance._id)
 		const partDocumentOffset = getElementDocumentOffset(partElement)
@@ -112,17 +116,7 @@ export function LinePart({
 		return (
 			<>
 				{part.instance.part.expectedDuration !== undefined && part.instance.part.expectedDuration > 0 && (
-					<span role="timer">
-						{RundownUtils.formatDiffToTimecode(
-							part.instance.part.expectedDuration,
-							false,
-							false,
-							true,
-							false,
-							true,
-							'+'
-						)}
-					</span>
+					<span role="timer">{RundownUtils.formatDiffToTimecodeWithSign(part.instance.part.expectedDuration)}</span>
 				)}
 				{(part.instance.part.expectedDuration === 0 || part.instance.part.expectedDuration === undefined) && (
 					<span>––:––</span>
@@ -142,7 +136,7 @@ export function LinePart({
 					'segment-opl__part--has-played': hasAlreadyPlayed && (!isPlaylistLooping || !isInsideQuickLoop),
 					'segment-opl__part--outside-quickloop': isOutsideActiveQuickLoop,
 					'segment-opl__part--quickloop-start': isQuickLoopStart,
-					'segment-opl__part--invalid': part.instance.part.invalid,
+					'segment-opl__part--invalid': isInvalid,
 					'segment-opl__part--timing-sibling': isPreceededByTimingGroupSibling,
 				}),
 				//@ts-expect-error A Data attribute is perfectly fine

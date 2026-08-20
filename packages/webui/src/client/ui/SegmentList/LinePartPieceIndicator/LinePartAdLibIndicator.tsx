@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo } from 'react'
-import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
-import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
+import type { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { useSubscription, useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { LinePartIndicator } from './LinePartIndicator.js'
 import { useTranslation } from 'react-i18next'
@@ -10,7 +10,7 @@ import StudioContext from '../../RundownView/StudioContext.js'
 import { AdLibActions, AdLibPieces } from '../../../collections/index.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface IProps {
 	sourceLayers: ISourceLayerExtended[]
@@ -20,6 +20,7 @@ interface IProps {
 
 export const LinePartAdLibIndicator: React.FC<IProps> = function LinePartAdLibIndicator({ sourceLayers, partId }) {
 	const { t } = useTranslation()
+	const revealTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
 	const sourceLayerIds = useMemo(() => sourceLayers.map((sourceLayer) => sourceLayer._id), [sourceLayers])
 	const label = useMemo(() => sourceLayers[0]?.name ?? '', [sourceLayers])
@@ -64,12 +65,21 @@ export const LinePartAdLibIndicator: React.FC<IProps> = function LinePartAdLibIn
 		RundownViewEventBus.emit(RundownViewEvents.SHELF_STATE, {
 			state: true,
 		})
-		setTimeout(() => {
+		revealTimeoutRef.current = setTimeout(() => {
 			RundownViewEventBus.emit(RundownViewEvents.REVEAL_IN_SHELF, {
 				pieceId: pieceId,
 			})
 		}, 100)
 	}, [adLibPieces, adLibActions])
+
+	useEffect(() => {
+		return () => {
+			if (revealTimeoutRef.current) {
+				clearTimeout(revealTimeoutRef.current)
+				revealTimeoutRef.current = undefined
+			}
+		}
+	}, [])
 
 	return (
 		<StudioContext.Consumer>

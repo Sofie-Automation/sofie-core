@@ -1,11 +1,11 @@
+import { z } from 'zod'
 import _ from 'underscore'
 import path from 'path'
 import { ReadStream, createReadStream, promises as fsp } from 'fs'
-import { getRandomId } from '@sofie-automation/corelib/dist/lib'
+import { getHash, getRandomId, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { logger } from '../../logging'
-import { Meteor } from 'meteor/meteor'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import {
 	BlueprintManifestType,
@@ -13,9 +13,9 @@ import {
 	SomeBlueprintManifest,
 	TranslationsBundle,
 } from '@sofie-automation/blueprints-integration'
-import { check, Match } from '../../lib/check'
-import { NewBlueprintAPI, BlueprintAPIMethods } from '@sofie-automation/meteor-lib/dist/api/blueprint'
-import { registerClassToMeteorMethods, ReplaceOptionalWithNullInMethodArguments } from '../../methods'
+import { check } from '../../lib/check'
+import { NewBlueprintAPI } from '@sofie-automation/meteor-lib/dist/api/blueprint'
+import { ReplaceOptionalWithNullInMethodArguments } from '../../methods'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { parseVersion } from '../../systemStatus/semverUtils'
 import { evalBlueprint } from './cache'
@@ -33,6 +33,8 @@ import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissio
 import { assertConnectionHasOneOfPermissions, RequestCredentials } from '../../security/auth'
 import { blueprintsPerformDevelopmentMode } from './development'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { isInTestMode } from '../../lib'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const PERMISSIONS_FOR_MANAGE_BLUEPRINTS: Array<keyof UserPermissions> = ['configure']
 
@@ -62,16 +64,16 @@ export async function insertBlueprint(
 		integrationVersion: '',
 		TSRVersion: '',
 
-		blueprintHash: getRandomId(),
+		blueprintHash: getRandomString(),
 		hasFixUpFunction: false,
 	})
 }
 export async function removeBlueprint(methodContext: MethodContext, blueprintId: BlueprintId): Promise<void> {
-	check(blueprintId, String)
+	check(blueprintId, z.string())
 
 	assertConnectionHasOneOfPermissions(methodContext.connection, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
-	if (!blueprintId) throw new Meteor.Error(404, `Blueprint id "${blueprintId}" was not found`)
+	if (!blueprintId) throw new SofieError(404, `Blueprint id "${blueprintId}" was not found`)
 
 	await Blueprints.removeAsync(blueprintId)
 	removeSystemStatus('blueprintCompability_' + blueprintId)
@@ -92,43 +94,56 @@ export async function uploadBlueprint(
 	body: string,
 	options?: UploadBlueprintOptions
 ): Promise<Blueprint> {
-	check(blueprintId, String)
-	check(body, String)
-	check(options?.blueprintName, Match.Maybe(String))
+	check(blueprintId, z.string())
+	check(body, z.string())
+	check(options?.blueprintName, z.string().nullish())
 
 	assertConnectionHasOneOfPermissions(cred, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
-	if (!Meteor.isTest) logger.info(`Got blueprint '${blueprintId}'. ${body.length} bytes`)
+	if (!isInTestMode()) logger.info(`Got blueprint '${blueprintId}'. ${body.length} bytes`)
 
-	if (!blueprintId) throw new Meteor.Error(400, `Blueprint id "${blueprintId}" is not valid`)
+	if (!blueprintId) throw new SofieError(400, `Blueprint id "${blueprintId}" is not valid`)
 	const blueprint = await fetchBlueprintLight(blueprintId)
 
 	return innerUploadBlueprint(blueprint, blueprintId, body, options)
 }
 export async function uploadBlueprintAsset(cred: RequestCredentials, fileId: string, body: string): Promise<void> {
-	check(fileId, String)
-	check(body, String)
+	check(fileId, z.string())
+	check(body, z.string())
 
 	assertConnectionHasOneOfPermissions(cred, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
 	const storePath = getSystemStorePath()
+	const assetsDir = path.resolve(storePath, 'assets') + path.sep
+	const assetPath = path.resolve(path.join(assetsDir, fileId))
+	if (!assetPath.startsWith(assetsDir)) {
+		throw new Error('Asset name outside of asset storage path')
+	}
 
 	// TODO: add access control here
 	const data = Buffer.from(body, 'base64')
-	const parsedPath = path.parse(fileId)
-	logger.info(
-		`Write ${data.length} bytes to ${path.join(storePath, fileId)} (storePath: ${storePath}, fileId: ${fileId})`
-	)
+	logger.info(`Write ${data.length} bytes to ${assetPath} (storePath: ${storePath}, fileId: ${fileId})`)
 
-	await fsp.mkdir(path.join(storePath, parsedPath.dir), { recursive: true })
-	await fsp.writeFile(path.join(storePath, fileId), data)
+	const assetDirPath = path.dirname(assetPath)
+
+	await fsp.mkdir(assetDirPath, { recursive: true })
+	await fsp.writeFile(assetPath, data)
 }
-export function retrieveBlueprintAsset(_cred: RequestCredentials, fileId: string): ReadStream {
-	check(fileId, String)
+export async function retrieveBlueprintAsset(_cred: RequestCredentials, fileId: string): Promise<ReadStream> {
+	check(fileId, z.string())
 
 	const storePath = getSystemStorePath()
+	const assetsDir = path.resolve(storePath, 'assets') + path.sep
+	const assetPath = path.resolve(path.join(assetsDir, fileId))
+	if (!assetPath.startsWith(assetsDir)) {
+		throw new Error('Requested asset outside of asset storage path')
+	}
 
-	return createReadStream(path.join(storePath, fileId))
+	const stream = createReadStream(assetPath)
+	return new Promise((resolve, reject) => {
+		stream.on('open', () => resolve(stream))
+		stream.on('error', (err) => reject(err))
+	})
 }
 /** Only to be called from internal functions */
 export async function internalUploadBlueprint(
@@ -164,7 +179,9 @@ async function innerUploadBlueprint(
 		TSRVersion: '',
 		disableVersionChecks: false,
 		blueprintType: undefined,
-		blueprintHash: getRandomId(),
+		// Content hash of the uploaded code so identical re-uploads keep the same hash, and any
+		// code change (even with an unchanged semver blueprintVersion) is detectable.
+		blueprintHash: body ? getHash(body) : getRandomString(),
 		hasFixUpFunction: false,
 	}
 
@@ -174,14 +191,14 @@ async function innerUploadBlueprint(
 	} catch (e) {
 		logger.error(`Error evaluating Blueprint "${blueprintId}": "${stringifyError(e)}"`)
 
-		throw new Meteor.Error(400, `Error evaluating Blueprint "${blueprintId}": "${stringifyError(e)}"`)
+		throw new SofieError(400, `Error evaluating Blueprint "${blueprintId}": "${stringifyError(e)}"`)
 	}
 
 	if (!_.isObject(blueprintManifest))
-		throw new Meteor.Error(400, `Blueprint ${blueprintId} returned a manifest of type ${typeof blueprintManifest}`)
+		throw new SofieError(400, `Blueprint ${blueprintId} returned a manifest of type ${typeof blueprintManifest}`)
 
 	if (!_.contains(_.values(BlueprintManifestType), blueprintManifest.blueprintType)) {
-		throw new Meteor.Error(
+		throw new SofieError(
 			400,
 			`Blueprint ${blueprintId} returned a manifest of unknown blueprintType "${blueprintManifest.blueprintType}"`
 		)
@@ -194,7 +211,7 @@ async function innerUploadBlueprint(
 	newBlueprint.TSRVersion = blueprintManifest.TSRVersion
 
 	if (blueprint && blueprint.blueprintType && blueprint.blueprintType !== newBlueprint.blueprintType) {
-		throw new Meteor.Error(
+		throw new SofieError(
 			400,
 			`Cannot replace old blueprint (of type "${blueprint.blueprintType}") with new blueprint of type "${newBlueprint.blueprintType}"`
 		)
@@ -210,7 +227,7 @@ async function innerUploadBlueprint(
 				system: undefined,
 			}
 		} else {
-			throw new Meteor.Error(
+			throw new SofieError(
 				422,
 				`Cannot replace old blueprint "${newBlueprint._id}" ("${blueprint.blueprintId}") with new blueprint "${newBlueprint.blueprintId}"`
 			)
@@ -235,7 +252,7 @@ async function innerUploadBlueprint(
 	parseVersion(blueprintManifest.integrationVersion)
 	parseVersion(blueprintManifest.TSRVersion)
 
-	await Blueprints.upsertAsync(newBlueprint._id, newBlueprint)
+	await Blueprints.replaceAsync(newBlueprint)
 
 	// check for translations on the manifest and store them if they exist
 	if (
@@ -367,17 +384,20 @@ async function syncConfigPresetsToStudios(blueprint: Blueprint): Promise<void> {
 	)
 }
 
-async function assignSystemBlueprint(methodContext: MethodContext, blueprintId: BlueprintId | null): Promise<void> {
+export async function assignSystemBlueprint(
+	methodContext: MethodContext,
+	blueprintId: BlueprintId | null
+): Promise<void> {
 	assertConnectionHasOneOfPermissions(methodContext.connection, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
 	if (blueprintId !== undefined && blueprintId !== null) {
-		check(blueprintId, String)
+		check(blueprintId, z.string())
 
 		const blueprint = await fetchBlueprintLight(blueprintId)
-		if (!blueprint) throw new Meteor.Error(404, 'Blueprint not found')
+		if (!blueprint) throw new SofieError(404, 'Blueprint not found')
 
 		if (blueprint.blueprintType !== BlueprintManifestType.SYSTEM)
-			throw new Meteor.Error(404, 'Blueprint not of type SYSTEM')
+			throw new SofieError(404, 'Blueprint not of type SYSTEM')
 
 		await CoreSystem.updateAsync(SYSTEM_ID, {
 			$set: {
@@ -393,15 +413,17 @@ async function assignSystemBlueprint(methodContext: MethodContext, blueprintId: 
 	}
 }
 
-class ServerBlueprintAPI extends MethodContextAPI implements ReplaceOptionalWithNullInMethodArguments<NewBlueprintAPI> {
-	async insertBlueprint() {
+export class ServerBlueprintAPI
+	extends MethodContextAPI
+	implements ReplaceOptionalWithNullInMethodArguments<NewBlueprintAPI>
+{
+	async insertBlueprint(): Promise<BlueprintId> {
 		return insertBlueprint(this.connection)
 	}
-	async removeBlueprint(blueprintId: BlueprintId) {
+	async removeBlueprint(blueprintId: BlueprintId): Promise<void> {
 		return removeBlueprint(this, blueprintId)
 	}
-	async assignSystemBlueprint(blueprintId: BlueprintId | null) {
+	async assignSystemBlueprint(blueprintId: BlueprintId | null): Promise<void> {
 		return assignSystemBlueprint(this, blueprintId)
 	}
 }
-registerClassToMeteorMethods(BlueprintAPIMethods, ServerBlueprintAPI, false)

@@ -1,33 +1,32 @@
 import { EventEmitter } from 'events'
 import _ from 'underscore'
 import {
-	PeripheralDeviceCategory,
+	type PeripheralDeviceCategory,
 	PERIPHERAL_SUBTYPE_PROCESS,
-	PeripheralDeviceStatusObject,
-	PeripheralDeviceInitOptions,
-	PeripheralDeviceType,
-} from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
-import { PeripheralDeviceAPIMethods } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI'
+	type PeripheralDeviceStatusObject,
+	type PeripheralDeviceInitOptions,
+	type PeripheralDeviceType,
+} from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI.js'
+import { PeripheralDeviceAPIMethods } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI.js'
 
 import { DDPConnector } from './ddpConnector.js'
-import { DDPConnectorOptions, Observer } from './ddpClient.js'
+import type { DDPConnectorOptions, Observer } from './ddpClient.js'
 
 import { TimeSync } from './timeSync.js'
 import { WatchDog } from './watchDog.js'
-import { DeviceConfigManifest } from './configManifest.js'
-import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import { ConnectionMethodsQueue, ExternalPeripheralDeviceAPI, makeMethods, makeMethodsLowPrio } from './methods.js'
-import { PeripheralDeviceForDevice } from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice'
-import { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { ChildCoreOptions, CoreConnectionChild } from './CoreConnectionChild.js'
+import type { DeviceConfigManifest } from './configManifest.js'
+import type { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids.js'
+import { ConnectionMethodsQueue, type ExternalPeripheralDeviceAPI, makeMethods, makeMethodsLowPrio } from './methods.js'
+import type { PeripheralDeviceForDevice } from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice.js'
+import type { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString.js'
+import { type ChildCoreOptions, CoreConnectionChild } from './CoreConnectionChild.js'
 import { CorePinger } from './ping.js'
-import { ParametersOfFunctionOrNever, SubscriptionId, SubscriptionsHelper } from './subscriptions.js'
-import {
+import { type ParametersOfFunctionOrNever, type SubscriptionId, SubscriptionsHelper } from './subscriptions.js'
+import type {
 	PeripheralDevicePubSubCollections,
 	PeripheralDevicePubSubTypes,
-} from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
-
-const PkgInfo = require('../../package.json')
+} from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice.js'
+import PkgInfo from '../../package.json' with { type: 'json' }
 
 export interface CoreCredentials {
 	deviceId: PeripheralDeviceId
@@ -148,11 +147,11 @@ export class CoreConnection<
 		})
 		this._ddp.on('connected', () => {
 			// this.emit('connected')
-			if (this._watchDog) this._watchDog.addCheck(async () => this._watchDogCheck())
+			if (this._watchDog) this._watchDog.addCheck(this._watchDogCheck)
 		})
 		this._ddp.on('disconnected', () => {
 			// this.emit('disconnected')
-			if (this._watchDog) this._watchDog.removeCheck(async () => this._watchDogCheck())
+			if (this._watchDog) this._watchDog.removeCheck(this._watchDogCheck)
 		})
 		this._ddp.on('message', () => {
 			if (this._watchDog) this._watchDog.receivedData()
@@ -434,7 +433,7 @@ export class CoreConnection<
 		return this.coreMethods.initialize(options)
 	}
 
-	private async _watchDogCheck() {
+	private _watchDogCheck = async () => {
 		/*
 			Randomize a message and send it to Core.
 			Core should then reply with triggering executeFunction with the "pingResponse" method.

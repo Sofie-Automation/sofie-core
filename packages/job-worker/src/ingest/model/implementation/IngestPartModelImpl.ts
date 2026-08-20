@@ -101,6 +101,10 @@ export class IngestPartModelImpl implements IngestPartModel {
 		return getDocumentChanges(this.#adLibActionsWithChanges, this.#adLibActions)
 	}
 
+	hasChanges(): boolean {
+		return !!this.checkNoChanges()
+	}
+
 	clearChangedFlags(): void {
 		this.#partHasChanges = false
 

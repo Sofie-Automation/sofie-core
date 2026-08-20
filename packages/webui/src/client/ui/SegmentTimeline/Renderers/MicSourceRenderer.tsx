@@ -1,7 +1,7 @@
 import ClassNames from 'classnames'
-import { ScriptContent } from '@sofie-automation/blueprints-integration'
-import { CustomLayerItemRenderer, ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
-import { withTranslation, WithTranslation } from 'react-i18next'
+import type { ScriptContent } from '@sofie-automation/blueprints-integration'
+import { CustomLayerItemRenderer, type ICustomLayerItemProps } from './CustomLayerItemRenderer.js'
+import { withTranslation, type WithTranslation } from 'react-i18next'
 import _ from 'underscore'
 
 import { getElementWidth } from '../../../utils/dimensions.js'
@@ -12,7 +12,7 @@ import { logger } from '../../../lib/logging.js'
 type IProps = ICustomLayerItemProps
 interface IState {}
 
-export const MicSourceRenderer = withTranslation()(
+export const MicSourceRenderer: React.ComponentType<IProps> = withTranslation()(
 	class MicSourceRenderer extends CustomLayerItemRenderer<IProps & WithTranslation, IState> {
 		itemPosition = 0
 		itemElement: HTMLElement | null = null
@@ -28,6 +28,37 @@ export const MicSourceRenderer = withTranslation()(
 
 		constructor(props: IProps & WithTranslation) {
 			super(props)
+		}
+
+		private mountLineItem(target: HTMLElement | null): void {
+			if (!this.lineItem || !target) return
+			if (!document.contains(target)) {
+				this.removeLineItem()
+				return
+			}
+
+			if (this.lineItem.parentElement !== target) {
+				try {
+					this.lineItem.remove()
+				} catch (err) {
+					logger.error(err)
+				}
+				try {
+					target.appendChild(this.lineItem)
+				} catch (err) {
+					logger.error(err)
+				}
+			}
+		}
+
+		private removeLineItem(): void {
+			if (!this.lineItem) return
+
+			try {
+				this.lineItem.remove()
+			} catch (err) {
+				logger.error(err)
+			}
 		}
 
 		repositionLine = () => {
@@ -103,7 +134,7 @@ export const MicSourceRenderer = withTranslation()(
 			this.updateAnchoredElsWidths()
 			if (this.props.itemElement) {
 				this.itemElement = this.props.itemElement
-				this.itemElement.parentElement?.parentElement?.parentElement?.appendChild(this.lineItem)
+				this.mountLineItem(this.itemElement.parentElement?.parentElement?.parentElement ?? null)
 				this.refreshLine()
 			}
 		}
@@ -148,15 +179,11 @@ export const MicSourceRenderer = withTranslation()(
 			// Move the line element
 			if (this.itemElement !== this.props.itemElement) {
 				if (this.itemElement && this.lineItem) {
-					try {
-						this.lineItem.remove()
-					} catch (err) {
-						logger.error(err)
-					}
+					this.removeLineItem()
 				}
 				this.itemElement = this.props.itemElement
 				if (this.itemElement && this.lineItem) {
-					this.itemElement.parentElement?.parentElement?.parentElement?.appendChild(this.lineItem)
+					this.mountLineItem(this.itemElement.parentElement?.parentElement?.parentElement ?? null)
 					_forceSizingRecheck = true
 				}
 			}
@@ -176,12 +203,9 @@ export const MicSourceRenderer = withTranslation()(
 		}
 
 		componentWillUnmount(): void {
-			try {
-				// Remove the line element
-				this.lineItem?.remove()
-			} catch (err) {
-				logger.error(err)
-			}
+			this.removeLineItem()
+			this.lineItem = null
+			this.itemElement = null
 		}
 
 		render(): JSX.Element {
@@ -215,6 +239,7 @@ export const MicSourceRenderer = withTranslation()(
 								style={this.getItemLabelOffsetRight()}
 							>
 								<span className="segment-timeline__piece__label last-words">{end}</span>
+								{this.renderCustomPieceIcons()}
 								{this.renderInfiniteIcon()}
 								{/* this.renderOverflowTimeLabel() */}
 							</span>

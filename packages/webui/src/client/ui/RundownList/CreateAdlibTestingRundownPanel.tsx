@@ -1,5 +1,5 @@
-import React, { memo, useEffect, useState } from 'react'
-import { CreateAdlibTestingRundownOption } from '@sofie-automation/meteor-lib/dist/api/showStyles'
+import { memo, useEffect, useState } from 'react'
+import type { CreateAdlibTestingRundownOption } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { UserAction, doUserAction } from '../../lib/clientUserAction.js'
 import { useTranslation } from 'react-i18next'

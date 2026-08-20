@@ -24,7 +24,7 @@ import { RundownNote } from '@sofie-automation/corelib/dist/dataModel/Notes'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../jobs/showStyle.js'
 import { WrappedShowStyleBlueprint } from '../../blueprints/cache.js'
-import { IBlueprintRundown } from '@sofie-automation/blueprints-integration'
+import type { BlueprintExternalEventSubscription, IBlueprintRundown } from '@sofie-automation/blueprints-integration'
 import type { INotificationsModel } from '../../notifications/NotificationsModel.js'
 import type { IngestExpectedPackage } from './IngestExpectedPackage.js'
 
@@ -214,7 +214,8 @@ export interface IngestModel extends IngestModelReadonly, BaseModel, INotificati
 		showStyleBlueprint: ReadonlyDeep<WrappedShowStyleBlueprint>,
 		source: RundownSource,
 		rundownNotes: RundownNote[],
-		userEdits: CoreUserEditingDefinition[] | undefined
+		userEdits: CoreUserEditingDefinition[] | undefined,
+		externalEventSubscriptions: BlueprintExternalEventSubscription[] | undefined
 	): ReadonlyDeep<DBRundown>
 
 	/**
@@ -251,6 +252,9 @@ export interface IngestModel extends IngestModelReadonly, BaseModel, INotificati
 	 * @param status Rundown air status
 	 */
 	setRundownAirStatus(status: string | undefined): void
+
+	/** Whether any changes have been made to this model since it was loaded. Used to skip a no-op commit. */
+	hasChanges(): boolean
 }
 
 export type IngestReplaceSegmentType = Omit<DBSegment, '_id' | 'rundownId'>

@@ -2,7 +2,7 @@ import { RundownId, RundownPlaylistId, SegmentId } from '@sofie-automation/corel
 import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { UISegmentPartNote } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
 import { CustomPublishCollection } from '../../../lib/customPublication'
-import { ReactiveCacheCollection } from '../../lib/ReactiveCacheCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { manipulateUISegmentPartNotesPublicationData, UISegmentPartNotesState } from '../publication'
 import { ContentCache } from '../reactiveContentCache'
 import * as generateNotesForSegment from '../generateNotesForSegment'
@@ -66,10 +66,10 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 
 	function createAndPopulateMockCache(): ContentCache {
 		const newCache: ContentCache = {
-			Rundowns: new ReactiveCacheCollection('Rundowns'),
-			Segments: new ReactiveCacheCollection('Segments'),
-			Parts: new ReactiveCacheCollection('Parts'),
-			DeletedPartInstances: new ReactiveCacheCollection('DeletedPartInstances'),
+			Rundowns: new InMemoryMongoCollection('Rundowns'),
+			Segments: new InMemoryMongoCollection('Segments'),
+			Parts: new InMemoryMongoCollection('Parts'),
+			PartInstances: new InMemoryMongoCollection('PartInstances'),
 		}
 
 		newCache.Rundowns.insert({
@@ -327,7 +327,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 	describe('generateNotesForSegment calls', () => {
 		const newCache = createAndPopulateMockCache()
 		newCache.Parts.insert({
-			_id: 'part0',
+			_id: protectString('part0'),
 			_rank: 1,
 			segmentId: segmentId0,
 			rundownId: rundownId,
@@ -337,7 +337,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 			invalidReason: undefined,
 		})
 		newCache.Parts.insert({
-			_id: 'part1',
+			_id: protectString('part1'),
 			_rank: 2,
 			segmentId: segmentId0,
 			rundownId: rundownId,
@@ -347,7 +347,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 			invalidReason: undefined,
 		})
 		newCache.Parts.insert({
-			_id: 'part2',
+			_id: protectString('part2'),
 			_rank: 1,
 			segmentId: segmentId1,
 			rundownId: rundownId,
@@ -356,11 +356,11 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 			invalid: false,
 			invalidReason: undefined,
 		})
-		newCache.DeletedPartInstances.insert({
-			_id: 'instance0',
+		newCache.PartInstances.insert({
+			_id: protectString('instance0'),
 			segmentId: segmentId0,
 			rundownId: rundownId,
-			orphaned: undefined,
+			orphaned: 'deleted',
 			reset: false,
 			part: 'part' as any,
 		})
@@ -421,6 +421,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 				[
 					{
 						_id: 'instance0',
+						orphaned: 'deleted',
 						part: 'part',
 						reset: false,
 						rundownId: 'rundown0',

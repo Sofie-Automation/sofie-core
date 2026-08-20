@@ -1,13 +1,13 @@
+import { z } from 'zod'
 import { DBStudio, StudioPackageContainer } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import {
 	TriggerUpdate,
-	meteorCustomPublish,
 	setUpCollectionOptimizedObserver,
 	CustomPublishCollection,
 	SetupObserversResult,
 } from '../../../lib/customPublication'
+import type { PublicationRegistry } from '../../../publicationRegistry'
 import { literal, omit } from '@sofie-automation/corelib/dist/lib'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { logger } from '../../../logging'
 import { ReadonlyDeep } from 'type-fest'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -19,7 +19,7 @@ import {
 	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Studios } from '../../../collections'
-import { check, Match } from 'meteor/check'
+import { check } from '../../../lib/check'
 import { PackageManagerExpectedPackage } from '@sofie-automation/shared-lib/dist/package-manager/publications'
 import { ExpectedPackagesContentObserver } from './contentObserver'
 import { createReactiveContentCache, ExpectedPackagesContentCache } from './contentCache'
@@ -83,15 +83,15 @@ async function setupExpectedPackagesPublicationObservers(
 	return [
 		ExpectedPackagesContentObserver.create(args.studioId, contentCache),
 
-		contentCache.ExpectedPackages.find({}).observeChanges({
-			added: (id) => triggerUpdate({ invalidateExpectedPackageIds: [protectString<ExpectedPackageId>(id)] }),
-			changed: (id) => triggerUpdate({ invalidateExpectedPackageIds: [protectString<ExpectedPackageId>(id)] }),
-			removed: (id) => triggerUpdate({ invalidateExpectedPackageIds: [protectString<ExpectedPackageId>(id)] }),
+		contentCache.ExpectedPackages.observeChanges({
+			added: (id) => triggerUpdate({ invalidateExpectedPackageIds: [id] }),
+			changed: (id) => triggerUpdate({ invalidateExpectedPackageIds: [id] }),
+			removed: (id) => triggerUpdate({ invalidateExpectedPackageIds: [id] }),
 		}),
-		contentCache.PieceInstances.find({}).observeChanges({
-			added: (id) => triggerUpdate({ invalidatePieceInstanceIds: [protectString<PieceInstanceId>(id)] }),
-			changed: (id) => triggerUpdate({ invalidatePieceInstanceIds: [protectString<PieceInstanceId>(id)] }),
-			removed: (id) => triggerUpdate({ invalidatePieceInstanceIds: [protectString<PieceInstanceId>(id)] }),
+		contentCache.PieceInstances.observeChanges({
+			added: (id) => triggerUpdate({ invalidatePieceInstanceIds: [id] }),
+			changed: (id) => triggerUpdate({ invalidatePieceInstanceIds: [id] }),
+			removed: (id) => triggerUpdate({ invalidatePieceInstanceIds: [id] }),
 		}),
 
 		Studios.observeChanges(
@@ -171,7 +171,7 @@ async function manipulateExpectedPackagesPublicationData(
 	if (invalidateAllItems) {
 		// force every package to be regenerated
 		collection.remove(null)
-		regenerateExpectedPackageIds = new Set(state.contentCache.ExpectedPackages.find({}).map((p) => p._id))
+		regenerateExpectedPackageIds = new Set(state.contentCache.ExpectedPackages.findFetch({}).map((p) => p._id))
 	} else {
 		// only regenerate the reported changes
 		regenerateExpectedPackageIds = new Set(updateProps.invalidateExpectedPackageIds)
@@ -205,7 +205,7 @@ function updatePackagePriorities(
 	const packagePriorities = new Map<ExpectedPackageId, number>()
 
 	// Compile the map of the expected priority of each package
-	const knownPieceInstances = contentCache.PieceInstances.find({})
+	const knownPieceInstances = contentCache.PieceInstances.findFetch({})
 	const playlist = contentCache.RundownPlaylists.findOne({})
 	const currentPartInstanceId = playlist?.currentPartInfo?.partInstanceId
 	for (const pieceInstance of knownPieceInstances) {
@@ -235,40 +235,43 @@ function updatePackagePriorities(
 	})
 }
 
-meteorCustomPublish(
-	PeripheralDevicePubSub.packageManagerExpectedPackages,
-	PeripheralDevicePubSubCollectionsNames.packageManagerExpectedPackages,
-	async function (
-		pub,
-		deviceId: PeripheralDeviceId,
-		filterPlayoutDeviceIds: PeripheralDeviceId[] | undefined,
-		token: string | undefined
-	) {
-		check(deviceId, String)
-		check(filterPlayoutDeviceIds, Match.Maybe([String]))
-
-		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, this)
-
-		const studioId = peripheralDevice.studioAndConfigId?.studioId
-		if (!studioId) {
-			logger.warn(`Pub.packageManagerExpectedPackages: device "${peripheralDevice._id}" has no studioId`)
-			return this.ready()
-		}
-
-		await setUpCollectionOptimizedObserver<
-			PackageManagerExpectedPackage,
-			ExpectedPackagesPublicationArgs,
-			ExpectedPackagesPublicationState,
-			ExpectedPackagesPublicationUpdateProps
-		>(
-			`${PeripheralDevicePubSub.packageManagerExpectedPackages}_${studioId}_${deviceId}_${JSON.stringify(
-				(filterPlayoutDeviceIds || []).sort()
-			)}`,
-			{ studioId, deviceId, filterPlayoutDeviceIds },
-			setupExpectedPackagesPublicationObservers,
-			manipulateExpectedPackagesPublicationData,
+export function registerExpectedPackagesPublications(registry: PublicationRegistry): void {
+	registry.customPublish(
+		PeripheralDevicePubSub.packageManagerExpectedPackages,
+		PeripheralDevicePubSubCollectionsNames.packageManagerExpectedPackages,
+		async (
+			context,
 			pub,
-			500 // ms, wait this time before sending an update
-		)
-	}
-)
+			deviceId: PeripheralDeviceId,
+			filterPlayoutDeviceIds: PeripheralDeviceId[] | undefined,
+			token: string | undefined
+		) => {
+			check(deviceId, z.string())
+			check(filterPlayoutDeviceIds, z.array(z.string()).nullish())
+
+			const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
+
+			const studioId = peripheralDevice.studioAndConfigId?.studioId
+			if (!studioId) {
+				logger.warn(`Pub.packageManagerExpectedPackages: device "${peripheralDevice._id}" has no studioId`)
+				return context.ready()
+			}
+
+			await setUpCollectionOptimizedObserver<
+				PackageManagerExpectedPackage,
+				ExpectedPackagesPublicationArgs,
+				ExpectedPackagesPublicationState,
+				ExpectedPackagesPublicationUpdateProps
+			>(
+				`${PeripheralDevicePubSub.packageManagerExpectedPackages}_${studioId}_${deviceId}_${JSON.stringify(
+					(filterPlayoutDeviceIds || []).sort()
+				)}`,
+				{ studioId, deviceId, filterPlayoutDeviceIds },
+				setupExpectedPackagesPublicationObservers,
+				manipulateExpectedPackagesPublicationData,
+				pub,
+				500 // ms, wait this time before sending an update
+			)
+		}
+	)
+}

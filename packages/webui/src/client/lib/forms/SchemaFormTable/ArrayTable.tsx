@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { clone, objectPathGet } from '@sofie-automation/corelib/dist/lib'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
+import type {
 	WrappedOverridableItemNormal,
 	OverrideOpHelperForItemContents,
 } from '../../../ui/Settings/util/OverrideOpHelper.js'
@@ -11,10 +11,10 @@ import { useToggleExpandHelper } from '../../../ui/util/useToggleExpandHelper.js
 import { doModalDialog } from '../../ModalDialog.js'
 import {
 	getSchemaSummaryFieldsForObject,
-	SchemaFormSofieEnumDefinition,
+	type SchemaFormSofieEnumDefinition,
 	translateStringIfHasNamespaces,
 } from '../schemaFormUtil.js'
-import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
+import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import {
 	getSchemaDefaultValues,
 	getSchemaUIField,

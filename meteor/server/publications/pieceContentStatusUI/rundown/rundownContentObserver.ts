@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { BlueprintId, RundownId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../../../logging'
 import {
@@ -36,6 +35,7 @@ import { ReactiveMongoObserverGroup, ReactiveMongoObserverGroupHandle } from '..
 import _ from 'underscore'
 import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { waitForAllObserversReady } from '../../lib/lib'
+import type { LiveQueryHandleSync } from '../../../lib/lib'
 
 const REACTIVITY_DEBOUNCE = 20
 
@@ -47,7 +47,7 @@ function convertShowStyleBase(doc: Pick<DBShowStyleBase, ShowStyleBaseFields>): 
 }
 
 export class RundownContentObserver {
-	#observers: Meteor.LiveQueryHandle[] = []
+	#observers: LiveQueryHandleSync[] = []
 	readonly #cache: ContentCache
 
 	#showStyleBaseIds: ShowStyleBaseId[] = []
@@ -93,12 +93,12 @@ export class RundownContentObserver {
 					{
 						added: (doc) => {
 							const newDoc = convertShowStyleBase(doc)
-							this.#cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+							this.#cache.ShowStyleSourceLayers.replace({ ...newDoc, _id: doc._id })
 							this.updateBlueprintIds()
 						},
 						changed: (doc) => {
 							const newDoc = convertShowStyleBase(doc)
-							this.#cache.ShowStyleSourceLayers.upsert(doc._id, { $set: newDoc as Partial<Document> })
+							this.#cache.ShowStyleSourceLayers.replace({ ...newDoc, _id: doc._id })
 							this.updateBlueprintIds()
 						},
 						removed: (doc) => {
@@ -138,7 +138,7 @@ export class RundownContentObserver {
 	}
 
 	private async initContentObservers(rundownIds: RundownId[]) {
-		// Subscribe to the database, and pipe any updates into the ReactiveCacheCollections
+		// Subscribe to the database, and pipe any updates into the cache collections
 		this.#observers = await waitForAllObserversReady([
 			Rundowns.observeChanges(
 				{
@@ -261,39 +261,33 @@ export class RundownContentObserver {
 		])
 	}
 
-	private updateShowStyleBaseIds = _.debounce(
-		Meteor.bindEnvironment(() => {
-			if (this.#disposed) return
+	private updateShowStyleBaseIds = _.debounce(() => {
+		if (this.#disposed) return
 
-			const newShowStyleBaseIds = _.uniq(this.#cache.Rundowns.find({}).map((rd) => rd.showStyleBaseId))
+		const newShowStyleBaseIds = _.uniq(this.#cache.Rundowns.findFetch({}).map((rd) => rd.showStyleBaseId))
 
-			if (!equivalentArrays(newShowStyleBaseIds, this.#showStyleBaseIds)) {
-				logger.silly(
-					`optimized observer changed ids ${JSON.stringify(newShowStyleBaseIds)} ${this.#showStyleBaseIds}`
-				)
-				this.#showStyleBaseIds = newShowStyleBaseIds
-				// trigger the rundown group to restart
-				this.#showStyleBaseIdObserver.restart()
-			}
-		}),
-		REACTIVITY_DEBOUNCE
-	)
+		if (!equivalentArrays(newShowStyleBaseIds, this.#showStyleBaseIds)) {
+			logger.silly(
+				`optimized observer changed ids ${JSON.stringify(newShowStyleBaseIds)} ${this.#showStyleBaseIds}`
+			)
+			this.#showStyleBaseIds = newShowStyleBaseIds
+			// trigger the rundown group to restart
+			this.#showStyleBaseIdObserver.restart()
+		}
+	}, REACTIVITY_DEBOUNCE)
 
-	private updateBlueprintIds = _.debounce(
-		Meteor.bindEnvironment(() => {
-			if (this.#disposed) return
+	private updateBlueprintIds = _.debounce(() => {
+		if (this.#disposed) return
 
-			const newBlueprintIds = _.uniq(this.#cache.ShowStyleSourceLayers.find({}).map((rd) => rd.blueprintId))
+		const newBlueprintIds = _.uniq(this.#cache.ShowStyleSourceLayers.findFetch({}).map((rd) => rd.blueprintId))
 
-			if (!equivalentArrays(newBlueprintIds, this.#blueprintIds)) {
-				logger.silly(`optimized observer changed ids ${JSON.stringify(newBlueprintIds)} ${this.#blueprintIds}`)
-				this.#blueprintIds = newBlueprintIds
-				// trigger the rundown group to restart
-				this.#blueprintIdObserver.restart()
-			}
-		}),
-		REACTIVITY_DEBOUNCE
-	)
+		if (!equivalentArrays(newBlueprintIds, this.#blueprintIds)) {
+			logger.silly(`optimized observer changed ids ${JSON.stringify(newBlueprintIds)} ${this.#blueprintIds}`)
+			this.#blueprintIds = newBlueprintIds
+			// trigger the rundown group to restart
+			this.#blueprintIdObserver.restart()
+		}
+	}, REACTIVITY_DEBOUNCE)
 
 	public get cache(): ContentCache {
 		return this.#cache

@@ -1,22 +1,22 @@
 import { EventEmitter } from 'events'
-import {
+import type {
 	PeripheralDeviceStatusObject,
 	PeripheralDeviceInitOptions,
 	PeripheralDeviceSubType,
-} from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
-import { PeripheralDeviceAPIMethods } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI'
-import { DDPConnector } from './ddpConnector.js'
-import { Observer } from './ddpClient.js'
-import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import { ConnectionMethodsQueue, ExternalPeripheralDeviceAPI, makeMethods, makeMethodsLowPrio } from './methods.js'
-import { PeripheralDeviceForDevice } from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice'
-import { CoreConnection, Collection, CoreOptions, CollectionDocCheck } from './coreConnection.js'
+} from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI.js'
+import { PeripheralDeviceAPIMethods } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI.js'
+import type { DDPConnector } from './ddpConnector.js'
+import type { Observer } from './ddpClient.js'
+import type { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids.js'
+import { ConnectionMethodsQueue, type ExternalPeripheralDeviceAPI, makeMethods, makeMethodsLowPrio } from './methods.js'
+import type { PeripheralDeviceForDevice } from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice.js'
+import type { CoreConnection, Collection, CoreOptions, CollectionDocCheck } from './coreConnection.js'
 import { CorePinger } from './ping.js'
-import { ParametersOfFunctionOrNever, SubscriptionId, SubscriptionsHelper } from './subscriptions.js'
-import {
+import { type ParametersOfFunctionOrNever, type SubscriptionId, SubscriptionsHelper } from './subscriptions.js'
+import type {
 	PeripheralDevicePubSubCollections,
 	PeripheralDevicePubSubTypes,
-} from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
+} from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice.js'
 
 export interface ChildCoreOptions {
 	deviceId: PeripheralDeviceId

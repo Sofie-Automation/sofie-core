@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor'
 import { logger } from './logging'
 
 /** How good time sync quality we should strive for [ms] */
@@ -17,7 +16,7 @@ export class TimeJumpDetector {
 	) {}
 
 	public start(): void {
-		Meteor.setInterval(() => {
+		setInterval(() => {
 			this.detectTimeJump()
 		}, this.jumpCheckInterval)
 	}
@@ -46,14 +45,13 @@ export class TimeJumpDetector {
 		}
 	}
 }
-// handled in systemTime, but we want to log jumps anyway
-if (!Meteor.isTest) {
-	Meteor.startup(() => {
-		const timeJumpDetector = new TimeJumpDetector(JUMP_CHECK_INTERVAL * 6, (syncDiff) => {
-			logger.warn(`Time jump or skew of ${Math.round(syncDiff)} ms detected`)
-			// But we're not doing anything more
-			// TODO: Should we trigger peripheralDevices to resync? And clients?
-		})
-		timeJumpDetector.start()
+
+export function startTimeJumpDetector(): void {
+	// handled in systemTime, but we want to log jumps anyway
+	const timeJumpDetector = new TimeJumpDetector(JUMP_CHECK_INTERVAL * 6, (syncDiff) => {
+		logger.warn(`Time jump or skew of ${Math.round(syncDiff)} ms detected`)
+		// But we're not doing anything more
+		// TODO: Should we trigger peripheralDevices to resync? And clients?
 	})
+	timeJumpDetector.start()
 }

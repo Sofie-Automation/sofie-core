@@ -1,10 +1,10 @@
 import _ from 'underscore'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { ISourceLayerUi } from '../SegmentTimelineContainer.js'
+import type { ISourceLayerUi } from '../SegmentTimelineContainer.js'
 import { ContextMenuTrigger } from '@jstarpl/react-contextmenu'
 import { SourceLayerItemContainer } from '../SourceLayerItemContainer.js'
-import { ISourceLayerPropsBase, useMouseContext } from './SourceLayer.js'
-import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import { type ISourceLayerPropsBase, useMouseContext } from './SourceLayer.js'
+import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface IFlattenedSourceLayerProps extends ISourceLayerPropsBase {
 	layers: ISourceLayerUi[]
@@ -44,7 +44,6 @@ export function FlattenedSourceLayers(props: Readonly<IFlattenedSourceLayerProps
 								<SourceLayerItemContainer
 									key={unprotectString(piece.instance._id)}
 									studio={props.studio}
-									playlist={props.playlist}
 									followLiveLine={props.followLiveLine}
 									isLiveLine={props.isLiveLine}
 									isNextLine={props.isNextLine}

@@ -1,23 +1,17 @@
-import { check } from '../../lib/check'
-import { Meteor } from 'meteor/meteor'
+import { z } from 'zod'
+import { check, zAnyArray, zPlainObject } from '../../lib/check'
 import { MethodContext } from '../methodContext'
 import { checkAccessAndGetPeripheralDevice } from '../../security/check'
 import { ExpectedPackageStatusAPI, PackageInfo } from '@sofie-automation/blueprints-integration'
 import { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
-import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
+import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
-import {
-	getPackageContainerPackageId,
-	PackageContainerPackageStatusDB,
-} from '@sofie-automation/corelib/dist/dataModel/PackageContainerPackageStatus'
+import { getPackageContainerPackageId } from '@sofie-automation/corelib/dist/dataModel/PackageContainerPackageStatus'
 import { getPackageInfoId, PackageInfoDB } from '@sofie-automation/corelib/dist/dataModel/PackageInfos'
-import type { AnyBulkWriteOperation } from 'mongodb'
+import type { MongoBulkWriteOperation } from '@sofie-automation/corelib/dist/mongo'
 import { onUpdatedPackageInfo } from '../ingest/packageInfo'
-import {
-	getPackageContainerId,
-	PackageContainerStatusDB,
-} from '@sofie-automation/corelib/dist/dataModel/PackageContainerStatus'
+import { getPackageContainerId } from '@sofie-automation/corelib/dist/dataModel/PackageContainerStatus'
 import {
 	ExpectedPackageId,
 	ExpectedPackageWorkStatusId,
@@ -35,6 +29,7 @@ import {
 import { logger } from '../../logging'
 import _ from 'underscore'
 import { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export namespace PackageManagerIntegration {
 	export async function updateExpectedPackageWorkStatuses(
@@ -62,15 +57,15 @@ export namespace PackageManagerIntegration {
 
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
+			throw new SofieError(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
-		const bulkChanges: AnyBulkWriteOperation<ExpectedPackageWorkStatus>[] = []
+		const bulkChanges: MongoBulkWriteOperation<ExpectedPackageWorkStatus>[] = []
 		const removedIds: ExpectedPackageWorkStatusId[] = []
 
 		const ps: Promise<void>[] = []
 		for (const change of changes) {
-			check(change.id, String)
-			check(change, Object)
+			check(change.id, z.string())
+			check(change, zPlainObject)
 
 			if (change.type === 'delete') {
 				removedIds.push(change.id)
@@ -96,7 +91,7 @@ export namespace PackageManagerIntegration {
 					})
 				} else if (change.type === 'insert') {
 					// For inserts, we need to look up the ExpectedPackage in order to put it in the right studio:
-					check(workStatus.fromPackages, Array)
+					check(workStatus.fromPackages, zAnyArray)
 					const fromPackageIds = workStatus.fromPackages.map((p) => p.id)
 					if (fromPackageIds.length) {
 						ps.push(
@@ -112,7 +107,7 @@ export namespace PackageManagerIntegration {
 								}
 							).then((expPackage: Pick<ExpectedPackageDB, '_id' | 'studioId'> | undefined) => {
 								if (!expPackage)
-									throw new Meteor.Error(404, `ExpectedPackages "${fromPackageIds}" not found`)
+									throw new SofieError(404, `ExpectedPackages "${fromPackageIds}" not found`)
 
 								const doc: ExpectedPackageWorkStatus = {
 									...workStatus,
@@ -189,15 +184,15 @@ export namespace PackageManagerIntegration {
 	): Promise<void> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
+			throw new SofieError(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
 		const studioId = peripheralDevice.studioAndConfigId.studioId
 
 		const removedIds: PackageContainerPackageId[] = []
 		const ps: Promise<unknown>[] = []
 		for (const change of changes) {
-			check(change.containerId, String)
-			check(change.packageId, String)
+			check(change.containerId, z.string())
+			check(change.packageId, z.string())
 
 			const id = getPackageContainerPackageId(
 				peripheralDevice.studioAndConfigId.studioId,
@@ -220,16 +215,14 @@ export namespace PackageManagerIntegration {
 							// The PackageContainerStatus doesn't exist
 							// Create it on the fly:
 
-							await PackageContainerPackageStatuses.upsertAsync(id, {
-								$set: literal<PackageContainerPackageStatusDB>({
-									_id: id,
-									studioId: studioId,
-									containerId: change.containerId,
-									deviceId: peripheralDevice._id,
-									packageId: protectString<ExpectedPackageId>(change.packageId),
-									status: change.status,
-									modified: getCurrentTime(),
-								}),
+							await PackageContainerPackageStatuses.replaceAsync({
+								_id: id,
+								studioId: studioId,
+								containerId: change.containerId,
+								deviceId: peripheralDevice._id,
+								packageId: protectString<ExpectedPackageId>(change.packageId),
+								status: change.status,
+								modified: getCurrentTime(),
 							})
 						}
 					})
@@ -282,14 +275,14 @@ export namespace PackageManagerIntegration {
 	): Promise<void> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
+			throw new SofieError(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
 		const studioId = peripheralDevice.studioAndConfigId.studioId
 
 		const removedIds: PackageContainerId[] = []
 		const ps: Promise<unknown>[] = []
 		for (const change of changes) {
-			check(change.containerId, String)
+			check(change.containerId, z.string())
 
 			const id = getPackageContainerId(peripheralDevice.studioAndConfigId.studioId, change.containerId)
 
@@ -308,15 +301,13 @@ export namespace PackageManagerIntegration {
 							// The PackageContainerStatus doesn't exist
 							// Create it on the fly:
 
-							await PackageContainerStatuses.upsertAsync(id, {
-								$set: literal<PackageContainerStatusDB>({
-									_id: id,
-									studioId: studioId,
-									containerId: change.containerId,
-									deviceId: peripheralDevice._id,
-									status: change.status,
-									modified: getCurrentTime(),
-								}),
+							await PackageContainerStatuses.replaceAsync({
+								_id: id,
+								studioId: studioId,
+								containerId: change.containerId,
+								deviceId: peripheralDevice._id,
+								status: change.status,
+								modified: getCurrentTime(),
 							})
 						}
 					})
@@ -361,10 +352,10 @@ export namespace PackageManagerIntegration {
 		Array<{ packageId: ExpectedPackageId; expectedContentVersionHash: string; actualContentVersionHash: string }>
 	> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
-		check(packageIds, [String])
-		check(type, String)
+		check(packageIds, z.array(z.string()))
+		check(type, z.string())
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
+			throw new SofieError(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
 		const ids = packageIds.map((packageId) => getPackageInfoId(packageId, type))
 		const packageInfos = await PackageInfos.findFetchAsync(
@@ -395,10 +386,10 @@ export namespace PackageManagerIntegration {
 		payload: unknown
 	): Promise<void> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
-		check(packageId, String)
-		check(type, String)
+		check(packageId, z.string())
+		check(type, z.string())
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
+			throw new SofieError(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
 		const id = getPackageInfoId(packageId, type)
 
@@ -416,12 +407,7 @@ export namespace PackageManagerIntegration {
 			type: type,
 			payload: payload,
 		}
-		await PackageInfos.upsertAsync(id, {
-			$set: doc,
-			$unset: {
-				removeTime: 1,
-			},
-		})
+		await PackageInfos.replaceAsync(doc)
 
 		await onUpdatedPackageInfo(packageId, doc)
 	}
@@ -434,10 +420,10 @@ export namespace PackageManagerIntegration {
 		removeDelay?: number
 	): Promise<void> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
-		check(packageId, String)
-		check(type, String)
+		check(packageId, z.string())
+		check(type, z.string())
 		if (!peripheralDevice.studioAndConfigId)
-			throw new Meteor.Error(400, 'Device "' + peripheralDevice._id + '" has no studio')
+			throw new SofieError(400, 'Device "' + peripheralDevice._id + '" has no studio')
 
 		const id = getPackageInfoId(packageId, type)
 

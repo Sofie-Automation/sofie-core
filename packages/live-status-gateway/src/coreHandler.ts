@@ -4,6 +4,7 @@ import {
 	CoreOptions,
 	DDPConnectorOptions,
 	DDPTLSOptions,
+	ICoreHandler,
 	Observer,
 	PeripheralDevicePubSub,
 	PeripheralDevicePubSubCollections,
@@ -11,6 +12,8 @@ import {
 	PeripheralDevicePubSubTypes,
 	SubscriptionId,
 	stringifyError,
+	ParametersOfFunctionOrNever,
+	KubernetesRestarter,
 } from '@sofie-automation/server-core-integration'
 import { DeviceConfig } from './connector.js'
 import { Logger } from 'winston'
@@ -18,6 +21,7 @@ import { LIVE_STATUS_DEVICE_CONFIG } from './configManifest.js'
 import {
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
+	PeripheralDeviceStatusObject,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { PeripheralDeviceCommandId, StudioId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
@@ -25,7 +29,6 @@ import { StatusCode } from '@sofie-automation/shared-lib/dist/lib/status'
 import { PeripheralDeviceCommand } from '@sofie-automation/shared-lib/dist/core/model/PeripheralDeviceCommand'
 import { LiveStatusGatewayConfig } from '@sofie-automation/shared-lib/dist/generated/LiveStatusGatewayOptionsTypes'
 import { CorelibPubSubTypes, CorelibPubSubCollections } from '@sofie-automation/corelib/dist/pubsub'
-import { ParametersOfFunctionOrNever } from '@sofie-automation/server-core-integration/dist/lib/subscriptions'
 
 export interface CoreConfig {
 	host: string
@@ -36,7 +39,7 @@ export interface CoreConfig {
 /**
  * Represents a connection between the Gateway and Core
  */
-export class CoreHandler {
+export class CoreHandler implements ICoreHandler {
 	core!: CoreConnection<
 		CorelibPubSubTypes & PeripheralDevicePubSubTypes,
 		CorelibPubSubCollections & PeripheralDevicePubSubCollections
@@ -45,12 +48,7 @@ export class CoreHandler {
 	public _observers: Array<any> = []
 	public deviceSettings: LiveStatusGatewayConfig = {}
 
-	public errorReporting = false
-	public multithreading = false
-	public reportAllCommands = false
-
 	private _deviceOptions: DeviceConfig
-	private _onConnected?: () => any
 	private _executedFunctions = new Set<PeripheralDeviceCommandId>()
 	private _coreConfig?: CoreConfig
 
@@ -59,9 +57,17 @@ export class CoreHandler {
 	private _statusInitialized = false
 	private _statusDestroyed = false
 
+	public get connectedToCore(): boolean {
+		return this.core && this.core.connected
+	}
+	private _k8sRestarter?: KubernetesRestarter
+
 	constructor(logger: Logger, deviceOptions: DeviceConfig) {
 		this.logger = logger
 		this._deviceOptions = deviceOptions
+		if (KubernetesRestarter.canUseK8sRestarter()) {
+			this._k8sRestarter = new KubernetesRestarter(this.logger, 'sofie-live-status-gateway')
+		}
 	}
 
 	async init(config: CoreConfig, tlsOptions: DDPTLSOptions): Promise<void> {
@@ -77,7 +83,6 @@ export class CoreHandler {
 			this.setupObserversAndSubscriptions().catch((e) => {
 				this.logger.error('Core Error during setupObserversAndSubscriptions:', e)
 			})
-			if (this._onConnected) this._onConnected()
 		})
 		this.core.onDisconnected(() => {
 			this.logger.warn('Core Disconnected!')
@@ -97,7 +102,6 @@ export class CoreHandler {
 
 		this.logger.info('Core id: ' + this.core.deviceId)
 		await this.setupObserversAndSubscriptions()
-		if (this._onConnected) this._onConnected()
 
 		this._statusInitialized = true
 		await this.updateCoreStatus()
@@ -179,9 +183,6 @@ export class CoreHandler {
 		}
 
 		return options
-	}
-	onConnected(fcn: () => any): void {
-		this._onConnected = fcn
 	}
 
 	onDeviceChanged(): void {
@@ -297,16 +298,19 @@ export class CoreHandler {
 			}
 		})
 	}
-	killProcess(actually: number): boolean {
-		if (actually === 1) {
-			this.logger.info('KillProcess command received, shutting down in 1000ms!')
+	async killProcess(): Promise<boolean> {
+		this.logger.info('KillProcess command received for live-status-gateway')
+		if (this._k8sRestarter) {
+			this.logger.info('Running on kubernetes was true, restarting deployment')
+			return await this._k8sRestarter.restartKube()
+		} else {
+			this.logger.info('killing process in 1000ms!')
 			setTimeout(() => {
 				// eslint-disable-next-line n/no-process-exit
 				process.exit(0)
 			}, 1000)
 			return true
 		}
-		return false
 	}
 	pingResponse(message: string): void {
 		this.core.setPingResponse(message)
@@ -319,23 +323,25 @@ export class CoreHandler {
 		this.logger.info('getDevicesInfo')
 		return []
 	}
-	async updateCoreStatus(): Promise<any> {
+	getCoreStatus(): PeripheralDeviceStatusObject {
 		let statusCode = StatusCode.GOOD
-		const messages: Array<string> = []
+		const statusDetails: Array<{ message: string }> = []
 
 		if (!this._statusInitialized) {
 			statusCode = StatusCode.BAD
-			messages.push('Starting up...')
+			statusDetails.push({ message: 'Starting up...' })
 		}
 		if (this._statusDestroyed) {
 			statusCode = StatusCode.BAD
-			messages.push('Shut down')
+			statusDetails.push({ message: 'Shut down' })
 		}
-
-		return this.core.setStatus({
-			statusCode: statusCode,
-			messages: messages,
-		})
+		return {
+			statusCode,
+			statusDetails,
+		}
+	}
+	async updateCoreStatus(): Promise<any> {
+		return this.core.setStatus(this.getCoreStatus())
 	}
 	private _getVersions() {
 		const versions: { [packageName: string]: string } = {}

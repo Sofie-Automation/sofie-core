@@ -1,6 +1,6 @@
 import ClassNames from 'classnames'
 import * as React from 'react'
-import {
+import type {
 	DBStudio,
 	StudioRouteSet,
 	StudioRouteSetExclusivityGroup,
@@ -12,16 +12,16 @@ import { useTranslation } from 'react-i18next'
 import { Studios } from '../../../../collections/index.js'
 import { LabelActual, LabelAndOverrides } from '../../../../lib/Components/LabelAndOverrides.js'
 import {
-	OverrideOpHelper,
-	WrappedOverridableItem,
-	WrappedOverridableItemDeleted,
-	WrappedOverridableItemNormal,
+	type OverrideOpHelper,
+	type WrappedOverridableItem,
+	type WrappedOverridableItemDeleted,
+	type WrappedOverridableItemNormal,
 	useOverrideOpHelper,
 } from '../../util/OverrideOpHelper.js'
 import {
 	applyAndValidateOverrides,
-	ObjectOverrideSetOp,
-	SomeObjectOverrideOp,
+	type ObjectOverrideSetOp,
+	type SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { TextInputControl } from '../../../../lib/Components/TextInput.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'

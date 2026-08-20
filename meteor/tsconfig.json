@@ -1,7 +1,7 @@
 {
-	"extends": "./tsconfig-base.json",
+	"extends": "./tsconfig.build.json",
+	"exclude": ["node_modules/**"],
 	"compilerOptions": {
-		"types": ["node", "jest"],
-		"module": "CommonJS"
+		"types": ["jest", "node"]
 	}
 }

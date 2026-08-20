@@ -64,6 +64,7 @@ export enum UserErrorMessage {
 	IdempotencyKeyAlreadyUsed = 48,
 	RateLimitExceeded = 49,
 	SystemSingleStudio = 50,
+	TakePartInstanceInvalid = 51,
 }
 
 const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
@@ -116,7 +117,7 @@ const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
 	[UserErrorMessage.DeviceAlreadyAttachedToStudio]: t(`Device is already attached to another studio.`),
 	[UserErrorMessage.ShowStyleBaseNotFound]: t(`ShowStyleBase not found!`),
 	[UserErrorMessage.NoMigrationsToApply]: t(`No migrations to apply`),
-	[UserErrorMessage.ValidationFailed]: t('Validation failed!'),
+	[UserErrorMessage.ValidationFailed]: t('Validation failed! {{message}}'),
 	[UserErrorMessage.AdlibTestingNotAllowed]: t(`Rehearsal mode is not allowed`),
 	[UserErrorMessage.AdlibTestingAlreadyActive]: t(`Rehearsal mode is already active`),
 	[UserErrorMessage.BucketNotFound]: t(`Bucket not found!`),
@@ -126,6 +127,7 @@ const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
 	[UserErrorMessage.IdempotencyKeyAlreadyUsed]: t(`Idempotency-Key is already used`),
 	[UserErrorMessage.RateLimitExceeded]: t(`Rate limit exceeded`),
 	[UserErrorMessage.SystemSingleStudio]: t(`System must have exactly one studio`),
+	[UserErrorMessage.TakePartInstanceInvalid]: t(`Part has issues and cannot be taken`),
 }
 
 export interface SerializedUserError {
@@ -259,5 +261,64 @@ export class UserError extends Error {
 
 	toString(): string {
 		return UserError.toJSON(this)
+	}
+}
+
+/**
+ * An error which is safe to send to a client across the DDP or HTTP boundary.
+ *
+ * This is the replacement for `Meteor.Error`, and its DDP wire representation is deliberately
+ * unchanged from Meteor's (see `wrapError` in the ddp-server). The `message` format
+ * (`"<reason> [<error>]"`) is Meteor's too, so log output stays recognisable.
+ *
+ * Note the difference to `UserError`, which lives alongside this in this file:
+ *  - `UserError` is user-facing and translatable, and travels as a *value* inside a
+ *    `ClientAPI.ClientResponse`.
+ *  - `SofieError` is developer-facing, carries an HTTP-ish code, and is *thrown* across the boundary.
+ */
+export class SofieError extends Error {
+	/**
+	 * Code uniquely identifying this kind of error. HTTP-ish by convention.
+	 *
+	 * Note: unlike `Meteor.Error` this is deliberately `number` and not `string | number`. The looser
+	 * type made it easy to accidentally pass a message here (as the builtin `Error(message)` signature
+	 * invites) without TypeScript complaining, which then broke the `typeof e.error === 'number'`
+	 * guards downstream.
+	 */
+	public readonly error: number
+	/** Optional short human-readable summary of the error. Aimed at developers, not end users. */
+	public readonly reason: string | undefined
+	/** Optional additional information about the error, eg for debugging. Must be JSON-serializable. */
+	public readonly details: string | undefined
+
+	constructor(error: number, reason?: string, details?: string) {
+		// Matches Meteor.Error's format: "File not found [404]", or "[404]" when there is no reason
+		super(reason ? `${reason} [${error}]` : `[${error}]`)
+
+		this.name = 'SofieError'
+		this.error = error
+		this.reason = reason
+		this.details = details
+
+		// Hide the constructor frame from the stack trace, as Meteor.Error did
+		Error.captureStackTrace?.(this, SofieError)
+	}
+
+	/**
+	 * `EJSON.stringify` -> `toJSONValue` -> `EJSON.clone` dispatches to a `clone()` method if it finds
+	 * one, so keep this to match what `Meteor.Error` did. Instances are not supposed to reach the DDP
+	 * codec (the `DDPError` wire type only accepts the plain object built by `wrapError`), but this
+	 * makes the fallback behave sanely rather than silently dropping fields.
+	 */
+	clone(): SofieError {
+		return new SofieError(this.error, this.reason, this.details)
+	}
+
+	/**
+	 * Without this, `stringifyError` would prefix the class name onto `Error.prototype.toString()`'s
+	 * output, which already contains it.
+	 */
+	toString(): string {
+		return this.message
 	}
 }

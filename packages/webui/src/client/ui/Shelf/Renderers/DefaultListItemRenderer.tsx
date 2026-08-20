@@ -1,6 +1,5 @@
-import React from 'react'
 import ClassNames from 'classnames'
-import { ILayerItemRendererProps } from './ItemRendererFactory.js'
+import type { ILayerItemRendererProps } from './ItemRendererFactory.js'
 import { ActionAdLibHotkeyPreview } from '../../../lib/triggers/ActionAdLibHotkeyPreview.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 

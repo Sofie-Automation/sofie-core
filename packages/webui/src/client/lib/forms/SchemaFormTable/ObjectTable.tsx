@@ -4,25 +4,25 @@ import { getRandomString, joinObjectPathFragments, literal, objectPathGet } from
 import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-	WrappedOverridableItemNormal,
-	OverrideOpHelperForItemContents,
+	type WrappedOverridableItemNormal,
+	type OverrideOpHelperForItemContents,
 	getAllCurrentAndDeletedItemsFromOverrides,
-	WrappedOverridableItem,
+	type WrappedOverridableItem,
 } from '../../../ui/Settings/util/OverrideOpHelper.js'
 import { useToggleExpandHelper } from '../../../ui/util/useToggleExpandHelper.js'
 import { doModalDialog } from '../../ModalDialog.js'
 import {
 	getSchemaSummaryFieldsForObject,
-	SchemaFormSofieEnumDefinition,
+	type SchemaFormSofieEnumDefinition,
 	translateStringIfHasNamespaces,
 } from '../schemaFormUtil.js'
-import { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
+import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import {
 	getSchemaDefaultValues,
 	getSchemaUIField,
 	SchemaFormUIField,
 } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaUtil'
-import { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import type { SomeObjectOverrideOp } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { SchemaFormTableEditRow } from './TableEditRow.js'
 import { SchemaTableSummaryRow } from '../SchemaTableSummaryRow.js'
 import { OverrideOpHelperObjectTable } from './ObjectTableOpHelper.js'

@@ -1,24 +1,24 @@
-import { EvsContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import React, { useContext, useMemo, useRef, useState } from 'react'
+import { type EvsContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 // TODO: Move to a shared lib file
-import { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import classNames from 'classnames'
 import { getNoticeLevelForPieceStatus } from '../../../lib/notifications/notifications.js'
 import { LoopingPieceIcon } from '../../../lib/ui/icons/looping.js'
 import { PieceStatusIcon } from '../../../lib/ui/PieceStatusIcon.js'
 import { getElementWidth } from '../../../utils/dimensions.js'
-import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
+import { getElementDocumentOffset, type OffsetPosition } from '../../../utils/positions.js'
 import { getSplitItems } from '../../SegmentContainer/getSplitItems.js'
 import { PieceElement } from '../../SegmentContainer/PieceElement.js'
 import { getPieceSteps, PieceMultistepChevron } from '../../SegmentContainer/PieceMultistepChevron.js'
 import { useContentStatusForPieceInstance } from '../../SegmentTimeline/withMediaObjectStatus.js'
 import {
 	convertSourceLayerItemToPreview,
-	IPreviewPopUpSession,
+	type IPreviewPopUpSession,
 	PreviewPopUpContext,
 } from '../../PreviewPopUp/PreviewPopUpContext.js'
-import { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
+import type { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
 
 interface IProps {
 	partId: PartId
@@ -144,8 +144,13 @@ export function LinePartMainPiece({
 		}
 		setHover(true)
 
+		if (previewSession.current) {
+			previewSession.current.close()
+			previewSession.current = null
+		}
+
 		if (previewContents.length > 0)
-			previewSession.current = previewContext.requestPreview(e.target as any, previewContents, {
+			previewSession.current = previewContext.requestPreview(e.currentTarget, previewContents, {
 				...previewOptions,
 				time: mousePosition * (piece.instance.piece.content.sourceDuration || 0),
 				initialOffsetX: e.screenX,
@@ -161,6 +166,15 @@ export function LinePartMainPiece({
 			setWidth(newWidth)
 		}
 	}
+
+	useEffect(() => {
+		return () => {
+			if (previewSession.current) {
+				previewSession.current.close()
+				previewSession.current = null
+			}
+		}
+	}, [])
 
 	const onPointerLeave = (e: React.PointerEvent<HTMLDivElement>) => {
 		if (e.pointerType !== 'mouse') {
@@ -178,7 +192,7 @@ export function LinePartMainPiece({
 			return
 		}
 		const newMousePosition = Math.max(0, Math.min(1, (e.pageX - origin.left - 5) / (width - 10)))
-		setMousePosition(e.pageX - origin.left)
+		setMousePosition(newMousePosition)
 
 		previewSession.current?.setPointerTime(
 			newMousePosition * (piece.instance.piece.content.sourceDuration ?? contentStatus?.contentDuration ?? 0)

@@ -1,4 +1,4 @@
-import { ProtectedString } from '../../lib/protectedString.js'
+import type { ProtectedString } from '../../lib/protectedString.js'
 
 /** A string, identifying a Studio */
 export type StudioId = ProtectedString<'StudioId'>

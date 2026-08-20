@@ -1,7 +1,6 @@
-import { Meteor } from 'meteor/meteor'
+import { z } from 'zod'
 import { check } from '../../lib/check'
-import { registerClassToMeteorMethods } from '../../methods'
-import { NewStudiosAPI, StudiosAPIMethods } from '@sofie-automation/meteor-lib/dist/api/studios'
+import { NewStudiosAPI } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { literal, getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -25,14 +24,21 @@ import { MethodContextAPI, MethodContext } from '../methodContext'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../../logging'
-import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
+import {
+	DEFAULT_MINIMUM_TAKE_SPAN,
+	DEFAULT_DISPLAY_DURATION,
+	DEFAULT_SHELF_DISPLAY_OPTIONS,
+	DEFAULT_TIME_SCALE,
+} from '@sofie-automation/shared-lib/dist/core/constants'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../../security/auth'
+import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const PERMISSIONS_FOR_MANAGE_STUDIOS: Array<keyof UserPermissions> = ['configure']
 
 async function insertStudio(context: MethodContext, newId?: StudioId): Promise<StudioId> {
-	if (newId) check(newId, String)
+	if (newId) check(newId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
 
@@ -41,10 +47,7 @@ async function insertStudio(context: MethodContext, newId?: StudioId): Promise<S
 export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 	const studioCount = await Studios.countDocuments()
 	if (studioCount > 0) {
-		throw new Meteor.Error(
-			400,
-			`Only one studio is supported per installation (there are currently ${studioCount})`
-		)
+		throw new SofieError(400, `Only one studio is supported per installation (there are currently ${studioCount})`)
 	}
 
 	return Studios.insertAsync(
@@ -64,6 +67,15 @@ export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 				allowPieceDirectPlay: false,
 				enableBuckets: true,
 				enableEvaluationForm: true,
+				shelfAdlibButtonSize: ShelfButtonSize.LARGE,
+				autoRewindLeavingSegment: true,
+				disableBlurBorder: false,
+				allowGrabbingTimeline: true,
+				useCountdownToFreezeFrame: true,
+				defaultShelfDisplayOptions: DEFAULT_SHELF_DISPLAY_OPTIONS,
+				defaultDisplayDuration: DEFAULT_DISPLAY_DURATION,
+				defaultTimeScale: DEFAULT_TIME_SCALE,
+				followOnAirSegmentsHistory: 0,
 			}),
 			_rundownVersionHash: '',
 			routeSetsWithOverrides: wrapDefaultObject({}),
@@ -85,29 +97,26 @@ export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 	)
 }
 async function removeStudio(context: MethodContext, studioId: StudioId): Promise<void> {
-	check(studioId, String)
+	check(studioId, z.string())
 
 	assertConnectionHasOneOfPermissions(context.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
 
 	const studioCount = await Studios.countDocuments()
 	if (studioCount === 1) {
-		throw new Meteor.Error(
-			400,
-			`The last studio in the system cannot be deleted (there must be at least one studio)`
-		)
+		throw new SofieError(400, `The last studio in the system cannot be deleted (there must be at least one studio)`)
 	}
 
 	const studio = await Studios.findOneAsync(studioId)
-	if (!studio) throw new Meteor.Error(404, `Studio "${studioId}" not found`)
+	if (!studio) throw new SofieError(404, `Studio "${studioId}" not found`)
 
 	// allowed to remove?
 	const rundown = await Rundowns.findOneAsync({ studioId: studio._id }, { projection: { _id: 1 } })
 	if (rundown)
-		throw new Meteor.Error(404, `Can't remove studio "${studioId}", because the rundown "${rundown._id}" is in it.`)
+		throw new SofieError(404, `Can't remove studio "${studioId}", because the rundown "${rundown._id}" is in it.`)
 
 	const playlist = await RundownPlaylists.findOneAsync({ studioId: studio._id }, { projection: { _id: 1 } })
 	if (playlist)
-		throw new Meteor.Error(
+		throw new SofieError(
 			404,
 			`Can't remove studio "${studioId}", because the rundownPlaylist "${playlist._id}" is in it.`
 		)
@@ -117,7 +126,7 @@ async function removeStudio(context: MethodContext, studioId: StudioId): Promise
 		{ projection: { _id: 1 } }
 	)
 	if (peripheralDevice)
-		throw new Meteor.Error(
+		throw new SofieError(
 			404,
 			`Can't remoce studio "${studioId}", because the peripheralDevice "${peripheralDevice._id}" is in it.`
 		)
@@ -137,15 +146,19 @@ async function removeStudio(context: MethodContext, studioId: StudioId): Promise
 	])
 }
 
-class ServerStudiosAPI extends MethodContextAPI implements NewStudiosAPI {
-	async insertStudio() {
+export class ServerStudiosAPI extends MethodContextAPI implements NewStudiosAPI {
+	async insertStudio(): Promise<StudioId> {
 		return insertStudio(this)
 	}
-	async removeStudio(studioId: StudioId) {
+	async removeStudio(studioId: StudioId): Promise<void> {
 		return removeStudio(this, studioId)
 	}
 
-	async assignConfigToPeripheralDevice(studioId: StudioId, configId: string, deviceId: PeripheralDeviceId | null) {
+	async assignConfigToPeripheralDevice(
+		studioId: StudioId,
+		configId: string,
+		deviceId: PeripheralDeviceId | null
+	): Promise<void> {
 		assertConnectionHasOneOfPermissions(this.connection, ...PERMISSIONS_FOR_MANAGE_STUDIOS)
 
 		// Unassign other uses
@@ -180,7 +193,6 @@ class ServerStudiosAPI extends MethodContextAPI implements NewStudiosAPI {
 		}
 	}
 }
-registerClassToMeteorMethods(StudiosAPIMethods, ServerStudiosAPI, false)
 
 // Set up a watcher for updating the mappingsHash whenever a mapping or route is changed:
 function triggerUpdateStudioMappingsHash(studioId: StudioId) {
@@ -199,7 +211,7 @@ function triggerUpdateStudioMappingsHash(studioId: StudioId) {
 	)
 }
 
-Meteor.startup(async () => {
+export async function startStudioMappingsHashObserver(): Promise<void> {
 	await Studios.observeChanges(
 		{},
 		{
@@ -214,4 +226,4 @@ Meteor.startup(async () => {
 			},
 		}
 	)
-})
+}

@@ -1,12 +1,12 @@
-import { Meteor } from 'meteor/meteor'
 import { IncomingWebhookResult } from '@slack/webhook'
+import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export async function sendSlackMessageToWebhook(message: string, _webhookURL: string): Promise<IncomingWebhookResult> {
 	return new Promise((resolve, reject) => {
 		const result: IncomingWebhookResult = { text: message }
 		process.nextTick(() => {
 			if (message.match(/error/)) {
-				reject(new Meteor.Error(500, 'Failed to send slack message'))
+				reject(new SofieError(500, 'Failed to send slack message'))
 			} else {
 				resolve(result)
 			}

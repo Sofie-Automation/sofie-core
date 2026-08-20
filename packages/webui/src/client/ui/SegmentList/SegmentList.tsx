@@ -1,25 +1,23 @@
-import React, { ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { type ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import classNames from 'classnames'
-import {
-	DBRundownPlaylist,
-	RundownHoldState,
-} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import type { RundownViewPlaylist } from '../../lib/rundownPlaylistProjection.js'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
-import { PartUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
-import { IContextMenuContext } from '../RundownView.js'
+import type { PartUi, SegmentNoteCounts, SegmentUi } from '../SegmentContainer/withResolvedSegment.js'
+import type { IContextMenuContext } from '../RundownView.js'
 import { useCombinedRefs } from '../../lib/lib.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { LinePart } from './LinePart.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
+import type { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
 import { SegmentListHeader } from './SegmentListHeader.js'
 import { useInView } from 'react-intersection-observer'
 import { getHeaderHeight } from '../../lib/viewPort.js'
-import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { NoteSeverity } from '@sofie-automation/blueprints-integration'
-import { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
-import { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
+import type { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { NoteSeverity } from '@sofie-automation/blueprints-integration'
+import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
+import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import {
 	isLoopRunning as getIsLoopRunning,
 	isQuickLoopStart as getIsQuickLoopStart,
@@ -38,7 +36,7 @@ interface IProps {
 
 	key: string
 	segment: SegmentUi
-	playlist: DBRundownPlaylist
+	playlist: RundownViewPlaylist
 	parts: Array<PartUi>
 	segmentNoteCounts: SegmentNoteCounts
 
@@ -195,15 +193,22 @@ const SegmentListInner = React.forwardRef<HTMLDivElement, IProps>(function Segme
 			return
 		}
 
-		const partEl = combinedRef.current.querySelector('.segment-opl__part')
+		const segmentEl = combinedRef.current
+		const partEl = segmentEl.querySelector('.segment-opl__part')
 		if (!partEl) return
 
-		const { top, height } = combinedRef.current.getBoundingClientRect()
+		const { top, height } = segmentEl.getBoundingClientRect()
 		const absoluteTop = top + window.scrollY
 		const { height: partHeight } = partEl.getBoundingClientRect()
+		const threshold = absoluteTop + height - getHeaderHeight() - partHeight * 2 - 10
 
 		function onScroll() {
-			if (window.scrollY > absoluteTop + height - getHeaderHeight() - partHeight * 2 - 10) {
+			if (!segmentEl.isConnected) {
+				setHeaderDetachedStick(false)
+				return
+			}
+
+			if (window.scrollY > threshold) {
 				setHeaderDetachedStick(true)
 			} else {
 				setHeaderDetachedStick(false)

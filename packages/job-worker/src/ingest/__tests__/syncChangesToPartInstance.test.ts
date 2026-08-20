@@ -15,7 +15,11 @@ import type { PlayoutPartInstanceModel } from '../../playout/model/PlayoutPartIn
 import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PlayoutModelImpl } from '../../playout/model/implementation/PlayoutModelImpl.js'
-import { PlaylistTimingType, ShowStyleBlueprintManifest } from '@sofie-automation/blueprints-integration'
+import {
+	BlueprintSyncIngestNewData,
+	PlaylistTimingType,
+	ShowStyleBlueprintManifest,
+} from '@sofie-automation/blueprints-integration'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	DBRundownPlaylist,
@@ -78,7 +82,7 @@ describe('SyncChangesToPartInstancesWorker', () => {
 			const ingestModel = createMockIngestModelReadonly()
 			const rundownModel = createMockPlayoutRundownModel()
 
-			const instancesToSync = findInstancesToSync(context, playoutModel, ingestModel, rundownModel)
+			const instancesToSync = findInstancesToSync(context, playoutModel, ingestModel, rundownModel, new Set())
 			expect(instancesToSync).toHaveLength(0)
 		})
 
@@ -189,6 +193,7 @@ describe('SyncChangesToPartInstancesWorker', () => {
 				previousPartInstance: null,
 				playStatus: 'next',
 				newPart: part,
+				newPartChanged: false,
 				proposedPieceInstances: Promise.resolve([]),
 			}
 
@@ -198,6 +203,52 @@ describe('SyncChangesToPartInstancesWorker', () => {
 			expect(partInstance.snapshotRestore).toHaveBeenCalledTimes(0)
 			expect(syncIngestUpdateToPartInstanceFn).toHaveBeenCalledTimes(1)
 			expect(validateAdlibTestingPartInstanceProperties).toHaveBeenCalledTimes(1)
+
+			// An unchanged Part must report partChanged: false to the blueprint
+			const newData = syncIngestUpdateToPartInstanceFn.mock.calls[0][2] as BlueprintSyncIngestNewData
+			expect(newData.partChanged).toBe(false)
+		})
+
+		test('propagates partChanged=true to the blueprint when the Part changed', async () => {
+			const context = setupDefaultJobEnvironment()
+			const showStyleCompound = await setupMockShowStyleCompound(context)
+
+			const syncIngestUpdateToPartInstanceFn = jest.fn()
+			context.updateShowStyleBlueprint({
+				syncIngestUpdateToPartInstance: syncIngestUpdateToPartInstanceFn,
+			})
+			const blueprint = await context.getShowStyleBlueprint(showStyleCompound._id)
+
+			const playoutModel = createMockPlayoutModel()
+			const ingestModel = createMockIngestModelReadonly()
+			const rundownModel = createMockPlayoutRundownModel()
+
+			const worker = new SyncChangesToPartInstancesWorker(
+				context,
+				playoutModel,
+				ingestModel,
+				showStyleCompound,
+				blueprint
+			)
+
+			const partInstance = createMockPartInstance('mockPartInstanceId')
+			const part = createMockPart('mockPartId')
+
+			const instanceToSync: PartInstanceToSync = {
+				playoutRundownModel: rundownModel,
+				existingPartInstance: partInstance,
+				previousPartInstance: null,
+				playStatus: 'next',
+				newPart: part,
+				newPartChanged: true,
+				proposedPieceInstances: Promise.resolve([]),
+			}
+
+			await worker.syncChangesToPartInstance(instanceToSync)
+
+			expect(syncIngestUpdateToPartInstanceFn).toHaveBeenCalledTimes(1)
+			const newData = syncIngestUpdateToPartInstanceFn.mock.calls[0][2] as BlueprintSyncIngestNewData
+			expect(newData.partChanged).toBe(true)
 		})
 
 		test('removePartInstance for next calls recreateNextPartInstance', async () => {
@@ -236,6 +287,7 @@ describe('SyncChangesToPartInstancesWorker', () => {
 				previousPartInstance: null,
 				playStatus: 'next',
 				newPart: part,
+				newPartChanged: false,
 				proposedPieceInstances: Promise.resolve([]),
 			}
 
