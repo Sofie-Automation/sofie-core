@@ -246,10 +246,10 @@ describe('TagsService', () => {
 		// partInstanceId3 = previous (index 0), partInstanceId0 = current
 		const testee = createTestee()
 		const cache: ContentCache = {
-			RundownPlaylists: new ReactiveCacheCollection('rundownPlaylists'),
-			ShowStyleBases: new ReactiveCacheCollection('showStyleBases'),
-			PieceInstances: new ReactiveCacheCollection('pieceInstances'),
-			PartInstances: new ReactiveCacheCollection('partInstances'),
+			RundownPlaylists: new InMemoryMongoCollection('rundownPlaylists'),
+			ShowStyleBases: new InMemoryMongoCollection('showStyleBases'),
+			PieceInstances: new InMemoryMongoCollection('pieceInstances'),
+			PartInstances: new InMemoryMongoCollection('partInstances'),
 		}
 		cache.RundownPlaylists.insert({
 			_id: playlistId,
@@ -318,10 +318,10 @@ describe('TagsService', () => {
 		// partInstanceId4 = older previous (index 1), partInstanceId3 = recent previous (index 0), partInstanceId0 = current
 		const testee = createTestee()
 		const cache: ContentCache = {
-			RundownPlaylists: new ReactiveCacheCollection('rundownPlaylists'),
-			ShowStyleBases: new ReactiveCacheCollection('showStyleBases'),
-			PieceInstances: new ReactiveCacheCollection('pieceInstances'),
-			PartInstances: new ReactiveCacheCollection('partInstances'),
+			RundownPlaylists: new InMemoryMongoCollection('rundownPlaylists'),
+			ShowStyleBases: new InMemoryMongoCollection('showStyleBases'),
+			PieceInstances: new InMemoryMongoCollection('pieceInstances'),
+			PartInstances: new InMemoryMongoCollection('partInstances'),
 		}
 		cache.RundownPlaylists.insert({
 			_id: playlistId,

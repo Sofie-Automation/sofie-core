@@ -399,6 +399,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0', {
@@ -438,6 +439,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0', {
@@ -478,6 +480,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0', { autoNext: true, expectedDuration: 5000 }),
@@ -514,6 +517,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0', {
@@ -554,6 +558,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0', {
@@ -593,6 +598,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
 				current: {
 					partTimes: createPartCurrentTimes(currentTime, 5678),
 					partInstance: createMockPartInstance('part0', {
