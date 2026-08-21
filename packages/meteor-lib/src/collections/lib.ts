@@ -20,10 +20,6 @@ export type IndexSpecifier<T> = {
 	[P in keyof T]?: -1 | 1 | string
 }
 
-export interface MongoLiveQueryHandle {
-	stop(): void
-}
-
 export interface FindOneOptions<TRawDoc> {
 	/** Sort order (default: natural order) */
 	sort?: SortSpecifier<TRawDoc>

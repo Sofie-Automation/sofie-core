@@ -9,6 +9,7 @@ class CustomPublishToMap<DBObj extends { _id: ProtectedString<any> }> implements
 	#isReady = false
 	#documents = new Map<DBObj['_id'], DBObj>()
 	#readyPromise = Promise.withResolvers<void>()
+	readonly #neverStops = new AbortController()
 
 	get isReady(): boolean {
 		return this.#isReady
@@ -22,11 +23,9 @@ class CustomPublishToMap<DBObj extends { _id: ProtectedString<any> }> implements
 		return this.#readyPromise.promise
 	}
 
-	/**
-	 * Register a function to be called when the subscriber unsubscribes
-	 */
-	onStop(_callback: () => void): void {
-		// Ignore, this publication never stops
+	/** This publication never stops, so its lifetime signal is never aborted */
+	get signal(): AbortSignal {
+		return this.#neverStops.signal
 	}
 
 	/**

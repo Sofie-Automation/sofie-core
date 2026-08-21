@@ -28,6 +28,7 @@ export async function ObserveChangesForHash<DBInterface extends { _id: Protected
 	collection: AsyncOnlyMongoCollection<DBInterface>,
 	hashName: keyof DBInterface,
 	hashFields: (keyof DBInterface)[],
+	signal: AbortSignal,
 	skipEnsureUpdatedOnStart?: boolean
 ): Promise<void> {
 	const doUpdate = async (obj: DBInterface): Promise<void> => {
@@ -41,7 +42,14 @@ export async function ObserveChangesForHash<DBInterface extends { _id: Protected
 		}
 	}
 
-	await ObserveChangesHelper(collection, hashFields, doUpdate, ObserveChangeBufferTimeout, skipEnsureUpdatedOnStart)
+	await ObserveChangesHelper(
+		collection,
+		hashFields,
+		doUpdate,
+		ObserveChangeBufferTimeout,
+		signal,
+		skipEnsureUpdatedOnStart
+	)
 }
 
 export async function ObserveChangesHelper<DBInterface extends { _id: ProtectedString<any> }>(
@@ -49,6 +57,7 @@ export async function ObserveChangesHelper<DBInterface extends { _id: ProtectedS
 	watchFields: (keyof DBInterface)[],
 	doUpdate: (doc: DBInterface) => Promise<void>,
 	changeDebounce: number,
+	signal: AbortSignal,
 	skipEnsureUpdatedOnStart?: boolean
 ): Promise<void> {
 	const observedChangesTimeouts = new Map<DBInterface['_id'], NodeJS.Timeout>()
@@ -95,7 +104,7 @@ export async function ObserveChangesHelper<DBInterface extends { _id: ProtectedS
 				}
 			},
 		},
-		{ projection }
+		{ projection, signal }
 	)
 
 	if (!skipEnsureUpdatedOnStart) {

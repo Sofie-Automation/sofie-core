@@ -1,12 +1,7 @@
 import { z } from 'zod'
 import { PartInstanceId, RundownPlaylistActivationId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check } from '../../lib/check'
-import {
-	CustomPublishCollection,
-	SetupObserversResult,
-	TriggerUpdate,
-	setUpCollectionOptimizedObserver,
-} from '../../lib/customPublication'
+import { CustomPublishCollection, TriggerUpdate, setUpCollectionOptimizedObserver } from '../../lib/customPublication'
 import { logger } from '../../logging'
 import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { ContentCache, PartInstanceOmitedFields, createReactiveContentCache } from './reactiveContentCache'
@@ -55,8 +50,9 @@ const rundownPlaylistFieldSpecifier = literal<
 
 async function setupUIPartInstancesPublicationObservers(
 	args: ReadonlyDeep<UIPartInstancesArgs>,
-	triggerUpdate: TriggerUpdate<UIPartInstancesUpdateProps>
-): Promise<SetupObserversResult> {
+	triggerUpdate: TriggerUpdate<UIPartInstancesUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
 	const playlist = (await RundownPlaylists.findOneAsync(
 		{ activationId: args.playlistActivationId },
 		{
@@ -65,10 +61,11 @@ async function setupUIPartInstancesPublicationObservers(
 	)) as Pick<DBRundownPlaylist, RundownPlaylistFields> | undefined
 	if (!playlist) throw new Error(`RundownPlaylist with activationId="${args.playlistActivationId}" not found!`)
 
-	const rundownsObserver = await RundownsObserver.createForPlaylist(
+	await RundownsObserver.createForPlaylist(
 		playlist.studioId,
 		playlist._id,
-		async (rundownIds) => {
+		signal,
+		async (rundownIds, invocationSignal) => {
 			logger.silly(`Creating new RundownContentObserver`)
 
 			const cache = createReactiveContentCache()
@@ -76,20 +73,25 @@ async function setupUIPartInstancesPublicationObservers(
 			// Push update
 			triggerUpdate({ newCache: cache })
 
-			const obs1 = await RundownContentObserver.create(
+			await RundownContentObserver.create(
 				playlist.studioId,
 				args.playlistActivationId,
 				rundownIds,
-				cache
+				cache,
+				invocationSignal
 			)
 
-			const innerQueries = [
-				cache.Segments.observeChanges({
+			cache.Segments.observeChanges(
+				{
 					added: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
 					changed: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
 					removed: (id) => triggerUpdate({ invalidateSegmentIds: [id] }),
-				}),
-				cache.PartInstances.observe({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			cache.PartInstances.observe(
+				{
 					added: (doc) => triggerUpdate({ invalidatePartInstanceIds: [doc._id] }),
 					changed: (doc, oldDoc) => {
 						if (doc.part._rank !== oldDoc.part._rank) {
@@ -101,31 +103,30 @@ async function setupUIPartInstancesPublicationObservers(
 						}
 					},
 					removed: (doc) => triggerUpdate({ invalidatePartInstanceIds: [doc._id] }),
-				}),
-				cache.RundownPlaylists.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			cache.RundownPlaylists.observeChanges(
+				{
 					added: () => triggerUpdate({ invalidateQuickLoop: true }),
 					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
 					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
-				}),
-				cache.StudioSettings.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			cache.StudioSettings.observeChanges(
+				{
 					added: () => triggerUpdate({ invalidateQuickLoop: true }),
 					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
 					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
-				}),
-			]
-
-			return () => {
-				obs1.dispose()
-
-				for (const query of innerQueries) {
-					query.stop()
-				}
-			}
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
 		}
 	)
-
-	// Set up observers:
-	return [rundownsObserver]
 }
 
 export async function manipulateUIPartInstancesPublicationData(

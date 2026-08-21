@@ -5,9 +5,9 @@ import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { profiler } from '../../api/profiler'
 import { logger } from '../../logging'
-import { LiveQueryHandle, lazyIgnore } from '../lib'
+import { lazyIgnore } from '../lib'
+import { runOnAbort } from '../observerLifetime'
 import { CustomPublish, CustomPublishChanges } from './publish'
-import { waitForAllObserversReady } from '../../publications/lib/lib'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
@@ -30,7 +30,8 @@ interface OptimizedObserverWorker<TData extends { _id: ProtectedString<any> }, T
 	args: ReadonlyDeep<TArgs>
 	context: Partial<TContext>
 	lastData: TData[]
-	stopObservers: () => Promise<void>
+	/** Ends the lifetime of every observer this worker started. Synchronous: aborting tears them down immediately. */
+	stopObservers: () => void
 }
 
 /** Based on the default behaviour of deepmerge */
@@ -42,7 +43,13 @@ const optimizedObservers: Record<string, OptimizedObserverWrapper<any, unknown, 
 
 export type TriggerUpdate<UpdateProps extends Record<string, any>> = (updateProps: Partial<UpdateProps>) => void
 
-export type SetupObserversResult = Array<Promise<LiveQueryHandle> | LiveQueryHandle>
+export type SetupObservers<Args, UpdateProps extends Record<string, any>> = (
+	args: ReadonlyDeep<Args>,
+	/** Trigger an update by mutating the context of manipulateData */
+	triggerUpdate: TriggerUpdate<UpdateProps>,
+	/** The lifetime of this observer. Aborted when the publication is no longer needed, or if setup fails. */
+	signal: AbortSignal
+) => Promise<void>
 
 /**
  * This should not be used directly, and should be used through one of the setUpOptimizedObserverArray or setUpCollectionOptimizedObserver wrappers
@@ -64,11 +71,7 @@ export async function setUpOptimizedObserverInner<
 >(
 	identifier: string,
 	args0: ReadonlyDeep<Args>,
-	setupObservers: (
-		args: ReadonlyDeep<Args>,
-		/** Trigger an update by mutating the context of manipulateData */
-		triggerUpdate: TriggerUpdate<UpdateProps>
-	) => Promise<SetupObserversResult>,
+	setupObservers: SetupObservers<Args, UpdateProps>,
 	manipulateData: (
 		args: ReadonlyDeep<Args>,
 		state: Partial<State>,
@@ -105,7 +108,7 @@ export async function setUpOptimizedObserverInner<
 
 		// Add the new subscriber
 		thisObserverWrapper.newSubscribers.push(receiver)
-		receiver.onStop(() => removeReceiver())
+		runOnAbort(receiver.signal, removeReceiver)
 
 		const subCount = thisObserverWrapper.activeSubscribers.length + thisObserverWrapper.newSubscribers.length
 		logger.debug(`Adding subscriber to ${identifier} ${subCount} are joined`)
@@ -125,7 +128,7 @@ export async function setUpOptimizedObserverInner<
 			activeSubscribers: [],
 			worker: resultingOptimizedObserver.promise,
 		}
-		receiver.onStop(() => removeReceiver())
+		runOnAbort(receiver.signal, removeReceiver)
 
 		logger.debug(`Starting publication ${identifier}`)
 
@@ -185,11 +188,7 @@ async function createOptimizedObserverWorker<
 	identifier: string,
 	thisObserverWrapper: OptimizedObserverWrapper<PublicationDoc, Args, State>,
 	args0: ReadonlyDeep<Args>,
-	setupObservers: (
-		args: ReadonlyDeep<Args>,
-		/** Trigger an update by mutating the context of manipulateData */
-		triggerUpdate: TriggerUpdate<UpdateProps>
-	) => Promise<SetupObserversResult>,
+	setupObservers: SetupObservers<Args, UpdateProps>,
 	manipulateData: (
 		args: ReadonlyDeep<Args>,
 		state: Partial<State>,
@@ -245,7 +244,7 @@ async function createOptimizedObserverWorker<
 							!thisObserverWrapper.newSubscribers.length
 						) {
 							delete optimizedObservers[identifier]
-							await thisObserverWorker.stopObservers()
+							thisObserverWorker.stopObservers()
 							thisObserverWorker = undefined
 							logger.silly(`Cancelling update for optimized observer ${identifier}`)
 							return
@@ -325,17 +324,19 @@ async function createOptimizedObserverWorker<
 		)
 	}
 
+	// The lifetime of every observer this worker owns. Aborting it tears them all down, including
+	// ones started before a failure partway through setup.
+	const workerAbort = new AbortController()
+
 	try {
 		// Setup the mongo observers
-		const observers = await waitForAllObserversReady(await setupObservers(args, triggerUpdate))
+		await setupObservers(args, triggerUpdate, workerAbort.signal)
 
 		thisObserverWorker = {
 			args: args,
 			context: {},
 			lastData: [],
-			stopObservers: async () => {
-				await Promise.allSettled(observers.map(async (observer) => observer.stop()))
-			},
+			stopObservers: () => workerAbort.abort(),
 		}
 
 		// Do the intial data load
@@ -346,7 +347,7 @@ async function createOptimizedObserverWorker<
 		if (newDataReceivers.length === 0) {
 			// There is no longer any subscriber to this
 			delete optimizedObservers[identifier]
-			await thisObserverWorker.stopObservers()
+			thisObserverWorker.stopObservers()
 			thisObserverWorker = undefined
 
 			throw new SofieError(500, 'All subscribers disappeared!')
@@ -373,7 +374,9 @@ async function createOptimizedObserverWorker<
 		// Observer is now ready for all to use
 		return thisObserverWorker
 	} catch (e: any) {
-		if (thisObserverWorker) await thisObserverWorker.stopObservers()
+		// Releases every observer started under this worker, including any that `setupObservers`
+		// started before throwing partway through
+		workerAbort.abort()
 
 		throw e
 	}
