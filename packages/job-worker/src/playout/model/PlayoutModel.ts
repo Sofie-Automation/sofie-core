@@ -105,9 +105,18 @@ export interface PlayoutModelReadonly extends StudioPlayoutModelBaseReadonly {
 	 */
 	get olderPartInstances(): PlayoutPartInstanceModel[]
 	/**
-	 * The PartInstance previously played, if any
+	 * The most recently played PartInstance (index 0 of previousPartsInfo), if any.
+	 * Convenience accessor; use `previousPartInstances` when you need the full chain.
 	 */
 	get previousPartInstance(): PlayoutPartInstanceModel | null
+	/**
+	 * All previously-played PartInstances that are still contributing to the timeline due to
+	 * keepalive / postroll / preroll overlap.
+	 * Ordered most-recent-first, mirroring `playlist.previousPartsInfo`:
+	 * index 0 is the part most recently taken from (same as `previousPartInstance`),
+	 * index 1 the one before that, and so on.
+	 */
+	get previousPartInstances(): PlayoutPartInstanceModel[]
 	/**
 	 * The PartInstance currently being played, if any
 	 */
@@ -117,11 +126,11 @@ export interface PlayoutModelReadonly extends StudioPlayoutModelBaseReadonly {
 	 */
 	get nextPartInstance(): PlayoutPartInstanceModel | null
 	/**
-	 * Ids of the previous, current and next PartInstances
+	 * Ids of all previous, current and next PartInstances (includes all entries of previousPartsInfo)
 	 */
 	get selectedPartInstanceIds(): PartInstanceId[]
 	/**
-	 * The previous, current and next PartInstances
+	 * All previous, current and next PartInstances
 	 */
 	get selectedPartInstances(): PlayoutPartInstanceModel[]
 	/**
@@ -232,7 +241,7 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 	 * Clear the currently selected previousPartInstance.
 	 * This can be useful if it references a Rundown that has been removed from the Playlist
 	 */
-	clearPreviousPartInstance(): void
+	clearPreviousPartInstances(): void
 
 	/**
 	 * Insert an adlibbed PartInstance into the RundownPlaylist
@@ -295,6 +304,17 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 	 * @param partInstanceId Id of the PartInstance the event is in relation to
 	 */
 	queuePartInstanceTimingEvent(partInstanceId: PartInstanceId): void
+
+	/**
+	 * Drop stale entries from `previousPartsInfo` that are no longer contributing to the timeline.
+	 * An entry is dropped when its timeline group end time — derived from the reference part's
+	 * `partPlayoutTimings.fromPartRemaining` and `plannedStartedPlayback` — is already before `now`.
+	 * If timing data is unavailable for a reference part, the entry is kept (safe default).
+	 * At least one entry is always retained so consumers can still read `previousPartInstance[0]`.
+	 * The list is also capped at a maximum length to prevent unbounded growth.
+	 * @param now The current wall-clock time; provided by the caller so this method remains pure.
+	 */
+	prunePreviousPartInstances(now: Time): void
 
 	/**
 	 * Remove all loaded PartInstances marked as `rehearsal` from this RundownPlaylist

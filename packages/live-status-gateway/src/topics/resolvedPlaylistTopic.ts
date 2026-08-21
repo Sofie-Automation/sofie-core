@@ -30,7 +30,7 @@ const PLAYLIST_KEYS = [
 	'quickLoop',
 	'currentPartInfo',
 	'nextPartInfo',
-	'previousPartInfo',
+	'previousPartsInfo',
 	'publicData',
 	'publicPlayoutPersistentState',
 	'timing',

@@ -20,6 +20,7 @@ const playoutState = findForLayerTestConstants.playoutState
 describe('playoutState propagates to findLookaheadObjectsForPart', () => {
 	test('onAir inHold propagation for partInstances (current and next)', () => {
 		const partInstancesInfo: PartInstanceAndPieceInstancesInfos = {
+			previous: [],
 			current,
 			next: nextFuture,
 		}
@@ -53,6 +54,7 @@ describe('playoutState propagates to findLookaheadObjectsForPart', () => {
 	})
 	test('Rehearsal propagation for partInstances (current and next)', () => {
 		const partInstancesInfo: PartInstanceAndPieceInstancesInfos = {
+			previous: [],
 			current,
 			next: nextFuture,
 		}
@@ -95,7 +97,9 @@ describe('playoutState propagates to findLookaheadObjectsForPart', () => {
 
 		findLookaheadForLayer(
 			context,
-			{},
+			{
+				previous: [],
+			},
 			rehearsalInHoldOrderedParts,
 			layer,
 			100,

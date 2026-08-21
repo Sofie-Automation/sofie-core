@@ -108,7 +108,7 @@ export const RundownTimingProvider = withTracker<
 	const { currentPartInstance } = findCurrentAndPreviousPartInstance(
 		activePartInstances,
 		playlist.currentPartInfo?.partInstanceId,
-		playlist.previousPartInfo?.partInstanceId
+		playlist.previousPartsInfo?.[0]?.partInstanceId
 	)
 
 	let partInstances: MinimalPartInstance[] = []

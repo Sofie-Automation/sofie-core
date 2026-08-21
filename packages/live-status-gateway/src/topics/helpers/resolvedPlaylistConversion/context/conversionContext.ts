@@ -25,7 +25,7 @@ type PlaylistState = Pick<
 	| 'quickLoop'
 	| 'currentPartInfo'
 	| 'nextPartInfo'
-	| 'previousPartInfo'
+	| 'previousPartsInfo'
 	| 'publicData'
 	| 'publicPlayoutPersistentState'
 	| 'timing'

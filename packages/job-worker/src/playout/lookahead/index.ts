@@ -106,23 +106,31 @@ export async function getLookeaheadObjects(
 		},
 	})
 
-	// Track the previous info for checking how the timeline will be built
-	let previousPartInfo: PartInstanceAndPieceInstances | undefined
-	if (partInstancesInfo0.previous) {
-		previousPartInfo = removeInfiniteContinuations(
-			{
-				part: partInstancesInfo0.previous.partInstance,
-				onTimeline: true,
-				nowInPart: partInstancesInfo0.previous.partTimes.nowInPart,
-				allPieces: getPrunedEndedPieceInstances(partInstancesInfo0.previous),
-				calculatedTimings: partInstancesInfo0.previous.calculatedTimings,
-			},
-			false
-		)
-	}
-
+	// Previous parts are included oldest-first so that the timed-lookahead chain is ordered
+	// chronologically. This is necessary for WHEN_CLEAR correctness: a previous part may still
+	// have pieces that have not yet started (e.g. a delayed piece during a heavy overlap). Without
+	// including it here those pieces would not produce a timed lookahead entry, and a future part's
+	// lookahead (which runs at low priority with `while: '1'`) would incorrectly fill the gap on
+	// that layer until the real piece becomes active.
+	// `getPrunedEndedPieceInstances` already drops definitively-ended pieces, so only still-relevant
+	// pieces are included. The `classesForNext` chain threads naturally through the ordered list.
 	const partInstancesInfo: PartInstanceAndPieceInstancesInfos = {
-		previous: previousPartInfo,
+		// partInstancesInfo0.previous is most-recent-first; reverse to oldest-first for lookahead chain ordering
+		previous: partInstancesInfo0.previous
+			.slice()
+			.reverse()
+			.map((prevInfo) =>
+				removeInfiniteContinuations(
+					{
+						part: prevInfo.partInstance,
+						onTimeline: true,
+						nowInPart: prevInfo.partTimes.nowInPart,
+						allPieces: getPrunedEndedPieceInstances(prevInfo),
+						calculatedTimings: prevInfo.calculatedTimings,
+					},
+					false
+				)
+			),
 		current: partInstancesInfo0.current
 			? removeInfiniteContinuations(
 					{

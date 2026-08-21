@@ -34,7 +34,6 @@ import { assertNever, getHash, getRandomId, literal, omit } from '@sofie-automat
 import { logger } from '../logging.js'
 import { invokeOnPlaylistSnapshotCreated } from './snapshotHooks.js'
 import { JSONBlobParse, JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { RundownOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { SofieIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 import * as PackagesPreR53 from '@sofie-automation/corelib/dist/dataModel/Old/ExpectedPackagesR52'
@@ -725,23 +724,64 @@ function fixupImportedSelectedPartInstanceIds(
 	const fullOldKey = `${property}PartInstanceId`
 	if (fullOldKey in snapshot.playlist) {
 		const oldId = (snapshot.playlist as any)[fullOldKey] as PartInstanceId
-		snapshot.playlist.currentPartInfo = {
+		const migratedInfo = {
 			partInstanceId: oldId,
 			rundownId: partInstanceOldRundownIdMap.get(oldId) || protectString(''),
 			manuallySelected: false,
 			consumesQueuedSegmentId: false,
 		}
+		// Only migrate when the modern field is absent. A null selection or an empty array is a valid
+		// modern value, and must not be overwritten by a legacy id left behind by an earlier restore.
+		if (property === 'previous') {
+			const hasModernPrevious =
+				snapshot.playlist.previousPartsInfo !== undefined ||
+				(snapshot.playlist as any).previousPartInfo !== undefined
+			if (!hasModernPrevious) {
+				snapshot.playlist.previousPartsInfo = [migratedInfo]
+			}
+		} else if (property === 'next') {
+			if (snapshot.playlist.nextPartInfo === undefined) {
+				snapshot.playlist.nextPartInfo = migratedInfo
+			}
+		} else {
+			if (snapshot.playlist.currentPartInfo === undefined) {
+				snapshot.playlist.currentPartInfo = migratedInfo
+			}
+		}
+
+		// Drop the consumed legacy key, so that it cannot be persisted and re-applied by a later restore
+		delete (snapshot.playlist as any)[fullOldKey]
 	}
 
-	const fullNewKey: keyof DBRundownPlaylist = `${property}PartInfo`
-
-	const snapshotInfo = snapshot.playlist[fullNewKey]
-	if (snapshotInfo) {
-		snapshot.playlist[fullNewKey] = {
-			partInstanceId: partInstanceIdMap.get(snapshotInfo.partInstanceId) || snapshotInfo.partInstanceId,
-			rundownId: rundownIdMap.get(snapshotInfo.rundownId) || snapshotInfo.rundownId,
-			manuallySelected: snapshotInfo.manuallySelected,
-			consumesQueuedSegmentId: snapshotInfo.consumesQueuedSegmentId,
+	if (property === 'previous') {
+		convertPreviousPartInfoToArray(snapshot)
+		// previousPartsInfo is an array — remap each entry
+		const snapshotInfos = snapshot.playlist.previousPartsInfo
+		if (snapshotInfos?.length) {
+			snapshot.playlist.previousPartsInfo = snapshotInfos.map((snapshotInfo) => ({
+				partInstanceId: partInstanceIdMap.get(snapshotInfo.partInstanceId) || snapshotInfo.partInstanceId,
+				rundownId: rundownIdMap.get(snapshotInfo.rundownId) || snapshotInfo.rundownId,
+				manuallySelected: snapshotInfo.manuallySelected,
+				consumesQueuedSegmentId: snapshotInfo.consumesQueuedSegmentId,
+			}))
+		}
+	} else {
+		const fullNewKey = `${property}PartInfo` as const
+		const snapshotInfo = snapshot.playlist[fullNewKey]
+		if (snapshotInfo) {
+			snapshot.playlist[fullNewKey] = {
+				partInstanceId: partInstanceIdMap.get(snapshotInfo.partInstanceId) || snapshotInfo.partInstanceId,
+				rundownId: rundownIdMap.get(snapshotInfo.rundownId) || snapshotInfo.rundownId,
+				manuallySelected: snapshotInfo.manuallySelected,
+				consumesQueuedSegmentId: snapshotInfo.consumesQueuedSegmentId,
+			}
 		}
 	}
+}
+function convertPreviousPartInfoToArray(snapshot: CoreRundownPlaylistSnapshot) {
+	const legacyPreviousPartInfo = (snapshot.playlist as any).previousPartInfo
+	if (!Array.isArray(snapshot.playlist.previousPartsInfo)) {
+		snapshot.playlist.previousPartsInfo = legacyPreviousPartInfo ? [legacyPreviousPartInfo] : []
+	}
+	delete (snapshot.playlist as any).previousPartInfo
 }

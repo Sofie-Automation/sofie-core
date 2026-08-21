@@ -41,7 +41,7 @@ describe('Test external message queue static methods', () => {
 				manuallySelected: false,
 				consumesQueuedSegmentId: false,
 			},
-			previousPartInfo: null,
+			previousPartsInfo: [],
 			activationId: protectString('active'),
 			timing: {
 				type: PlaylistTimingType.None,

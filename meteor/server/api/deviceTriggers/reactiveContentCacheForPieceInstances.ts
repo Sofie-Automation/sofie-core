@@ -13,7 +13,7 @@ export type RundownPlaylistFields =
 	| 'activationId'
 	| 'currentPartInfo'
 	| 'nextPartInfo'
-	| 'previousPartInfo'
+	| 'previousPartsInfo'
 export const rundownPlaylistFieldSpecifier = literal<
 	MongoFieldSpecifierOnesStrict<Pick<DBRundownPlaylist, RundownPlaylistFields>>
 >({
@@ -22,7 +22,7 @@ export const rundownPlaylistFieldSpecifier = literal<
 	activationId: 1,
 	currentPartInfo: 1,
 	nextPartInfo: 1,
-	previousPartInfo: 1,
+	previousPartsInfo: 1,
 })
 
 export type PieceInstanceFields =

@@ -13,7 +13,7 @@ import { CollectionHandlers } from '../liveStatusServer.js'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
 export interface SelectedPartInstances {
-	previous: DBPartInstance | undefined
+	previous: DBPartInstance[]
 	current: DBPartInstance | undefined
 	next: DBPartInstance | undefined
 	firstInSegmentPlayout: DBPartInstance | undefined
@@ -23,7 +23,7 @@ export interface SelectedPartInstances {
 const PLAYLIST_KEYS = [
 	'_id',
 	'activationId',
-	'previousPartInfo',
+	'previousPartsInfo',
 	'currentPartInfo',
 	'nextPartInfo',
 	'rundownIdsInOrder',
@@ -47,7 +47,7 @@ export class PartInstancesHandler extends PublicationCollection<
 	constructor(logger: Logger, coreHandler: CoreHandler) {
 		super(CollectionName.PartInstances, CorelibPubSub.partInstances, logger, coreHandler)
 		this._collectionData = {
-			previous: undefined,
+			previous: [],
 			current: undefined,
 			next: undefined,
 			firstInSegmentPlayout: undefined,
@@ -68,9 +68,9 @@ export class PartInstancesHandler extends PublicationCollection<
 	private updateCollectionData(): boolean {
 		if (!this._collectionData) return false
 		const collection = this.getCollectionOrFail()
-		const previousPartInstance = this._currentPlaylist?.previousPartInfo?.partInstanceId
-			? collection.findOne(this._currentPlaylist.previousPartInfo.partInstanceId)
-			: undefined
+		const previousPartInstances = (this._currentPlaylist?.previousPartsInfo ?? []).flatMap((info) =>
+			info.partInstanceId ? ([collection.findOne(info.partInstanceId)].filter(Boolean) as DBPartInstance[]) : []
+		)
 		const currentPartInstance = this._currentPlaylist?.currentPartInfo?.partInstanceId
 			? collection.findOne(this._currentPlaylist.currentPartInfo.partInstanceId)
 			: undefined
@@ -87,8 +87,8 @@ export class PartInstancesHandler extends PublicationCollection<
 		) as DBPartInstance
 
 		let hasAnythingChanged = false
-		if (previousPartInstance !== this._collectionData.previous) {
-			this._collectionData.previous = previousPartInstance
+		if (!areElementsShallowEqual(this._collectionData.previous, previousPartInstances)) {
+			this._collectionData.previous = previousPartInstances
 			hasAnythingChanged = true
 		}
 		if (currentPartInstance !== this._collectionData.current) {
@@ -113,7 +113,7 @@ export class PartInstancesHandler extends PublicationCollection<
 	private clearCollectionData() {
 		if (!this._collectionData) return
 		this._collectionData = {
-			previous: undefined,
+			previous: [],
 			current: undefined,
 			next: undefined,
 			firstInSegmentPlayout: undefined,
