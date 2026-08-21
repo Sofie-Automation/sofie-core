@@ -18,12 +18,11 @@ import { hasPieceInstanceDefinitelyEnded, shouldIncludeObjectOnTimeline, Timelin
 
 export function transformPieceGroupAndObjects(
 	playlistId: RundownPlaylistId,
+	partTimings: PartCalculatedTimings | undefined,
 	partGroup: TimelineObjGroupPart & OnGenerateTimelineObjExt,
 	nowInPart: number,
 	pieceInstance: ReadonlyDeep<PieceInstanceWithTimings>,
 	pieceEnable: TSR.Timeline.TimelineEnable,
-	/** If the start of the piece has been offset inside the partgroup  */
-	pieceStartOffset: number,
 	controlObjClasses: string[],
 	playoutState: TimelinePlayoutState
 ): Array<TimelineObjRundown & OnGenerateTimelineObjExt> {
@@ -37,8 +36,8 @@ export function transformPieceGroupAndObjects(
 		pieceInstance,
 		pieceEnable,
 		controlObjClasses,
-		partGroup,
-		pieceStartOffset
+		partTimings,
+		partGroup
 	)
 	// We need all these objects so that we can resolve all the piece timings in this timeline
 	const timelineObjs: Array<TimelineObjRundown & OnGenerateTimelineObjExt> = [controlObj, childGroup, ...capObjs]
