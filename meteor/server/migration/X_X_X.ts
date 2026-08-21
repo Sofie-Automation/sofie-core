@@ -2,6 +2,7 @@ import { addMigrationSteps } from './databaseMigration'
 import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
 import { RundownPlaylists, Segments, Studios } from '../collections'
 import { ContainerIdsToObjectWithOverridesMigrationStep } from './steps/X_X_X/ContainerIdsToObjectWithOverridesMigrationStep'
+import { PreviousPartInfoToArrayMigrationStep } from './steps/X_X_X/PreviousPartInfoToArrayMigrationStep'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 /*
@@ -148,5 +149,6 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 			)
 		},
 	},
+	new PreviousPartInfoToArrayMigrationStep(),
 	// Add your migration here
 ])
