@@ -1,4 +1,4 @@
-import { AppsV1Api, KubeConfig, PatchUtils } from '@kubernetes/client-node'
+import { AppsV1Api, KubeConfig, PatchStrategy, setHeaderOptions } from '@kubernetes/client-node'
 import * as fs from 'node:fs/promises'
 import type { SomeLogger } from './types.js'
 
@@ -33,7 +33,7 @@ export class KubernetesRestarter {
 		this.deploymentName = process.env.DEPLOYMENT_NAME || defaultDeploymentName
 		if (!this.deploymentName) throw new Error('Deployment name is empty string, cannot restart')
 	}
-	async restartKube(): Promise<boolean> {
+	async restartKube(): Promise<void> {
 		this.logger.info(`Attempting to restart Kubernetes deployment: ${this.deploymentName}`)
 		try {
 			const patch = {
@@ -49,21 +49,17 @@ export class KubernetesRestarter {
 			}
 			const namespace = await KubernetesRestarter.getNamespace()
 
-			const options = { headers: { 'Content-type': PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH } }
-			const res = await this.k8sApi.patchNamespacedDeployment(
-				this.deploymentName,
-				namespace,
-				patch,
-				undefined,
-				undefined,
-				undefined,
-				undefined,
-				undefined,
-				options
+			await this.k8sApi.patchNamespacedDeployment(
+				{
+					name: this.deploymentName,
+					namespace,
+					body: patch,
+				},
+				setHeaderOptions('Content-Type', PatchStrategy.JsonPatch)
 			)
-			this.logger.info(`Successfully restarted deployment ${this.deploymentName}`)
-			const resStatus = res.response.statusCode
-			return resStatus !== undefined && resStatus >= 200 && resStatus < 300
+			this.logger.info(
+				`Patched k8s deployment ${this.deploymentName} on namespace ${namespace} to trigger restart`
+			)
 		} catch (err: any) {
 			this.logger.error(`Full error: ${JSON.stringify(err, null, 2)}`)
 			throw err
