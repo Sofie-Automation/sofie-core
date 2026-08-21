@@ -730,13 +730,27 @@ function fixupImportedSelectedPartInstanceIds(
 			manuallySelected: false,
 			consumesQueuedSegmentId: false,
 		}
+		// Only migrate when the modern field is absent. A null selection or an empty array is a valid
+		// modern value, and must not be overwritten by a legacy id left behind by an earlier restore.
 		if (property === 'previous') {
-			snapshot.playlist.previousPartsInfo = [migratedInfo]
+			const hasModernPrevious =
+				snapshot.playlist.previousPartsInfo !== undefined ||
+				(snapshot.playlist as any).previousPartInfo !== undefined
+			if (!hasModernPrevious) {
+				snapshot.playlist.previousPartsInfo = [migratedInfo]
+			}
 		} else if (property === 'next') {
-			snapshot.playlist.nextPartInfo = migratedInfo
+			if (snapshot.playlist.nextPartInfo === undefined) {
+				snapshot.playlist.nextPartInfo = migratedInfo
+			}
 		} else {
-			snapshot.playlist.currentPartInfo = migratedInfo
+			if (snapshot.playlist.currentPartInfo === undefined) {
+				snapshot.playlist.currentPartInfo = migratedInfo
+			}
 		}
+
+		// Drop the consumed legacy key, so that it cannot be persisted and re-applied by a later restore
+		delete (snapshot.playlist as any)[fullOldKey]
 	}
 
 	if (property === 'previous') {
