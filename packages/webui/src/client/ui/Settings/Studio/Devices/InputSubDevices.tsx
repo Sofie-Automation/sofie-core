@@ -9,11 +9,9 @@ import {
 import { getHelpMode } from '../../../../lib/localStorage.js'
 import Tooltip from 'rc-tooltip'
 import { useTranslation } from 'react-i18next'
-import { getAllCurrentAndDeletedItemsFromOverrides, useOverrideOpHelper } from '../../util/OverrideOpHelper.js'
+import { getAllCurrentAndDeletedItemsFromOverrides } from '../../util/OverrideOpHelper.js'
 import {
 	type ObjectOverrideSetOp,
-	type ObjectWithOverrides,
-	type SomeObjectOverrideOp,
 	wrapDefaultObject,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import type { StudioInputDevice } from '@sofie-automation/corelib/dist/dataModel/Studio'
@@ -21,6 +19,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { GenericSubDevicesTable } from './GenericSubDevices.js'
+import { useStagedSubDeviceOverrides } from './useStagedSubDeviceOverrides.js'
 
 interface StudioInputSubDevicesProps {
 	studioId: StudioId
@@ -31,30 +30,34 @@ export function StudioInputSubDevices({ studioId, studioDevices }: Readonly<Stud
 
 	const studio = useTracker(() => Studios.findOne(studioId), [studioId])
 
-	const saveOverrides = useCallback(
-		(newOps: SomeObjectOverrideOp[]) => {
-			if (studio?._id) {
-				Studios.update(studio._id, {
-					$set: {
-						'peripheralDeviceSettings.inputDevices.overrides': newOps,
-					},
-				})
-			}
-		},
-		[studio?._id]
-	)
-
-	const baseSettings = useMemo<ObjectWithOverrides<Record<string, StudioInputDevice>>>(
+	const baseSettings = useMemo(
 		() => studio?.peripheralDeviceSettings?.inputDevices ?? wrapDefaultObject({}),
 		[studio?.peripheralDeviceSettings?.inputDevices]
 	)
 
-	const overrideHelper = useOverrideOpHelper(saveOverrides, baseSettings)
+	const {
+		settingsWithOverrides,
+		batchedOverrideHelper,
+		instantSaveOverrideHelper,
+		hasUnsavedChangesForItem,
+		discardItemChanges,
+		saveItemChanges,
+		updateObjectId,
+		updatedIds,
+	} = useStagedSubDeviceOverrides<StudioInputDevice>({
+		studioId: studio?._id,
+		baseSettings,
+		overridePath: 'peripheralDeviceSettings.inputDevices.overrides',
+		relatedItemsMode: 'direct',
+		clearSavedItemFromStaged: false,
+	})
 
 	const wrappedSubDevices = useMemo(
 		() =>
-			getAllCurrentAndDeletedItemsFromOverrides<StudioInputDevice>(baseSettings, (a, b) => a[0].localeCompare(b[0])),
-		[baseSettings]
+			getAllCurrentAndDeletedItemsFromOverrides<StudioInputDevice>(settingsWithOverrides, (a, b) =>
+				a[0].localeCompare(b[0])
+			),
+		[settingsWithOverrides]
 	)
 
 	const filteredPeripheralDevices = useMemo(
@@ -86,7 +89,7 @@ export function StudioInputSubDevices({ studioId, studioDevices }: Readonly<Stud
 				'peripheralDeviceSettings.inputDevices.overrides': addOp,
 			},
 		})
-	}, [studioId, wrappedSubDevices])
+	}, [wrappedSubDevices, settingsWithOverrides.overrides])
 
 	return (
 		<div className="mb-4">
@@ -102,8 +105,14 @@ export function StudioInputSubDevices({ studioId, studioDevices }: Readonly<Stud
 
 			<GenericSubDevicesTable
 				subDevices={wrappedSubDevices}
-				overrideHelper={overrideHelper}
+				overrideHelper={batchedOverrideHelper}
 				peripheralDevices={filteredPeripheralDevices}
+				instantSaveOverrideHelper={instantSaveOverrideHelper}
+				hasUnsavedChangesForItem={hasUnsavedChangesForItem}
+				saveItemChanges={saveItemChanges}
+				discardItemChanges={discardItemChanges}
+				updateObjectId={updateObjectId}
+				updatedIds={updatedIds}
 			/>
 
 			<div className="my-1 mx-2">

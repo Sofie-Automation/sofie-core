@@ -262,11 +262,21 @@ export function UpgradeStatusButtons({ upgradeResult }: Readonly<UpgradeStatusBu
 	if (upgradeResult.pendingRunOfFixupFunction) {
 		return (
 			<>
-				<Button variant="light" className="me-2" onClick={clickFixup} disabled={!!upgradeResult.invalidReason}>
+				<Button
+					variant="outline-secondary"
+					className="me-2"
+					onClick={clickFixup}
+					disabled={!!upgradeResult.invalidReason}
+				>
 					<FontAwesomeIcon icon={faDatabase} className="me-2" />
 					<span>{t('Fix Up Config')}</span>
 				</Button>
-				<Button variant="light" className="me-2" onClick={clickIgnoreFixup} disabled={!!upgradeResult.invalidReason}>
+				<Button
+					variant="outline-secondary"
+					className="me-2"
+					onClick={clickIgnoreFixup}
+					disabled={!!upgradeResult.invalidReason}
+				>
 					<FontAwesomeIcon icon={faWarning} className="me-2" />
 					<span>{t('Skip Fix Up Step')}</span>
 				</Button>
