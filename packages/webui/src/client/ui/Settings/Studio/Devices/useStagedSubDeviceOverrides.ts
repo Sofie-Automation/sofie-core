@@ -138,21 +138,6 @@ export function useStagedSubDeviceOverrides<TSubDevice>({
 						if (originalId !== newId) next.set(originalId, newId)
 					} else {
 						next.set(originalId, currentId)
-	const updateObjectId = useCallback(
-		(oldId: string, newId: string) => {
-			if (oldId === newId) return
-
-			batchedOverrideHelper().changeItemId(oldId, newId).commit()
-			setUpdatedIds((prev) => {
-				const next = new Map<string, string>()
-				let composedExistingRename = false
-
-				for (const [originalId, currentId] of prev) {
-					if (currentId === oldId) {
-						composedExistingRename = true
-						if (originalId !== newId) next.set(originalId, newId)
-					} else {
-						next.set(originalId, currentId)
 					}
 				}
 
