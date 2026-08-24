@@ -9,11 +9,10 @@ import {
 import { getHelpMode } from '../../../../lib/localStorage.js'
 import Tooltip from 'rc-tooltip'
 import { useTranslation } from 'react-i18next'
-import { getAllCurrentAndDeletedItemsFromOverrides, useOverrideOpHelper } from '../../util/OverrideOpHelper.js'
+import { getAllCurrentAndDeletedItemsFromOverrides } from '../../util/OverrideOpHelper.js'
 import {
 	type ObjectOverrideSetOp,
 	type ObjectWithOverrides,
-	type SomeObjectOverrideOp,
 	wrapDefaultObject,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import type { StudioPlayoutDevice } from '@sofie-automation/corelib/dist/dataModel/Studio'
@@ -22,6 +21,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { TSR } from '@sofie-automation/blueprints-integration'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { GenericSubDevicesTable } from './GenericSubDevices.js'
+import { useStagedSubDeviceOverrides } from './useStagedSubDeviceOverrides.js'
 
 interface StudioPlayoutSubDevicesProps {
 	studioId: StudioId
@@ -35,30 +35,34 @@ export function StudioPlayoutSubDevices({
 
 	const studio = useTracker(() => Studios.findOne(studioId), [studioId])
 
-	const saveOverrides = useCallback(
-		(newOps: SomeObjectOverrideOp[]) => {
-			if (studio?._id) {
-				Studios.update(studio._id, {
-					$set: {
-						'peripheralDeviceSettings.playoutDevices.overrides': newOps,
-					},
-				})
-			}
-		},
-		[studio?._id]
-	)
-
 	const baseSettings = useMemo<ObjectWithOverrides<Record<string, StudioPlayoutDevice>>>(
 		() => studio?.peripheralDeviceSettings?.playoutDevices ?? wrapDefaultObject({}),
 		[studio?.peripheralDeviceSettings?.playoutDevices]
 	)
 
-	const overrideHelper = useOverrideOpHelper(saveOverrides, baseSettings)
+	const {
+		settingsWithOverrides: deviceSettings,
+		batchedOverrideHelper: batchedOverridesHelper,
+		instantSaveOverrideHelper,
+		hasUnsavedChangesForItem,
+		discardItemChanges,
+		saveItemChanges,
+		updateObjectId,
+		updatedIds,
+	} = useStagedSubDeviceOverrides<StudioPlayoutDevice>({
+		studioId: studio?._id,
+		baseSettings,
+		overridePath: 'peripheralDeviceSettings.playoutDevices.overrides',
+		relatedItemsMode: 'direct',
+		clearSavedItemFromStaged: false,
+	})
 
 	const wrappedSubDevices = useMemo(
 		() =>
-			getAllCurrentAndDeletedItemsFromOverrides<StudioPlayoutDevice>(baseSettings, (a, b) => a[0].localeCompare(b[0])),
-		[baseSettings]
+			getAllCurrentAndDeletedItemsFromOverrides<StudioPlayoutDevice>(deviceSettings, (a, b) =>
+				a[0].localeCompare(b[0])
+			),
+		[deviceSettings]
 	)
 
 	const filteredPeripheralDevices = useMemo(
@@ -108,8 +112,14 @@ export function StudioPlayoutSubDevices({
 
 			<GenericSubDevicesTable
 				subDevices={wrappedSubDevices}
-				overrideHelper={overrideHelper}
+				overrideHelper={batchedOverridesHelper}
+				instantSaveOverrideHelper={instantSaveOverrideHelper}
 				peripheralDevices={filteredPeripheralDevices}
+				hasUnsavedChangesForItem={hasUnsavedChangesForItem}
+				saveItemChanges={saveItemChanges}
+				discardItemChanges={discardItemChanges}
+				updateObjectId={updateObjectId}
+				updatedIds={updatedIds}
 			/>
 
 			<div className="my-1 mx-2">
