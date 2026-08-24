@@ -61,7 +61,7 @@ export interface StatusObjectInternal {
 
 function getSystemStatusForDevice(device: PeripheralDevice): StatusResponse {
 	const deviceStatus: StatusCode = device.status.statusCode
-	const deviceStatusMessages: Array<string> = device.status.messages || []
+	const deviceStatusMessages: Array<string> = device.status.statusDetails?.map((d) => d.message) ?? []
 
 	const checks: Array<CheckObj> = []
 	const pushStatusAsCheck = (name: string, statusCode: StatusCode, messages: string[]) => {

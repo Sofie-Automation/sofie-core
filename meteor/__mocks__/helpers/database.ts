@@ -393,6 +393,66 @@ export async function setupMockStudioBlueprint(showStyleBaseId: ShowStyleBaseId)
 		ignoreIdChange: true,
 	})
 }
+/** A Studio blueprint which customises device status messages. An entry of `''` suppresses that status code. */
+export async function setupMockStudioBlueprintWithDeviceStatusMessages(
+	showStyleBaseId: ShowStyleBaseId,
+	deviceStatusMessages: Record<string, string>
+): Promise<Blueprint> {
+	const { INTEGRATION_VERSION, TSR_VERSION } = getBlueprintDependencyVersions()
+
+	const BLUEPRINT_TYPE = BlueprintManifestType.STUDIO
+	const SHOW_STYLE_ID: string = unprotectString(showStyleBaseId)
+	// packageBlueprint can only substitute strings and numbers, and embeds them in a single-quoted
+	// literal via String.replace - so escape for both before handing it over:
+	const DEVICE_STATUS_MESSAGES_JSON: string = JSON.stringify(deviceStatusMessages)
+		.replace(/\\/g, '\\\\')
+		.replace(/'/g, "\\'")
+		.replace(/\$/g, '$$$$')
+
+	const code = packageBlueprint<StudioBlueprintManifest>(
+		{
+			BLUEPRINT_TYPE,
+			INTEGRATION_VERSION,
+			TSR_VERSION,
+			SHOW_STYLE_ID,
+			DEVICE_STATUS_MESSAGES_JSON,
+		},
+		function (): StudioBlueprintManifest {
+			return {
+				blueprintType: BLUEPRINT_TYPE,
+				blueprintVersion: '0.0.0',
+				integrationVersion: INTEGRATION_VERSION,
+				TSRVersion: TSR_VERSION,
+
+				configPresets: {
+					main: {
+						name: 'Main',
+						config: {},
+					},
+				},
+
+				studioConfigSchema: '{}' as any,
+				getBaseline: () => {
+					return {
+						timelineObjects: [],
+					}
+				},
+				getShowStyleId: (): string | null => {
+					return SHOW_STYLE_ID
+				},
+
+				deviceStatusMessages: JSON.parse(DEVICE_STATUS_MESSAGES_JSON),
+			}
+		}
+	)
+
+	const blueprintId: BlueprintId = protectString('mockDeviceStatusBlueprint' + dbI++)
+
+	return internalUploadBlueprint(blueprintId, code, {
+		blueprintName: 'mockDeviceStatusBlueprint',
+		ignoreIdChange: true,
+	})
+}
 export async function setupMockShowStyleBlueprint(showStyleVariantId: ShowStyleVariantId): Promise<Blueprint> {
 	const { INTEGRATION_VERSION, TSR_VERSION } = getBlueprintDependencyVersions()
 
