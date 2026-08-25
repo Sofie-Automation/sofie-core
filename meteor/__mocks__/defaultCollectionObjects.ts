@@ -46,6 +46,7 @@ export function defaultRundownPlaylist(_id: RundownPlaylistId, studioId: StudioI
 
 		// activationId: undefined,
 		rehearsal: false,
+		defaultBrandingId: null,
 		currentPartInfo: null,
 		nextPartInfo: null,
 		previousPartsInfo: [],
@@ -209,6 +210,7 @@ export function defaultPartInstance(
 		rundownId: part.rundownId,
 		segmentId: part.segmentId,
 		takeCount: 0,
+		brandingId: null,
 		segmentPlayoutId,
 	}
 }

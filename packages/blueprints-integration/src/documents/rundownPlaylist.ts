@@ -16,6 +16,13 @@ export interface IBlueprintResultRundownPlaylist {
 	/** Should time-of-day clocks be used instead of countdowns by default */
 	timeOfDayCountdowns?: boolean
 
+	/**
+	 * The Branding to use for the first PartInstance to be created.
+	 * Every PartInstance is stamped with a Branding when it is created, and it can be changed from playout operations.
+	 * `null` or omitted means no Branding is to be used.
+	 */
+	defaultBrandingId?: string | null
+
 	/** Arbitraty data storage for internal use in the blueprints */
 	privateData?: unknown
 	/** Arbitraty data relevant for other systems and exposed to them via APIs */

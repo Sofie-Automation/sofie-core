@@ -52,12 +52,18 @@ import {
 	IBlueprintShowStyleBase,
 	IBlueprintShowStyleVariant,
 	IOutputLayer,
+	IBlueprintBrandingInfo,
 	ISourceLayer,
 	NoteSeverity,
 	PieceAbSessionInfo,
 	RundownPlaylistTiming,
 } from '@sofie-automation/blueprints-integration'
-import { JobContext, ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../jobs/index.js'
+import {
+	JobContext,
+	ProcessedShowStyleBase,
+	ProcessedShowStyleCompound,
+	ProcessedShowStyleVariant,
+} from '../../jobs/index.js'
 import {
 	DBRundownPlaylist,
 	QuickLoopMarkerType,
@@ -469,6 +475,21 @@ export function convertRundownToBlueprintSegmentRundown(
 }
 
 /**
+ * Resolve a Branding selected on a PartInstance into the Branding of the ShowStyle
+ * @param showStyle ShowStyle the Branding belongs to
+ * @param brandingId Id of the selected Branding, if any
+ * @returns The Branding, or null if none is selected or it no longer exists in the ShowStyle
+ */
+export function resolveSelectedBranding(
+	showStyle: ReadonlyDeep<ProcessedShowStyleCompound>,
+	brandingId: string | null | undefined
+): ReadonlyDeep<IBlueprintBrandingInfo> | null {
+	if (!brandingId) return null
+
+	return showStyle.branding[brandingId] ?? null
+}
+
+/**
  * Convert a DBRundownPlaylist into IBlueprintRundownPlaylist, for passing into the blueprints
  * Note: also requires an array of Rundowns that belong to the studio (or that belong to the playlist)
  * @param playlist the DBRundownPlaylist to convert
@@ -488,6 +509,7 @@ export function convertRundownPlaylistToBlueprints(
 			playlist.quickLoop?.start?.type === QuickLoopMarkerType.PLAYLIST &&
 			playlist.quickLoop.end?.type === QuickLoopMarkerType.PLAYLIST,
 		timeOfDayCountdowns: playlist.timeOfDayCountdowns,
+		defaultBrandingId: playlist.defaultBrandingId,
 
 		privateData: clone(playlist.privateData),
 		publicData: clone(playlist.publicData),

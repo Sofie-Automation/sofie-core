@@ -21,6 +21,7 @@ describe('conversionContext', () => {
 		const currentId = protectString('current_pi')
 		const nextId = protectString('next_pi')
 		const playlist = makePlaylist({
+			defaultBrandingId: null,
 			currentPartInfo: { partInstanceId: currentId },
 			nextPartInfo: { partInstanceId: nextId },
 		})

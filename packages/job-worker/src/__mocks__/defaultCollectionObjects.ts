@@ -37,6 +37,7 @@ export function defaultRundownPlaylist(_id: RundownPlaylistId, studioId: StudioI
 
 		// activationId: undefined,
 		rehearsal: false,
+		defaultBrandingId: null,
 		currentPartInfo: null,
 		nextPartInfo: null,
 		previousPartsInfo: [],

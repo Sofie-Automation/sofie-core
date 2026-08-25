@@ -144,6 +144,7 @@ describe('SyncChangesToPartInstancesWorker', () => {
 						segmentId: protectString('mockSegmentId'),
 						rundownId: protectString('mockRundownId'),
 						takeCount: 0,
+						brandingId: null,
 						rehearsal: false,
 						playlistActivationId: protectString('mockPlaylistActivationId'),
 						segmentPlayoutId: protectString('mockSegmentPlayoutId'),
@@ -365,6 +366,7 @@ describe('SyncChangesToPartInstancesWorker', () => {
 				segmentId: segment._id,
 				rundownId: rundown._id,
 				takeCount: 0,
+				brandingId: null,
 				rehearsal: false,
 				playlistActivationId: protectString('mockPlaylistActivationId'),
 				segmentPlayoutId: protectString('mockSegmentPlayoutId'),
@@ -374,6 +376,7 @@ describe('SyncChangesToPartInstancesWorker', () => {
 				_id: playlistId,
 				externalId: 'mockExternalId',
 				activationId: protectString('mockActivationId'),
+				defaultBrandingId: null,
 				currentPartInfo: null,
 				nextPartInfo: {
 					rundownId: nextPartInstance.rundownId,

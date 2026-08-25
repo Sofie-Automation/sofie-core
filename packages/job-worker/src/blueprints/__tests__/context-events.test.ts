@@ -33,6 +33,7 @@ describe('Test blueprint api context', () => {
 				rundownId: part.rundownId,
 				segmentId: part.segmentId,
 				takeCount: i,
+				brandingId: null,
 				rehearsal: false,
 				part,
 			})

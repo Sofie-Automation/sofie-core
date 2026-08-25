@@ -360,6 +360,7 @@ describe('Resolved Pieces', () => {
 				rehearsal: false,
 
 				takeCount: 0,
+				brandingId: null,
 
 				part: {
 					_id: getRandomId(),

@@ -1,4 +1,5 @@
 import {
+	IBlueprintBrandingInfo,
 	IBlueprintPartInstance,
 	IBlueprintPieceInstance,
 	ITimelineEventContext,
@@ -18,7 +19,7 @@ import { PieceInstance, ResolvedPieceInstance } from '@sofie-automation/corelib/
 import { ProcessedStudioConfig, ProcessedShowStyleConfig } from '../config.js'
 import _ from 'underscore'
 import { JobStudio, ProcessedShowStyleCompound } from '../../jobs/index.js'
-import { convertPartInstanceToBlueprints, createBlueprintQuickLoopInfo } from './lib.js'
+import { convertPartInstanceToBlueprints, createBlueprintQuickLoopInfo, resolveSelectedBranding } from './lib.js'
 import { RundownContext } from './RundownContext.js'
 import { AbSessionHelper } from '../../playout/abPlayback/abSessionHelper.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -33,6 +34,8 @@ export class OnTimelineGenerateContext extends RundownContext implements ITimeli
 	readonly quickLoopInfo: BlueprintQuickLookInfo | null
 
 	readonly abSessionsHelper: AbSessionHelper
+	readonly #currentBranding: ReadonlyDeep<IBlueprintBrandingInfo> | null
+	readonly #nextBranding: ReadonlyDeep<IBlueprintBrandingInfo> | null
 	readonly #pieceInstanceCache = new Map<PieceInstanceId, ReadonlyDeep<PieceInstance>>()
 	readonly #startedPlayback: Time | undefined
 
@@ -79,6 +82,17 @@ export class OnTimelineGenerateContext extends RundownContext implements ITimeli
 		)
 
 		this.#startedPlayback = playlist.startedPlayback
+
+		this.#currentBranding = resolveSelectedBranding(showStyleCompound, currentPartInstance?.brandingId)
+		this.#nextBranding = resolveSelectedBranding(showStyleCompound, nextPartInstance?.brandingId)
+	}
+
+	getCurrentBranding(): ReadonlyDeep<IBlueprintBrandingInfo> | null {
+		return this.#currentBranding
+	}
+
+	getNextBranding(): ReadonlyDeep<IBlueprintBrandingInfo> | null {
+		return this.#nextBranding
 	}
 
 	override get startedPlayback(): Time | undefined {
