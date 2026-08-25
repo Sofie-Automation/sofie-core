@@ -70,6 +70,9 @@ export interface ShowStyleBlueprintManifest<
 	/** A list of config items this blueprint expects to be available on the ShowStyle */
 	showStyleConfigSchema: JSONBlob<JSONSchema>
 
+	/** A list of config items this blueprint expects to be available on each Branding of the ShowStyle */
+	brandingConfigSchema?: JSONBlob<JSONSchema>
+
 	/** The config presets exposed by this blueprint */
 	configPresets: Record<string, IShowStyleConfigPreset<TRawConfig>>
 
@@ -393,6 +396,8 @@ export interface BlueprintResultApplyShowStyleConfig {
 
 	triggeredActions: IBlueprintTriggeredActions[]
 
+	branding?: Record<string, IBlueprintBranding>
+
 	/** Configuration for displaying AB resolver channel assignments */
 	abChannelDisplay?: {
 		/** Source layer IDs that should show AB channel info */
@@ -405,6 +410,12 @@ export interface BlueprintResultApplyShowStyleConfig {
 		showOnDirectorScreen: boolean
 		// Future: showOnPresenterScreen, showOnCameraScreen when those views are implemented
 	}
+}
+
+export interface IBlueprintBranding {
+	name: string
+
+	config: IBlueprintConfig
 }
 
 export interface IShowStyleConfigPreset<TConfig = IBlueprintConfig> {
