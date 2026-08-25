@@ -1,4 +1,9 @@
-import { IOutputLayer, IShowStyleContext, ISourceLayer } from '@sofie-automation/blueprints-integration'
+import {
+	IBlueprintBrandingInfo,
+	IOutputLayer,
+	IShowStyleContext,
+	ISourceLayer,
+} from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
 import { ProcessedStudioConfig, ProcessedShowStyleConfig } from '../config.js'
 import { getShowStyleConfigRef } from '../configRefs.js'
@@ -30,5 +35,8 @@ export class ShowStyleContext extends StudioContext implements IShowStyleContext
 	}
 	getShowStyleOutputLayers(): Record<string, IOutputLayer | undefined> {
 		return this.showStyleCompound.outputLayers
+	}
+	getShowStyleBrandings(): ReadonlyDeep<Record<string, IBlueprintBrandingInfo | undefined>> {
+		return this.showStyleCompound.branding
 	}
 }

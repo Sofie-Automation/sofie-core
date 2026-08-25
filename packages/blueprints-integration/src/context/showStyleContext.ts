@@ -1,4 +1,5 @@
-import type { IOutputLayer, ISourceLayer } from '../showStyle.js'
+import type { ReadonlyDeep } from 'type-fest'
+import type { IBlueprintBrandingInfo, IOutputLayer, ISourceLayer } from '../showStyle.js'
 import type { IBlueprintRundownPlaylist } from '../documents/index.js'
 import type { ICommonContext, IUserNotesContext } from './baseContext.js'
 import type { IPackageInfoContext } from './packageInfoContext.js'
@@ -13,6 +14,8 @@ export interface IShowStyleContext extends ICommonContext, IStudioContext {
 	getShowStyleSourceLayers(): Record<string, ISourceLayer | undefined>
 	/** Get output layers for the ShowStyle  */
 	getShowStyleOutputLayers(): Record<string, IOutputLayer | undefined>
+	/** Get the Brandings defined for the ShowStyle */
+	getShowStyleBrandings(): ReadonlyDeep<Record<string, IBlueprintBrandingInfo | undefined>>
 }
 
 export interface IShowStyleUserContext extends IUserNotesContext, IShowStyleContext, IPackageInfoContext {}
