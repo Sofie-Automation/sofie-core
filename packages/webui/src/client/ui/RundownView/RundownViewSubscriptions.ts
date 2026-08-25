@@ -79,9 +79,9 @@ export function useRundownViewSubscriptions(playlistId: RundownPlaylistId): bool
 	auxSubsReady.push(
 		useSubscriptionIfEnabled(CorelibPubSub.rundownBaselineAdLibActions, rundownIds.length > 0, rundownIds)
 	)
-	auxSubsReady.push(useSubscriptionIfEnabled(MeteorPubSub.uiParts, rundownIds.length > 0, playlistId))
+	auxSubsReady.push(useSubscriptionIfEnabled(CorelibPubSub.uiParts, rundownIds.length > 0, playlistId))
 	auxSubsReady.push(
-		useSubscriptionIfEnabled(MeteorPubSub.uiPartInstances, !!playlistActivationId, playlistActivationId ?? null)
+		useSubscriptionIfEnabled(CorelibPubSub.uiPartInstances, !!playlistActivationId, playlistActivationId ?? null)
 	)
 
 	// Load once the playlist is confirmed to exist
