@@ -236,6 +236,7 @@ async function innerUploadBlueprint(
 
 	if (blueprintManifest.blueprintType === BlueprintManifestType.SHOWSTYLE) {
 		newBlueprint.showStyleConfigSchema = blueprintManifest.showStyleConfigSchema
+		newBlueprint.brandingConfigSchema = blueprintManifest.brandingConfigSchema
 		newBlueprint.showStyleConfigPresets = blueprintManifest.configPresets
 		newBlueprint.hasFixUpFunction = !!blueprintManifest.fixUpConfig
 		newBlueprint.packageStatusMessages = blueprintManifest.packageStatusMessages
