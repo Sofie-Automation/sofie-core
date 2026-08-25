@@ -270,7 +270,7 @@ function useMediaStatusSubscriptions(
 		showStyleBaseIds.map((id) => [id])
 	)
 	readyStatus[counter++] = useSubscriptions(
-		MeteorPubSub.uiParts,
+		CorelibPubSub.uiParts,
 		playlistIds.map((id) => [id])
 	)
 	readyStatus[counter++] = useSubscriptions(
@@ -295,7 +295,7 @@ function useMediaStatusSubscriptions(
 		[]
 	)
 	readyStatus[counter++] = useSubscriptions(
-		MeteorPubSub.uiPartInstances,
+		CorelibPubSub.uiPartInstances,
 		playlistActivationIds.map((id) => [id])
 	)
 

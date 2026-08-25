@@ -8,7 +8,8 @@ import {
 	setUpCollectionOptimizedObserver,
 } from '../../lib/customPublication'
 import { logger } from '../../logging'
-import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
+import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
+import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { ContentCache, PartOmitedFields, createReactiveContentCache } from './reactiveContentCache'
 import { ReadonlyDeep } from 'type-fest'
@@ -189,7 +190,7 @@ export async function manipulateUIPartsPublicationData(
 
 export function registerPartsUIPublications(registry: PublicationRegistry): void {
 	registry.customPublish(
-		MeteorPubSub.uiParts,
+		CorelibPubSub.uiParts,
 		CustomCollectionName.UIParts,
 		async (_context, pub, playlistId: RundownPlaylistId | null) => {
 			check(playlistId, z.string().nullish())
@@ -207,7 +208,7 @@ export function registerPartsUIPublications(registry: PublicationRegistry): void
 				UIPartsState,
 				UIPartsUpdateProps
 			>(
-				`pub_${MeteorPubSub.uiParts}_${playlistId}`,
+				`pub_${CorelibPubSub.uiParts}_${playlistId}`,
 				{ playlistId },
 				setupUIPartsPublicationObservers,
 				manipulateUIPartsPublicationData,

@@ -5,7 +5,7 @@ import { AdLibAction } from './dataModel/AdlibAction.js'
 import { AdLibPiece } from './dataModel/AdLibPiece.js'
 import { RundownBaselineAdLibAction } from './dataModel/RundownBaselineAdLibAction.js'
 import { RundownBaselineAdLibItem } from './dataModel/RundownBaselineAdLibPiece.js'
-import { DBPartInstance } from './dataModel/PartInstance.js'
+import { DBPartInstance, PartInstance } from './dataModel/PartInstance.js'
 import { DBRundown } from './dataModel/Rundown.js'
 import { DBRundownPlaylist } from './dataModel/RundownPlaylist/RundownPlaylist.js'
 import { DBSegment } from './dataModel/Segment.js'
@@ -194,6 +194,17 @@ export enum CorelibPubSub {
 	 * If the id is null, nothing will be returned
 	 */
 	uiPieceContentStatuses = 'uiPieceContentStatuses',
+	/**
+	 * Fetch all Parts in the given RundownPlaylist, with the calculated overrides applied (such as those from the QuickLoop).
+	 * If the id is null, nothing will be returned.
+	 */
+	uiParts = 'uiParts',
+	/**
+	 * Fetch all PartInstances for the given RundownPlaylist activation, with the calculated overrides applied
+	 * (such as those from the QuickLoop). Any reset PartInstances will be omitted.
+	 * If the id is null, nothing will be returned.
+	 */
+	uiPartInstances = 'uiPartInstances',
 }
 
 /**
@@ -336,6 +347,10 @@ export interface CorelibPubSubTypes {
 	[CorelibPubSub.uiPieceContentStatuses]: (
 		rundownPlaylistId: RundownPlaylistId | null
 	) => CustomCollectionName.UIPieceContentStatuses
+	[CorelibPubSub.uiParts]: (playlistId: RundownPlaylistId | null) => CustomCollectionName.UIParts
+	[CorelibPubSub.uiPartInstances]: (
+		playlistActivationId: RundownPlaylistActivationId | null
+	) => CustomCollectionName.UIPartInstances
 }
 
 export type CorelibPubSubCollections = {
@@ -371,4 +386,6 @@ export type CorelibPubSubCollections = {
 
 export type CorelibPubSubCustomCollections = {
 	[CustomCollectionName.UIPieceContentStatuses]: UIPieceContentStatus
+	[CustomCollectionName.UIParts]: DBPart
+	[CustomCollectionName.UIPartInstances]: PartInstance
 }

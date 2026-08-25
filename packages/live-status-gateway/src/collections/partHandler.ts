@@ -6,18 +6,18 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { SelectedPartInstances } from './partInstancesHandler.js'
 import { PartsHandler } from './partsHandler.js'
-import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { CollectionHandlers } from '../liveStatusServer.js'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
-const PLAYLIST_KEYS = ['_id', 'rundownIdsInOrder'] as const
+const PLAYLIST_KEYS = ['_id'] as const
 type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
 const PART_INSTANCES_KEYS = ['current'] as const
 type PartInstances = PickKeys<SelectedPartInstances, typeof PART_INSTANCES_KEYS>
 
-export class PartHandler extends PublicationCollection<DBPart, CorelibPubSub.parts, CollectionName.Parts> {
+export class PartHandler extends PublicationCollection<DBPart, CorelibPubSub.uiParts, CustomCollectionName.UIParts> {
 	private _activePlaylist: Playlist | undefined
 	private _currentPartInstance: DBPartInstance | undefined
 
@@ -26,7 +26,7 @@ export class PartHandler extends PublicationCollection<DBPart, CorelibPubSub.par
 		coreHandler: CoreHandler,
 		private _partsHandler: PartsHandler
 	) {
-		super(CollectionName.Parts, CorelibPubSub.parts, logger, coreHandler)
+		super(CustomCollectionName.UIParts, CorelibPubSub.uiParts, logger, coreHandler)
 	}
 
 	init(handlers: CollectionHandlers): void {
@@ -52,8 +52,9 @@ export class PartHandler extends PublicationCollection<DBPart, CorelibPubSub.par
 
 		this.stopSubscription()
 		if (this._activePlaylist) {
-			const rundownIds = this._activePlaylist.rundownIdsInOrder
-			this.setupSubscription(rundownIds, null)
+			// The publication tracks the Rundowns of the playlist itself, so it only needs re-subscribing
+			// when the playlist changes
+			this.setupSubscription(this._activePlaylist._id)
 		}
 	}
 
