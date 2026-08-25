@@ -49,6 +49,9 @@ import {
 import { CURRENT_SYSTEM_VERSION } from './migration/currentSystemVersion'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
+// Register all migration steps
+import './migration/migrations'
+
 // Build and populate the method registry
 const methodRegistry = new MethodRegistry()
 registerAllApiMethods(methodRegistry)
