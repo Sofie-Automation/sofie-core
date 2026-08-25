@@ -15,6 +15,18 @@ export interface IBlueprintShowStyleBase {
 	/** Config values are used by the Blueprints */
 	blueprintConfig: IBlueprintConfig
 }
+/** A Branding of a ShowStyle, as exposed to the Blueprints */
+export interface IBlueprintBrandingInfo {
+	/** Id of the Branding, as stored on the ShowStyleBase */
+	_id: string
+
+	/** User facing name of the Branding */
+	name: string
+
+	/** Config for this Branding, as described by `ShowStyleBlueprintManifest.brandingConfigSchema` */
+	config: IBlueprintConfig
+}
+
 export interface IBlueprintShowStyleVariant {
 	_id: string
 	name: string
