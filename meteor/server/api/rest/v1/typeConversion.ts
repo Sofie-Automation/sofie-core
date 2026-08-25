@@ -119,6 +119,7 @@ export async function showStyleBaseFrom(
 		outputLayersWithOverrides: outputLayers,
 		sourceLayersWithOverrides: sourceLayers,
 		blueprintConfigWithOverrides: blueprintConfig,
+		branding: wrapDefaultObject({}), // nocommit: implement this
 		_rundownVersionHash: showStyleBase?._rundownVersionHash ?? '',
 		lastBlueprintConfig: undefined,
 		lastBlueprintFixUpHash: undefined,
