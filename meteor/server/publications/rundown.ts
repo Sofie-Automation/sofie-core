@@ -228,38 +228,6 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 			return PartInstances.findWithCursor(selector, modifier)
 		}
 	)
-	registry.publish(
-		CorelibPubSub.partInstancesSimple,
-		async (
-			_context,
-			rundownIds: RundownId[],
-			playlistActivationId: RundownPlaylistActivationId | null,
-			_token: string | undefined
-		) => {
-			check(rundownIds, zAnyArray)
-			check(playlistActivationId, z.string().nullish())
-
-			triggerWriteAccessBecauseNoCheckNecessary()
-
-			if (rundownIds.length === 0) return null
-
-			const selector: MongoQuery<DBPartInstance> = {
-				rundownId: { $in: rundownIds },
-				// Enforce only not-reset
-				reset: { $ne: true },
-			}
-			if (playlistActivationId) selector.playlistActivationId = playlistActivationId
-
-			return PartInstances.findWithCursor(selector, {
-				projection: literal<MongoFieldSpecifierZeroes<DBPartInstance>>({
-					// @ts-expect-error Mongo typings aren't clever enough yet
-					'part.privateData': 0,
-					isTaken: 0,
-					timings: 0,
-				}),
-			})
-		}
-	)
 
 	registry.publish(
 		CorelibPubSub.pieces,
