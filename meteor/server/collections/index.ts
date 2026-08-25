@@ -237,7 +237,11 @@ export async function startRundownVersionHashObservers(): Promise<void> {
 	setInterval(() => removeOldCommands(), 5 * 60 * 1000)
 
 	await Promise.allSettled([
-		ObserveChangesForHash(ShowStyleBases, '_rundownVersionHash', ['blueprintConfigWithOverrides', 'blueprintId']),
+		ObserveChangesForHash(ShowStyleBases, '_rundownVersionHash', [
+			'blueprintConfigWithOverrides',
+			'blueprintId',
+			'branding',
+		]),
 
 		ObserveChangesForHash(ShowStyleVariants, '_rundownVersionHash', [
 			'blueprintConfigWithOverrides',
