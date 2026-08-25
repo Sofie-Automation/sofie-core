@@ -13,6 +13,7 @@ import {
 	IBlueprintSegmentDB,
 	IEventContext,
 	IOnSetAsNextContext,
+	IBlueprintBrandingInfo,
 } from '@sofie-automation/blueprints-integration'
 import {
 	ActionPartChange,
@@ -27,7 +28,7 @@ import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { selectNewPartWithOffsets } from '../../playout/moveNextPart.js'
 import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
-import { convertPartToBlueprints, emitIngestOperation } from './lib.js'
+import { convertPartToBlueprints, emitIngestOperation, resolveSelectedBranding } from './lib.js'
 import { TTimersService } from './services/TTimersService.js'
 import type { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
 import type { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
@@ -55,6 +56,20 @@ export class OnSetAsNextContext
 
 	public get quickLoopInfo(): BlueprintQuickLookInfo | null {
 		return this.partAndPieceInstanceService.quickLoopInfo
+	}
+
+	getCurrentBranding(): ReadonlyDeep<IBlueprintBrandingInfo> | null {
+		return resolveSelectedBranding(
+			this.showStyleCompound,
+			this.playoutModel.currentPartInstance?.partInstance.brandingId
+		)
+	}
+
+	getNextBranding(): ReadonlyDeep<IBlueprintBrandingInfo> | null {
+		return resolveSelectedBranding(
+			this.showStyleCompound,
+			this.playoutModel.nextPartInstance?.partInstance.brandingId
+		)
 	}
 
 	public get isRehearsal(): boolean {

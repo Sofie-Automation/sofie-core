@@ -66,6 +66,7 @@ exports[`Playout API Basic rundown control 4`] = `
   "_id": "playlist_randomId9000",
   "created": 0,
   "currentPartInfo": null,
+  "defaultBrandingId": null,
   "externalId": "MOCK_RUNDOWNPLAYLIST",
   "holdState": 0,
   "modified": 0,

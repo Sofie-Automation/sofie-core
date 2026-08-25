@@ -253,6 +253,7 @@ export function produceRundownPlaylistInfoFromRundown(
 			name: playlistInfo.playlist.name,
 			timing: playlistInfo.playlist.timing,
 
+			defaultBrandingId: playlistInfo.playlist.defaultBrandingId ?? null,
 			outOfOrderTiming: playlistInfo.playlist.outOfOrderTiming,
 			timeOfDayCountdowns: playlistInfo.playlist.timeOfDayCountdowns,
 			privateData: playlistInfo.playlist.privateData,
@@ -336,6 +337,7 @@ function defaultPlaylistForRundown(
 ): Omit<DBRundownPlaylist, '_id' | 'externalId'> {
 	return {
 		created: getCurrentTime(),
+		defaultBrandingId: null,
 		currentPartInfo: null,
 		nextPartInfo: null,
 		previousPartsInfo: [],

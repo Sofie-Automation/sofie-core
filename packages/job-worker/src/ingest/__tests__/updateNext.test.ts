@@ -26,6 +26,7 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 		studioId: context.studioId,
 		created: 0,
 		modified: 0,
+		defaultBrandingId: null,
 		currentPartInfo: null,
 		nextPartInfo: null,
 		previousPartsInfo: [],
@@ -108,6 +109,7 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 			playlistActivationId: protectString('active'),
 			segmentPlayoutId: protectString(''),
 			takeCount: 0,
+			brandingId: null,
 			rehearsal: false,
 			part: literal<DBPart>({
 				_id: protectString('mock_part1'),
@@ -126,6 +128,7 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 			playlistActivationId: protectString('active'),
 			segmentPlayoutId: protectString(''),
 			takeCount: 0,
+			brandingId: null,
 			rehearsal: false,
 			part: literal<DBPart>({
 				_id: protectString('mock_part2'),
@@ -144,6 +147,7 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 			playlistActivationId: protectString('active'),
 			segmentPlayoutId: protectString(''),
 			takeCount: 0,
+			brandingId: null,
 			rehearsal: false,
 			part: literal<DBPart>({
 				_id: protectString('mock_part3'),
@@ -163,6 +167,7 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 			playlistActivationId: protectString('active'),
 			segmentPlayoutId: protectString(''),
 			takeCount: 0,
+			brandingId: null,
 			rehearsal: false,
 			part: literal<DBPart>({
 				_id: protectString('mock_part4'),
@@ -181,6 +186,7 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 			playlistActivationId: protectString('active'),
 			segmentPlayoutId: protectString(''),
 			takeCount: 0,
+			brandingId: null,
 			rehearsal: false,
 			part: literal<DBPart>({
 				_id: protectString('mock_part5'),
@@ -200,6 +206,7 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 			playlistActivationId: protectString('active'),
 			segmentPlayoutId: protectString(''),
 			takeCount: 0,
+			brandingId: null,
 			rehearsal: false,
 			part: literal<DBPart>({
 				_id: protectString('mock_part6'),
@@ -219,6 +226,7 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 			playlistActivationId: protectString('active'),
 			segmentPlayoutId: protectString(''),
 			takeCount: 0,
+			brandingId: null,
 			rehearsal: false,
 			part: literal<DBPart>({
 				_id: protectString('mock_part7'),
@@ -237,6 +245,7 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 			playlistActivationId: protectString('active'),
 			segmentPlayoutId: protectString(''),
 			takeCount: 0,
+			brandingId: null,
 			rehearsal: false,
 			part: literal<DBPart>({
 				_id: protectString('mock_part8'),
@@ -256,6 +265,7 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 			playlistActivationId: protectString('active'),
 			segmentPlayoutId: protectString(''),
 			takeCount: 0,
+			brandingId: null,
 			rehearsal: false,
 			part: literal<DBPart>({
 				_id: protectString('mock_part9'),
@@ -275,6 +285,7 @@ async function createMockRO(context: MockJobContext): Promise<RundownId> {
 			playlistActivationId: protectString('active'),
 			segmentPlayoutId: protectString(''),
 			takeCount: 0,
+			brandingId: null,
 			rehearsal: false,
 			part: literal<DBPart>({
 				_id: protectString('orphan_1'),
@@ -333,6 +344,7 @@ describe('ensureNextPartIsValid', () => {
 							consumesQueuedSegmentId: false,
 						}
 					: null,
+				defaultBrandingId: null,
 				currentPartInfo: currentPartInstanceId
 					? {
 							partInstanceId: currentPartInstanceId as any,
@@ -476,6 +488,7 @@ describe('ensureNextPartIsValid', () => {
 				playlistActivationId: protectString('active'),
 				segmentPlayoutId: protectString(''),
 				takeCount: 0,
+				brandingId: null,
 				rehearsal: false,
 				part: literal<DBPart>({
 					_id: protectString('orphan_1'),
@@ -513,6 +526,7 @@ describe('ensureNextPartIsValid', () => {
 				playlistActivationId: protectString('active'),
 				segmentPlayoutId: protectString(''),
 				takeCount: 0,
+				brandingId: null,
 				rehearsal: false,
 				part: literal<DBPart>({
 					_id: protectString('orphan_1'),
@@ -560,6 +574,7 @@ describe('ensureNextPartIsValid', () => {
 				playlistActivationId: protectString('active'),
 				segmentPlayoutId: protectString(''),
 				takeCount: 0,
+				brandingId: null,
 				rehearsal: false,
 				part: literal<DBPart>({
 					_id: protectString('orphan_with_callback_1'),
@@ -600,6 +615,7 @@ describe('ensureNextPartIsValid', () => {
 				playlistActivationId: protectString('active'),
 				segmentPlayoutId: protectString(''),
 				takeCount: 0,
+				brandingId: null,
 				rehearsal: false,
 				part: part,
 			})
@@ -635,6 +651,7 @@ describe('ensureNextPartIsValid', () => {
 				playlistActivationId: protectString('active'),
 				segmentPlayoutId: protectString(''),
 				takeCount: 0,
+				brandingId: null,
 				rehearsal: false,
 				part: part,
 			})

@@ -26,6 +26,7 @@ export function makePlaylist(overrides: Partial<any> = {}): any {
 		name: 'Playlist 0',
 		rundownIdsInOrder: [protectString('rundown0'), protectString('rundown1')],
 		quickLoop: null,
+		defaultBrandingId: null,
 		currentPartInfo: null,
 		nextPartInfo: null,
 		publicData: { playlistPublic: true },

@@ -437,6 +437,10 @@ export class PlayoutPartInstanceModelImpl implements PlayoutPartInstanceModel {
 		this.#compareAndSetPartInstanceValue('orphaned', orphaned)
 	}
 
+	setBranding(brandingId: string | null): void {
+		this.#compareAndSetPartInstanceValue('brandingId', brandingId)
+	}
+
 	setPlaylistActivationId(id: RundownPlaylistActivationId): void {
 		this.#compareAndSetPartInstanceValue('playlistActivationId', id)
 

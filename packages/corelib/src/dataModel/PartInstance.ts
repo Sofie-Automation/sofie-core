@@ -29,6 +29,14 @@ export interface DBPartInstance {
 
 	part: DBPart
 
+	/**
+	 * The Branding this PartInstance is played with.
+	 * This is inherited from the current PartInstance when this one is created, and can be changed from playout operations.
+	 * It is never changed once this PartInstance is no longer selected, so that past PartInstances keep the Branding they were played with.
+	 * `null` means no Branding, and is a valid selection.
+	 */
+	brandingId: string | null
+
 	/** Once taken, we should have timings for how the part interacts with the one before */
 	partPlayoutTimings?: PartCalculatedTimings
 

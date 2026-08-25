@@ -16,6 +16,7 @@ describe('PlayoutPartInstanceModelImpl', () => {
 			rehearsal: false,
 
 			takeCount: 0,
+			brandingId: null,
 
 			part: {
 				_id: getRandomId(),

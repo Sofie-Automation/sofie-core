@@ -14,6 +14,7 @@ import {
 	IBlueprintPlayoutDevice,
 	IOnTakeContext,
 	IBlueprintSegmentDB,
+	IBlueprintBrandingInfo,
 } from '@sofie-automation/blueprints-integration'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
@@ -31,7 +32,7 @@ import {
 } from './services/PartAndPieceInstanceActionService.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
-import { convertPartToBlueprints, emitIngestOperation } from './lib.js'
+import { convertPartToBlueprints, emitIngestOperation, resolveSelectedBranding } from './lib.js'
 import type { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
 import { TTimersService } from './services/TTimersService.js'
 import type { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
@@ -72,6 +73,20 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 
 	async getUpcomingParts(limit: number = 5): Promise<ReadonlyDeep<IBlueprintPart[]>> {
 		return getOrderedPartsAfterPlayhead(this._context, this._playoutModel, limit).map(convertPartToBlueprints)
+	}
+
+	getCurrentBranding(): ReadonlyDeep<IBlueprintBrandingInfo> | null {
+		return resolveSelectedBranding(
+			this.showStyleCompound,
+			this._playoutModel.currentPartInstance?.partInstance.brandingId
+		)
+	}
+
+	getNextBranding(): ReadonlyDeep<IBlueprintBrandingInfo> | null {
+		return resolveSelectedBranding(
+			this.showStyleCompound,
+			this._playoutModel.nextPartInstance?.partInstance.brandingId
+		)
 	}
 
 	abortTake(): void {

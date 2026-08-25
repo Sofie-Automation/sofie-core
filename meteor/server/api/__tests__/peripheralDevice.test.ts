@@ -74,6 +74,7 @@ describe('test peripheralDevice general API methods', () => {
 			studioId: env.studio._id,
 			created: 0,
 			modified: 0,
+			defaultBrandingId: null,
 			currentPartInfo: null,
 			nextPartInfo: null,
 			previousPartsInfo: [],

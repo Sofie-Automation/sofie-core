@@ -4,12 +4,13 @@ import type { IRundownContext } from './rundownContext.js'
 import type { IBlueprintExternalMessageQueueObj } from '../message.js'
 import type { BlueprintQuickLookInfo } from './quickLoopInfo.js'
 import type { ITTimersContext } from './tTimersContext.js'
+import type { IBrandingReadMethods } from './brandingContext.js'
 
 export interface IEventContext {
 	getCurrentTime(): number
 }
 
-export interface ITimelineEventContext extends IEventContext, IRundownContext {
+export interface ITimelineEventContext extends IEventContext, IRundownContext, IBrandingReadMethods {
 	readonly currentPartInstance: Readonly<IBlueprintPartInstance> | undefined
 	readonly nextPartInstance: Readonly<IBlueprintPartInstance> | undefined
 	readonly previousPartInstance: Readonly<IBlueprintPartInstance> | undefined

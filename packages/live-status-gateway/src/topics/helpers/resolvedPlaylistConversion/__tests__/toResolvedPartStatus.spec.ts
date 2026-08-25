@@ -17,6 +17,7 @@ describe('toResolvedPartStatus', () => {
 		const currentPartInstanceId = protectString('current_pi')
 		const ctx = createResolvedPlaylistConversionContext({
 			playlistState: makePlaylist({
+				defaultBrandingId: null,
 				currentPartInfo: { partInstanceId: currentPartInstanceId },
 			}),
 			rundownsState: [makeRundown('rundown0')],

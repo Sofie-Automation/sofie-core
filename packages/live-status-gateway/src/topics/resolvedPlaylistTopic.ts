@@ -28,6 +28,7 @@ const PLAYLIST_KEYS = [
 	'name',
 	'rundownIdsInOrder',
 	'quickLoop',
+	'defaultBrandingId',
 	'currentPartInfo',
 	'nextPartInfo',
 	'previousPartsInfo',

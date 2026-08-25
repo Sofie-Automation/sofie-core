@@ -59,6 +59,7 @@ function createAndPopulateMockCache(): ContentCache {
 	newCache.RundownPlaylists.insert({
 		_id: playlistId,
 		activationId: activationId,
+		defaultBrandingId: null,
 		currentPartInfo: {
 			partInstanceId: partInstanceId0,
 		},
@@ -255,6 +256,7 @@ describe('TagsService', () => {
 			_id: playlistId,
 			activationId,
 			previousPartsInfo: [{ partInstanceId: partInstanceId3 }],
+			defaultBrandingId: null,
 			currentPartInfo: { partInstanceId: partInstanceId0 },
 			nextPartInfo: { partInstanceId: partInstanceId1 },
 		} as DBRundownPlaylist)
@@ -328,6 +330,7 @@ describe('TagsService', () => {
 			activationId,
 			// most-recent-first: index 0 = partInstanceId3, index 1 = partInstanceId4
 			previousPartsInfo: [{ partInstanceId: partInstanceId3 }, { partInstanceId: partInstanceId4 }],
+			defaultBrandingId: null,
 			currentPartInfo: { partInstanceId: partInstanceId0 },
 		} as DBRundownPlaylist)
 		cache.ShowStyleBases.insert({

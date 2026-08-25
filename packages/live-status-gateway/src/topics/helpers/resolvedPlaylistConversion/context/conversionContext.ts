@@ -23,6 +23,7 @@ type PlaylistState = Pick<
 	| 'name'
 	| 'rundownIdsInOrder'
 	| 'quickLoop'
+	| 'defaultBrandingId'
 	| 'currentPartInfo'
 	| 'nextPartInfo'
 	| 'previousPartsInfo'

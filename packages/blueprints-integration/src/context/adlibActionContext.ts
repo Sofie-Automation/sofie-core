@@ -6,6 +6,7 @@ import { IExecuteTSRActionsContext, ITriggerIngestChangeContext } from './execut
 import { IRouteSetMethods } from './routeSetContext.js'
 import { ITTimersContext } from './tTimersContext.js'
 import type { IPlayoutActionContext } from './playoutActionContext.js'
+import type { IBrandingMutateMethods } from './brandingContext.js'
 
 /** Actions */
 export interface IDataStoreMethods {
@@ -31,7 +32,8 @@ export interface IActionExecutionContext
 		ITriggerIngestChangeContext,
 		IRouteSetMethods,
 		ITTimersContext,
-		IPlayoutActionContext {
+		IPlayoutActionContext,
+		IBrandingMutateMethods {
 	/** Fetch the showstyle config for the specified part */
 	// getNextShowStyleConfig(): Readonly<{ [key: string]: ConfigItemValue }>
 	/** Misc actions */

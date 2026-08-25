@@ -25,6 +25,7 @@ export function makeTestPlaylist(id?: string): DBRundownPlaylist {
 		_id: protectString(id ?? 'PLAYLIST_1'),
 		created: 1695799420147,
 		externalId: 'NCS_PLAYLIST_1',
+		defaultBrandingId: null,
 		currentPartInfo: null,
 		modified: 1695799420147,
 		name: 'My Playlist',
