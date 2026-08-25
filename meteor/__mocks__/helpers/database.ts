@@ -297,6 +297,7 @@ export async function setupMockShowStyleBase(
 			)
 		),
 		blueprintConfigWithOverrides: wrapDefaultObject({}),
+		branding: wrapDefaultObject({}),
 		blueprintId: blueprintId,
 		// hotkeyLegend?: Array<HotkeyDefinition>
 		_rundownVersionHash: '',

@@ -1,9 +1,10 @@
 import { addMigrationSteps } from './databaseMigration'
 import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
-import { RundownPlaylists, Segments, Studios } from '../collections'
+import { RundownPlaylists, Segments, ShowStyleBases, Studios } from '../collections'
 import { ContainerIdsToObjectWithOverridesMigrationStep } from './steps/X_X_X/ContainerIdsToObjectWithOverridesMigrationStep'
 import { PreviousPartInfoToArrayMigrationStep } from './steps/X_X_X/PreviousPartInfoToArrayMigrationStep'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
 /*
  * **************************************************************************************
@@ -151,4 +152,30 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 	},
 	new PreviousPartInfoToArrayMigrationStep(),
 	// Add your migration here
+
+	{
+		id: 'Add branding to ShowStyleBase',
+		canBeRunAutomatically: true,
+		validate: async () => {
+			console.log('Validating ShowStyleBases for branding')
+			const count = await ShowStyleBases.countDocuments({
+				branding: { $exists: false },
+			})
+			if (count > 0) return `There are ${count} ShowStyleBases without branding`
+			return false
+		},
+		migrate: async () => {
+			await ShowStyleBases.mutableCollection.updateAsync(
+				{
+					branding: { $exists: false },
+				},
+				{
+					$set: {
+						branding: wrapDefaultObject({}),
+					},
+				},
+				{ multi: true }
+			)
+		},
+	},
 ])
