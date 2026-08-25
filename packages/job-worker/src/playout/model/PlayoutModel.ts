@@ -10,6 +10,7 @@ import {
 	SegmentId,
 	SegmentPlayoutId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { BrandingChangeTarget } from '@sofie-automation/blueprints-integration'
 import { BaseModel } from '../../modelBase.js'
 import {
 	ABSessionAssignments,
@@ -373,6 +374,14 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 		consumesQueuedSegmentId: boolean,
 		nextTimeOffset?: number
 	): void
+
+	/**
+	 * Set the Branding selected for the current and/or next PartInstance
+	 * Note: this does nothing for a target which has no PartInstance selected
+	 * @param target Which of the selected PartInstances to apply this to
+	 * @param brandingId Id of the Branding to select, or null to select no Branding
+	 */
+	setBranding(target: BrandingChangeTarget, brandingId: string | null): void
 
 	/**
 	 * Set a Segment as queued, indicating it should be played after the current Segment

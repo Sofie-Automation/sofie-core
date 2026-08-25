@@ -333,6 +333,7 @@ describe('client/lib/rundown', () => {
 
 			mockRundownPlaylistsCollection.update(unprotectString(playlistId), {
 				$set: {
+					defaultBrandingId: null,
 					currentPartInfo: {
 						partInstanceId: mockCurrentPartInstance._id,
 						rundownId: mockCurrentPartInstance.rundownId,

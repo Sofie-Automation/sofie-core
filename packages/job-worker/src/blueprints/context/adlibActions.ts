@@ -16,6 +16,8 @@ import {
 	IBlueprintPlayoutDevice,
 	StudioRouteSet,
 	IBlueprintSegmentDB,
+	IBlueprintBrandingInfo,
+	BrandingChangeTarget,
 } from '@sofie-automation/blueprints-integration'
 import { PartInstanceId, PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
@@ -38,7 +40,7 @@ import {
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 import { setNextPartFromPart } from '../../playout/setNext.js'
 import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
-import { convertPartToBlueprints, emitIngestOperation } from './lib.js'
+import { convertPartToBlueprints, emitIngestOperation, resolveSelectedBranding } from './lib.js'
 import { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
 import { TTimersService } from './services/TTimersService.js'
 import type { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
@@ -254,6 +256,30 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 	async listRouteSets(): Promise<Record<string, StudioRouteSet>> {
 		// Discard ReadonlyDeep wrapper
 		return this._context.studio.routeSets as Record<string, StudioRouteSet>
+	}
+
+	getCurrentBranding(): ReadonlyDeep<IBlueprintBrandingInfo> | null {
+		return resolveSelectedBranding(
+			this.showStyleCompound,
+			this._playoutModel.currentPartInstance?.partInstance.brandingId
+		)
+	}
+
+	getNextBranding(): ReadonlyDeep<IBlueprintBrandingInfo> | null {
+		return resolveSelectedBranding(
+			this.showStyleCompound,
+			this._playoutModel.nextPartInstance?.partInstance.brandingId
+		)
+	}
+
+	async setBranding(target: BrandingChangeTarget, brandingId: string | null): Promise<void> {
+		if (brandingId !== null && !this.showStyleCompound.branding[brandingId])
+			throw new Error(`Branding "${brandingId}" does not exist in the ShowStyle`)
+
+		this._playoutModel.setBranding(target, brandingId)
+
+		// The Branding may be used when generating the timeline
+		this.forceRegenerateTimeline = true
 	}
 
 	async switchRouteSet(routeSetId: string, state: boolean | 'toggle'): Promise<void> {
