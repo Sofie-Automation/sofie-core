@@ -92,12 +92,6 @@ export enum CorelibPubSub {
 	 */
 	partInstances = 'partInstances',
 	/**
-	 * Fetch PartInstances in the specified Rundowns. If set, the result will be limited to the supplied RundownPlaylistActivationId.
-	 * Any reset PartInstances will be omitted
-	 * This provides a simplified form of the PartInstance, with any timing information omitted to reduce data churn
-	 */
-	partInstancesSimple = 'partInstancesSimple',
-	/**
 	 * Fetch Pieces belonging to the specified Rundowns, optionally limiting the result to the specified Parts
 	 */
 	pieces = 'pieces',
@@ -282,11 +276,6 @@ export interface CorelibPubSubTypes {
 		token?: string
 	) => CollectionName.Parts
 	[CorelibPubSub.partInstances]: (
-		rundownIds: RundownId[],
-		playlistActivationId: RundownPlaylistActivationId | null,
-		token?: string
-	) => CollectionName.PartInstances
-	[CorelibPubSub.partInstancesSimple]: (
 		rundownIds: RundownId[],
 		playlistActivationId: RundownPlaylistActivationId | null,
 		token?: string
