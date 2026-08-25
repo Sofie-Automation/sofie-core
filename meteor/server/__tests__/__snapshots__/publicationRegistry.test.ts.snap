@@ -32,8 +32,6 @@ exports[`PublicationRegistry the full set of registered publication names is sta
   "packageManagerExpectedPackages",
   "packageManagerPackageContainers",
   "packageManagerPlayoutContext",
-  "partInstances",
-  "parts",
   "peripheralDeviceCommands",
   "peripheralDeviceForDevice",
   "peripheralDevices",

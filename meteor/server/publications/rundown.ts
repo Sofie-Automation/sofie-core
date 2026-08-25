@@ -3,7 +3,6 @@ import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { MongoFieldSpecifierZeroes, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { check, zAnyArray } from '../lib/check'
@@ -13,8 +12,6 @@ import {
 	AdLibPieces,
 	ExpectedPlayoutItems,
 	NrcsIngestDataCache,
-	PartInstances,
-	Parts,
 	PieceInstances,
 	Pieces,
 	RundownBaselineAdLibActions,
@@ -35,7 +32,6 @@ import {
 	SegmentId,
 	ShowStyleBaseId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { PeripheralDevicePubSub } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
@@ -168,64 +164,6 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 					privateData: 0,
 				},
 			})
-		}
-	)
-
-	registry.publish(
-		CorelibPubSub.parts,
-		async (_context, rundownIds: RundownId[], segmentIds: SegmentId[] | null, _token: string | undefined) => {
-			check(rundownIds, zAnyArray)
-			check(segmentIds, zAnyArray.nullish())
-
-			triggerWriteAccessBecauseNoCheckNecessary()
-
-			if (rundownIds.length === 0) return null
-			if (segmentIds && segmentIds.length === 0) return null
-
-			const modifier: FindOptions<DBPart> = {
-				projection: {
-					privateData: 0,
-				},
-			}
-
-			const selector: MongoQuery<DBPart> = {
-				rundownId: { $in: rundownIds },
-				reset: { $ne: true },
-			}
-			if (segmentIds) selector.segmentId = { $in: segmentIds }
-
-			return Parts.findWithCursor(selector, modifier)
-		}
-	)
-	registry.publish(
-		CorelibPubSub.partInstances,
-		async (
-			_context,
-			rundownIds: RundownId[],
-			playlistActivationId: RundownPlaylistActivationId | null,
-			_token: string | undefined
-		) => {
-			check(rundownIds, zAnyArray)
-			check(playlistActivationId, z.string().nullish())
-
-			triggerWriteAccessBecauseNoCheckNecessary()
-
-			if (rundownIds.length === 0 || !playlistActivationId) return null
-
-			const modifier: FindOptions<DBPartInstance> = {
-				projection: {
-					// @ts-expect-error Mongo typings aren't clever enough yet
-					'part.privateData': 0,
-				},
-			}
-
-			const selector: MongoQuery<DBPartInstance> = {
-				rundownId: { $in: rundownIds },
-				reset: { $ne: true },
-			}
-			if (playlistActivationId) selector.playlistActivationId = playlistActivationId
-
-			return PartInstances.findWithCursor(selector, modifier)
 		}
 	)
 
