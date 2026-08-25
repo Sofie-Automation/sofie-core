@@ -4,14 +4,15 @@ import { useTranslation } from 'react-i18next'
 import { SchemaFormWithOverrides } from '../../../lib/forms/SchemaFormWithOverrides.js'
 import { faPencilAlt, faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import type { IBlueprintConfig } from '@sofie-automation/blueprints-integration'
 import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import type { SchemaFormSofieEnumDefinition } from '../../../lib/forms/schemaFormUtil.js'
 import type { WrappedOverridableItemNormal, OverrideOpHelperForItemContents } from '../util/OverrideOpHelper.js'
 
 interface ConfigCategoryEntryProps {
 	translationNamespaces: string[]
-	wrappedItem: WrappedOverridableItemNormal<IBlueprintConfig>
+	wrappedItem: WrappedOverridableItemNormal<any>
+	/** Path of the config object within the wrappedItem */
+	attr: string
 	categoryName: string | null
 	categorySchema: JSONSchema
 	isExpanded: boolean
@@ -23,6 +24,7 @@ interface ConfigCategoryEntryProps {
 export function ConfigCategoryEntry({
 	translationNamespaces,
 	wrappedItem,
+	attr,
 	categoryName,
 	categorySchema,
 	isExpanded,
@@ -56,7 +58,7 @@ export function ConfigCategoryEntry({
 								schema={categorySchema}
 								translationNamespaces={translationNamespaces}
 								allowTables
-								attr={''}
+								attr={attr}
 								item={wrappedItem}
 								overrideHelper={overrideHelper}
 								sofieEnumDefinitons={sofieEnumDefinitons}
