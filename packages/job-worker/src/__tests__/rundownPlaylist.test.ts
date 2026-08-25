@@ -1,4 +1,4 @@
-import { PlaylistTimingType } from '@sofie-automation/blueprints-integration'
+import { IBlueprintResultRundownPlaylist, PlaylistTimingType } from '@sofie-automation/blueprints-integration'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
@@ -11,6 +11,7 @@ import {
 	handleRestoreRundownsInPlaylistToDefaultOrder,
 } from '../rundownPlaylists.js'
 import { MockJobContext, setupDefaultJobEnvironment } from '../__mocks__/context.js'
+import type { WrappedStudioBlueprint } from '../blueprints/cache.js'
 import {
 	setupDefaultRundownPlaylist,
 	setupDefaultRundown,
@@ -184,5 +185,85 @@ describe('Rundown', () => {
 			playlistId: playlist0._id,
 		})
 		await expect(getRundownIDs(playlist0._id)).resolves.toEqual(['rundown00', 'rundown01', 'rundown02'])
+	})
+
+	describe('defaultBrandingId', () => {
+		function makeStudioBlueprint(
+			playlistProps: Partial<IBlueprintResultRundownPlaylist>
+		): ReadonlyDeep<WrappedStudioBlueprint> {
+			return {
+				blueprintId: protectString('studioBlueprint0'),
+				blueprint: {
+					getRundownPlaylistInfo: () => ({
+						playlist: {
+							name: 'Playlist from blueprints',
+							timing: { type: PlaylistTimingType.None },
+							...playlistProps,
+						},
+						order: null,
+					}),
+				},
+			} as any
+		}
+
+		async function producePlaylist(
+			studioBlueprint: ReadonlyDeep<WrappedStudioBlueprint> | undefined,
+			existingPlaylist?: DBRundownPlaylist
+		): Promise<DBRundownPlaylist> {
+			const { playlistId } = await setupDefaultRundownPlaylist(context, showStyle)
+			const playlist =
+				existingPlaylist ??
+				((await context.mockCollections.RundownPlaylists.findOne(playlistId)) as DBRundownPlaylist)
+			const rundowns = await context.mockCollections.Rundowns.findFetch({ playlistId })
+
+			return produceRundownPlaylistInfoFromRundown(
+				context,
+				studioBlueprint,
+				playlist,
+				playlist._id,
+				playlist.externalId,
+				rundowns
+			)
+		}
+
+		test('is taken from the studio blueprint', async () => {
+			const playlist = await producePlaylist(makeStudioBlueprint({ defaultBrandingId: 'branding0' }))
+
+			expect(playlist.defaultBrandingId).toBe('branding0')
+		})
+
+		test('is null when the studio blueprint does not provide one', async () => {
+			const playlist = await producePlaylist(makeStudioBlueprint({}))
+
+			expect(playlist.defaultBrandingId).toBeNull()
+		})
+
+		test('is cleared by the studio blueprint when it no longer provides one', async () => {
+			const { playlistId } = await setupDefaultRundownPlaylist(context, showStyle)
+			const existingPlaylist = (await context.mockCollections.RundownPlaylists.findOne(
+				playlistId
+			)) as DBRundownPlaylist
+
+			const playlist = await producePlaylist(makeStudioBlueprint({}), {
+				...existingPlaylist,
+				defaultBrandingId: 'branding0',
+			})
+
+			expect(playlist.defaultBrandingId).toBeNull()
+		})
+
+		test('is retained when there is no studio blueprint', async () => {
+			const { playlistId } = await setupDefaultRundownPlaylist(context, showStyle)
+			const existingPlaylist = (await context.mockCollections.RundownPlaylists.findOne(
+				playlistId
+			)) as DBRundownPlaylist
+
+			const playlist = await producePlaylist(undefined, {
+				...existingPlaylist,
+				defaultBrandingId: 'branding0',
+			})
+
+			expect(playlist.defaultBrandingId).toBe('branding0')
+		})
 	})
 })

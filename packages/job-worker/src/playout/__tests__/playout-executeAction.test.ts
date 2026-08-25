@@ -1,4 +1,5 @@
 import { RundownPlaylistId, AdLibActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
@@ -8,6 +9,8 @@ import { handleExecuteAdlibAction } from '../adlibAction.js'
 import { handleActivateRundownPlaylist } from '../activePlaylistJobs.js'
 import { ActionExecutionContext } from '../../blueprints/context/adlibActions.js'
 import { ActionPartChange } from '../../blueprints/context/services/PartAndPieceInstanceActionService.js'
+import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import type { IBranding } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import * as Infinites from '../../playout/infinites.js'
 import * as TakeApi from '../../playout/take.js'
 
@@ -27,7 +30,11 @@ describe('Playout API', () => {
 		beforeEach(async () => {
 			context = setupDefaultJobEnvironment()
 
-			await setupMockShowStyleCompound(context)
+			await setupMockShowStyleCompound(context, undefined, {
+				branding: wrapDefaultObject<Record<string, IBranding>>({
+					branding0: { name: 'Branding 0', config: {} },
+				}),
+			})
 
 			const { playlistId: playlistId0 } = await setupDefaultRundownPlaylist(context)
 			playlistId = playlistId0
@@ -77,6 +84,72 @@ describe('Playout API', () => {
 
 			expect(syncPlayheadInfinitesForNextPartInstanceMock).toHaveBeenCalledTimes(0)
 			expect(updateTimelineMock).toHaveBeenCalledTimes(0)
+		})
+
+		/** The Branding of the current and next PartInstances */
+		async function getSelectedBrandings(): Promise<Array<string | null | undefined>> {
+			const playlist = (await context.mockCollections.RundownPlaylists.findOne(playlistId)) as DBRundownPlaylist
+			const partInstances = await Promise.all(
+				[playlist.currentPartInfo, playlist.nextPartInfo].map(async (info) =>
+					info ? context.mockCollections.PartInstances.findOne(info.partInstanceId) : undefined
+				)
+			)
+			return partInstances.map((partInstance) => partInstance?.brandingId)
+		}
+
+		test('setBranding', async () => {
+			context.updateShowStyleBlueprint({
+				executeAction: async (context0) => {
+					const context = context0 as ActionExecutionContext
+
+					// Nothing is selected before the action runs
+					if (context.getCurrentBranding() !== null) throw new Error('currentBranding started wrong')
+					if (context.getNextBranding() !== null) throw new Error('nextBranding started wrong')
+
+					await context.setBranding('both', 'branding0')
+
+					if (context.getCurrentBranding()?._id !== 'branding0')
+						throw new Error('currentBranding was not set')
+					if (context.getNextBranding()?.name !== 'Branding 0')
+						throw new Error('nextBranding was not resolved')
+				},
+			})
+
+			await handleExecuteAdlibAction(context, {
+				playlistId,
+				actionDocId: protectString<AdLibActionId>('action-id'),
+				actionId: 'some-action',
+				userData: {},
+			})
+
+			await expect(getSelectedBrandings()).resolves.toEqual(['branding0', 'branding0'])
+
+			// The Branding may be used when generating the timeline
+			expect(updateTimelineMock).toHaveBeenCalledTimes(1)
+		})
+
+		test('setBranding rejects an unknown Branding', async () => {
+			context.updateShowStyleBlueprint({
+				executeAction: async (context0) => {
+					const context = context0 as ActionExecutionContext
+
+					await expect(context.setBranding('both', 'not-a-branding')).rejects.toThrow(
+						'Branding "not-a-branding" does not exist in the ShowStyle'
+					)
+
+					// null is always a valid selection
+					await context.setBranding('both', null)
+				},
+			})
+
+			await handleExecuteAdlibAction(context, {
+				playlistId,
+				actionDocId: protectString<AdLibActionId>('action-id'),
+				actionId: 'some-action',
+				userData: {},
+			})
+
+			await expect(getSelectedBrandings()).resolves.toEqual([null, null])
 		})
 
 		test('no changes', async () => {
