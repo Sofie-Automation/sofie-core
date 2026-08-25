@@ -359,6 +359,7 @@ function SettingsMenuShowStyle({ showStyleBase }: Readonly<SettingsMenuShowStyle
 		() => [
 			{ label: t('Generic Properties'), subPath: `generic` },
 			{ label: t('Source/Output Layers'), subPath: `layers` },
+			{ label: t('Branding'), subPath: `branding` },
 			{ label: t('Action Triggers'), subPath: `action-triggers` },
 			{ label: t('Custom Hotkey Labels'), subPath: `hotkey-labels` },
 			{ label: t('AB Channel Display'), subPath: `ab-channel-display` },

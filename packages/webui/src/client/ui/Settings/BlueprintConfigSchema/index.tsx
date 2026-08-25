@@ -7,7 +7,11 @@ import type {
 	ObjectWithOverrides,
 	SomeObjectOverrideOp,
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { useOverrideOpHelperForSimpleObject } from '../util/OverrideOpHelper.js'
+import {
+	useOverrideOpHelperForSimpleObject,
+	type OverrideOpHelperForItemContents,
+	type WrappedOverridableItemNormal,
+} from '../util/OverrideOpHelper.js'
 import type { JSONSchema } from '@sofie-automation/shared-lib/dist/lib/JSONSchemaTypes'
 import deepmerge from 'deepmerge'
 import {
@@ -43,8 +47,6 @@ export function BlueprintConfigSchemaSettings({
 	configObject: rawConfigObject,
 	saveOverrides: rawSaveOverrides,
 }: Readonly<BlueprintConfigSchemaSettingsProps>): JSX.Element {
-	const { t } = useTranslation()
-
 	const saveOverridesStrippingPrefix = useCallback(
 		(newOps: SomeObjectOverrideOp[]) => {
 			rawSaveOverrides(
@@ -56,6 +58,70 @@ export function BlueprintConfigSchemaSettings({
 		},
 		[rawSaveOverrides]
 	)
+
+	const combinedObject = useMemo<ObjectWithOverrides<IBlueprintConfig>>(() => {
+		// TODO - replace based around a custom implementation of OverrideOpHelperForItemContents?
+
+		const combinedDefaults: IBlueprintConfig = alternateConfig
+			? deepmerge<IBlueprintConfig>(alternateConfig, rawConfigObject.defaults, {
+					arrayMerge: (_destinationArray, sourceArray, _options) => sourceArray,
+				})
+			: rawConfigObject.defaults
+
+		return {
+			defaults: combinedDefaults,
+			overrides: rawConfigObject.overrides,
+		}
+	}, [alternateConfig, rawConfigObject])
+
+	const { overrideHelper, wrappedItem } = useOverrideOpHelperForSimpleObject(
+		saveOverridesStrippingPrefix,
+		combinedObject
+	)
+
+	return (
+		<BlueprintConfigSchemaSettingsForItem
+			schema={schema}
+			translationNamespaces={translationNamespaces}
+			layerMappings={layerMappings}
+			sourceLayers={sourceLayers}
+			item={wrappedItem}
+			attr={''}
+			overrideHelper={overrideHelper}
+		/>
+	)
+}
+
+interface BlueprintConfigSchemaSettingsForItemProps {
+	schema: JSONSchema | undefined
+
+	translationNamespaces: string[]
+
+	layerMappings?: { [studioId: string]: MappingsExt }
+	sourceLayers?: SourceLayers
+
+	/** The wrapped item containing the config to be edited, with its overrides */
+	item: WrappedOverridableItemNormal<any>
+	/** Path of the config object within the item */
+	attr: string
+	/** Helper to generate and save overrides for the item */
+	overrideHelper: OverrideOpHelperForItemContents
+}
+
+/**
+ * Edit a blueprint config which is a portion of a larger ObjectWithOverrides, such as a property of an item in a table
+ */
+export function BlueprintConfigSchemaSettingsForItem({
+	schema,
+	translationNamespaces,
+	layerMappings,
+	sourceLayers,
+
+	item,
+	attr,
+	overrideHelper,
+}: Readonly<BlueprintConfigSchemaSettingsForItemProps>): JSX.Element {
+	const { t } = useTranslation()
 
 	const sofieEnumDefinitons: Record<string, SchemaFormSofieEnumDefinition> = useMemo(() => {
 		// Future: if there are multiple studios, this could result in duplicates
@@ -88,26 +154,6 @@ export function BlueprintConfigSchemaSettings({
 			'source-layers': sourceLayersDefinition,
 		}
 	}, [layerMappings, sourceLayers])
-
-	const combinedObject = useMemo<ObjectWithOverrides<IBlueprintConfig>>(() => {
-		// TODO - replace based around a custom implementation of OverrideOpHelperForItemContents?
-
-		const combinedDefaults: IBlueprintConfig = alternateConfig
-			? deepmerge<IBlueprintConfig>(alternateConfig, rawConfigObject.defaults, {
-					arrayMerge: (_destinationArray, sourceArray, _options) => sourceArray,
-				})
-			: rawConfigObject.defaults
-
-		return {
-			defaults: combinedDefaults,
-			overrides: rawConfigObject.overrides,
-		}
-	}, [alternateConfig, rawConfigObject])
-
-	const { overrideHelper, wrappedItem } = useOverrideOpHelperForSimpleObject(
-		saveOverridesStrippingPrefix,
-		combinedObject
-	)
 
 	const groupedSchema = useMemo(() => {
 		if (schema?.type === 'object' && schema.properties) {
@@ -152,7 +198,8 @@ export function BlueprintConfigSchemaSettings({
 							<ConfigCategoryEntry
 								key={categoryName ?? '__OTHER__'}
 								translationNamespaces={translationNamespaces}
-								wrappedItem={wrappedItem}
+								wrappedItem={item}
+								attr={attr}
 								categoryName={categoryName}
 								categorySchema={schema}
 								isExpanded={isExpanded(categoryName ?? '__OTHER__')}
