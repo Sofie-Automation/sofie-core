@@ -9,7 +9,6 @@ import type {
 	PieceInstanceId,
 	RundownBaselineAdLibActionId,
 	RundownId,
-	RundownPlaylistActivationId,
 	RundownPlaylistId,
 	SegmentId,
 	ShowStyleBaseId,
@@ -258,7 +257,6 @@ function useMediaStatusSubscriptions(
 	readyStatus[counter++] = useSubscription(CorelibPubSub.rundownPlaylists, playlistIds, null)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.rundownsInPlaylists, playlistIds)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.segments, rundownIds, {})
-	readyStatus[counter++] = useSubscription(CorelibPubSub.pieceInstancesSimple, rundownIds, null)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.pieces, rundownIds, null)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.adLibActions, rundownIds)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.adLibPieces, rundownIds)
@@ -278,25 +276,38 @@ function useMediaStatusSubscriptions(
 		playlistIds.map((id) => [id])
 	)
 
-	const playlistActivationIds = useTracker(
+	// Both the PartInstance and PieceInstance subscriptions are scoped to a single activation, so fan them
+	// out per active playlist rather than subscribing across every rundown at once. As well as excluding
+	// the (entirely reset) instances of inactive playlists, this makes the arguments match those used by
+	// the other views of a playlist, so the observers can be shared.
+	const activePlaylists = useTracker(
 		() =>
 			RundownPlaylists.find(
 				{
 					_id: {
 						$in: playlistIds,
 					},
+					activationId: { $exists: true },
 				},
-				{ projection: { activationId: 1 } }
-			)
-				.fetch()
-				.map((playlist) => playlist.activationId)
-				.filter(Boolean) as RundownPlaylistActivationId[],
+				{ projection: { _id: 1, activationId: 1, rundownIdsInOrder: 1 } }
+			).fetch() as Pick<DBRundownPlaylist, '_id' | 'activationId' | 'rundownIdsInOrder'>[],
 		[playlistIds],
 		[]
 	)
 	readyStatus[counter++] = useSubscriptions(
 		CorelibPubSub.uiPartInstances,
-		playlistActivationIds.map((id) => [id])
+		activePlaylists.filter((playlist) => playlist.activationId).map((playlist) => [playlist.activationId ?? null])
+	)
+	readyStatus[counter++] = useSubscriptions(
+		CorelibPubSub.uiPieceInstances,
+		activePlaylists.map((playlist) => [
+			playlist.rundownIdsInOrder,
+			null,
+			playlist.activationId ?? null,
+			{
+				omitTimings: true,
+			},
+		])
 	)
 
 	return readyStatus.reduce((mem, current) => mem && current, true)

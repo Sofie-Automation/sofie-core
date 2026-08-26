@@ -740,7 +740,14 @@ function Prompter(props: Readonly<PropsWithChildren<IPrompterProps>>): JSX.Eleme
 	useSubscription(CorelibPubSub.uiParts, props.rundownPlaylistId)
 	useSubscriptionIfEnabled(CorelibPubSub.uiPartInstances, !!playlist?.activationId, playlist?.activationId ?? null)
 	useSubscriptionIfEnabled(CorelibPubSub.pieces, rundownIDs.length > 0, rundownIDs, null)
-	useSubscriptionIfEnabled(CorelibPubSub.pieceInstancesSimple, rundownIDs.length > 0, rundownIDs, null)
+	useSubscriptionIfEnabled(
+		CorelibPubSub.uiPieceInstances,
+		rundownIDs.length > 0,
+		rundownIDs,
+		null,
+		playlist?.activationId ?? null,
+		{ omitTimings: true }
+	)
 
 	const rundowns = useTracker(
 		() =>

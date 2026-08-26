@@ -68,7 +68,13 @@ export const SegmentStoryboardContainer = withResolvedSegment<IProps>(function S
 		[segmentId]
 	)
 
-	const pieceInstancesReady = useSubscription(CorelibPubSub.pieceInstances, [rundownId], partInstanceIds ?? [], {})
+	const pieceInstancesReady = useSubscription(
+		CorelibPubSub.uiPieceInstances,
+		[rundownId],
+		partInstanceIds ?? [],
+		props.playlist.activationId ?? null,
+		{}
+	)
 
 	useTracker(() => {
 		const segment = Segments.findOne(segmentId, {

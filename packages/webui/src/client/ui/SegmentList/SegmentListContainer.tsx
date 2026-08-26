@@ -65,7 +65,13 @@ export const SegmentListContainer = withResolvedSegment<IProps>(function Segment
 		[segmentId]
 	)
 
-	useSubscription(CorelibPubSub.pieceInstances, [rundownId], partInstanceIds ?? [], {})
+	useSubscription(
+		CorelibPubSub.uiPieceInstances,
+		[rundownId],
+		partInstanceIds ?? [],
+		props.playlist.activationId ?? null,
+		{}
+	)
 
 	useTracker(() => {
 		const segment = Segments.findOne(segmentId, {

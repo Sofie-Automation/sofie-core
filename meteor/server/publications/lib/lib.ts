@@ -1,5 +1,5 @@
 import { AllPubSubCollections, AllPubSubTypes } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MinimalMongoCursor } from '../../collections/collection'
 import type { LiveQueryHandleSync } from '../../lib/lib'
 import type { DDPClientConnection } from '../../ddp-server/types'
@@ -110,4 +110,20 @@ export async function waitForAllObserversReady(
 	}
 
 	return allSuccessfull.map((r) => r.value)
+}
+
+/**
+ * Dedupe and sort a list of ids, so that it forms a stable key for the optimized observer.
+ * Subscriptions which differ only in the ordering or duplication of their ids are then able to
+ * share an observer.
+ */
+export function normaliseIds<T extends ProtectedString<any> | string>(ids: T[]): T[] {
+	// Note: an explicit comparator is used, to be sure of the ordering used
+	return Array.from(new Set(ids)).sort((a, b) => {
+		const strA = String(a)
+		const strB = String(b)
+		if (strA < strB) return -1
+		if (strA > strB) return 1
+		return 0
+	})
 }

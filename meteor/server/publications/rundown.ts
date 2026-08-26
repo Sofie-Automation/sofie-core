@@ -4,7 +4,6 @@ import { MongoFieldSpecifierZeroes, MongoQuery } from '@sofie-automation/corelib
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { check, zAnyArray } from '../lib/check'
 import { FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import {
@@ -12,7 +11,6 @@ import {
 	AdLibPieces,
 	ExpectedPlayoutItems,
 	NrcsIngestDataCache,
-	PieceInstances,
 	Pieces,
 	RundownBaselineAdLibActions,
 	RundownBaselineAdLibPieces,
@@ -21,13 +19,10 @@ import {
 } from '../collections'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { NrcsIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
-import { literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	PartId,
-	PartInstanceId,
 	PeripheralDeviceId,
 	RundownId,
-	RundownPlaylistActivationId,
 	RundownPlaylistId,
 	SegmentId,
 	ShowStyleBaseId,
@@ -51,12 +46,6 @@ const piecesSubFields: MongoFieldSpecifierZeroes<Piece> = {
 const adlibPiecesSubFields: MongoFieldSpecifierZeroes<AdLibPiece> = {
 	privateData: 0,
 	timelineObjectsString: 0,
-}
-
-const pieceInstanceFields: MongoFieldSpecifierZeroes<PieceInstance> = {
-	// @ts-expect-error Mongo typings aren't clever enough yet
-	'piece.privateData': 0,
-	'piece.timelineObjectsString': 0,
 }
 
 const adlibActionSubFields: MongoFieldSpecifierZeroes<AdLibAction> = {
@@ -269,109 +258,6 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 			}
 		)
 	})
-
-	registry.publish(
-		CorelibPubSub.pieceInstances,
-		async (
-			_context,
-			rundownIds: RundownId[],
-			partInstanceIds: PartInstanceId[] | null,
-			filter:
-				| {
-						onlyPlayingAdlibsOrWithTags?: boolean
-				  }
-				| undefined,
-			_token: string | undefined
-		) => {
-			check(rundownIds, zAnyArray)
-			check(partInstanceIds, zAnyArray.nullish())
-
-			triggerWriteAccessBecauseNoCheckNecessary()
-
-			// If values were provided, they must have values
-			if (rundownIds.length === 0) return null
-			if (partInstanceIds && partInstanceIds.length === 0) return null
-
-			const selector: MongoQuery<PieceInstance> = {
-				rundownId: { $in: rundownIds },
-
-				// Enforce only not-reset
-				reset: { $ne: true },
-			}
-			if (partInstanceIds) selector.partInstanceId = { $in: partInstanceIds }
-
-			if (filter?.onlyPlayingAdlibsOrWithTags) {
-				selector.plannedStartedPlayback = {
-					$exists: true,
-				}
-				selector.$and = [
-					{
-						$or: [
-							{
-								adLibSourceId: {
-									$exists: true,
-								},
-							},
-							{
-								'piece.tags': {
-									$exists: true,
-								},
-							},
-						],
-					},
-					{
-						$or: [
-							{
-								plannedStoppedPlayback: {
-									$eq: 0,
-								},
-							},
-							{
-								plannedStoppedPlayback: {
-									$exists: false,
-								},
-							},
-						],
-					},
-				]
-			}
-
-			return PieceInstances.findWithCursor(selector, {
-				projection: pieceInstanceFields,
-			})
-		}
-	)
-
-	registry.publish(
-		CorelibPubSub.pieceInstancesSimple,
-		async (
-			_context,
-			rundownIds: RundownId[],
-			playlistActivationId: RundownPlaylistActivationId | null,
-			_token: string | undefined
-		) => {
-			check(rundownIds, zAnyArray)
-
-			triggerWriteAccessBecauseNoCheckNecessary()
-
-			if (rundownIds.length === 0) return null
-
-			const selector: MongoQuery<PieceInstance> = {
-				rundownId: { $in: rundownIds },
-				// Enforce only not-reset
-				reset: { $ne: true },
-			}
-			if (playlistActivationId) selector.playlistActivationId = playlistActivationId
-
-			return PieceInstances.findWithCursor(selector, {
-				projection: literal<MongoFieldSpecifierZeroes<PieceInstance>>({
-					...pieceInstanceFields,
-					plannedStartedPlayback: 0,
-					plannedStoppedPlayback: 0,
-				}),
-			})
-		}
-	)
 
 	registry.publish(
 		PeripheralDevicePubSub.expectedPlayoutItemsForDevice,
