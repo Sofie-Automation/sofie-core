@@ -63,11 +63,11 @@ export function transformPartIntoTimeline(
 		timelineObjs.push(
 			...transformPieceGroupAndObjects(
 				playlistId,
+				partInfo.calculatedTimings,
 				partGroupToAddTo,
 				nowInParentGroup,
 				pieceInstance,
 				pieceEnable,
-				pieceInstance.dynamicallyInserted ? 0 : partTimings.toPartDelay,
 				pieceGroupFirstObjClasses,
 				playoutState
 			)
