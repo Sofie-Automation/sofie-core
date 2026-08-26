@@ -110,7 +110,14 @@ export function CameraScreen({ playlist, studioId }: Readonly<IProps>): JSX.Elem
 
 	useSubscriptionIfEnabled(CorelibPubSub.uiParts, !!playlist, playlist?._id ?? null)
 
-	useSubscriptionIfEnabled(CorelibPubSub.pieceInstancesSimple, rundownIds.length > 0, rundownIds, null)
+	useSubscriptionIfEnabled(
+		CorelibPubSub.uiPieceInstances,
+		rundownIds.length > 0,
+		rundownIds,
+		null,
+		playlist?.activationId ?? null,
+		{ omitTimings: true }
+	)
 
 	const piecesReady = useSubscriptionIfEnabled(CorelibPubSub.pieces, rundownIds.length > 0, rundownIds, null)
 
