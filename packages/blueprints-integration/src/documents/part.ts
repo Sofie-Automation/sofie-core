@@ -25,7 +25,11 @@ export enum PartHoldMode {
 	TO = 2,
 }
 
-export interface IBlueprintMutatablePart<TPrivateData = unknown, TPublicData = unknown> {
+/**
+ * The properties of a Part which can be varied per Branding.
+ * These are limited to properties which affect how the Part is displayed, so that a Branding cannot alter playout.
+ */
+export interface IBlueprintBrandablePart {
 	/** The story title */
 	title: string
 	/**
@@ -34,6 +38,14 @@ export interface IBlueprintMutatablePart<TPrivateData = unknown, TPublicData = u
 	 */
 	prompterTitle?: string
 
+	/** User-facing identifier that can be used by the User to identify the contents of a segment in the Rundown source system */
+	identifier?: string
+}
+
+export interface IBlueprintMutatablePart<
+	TPrivateData = unknown,
+	TPublicData = unknown,
+> extends IBlueprintBrandablePart {
 	/** Arbitraty data storage for internal use in the blueprints */
 	privateData?: TPrivateData
 	/** Arbitraty data relevant for other systems, made available to them through APIs */
@@ -95,9 +107,6 @@ export interface IBlueprintMutatablePart<TPrivateData = unknown, TPublicData = u
 	 * **NOTE**: The behavior of the system is undefined when using both `displayDurationGroups` and `budgetDuration` */
 	displayDuration?: number
 
-	/** User-facing identifier that can be used by the User to identify the contents of a segment in the Rundown source system */
-	identifier?: string
-
 	/** MediaObjects that when created/updated, should cause the blueprint to be rerun for the Segment of this Part */
 	hackListenToMediaObjectUpdates?: HackPartMediaObjectSubscription[]
 
@@ -111,7 +120,16 @@ export interface IBlueprintMutatablePart<TPrivateData = unknown, TPublicData = u
 	 * it will trigger a user edit operation of type DefaultUserOperationEditProperties
 	 */
 	userEditProperties?: UserEditingProperties
+
+	/**
+	 * Overrides to apply to this Part while a Branding is selected, keyed by the id of the Branding.
+	 * Any property named here replaces the one on the Part in full.
+	 */
+	branding?: Record<string, IBlueprintPartBranding>
 }
+
+/** Overrides to apply to a Part while a Branding is selected */
+export type IBlueprintPartBranding = Partial<IBlueprintBrandablePart>
 
 export interface HackPartMediaObjectSubscription {
 	/** The playable reference (CasparCG clip name, quantel GUID, etc) */
