@@ -85,11 +85,12 @@ export enum CorelibPubSub {
 	/**
 	 * Fetch Pieces belonging to the specified Rundowns, optionally limiting the result to the specified Parts
 	 */
-	pieces = 'pieces',
+	uiPieces = 'uiPieces',
 	/**
 	 * Fetch Pieces which are infinite and start within the specified range of Segments or Rundowns.
+	 * These are published into the same collection as {@link CorelibPubSub.uiPieces}.
 	 */
-	piecesInfiniteStartingBefore = 'piecesInfiniteStartingBefore',
+	uiPiecesInfiniteStartingBefore = 'uiPiecesInfiniteStartingBefore',
 	/**
 	 * Fetch PieceInstances in the specified Rundowns, optionally limiting the result to the specified PartInstances
 	 * and/or RundownPlaylistActivationId.
@@ -240,18 +241,16 @@ export interface CorelibPubSubTypes {
 	) => CollectionName.Rundowns
 	[CorelibPubSub.adLibActions]: (rundownIds: RundownId[], token?: string) => CollectionName.AdLibActions
 	[CorelibPubSub.adLibPieces]: (rundownIds: RundownId[], token?: string) => CollectionName.AdLibPieces
-	[CorelibPubSub.pieces]: (
+	[CorelibPubSub.uiPieces]: (
 		rundownIds: RundownId[],
 		/** PartIds to fetch for, or null to fetch all */
-		partIds: PartId[] | null,
-		token?: string
-	) => CollectionName.Pieces
-	[CorelibPubSub.piecesInfiniteStartingBefore]: (
+		partIds: PartId[] | null
+	) => CustomCollectionName.UIPieces
+	[CorelibPubSub.uiPiecesInfiniteStartingBefore]: (
 		thisRundownId: RundownId,
 		segmentsIdsBefore: SegmentId[],
-		rundownIdsBefore: RundownId[],
-		token?: string
-	) => CollectionName.Pieces
+		rundownIdsBefore: RundownId[]
+	) => CustomCollectionName.UIPieces
 	[CorelibPubSub.uiPieceInstances]: (
 		rundownIds: RundownId[],
 		/** PartInstanceIds to fetch for, or null to fetch all */
@@ -363,4 +362,5 @@ export type CorelibPubSubCustomCollections = {
 	[CustomCollectionName.UIParts]: DBPart
 	[CustomCollectionName.UIPartInstances]: PartInstance
 	[CustomCollectionName.UIPieceInstances]: PieceInstance
+	[CustomCollectionName.UIPieces]: Piece
 }

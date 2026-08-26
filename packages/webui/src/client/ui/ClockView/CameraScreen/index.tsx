@@ -119,7 +119,7 @@ export function CameraScreen({ playlist, studioId }: Readonly<IProps>): JSX.Elem
 		{ omitTimings: true }
 	)
 
-	const piecesReady = useSubscriptionIfEnabled(CorelibPubSub.pieces, rundownIds.length > 0, rundownIds, null)
+	const piecesReady = useSubscriptionIfEnabled(CorelibPubSub.uiPieces, rundownIds.length > 0, rundownIds, null)
 
 	const [piecesReadyOnce, setPiecesReadyOnce] = useState(false)
 	useEffect(() => {
