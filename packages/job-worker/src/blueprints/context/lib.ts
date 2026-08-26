@@ -52,7 +52,10 @@ import {
 	IBlueprintShowStyleBase,
 	IBlueprintShowStyleVariant,
 	IOutputLayer,
+	IBlueprintActionManifestBranding,
 	IBlueprintBrandingInfo,
+	IBlueprintPartBranding,
+	IBlueprintPieceBranding,
 	ISourceLayer,
 	NoteSeverity,
 	PieceAbSessionInfo,
@@ -127,6 +130,8 @@ export const IBlueprintPieceObjectsSampleKeys = allKeysOfObject<IBlueprintPiece>
 	userEditProperties: true,
 	excludeDuringPartKeepalive: true,
 	displayAbChannel: true,
+	onlyValidForBranding: true,
+	branding: true,
 })
 
 // Compile a list of the keys which are allowed to be set
@@ -155,6 +160,7 @@ export const PlayoutMutatablePartSampleKeys = allKeysOfObject<PlayoutMutatablePa
 	hackListenToMediaObjectUpdates: true,
 	userEditOperations: true,
 	userEditProperties: true,
+	branding: true,
 })
 
 /*
@@ -239,6 +245,8 @@ function convertPieceGenericToBlueprintsInner(piece: ReadonlyDeep<PieceGeneric>)
 	const obj: Complete<IBlueprintPieceGeneric> = {
 		externalId: piece.externalId,
 		name: piece.name,
+		onlyValidForBranding: clone<string[] | undefined>(piece.onlyValidForBranding),
+		branding: clone<Record<string, IBlueprintPieceBranding> | undefined>(piece.branding),
 		privateData: clone(piece.privateData),
 		publicData: clone(piece.publicData),
 		lifespan: piece.lifespan,
@@ -320,6 +328,7 @@ export function convertPartToBlueprints(part: ReadonlyDeep<DBPart>): IBlueprintP
 		_id: unprotectString(part._id),
 		segmentId: unprotectString(part.segmentId),
 		externalId: part.externalId,
+		branding: clone<Record<string, IBlueprintPartBranding> | undefined>(part.branding),
 		invalid: part.invalid,
 		invalidReason: clone(part.invalidReason),
 		untimed: part.untimed,
@@ -394,6 +403,8 @@ export function convertAdLibActionToBlueprints(action: ReadonlyDeep<AdLibAction>
 		partId: unprotectString(action.partId),
 		invalid: action.invalid,
 		allVariants: action.allVariants,
+		onlyValidForBranding: clone<string[] | undefined>(action.onlyValidForBranding),
+		branding: clone<Record<string, IBlueprintActionManifestBranding> | undefined>(action.branding),
 		userDataManifest: clone(action.userDataManifest),
 		display: clone<IBlueprintActionManifestDisplay | IBlueprintActionManifestDisplayContent>(action.display), // TODO - type mismatch
 		triggerModes: clone<IBlueprintActionTriggerMode[] | undefined>(action.triggerModes), // TODO - type mismatch

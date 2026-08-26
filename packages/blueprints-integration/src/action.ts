@@ -19,7 +19,11 @@ export interface ActionUserData {
 // 	debounce = 'debounce',
 // }
 
-export interface IBlueprintActionManifestDisplay {
+/**
+ * The properties of an AdLib Action which can be varied per Branding.
+ * These are limited to properties which affect how the Action is displayed, so that a Branding cannot alter playout.
+ */
+export interface IBlueprintBrandableActionManifestDisplay {
 	/** A label to be displayed to the user */
 	label: ITranslatableMessage
 	/** An optional, longer description that will not be immediately visible to the user */
@@ -30,6 +34,14 @@ export interface IBlueprintActionManifestDisplay {
 	triggerLabel?: ITranslatableMessage
 
 	tags?: string[]
+}
+
+/** Overrides to apply to an AdLib Action while a Branding is selected */
+export interface IBlueprintActionManifestBranding {
+	display?: Partial<IBlueprintBrandableActionManifestDisplay>
+}
+
+export interface IBlueprintActionManifestDisplay extends IBlueprintBrandableActionManifestDisplay {
 	/** Piece tags to use to determine if action is currently active */
 	currentPieceTags?: string[]
 	/** Piece tags to use to determine if action is set as next */
@@ -100,6 +112,18 @@ export interface IBlueprintActionManifest<TPrivateData = unknown, TPublicData = 
 
 	/** When something bad has happened, we can mark the action as invalid, which will prevent the user from executing it */
 	invalid?: boolean
+
+	/**
+	 * If set, this Action is only used while one of these Brandings is selected.
+	 * An empty array means the Action is never used.
+	 */
+	onlyValidForBranding?: string[]
+
+	/**
+	 * Overrides to apply to this Action while a Branding is selected, keyed by the id of the Branding.
+	 * Any property named here replaces the one on the Action in full.
+	 */
+	branding?: Record<string, IBlueprintActionManifestBranding>
 
 	/**
 	 * Set to true if ad-lib action should can be used in any showstyle-variant. Default: false = only used by the current variant.

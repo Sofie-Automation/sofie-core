@@ -29,14 +29,41 @@ export interface IBlueprintDirectPlayAdLibAction extends IBlueprintDirectPlayBas
 }
 export type IBlueprintDirectPlay = IBlueprintDirectPlayAdLibPiece | IBlueprintDirectPlayAdLibAction
 
-export interface IBlueprintPieceGeneric<TPrivateData = unknown, TPublicData = unknown> {
+/**
+ * The properties of a Piece which can be varied per Branding.
+ * These are limited to properties which affect how the Piece is displayed, so that a Branding cannot alter playout.
+ */
+export interface IBlueprintBrandablePieceGeneric {
+	/** User-presentable name for the timeline item */
+	name: string
+
+	/** Source layer the timeline item belongs to */
+	sourceLayerId: string
+	/** Layer output this piece belongs to */
+	outputLayerId: string
+
+	/**
+	 * The object describing the item in detail.
+	 * Note: the `timelineObjects` are not part of this.
+	 */
+	content: SomeContent
+
+	/** User-defined tags that can be used for filtering adlibs in the shelf and identifying pieces by actions */
+	tags?: string[]
+}
+
+/** Overrides to apply to a Piece while a Branding is selected */
+export type IBlueprintPieceBranding = Partial<IBlueprintBrandablePieceGeneric>
+
+export interface IBlueprintPieceGeneric<
+	TPrivateData = unknown,
+	TPublicData = unknown,
+> extends IBlueprintBrandablePieceGeneric {
 	/**
 	 * An identifier for this Piece
 	 * It should be unique within the part it belongs to, and consistent across ingest updates
 	 */
 	externalId: string
-	/** User-presentable name for the timeline item */
-	name: string
 
 	/** Arbitraty data storage for internal use in the blueprints */
 	privateData?: TPrivateData
@@ -46,10 +73,6 @@ export interface IBlueprintPieceGeneric<TPrivateData = unknown, TPublicData = un
 	/** Whether and how the piece is infinite */
 	lifespan: PieceLifespan
 
-	/** Source layer the timeline item belongs to */
-	sourceLayerId: string
-	/** Layer output this piece belongs to */
-	outputLayerId: string
 	/** The object describing the item in detail */
 	content: WithTimeline<SomeContent>
 
@@ -69,8 +92,6 @@ export interface IBlueprintPieceGeneric<TPrivateData = unknown, TPublicData = un
 	toBeQueued?: boolean
 	/** Array of items expected to be played out. This is used by playout-devices to preload stuff. */
 	expectedPlayoutItems?: ExpectedPlayoutItemGeneric[]
-	/** User-defined tags that can be used for filtering adlibs in the shelf and identifying pieces by actions */
-	tags?: string[]
 
 	/** Allow this piece to be direct played (eg, by double clicking in the rundown timeline view) */
 	allowDirectPlay?: IBlueprintDirectPlay
@@ -99,4 +120,16 @@ export interface IBlueprintPieceGeneric<TPrivateData = unknown, TPublicData = un
 	 * it will trigger a user edit operation of type DefaultUserOperationEditProperties
 	 */
 	userEditProperties?: UserEditingProperties
+
+	/**
+	 * If set, this Piece is only used while one of these Brandings is selected.
+	 * An empty array means the Piece is never used.
+	 */
+	onlyValidForBranding?: string[]
+
+	/**
+	 * Overrides to apply to this Piece while a Branding is selected, keyed by the id of the Branding.
+	 * Any property named here replaces the one on the Piece in full.
+	 */
+	branding?: Record<string, IBlueprintPieceBranding>
 }
