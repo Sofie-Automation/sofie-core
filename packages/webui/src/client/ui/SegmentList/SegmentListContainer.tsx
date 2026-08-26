@@ -44,7 +44,7 @@ export const SegmentListContainer = withResolvedSegment<IProps>(function Segment
 		[segmentId]
 	)
 
-	useSubscription(CorelibPubSub.pieces, [rundownId], partIds ?? [])
+	useSubscription(CorelibPubSub.uiPieces, [rundownId], partIds ?? [])
 
 	const partInstanceIds = useTracker(
 		() =>
@@ -83,7 +83,7 @@ export const SegmentListContainer = withResolvedSegment<IProps>(function Segment
 		if (!segment) return
 
 		meteorSubscribe(
-			CorelibPubSub.piecesInfiniteStartingBefore,
+			CorelibPubSub.uiPiecesInfiniteStartingBefore,
 			rundownId,
 			Array.from(segmentsIdsBefore.values()),
 			Array.from(rundownIdsBefore.values())

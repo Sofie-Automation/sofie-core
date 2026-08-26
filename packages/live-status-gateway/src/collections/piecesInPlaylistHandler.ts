@@ -2,7 +2,7 @@ import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler.js'
 import { PublicationCollection } from '../publicationCollection.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import _ from 'underscore'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
@@ -15,8 +15,8 @@ type Playlist = Pick<DBRundownPlaylist, (typeof PLAYLIST_KEYS)[number]>
 /** Publishes all pieces belonging to rundowns in the currently selected playlist. */
 export class PiecesInPlaylistHandler extends PublicationCollection<
 	Piece[],
-	CorelibPubSub.pieces,
-	CollectionName.Pieces
+	CorelibPubSub.uiPieces,
+	CustomCollectionName.UIPieces
 > {
 	private _currentRundownIds: Playlist['rundownIdsInOrder'] | undefined
 
@@ -25,7 +25,7 @@ export class PiecesInPlaylistHandler extends PublicationCollection<
 	})
 
 	constructor(logger: Logger, coreHandler: CoreHandler) {
-		super(CollectionName.Pieces, CorelibPubSub.pieces, logger, coreHandler)
+		super(CustomCollectionName.UIPieces, CorelibPubSub.uiPieces, logger, coreHandler)
 		this._collectionData = []
 	}
 

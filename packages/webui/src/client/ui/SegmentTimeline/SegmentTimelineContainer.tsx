@@ -87,7 +87,7 @@ export function SegmentTimelineContainer(props: Readonly<IProps>): JSX.Element {
 		[props.segmentId],
 		[]
 	)
-	useSubscription(CorelibPubSub.pieces, [props.rundownId], partIds)
+	useSubscription(CorelibPubSub.uiPieces, [props.rundownId], partIds)
 
 	const partInstanceIds = useTracker(
 		() =>
@@ -138,7 +138,7 @@ export function SegmentTimelineContainer(props: Readonly<IProps>): JSX.Element {
 	}, [props.rundownIdsBefore])
 
 	// past infinites subscription
-	useSubscription(CorelibPubSub.piecesInfiniteStartingBefore, props.rundownId, sortedSegmentIds, sortedRundownIds)
+	useSubscription(CorelibPubSub.uiPiecesInfiniteStartingBefore, props.rundownId, sortedSegmentIds, sortedRundownIds)
 
 	return <SegmentTimelineContainerContent {...props} />
 }

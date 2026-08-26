@@ -50,6 +50,7 @@ export enum CollectionName {
  */
 export enum CustomCollectionName {
 	UIPieceContentStatuses = 'uiPieceContentStatuses',
+	UIPieces = 'uiPieces',
 	UIParts = 'uiParts',
 	UIPartInstances = 'uiPartInstances',
 	UIPieceInstances = 'uiPieceInstances',

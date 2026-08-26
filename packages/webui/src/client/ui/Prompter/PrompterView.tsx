@@ -739,7 +739,7 @@ function Prompter(props: Readonly<PropsWithChildren<IPrompterProps>>): JSX.Eleme
 	useSubscriptionIfEnabled(CorelibPubSub.segments, rundownIDs.length > 0, rundownIDs, {})
 	useSubscription(CorelibPubSub.uiParts, props.rundownPlaylistId)
 	useSubscriptionIfEnabled(CorelibPubSub.uiPartInstances, !!playlist?.activationId, playlist?.activationId ?? null)
-	useSubscriptionIfEnabled(CorelibPubSub.pieces, rundownIDs.length > 0, rundownIDs, null)
+	useSubscriptionIfEnabled(CorelibPubSub.uiPieces, rundownIDs.length > 0, rundownIDs, null)
 	useSubscriptionIfEnabled(
 		CorelibPubSub.uiPieceInstances,
 		rundownIDs.length > 0,

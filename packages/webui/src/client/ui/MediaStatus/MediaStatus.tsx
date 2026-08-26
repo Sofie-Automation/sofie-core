@@ -257,7 +257,7 @@ function useMediaStatusSubscriptions(
 	readyStatus[counter++] = useSubscription(CorelibPubSub.rundownPlaylists, playlistIds, null)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.rundownsInPlaylists, playlistIds)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.segments, rundownIds, {})
-	readyStatus[counter++] = useSubscription(CorelibPubSub.pieces, rundownIds, null)
+	readyStatus[counter++] = useSubscription(CorelibPubSub.uiPieces, rundownIds, null)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.adLibActions, rundownIds)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.adLibPieces, rundownIds)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.rundownBaselineAdLibActions, rundownIds)

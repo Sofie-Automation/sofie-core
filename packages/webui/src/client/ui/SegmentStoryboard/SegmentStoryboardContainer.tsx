@@ -47,7 +47,7 @@ export const SegmentStoryboardContainer = withResolvedSegment<IProps>(function S
 		[segmentId]
 	)
 
-	const piecesReady = useSubscription(CorelibPubSub.pieces, [rundownId], partIds ?? [])
+	const piecesReady = useSubscription(CorelibPubSub.uiPieces, [rundownId], partIds ?? [])
 
 	const partInstanceIds = useTracker(
 		() =>
@@ -86,7 +86,7 @@ export const SegmentStoryboardContainer = withResolvedSegment<IProps>(function S
 		if (!segment) return
 
 		meteorSubscribe(
-			CorelibPubSub.piecesInfiniteStartingBefore,
+			CorelibPubSub.uiPiecesInfiniteStartingBefore,
 			rundownId,
 			Array.from(segmentsIdsBefore.values()),
 			Array.from(rundownIdsBefore.values())
