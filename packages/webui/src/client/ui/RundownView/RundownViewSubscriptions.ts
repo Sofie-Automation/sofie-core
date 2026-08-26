@@ -91,24 +91,28 @@ export function useRundownViewSubscriptions(playlistId: RundownPlaylistId): bool
 	useTracker(() => {
 		const playlist = RundownPlaylists.findOne(playlistId, {
 			fields: {
+				activationId: 1,
 				currentPartInfo: 1,
 				nextPartInfo: 1,
 				previousPartsInfo: 1,
 			},
-		}) as Pick<DBRundownPlaylist, '_id' | 'currentPartInfo' | 'nextPartInfo' | 'previousPartsInfo'> | undefined
+		}) as
+			| Pick<DBRundownPlaylist, '_id' | 'activationId' | 'currentPartInfo' | 'nextPartInfo' | 'previousPartsInfo'>
+			| undefined
 		if (playlist) {
 			const rundownIds = RundownPlaylistCollectionUtil.getRundownUnorderedIDs(playlist)
 			// Use meteorSubscribe so that this subscription doesn't mess with this.subscriptionsReady()
 			// it's run in useTracker, so the subscription will be stopped along with the autorun,
 			// so we don't have to manually clean up after ourselves.
 			meteorSubscribe(
-				CorelibPubSub.pieceInstances,
+				CorelibPubSub.uiPieceInstances,
 				rundownIds,
 				[
 					playlist.currentPartInfo?.partInstanceId,
 					playlist.nextPartInfo?.partInstanceId,
 					playlist.previousPartsInfo?.[0]?.partInstanceId,
 				].filter((p): p is PartInstanceId => p !== null),
+				playlist.activationId ?? null,
 				{}
 			)
 		}

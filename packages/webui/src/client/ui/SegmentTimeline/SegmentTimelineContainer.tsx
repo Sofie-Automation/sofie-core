@@ -113,7 +113,13 @@ export function SegmentTimelineContainer(props: Readonly<IProps>): JSX.Element {
 		40,
 		(oldVal, newVal) => !oldVal || (!!newVal && !equivalentArrays(oldVal, newVal))
 	)
-	useSubscription(CorelibPubSub.pieceInstances, [props.rundownId], debouncedPartInstanceIds ?? [], {})
+	useSubscription(
+		CorelibPubSub.uiPieceInstances,
+		[props.rundownId],
+		debouncedPartInstanceIds ?? [],
+		props.playlist.activationId ?? null,
+		{}
+	)
 
 	// Convert to an array and sort to allow the `useSubscription` to better detect them being unchanged
 	const sortedSegmentIds = useMemo(() => {
