@@ -148,7 +148,8 @@ jobs:
           corepack enable
 
           yarn config set cacheFolder /home/runner/lint-core-cache
-          yarn        env:
+          yarn
+        env:
           CI: true
       - name: Bump version
         if: ${{ github.event_name == 'workflow_dispatch' }}
