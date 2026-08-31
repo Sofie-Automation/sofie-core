@@ -2,8 +2,6 @@
 
 exports[`PublicationRegistry the full set of registered publication names is stable (drift guard) 1`] = `
 [
-  "adLibActions",
-  "adLibActionsForPart",
   "blueprints",
   "bucketAdLibActions",
   "bucketAdLibPieces",
@@ -53,6 +51,8 @@ exports[`PublicationRegistry the full set of registered publication names is sta
   "timelineForStudio",
   "translationsBundles",
   "triggeredActions",
+  "uiAdLibActions",
+  "uiAdLibActionsForPart",
   "uiAdLibPieces",
   "uiAdLibPiecesForPart",
   "uiBlueprintUpgradeStatuses",

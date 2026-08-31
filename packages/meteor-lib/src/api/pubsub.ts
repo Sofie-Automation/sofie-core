@@ -1,6 +1,5 @@
 import {
 	BucketId,
-	PartId,
 	PeripheralDeviceId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
@@ -46,10 +45,6 @@ export enum MeteorPubSub {
 	 * Fetch RundownPlaylists for the specified Studio, limited to either active or inactive playlists
 	 */
 	rundownPlaylistForStudio = 'rundownPlaylistForStudio',
-	/**
-	 * Fetch all the AdlibActions for specified PartId, limited to the specified sourceLayerIds
-	 */
-	adLibActionsForPart = 'adLibActionsForPart',
 
 	/**
 	 * Fetch either all TriggeredActions or limited to the specified ShowStyleBases
@@ -143,7 +138,6 @@ export interface MeteorPubSubTypes {
 	[MeteorPubSub.evaluations]: (dateFrom: number, dateTo: number, token?: string) => CollectionName.Evaluations
 
 	[MeteorPubSub.rundownPlaylistForStudio]: (studioId: StudioId, isActive: boolean) => CollectionName.RundownPlaylists
-	[MeteorPubSub.adLibActionsForPart]: (partId: PartId, sourceLayerIds: string[]) => CollectionName.AdLibActions
 
 	[MeteorPubSub.triggeredActions]: (
 		/** ShowStyleBaseIds to fetch for, or null to just fetch global */
