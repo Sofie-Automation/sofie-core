@@ -508,7 +508,8 @@ export function postProcessBucketAdLib(
 		)
 	)
 	const piece: BucketAdLib = {
-		...itemOrig,
+		// Note: Branding is not supported on Bucket AdLibs
+		...omit(itemOrig, 'branding', 'onlyValidForBranding'),
 		content: omit(itemOrig.content, 'timelineObjects'),
 		_id: id,
 		externalId: ingestInfo.payload.externalId,
@@ -562,7 +563,8 @@ export function postProcessBucketAction(
 	const processed = processAdLibActionITranslatableMessages(itemOrig, blueprintId, rank, label)
 
 	const action: BucketAdLibAction = {
-		...omit(itemOrig, 'partId'),
+		// Note: Branding is not supported on Bucket AdLibs, as they are shared between Rundowns and ShowStyles
+		...omit(itemOrig, 'partId', 'branding', 'onlyValidForBranding'),
 		_id: id,
 		externalId: ingestInfo.payload.externalId,
 		studioId: context.studioId,
