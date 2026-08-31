@@ -260,7 +260,7 @@ function useMediaStatusSubscriptions(
 	readyStatus[counter++] = useSubscription(CorelibPubSub.uiPieces, rundownIds, null)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.uiAdLibActions, rundownIds)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.uiAdLibPieces, rundownIds)
-	readyStatus[counter++] = useSubscription(CorelibPubSub.rundownBaselineAdLibActions, rundownIds)
+	readyStatus[counter++] = useSubscription(CorelibPubSub.uiRundownBaselineAdLibActions, rundownIds)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.rundownBaselineAdLibPieces, rundownIds)
 
 	readyStatus[counter++] = useSubscriptions(
