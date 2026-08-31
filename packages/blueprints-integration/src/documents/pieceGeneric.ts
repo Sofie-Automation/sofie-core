@@ -42,12 +42,6 @@ export interface IBlueprintBrandablePieceGeneric {
 	/** Layer output this piece belongs to */
 	outputLayerId: string
 
-	/**
-	 * The object describing the item in detail.
-	 * Note: the `timelineObjects` are not part of this.
-	 */
-	content: SomeContent
-
 	/** User-defined tags that can be used for filtering adlibs in the shelf and identifying pieces by actions */
 	tags?: string[]
 }

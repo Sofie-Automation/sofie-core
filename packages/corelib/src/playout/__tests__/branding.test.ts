@@ -55,24 +55,22 @@ describe('branding', () => {
 			expect(resolvePieceForBranding(piece, 'branding0')).toEqual({ ...piece, name: 'Branded Piece 0' })
 		})
 
-		it('applies overrides to the layers and the content', () => {
+		it('applies overrides to the layers, leaving the content alone', () => {
 			const piece = {
 				name: 'Piece 0',
 				sourceLayerId: 'layer0',
 				outputLayerId: 'pgm',
 				content: { fileName: 'a.mxf', path: '/media/a.mxf' },
 				branding: {
-					branding0: {
-						sourceLayerId: 'layer1',
-						content: { fileName: 'a_branded.mxf', path: '/media/a_branded.mxf' },
-					},
+					branding0: { sourceLayerId: 'layer1' },
 				},
 			}
 
 			const resolved = resolvePieceForBranding(piece, 'branding0')
 			expect(resolved?.sourceLayerId).toBe('layer1')
 			expect(resolved?.outputLayerId).toBe('pgm')
-			expect(resolved?.content).toEqual({ fileName: 'a_branded.mxf', path: '/media/a_branded.mxf' })
+			// A Branding cannot change the media, so that playout, packages and status stay consistent
+			expect(resolved?.content).toEqual({ fileName: 'a.mxf', path: '/media/a.mxf' })
 		})
 
 		it('replaces an overridden property in full', () => {

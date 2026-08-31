@@ -29,7 +29,6 @@ function isValidForBranding(doc: BrandableDocument<unknown>, brandingId: string 
 
 /**
  * Apply the overrides for the selected Branding to a document.
- * Note: this is intended for the documents as they are stored, where `content` does not carry the timeline objects.
  * The document is returned unchanged (and with the same identity) when the Branding makes no changes to it,
  * so that callers can cheaply tell whether anything was affected.
  */
