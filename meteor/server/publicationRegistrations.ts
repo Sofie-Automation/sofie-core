@@ -19,6 +19,7 @@ import { registerPiecesUIPublications } from './publications/piecesUI/publicatio
 import { registerPeripheralDevicePublications } from './publications/peripheralDevice'
 import { registerPeripheralDeviceForDevicePublications } from './publications/peripheralDeviceForDevice'
 import { registerRundownBaselineAdLibActionsUIPublications } from './publications/rundownBaselineAdLibActionsUI/publication'
+import { registerRundownBaselineAdLibPiecesUIPublications } from './publications/rundownBaselineAdLibPiecesUI/publication'
 import { registerRundownPublications } from './publications/rundown'
 import { registerRundownPlaylistPublications } from './publications/rundownPlaylist'
 import { registerSegmentPartNotesUIPublications } from './publications/segmentPartNotesUI/publication'
@@ -54,6 +55,7 @@ export function registerAllPublications(registry: PublicationRegistry): void {
 	registerPeripheralDevicePublications(registry)
 	registerPeripheralDeviceForDevicePublications(registry)
 	registerRundownBaselineAdLibActionsUIPublications(registry)
+	registerRundownBaselineAdLibPiecesUIPublications(registry)
 	registerRundownPublications(registry)
 	registerRundownPlaylistPublications(registry)
 	registerSegmentPartNotesUIPublications(registry)

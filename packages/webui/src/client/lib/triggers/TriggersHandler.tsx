@@ -88,7 +88,7 @@ function useSubscriptions(
 		useSubscription(CorelibPubSub.uiAdLibActions, rundownIds),
 		useSubscription(CorelibPubSub.uiAdLibPieces, rundownIds),
 		useSubscription(CorelibPubSub.uiRundownBaselineAdLibActions, rundownIds),
-		useSubscription(CorelibPubSub.rundownBaselineAdLibPieces, rundownIds),
+		useSubscription(CorelibPubSub.uiRundownBaselineAdLibPieces, rundownIds),
 		useSubscription(MeteorPubSub.uiShowStyleBase, showStyleBaseId),
 	]
 
