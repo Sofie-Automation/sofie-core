@@ -79,7 +79,6 @@ export type PlayoutChangedResult = {
 
 export interface PeripheralDeviceStatusObject {
 	statusCode: StatusCode
-	messages?: Array<string>
 	/**
 	 * Structured status details for blueprint customization and UI display.
 	 * Blueprints can provide custom translations for status codes when present.

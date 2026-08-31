@@ -587,7 +587,7 @@ export function APIPeripheralDeviceFrom(device: PeripheralDevice): APIPeripheral
 		id: unprotectString(device._id),
 		name: device.name,
 		status,
-		messages: device.status.messages ?? [],
+		messages: device.status.statusDetails?.map((d) => d.message) ?? [],
 		deviceType,
 		connected: device.connected,
 	}

@@ -757,7 +757,6 @@ function setupMockPlayoutGateway(id: PeripheralDeviceId): PeripheralDevice {
 		name: `Dummy ${id}`,
 		status: {
 			statusCode: StatusCode.GOOD,
-			messages: [],
 			statusDetails: [],
 		},
 		token: '',

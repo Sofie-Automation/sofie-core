@@ -211,7 +211,25 @@ describe('test peripheralDevice general API methods', () => {
 		})
 		expect(((await PeripheralDevices.findOneAsync(device._id)) as PeripheralDevice).status).toMatchObject({
 			statusCode: StatusCode.WARNING_MINOR,
-			messages: ["Something's not right"],
+			statusDetails: [{ message: "Something's not right" }],
+		})
+	})
+
+	test('setStatus with legacy messages', async () => {
+		// Devices built against an older server-core-integration report `messages` and no `statusDetails`.
+		// `statusDetails` is typed as required to encourage devices to send it, so this shape has to be
+		// asserted, but Core still has to normalise it on ingest and store no `messages`:
+		const legacyStatus: any = {
+			statusCode: StatusCode.BAD,
+			messages: ['Not enough workers'],
+		}
+
+		await MeteorCall.peripheralDevice.setStatus(device._id, device.token, legacyStatus)
+
+		const status = ((await PeripheralDevices.findOneAsync(device._id)) as PeripheralDevice).status
+		expect(status).toEqual({
+			statusCode: StatusCode.BAD,
+			statusDetails: [{ message: 'Not enough workers' }],
 		})
 	})
 

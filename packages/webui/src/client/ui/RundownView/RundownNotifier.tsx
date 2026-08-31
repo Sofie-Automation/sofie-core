@@ -45,6 +45,7 @@ import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylist
 import { logger } from '../../lib/logging.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { UserPermissionsContext, type UserPermissions } from '../UserPermissions.js'
+import { statusCodeToString } from '../Status/StatusCodePill.js'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { DBNotificationTargetType } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 import type { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
@@ -810,7 +811,10 @@ class RundownViewNotifier extends WithManagedTracker {
 		if (!device.connected) {
 			return t('Device {{deviceName}} is disconnected', { deviceName: device.name })
 		}
-		return `${device.name}: ` + (device.status.statusDetails?.map((d) => d.message) || ['']).join(', ')
+		const messages = device.status.statusDetails?.map((d) => d.message) ?? []
+		// A device can report a bad status with no messages, so don't render an empty notification:
+		if (messages.length === 0) return `${device.name}: ${statusCodeToString(t, device.status.statusCode)}`
+		return `${device.name}: ${messages.join(', ')}`
 	}
 }
 

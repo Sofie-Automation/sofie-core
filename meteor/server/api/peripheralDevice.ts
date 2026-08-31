@@ -90,6 +90,14 @@ type StudioBlueprintLookup = {
 	manifest: StudioBlueprintManifest
 }
 
+/** Devices built against an older server-core-integration send `messages` instead of `statusDetails` */
+function statusDetailsFromDevice(status: PeripheralDeviceStatusObject): DeviceStatusDetail[] {
+	if (status.statusDetails?.length) return status.statusDetails
+
+	const legacyMessages = (status as { messages?: Array<string> }).messages ?? []
+	return legacyMessages.map((message) => ({ message }))
+}
+
 /**
  * Load and evaluate the Studio blueprint manifest for a studio.
  * Returns undefined when the studio has no blueprint or lookup fails.
@@ -115,24 +123,24 @@ async function getStudioBlueprintManifest(studioId: StudioId): Promise<StudioBlu
  * Resolve device status details using the Studio blueprint's deviceStatusMessages.
  * This allows blueprints to customize status messages shown to operators.
  *
+ * Messages are rewritten in place; a message the blueprint suppresses is left empty for the caller to drop.
+ *
  * @param studioId - The studio ID to look up the blueprint
  * @param deviceName - The peripheral device name (shorter than TSR's internal name)
  * @param deviceId - The peripheral device ID
- * @param statusDetails - Structured status details from TSR
- * @param defaultMessages - The original messages from TSR (used as fallback)
+ * @param statusDetails - Structured status details from the device, mutated in place
  */
 async function resolveDeviceStatusDetails(
 	studioId: StudioId,
 	deviceName: string,
 	deviceId: PeripheralDeviceId,
-	statusDetails: DeviceStatusDetail[],
-	defaultMessages: string[]
-): Promise<string[]> {
+	statusDetails: DeviceStatusDetail[]
+): Promise<void> {
 	try {
 		const studioBlueprint = await getStudioBlueprintManifest(studioId)
 		if (!studioBlueprint) {
-			// No blueprint, return empty (caller will use original messages)
-			return []
+			// No blueprint, leave the messages as the device rendered them
+			return
 		}
 
 		const { blueprint, manifest: blueprintManifest } = studioBlueprint
@@ -144,7 +152,7 @@ async function resolveDeviceStatusDetails(
 		if (!blueprintManifest.deviceStatusMessages) {
 			// Blueprint doesn't define any custom status messages
 			logger.debug(`Blueprint ${blueprint._id} has no deviceStatusMessages`)
-			return []
+			return
 		}
 
 		// Create resolver with the blueprint's status messages
@@ -155,15 +163,11 @@ async function resolveDeviceStatusDetails(
 		)
 
 		// Resolve each status detail
-		const resolvedMessages: string[] = []
-		for (let i = 0; i < statusDetails.length; i++) {
-			const statusDetail = statusDetails[i]
-			// statusDetail.message is always pre-rendered by TSR; use it as fallback if no defaultMessages entry
-			const defaultMessage = defaultMessages[i] ?? statusDetail.message
+		for (const statusDetail of statusDetails) {
+			const defaultMessage = statusDetail.message
 
 			if (!statusDetail.code) {
-				// No structured code - use the pre-rendered TSR message directly
-				resolvedMessages.push(defaultMessage)
+				// No structured code - keep the pre-rendered message
 				continue
 			}
 
@@ -185,21 +189,16 @@ async function resolveDeviceStatusDetails(
 				// Interpolate the message template with context values
 				const interpolated = interpollateTranslation(message.key, message.args)
 				logger.debug(`Resolved message for ${statusDetail.code}: ${interpolated}`)
-				resolvedMessages.push(interpolated)
-				// Also mutate statusDetail.message so the UI can read from statusDetails[].message directly
 				statusDetail.message = interpolated
 			} else {
-				// Message suppressed by blueprint - clear the message so the UI doesn't show the raw TSR message
+				// Suppressed by blueprint - the caller drops details with no message
 				statusDetail.message = ''
 				logger.debug(`Message suppressed for ${statusDetail.code}`)
 			}
 		}
-
-		return resolvedMessages
 	} catch (e) {
-		// Log error but don't fail - fall back to original messages
+		// Log error but don't fail - leave the messages as the device rendered them
 		logger.error(`Error resolving device status messages: ${e}`)
-		return []
 	}
 }
 
@@ -410,16 +409,23 @@ export namespace ServerPeripheralDeviceAPI {
 		context: MethodContext,
 		deviceId: PeripheralDeviceId,
 		token: string,
-		status: PeripheralDeviceStatusObject
+		statusFromDevice: PeripheralDeviceStatusObject
 	): Promise<PeripheralDeviceStatusObject> {
 		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, token, context)
 
 		check(deviceId, z.string())
 		check(token, z.string())
-		check(status, zPlainObject)
-		check(status.statusCode, z.number())
-		if (status.statusCode < StatusCode.UNKNOWN || status.statusCode > StatusCode.FATAL) {
+		check(statusFromDevice, zPlainObject)
+		check(statusFromDevice.statusCode, z.number())
+		check(statusFromDevice.statusDetails, z.array(z.looseObject({ message: z.string() })).optional())
+		check((statusFromDevice as { messages?: unknown }).messages, z.array(z.string()).optional())
+		if (statusFromDevice.statusCode < StatusCode.UNKNOWN || statusFromDevice.statusCode > StatusCode.FATAL) {
 			throw new SofieError(400, 'device status code is not known')
+		}
+
+		const status: PeripheralDeviceStatusObject = {
+			statusCode: statusFromDevice.statusCode,
+			statusDetails: statusDetailsFromDevice(statusFromDevice),
 		}
 
 		// Resolve status messages using Studio blueprint if structured status details are present
@@ -432,25 +438,19 @@ export namespace ServerPeripheralDeviceAPI {
 			studioId = parentDevice?.studioAndConfigId?.studioId
 		}
 
-		logger.info(
-			`Device ${deviceId} setStatus: statusDetails=${status.statusDetails?.length ?? 'undefined'}, messages=${status.messages?.length ?? 'undefined'}, studioId=${studioId ?? 'none'}`
+		logger.silly(
+			`Device ${deviceId} setStatus: statusCode=${status.statusCode}, statusDetails=${status.statusDetails.length}, studioId=${studioId ?? 'none'}`
 		)
-		if (status.statusDetails && status.statusDetails.length > 0) {
-			if (studioId) {
-				const resolvedMessages = await resolveDeviceStatusDetails(
-					studioId,
-					peripheralDevice.name,
-					peripheralDevice._id,
-					status.statusDetails,
-					status.messages ?? []
-				)
-				// Use blueprint-resolved messages if available, otherwise fall back to statusDetails messages
-				status.messages =
-					resolvedMessages.length > 0 ? resolvedMessages : status.statusDetails.map((d) => d.message)
-			} else {
-				// No studio context, derive messages directly from statusDetails
-				status.messages = status.statusDetails.map((d) => d.message)
-			}
+		if (status.statusDetails.length > 0 && studioId) {
+			await resolveDeviceStatusDetails(
+				studioId,
+				peripheralDevice.name,
+				peripheralDevice._id,
+				status.statusDetails
+			)
+
+			// Drop what the blueprint suppressed:
+			status.statusDetails = status.statusDetails.filter((d) => d.message !== '')
 		}
 
 		// check if we have to update something:
