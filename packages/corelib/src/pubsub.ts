@@ -68,7 +68,7 @@ export enum CorelibPubSub {
 	/**
 	 * Fetch baseline adlib actions belonging to the specified Rundowns
 	 */
-	rundownBaselineAdLibActions = 'rundownBaselineAdLibActions',
+	uiRundownBaselineAdLibActions = 'uiRundownBaselineAdLibActions',
 	/**
 	 * Fetch adlib actions belonging to the specified Rundowns
 	 */
@@ -229,10 +229,9 @@ export interface CorelibPubSubTypes {
 		rundownIds: RundownId[],
 		token?: string
 	) => CollectionName.RundownBaselineAdLibPieces
-	[CorelibPubSub.rundownBaselineAdLibActions]: (
-		rundownIds: RundownId[],
-		token?: string
-	) => CollectionName.RundownBaselineAdLibActions
+	[CorelibPubSub.uiRundownBaselineAdLibActions]: (
+		rundownIds: RundownId[]
+	) => CustomCollectionName.UIRundownBaselineAdLibActions
 	[CorelibPubSub.ingestDataCache]: (
 		selector: MongoQuery<NrcsIngestDataCacheObj>,
 		token?: string
@@ -383,4 +382,5 @@ export type CorelibPubSubCustomCollections = {
 	[CustomCollectionName.UIPieces]: Piece
 	[CustomCollectionName.UIAdLibPieces]: AdLibPiece
 	[CustomCollectionName.UIAdLibActions]: AdLibAction
+	[CustomCollectionName.UIRundownBaselineAdLibActions]: RundownBaselineAdLibAction
 }

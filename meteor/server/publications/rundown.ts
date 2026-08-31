@@ -1,12 +1,11 @@
 import { z } from 'zod'
-import { MongoFieldSpecifierZeroes, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { check, zAnyArray } from '../lib/check'
 import { FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import {
 	ExpectedPlayoutItems,
 	NrcsIngestDataCache,
-	RundownBaselineAdLibActions,
 	RundownBaselineAdLibPieces,
 	Rundowns,
 	Segments,
@@ -21,17 +20,11 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { PeripheralDevicePubSub } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
-import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
-import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
 import { checkAccessAndGetPeripheralDevice } from '../security/check'
 import type { PublicationRegistry } from '../publicationRegistry'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
-
-const adlibActionSubFields: MongoFieldSpecifierZeroes<AdLibAction> = {
-	privateData: 0,
-}
 
 export function registerRundownPublications(registry: PublicationRegistry): void {
 	registry.publish(
@@ -182,25 +175,6 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 					timelineObjectsString: 0,
 					privateData: 0,
 				},
-			})
-		}
-	)
-
-	registry.publish(
-		CorelibPubSub.rundownBaselineAdLibActions,
-		async (_context, rundownIds: RundownId[], _token: string | undefined) => {
-			check(rundownIds, zAnyArray)
-
-			triggerWriteAccessBecauseNoCheckNecessary()
-
-			if (rundownIds.length === 0) return null
-
-			const selector: MongoQuery<RundownBaselineAdLibAction> = {
-				rundownId: { $in: rundownIds },
-			}
-
-			return RundownBaselineAdLibActions.findWithCursor(selector, {
-				projection: adlibActionSubFields,
 			})
 		}
 	)
