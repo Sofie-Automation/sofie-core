@@ -38,7 +38,6 @@ import type { TranslationsBundle } from '@sofie-automation/meteor-lib/dist/colle
 import type { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
 import type { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
 import type { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
-import type { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import type { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import type { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
@@ -48,7 +47,12 @@ import type { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel
 
 export const AdLibActions = createSyncReadOnlyMongoCollection<AdLibAction>(CollectionName.AdLibActions)
 
-export const AdLibPieces = createSyncReadOnlyMongoCollection<AdLibPiece>(CollectionName.AdLibPieces)
+/**
+ * AdLibPieces, as published by the `uiAdLibPieces` and `uiAdLibPiecesForPart` custom publications.
+ * Note: this is populated by custom publications rather than being a plain mirror of the server
+ * collection, so the documents may have been modified for the UI.
+ */
+export const AdLibPieces = createSyncCorelibCustomPublicationMongoCollection(CustomCorelibCollectionName.UIAdLibPieces)
 
 export const Blueprints = createSyncMongoCollection<Blueprint>(CollectionName.Blueprints)
 
