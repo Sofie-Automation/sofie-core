@@ -76,7 +76,12 @@ export enum CorelibPubSub {
 	/**
 	 * Fetch adlib pieces belonging to the specified Rundowns
 	 */
-	adLibPieces = 'adLibPieces',
+	uiAdLibPieces = 'uiAdLibPieces',
+	/**
+	 * Fetch adlib pieces belonging to the specified Part, limited to the specified sourceLayerIds
+	 * These are published into the same collection as {@link CorelibPubSub.uiAdLibPieces}.
+	 */
+	uiAdLibPiecesForPart = 'uiAdLibPiecesForPart',
 
 	/**
 	 *  Fetch Segments belonging to the specified Rundowns, optionally omitting ones set as hidden
@@ -240,7 +245,11 @@ export interface CorelibPubSubTypes {
 		token?: string
 	) => CollectionName.Rundowns
 	[CorelibPubSub.adLibActions]: (rundownIds: RundownId[], token?: string) => CollectionName.AdLibActions
-	[CorelibPubSub.adLibPieces]: (rundownIds: RundownId[], token?: string) => CollectionName.AdLibPieces
+	[CorelibPubSub.uiAdLibPieces]: (rundownIds: RundownId[]) => CustomCollectionName.UIAdLibPieces
+	[CorelibPubSub.uiAdLibPiecesForPart]: (
+		partId: PartId,
+		sourceLayerIds: string[]
+	) => CustomCollectionName.UIAdLibPieces
 	[CorelibPubSub.uiPieces]: (
 		rundownIds: RundownId[],
 		/** PartIds to fetch for, or null to fetch all */
@@ -363,4 +372,5 @@ export type CorelibPubSubCustomCollections = {
 	[CustomCollectionName.UIPartInstances]: PartInstance
 	[CustomCollectionName.UIPieceInstances]: PieceInstance
 	[CustomCollectionName.UIPieces]: Piece
+	[CustomCollectionName.UIAdLibPieces]: AdLibPiece
 }

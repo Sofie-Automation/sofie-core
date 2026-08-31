@@ -50,10 +50,6 @@ export enum MeteorPubSub {
 	 * Fetch all the AdlibActions for specified PartId, limited to the specified sourceLayerIds
 	 */
 	adLibActionsForPart = 'adLibActionsForPart',
-	/**
-	 * Fetch all the AdlibPieces for specified PartId, limited to the specified sourceLayerIds
-	 */
-	adLibPiecesForPart = 'adLibPiecesForPart',
 
 	/**
 	 * Fetch either all TriggeredActions or limited to the specified ShowStyleBases
@@ -148,7 +144,6 @@ export interface MeteorPubSubTypes {
 
 	[MeteorPubSub.rundownPlaylistForStudio]: (studioId: StudioId, isActive: boolean) => CollectionName.RundownPlaylists
 	[MeteorPubSub.adLibActionsForPart]: (partId: PartId, sourceLayerIds: string[]) => CollectionName.AdLibActions
-	[MeteorPubSub.adLibPiecesForPart]: (partId: PartId, sourceLayerIds: string[]) => CollectionName.AdLibPieces
 
 	[MeteorPubSub.triggeredActions]: (
 		/** ShowStyleBaseIds to fetch for, or null to just fetch global */

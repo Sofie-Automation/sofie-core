@@ -1,13 +1,11 @@
 import { z } from 'zod'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { MongoFieldSpecifierZeroes, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { check, zAnyArray } from '../lib/check'
 import { FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import {
 	AdLibActions,
-	AdLibPieces,
 	ExpectedPlayoutItems,
 	NrcsIngestDataCache,
 	RundownBaselineAdLibActions,
@@ -33,11 +31,6 @@ import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityV
 import { checkAccessAndGetPeripheralDevice } from '../security/check'
 import type { PublicationRegistry } from '../publicationRegistry'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
-
-const adlibPiecesSubFields: MongoFieldSpecifierZeroes<AdLibPiece> = {
-	privateData: 0,
-	timelineObjectsString: 0,
-}
 
 const adlibActionSubFields: MongoFieldSpecifierZeroes<AdLibAction> = {
 	privateData: 0,
@@ -146,41 +139,6 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 			})
 		}
 	)
-
-	registry.publish(
-		CorelibPubSub.adLibPieces,
-		async (_context, rundownIds: RundownId[], _token: string | undefined) => {
-			check(rundownIds, zAnyArray)
-
-			triggerWriteAccessBecauseNoCheckNecessary()
-
-			if (rundownIds.length === 0) return null
-
-			const selector: MongoQuery<AdLibPiece> = {
-				rundownId: { $in: rundownIds },
-			}
-
-			return AdLibPieces.findWithCursor(selector, {
-				projection: adlibPiecesSubFields,
-			})
-		}
-	)
-	registry.publish(MeteorPubSub.adLibPiecesForPart, async (_context, partId: PartId, sourceLayerIds: string[]) => {
-		check(partId, z.string())
-		check(sourceLayerIds, zAnyArray)
-
-		triggerWriteAccessBecauseNoCheckNecessary()
-
-		return AdLibPieces.findWithCursor(
-			{
-				partId,
-				sourceLayerId: { $in: sourceLayerIds },
-			},
-			{
-				projection: adlibPiecesSubFields,
-			}
-		)
-	})
 
 	registry.publish(
 		PeripheralDevicePubSub.expectedPlayoutItemsForDevice,
