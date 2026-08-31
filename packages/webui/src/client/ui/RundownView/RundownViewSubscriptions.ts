@@ -73,7 +73,7 @@ export function useRundownViewSubscriptions(playlistId: RundownPlaylistId): bool
 	auxSubsReady.push(useSubscriptionIfEnabled(CorelibPubSub.segments, rundownIds.length > 0, rundownIds, {}))
 	auxSubsReady.push(useSubscriptionIfEnabled(CorelibPubSub.uiAdLibPieces, rundownIds.length > 0, rundownIds))
 	auxSubsReady.push(
-		useSubscriptionIfEnabled(CorelibPubSub.rundownBaselineAdLibPieces, rundownIds.length > 0, rundownIds)
+		useSubscriptionIfEnabled(CorelibPubSub.uiRundownBaselineAdLibPieces, rundownIds.length > 0, rundownIds)
 	)
 	auxSubsReady.push(useSubscriptionIfEnabled(CorelibPubSub.uiAdLibActions, rundownIds.length > 0, rundownIds))
 	auxSubsReady.push(

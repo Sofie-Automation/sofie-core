@@ -64,7 +64,7 @@ export enum CorelibPubSub {
 	/**
 	 * Fetch baseline adlib pieces belonging to the specified Rundowns
 	 */
-	rundownBaselineAdLibPieces = 'rundownBaselineAdLibPieces',
+	uiRundownBaselineAdLibPieces = 'uiRundownBaselineAdLibPieces',
 	/**
 	 * Fetch baseline adlib actions belonging to the specified Rundowns
 	 */
@@ -225,10 +225,9 @@ export interface CorelibPubSubTypes {
 		token?: string
 	) => CollectionName.PeripheralDevices
 	[CorelibPubSub.peripheralDevicesAndSubDevices]: (studioId: StudioId) => CollectionName.PeripheralDevices
-	[CorelibPubSub.rundownBaselineAdLibPieces]: (
-		rundownIds: RundownId[],
-		token?: string
-	) => CollectionName.RundownBaselineAdLibPieces
+	[CorelibPubSub.uiRundownBaselineAdLibPieces]: (
+		rundownIds: RundownId[]
+	) => CustomCollectionName.UIRundownBaselineAdLibPieces
 	[CorelibPubSub.uiRundownBaselineAdLibActions]: (
 		rundownIds: RundownId[]
 	) => CustomCollectionName.UIRundownBaselineAdLibActions
@@ -383,4 +382,5 @@ export type CorelibPubSubCustomCollections = {
 	[CustomCollectionName.UIAdLibPieces]: AdLibPiece
 	[CustomCollectionName.UIAdLibActions]: AdLibAction
 	[CustomCollectionName.UIRundownBaselineAdLibActions]: RundownBaselineAdLibAction
+	[CustomCollectionName.UIRundownBaselineAdLibPieces]: RundownBaselineAdLibItem
 }
