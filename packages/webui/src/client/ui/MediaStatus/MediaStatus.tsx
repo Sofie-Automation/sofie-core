@@ -261,7 +261,7 @@ function useMediaStatusSubscriptions(
 	readyStatus[counter++] = useSubscription(CorelibPubSub.uiAdLibActions, rundownIds)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.uiAdLibPieces, rundownIds)
 	readyStatus[counter++] = useSubscription(CorelibPubSub.uiRundownBaselineAdLibActions, rundownIds)
-	readyStatus[counter++] = useSubscription(CorelibPubSub.rundownBaselineAdLibPieces, rundownIds)
+	readyStatus[counter++] = useSubscription(CorelibPubSub.uiRundownBaselineAdLibPieces, rundownIds)
 
 	readyStatus[counter++] = useSubscriptions(
 		MeteorPubSub.uiShowStyleBase,
