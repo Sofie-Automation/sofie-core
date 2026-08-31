@@ -181,7 +181,11 @@ export namespace BucketsAPI {
 			}
 
 			adLibAction = {
-				...(_.omit(action, ['partId', 'rundownId']) as Omit<AdLibAction, 'partId' | 'rundownId'>),
+				// Note: Branding is not supported on Bucket AdLibs
+				...(_.omit(action, ['partId', 'rundownId', 'branding', 'onlyValidForBranding']) as Omit<
+					AdLibAction,
+					'partId' | 'rundownId' | 'branding' | 'onlyValidForBranding'
+				>),
 				_id: getRandomId(),
 				externalId: getRandomString(), // This needs to be something unique, so that the regenerate logic doesn't get it mixed up with something else
 				bucketId: targetBucket._id,
