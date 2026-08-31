@@ -111,7 +111,7 @@ export function useRundownViewSubscriptions(playlistId: RundownPlaylistId): bool
 					playlist.currentPartInfo?.partInstanceId,
 					playlist.nextPartInfo?.partInstanceId,
 					playlist.previousPartsInfo?.[0]?.partInstanceId,
-				].filter((p): p is PartInstanceId => p !== null),
+				].filter((p): p is PartInstanceId => p !== null && p !== undefined),
 				playlist.activationId ?? null,
 				{}
 			)
