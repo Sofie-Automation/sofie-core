@@ -53,6 +53,7 @@ export enum CustomCollectionName {
 	UIPieces = 'uiPieces',
 	UIAdLibPieces = 'uiAdLibPieces',
 	UIAdLibActions = 'uiAdLibActions',
+	UIRundownBaselineAdLibActions = 'uiRundownBaselineAdLibActions',
 	UIParts = 'uiParts',
 	UIPartInstances = 'uiPartInstances',
 	UIPieceInstances = 'uiPieceInstances',

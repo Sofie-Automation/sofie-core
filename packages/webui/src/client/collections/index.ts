@@ -38,7 +38,6 @@ import type { TranslationsBundle } from '@sofie-automation/meteor-lib/dist/colle
 import type { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
 import type { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
 import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import type { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import type { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -108,8 +107,13 @@ export const PieceInstances = createSyncCorelibCustomPublicationMongoCollection(
  */
 export const Pieces = createSyncCorelibCustomPublicationMongoCollection(CustomCorelibCollectionName.UIPieces)
 
-export const RundownBaselineAdLibActions = createSyncReadOnlyMongoCollection<RundownBaselineAdLibAction>(
-	CollectionName.RundownBaselineAdLibActions
+/**
+ * RundownBaselineAdLibActions, as published by the `uiRundownBaselineAdLibActions` custom publication.
+ * Note: this is populated by a custom publication rather than being a plain mirror of the server
+ * collection, so the documents may have been modified for the UI.
+ */
+export const RundownBaselineAdLibActions = createSyncCorelibCustomPublicationMongoCollection(
+	CustomCorelibCollectionName.UIRundownBaselineAdLibActions
 )
 
 export const RundownBaselineAdLibPieces = createSyncReadOnlyMongoCollection<RundownBaselineAdLibItem>(
