@@ -7,12 +7,12 @@ import {
 	TriggerUpdate,
 	setUpCollectionOptimizedObserver,
 } from '../../lib/customPublication'
+import { normaliseIds } from '../lib/lib'
 import { logger } from '../../logging'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { ContentCache, AdLibPieceOmitedFields, createReactiveContentCache } from './reactiveContentCache'
 import { ReadonlyDeep } from 'type-fest'
-import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { RundownContentObserver, UIAdLibPiecesArgs } from './rundownContentObserver'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../../security/securityVerify'
@@ -97,11 +97,6 @@ export async function manipulateUIAdLibPiecesPublicationData(
 			collection.replace(adLibPiece)
 		}
 	})
-}
-
-/** Dedupe and sort a list of ids, so that it forms a stable key for the optimized observer */
-function normaliseIds<T extends ProtectedString<any> | string>(ids: T[]): T[] {
-	return Array.from(new Set(ids)).sort()
 }
 
 async function setUpUIAdLibPiecesObserver(
