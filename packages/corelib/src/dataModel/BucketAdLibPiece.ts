@@ -18,7 +18,7 @@ export interface BucketAdLibIngestInfo {
 	payload: IngestAdlib
 }
 
-export interface BucketAdLib extends Omit<IBlueprintAdLibPiece, 'content'> {
+export interface BucketAdLib extends Omit<IBlueprintAdLibPiece, 'content' | 'branding' | 'onlyValidForBranding'> {
 	_id: BucketAdLibId
 	bucketId: BucketId
 
