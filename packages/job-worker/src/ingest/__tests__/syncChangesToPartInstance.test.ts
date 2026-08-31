@@ -20,7 +20,7 @@ import {
 	PlaylistTimingType,
 	ShowStyleBlueprintManifest,
 } from '@sofie-automation/blueprints-integration'
-import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	DBRundownPlaylist,
 	SelectedPartInstance,
@@ -32,6 +32,8 @@ import { PlayoutSegmentModelImpl } from '../../playout/model/implementation/Play
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { ProcessedShowStyleCompound } from '../../jobs/index.js'
 import { PartialDeep, ReadonlyDeep } from 'type-fest'
+import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { defaultPiece } from '../../__mocks__/defaultCollectionObjects.js'
 
 jest.mock('../../playout/adlibTesting')
 import { validateAdlibTestingPartInstanceProperties } from '../../playout/adlibTesting.js'
@@ -410,10 +412,15 @@ describe('SyncChangesToPartInstancesWorker', () => {
 			return { playlistId, playoutModel, part0, nextPartInstance }
 		}
 
-		function createMockIngestModelReadonly(): IngestModelReadonly {
+		function createMockIngestModelReadonly(unsavedPieces?: {
+			rundownId: RundownId
+			pieces: ReadonlyDeep<Piece>[]
+		}): IngestModelReadonly {
 			return mock<IngestModelReadonly>(
 				{
 					findPart: jest.fn(() => undefined),
+					rundownId: unsavedPieces?.rundownId,
+					getAllPieces: jest.fn(() => unsavedPieces?.pieces ?? []),
 				},
 				mockOptions
 			)
@@ -528,6 +535,42 @@ describe('SyncChangesToPartInstancesWorker', () => {
 				consumesQueuedSegmentId: false,
 				manuallySelected: true,
 			} satisfies SelectedPartInstance)
+		})
+
+		test('replacement partInstance uses the unsaved Pieces from the IngestModel', async () => {
+			const context = setupDefaultJobEnvironment()
+			const showStyleCompound = await setupMockShowStyleCompound(context)
+			const blueprint = await context.getShowStyleBlueprint(showStyleCompound._id)
+
+			const { playoutModel, part0 } = await createSimplePlayoutModel(context, showStyleCompound)
+
+			// The database still holds the Piece as it was before the ingest operation
+			const savedPiece = defaultPiece(protectString('mockPieceId0'), part0.rundownId, part0.segmentId, part0._id)
+			await context.mockCollections.Pieces.insertOne(savedPiece)
+
+			// The IngestModel holds the updated Piece, which has not been written to the database yet
+			const unsavedPiece: Piece = { ...savedPiece, name: 'Updated Piece' }
+			const ingestModel = createMockIngestModelReadonly({
+				rundownId: part0.rundownId,
+				pieces: [unsavedPiece],
+			})
+
+			const worker = new SyncChangesToPartInstancesWorker(
+				context,
+				playoutModel,
+				ingestModel,
+				showStyleCompound,
+				blueprint
+			)
+
+			// Force the next part to be manually selected, so that it gets re-created
+			playoutModel.setPartInstanceAsNext(playoutModel.nextPartInstance, true, false)
+
+			await worker.recreateNextPartInstance(part0)
+
+			expect(playoutModel.nextPartInstance).toBeTruthy()
+			expect(playoutModel.nextPartInstance!.pieceInstances).toHaveLength(1)
+			expect(playoutModel.nextPartInstance!.pieceInstances[0].pieceInstance.piece.name).toBe('Updated Piece')
 		})
 	})
 })
