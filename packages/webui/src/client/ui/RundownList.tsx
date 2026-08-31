@@ -22,11 +22,51 @@ import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { CreateAdlibTestingRundownPanel } from './RundownList/CreateAdlibTestingRundownPanel.js'
 import { UserPermissionsContext } from './UserPermissions.js'
 import Container from 'react-bootstrap/esm/Container'
+import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
+import type { RundownPlaylistTiming } from '@sofie-automation/blueprints-integration'
 
 export enum ToolTipStep {
 	TOOLTIP_START_HERE = 'TOOLTIP_START_HERE',
 	TOOLTIP_RUN_MIGRATIONS = 'TOOLTIP_RUN_MIGRATIONS',
 	TOOLTIP_EXTRAS = 'TOOLTIP_EXTRAS',
+}
+
+/**
+ * Get the time to use when sorting a Playlist by its editorial timing.
+ * Returns undefined if the Playlist has no usable timing information.
+ */
+function getSortableStartTime(timing: RundownPlaylistTiming): number | undefined {
+	// This already derives the start from the end and duration, when only those are known
+	const expectedStart = PlaylistTiming.getExpectedStart(timing)
+	if (expectedStart !== undefined) return expectedStart
+
+	// If only an end time is known, treat that as the start time, as it is better than nothing
+	return PlaylistTiming.getExpectedEnd(timing)
+}
+
+/**
+ * Sort Playlists by their editorial start time, with any Playlists without timing information last.
+ * Playlists which cannot be distinguished by their timing are ordered by creation time (newest first) and then name,
+ * to give a stable ordering.
+ */
+function comparePlaylistsForDisplay(a: RundownPlaylistUi, b: RundownPlaylistUi): number {
+	const aStart = getSortableStartTime(a.timing)
+	const bStart = getSortableStartTime(b.timing)
+
+	if (aStart !== undefined && bStart !== undefined) {
+		if (aStart !== bStart) return aStart - bStart
+	} else if (aStart !== undefined) {
+		return -1
+	} else if (bStart !== undefined) {
+		return 1
+	}
+
+	// When no usable timing, fallback to something stable
+	return (
+		b.created - a.created ||
+		a.name.localeCompare(b.name) ||
+		unprotectString(a._id).localeCompare(unprotectString(b._id))
+	)
 }
 
 export function RundownList(): JSX.Element {
@@ -130,9 +170,11 @@ export function RundownList(): JSX.Element {
 			return <p className="px-2 py-2">{t('There are no rundowns ingested into Sofie.')}</p>
 		}
 
+		const sortedPlaylists = [...rundownPlaylists].sort(comparePlaylistsForDisplay)
+
 		return (
 			<ul className="rundown-playlists">
-				{rundownPlaylists.map((playlist) => (
+				{sortedPlaylists.map((playlist) => (
 					<RundownPlaylistUi key={unprotectString(playlist._id)} playlist={playlist} rundownLayouts={rundownLayouts} />
 				))}
 			</ul>
