@@ -85,7 +85,7 @@ function useSubscriptions(
 		useSubscription(CorelibPubSub.rundownPlaylists, [rundownPlaylistId], null),
 		useSubscription(CorelibPubSub.rundownsInPlaylists, [rundownPlaylistId]),
 
-		useSubscription(CorelibPubSub.adLibActions, rundownIds),
+		useSubscription(CorelibPubSub.uiAdLibActions, rundownIds),
 		useSubscription(CorelibPubSub.uiAdLibPieces, rundownIds),
 		useSubscription(CorelibPubSub.rundownBaselineAdLibActions, rundownIds),
 		useSubscription(CorelibPubSub.rundownBaselineAdLibPieces, rundownIds),
