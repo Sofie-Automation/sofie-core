@@ -230,6 +230,7 @@ export function convertPartInstanceToBlueprints(partInstance: ReadonlyDeep<DBPar
 		_id: unprotectString(partInstance._id),
 		segmentId: unprotectString(partInstance.segmentId),
 		part: convertPartToBlueprints(partInstance.part),
+		brandingId: partInstance.brandingId ?? null,
 		rehearsal: partInstance.rehearsal,
 		timings: clone(partInstance.timings),
 		previousPartEndState: clone(partInstance.previousPartEndState),

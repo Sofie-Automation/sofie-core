@@ -30,6 +30,9 @@ export interface IBlueprintPartInstance<
 
 	/** If the playlist was in rehearsal mode when the PartInstance was created */
 	rehearsal: boolean
+
+	/** The Branding this PartInstance is played with. `null` means no Branding, and is a valid selection */
+	brandingId: string | null
 	/** Playout timings, in here we log times when playout happens */
 	timings?: IBlueprintPartInstanceTimings
 

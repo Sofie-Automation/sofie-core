@@ -36,6 +36,12 @@ export interface IBlueprintBrandableActionManifestDisplay {
 	tags?: string[]
 }
 
+/**
+ * An AdLib Action for a Bucket.
+ * Bucket AdLibs are shared between Rundowns and ShowStyles, so they cannot carry Branding
+ */
+export type IBlueprintBucketActionManifest = Omit<IBlueprintActionManifest, 'branding' | 'onlyValidForBranding'>
+
 /** Overrides to apply to an AdLib Action while a Branding is selected */
 export interface IBlueprintActionManifestBranding {
 	display?: Partial<IBlueprintBrandableActionManifestDisplay>

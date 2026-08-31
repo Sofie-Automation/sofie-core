@@ -34,3 +34,9 @@ export interface IBlueprintAdLibPieceDB<TPrivateData = unknown, TPublicData = un
 > {
 	_id: string
 }
+
+/**
+ * An AdLib Piece for a Bucket.
+ * Bucket AdLibs are shared between Rundowns and ShowStyles, so they cannot carry Branding
+ */
+export type IBlueprintBucketAdLibPiece = Omit<IBlueprintAdLibPiece, 'branding' | 'onlyValidForBranding'>
