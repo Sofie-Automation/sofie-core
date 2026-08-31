@@ -12,6 +12,7 @@ import { registerRundownContentStatusUIPublications } from './publications/piece
 import { registerOrganizationPublications } from './publications/organization'
 import { registerPartsUIPublications } from './publications/partsUI/publication'
 import { registerPartInstancesUIPublications } from './publications/partInstancesUI/publication'
+import { registerAdLibPiecesUIPublications } from './publications/adLibPiecesUI/publication'
 import { registerPieceInstancesUIPublications } from './publications/pieceInstancesUI/publication'
 import { registerPiecesUIPublications } from './publications/piecesUI/publication'
 import { registerPeripheralDevicePublications } from './publications/peripheralDevice'
@@ -44,6 +45,7 @@ export function registerAllPublications(registry: PublicationRegistry): void {
 	registerOrganizationPublications(registry)
 	registerPartsUIPublications(registry)
 	registerPartInstancesUIPublications(registry)
+	registerAdLibPiecesUIPublications(registry)
 	registerPieceInstancesUIPublications(registry)
 	registerPiecesUIPublications(registry)
 	registerPeripheralDevicePublications(registry)

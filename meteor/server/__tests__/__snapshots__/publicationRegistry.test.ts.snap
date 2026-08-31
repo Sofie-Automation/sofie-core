@@ -4,8 +4,6 @@ exports[`PublicationRegistry the full set of registered publication names is sta
 [
   "adLibActions",
   "adLibActionsForPart",
-  "adLibPieces",
-  "adLibPiecesForPart",
   "blueprints",
   "bucketAdLibActions",
   "bucketAdLibPieces",
@@ -55,6 +53,8 @@ exports[`PublicationRegistry the full set of registered publication names is sta
   "timelineForStudio",
   "translationsBundles",
   "triggeredActions",
+  "uiAdLibPieces",
+  "uiAdLibPiecesForPart",
   "uiBlueprintUpgradeStatuses",
   "uiBucketContentStatuses",
   "uiPartInstances",
