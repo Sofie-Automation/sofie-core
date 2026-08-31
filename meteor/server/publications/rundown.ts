@@ -1,11 +1,9 @@
 import { z } from 'zod'
-import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { MongoFieldSpecifierZeroes, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { check, zAnyArray } from '../lib/check'
 import { FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import {
-	AdLibActions,
 	ExpectedPlayoutItems,
 	NrcsIngestDataCache,
 	RundownBaselineAdLibActions,
@@ -16,7 +14,6 @@ import {
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { NrcsIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import {
-	PartId,
 	PeripheralDeviceId,
 	RundownId,
 	RundownPlaylistId,
@@ -188,41 +185,6 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 			})
 		}
 	)
-
-	registry.publish(
-		CorelibPubSub.adLibActions,
-		async (_context, rundownIds: RundownId[], _token: string | undefined) => {
-			check(rundownIds, zAnyArray)
-
-			triggerWriteAccessBecauseNoCheckNecessary()
-
-			if (rundownIds.length === 0) return null
-
-			const selector: MongoQuery<AdLibAction> = {
-				rundownId: { $in: rundownIds },
-			}
-
-			return AdLibActions.findWithCursor(selector, {
-				projection: adlibActionSubFields,
-			})
-		}
-	)
-	registry.publish(MeteorPubSub.adLibActionsForPart, async (_context, partId: PartId, sourceLayerIds: string[]) => {
-		check(partId, z.string())
-		check(sourceLayerIds, zAnyArray)
-
-		triggerWriteAccessBecauseNoCheckNecessary()
-
-		return AdLibActions.findWithCursor(
-			{
-				partId,
-				'display.sourceLayerId': { $in: sourceLayerIds },
-			},
-			{
-				projection: adlibActionSubFields,
-			}
-		)
-	})
 
 	registry.publish(
 		CorelibPubSub.rundownBaselineAdLibActions,
