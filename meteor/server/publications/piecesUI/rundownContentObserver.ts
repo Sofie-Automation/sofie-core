@@ -1,3 +1,4 @@
+import { createBrandingObservers } from '../lib/branding'
 import { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
@@ -79,10 +80,13 @@ export class RundownContentObserver {
 	static async create(args: ReadonlyDeep<UIPiecesArgs>, cache: ContentCache): Promise<RundownContentObserver> {
 		logger.silly(`Creating RundownContentObserver for pieces "${args.type}"`)
 
+		const brandingRundownIds = args.type === 'inParts' ? args.rundownIds : [args.thisRundownId]
+
 		const observers = await waitForAllObserversReady([
 			Pieces.observeChanges(createPiecesSelector(args), cache.Pieces.link(), {
 				projection: pieceFieldSpecifier,
 			}),
+			...createBrandingObservers(brandingRundownIds, cache),
 		])
 
 		return new RundownContentObserver(cache, observers)

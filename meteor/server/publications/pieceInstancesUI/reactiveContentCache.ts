@@ -1,7 +1,18 @@
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { MongoFieldSpecifierZeroes } from '@sofie-automation/corelib/dist/mongo'
+import { MongoFieldSpecifierOnesStrict, MongoFieldSpecifierZeroes } from '@sofie-automation/corelib/dist/mongo'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
+
+/**
+ * The PartInstances are tracked solely to know which Branding each PieceInstance is played with,
+ * so only the id and the Branding are needed
+ */
+export type PartInstanceBranding = Pick<DBPartInstance, '_id' | 'brandingId'>
+export const partInstanceBrandingFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<PartInstanceBranding>>({
+	_id: 1,
+	brandingId: 1,
+})
 
 export type PieceInstanceOmitedFields = 'piece.privateData' | 'piece.timelineObjectsString'
 export const pieceInstanceFieldSpecifier = literal<MongoFieldSpecifierZeroes<PieceInstance>>({
@@ -23,11 +34,13 @@ export const pieceInstanceSimpleFieldSpecifier = literal<MongoFieldSpecifierZero
 
 export interface ContentCache {
 	PieceInstances: InMemoryMongoCollection<Omit<PieceInstance, PieceInstanceOmitedFields>>
+	PartInstances: InMemoryMongoCollection<PartInstanceBranding>
 }
 
 export function createReactiveContentCache(): ContentCache {
 	const cache: ContentCache = {
 		PieceInstances: new InMemoryMongoCollection<Omit<PieceInstance, PieceInstanceOmitedFields>>('pieceInstances'),
+		PartInstances: new InMemoryMongoCollection<PartInstanceBranding>('partInstances'),
 	}
 
 	return cache

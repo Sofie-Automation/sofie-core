@@ -1,3 +1,4 @@
+import { createBrandingObservers, getBrandingRundownIdsForPart } from '../lib/branding'
 import { PartId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
@@ -51,10 +52,15 @@ export class RundownContentObserver {
 	static async create(args: ReadonlyDeep<UIAdLibActionsArgs>, cache: ContentCache): Promise<RundownContentObserver> {
 		logger.silly(`Creating RundownContentObserver for adLibActions "${args.type}"`)
 
+		// Note: this must be resolved before any observer is created, so that a failure cannot leak one
+		const brandingRundownIds =
+			args.type === 'inRundowns' ? args.rundownIds : await getBrandingRundownIdsForPart(args.partId)
+
 		const observers = await waitForAllObserversReady([
 			AdLibActions.observeChanges(createAdLibActionsSelector(args), cache.AdLibActions.link(), {
 				projection: adLibActionFieldSpecifier,
 			}),
+			...createBrandingObservers(brandingRundownIds, cache),
 		])
 
 		return new RundownContentObserver(cache, observers)

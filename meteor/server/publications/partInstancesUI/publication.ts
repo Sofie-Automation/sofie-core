@@ -25,6 +25,7 @@ import {
 	modifyPartInstanceForQuickLoop,
 	stringsToIndexLookup,
 } from '../lib/quickLoop'
+import { resolvePartForBranding } from '@sofie-automation/corelib/dist/playout/branding'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../../security/securityVerify'
 import type { PublicationRegistry } from '../../publicationRegistry'
 
@@ -189,7 +190,7 @@ export async function manipulateUIPartInstancesPublicationData(
 	const invalidatedSegmentsSet = new Set(updateProps?.invalidateSegmentIds ?? [])
 	const invalidatedPartInstancesSet = new Set(updateProps?.invalidatePartInstanceIds ?? [])
 
-	state.contentCache.PartInstances.findFetch({}).forEach((partInstance) => {
+	for (const partInstance of state.contentCache.PartInstances.findFetch({})) {
 		if (
 			updateProps?.invalidateQuickLoop ||
 			invalidatedSegmentsSet.has(partInstance.segmentId) ||
@@ -204,9 +205,13 @@ export async function manipulateUIPartInstancesPublicationData(
 				quickLoopStartPosition,
 				quickLoopEndPosition
 			)
+
+			// Flatten the Branding overrides, so that consumers see the Part as it should be displayed
+			partInstance.part = resolvePartForBranding(partInstance.part, partInstance.brandingId)
+
 			collection.replace(partInstance)
 		}
-	})
+	}
 }
 
 export function registerPartInstancesUIPublications(registry: PublicationRegistry): void {

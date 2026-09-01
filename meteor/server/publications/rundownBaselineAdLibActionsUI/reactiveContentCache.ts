@@ -1,3 +1,4 @@
+import { BrandingContentCache, createBrandingContentCache } from '../lib/branding'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierZeroes } from '@sofie-automation/corelib/dist/mongo'
@@ -8,7 +9,7 @@ export const rundownBaselineAdLibActionFieldSpecifier = literal<MongoFieldSpecif
 	privateData: 0,
 })
 
-export interface ContentCache {
+export interface ContentCache extends BrandingContentCache {
 	RundownBaselineAdLibActions: InMemoryMongoCollection<
 		Omit<RundownBaselineAdLibAction, RundownBaselineAdLibActionOmitedFields>
 	>
@@ -16,6 +17,7 @@ export interface ContentCache {
 
 export function createReactiveContentCache(): ContentCache {
 	const cache: ContentCache = {
+		...createBrandingContentCache(),
 		RundownBaselineAdLibActions: new InMemoryMongoCollection<
 			Omit<RundownBaselineAdLibAction, RundownBaselineAdLibActionOmitedFields>
 		>('rundownBaselineAdLibActions'),

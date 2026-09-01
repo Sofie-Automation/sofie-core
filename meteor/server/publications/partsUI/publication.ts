@@ -1,3 +1,5 @@
+import { resolvePartForBranding } from '@sofie-automation/corelib/dist/playout/branding'
+import { BrandingState, updateProjectedBrandingId } from '../lib/branding'
 import { z } from 'zod'
 import { PartId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check } from '../../lib/check'
@@ -27,7 +29,7 @@ interface UIPartsArgs {
 	readonly playlistId: RundownPlaylistId
 }
 
-export interface UIPartsState {
+export interface UIPartsState extends BrandingState {
 	contentCache: ReadonlyDeep<ContentCache>
 }
 
@@ -38,6 +40,8 @@ interface UIPartsUpdateProps {
 	invalidatePartIds: PartId[]
 
 	invalidateQuickLoop: boolean
+	/** The Branding may have changed, so it must be resolved again to check */
+	invalidateBranding: boolean
 }
 
 type RundownPlaylistFields = '_id' | 'studioId' | 'rundownIdsInOrder'
@@ -91,9 +95,14 @@ async function setupUIPartsPublicationObservers(
 					removed: (doc) => triggerUpdate({ invalidatePartIds: [doc._id] }),
 				}),
 				cache.RundownPlaylists.observeChanges({
-					added: () => triggerUpdate({ invalidateQuickLoop: true }),
-					changed: () => triggerUpdate({ invalidateQuickLoop: true }),
-					removed: () => triggerUpdate({ invalidateQuickLoop: true }),
+					added: () => triggerUpdate({ invalidateQuickLoop: true, invalidateBranding: true }),
+					changed: () => triggerUpdate({ invalidateQuickLoop: true, invalidateBranding: true }),
+					removed: () => triggerUpdate({ invalidateQuickLoop: true, invalidateBranding: true }),
+				}),
+				cache.PartInstances.observeChanges({
+					added: () => triggerUpdate({ invalidateBranding: true }),
+					changed: () => triggerUpdate({ invalidateBranding: true }),
+					removed: () => triggerUpdate({ invalidateBranding: true }),
 				}),
 				cache.StudioSettings.observeChanges({
 					added: () => triggerUpdate({ invalidateQuickLoop: true }),
@@ -168,9 +177,12 @@ export async function manipulateUIPartsPublicationData(
 	const invalidatedSegmentsSet = new Set(updateProps?.invalidateSegmentIds ?? [])
 	const invalidatedPartsSet = new Set(updateProps?.invalidatePartIds ?? [])
 
-	state.contentCache.Parts.findFetch({}).forEach((part) => {
+	const { brandingId, brandingChanged } = updateProjectedBrandingId(state, state.contentCache)
+
+	for (const part of state.contentCache.Parts.findFetch({})) {
 		if (
 			updateProps?.invalidateQuickLoop ||
+			brandingChanged ||
 			invalidatedSegmentsSet.has(part.segmentId) ||
 			invalidatedPartsSet.has(part._id)
 		) {
@@ -183,9 +195,11 @@ export async function manipulateUIPartsPublicationData(
 				quickLoopStartPosition,
 				quickLoopEndPosition
 			)
-			collection.replace(part)
+
+			// Flatten the Branding overrides, so that consumers see the Part as it should be displayed
+			collection.replace(resolvePartForBranding(part, brandingId))
 		}
-	})
+	}
 }
 
 export function registerPartsUIPublications(registry: PublicationRegistry): void {

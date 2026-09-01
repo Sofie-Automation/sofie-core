@@ -16,6 +16,7 @@ import { ContentCache, PieceInstanceOmitedFields, createReactiveContentCache } f
 import { ReadonlyDeep } from 'type-fest'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { RundownContentObserver, UIPieceInstancesArgs } from './rundownContentObserver'
+import { resolvePieceForBranding } from '@sofie-automation/corelib/dist/playout/branding'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../../security/securityVerify'
 import type { PublicationRegistry } from '../../publicationRegistry'
 
@@ -27,6 +28,8 @@ interface UIPieceInstancesUpdateProps {
 	newCache: ContentCache
 
 	invalidatePieceInstanceIds: PieceInstanceId[]
+	/** PartInstances whose Branding changed, so every PieceInstance in them must be resolved again */
+	invalidatePartInstanceIds: PartInstanceId[]
 }
 
 async function setupUIPieceInstancesPublicationObservers(
@@ -49,6 +52,12 @@ async function setupUIPieceInstancesPublicationObservers(
 			added: (id) => triggerUpdate({ invalidatePieceInstanceIds: [id] }),
 			changed: (id) => triggerUpdate({ invalidatePieceInstanceIds: [id] }),
 			removed: (id) => triggerUpdate({ invalidatePieceInstanceIds: [id] }),
+		}),
+		// Only the Branding is tracked for these, so any change means the PieceInstances must be resolved again
+		cache.PartInstances.observeChanges({
+			added: (id) => triggerUpdate({ invalidatePartInstanceIds: [id] }),
+			changed: (id) => triggerUpdate({ invalidatePartInstanceIds: [id] }),
+			removed: (id) => triggerUpdate({ invalidatePartInstanceIds: [id] }),
 		}),
 	]
 
@@ -90,13 +99,32 @@ export async function manipulateUIPieceInstancesPublicationData(
 	})
 
 	const invalidatedPieceInstancesSet = new Set(updateProps?.invalidatePieceInstanceIds ?? [])
+	const invalidatedPartInstancesSet = new Set(updateProps?.invalidatePartInstanceIds ?? [])
 
-	state.contentCache.PieceInstances.findFetch({}).forEach((pieceInstance) => {
-		if (invalidatedPieceInstancesSet.has(pieceInstance._id)) {
-			// Note: this is where any transformation of the PieceInstance will be performed
-			collection.replace(pieceInstance)
+	const partInstanceBrandings = new Map<PartInstanceId, string | null>()
+	for (const partInstance of state.contentCache.PartInstances.findFetch({})) {
+		partInstanceBrandings.set(partInstance._id, partInstance.brandingId ?? null)
+	}
+
+	for (const pieceInstance of state.contentCache.PieceInstances.findFetch({})) {
+		if (
+			!invalidatedPieceInstancesSet.has(pieceInstance._id) &&
+			!invalidatedPartInstancesSet.has(pieceInstance.partInstanceId)
+		)
+			continue
+
+		// Flatten the Branding overrides, so that consumers see the Piece as it should be displayed
+		const brandingId = partInstanceBrandings.get(pieceInstance.partInstanceId) ?? null
+		const resolvedPiece = resolvePieceForBranding(pieceInstance.piece, brandingId)
+		if (!resolvedPiece) {
+			// The Piece is not used with this Branding
+			collection.remove(pieceInstance._id)
+			continue
 		}
-	})
+		pieceInstance.piece = resolvedPiece
+
+		collection.replace(pieceInstance)
+	}
 }
 
 export function registerPieceInstancesUIPublications(registry: PublicationRegistry): void {

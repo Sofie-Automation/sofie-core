@@ -1,10 +1,16 @@
 import { PartInstanceId, RundownId, RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { ReadonlyDeep } from 'type-fest'
 import { logger } from '../../logging'
-import { ContentCache, pieceInstanceFieldSpecifier, pieceInstanceSimpleFieldSpecifier } from './reactiveContentCache'
-import { PieceInstances } from '../../collections'
+import {
+	ContentCache,
+	partInstanceBrandingFieldSpecifier,
+	pieceInstanceFieldSpecifier,
+	pieceInstanceSimpleFieldSpecifier,
+} from './reactiveContentCache'
+import { PartInstances, PieceInstances } from '../../collections'
 import { waitForAllObserversReady } from '../lib/lib'
 import type { LiveQueryHandleSync } from '../../lib/lib'
 
@@ -69,6 +75,17 @@ function createPieceInstancesSelector(args: ReadonlyDeep<UIPieceInstancesArgs>):
 	return selector
 }
 
+function createPartInstancesSelector(args: ReadonlyDeep<UIPieceInstancesArgs>): MongoQuery<DBPartInstance> {
+	const selector: MongoQuery<DBPartInstance> = {
+		rundownId: { $in: args.rundownIds },
+		reset: { $ne: true },
+	}
+	if (args.partInstanceIds) selector._id = { $in: args.partInstanceIds }
+	if (args.playlistActivationId) selector.playlistActivationId = args.playlistActivationId
+
+	return selector
+}
+
 export class RundownContentObserver {
 	readonly #cache: ContentCache
 	readonly #observers: LiveQueryHandleSync[]
@@ -88,6 +105,10 @@ export class RundownContentObserver {
 		const observers = await waitForAllObserversReady([
 			PieceInstances.observeChanges(createPieceInstancesSelector(args), cache.PieceInstances.link(), {
 				projection: args.omitTimings ? pieceInstanceSimpleFieldSpecifier : pieceInstanceFieldSpecifier,
+			}),
+			// Only the Branding is needed from these, to know how to resolve the PieceInstances
+			PartInstances.observeChanges(createPartInstancesSelector(args), cache.PartInstances.link(), {
+				projection: partInstanceBrandingFieldSpecifier,
 			}),
 		])
 
