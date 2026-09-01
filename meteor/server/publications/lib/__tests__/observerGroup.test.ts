@@ -12,7 +12,7 @@ describe('ReactiveMongoObserverGroup', () => {
 		const handle: LiveQueryHandle = { stop: jest.fn() }
 		const generator = jest.fn(async () => [Promise.resolve(handle)])
 
-		const observerGroup = await ReactiveMongoObserverGroup(generator)
+		const observerGroup = await ReactiveMongoObserverGroup('myDebugName', generator)
 
 		// Ensure we got a sane response
 		expect(observerGroup).toBeTruthy()
@@ -31,7 +31,7 @@ describe('ReactiveMongoObserverGroup', () => {
 		// Call stop again and it should complain but do nothing
 		await expect(async () => observerGroup.stop()).rejects.toThrowSofieError(
 			500,
-			'ReactiveMongoObserverGroup is not running!'
+			'ReactiveMongoObserverGroup "myDebugName" is not running!'
 		)
 		expect(generator).toHaveBeenCalledTimes(1)
 		expect(handle.stop).toHaveBeenCalledTimes(1)
@@ -41,7 +41,7 @@ describe('ReactiveMongoObserverGroup', () => {
 		const handle: LiveQueryHandle = { stop: jest.fn() }
 		const generator = jest.fn(async () => [Promise.resolve(handle)])
 
-		const observerGroup = await ReactiveMongoObserverGroup(generator)
+		const observerGroup = await ReactiveMongoObserverGroup('myDebugName', generator)
 
 		// Ensure we got a sane response
 		expect(observerGroup).toBeTruthy()
@@ -72,7 +72,7 @@ describe('ReactiveMongoObserverGroup', () => {
 		// Restart it again
 		await expect(async () => observerGroup.restart()).rejects.toThrowSofieError(
 			500,
-			'ReactiveMongoObserverGroup is not running!'
+			'ReactiveMongoObserverGroup "myDebugName" is not running!'
 		)
 		expect(generator).toHaveBeenCalledTimes(3)
 		expect(handle.stop).toHaveBeenCalledTimes(3)
@@ -82,7 +82,7 @@ describe('ReactiveMongoObserverGroup', () => {
 		const handle: LiveQueryHandle = { stop: jest.fn() }
 		const generator = jest.fn(async () => [Promise.resolve(handle)])
 
-		const observerGroup = await ReactiveMongoObserverGroup(generator)
+		const observerGroup = await ReactiveMongoObserverGroup('myDebugName', generator)
 
 		// Ensure we got a sane response
 		expect(observerGroup).toBeTruthy()
