@@ -12,9 +12,14 @@ export interface CustomPublish<DBObj extends { _id: ProtectedString<any> }> {
 	get isReady(): boolean
 
 	/**
-	 * Register a function to be called when the subscriber unsubscribes
+	 * An AbortSignal that is aborted when the subscriber unsubscribes. This is the lifetime to give to
+	 * anything started for this subscriber, such as observers.
+	 *
+	 * Note: `addEventListener('abort', ...)` is a no-op if the signal is *already* aborted (the
+	 * subscription may have stopped while you were awaiting setup), so use `runOnAbort` to register
+	 * teardown rather than adding a listener directly.
 	 */
-	onStop(callback: () => void): void
+	get signal(): AbortSignal
 
 	/**
 	 * Send the intial documents to the subscriber
@@ -28,27 +33,19 @@ export interface CustomPublish<DBObj extends { _id: ProtectedString<any> }> {
 }
 
 export class CustomPublishMeteor<DBObj extends { _id: ProtectedString<any> }> {
-	#onStop: (() => void) | undefined
 	#isReady = false
 
 	constructor(
 		private _meteorSubscription: PublicationContext,
 		private _collectionName: string
-	) {
-		this._meteorSubscription.onStop(() => {
-			if (this.#onStop) this.#onStop()
-		})
-	}
+	) {}
 
 	get isReady(): boolean {
 		return this.#isReady
 	}
 
-	/**
-	 * Register a function to be called when the subscriber unsubscribes
-	 */
-	onStop(callback: () => void): void {
-		this.#onStop = callback
+	get signal(): AbortSignal {
+		return this._meteorSubscription.signal
 	}
 
 	/**

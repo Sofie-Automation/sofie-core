@@ -6,6 +6,8 @@ import {
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
 	FindObserveChangesOptions,
+	ObserveChangesOptions,
+	ObserveOptions,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
@@ -15,15 +17,9 @@ import { registerCollection } from './lib'
 import { createMockCollection } from './implementations/mock'
 import { WrappedAsyncMongoCollection } from './implementations/asyncCollection'
 import { WrappedReadOnlyMongoCollection } from './implementations/readonlyWrapper'
-import {
-	FieldNames,
-	IndexSpecifier,
-	MongoLiveQueryHandle,
-	UpdateOptions,
-} from '@sofie-automation/meteor-lib/dist/collections/lib'
+import { FieldNames, IndexSpecifier, UpdateOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { isInTestMode } from '../lib'
-import type { LiveQueryHandleSync } from '../lib/lib'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export interface CustomMongoAllowRules<DBInterface> {
@@ -99,19 +95,23 @@ export interface MinimalMongoCursor<T extends { _id: ProtectedString<any> }> {
 	readonly collectionName: string | null
 
 	/**
-	 * Watch a query. Receive callbacks as the result set changes.
+	 * Watch a query for the lifetime of `options.signal`. Receive callbacks as the result set changes.
 	 * @param callbacks Functions to call to deliver the result set as it changes
+	 * @param options Must include the `signal` defining the observer's lifetime
+	 * @returns A promise that resolves once the observer is running. It resolves without leaving an
+	 * observer running if the signal is aborted during setup, and rejects only if setup genuinely
+	 * failed (in which case nothing was left running).
 	 */
-	observeAsync(callbacks: ObserveCallbacks<T>): Promise<MongoLiveQueryHandle>
+	observeAsync(callbacks: ObserveCallbacks<T>, options: ObserveOptions): Promise<void>
+
 	/**
-	 * Watch a query. Receive callbacks as the result set changes. Only the differences between the old and new documents are passed to the callbacks.
+	 * Watch a query for the lifetime of `options.signal`. Receive callbacks as the result set changes.
+	 * Only the differences between the old and new documents are passed to the callbacks.
 	 * @param callbacks Functions to call to deliver the result set as it changes
-	 * @param options { nonMutatingCallbacks: boolean }
+	 * @param options Must include the `signal` defining the observer's lifetime
+	 * @returns A promise with the same semantics as {@link observeAsync}
 	 */
-	observeChangesAsync(
-		callbacks: ObserveChangesCallbacks<T>,
-		options?: { nonMutatingCallbacks?: boolean | undefined }
-	): Promise<MongoLiveQueryHandle>
+	observeChangesAsync(callbacks: ObserveChangesCallbacks<T>, options: ObserveChangesOptions): Promise<void>
 }
 
 /**
@@ -213,24 +213,30 @@ export interface AsyncOnlyReadOnlyMongoCollection<DBInterface extends { _id: Pro
 	): Promise<MinimalMongoCursor<DBInterface>>
 
 	/**
-	 * Observe changes on this collection
+	 * Observe changes on this collection for the lifetime of `options.signal`
 	 * @param selector A query describing the documents to find
+	 * @param options Must include the `signal` defining the observer's lifetime
+	 * @returns A promise that resolves once the observer is running. It resolves without leaving an
+	 * observer running if the signal is aborted during setup, and rejects only if setup genuinely
+	 * failed (in which case nothing was left running).
 	 */
 	observeChanges(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
-		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<LiveQueryHandleSync>
+		options: FindObserveChangesOptions<DBInterface>
+	): Promise<void>
 
 	/**
-	 * Observe changes on this collection
+	 * Observe changes on this collection for the lifetime of `options.signal`
 	 * @param selector A query describing the documents to find
+	 * @param options Must include the `signal` defining the observer's lifetime
+	 * @returns A promise with the same semantics as {@link observeChanges}
 	 */
 	observe(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
-		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<LiveQueryHandleSync>
+		options: FindObserveChangesOptions<DBInterface>
+	): Promise<void>
 
 	/**
 	 * Count the number of docuyments in a collection that match the selector.

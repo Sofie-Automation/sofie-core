@@ -1,7 +1,7 @@
 import { ReadonlyDeep } from 'type-fest'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { CustomPublishCollection } from './customPublishCollection'
-import { SetupObserversResult, TriggerUpdate, setUpOptimizedObserverInner } from './optimizedObserverBase'
+import { SetupObservers, setUpOptimizedObserverInner } from './optimizedObserverBase'
 import { CustomPublish } from './publish'
 
 /**
@@ -23,11 +23,7 @@ export async function setUpCollectionOptimizedObserver<
 >(
 	identifier: string,
 	args0: ReadonlyDeep<Args>,
-	setupObservers: (
-		args: ReadonlyDeep<Args>,
-		/** Trigger an update by mutating the context of manipulateData */
-		triggerUpdate: TriggerUpdate<UpdateProps>
-	) => Promise<SetupObserversResult>,
+	setupObservers: SetupObservers<Args, UpdateProps>,
 	manipulateData: (
 		args: ReadonlyDeep<Args>,
 		state: Partial<State>,

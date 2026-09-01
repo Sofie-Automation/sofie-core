@@ -207,8 +207,10 @@ export class ObserveMultiplexer<TDoc extends Doc> {
 		})
 
 		// If the eager initial snapshot failed, this subscriber has just replayed an empty/stale set. Surface
-		// that failure to the observe caller (who will abort, tearing us down) instead of resolving "ready".
+		// that failure to the observe caller instead of resolving "ready". Deregister first: rejecting must
+		// mean nothing was left running, without depending on the caller aborting to tidy up after us.
 		if (this.#startupError !== undefined && !signal.aborted) {
+			this.#removeSubscriber(sub)
 			// eslint-disable-next-line @typescript-eslint/only-throw-error -- re-throw the original snapshot rejection value
 			throw this.#startupError
 		}
@@ -364,6 +366,10 @@ export function getActiveMultiplexerCount(): number {
 
 /**
  * Start (or join) an observeChanges over the change-stream engine.
+ *
+ * Resolves once the subscriber is live; resolves without starting anything if `signal` is already
+ * aborted, or aborts while the initial snapshot is in flight. Rejects only on a genuine failure, and
+ * guarantees nothing was left running when it does.
  */
 export async function observeChangesViaChangeStream<TDoc extends Doc>(
 	collectionName: string,
@@ -382,7 +388,10 @@ export async function observeChangesViaChangeStream<TDoc extends Doc>(
 	return m.addObserveChangesSubscriber(callbacks, signal, nonMutating)
 }
 
-/** Start (or join) an observe (full-document) over the change-stream engine. */
+/**
+ * Start (or join) an observe (full-document) over the change-stream engine.
+ * Same lifetime and failure semantics as {@link observeChangesViaChangeStream}.
+ */
 export async function observeViaChangeStream<TDoc extends Doc>(
 	collectionName: string,
 	selector: MongoQuery<TDoc>,

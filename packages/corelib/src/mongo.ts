@@ -60,7 +60,16 @@ export interface FindOptions<TDoc> extends FindOneOptions<TDoc> {
 	limit?: number
 }
 
-export interface ObserveChangesOptions {
+/** Options common to every observer: above all, the lifetime it runs for. */
+export interface ObserveOptions {
+	/**
+	 * The AbortSignal defining this observer's lifetime. The observer stops when it aborts, and is
+	 * never started if it has aborted already.
+	 */
+	signal: AbortSignal
+}
+
+export interface ObserveChangesOptions extends ObserveOptions {
 	/**
 	 * If your observer functions do not mutate the passed arguments, you can set this to true, which
 	 * improves performance by reducing the amount of data copies.

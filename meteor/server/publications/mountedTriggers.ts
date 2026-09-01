@@ -1,11 +1,11 @@
 import { z } from 'zod'
 import { CustomPublish } from '../lib/customPublication'
+import { createDebounce } from '../lib/debounce'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { logger } from '../logging'
 import { DeviceTriggerMountedActionAdlibsPreview, DeviceTriggerMountedActions } from '../api/deviceTriggers/observer'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import _ from 'underscore'
 import { check } from '../lib/check'
 import {
 	PeripheralDevicePubSub,
@@ -91,22 +91,26 @@ function cursorCustomPublish<T extends { _id: ProtectedString<any> }>(
 
 	let buffer: CustomOptimizedPublishChanges<T> = createEmptyBuffer()
 
-	const bufferChanged = _.debounce(function bufferChanged() {
-		const bufferToSend = buffer
-		buffer = createEmptyBuffer()
-		try {
-			// this can now be async
-			pub.changed({
-				added: Array.from(bufferToSend.added.values()),
-				changed: Array.from(bufferToSend.changed.values()),
-				removed: Array.from(bufferToSend.removed.values()),
-			})
-		} catch (e) {
-			logger.error(`Error while updating publication ${publicationName}: ${stringifyError(e)}`)
-		}
-	}, PUBLICATION_DEBOUNCE)
+	const bufferChanged = createDebounce(
+		function bufferChanged() {
+			const bufferToSend = buffer
+			buffer = createEmptyBuffer()
+			try {
+				// this can now be async
+				pub.changed({
+					added: Array.from(bufferToSend.added.values()),
+					changed: Array.from(bufferToSend.changed.values()),
+					removed: Array.from(bufferToSend.removed.values()),
+				})
+			} catch (e) {
+				logger.error(`Error while updating publication ${publicationName}: ${stringifyError(e)}`)
+			}
+		},
+		PUBLICATION_DEBOUNCE,
+		pub.signal
+	)
 
-	const observer = collection.observe(
+	collection.observe(
 		{
 			added: (doc) => {
 				if (!pub.isReady) return
@@ -141,13 +145,9 @@ function cursorCustomPublish<T extends { _id: ProtectedString<any> }>(
 				bufferChanged()
 			},
 		},
-		query
+		query,
+		{ signal: pub.signal }
 	)
 
 	pub.init(collection.findFetch(query))
-
-	pub.onStop(() => {
-		observer.stop()
-		bufferChanged.cancel()
-	})
 }

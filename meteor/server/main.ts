@@ -63,6 +63,13 @@ registerAllPublications(publicationRegistry)
 // The registry of live DDP sessions, shared between the DDP server and the performance monitor
 const ddpConnectionRegistry = createDdpConnectionRegistry()
 
+/**
+ * The lifetime of this process. Long-lived observers started below are bound to this signal, so
+ * aborting it releases them all; a graceful-shutdown path can do that rather than relying on the
+ * process exiting.
+ */
+const processLifetime = new AbortController()
+
 ;(async () => {
 	console.log('process started') // This is a message all Sofie processes log upon startup
 
@@ -112,14 +119,17 @@ const ddpConnectionRegistry = createDdpConnectionRegistry()
 	setupPrometheusMetrics('meteor')
 
 	// Start observing studios for device triggers, dispatching their actions through the method registry
-	await startDeviceTriggersObserver(createMeteorTriggersContext(makeMeteorCallForRegistry(methodRegistry)))
+	await startDeviceTriggersObserver(
+		createMeteorTriggersContext(makeMeteorCallForRegistry(methodRegistry)),
+		processLifetime.signal
+	)
 	await Promise.all([
-		setupSystemStatusObservers(),
-		startMediaObjectDurationMonitor(),
-		startStudioMappingsHashObserver(),
-		startRundownVersionHashObservers(),
-		startBlueprintConfigPresetObservers(),
-		startExternalMessageQueueStatusMonitor(),
+		setupSystemStatusObservers(processLifetime.signal),
+		startMediaObjectDurationMonitor(processLifetime.signal),
+		startStudioMappingsHashObserver(processLifetime.signal),
+		startRundownVersionHashObservers(processLifetime.signal),
+		startBlueprintConfigPresetObservers(processLifetime.signal),
+		startExternalMessageQueueStatusMonitor(processLifetime.signal),
 	])
 
 	startCronjobs()
@@ -136,6 +146,8 @@ const ddpConnectionRegistry = createDdpConnectionRegistry()
 	startTimeJumpDetector()
 })().catch((e) => {
 	logger.error(`Startup failed: ${stringifyError(e)}`)
+
+	processLifetime.abort(new Error('Startup failed'))
 
 	// eslint-disable-next-line n/no-process-exit
 	process.exit(1)

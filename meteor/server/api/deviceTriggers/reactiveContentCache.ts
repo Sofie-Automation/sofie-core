@@ -1,4 +1,3 @@
-import _ from 'underscore'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -12,6 +11,7 @@ import { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/collection
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { createDebounce } from '../../lib/debounce'
 
 export type RundownPlaylistFields =
 	| '_id'
@@ -154,19 +154,16 @@ export interface ContentCache {
 
 type ReactionWithCache = (cache: ContentCache) => void
 
+/**
+ * Build the cache and start reacting to changes in it, for the lifetime of `signal`: once that aborts
+ * no further reactions are delivered and any pending one is cancelled.
+ */
 export function createReactiveContentCache(
 	reaction: ReactionWithCache,
-	reactivityDebounce: number
-): { cache: ContentCache; cancel: () => void } {
-	let isCancelled = false
-	const innerReaction = _.debounce(() => {
-		if (isCancelled) return
-		reaction(cache)
-	}, reactivityDebounce)
-	const cancel = () => {
-		isCancelled = true
-		innerReaction.cancel()
-	}
+	reactivityDebounce: number,
+	signal: AbortSignal
+): ContentCache {
+	const innerReaction = createDebounce(() => reaction(cache), reactivityDebounce, signal)
 
 	const cache: ContentCache = {
 		RundownPlaylists: new InMemoryMongoCollection<Pick<DBRundownPlaylist, RundownPlaylistFields>>(
@@ -200,5 +197,5 @@ export function createReactiveContentCache(
 
 	innerReaction()
 
-	return { cache, cancel }
+	return cache
 }

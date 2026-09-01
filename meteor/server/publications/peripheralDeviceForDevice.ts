@@ -2,11 +2,11 @@ import { z } from 'zod'
 import { PeripheralDevice, PeripheralDeviceCategory } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDevices, Studios } from '../collections'
-import { SetupObserversResult, TriggerUpdate, setUpOptimizedObserverArray } from '../lib/customPublication'
+import { TriggerUpdate, setUpOptimizedObserverArray } from '../lib/customPublication'
 import type { PublicationRegistry } from '../publicationRegistry'
 import { PeripheralDeviceForDevice } from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice'
 import { ReadonlyDeep } from 'type-fest'
-import { ReactiveMongoObserverGroup } from './lib/observerGroup'
+import { reactiveObserverGroup } from './lib/observerGroup'
 import { Complete, assertNever, literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import {
@@ -128,35 +128,33 @@ export function convertPeripheralDeviceForGateway(
 
 async function setupPeripheralDevicePublicationObservers(
 	args: ReadonlyDeep<PeripheralDeviceForDeviceArgs>,
-	triggerUpdate: TriggerUpdate<PeripheralDeviceForDeviceUpdateProps>
-): Promise<SetupObserversResult> {
-	const studioObserver = await ReactiveMongoObserverGroup(async () => {
+	triggerUpdate: TriggerUpdate<PeripheralDeviceForDeviceUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
+	const studioObserver = await reactiveObserverGroup(signal, async (generationSignal) => {
 		const peripheralDeviceCompact = (await PeripheralDevices.findOneAsync(args.deviceId, {
 			projection: { studioAndConfigId: 1 },
 		})) as Pick<PeripheralDevice, 'studioAndConfigId'> | undefined
 
 		if (peripheralDeviceCompact?.studioAndConfigId?.studioId) {
-			return [
-				Studios.observeChanges(
-					peripheralDeviceCompact.studioAndConfigId.studioId,
-					{
-						added: () => triggerUpdate({ invalidatePublication: true }),
-						changed: () => triggerUpdate({ invalidatePublication: true }),
-						removed: () => triggerUpdate({ invalidatePublication: true }),
-					},
-					{
-						projection: studioFieldsSpecifier,
-					}
-				),
-			]
-		} else {
-			// Nothing to observe
-			return []
+			await Studios.observeChanges(
+				peripheralDeviceCompact.studioAndConfigId.studioId,
+				{
+					added: () => triggerUpdate({ invalidatePublication: true }),
+					changed: () => triggerUpdate({ invalidatePublication: true }),
+					removed: () => triggerUpdate({ invalidatePublication: true }),
+				},
+				{
+					projection: studioFieldsSpecifier,
+					signal: generationSignal,
+				}
+			)
 		}
+		// Otherwise there is nothing to observe
 	})
 
 	// Set up observers:
-	return [
+	await Promise.all([
 		PeripheralDevices.observeChanges(
 			args.deviceId,
 			{
@@ -176,10 +174,10 @@ async function setupPeripheralDevicePublicationObservers(
 			},
 			{
 				projection: peripheralDeviceFieldsSpecifier,
+				signal,
 			}
 		),
-		studioObserver,
-	]
+	])
 }
 
 async function manipulatePeripheralDevicePublicationData(
