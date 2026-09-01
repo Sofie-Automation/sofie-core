@@ -329,7 +329,8 @@ export class CoreHandler implements ICoreHandler {
 		this.logger.debug('KillProcess command received for mos-gateway')
 		if (this._k8sRestarter) {
 			this.logger.debug('Running on kubernetes was true, restarting deployment')
-			return await this._k8sRestarter.restartKube()
+			await this._k8sRestarter.restartKube()
+			return true
 		} else {
 			this.logger.debug('killing process in 1000ms!')
 			setTimeout(() => {
