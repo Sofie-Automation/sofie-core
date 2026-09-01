@@ -10,6 +10,7 @@ import {
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { SelectedPartInstancesTimelineInfo } from './timeline/generate.js'
 import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel.js'
+import { filterPieceInstancesForBranding, resolvePieceInstancesForBranding } from './branding.js'
 
 function getAutoNextExpectedDurationExtension(partInstancesInfo: SelectedPartInstancesTimelineInfo): number {
 	if (!partInstancesInfo.current || !partInstancesInfo.next) return 0
@@ -32,13 +33,16 @@ function getAutoNextExpectedDurationExtension(partInstancesInfo: SelectedPartIns
  * @param context Context for current job
  * @param sourceLayers SourceLayers for the current ShowStyle
  * @param partInstance PartInstance to resolve
+ * @param skipBrandingOverrides Omit the Branding's overrides, for the blueprint contexts which can write
+ * the PieceInstances back. Pieces hidden by the Branding are dropped either way.
  * @returns ResolvedPieceInstances sorted by startTime
  */
 export function getResolvedPiecesForCurrentPartInstance(
 	_context: JobContext,
 	sourceLayers: SourceLayers,
 	partInstance: PlayoutPartInstanceModel,
-	now?: number
+	now?: number,
+	skipBrandingOverrides?: boolean
 ): ResolvedPieceInstance[] {
 	if (now === undefined) now = getCurrentTime()
 
@@ -46,7 +50,9 @@ export function getResolvedPiecesForCurrentPartInstance(
 
 	const preprocessedPieces = processAndPrunePieceInstanceTimings(
 		sourceLayers,
-		partInstance.pieceInstances.map((p) => p.pieceInstance),
+		skipBrandingOverrides
+			? filterPieceInstancesForBranding(partInstance)
+			: resolvePieceInstancesForBranding(partInstance),
 		partTimes
 	)
 	return preprocessedPieces.map((instance) => resolvePrunedPieceInstance(partTimes, instance))

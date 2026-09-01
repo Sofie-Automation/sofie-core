@@ -3,6 +3,7 @@ import type {
 	IBlueprintPartBranding,
 	IBlueprintPieceBranding,
 } from '@sofie-automation/blueprints-integration'
+import type { ReadonlyDeep } from 'type-fest'
 
 /**
  * The portion of a document which describes how it varies with the selected Branding.
@@ -10,8 +11,8 @@ import type {
  * documents stored in the database.
  */
 interface BrandableDocument<TBranding> {
-	onlyValidForBranding?: string[]
-	branding?: Record<string, TBranding | undefined>
+	onlyValidForBranding?: readonly string[]
+	branding?: Readonly<Record<string, ReadonlyDeep<TBranding> | undefined>>
 }
 
 /**
@@ -19,7 +20,7 @@ interface BrandableDocument<TBranding> {
  * @param doc Document to check
  * @param brandingId Id of the selected Branding, or null when no Branding is selected
  */
-function isValidForBranding(doc: BrandableDocument<unknown>, brandingId: string | null): boolean {
+export function isValidForBranding(doc: BrandableDocument<unknown>, brandingId: string | null): boolean {
 	// Not limited to any Branding, so always used
 	if (!doc.onlyValidForBranding) return true
 
