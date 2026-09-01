@@ -18,7 +18,11 @@ import {
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { getResolvedPiecesForPartInstancesOnTimeline } from '../resolvedPieces.js'
+import {
+	getResolvedPiecesForCurrentPartInstance,
+	getResolvedPiecesForPartInstancesOnTimeline,
+} from '../resolvedPieces.js'
+import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
 import { SelectedPartInstanceTimelineInfo } from '../timeline/generate.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { setupPieceInstanceInfiniteProperties } from '../pieces.js'
@@ -54,7 +58,10 @@ describe('Resolved Pieces', () => {
 		sourceLayerId: string,
 		enable: PieceInstancePiece['enable'],
 		piecePartial?: Partial<
-			Pick<PieceInstancePiece, 'lifespan' | 'virtual' | 'prerollDuration' | 'postrollDuration'>
+			Pick<
+				PieceInstancePiece,
+				'lifespan' | 'virtual' | 'prerollDuration' | 'postrollDuration' | 'onlyValidForBranding' | 'branding'
+			>
 		>,
 		instancePartial?: Partial<Pick<PieceInstance, 'userDuration'>>
 	): PieceInstance {
@@ -78,6 +85,8 @@ describe('Resolved Pieces', () => {
 				enable,
 				virtual: piecePartial?.virtual ?? false,
 				timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+				onlyValidForBranding: piecePartial?.onlyValidForBranding,
+				branding: piecePartial?.branding,
 			},
 			userDuration: instancePartial?.userDuration,
 		}
@@ -341,6 +350,56 @@ describe('Resolved Pieces', () => {
 					resolvedStart: 1000,
 					resolvedDuration: 1000,
 				},
+			] satisfies StrippedResult)
+		})
+	})
+
+	describe('getResolvedPiecesForCurrentPartInstance branding', () => {
+		/** A stub of the parts of the model which `getResolvedPiecesForCurrentPartInstance` reads */
+		function createPartInstanceModel(brandingId: string | null, pieceInstances: PieceInstance[]) {
+			return {
+				partInstance: { brandingId, timings: undefined } as ReadonlyDeep<DBPartInstance>,
+				pieceInstances: pieceInstances.map((pieceInstance) => ({ pieceInstance })),
+			} as unknown as PlayoutPartInstanceModel
+		}
+
+		test('pieces hidden by the Branding are not resolved', async () => {
+			const sourceLayerId = Object.keys(sourceLayers)[0]
+			expect(sourceLayerId).toBeTruthy()
+
+			const pieceAlways = createPieceInstance(sourceLayerId, { start: 0 })
+			const pieceA = createPieceInstance(sourceLayerId, { start: 1000 }, { onlyValidForBranding: ['brandingA'] })
+			const pieceB = createPieceInstance(sourceLayerId, { start: 2000 }, { onlyValidForBranding: ['brandingB'] })
+
+			const resolvedPieces = getResolvedPiecesForCurrentPartInstance(
+				context,
+				sourceLayers,
+				createPartInstanceModel('brandingA', [pieceAlways, pieceA, pieceB]),
+				5000
+			)
+
+			expect(stripResult(resolvedPieces)).toEqual([
+				// pieceAlways is capped by pieceA starting on the same layer, rather than by the hidden pieceB
+				{ _id: pieceAlways._id, resolvedStart: 0, resolvedDuration: 1000 },
+				{ _id: pieceA._id, resolvedStart: 1000, resolvedDuration: undefined },
+			] satisfies StrippedResult)
+		})
+
+		test('with no Branding selected, only the unlimited pieces are resolved', async () => {
+			const sourceLayerId = Object.keys(sourceLayers)[0]
+
+			const pieceAlways = createPieceInstance(sourceLayerId, { start: 0 })
+			const pieceA = createPieceInstance(sourceLayerId, { start: 1000 }, { onlyValidForBranding: ['brandingA'] })
+
+			const resolvedPieces = getResolvedPiecesForCurrentPartInstance(
+				context,
+				sourceLayers,
+				createPartInstanceModel(null, [pieceAlways, pieceA]),
+				5000
+			)
+
+			expect(stripResult(resolvedPieces)).toEqual([
+				{ _id: pieceAlways._id, resolvedStart: 0, resolvedDuration: undefined },
 			] satisfies StrippedResult)
 		})
 	})
