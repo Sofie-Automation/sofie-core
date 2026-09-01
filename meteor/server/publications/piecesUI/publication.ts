@@ -1,3 +1,5 @@
+import { resolvePieceForBranding } from '@sofie-automation/corelib/dist/playout/branding'
+import { BrandingState, updateProjectedBrandingId } from '../lib/branding'
 import { z } from 'zod'
 import { PartId, PieceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check, zAnyArray } from '../../lib/check'
@@ -19,12 +21,15 @@ import { triggerWriteAccessBecauseNoCheckNecessary } from '../../security/securi
 import type { PublicationRegistry } from '../../publicationRegistry'
 import type { CustomPublish } from '../../lib/customPublication'
 
-export interface UIPiecesState {
+export interface UIPiecesState extends BrandingState {
 	contentCache: ReadonlyDeep<ContentCache>
 }
 
 interface UIPiecesUpdateProps {
 	newCache: ContentCache
+
+	/** The Branding may have changed, so it must be resolved again to check */
+	invalidateBranding: boolean
 
 	invalidatePieceIds: PieceId[]
 }
@@ -45,6 +50,17 @@ async function setupUIPiecesPublicationObservers(
 	// Note: this is attached after the content observer has been populated, so it will be told about
 	// every document already in the cache
 	const innerQueries = [
+		// Any change to these means the Branding may have changed
+		cache.RundownPlaylists.observeChanges({
+			added: () => triggerUpdate({ invalidateBranding: true }),
+			changed: () => triggerUpdate({ invalidateBranding: true }),
+			removed: () => triggerUpdate({ invalidateBranding: true }),
+		}),
+		cache.PartInstances.observeChanges({
+			added: () => triggerUpdate({ invalidateBranding: true }),
+			changed: () => triggerUpdate({ invalidateBranding: true }),
+			removed: () => triggerUpdate({ invalidateBranding: true }),
+		}),
 		cache.Pieces.observeChanges({
 			added: (id) => triggerUpdate({ invalidatePieceIds: [id] }),
 			changed: (id) => triggerUpdate({ invalidatePieceIds: [id] }),
@@ -91,12 +107,21 @@ export async function manipulateUIPiecesPublicationData(
 
 	const invalidatedPiecesSet = new Set(updateProps?.invalidatePieceIds ?? [])
 
-	state.contentCache.Pieces.findFetch({}).forEach((piece) => {
-		if (invalidatedPiecesSet.has(piece._id)) {
-			// Note: this is where any transformation of the Piece will be performed
-			collection.replace(piece)
+	const { brandingId, brandingChanged } = updateProjectedBrandingId(state, state.contentCache)
+
+	for (const piece of state.contentCache.Pieces.findFetch({})) {
+		if (!brandingChanged && !invalidatedPiecesSet.has(piece._id)) continue
+
+		// Flatten the Branding overrides, so that consumers see the document as it should be displayed
+		const resolved = resolvePieceForBranding(piece, brandingId)
+		if (!resolved) {
+			// Not used with this Branding
+			collection.remove(piece._id)
+			continue
 		}
-	})
+
+		collection.replace(resolved)
+	}
 }
 
 async function setUpUIPiecesObserver(
