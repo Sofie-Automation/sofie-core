@@ -126,6 +126,16 @@ export interface PlayoutModelReadonly extends StudioPlayoutModelBaseReadonly {
 	 * The PartInstance which is next to be played, if any
 	 */
 	get nextPartInstance(): PlayoutPartInstanceModel | null
+
+	/**
+	 * The Branding a PartInstance created now would be played with.
+	 * This follows the current PartInstance, so that a Branding chosen during playout is retained across takes.
+	 * Only when no PartInstance is selected does this fall back to the Branding chosen during ingest.
+	 *
+	 * Use this to resolve Parts and Pieces which have no PartInstance of their own yet, such as those lookahead
+	 * searches ahead into.
+	 */
+	getBrandingForNewPartInstance(): string | null
 	/**
 	 * Ids of all previous, current and next PartInstances (includes all entries of previousPartsInfo)
 	 */

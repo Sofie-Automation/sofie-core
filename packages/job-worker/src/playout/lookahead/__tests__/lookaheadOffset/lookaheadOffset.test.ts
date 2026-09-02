@@ -60,6 +60,50 @@ describe('lookahead offset integration', () => {
 
 		expect(res).toEqual([])
 	})
+	describe('branding', () => {
+		async function runWithPieces(projectedBrandingId: string | null, pieces: ReturnType<typeof makeSimplePiece>[]) {
+			getOrderedPartsAfterPlayheadMock.mockReturnValue([
+				{ _id: protectString('p1'), classesForNext: [] } as any,
+				{ _id: protectString('p2'), classesForNext: [] } as any,
+			])
+
+			const findFetchMock = jest.fn().mockResolvedValue(pieces)
+
+			return getLookeaheadObjects(
+				{
+					...context,
+					directCollections: {
+						...context.directCollections,
+						Pieces: { ...context.directCollections.Pieces, findFetch: findFetchMock },
+					},
+				} as JobContext,
+				{ ...playoutModel, getBrandingForNewPartInstance: () => projectedBrandingId } as PlayoutModel,
+				{ current: undefined, next: undefined, previous: [] } as SelectedPartInstancesTimelineInfo
+			)
+		}
+
+		test('a Piece hidden by the projected Branding produces no lookahead', async () => {
+			const res = await runWithPieces(null, [
+				makeSimplePiece({ partId: 'p1', layer: 'layer1', onlyValidForBranding: ['brandingA'] }),
+				makeSimplePiece({ partId: 'p2', layer: 'layer1' }),
+			])
+
+			expect(res).toHaveLength(1)
+			expect(res[0].pieceInstanceId).toContain('p2')
+		})
+
+		test('a Piece used with the projected Branding produces lookahead', async () => {
+			const res = await runWithPieces('brandingA', [
+				makeSimplePiece({ partId: 'p1', layer: 'layer1', onlyValidForBranding: ['brandingA'] }),
+				makeSimplePiece({ partId: 'p2', layer: 'layer1' }),
+			])
+
+			expect(res).toHaveLength(2)
+			expect(res[0].pieceInstanceId).toContain('p1')
+			expect(res[1].pieceInstanceId).toContain('p2')
+		})
+	})
+
 	test('respects lookaheadMaxSearchDistance', async () => {
 		getOrderedPartsAfterPlayheadMock.mockReturnValue([
 			{ _id: protectString('p1'), classesForNext: [] } as any,

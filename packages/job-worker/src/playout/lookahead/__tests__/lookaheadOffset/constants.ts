@@ -16,10 +16,12 @@ export function makeSimplePiece({
 	partId,
 	layer,
 	start = 0,
+	onlyValidForBranding,
 }: {
 	partId: string
 	layer: string
 	start?: number
+	onlyValidForBranding?: string[]
 }): Piece {
 	return literal<Partial<Piece>>({
 		_id: protectString(`piece_simple_${partId}_${layer}`),
@@ -27,6 +29,7 @@ export function makeSimplePiece({
 		startPartId: protectString(partId),
 		enable: { start },
 		outputLayerId: layer,
+		onlyValidForBranding,
 		pieceType: IBlueprintPieceType.Normal,
 		timelineObjectsString: protectString<PieceTimelineObjectsBlob>(
 			JSON.stringify([
@@ -383,6 +386,7 @@ export const baseContext = {
 
 export const basePlayoutModel = {
 	getRundownIds: () => [protectString('r1')],
+	getBrandingForNewPartInstance: () => null,
 	playlist: {
 		nextTimeOffset: 0,
 	},
