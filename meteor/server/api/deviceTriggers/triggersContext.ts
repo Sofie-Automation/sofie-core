@@ -1,6 +1,14 @@
 import {
+	TriggersAdLibAction,
+	TriggersAdLibPiece,
 	TriggersAsyncCollection,
 	TriggersContext,
+	TriggersPart,
+	TriggersRundown,
+	TriggersRundownBaselineAdLibAction,
+	TriggersRundownBaselineAdLibItem,
+	TriggersRundownPlaylist,
+	TriggersSegment,
 	TriggerTrackerComputation,
 } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
 import { SINGLE_USE_TOKEN_SALT } from '@sofie-automation/meteor-lib/dist/api/userActions'
@@ -25,13 +33,6 @@ import {
 import { PartInstances, Parts, RundownPlaylists } from '../../collections'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
-import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
-import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
-import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
-import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { ContentCache } from './reactiveContentCache'
 
 export function hashSingleUseToken(token: string): string {
@@ -48,9 +49,9 @@ export function hashSingleUseToken(token: string): string {
 class InMemoryTriggersCollectionWrapper<
 	DBInterface extends { _id: ProtectedString<any> },
 > implements TriggersAsyncCollection<DBInterface> {
-	readonly #getCollection: () => InMemoryMongoCollection<DBInterface> | undefined
+	readonly #getCollection: () => CachedCollection<DBInterface> | undefined
 
-	constructor(getCollection: () => InMemoryMongoCollection<DBInterface> | undefined) {
+	constructor(getCollection: () => CachedCollection<DBInterface> | undefined) {
 		this.#getCollection = getCollection
 	}
 
@@ -74,15 +75,27 @@ class InMemoryTriggersCollectionWrapper<
 }
 
 /**
+ * The read half of an `InMemoryMongoCollection`, declared as function properties rather than methods so that
+ * Typescript checks the document type strictly. Methods are compared bivariantly, which would let a cache
+ * collection that is *missing* one of the required fields through.
+ */
+interface CachedCollection<DBInterface extends { _id: ProtectedString<any> }> {
+	readonly findFetch: (selector?: MongoQuery<DBInterface>, options?: FindOptions<DBInterface>) => DBInterface[]
+	readonly findOne: (
+		selector?: MongoQuery<DBInterface> | DBInterface['_id'],
+		options?: FindOneOptions<DBInterface>
+	) => DBInterface | undefined
+}
+
+/**
  * Wrap a `ContentCache` collection as a `TriggersAsyncCollection`.
  *
- * The cache stores projected documents, so this needs a cast: Typescript will *not* tell you when a field
- * that the filter chains read is missing from the collection's field specifier in `reactiveContentCache.ts`.
- * Such a query silently fails to match, or reads back `undefined`. Keep the specifiers in step with
- * `actionFilterChainCompilers.ts`.
+ * The type argument is the set of fields the compiled filter chains read (see the `Triggers*` types in
+ * meteor-lib's `triggersContext.ts`). Passing a cache collection whose projection does not cover them is a
+ * compile error here, rather than a trigger that quietly stops firing.
  */
 function wrapCachedCollection<DBInterface extends { _id: ProtectedString<any> }>(
-	getCollection: () => InMemoryMongoCollection<any> | undefined
+	getCollection: () => CachedCollection<DBInterface> | undefined
 ): TriggersAsyncCollection<DBInterface> {
 	return new InMemoryTriggersCollectionWrapper<DBInterface>(getCollection)
 }
@@ -106,18 +119,18 @@ export function createMeteorTriggersContext(
 
 		isClient: false,
 
-		AdLibActions: wrapCachedCollection<AdLibAction>(() => getCache()?.AdLibActions),
-		AdLibPieces: wrapCachedCollection<AdLibPiece>(() => getCache()?.AdLibPieces),
-		Parts: wrapCachedCollection<DBPart>(() => getCache()?.Parts),
-		RundownBaselineAdLibActions: wrapCachedCollection<RundownBaselineAdLibAction>(
+		AdLibActions: wrapCachedCollection<TriggersAdLibAction>(() => getCache()?.AdLibActions),
+		AdLibPieces: wrapCachedCollection<TriggersAdLibPiece>(() => getCache()?.AdLibPieces),
+		Parts: wrapCachedCollection<TriggersPart>(() => getCache()?.Parts),
+		RundownBaselineAdLibActions: wrapCachedCollection<TriggersRundownBaselineAdLibAction>(
 			() => getCache()?.RundownBaselineAdLibActions
 		),
-		RundownBaselineAdLibPieces: wrapCachedCollection<RundownBaselineAdLibItem>(
+		RundownBaselineAdLibPieces: wrapCachedCollection<TriggersRundownBaselineAdLibItem>(
 			() => getCache()?.RundownBaselineAdLibPieces
 		),
-		RundownPlaylists: wrapCachedCollection<DBRundownPlaylist>(() => getCache()?.RundownPlaylists),
-		Rundowns: wrapCachedCollection<DBRundown>(() => getCache()?.Rundowns),
-		Segments: wrapCachedCollection<DBSegment>(() => getCache()?.Segments),
+		RundownPlaylists: wrapCachedCollection<TriggersRundownPlaylist>(() => getCache()?.RundownPlaylists),
+		Rundowns: wrapCachedCollection<TriggersRundown>(() => getCache()?.Rundowns),
+		Segments: wrapCachedCollection<TriggersSegment>(() => getCache()?.Segments),
 
 		hashSingleUseToken,
 

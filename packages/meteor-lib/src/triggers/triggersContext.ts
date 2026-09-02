@@ -48,6 +48,35 @@ export interface TriggersAsyncCollection<DBInterface extends { _id: ProtectedStr
 	): Promise<DBInterface | undefined>
 }
 
+/**
+ * The document fields that the compiled trigger filter chains read, per collection.
+ *
+ * These are the contract between `actionFilterChainCompilers.ts` and whatever backs a `TriggersContext`. A
+ * source that cannot supply one of them - a projection that omits it, say - is a compile error rather than a
+ * trigger that quietly stops firing. Widen a set here when the compilers start reading a new field.
+ */
+export type TriggersAdLibActionFields = '_id' | 'actionId' | 'display' | 'partId' | 'rundownId' | 'userData'
+export type TriggersAdLibPieceFields =
+	| '_id'
+	| '_rank'
+	| 'name'
+	| 'partId'
+	| 'rundownId'
+	| 'sourceLayerId'
+	| 'outputLayerId'
+	| 'expectedDuration'
+	| 'lifespan'
+	| 'tags'
+
+export type TriggersAdLibAction = Pick<AdLibAction, TriggersAdLibActionFields>
+export type TriggersRundownBaselineAdLibAction = Pick<RundownBaselineAdLibAction, TriggersAdLibActionFields>
+export type TriggersAdLibPiece = Pick<AdLibPiece, TriggersAdLibPieceFields>
+export type TriggersRundownBaselineAdLibItem = Pick<RundownBaselineAdLibItem, TriggersAdLibPieceFields>
+export type TriggersPart = Pick<DBPart, '_id' | '_rank' | 'segmentId' | 'rundownId'>
+export type TriggersSegment = Pick<DBSegment, '_id' | '_rank' | 'rundownId'>
+export type TriggersRundownPlaylist = Pick<DBRundownPlaylist, '_id' | 'rundownIdsInOrder'>
+export type TriggersRundown = Pick<DBRundown, '_id' | 'playlistId'>
+
 export interface TriggersContext {
 	readonly MeteorCall: IMeteorCall
 
@@ -55,14 +84,14 @@ export interface TriggersContext {
 
 	readonly isClient: boolean
 
-	readonly AdLibActions: TriggersAsyncCollection<AdLibAction>
-	readonly AdLibPieces: TriggersAsyncCollection<AdLibPiece>
-	readonly Parts: TriggersAsyncCollection<DBPart>
-	readonly RundownBaselineAdLibActions: TriggersAsyncCollection<RundownBaselineAdLibAction>
-	readonly RundownBaselineAdLibPieces: TriggersAsyncCollection<RundownBaselineAdLibItem>
-	readonly RundownPlaylists: TriggersAsyncCollection<DBRundownPlaylist>
-	readonly Rundowns: TriggersAsyncCollection<DBRundown>
-	readonly Segments: TriggersAsyncCollection<DBSegment>
+	readonly AdLibActions: TriggersAsyncCollection<TriggersAdLibAction>
+	readonly AdLibPieces: TriggersAsyncCollection<TriggersAdLibPiece>
+	readonly Parts: TriggersAsyncCollection<TriggersPart>
+	readonly RundownBaselineAdLibActions: TriggersAsyncCollection<TriggersRundownBaselineAdLibAction>
+	readonly RundownBaselineAdLibPieces: TriggersAsyncCollection<TriggersRundownBaselineAdLibItem>
+	readonly RundownPlaylists: TriggersAsyncCollection<TriggersRundownPlaylist>
+	readonly Rundowns: TriggersAsyncCollection<TriggersRundown>
+	readonly Segments: TriggersAsyncCollection<TriggersSegment>
 
 	hashSingleUseToken(token: string): string
 
