@@ -30,6 +30,7 @@ import { SomeAction, SomeBlueprintTrigger } from '@sofie-automation/blueprints-i
 import { DeviceActions } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
 import { DummyReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/reactive-var'
 import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
+import { TriggersContextFactory } from './triggersContext'
 import { TagsService } from './TagsService'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
@@ -38,11 +39,16 @@ export class StudioDeviceTriggerManager {
 
 	lastCache: ContentCache | undefined
 
+	private readonly triggersContext: TriggersContext
+
 	constructor(
 		public studioId: StudioId,
 		protected tagsService: TagsService,
-		private readonly triggersContext: TriggersContext
+		createTriggersContext: TriggersContextFactory
 	) {
+		// `lastCache` is reassigned during the lifetime, so pass a getter
+		this.triggersContext = createTriggersContext(() => this.lastCache)
+
 		if (StudioActionManagers.get(studioId)) {
 			logger.error(`A StudioActionManager for "${studioId}" already exists`)
 			return
