@@ -22,32 +22,36 @@ import {
 	DBRundownPlaylist,
 	SelectedPartInstance,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import {
-	AdLibActions,
-	AdLibPieces,
-	PartInstances,
-	Parts,
-	RundownBaselineAdLibActions,
-	RundownBaselineAdLibPieces,
-	RundownPlaylists,
-	Rundowns,
-	Segments,
-} from '../../collections'
+import { PartInstances, Parts, RundownPlaylists } from '../../collections'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { AsyncOnlyReadOnlyMongoCollection } from '../../collections/collection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
+import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
+import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
+import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
+import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
+import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import { ContentCache } from './reactiveContentCache'
 
 export function hashSingleUseToken(token: string): string {
 	return getHash(SINGLE_USE_TOKEN_SALT + token)
 }
 
-class MeteorTriggersCollectionWrapper<
+/**
+ * Reads one of the in-memory `ContentCache` collections that the device-trigger observers already maintain,
+ * so that the compiled filter chains do not re-query the database for data that is held in memory.
+ *
+ * The collection is fetched on each call rather than held, because the cache is replaced whenever the set of
+ * rundowns in the playlist changes.
+ */
+class InMemoryTriggersCollectionWrapper<
 	DBInterface extends { _id: ProtectedString<any> },
 > implements TriggersAsyncCollection<DBInterface> {
-	readonly #collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>
+	readonly #getCollection: () => InMemoryMongoCollection<DBInterface> | undefined
 
-	constructor(collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>) {
-		this.#collection = collection
+	constructor(getCollection: () => InMemoryMongoCollection<DBInterface> | undefined) {
+		this.#getCollection = getCollection
 	}
 
 	async findFetchAsync(
@@ -56,7 +60,7 @@ class MeteorTriggersCollectionWrapper<
 		options?: FindOptions<DBInterface>
 	): Promise<Array<DBInterface>> {
 		// Note: the _computation is not used, since we are not using Tracker server-side
-		return this.#collection.findFetchAsync(selector, options)
+		return this.#getCollection()?.findFetch(selector, options) ?? []
 	}
 
 	async findOneAsync(
@@ -65,16 +69,36 @@ class MeteorTriggersCollectionWrapper<
 		options?: FindOneOptions<DBInterface>
 	): Promise<DBInterface | undefined> {
 		// Note: the _computation is not used, since we are not using Tracker server-side
-		return this.#collection.findOneAsync(selector, options)
+		return this.#getCollection()?.findOne(selector, options)
 	}
 }
+
+/**
+ * Wrap a `ContentCache` collection as a `TriggersAsyncCollection`.
+ *
+ * The cache stores projected documents, so this needs a cast: Typescript will *not* tell you when a field
+ * that the filter chains read is missing from the collection's field specifier in `reactiveContentCache.ts`.
+ * Such a query silently fails to match, or reads back `undefined`. Keep the specifiers in step with
+ * `actionFilterChainCompilers.ts`.
+ */
+function wrapCachedCollection<DBInterface extends { _id: ProtectedString<any> }>(
+	getCollection: () => InMemoryMongoCollection<any> | undefined
+): TriggersAsyncCollection<DBInterface> {
+	return new InMemoryTriggersCollectionWrapper<DBInterface>(getCollection)
+}
+
+/** Builds the `TriggersContext` for one studio, reading through to that studio's `ContentCache`. */
+export type TriggersContextFactory = (getCache: () => ContentCache | undefined) => TriggersContext
 
 /**
  * Build the server-side `TriggersContext` used to compile and execute device-trigger actions.
  * `meteorCall` is injected (rather than imported as a global) so it dispatches through the process's
  * `MethodRegistry`.
  */
-export function createMeteorTriggersContext(meteorCall: IMeteorCall): TriggersContext {
+export function createMeteorTriggersContext(
+	meteorCall: IMeteorCall,
+	getCache: () => ContentCache | undefined
+): TriggersContext {
 	return {
 		MeteorCall: meteorCall,
 
@@ -82,14 +106,18 @@ export function createMeteorTriggersContext(meteorCall: IMeteorCall): TriggersCo
 
 		isClient: false,
 
-		AdLibActions: new MeteorTriggersCollectionWrapper(AdLibActions),
-		AdLibPieces: new MeteorTriggersCollectionWrapper(AdLibPieces),
-		Parts: new MeteorTriggersCollectionWrapper(Parts),
-		RundownBaselineAdLibActions: new MeteorTriggersCollectionWrapper(RundownBaselineAdLibActions),
-		RundownBaselineAdLibPieces: new MeteorTriggersCollectionWrapper(RundownBaselineAdLibPieces),
-		RundownPlaylists: new MeteorTriggersCollectionWrapper(RundownPlaylists),
-		Rundowns: new MeteorTriggersCollectionWrapper(Rundowns),
-		Segments: new MeteorTriggersCollectionWrapper(Segments),
+		AdLibActions: wrapCachedCollection<AdLibAction>(() => getCache()?.AdLibActions),
+		AdLibPieces: wrapCachedCollection<AdLibPiece>(() => getCache()?.AdLibPieces),
+		Parts: wrapCachedCollection<DBPart>(() => getCache()?.Parts),
+		RundownBaselineAdLibActions: wrapCachedCollection<RundownBaselineAdLibAction>(
+			() => getCache()?.RundownBaselineAdLibActions
+		),
+		RundownBaselineAdLibPieces: wrapCachedCollection<RundownBaselineAdLibItem>(
+			() => getCache()?.RundownBaselineAdLibPieces
+		),
+		RundownPlaylists: wrapCachedCollection<DBRundownPlaylist>(() => getCache()?.RundownPlaylists),
+		Rundowns: wrapCachedCollection<DBRundown>(() => getCache()?.Rundowns),
+		Segments: wrapCachedCollection<DBSegment>(() => getCache()?.Segments),
 
 		hashSingleUseToken,
 
