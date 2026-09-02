@@ -1,4 +1,4 @@
-@import '../colorScheme';
+@use '../colorScheme' as colorScheme;
 
 $piece-countdown-timecode-color: #ffff00;
 
@@ -14,7 +14,7 @@ $piece-countdown-timecode-color: #ffff00;
 		white-space: nowrap;
 
 		&.overtime {
-			color: $general-late-color;
+			color: colorScheme.$general-late-color;
 		}
 	}
 }

@@ -1,4 +1,4 @@
-@import '../colorScheme';
+@use '../colorScheme' as colorScheme;
 
 .next-info-panel {
 	position: absolute;

@@ -1,4 +1,4 @@
-@import 'colorScheme';
+@use 'colorScheme';
 
 .expco {
 	user-select: none;
@@ -74,7 +74,7 @@
 	}
 
 	&.option-missing {
-		border-color: $color-status-fatal;
+		border-color: colorScheme.$color-status-fatal;
 	}
 }
 

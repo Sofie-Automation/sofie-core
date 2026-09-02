@@ -3,7 +3,7 @@
  *
  * View-level styles (Presenter/Prompter) should only handle placement and scaling.
  */
-@import 'colorScheme';
+@use 'colorScheme';
 
 .rundown-status-bar {
 	display: grid;

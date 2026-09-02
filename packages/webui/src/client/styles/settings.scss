@@ -1,4 +1,4 @@
-@import 'colorScheme';
+@use 'colorScheme';
 
 .grid-buttons-right {
 	display: grid;
@@ -80,7 +80,7 @@
 
 	.error-notice {
 		.svg-inline--fa {
-			color: $color-status-warning;
+			color: colorScheme.$color-status-warning;
 		}
 	}
 
@@ -283,7 +283,7 @@
 		}
 
 		.svg-inline--fa {
-			color: $color-status-warning;
+			color: colorScheme.$color-status-warning;
 		}
 	}
 
@@ -292,6 +292,6 @@
 	}
 
 	select.option-missing {
-		border-color: $color-status-fatal;
+		border-color: colorScheme.$color-status-fatal;
 	}
 }

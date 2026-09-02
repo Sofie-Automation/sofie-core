@@ -1,4 +1,4 @@
-@import '../../../../styles/itemTypeColors';
+@use '../../../../styles/itemTypeColors' as itemTypeColors;
 
 .dashboard-panel__panel__button__layer-background {
 	position: absolute;
@@ -18,7 +18,7 @@
 		&__item {
 			flex: 1 1;
 			min-height: 0;
-			@include item-type-colors;
+			@include itemTypeColors.item-type-colors;
 		}
 	}
 }

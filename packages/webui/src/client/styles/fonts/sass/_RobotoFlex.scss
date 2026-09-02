@@ -1,7 +1,9 @@
+@use 'mixins';
+@use 'variables';
 /* BEGIN Roboto Flex */
 @font-face {
 	font-family: 'Roboto Flex';
-	@include fontdef-ttf($FontPath, 'RobotoFlex', $FontVersion, 'Regular');
+	@include mixins.fontdef-ttf(variables.$FontPath, 'RobotoFlex', variables.$FontVersion, 'Regular');
 	font-weight: 400;
 	font-style: normal;
 }

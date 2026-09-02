@@ -1,4 +1,5 @@
-@import '../colorScheme';
+@use '../colorScheme' as colorScheme;
+@use '../itemTypeColors' as itemTypeColors;
 
 :root {
 	--adlib-item-selected-color: #009dff;
@@ -49,7 +50,7 @@ $adlib-item-selected-color: var(--adlib-item-selected-color);
 
 			&.live {
 				--missing-overlay-animated: 1;
-				background: $general-live-color;
+				background: colorScheme.$general-live-color;
 				font-weight: 400;
 				color: #fff;
 				text-shadow: 0px 0px 6px rgba(255, 255, 255, 0.8);
@@ -61,7 +62,7 @@ $adlib-item-selected-color: var(--adlib-item-selected-color);
 
 			&.next {
 				--missing-overlay-animated: 1;
-				background: $general-next-color;
+				background: colorScheme.$general-next-color;
 				color: #fff;
 				font-weight: 400;
 				text-shadow: 0px 0px 6px rgba(255, 255, 255, 0.8);
@@ -205,29 +206,29 @@ $adlib-item-selected-color: var(--adlib-item-selected-color);
 				padding: 0 !important;
 				position: relative;
 
-				@include item-type-colors();
-				@include missing-overlay();
+				@include itemTypeColors.item-type-colors();
+				@include itemTypeColors.missing-overlay();
 
 				&.live-speak {
 					background: linear-gradient(
 						to bottom,
 						var(--segment-layer-background-vt) 50%,
-						var(--$segment-layer-background-camera) 50.0001%
+						var(--segment-layer-background-camera) 50.0001%
 					);
 				}
 				&.remote-speak {
 					background: linear-gradient(
 						to bottom,
 						var(--segment-layer-background-remote-speak-1) 50%,
-						var(--$segment-layer-background-remote-speak-2) 50.0001%
+						var(--segment-layer-background-remote-speak-2) 50.0001%
 					);
 				}
 
 				&.splits {
 					background: linear-gradient(
 						to right,
-						var(--$segment-layer-background-camera) 50%,
-						var(--$segment-layer-background-remote) 50.0001%
+						var(--segment-layer-background-camera) 50%,
+						var(--segment-layer-background-remote) 50.0001%
 					);
 				}
 
@@ -318,10 +319,10 @@ $adlib-item-selected-color: var(--adlib-item-selected-color);
 
 				&.live {
 					--missing-overlay-animated: 1;
-					border-left: 2px solid $general-live-color;
+					border-left: 2px solid colorScheme.$general-live-color;
 
 					> .adlib-panel__list-view__list__seg-header > td {
-						background: $general-live-color;
+						background: colorScheme.$general-live-color;
 						color: #fff;
 						font-weight: 500;
 						text-shadow: 0px 0px 6px rgba(255, 255, 255, 0.8);
@@ -330,10 +331,10 @@ $adlib-item-selected-color: var(--adlib-item-selected-color);
 
 				&.next {
 					--missing-overlay-animated: 1;
-					border-left: 2px solid $general-next-color;
+					border-left: 2px solid colorScheme.$general-next-color;
 
 					> .adlib-panel__list-view__list__seg-header > td {
-						background: $general-next-color;
+						background: colorScheme.$general-next-color;
 						color: #fff;
 						font-weight: 500;
 						text-shadow: 0px 0px 6px rgba(255, 255, 255, 0.8);
@@ -382,18 +383,18 @@ $adlib-item-selected-color: var(--adlib-item-selected-color);
 						// opacity: 0.5;
 
 						.adlib-panel__list-view__list__table__cell--icon {
-							background: $ui-dark-color;
+							background: colorScheme.$ui-dark-color;
 						}
 					}
 
 					&.disabled.selected {
 						&::after {
-							border: 1px solid $ui-dark-color-brighter;
+							border: 1px solid colorScheme.$ui-dark-color-brighter;
 						}
 					}
 
-					@include invalid-overlay();
-					@include floated-overlay();
+					@include itemTypeColors.invalid-overlay();
+					@include itemTypeColors.floated-overlay();
 				}
 
 				.adlib-panel__list-view__list__table__cell--icon {

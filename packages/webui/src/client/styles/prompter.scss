@@ -1,4 +1,4 @@
-@import 'colorScheme';
+@use 'colorScheme';
 
 @font-face {
 	font-family: 'Source Serif Pro';
@@ -131,7 +131,7 @@ body.prompter-scrollbar {
 		&.live {
 			//border-bottom: 0.2em solid #f55;
 			// Layer the director-style gradient over the live color
-			background: $general-live-color;
+			background: colorScheme.$general-live-color;
 			color: #fff;
 			-webkit-text-stroke: black;
 			-webkit-text-stroke-width: 0.025em;
@@ -139,7 +139,7 @@ body.prompter-scrollbar {
 		}
 		&.next {
 			//border-bottom: 0.2em solid #5f5;
-			background: $general-next-color;
+			background: colorScheme.$general-next-color;
 		}
 	}
 

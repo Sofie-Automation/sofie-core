@@ -1,4 +1,5 @@
-@import '../../../styles/colorScheme';
+@use '../../../styles/colorScheme' as colorScheme;
+@use '../../../styles/itemTypeColors' as itemTypeColors;
 
 .media-status-item:nth-child(2n + 1) > td {
 	background: #f6f6f6;
@@ -61,8 +62,8 @@
 		overflow: hidden;
 		white-space: nowrap;
 
-		@include item-type-colors();
-		@include missing-overlay();
+		@include itemTypeColors.item-type-colors();
+		@include itemTypeColors.missing-overlay();
 
 		&.media-status-item__source-layer-overlay {
 			display: block;
@@ -73,7 +74,7 @@
 			bottom: 0;
 			right: 0;
 
-			@include invalid-overlay();
+			@include itemTypeColors.invalid-overlay();
 		}
 
 		> .media-status-item__source-layer-label {

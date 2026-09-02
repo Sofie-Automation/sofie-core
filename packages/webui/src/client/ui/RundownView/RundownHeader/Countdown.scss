@@ -1,5 +1,5 @@
-@import '../../../styles/colorScheme';
-@import './shared';
+@use '../../../styles/colorScheme' as colorScheme;
+@use './shared' as shared;
 
 .countdown {
 	display: flex;

@@ -2,10 +2,10 @@
 
 // Include any default variable overrides here (though functions won't be available)
 
-@import 'bootstrap-variables';
+@use 'bootstrap-variables';
 
-@import '~bootstrap/scss/bootstrap';
+@use '~bootstrap/scss/bootstrap';
 
-@import 'bootstrap-customize';
+@use 'bootstrap-customize';
 
 // Then add additional custom code here

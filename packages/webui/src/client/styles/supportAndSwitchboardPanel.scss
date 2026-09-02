@@ -1,11 +1,14 @@
+@use 'variables';
+@use 'colorScheme';
+
 .status-bar__controls__button.support__toggle-button {
 	z-index: 310;
 	text-align: left;
 
 	> svg {
 		position: absolute !important;
-		width: calc($fullscreen-controls__button--radius / 2) !important;
-		height: calc($fullscreen-controls__button--radius / 2.86) !important;
+		width: calc(variables.$fullscreen-controls__button--radius / 2) !important;
+		height: calc(variables.$fullscreen-controls__button--radius / 2.86) !important;
 		right: 0 !important;
 		left: auto !important;
 		transform: translate(-50%, -53%) !important;
@@ -20,7 +23,7 @@
 	&.status-bar__controls__button--open {
 		> svg {
 			> path {
-				fill: $ui-dark-color;
+				fill: colorScheme.$ui-dark-color;
 			}
 		}
 	}
@@ -30,18 +33,18 @@
 .switchboard-pop-up-panel,
 .media-status-panel {
 	position: fixed;
-	bottom: rem(8px);
+	bottom: variables.rem(8px);
 	right: -1px;
 	left: auto;
-	margin-right: rem(60px);
+	margin-right: variables.rem(60px);
 	--panel-background: #fff;
 	background: var(--panel-background);
 
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-	padding: rem(15px) rem(20px);
+	padding: variables.rem(15px) variables.rem(20px);
 	z-index: 290;
-	min-height: rem(50px);
-	max-width: rem(350px);
+	min-height: variables.rem(50px);
+	max-width: variables.rem(350px);
 	color-scheme: light;
 
 	.support-pop-up-panel__actions {
@@ -63,11 +66,11 @@
 	.btn-secondary {
 		background: rgba(196, 196, 196, 0.2);
 		border: none;
-		color: $ui-dark-color !important;
+		color: colorScheme.$ui-dark-color !important;
 		font-weight: 400 !important;
 
 		&:hover {
-			color: $ui-dark-color !important;
+			color: colorScheme.$ui-dark-color !important;
 		}
 
 		&:active {
@@ -108,7 +111,7 @@
 	width: 28rem;
 	max-width: 28rem;
 	padding: 0;
-	padding-top: rem(15px);
+	padding-top: variables.rem(15px);
 
 	> .media-status-panel__inside {
 		width: 28rem;

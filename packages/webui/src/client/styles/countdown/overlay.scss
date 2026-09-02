@@ -1,4 +1,4 @@
-@import '../colorScheme';
+@use '../colorScheme' as colorScheme;
 
 body.transparent {
 	background: transparent !important;
@@ -69,7 +69,7 @@ body.transparent {
 
 	.clocks-part-icon > svg.piece-icon {
 		vertical-align: top;
-    	margin-top: 0.16em;
+		margin-top: 0.16em;
 	}
 
 	.clocks-next-rundown,
@@ -108,7 +108,7 @@ body.transparent {
 		font-weight: 100;
 		text-align: center;
 		min-width: 3em;
-		color: $general-countdown-to-next-color;
+		color: colorScheme.$general-countdown-to-next-color;
 	}
 
 	.clock-segment-countdown-next {
@@ -122,12 +122,12 @@ body.transparent {
 		font-weight: 300;
 
 		&.over {
-			color: $general-late-color;
+			color: colorScheme.$general-late-color;
 		}
 	}
 
 	.clocks-segment-countdown-red {
-		color: $general-late-color;
+		color: colorScheme.$general-late-color;
 	}
 
 	.clocks-counter-heavy {
@@ -151,7 +151,7 @@ body.transparent {
 		white-space: nowrap;
 
 		&.over {
-			color: $general-late-color;
+			color: colorScheme.$general-late-color;
 		}
 	}
 

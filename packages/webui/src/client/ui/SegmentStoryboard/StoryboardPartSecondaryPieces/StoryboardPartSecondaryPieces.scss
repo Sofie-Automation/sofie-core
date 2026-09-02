@@ -1,3 +1,5 @@
+@use '../../../styles/itemTypeColors' as itemTypeColors;
+
 $source-layer-height: 1.2rem;
 $source-layer-margin: 0.2rem;
 
@@ -110,14 +112,14 @@ $source-layer-margin: 0.2rem;
 	text-shadow: 0.5px 0.5px 8px rgba(0, 0, 0, 0.8);
 	font-weight: 400;
 
-	background: $segment-layer-background-unknown;
+	background: itemTypeColors.$segment-layer-background-unknown;
 
-	@include item-type-colors();
-	@include missing-overlay();
+	@include itemTypeColors.item-type-colors();
+	@include itemTypeColors.missing-overlay();
 
 	&.disabled {
-		background: $segment-item-disabled-background !important;
-		color: $segment-item-disabled-color !important;
+		background: itemTypeColors.$segment-item-disabled-background !important;
+		color: itemTypeColors.$segment-item-disabled-color !important;
 	}
 
 	&:last-child {

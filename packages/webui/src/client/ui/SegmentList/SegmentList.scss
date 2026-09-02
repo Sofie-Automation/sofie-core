@@ -1,5 +1,7 @@
-@import '../../styles/colorScheme';
-@import '../../styles/utils';
+@use '../../styles/variables' as variables;
+@use '../../styles/colorScheme' as colorScheme;
+@use '../../styles/itemTypeColors' as itemTypeColors;
+@use '../../styles/utils' as utils;
 
 /** Loans from rundownView.scss, to be refactored to a shared variable file */
 $segment-title-background-color: #4b4b4b;
@@ -30,10 +32,10 @@ $identifier-area-width: 3em;
 			grid-template-columns: [header] $segment-header-width [timeline] minmax(10em, 1fr) [piece-icons] min-content [end];
 			grid-template-areas: 'header timeline piece-icons';
 
-			@include invalid-overlay();
-			@include floated-overlay();
+			@include itemTypeColors.invalid-overlay();
+			@include itemTypeColors.floated-overlay();
 
-			@media screen and (max-width: $portrait-mode-breakpoint) {
+			@media screen and (max-width: variables.$portrait-mode-breakpoint) {
 				grid-template-rows: minmax($part-height, auto) minmax($part-height, auto) minmax($part-height, auto);
 				grid-template-columns: 1fr;
 				grid-template-areas:
@@ -69,12 +71,12 @@ $identifier-area-width: 3em;
 					z-index: 0;
 
 					&--next {
-						background: $general-next-color;
+						background: colorScheme.$general-next-color;
 						clip-path: polygon(0% 0%, 0% 100%, 80% 100%, 95% 50%, 80% 0%);
 					}
 
 					&--live {
-						background: $general-live-color;
+						background: colorScheme.$general-live-color;
 						border-radius: 0 ($part-height * 0.7) ($part-height * 0.7) 0;
 						width: $duration-area-width - calc($duration-area-margin / 2);
 					}
@@ -140,9 +142,9 @@ $identifier-area-width: 3em;
 						display: inline-block;
 						padding: 1px 4px;
 						box-sizing: border-box;
-						background-color: $part-identifier;
+						background-color: colorScheme.$part-identifier;
 						border-radius: 10px;
-						color: $part-identifier-text;
+						color: colorScheme.$part-identifier-text;
 						font-size: 0.85rem;
 						width: max-content;
 					}
@@ -195,7 +197,7 @@ $identifier-area-width: 3em;
 				}
 
 				> .segment-opl__part-header {
-					background: $general-next-color;
+					background: colorScheme.$general-next-color;
 					text-shadow: 0 0 3px black;
 				}
 			}
@@ -210,7 +212,7 @@ $identifier-area-width: 3em;
 				}
 
 				> .segment-opl__part-header {
-					background: $general-live-color;
+					background: colorScheme.$general-live-color;
 					text-shadow: 0 0 3px black;
 				}
 			}
@@ -251,7 +253,7 @@ $identifier-area-width: 3em;
 				margin-left: 3.5em;
 				grid-area: timeline;
 
-				@media screen and (max-width: $portrait-mode-breakpoint) {
+				@media screen and (max-width: variables.$portrait-mode-breakpoint) {
 					margin-left: 2.5em;
 					margin-right: 4em;
 				}
@@ -281,7 +283,7 @@ $identifier-area-width: 3em;
 				}
 
 				> .segment-opl__take-line {
-					background: $part-start-color;
+					background: variables.$part-start-color;
 					box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.7);
 
 					&:not(.next).auto {
@@ -295,14 +297,14 @@ $identifier-area-width: 3em;
 						&::after {
 							top: -3px;
 							left: 0px;
-							@include take-arrow();
+							@include utils.take-arrow();
 							z-index: 1;
 						}
 
 						&::before {
 							bottom: -3px;
 							left: 0px;
-							@include take-arrow();
+							@include utils.take-arrow();
 							z-index: 1;
 						}
 
@@ -323,12 +325,12 @@ $identifier-area-width: 3em;
 
 					&.next {
 						top: -0.2em;
-						background: $general-next-color;
+						background: colorScheme.$general-next-color;
 
 						> .segment-opl__timeline-flag__label {
 							top: -0.35em;
 							color: #000000;
-							background: $general-next-color;
+							background: colorScheme.$general-next-color;
 
 							&:not(.segment-opl__timeline-flag__label--autonext) {
 								border-top-right-radius: 0;
@@ -337,7 +339,7 @@ $identifier-area-width: 3em;
 
 								&::after {
 									content: ' ';
-									border-color: transparent transparent transparent $general-next-color;
+									border-color: transparent transparent transparent colorScheme.$general-next-color;
 									display: block;
 									position: absolute;
 									bottom: 0;
@@ -356,7 +358,7 @@ $identifier-area-width: 3em;
 						}
 
 						&::before {
-							border-left-color: $general-next-color;
+							border-left-color: colorScheme.$general-next-color;
 						}
 					}
 
@@ -394,7 +396,7 @@ $identifier-area-width: 3em;
 				}
 
 				> .segment-opl__on-air-line {
-					background: $general-live-color;
+					background: colorScheme.$general-live-color;
 
 					&::before {
 						content: ' ';
@@ -417,11 +419,16 @@ $identifier-area-width: 3em;
 					}
 
 					> .segment-opl__timeline-flag__label {
-						background-color: $general-live-color;
+						background-color: colorScheme.$general-live-color;
 						color: #fff;
 
 						&.animate {
-							background-image: linear-gradient(-65deg, $general-live-color 10%, #ff5f54, $general-live-color 90%);
+							background-image: linear-gradient(
+								-65deg,
+								colorScheme.$general-live-color 10%,
+								#ff5f54,
+								colorScheme.$general-live-color 90%
+							);
 							animation: segment-opl__timeline-flag__label__animation 3s linear infinite;
 						}
 					}
@@ -436,7 +443,7 @@ $identifier-area-width: 3em;
 
 						font-size: 1.2em;
 						font-weight: 500;
-						color: $liveline-timecode-color;
+						color: variables.$liveline-timecode-color;
 						letter-spacing: 0.5px;
 						text-shadow:
 							-1px -1px 1px #000000ff,
@@ -444,7 +451,7 @@ $identifier-area-width: 3em;
 							0 0 4px #000000ff;
 
 						> .overtime {
-							color: $general-late-color;
+							color: colorScheme.$general-late-color;
 						}
 
 						> .rundown-view__part__icon {
@@ -519,7 +526,7 @@ $identifier-area-width: 3em;
 					width: 0;
 					bottom: 0.6em;
 					pointer-events: none;
-					border-left: 2px solid $part-start-color;
+					border-left: 2px solid variables.$part-start-color;
 				}
 
 				> .segment-opl__freeze-marker {
@@ -551,7 +558,7 @@ $identifier-area-width: 3em;
 						font-weight: 400;
 						-webkit-text-stroke: 0.2px #000;
 						filter: drop-shadow(0 0 5px #000);
-						color: $liveline-timecode-color;
+						color: variables.$liveline-timecode-color;
 						margin-left: 0.25em;
 					}
 				}
@@ -577,7 +584,7 @@ $identifier-area-width: 3em;
 			}
 			&--next {
 				> .segment-opl__part-timeline > .segment-opl__take-line__quickloop-start {
-					border-color: $general-next-color;
+					border-color: colorScheme.$general-next-color;
 				}
 			}
 
@@ -591,7 +598,7 @@ $identifier-area-width: 3em;
 
 				grid-area: piece-icons;
 
-				@media screen and (max-width: $portrait-mode-breakpoint) {
+				@media screen and (max-width: variables.$portrait-mode-breakpoint) {
 					padding-left: 2.5em;
 					justify-content: flex-start;
 				}
@@ -648,7 +655,7 @@ $identifier-area-width: 3em;
 		}
 
 		> .negative {
-			color: $general-late-color;
+			color: colorScheme.$general-late-color;
 			font-weight: 500;
 		}
 
@@ -696,9 +703,9 @@ $identifier-area-width: 3em;
 	margin-top: 64px;
 	top: 0;
 	left: 0;
-	right: #{$fullscreen-controls__button--radius + 0.5rem};
+	right: #{variables.$fullscreen-controls__button--radius + 0.5rem};
 	z-index: 100;
-	padding: $segment-margin-y $segment-margin-x 0;
+	padding: variables.$segment-margin-y variables.$segment-margin-x 0;
 	overflow: hidden;
 
 	&.no-rundown-header {
@@ -706,9 +713,9 @@ $identifier-area-width: 3em;
 	}
 
 	.segment-opl__title {
-		background: $segment-background-color;
-		border-top-left-radius: $segment-border-radius;
-		border-top-right-radius: $segment-border-radius;
+		background: variables.$segment-background-color;
+		border-top-left-radius: variables.$segment-border-radius;
+		border-top-right-radius: variables.$segment-border-radius;
 		box-shadow: 7px 6px 15px 0px rgba(0, 0, 0, 0.3);
 	}
 
@@ -717,7 +724,7 @@ $identifier-area-width: 3em;
 		top: auto;
 		right: 0;
 		bottom: $part-height;
-		padding: $segment-margin-y 0 0;
+		padding: variables.$segment-margin-y 0 0;
 	}
 }
 

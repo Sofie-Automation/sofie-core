@@ -12,112 +12,112 @@ input {
 
 @use 'defaultColors';
 
-@import 'bootstrap';
+@use 'bootstrap';
 
-@import 'itemTypeColors';
+@use 'itemTypeColors';
 
-@import 'colorScheme';
-@import '_variables';
-@import '_colorScheme';
-@import 'checkerboard';
+@use 'colorScheme';
+@use '_variables';
+// @use '_colorScheme';
+@use 'checkerboard';
 
-@import '_header';
+@use '_header';
 
-@import 'fromOrigo';
+@use 'fromOrigo';
 
-@import 'afterBroadcastForm';
-@import 'collapseJSON';
-@import 'colorPicker';
-@import 'contextMenu';
-@import 'datePicker';
-@import 'externalMessagesStatus';
-@import 'iconPicker';
-@import 'modalDialog';
-@import 'multiSelect';
-@import 'notifications';
-@import 'propertiesPanel';
-@import 'overflowingContainer';
-@import 'pieceStatusIcon';
-@import 'prompter';
-@import 'tTimerDisplay';
-@import 'rundownStatusBar';
-@import 'rundownList';
-@import 'rundownSystemStatus';
-@import 'settings';
-@import 'splitDropdown';
-@import 'statusbar';
-@import 'studioScreenSaver';
-@import 'supportAndSwitchboardPanel';
-@import 'systemStatus';
-@import 'testtools';
-@import 'tooltips';
-@import 'utils';
-@import 'elementSelected';
+@use 'afterBroadcastForm';
+@use 'collapseJSON';
+@use 'colorPicker';
+@use 'contextMenu';
+@use 'datePicker';
+@use 'externalMessagesStatus';
+@use 'iconPicker';
+@use 'modalDialog';
+@use 'multiSelect';
+@use 'notifications';
+@use 'propertiesPanel';
+@use 'overflowingContainer';
+@use 'pieceStatusIcon';
+@use 'prompter';
+@use 'tTimerDisplay';
+@use 'rundownStatusBar';
+@use 'rundownList';
+@use 'rundownSystemStatus';
+@use 'settings';
+@use 'splitDropdown';
+@use 'statusbar';
+@use 'studioScreenSaver';
+@use 'supportAndSwitchboardPanel';
+@use 'systemStatus';
+@use 'testtools';
+@use 'tooltips';
+@use 'utils';
+@use 'elementSelected';
 
-@import 'countdown/overlay';
-@import 'countdown/presenter';
-@import 'countdown/director';
-@import 'counterComponents';
+@use 'countdown/overlay';
+@use 'countdown/presenter';
+@use 'countdown/director';
+@use 'counterComponents';
 
-@import 'customizations/nrk/shelf/taPanel';
+@use 'customizations/nrk/shelf/taPanel';
 
-@import 'shelf/adLibPanel';
-@import 'shelf/adLibRegionPanel';
-@import 'shelf/colored-box-panel';
-@import 'shelf/dashboard-rundownView';
-@import 'shelf/dashboard-streamdeck';
-@import 'shelf/dashboard';
-@import 'shelf/endTimerPanel';
-@import 'shelf/externalFramePanel';
-@import 'shelf/inspector';
-@import 'shelf/miniRundownPanel';
-@import 'shelf/nextInfoPanel';
-@import 'shelf/partCountdownPanel';
-@import 'shelf/partNamePanel';
-@import 'shelf/pieceCountdownPanel';
-@import 'shelf/playlistNamePanel';
-@import 'shelf/segmentNamePanel';
-@import 'shelf/segmentTimingPanel';
-@import 'shelf/shelf';
-@import 'shelf/startTimerPanel';
-@import 'shelf/studioNamePanel';
-@import 'shelf/textLabelPanel';
-@import 'shelf/timeOfDayPanel';
+@use 'shelf/adLibPanel';
+@use 'shelf/adLibRegionPanel';
+@use 'shelf/colored-box-panel';
+@use 'shelf/dashboard-rundownView';
+@use 'shelf/dashboard-streamdeck';
+@use 'shelf/dashboard';
+@use 'shelf/endTimerPanel';
+@use 'shelf/externalFramePanel';
+@use 'shelf/inspector';
+@use 'shelf/miniRundownPanel';
+@use 'shelf/nextInfoPanel';
+@use 'shelf/partCountdownPanel';
+@use 'shelf/partNamePanel';
+@use 'shelf/pieceCountdownPanel';
+@use 'shelf/playlistNamePanel';
+@use 'shelf/segmentNamePanel';
+@use 'shelf/segmentTimingPanel';
+@use 'shelf/shelf';
+@use 'shelf/startTimerPanel';
+@use 'shelf/studioNamePanel';
+@use 'shelf/textLabelPanel';
+@use 'shelf/timeOfDayPanel';
 
-@import '../lib/forms/SchemaFormTable/ObjectTable';
-@import '../lib/forms/SchemaFormOneOfButtons/OneOfButtons';
-@import '../lib/Components/PromiseButton';
-@import '../lib/VideoPreviewPlayer';
-@import '../ui/ClipTrimPanel/ClipTrimPanel';
-@import '../ui/ClipTrimPanel/TimecodeEncoder';
-@import '../ui/ClipTrimPanel/VideoEditMonitor';
-@import '../ui/SegmentStoryboard/StoryboardPartThumbnail/StoryboardPartThumbnail';
-@import '../ui/SegmentStoryboard/SegmentStoryboard';
-@import '../ui/SegmentStoryboard/StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces';
-@import '../ui/Settings/components/triggeredActions/TriggeredActionsEditor';
-@import '../ui/Settings/Forms';
-@import '../ui/SegmentTimeline/SegmentTimeline';
-@import '../ui/Status/media-status/MediaStatusListItem';
-@import '../ui/Status/media-status/MediaStatusList';
-@import '../ui/Status/media-status/MediaStatusListHeader';
-@import '../ui/Status/package-status/package-status';
-@import '../ui/SegmentList/LinePartPieceIndicator/LinePartPieceIndicator';
-@import '../ui/SegmentList/LinePartPieceIndicator/PieceIndicatorMenu';
-@import '../ui/SegmentList/SegmentList';
-@import '../ui/SegmentList/LinePartMainPiece/LinePartMainPiece';
-@import '../ui/SegmentList/LinePartTransitionPiece/LinePartTransitionPiece';
-@import '../ui/SegmentList/LinePartSecondaryPiece/LinePartSecondaryPiece';
-@import '../ui/PieceIcons/IconColors';
-@import '../ui/PieceIcons/PieceIcons';
-@import '../ui/ClockView/ClockViewPieceIcons/ClockViewPieceIcons';
-@import '../ui/ClockView/CameraScreen/CameraScreen';
-@import '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUpItem';
-@import '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUp';
-@import '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUpHeader';
-@import '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUpSegmentRule';
-@import '../ui/SegmentAdlibTesting/SegmentAdlibTesting';
+@use '../lib/forms/SchemaFormTable/ObjectTable';
+@use '../lib/forms/SchemaFormOneOfButtons/OneOfButtons';
+@use '../lib/Components/PromiseButton';
+@use '../lib/VideoPreviewPlayer';
+@use '../ui/ClipTrimPanel/ClipTrimPanel';
+@use '../ui/ClipTrimPanel/TimecodeEncoder';
+@use '../ui/ClipTrimPanel/VideoEditMonitor';
+@use '../ui/SegmentStoryboard/StoryboardPartThumbnail/StoryboardPartThumbnail';
+@use '../ui/SegmentStoryboard/SegmentStoryboard';
+@use '../ui/SegmentStoryboard/StoryboardPartSecondaryPieces/StoryboardPartSecondaryPieces';
+@use '../ui/Settings/components/triggeredActions/TriggeredActionsEditor';
+@use '../ui/Settings/Forms';
+@use '../ui/SegmentTimeline/SegmentTimeline';
+@use '../ui/Status/media-status/MediaStatusListItem';
+@use '../ui/Status/media-status/MediaStatusList';
+@use '../ui/Status/media-status/MediaStatusListHeader';
+@use '../ui/Status/package-status/package-status';
+@use '../ui/SegmentList/LinePartPieceIndicator/LinePartPieceIndicator';
+@use '../ui/SegmentList/LinePartPieceIndicator/PieceIndicatorMenu';
+@use '../ui/SegmentList/SegmentList';
+@use '../ui/SegmentList/LinePartMainPiece/LinePartMainPiece';
+@use '../ui/SegmentList/LinePartTransitionPiece/LinePartTransitionPiece';
+@use '../ui/SegmentList/LinePartSecondaryPiece/LinePartSecondaryPiece';
+@use '../ui/PieceIcons/IconColors';
+@use '../ui/PieceIcons/PieceIcons';
+@use '../ui/ClockView/ClockViewPieceIcons/ClockViewPieceIcons';
+@use '../ui/ClockView/CameraScreen/CameraScreen';
+@use '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUpItem';
+@use '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUp';
+@use '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUpHeader';
+@use '../ui/RundownView/MediaStatusPopUp/MediaStatusPopUpSegmentRule';
+@use '../ui/SegmentAdlibTesting/SegmentAdlibTesting';
 
-@import 'rundownView';
+@use 'rundownView';
 
 body {
 	overscroll-behavior: none;
@@ -148,7 +148,7 @@ a {
 
 // /* Don't show visited status, since people will browse around the app a lot */
 // a:visited {
-// 	color: $ui-button-primary;
+// 	color: colorScheme.$ui-button-primary;
 // }
 
 // .header {
@@ -240,7 +240,8 @@ a {
 .form-switch.switch-nocolor {
 	.form-check-input,
 	.form-check-input:checked {
-		--bs-form-switch-bg: #{escape-svg($form-switch-checked-bg-image)};
+		// TODO: unknown variable: $form-switch-checked-bg-image ??
+		// --bs-form-switch-bg: #{escape-svg($form-switch-checked-bg-image)};
 
 		background-color: #737373;
 		border-color: #737373;

@@ -1,7 +1,10 @@
+@use 'mixins';
+@use 'variables';
+
 /* BEGIN Thin */
 @font-face {
 	font-family: Roboto;
-	@include fontdef-woff($FontPath, $FontName, $FontVersion, 'Thin');
+	@include mixins.fontdef-woff(variables.$FontPath, variables.$FontName, variables.$FontVersion, 'Thin');
 	font-weight: 100;
 	font-style: normal;
 }

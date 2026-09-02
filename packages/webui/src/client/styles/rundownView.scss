@@ -1,7 +1,10 @@
 @use 'sass:color';
 
-@import 'utils';
-@import 'checkerboard';
+@use 'utils';
+@use 'checkerboard';
+@use 'colorScheme';
+@use 'variables';
+@use 'itemTypeColors';
 
 $output-layer-group-line: 1px solid #5c5c5c;
 $output-layer-group-collapse-animation-duration: 0.3s;
@@ -13,11 +16,11 @@ $segment-mini-inspector-timeline-background: #151515;
 $segment-timeline-too-small-part: #0f0f0f;
 $segment-next-preview-background-color: #181818;
 $segment-title-background-color: #4b4b4b;
-$segment-title-background-color-next: $general-next-color;
+$segment-title-background-color-next: colorScheme.$general-next-color;
 $segment-title-text-color-live: #ffffff;
-$segment-title-background-color-live: $general-live-color;
-$segment-title-background-color-remote: $general-live-remote-color;
-$segment-title-background-color-guest: $general-live-guest-color;
+$segment-title-background-color-live: colorScheme.$general-live-color;
+$segment-title-background-color-remote: colorScheme.$general-live-remote-color;
+$segment-title-background-color-guest: colorScheme.$general-live-guest-color;
 $segment-title-background-color-has-played: #2c2c2c;
 
 $segment-nextline-shade-width: 1.875rem;
@@ -36,7 +39,7 @@ $previewline-color: rgb(38, 137, 186);
 /** The top padding of the timeline has to be equal to the header-height, so that the
 	functional part of the timeline starts at the same level as the segment title
 */
-$segment-timeline-padding: $segment-header-height 0 1.5em 2px;
+$segment-timeline-padding: variables.$segment-header-height 0 1.5em 2px;
 
 $segment-layer-height: 1.5em;
 $segment-layer-separator-color: color.scale(#000, $alpha: -50%);
@@ -74,27 +77,27 @@ $break-width: 35rem;
 
 .segment-timeline-placeholder {
 	position: relative;
-	background: color.scale($segment-background-color, $lightness: 10%);
+	background: color.scale(variables.$segment-background-color, $lightness: 10%);
 	background-image: linear-gradient(
 		to right,
-		color.scale($segment-background-color, $lightness: 10%) 0%,
-		color.scale($segment-background-color, $lightness: 14%) 20%,
-		color.scale($segment-background-color, $lightness: 10%) 40%,
-		color.scale($segment-background-color, $lightness: 10%) 100%
+		color.scale(variables.$segment-background-color, $lightness: 10%) 0%,
+		color.scale(variables.$segment-background-color, $lightness: 14%) 20%,
+		color.scale(variables.$segment-background-color, $lightness: 10%) 40%,
+		color.scale(variables.$segment-background-color, $lightness: 10%) 100%
 	);
 	background-repeat: repeat-y;
 	background-size: 800px 1px;
-	border-radius: $segment-border-radius;
+	border-radius: variables.$segment-border-radius;
 	overflow: hidden;
 
-	margin: $segment-margin-y $segment-margin-x;
+	margin: variables.$segment-margin-y variables.$segment-margin-x;
 	width: auto;
 
 	&::before {
 		content: ' ';
 		display: block;
 		position: absolute;
-		top: $segment-header-height;
+		top: variables.$segment-header-height;
 		width: $segment-header-width;
 		left: 0;
 		bottom: 0;
@@ -106,7 +109,7 @@ $break-width: 35rem;
 .rundown-view {
 	// padding-top: 4rem;
 	padding-bottom: 50vh;
-	// padding-right: $statusbar-width;
+	// padding-right: variables.$statusbar-width;
 	transition: 0s padding-right 0s;
 
 	.invert-flash {
@@ -135,7 +138,7 @@ $break-width: 35rem;
 
 		&.rundown-view__part__icon--auto-next {
 			position: relative;
-			color: $general-next-color;
+			color: colorScheme.$general-next-color;
 			text-transform: uppercase;
 			font-weight: 800;
 			font-size: 0.5em;
@@ -144,12 +147,12 @@ $break-width: 35rem;
 	}
 
 	&.notification-center-open {
-		padding-right: $notification-center-width;
+		padding-right: variables.$notification-center-width;
 		transition: 0s padding-right 1s;
 	}
 
 	&.properties-panel-open {
-		padding-right: calc(#{$properties-panel-width} - 3.5em);
+		padding-right: calc(#{variables.$properties-panel-width} - 3.5em);
 		transition: 0s padding-right 1s;
 	}
 
@@ -192,18 +195,36 @@ body.no-overflow {
 	bottom: 0;
 	right: 0;
 	background:
-		linear-gradient(45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%),
+		linear-gradient(
+			45deg,
+			colorScheme.$color-status-fatal 33%,
+			transparent 33%,
+			transparent 66%,
+			colorScheme.$color-status-fatal 66%
+		),
 		// Top border
-		linear-gradient(45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%),
+		linear-gradient(
+				45deg,
+				colorScheme.$color-status-fatal 33%,
+				transparent 33%,
+				transparent 66%,
+				colorScheme.$color-status-fatal 66%
+			),
 		// Bottom border
-		linear-gradient(45deg, $color-status-fatal 33%, transparent 33%, transparent 66%, $color-status-fatal 66%),
+		linear-gradient(
+				45deg,
+				colorScheme.$color-status-fatal 33%,
+				transparent 33%,
+				transparent 66%,
+				colorScheme.$color-status-fatal 66%
+			),
 		// Left border
 		linear-gradient(
 				45deg,
-				$color-status-fatal 33%,
+				colorScheme.$color-status-fatal 33%,
 				transparent 33%,
 				transparent 66%,
-				$color-status-fatal 66%
+				colorScheme.$color-status-fatal 66%
 			); // Right border
 	background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
 	background-size:
@@ -250,8 +271,8 @@ svg.icon {
 
 	grid-template-columns:
 		[segment-name] calc($segment-header-width / 2) [duration-onAirIn-split] calc($segment-header-width / 2)
-		[segment-group-controls] $segment-group-controls-width [timeline] auto [end]; // 120px [future-timeline-end]
-	grid-template-rows: [header] $segment-header-height [main-view] auto [zoom-area] auto [end];
+		[segment-group-controls] variables.$segment-group-controls-width [timeline] auto [end]; // 120px [future-timeline-end]
+	grid-template-rows: [header] variables.$segment-header-height [main-view] auto [zoom-area] auto [end];
 
 	overflow: hidden;
 	user-select: none;
@@ -259,27 +280,27 @@ svg.icon {
 	-webkit-user-select: none;
 
 	width: auto;
-	margin: $segment-margin-y $segment-margin-x;
+	margin: variables.$segment-margin-y variables.$segment-margin-x;
 	// padding: 0 0 0.15em 0.15em;
 
-	background: $segment-background-color;
+	background: variables.$segment-background-color;
 	box-shadow: 7px 6px 15px 0px rgba(0, 0, 0, 0.3);
 
 	--segment-layer-height: #{$segment-layer-height};
 	--infinite-piece-background-line-height: calc($segment-layer-height / 8);
-	border-radius: $segment-border-radius;
+	border-radius: variables.$segment-border-radius;
 	border-bottom: 1px solid black;
 
 	@media screen and (max-width: $break-width) {
-		grid-template-columns: [start] $segment-group-controls-width [timeline] auto [toggle-view] 30px [end];
-		grid-template-rows: [header] $segment-header-height [title] auto [timeline-header] $segment-header-height [output-layers] auto [zoom-area] auto [end];
+		grid-template-columns: [start] variables.$segment-group-controls-width [timeline] auto [toggle-view] 30px [end];
+		grid-template-rows: [header] variables.$segment-header-height [title] auto [timeline-header] variables.$segment-header-height [output-layers] auto [zoom-area] auto [end];
 	}
 
 	// padding has to be the same on both of these elements so that the layers and their controls line up
 	.segment-timeline__output-layers,
 	.segment-timeline__timeline {
 		padding: $segment-timeline-padding;
-		--segment-timeline-padding-top: #{$segment-header-height};
+		--segment-timeline-padding-top: #{variables.$segment-header-height};
 		--segment-timeline-padding-bottom: 1.5em;
 	}
 
@@ -336,8 +357,8 @@ svg.icon {
 				text-shadow: none;
 				margin: 2.5px;
 				padding: 1px 4px;
-				background-color: $part-identifier;
-				color: $part-identifier-text;
+				background-color: colorScheme.$part-identifier;
+				color: colorScheme.$part-identifier-text;
 				border-radius: 10px;
 				font-size: 0.85rem;
 
@@ -491,7 +512,7 @@ svg.icon {
 
 		> span.negative {
 			transition: none;
-			color: $general-late-color;
+			color: colorScheme.$general-late-color;
 			font-weight: 500;
 		}
 
@@ -546,7 +567,7 @@ svg.icon {
 	justify-self: end;
 	align-self: start;
 	z-index: 1;
-	background: $segment-background-color;
+	background: variables.$segment-background-color;
 	width: 1.4em;
 	height: 1.4em;
 	padding: 0;
@@ -578,7 +599,7 @@ svg.icon {
 	}
 
 	&:active {
-		background: $ui-button-primary;
+		background: colorScheme.$ui-button-primary;
 		transition: 0s background-color;
 	}
 
@@ -653,8 +674,8 @@ svg.icon {
 				&:active {
 					> svg {
 						.btn-bkg {
-							fill: $ui-button-primary;
-							border-color: $ui-button-primary;
+							fill: colorScheme.$ui-button-primary;
+							border-color: colorScheme.$ui-button-primary;
 							transition: 0s fill;
 						}
 					}
@@ -666,7 +687,7 @@ svg.icon {
 		position: relative;
 		grid-column: end / future-timeline-end;
 		grid-row: header / zoom-area;
-		margin: $segment-header-height 0 0 1em;
+		margin: variables.$segment-header-height 0 0 1em;
 		overflow: hidden;
 		transition: $output-layer-group-collapse-animation-duration margin ease-in-out;
 	}
@@ -674,7 +695,7 @@ svg.icon {
 		position: relative;
 		grid-column: end / future-timeline-end;
 		grid-row: header / zoom-area;
-		margin: $segment-header-height 0 1.5em 1em;
+		margin: variables.$segment-header-height 0 1.5em 1em;
 		background: $segment-next-preview-background-color;
 		opacity: 1;
 		transition:
@@ -805,7 +826,7 @@ svg.icon {
 			top: 0;
 			bottom: 0;
 			width: 0;
-			border-left: 2px solid $general-live-color;
+			border-left: 2px solid colorScheme.$general-live-color;
 			background: none;
 			pointer-events: none;
 		}
@@ -901,7 +922,7 @@ svg.icon {
 	.segment-timeline__timeline-background {
 		min-width: 0;
 		overflow: hidden;
-		background: $segment-timeline-background-color;
+		background: itemTypeColors.$segment-timeline-background-color;
 		opacity: 1;
 		transition:
 			$output-layer-group-collapse-animation-duration opacity
@@ -965,7 +986,7 @@ svg.icon {
 
 	.segment-timeline__liveline-shade {
 		position: absolute;
-		top: $segment-header-height;
+		top: variables.$segment-header-height;
 		left: 0;
 		bottom: 0;
 		background: linear-gradient(to left, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0.7) 75px);
@@ -976,7 +997,7 @@ svg.icon {
 	// The liveline lives in the .segment-timeline__timeline-container
 	.segment-timeline__liveline {
 		width: 2px;
-		background: $general-live-color;
+		background: colorScheme.$general-live-color;
 		box-shadow: -3px 0 20px rgba(0, 0, 0, 1);
 		transition:
 			$output-layer-group-collapse-animation-duration top ease-in-out,
@@ -987,7 +1008,7 @@ svg.icon {
 			top: -1.1em;
 			left: -0.2px;
 			color: #fff;
-			background-color: $general-live-color;
+			background-color: colorScheme.$general-live-color;
 			text-transform: uppercase;
 			font-weight: bold;
 			line-height: 1em;
@@ -1004,17 +1025,17 @@ svg.icon {
 			font-size: 1.2em;
 			line-height: 1em;
 			font-weight: 500;
-			color: $liveline-timecode-color;
+			color: variables.$liveline-timecode-color;
 			white-space: nowrap;
 			word-wrap: none;
 			opacity: 1;
-			background: $segment-background-color;
+			background: variables.$segment-background-color;
 
 			transition: $output-layer-group-collapse-animation-duration opacity ease-in-out
 				$output-layer-group-collapse-animation-duration;
 
 			> .overtime {
-				color: $general-late-color;
+				color: colorScheme.$general-late-color;
 			}
 
 			> .rundown-view__part__icon {
@@ -1028,7 +1049,7 @@ svg.icon {
 			margin-top: 0.1em;
 
 			&.segment-timeline__liveline__appendage--piece-countdown {
-				color: $liveline-timecode-color;
+				color: variables.$liveline-timecode-color;
 				font-weight: 400;
 				text-shadow:
 					-1px -1px 4px #000,
@@ -1065,7 +1086,7 @@ svg.icon {
 			transition: 0.3s opacity;
 
 			&.segment-timeline__liveline__status--hold {
-				background-color: $hold-status-color;
+				background-color: variables.$hold-status-color;
 			}
 		}
 	}
@@ -1088,7 +1109,7 @@ svg.icon {
 
 		.segment-timeline__small-parts-flag {
 			margin-left: -0.3em;
-			background: $segment-background-color;
+			background: variables.$segment-background-color;
 			z-index: 1002;
 
 			&:hover {
@@ -1223,7 +1244,7 @@ svg.icon {
 				right: 0;
 				bottom: -1.3em;
 				flex: 0;
-				border-left: 2px solid $part-start-color;
+				border-left: 2px solid variables.$part-start-color;
 				box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.7);
 				z-index: 20;
 
@@ -1257,10 +1278,10 @@ svg.icon {
 					text-transform: uppercase;
 					font-weight: bold;
 					line-height: 0.9em;
-					background: $segment-background-color;
+					background: variables.$segment-background-color;
 					white-space: nowrap;
 					word-wrap: none;
-					color: $part-start-color;
+					color: variables.$part-start-color;
 					font-size: 0.9em;
 
 					&.segment-timeline__part__nextline__label--thin {
@@ -1276,7 +1297,7 @@ svg.icon {
 						display: inline-block;
 
 						> svg {
-							fill: $part-start-color;
+							fill: variables.$part-start-color;
 						}
 					}
 				}
@@ -1284,13 +1305,13 @@ svg.icon {
 				&::after {
 					top: -2px;
 					left: -2px;
-					@include take-arrow();
+					@include utils.take-arrow();
 				}
 
 				&::before {
 					bottom: -1px;
 					left: -2px;
-					@include take-arrow();
+					@include utils.take-arrow();
 				}
 
 				.segment-timeline__part__nextline__quickloop-start {
@@ -1390,8 +1411,8 @@ svg.icon {
 					-45deg,
 					transparent 0%,
 					transparent 8px,
-					color.scale($part-start-color, $lightness: -50%) 8px,
-					color.scale($part-start-color, $lightness: -50%) 10px
+					color.scale(variables.$part-start-color, $lightness: -50%) 8px,
+					color.scale(variables.$part-start-color, $lightness: -50%) 10px
 				);
 				backdrop-filter: saturate(0%) brightness(50%);
 			}
@@ -1518,7 +1539,7 @@ svg.icon {
 				left: 100%;
 				white-space: nowrap;
 				bottom: -1.3rem;
-				border-left: 2px solid $part-start-color;
+				border-left: 2px solid variables.$part-start-color;
 				margin-left: 2px;
 				padding-left: 0.5em;
 				text-transform: uppercase;
@@ -1551,13 +1572,13 @@ svg.icon {
 					transform: translateY(calc(-50% - 6px));
 
 					> svg > path {
-						stroke: $part-start-color;
+						stroke: variables.$part-start-color;
 					}
 				}
 
 				&.is-next {
 					.segment-timeline__part__segment-end__label > svg > path {
-						stroke: $general-next-color;
+						stroke: colorScheme.$general-next-color;
 					}
 				}
 			}
@@ -1584,11 +1605,11 @@ svg.icon {
 				}
 
 				.segment-timeline__part__nextline:not(.segment-timeline__part__nextline--endline):not(.offset) {
-					border-left-color: $general-next-color;
-					color: $general-next-color;
+					border-left-color: colorScheme.$general-next-color;
+					color: colorScheme.$general-next-color;
 
 					&::before {
-						border-color: transparent transparent transparent $general-next-color;
+						border-color: transparent transparent transparent colorScheme.$general-next-color;
 					}
 
 					&:not(.invalid) {
@@ -1597,7 +1618,7 @@ svg.icon {
 						}
 
 						.segment-timeline__part__nextline__label {
-							background: $general-next-color;
+							background: colorScheme.$general-next-color;
 							color: #000;
 							display: block;
 							padding: 3px 1px 1px 2px;
@@ -1608,7 +1629,7 @@ svg.icon {
 
 							&::after {
 								content: ' ';
-								border-color: transparent transparent transparent $general-next-color;
+								border-color: transparent transparent transparent colorScheme.$general-next-color;
 								display: block;
 								position: absolute;
 								bottom: 0;
@@ -1646,8 +1667,8 @@ svg.icon {
 					}
 
 					.segment-timeline__part__nextline__quickloop-start {
-						border-left-color: $general-next-color;
-						border-right-color: $general-next-color;
+						border-left-color: colorScheme.$general-next-color;
+						border-right-color: colorScheme.$general-next-color;
 					}
 				}
 			}
@@ -1660,21 +1681,21 @@ svg.icon {
 			}
 
 			.segment-timeline__part__nextline--endline.is-next {
-				border-left-color: $general-next-color;
-				color: $general-next-color;
+				border-left-color: colorScheme.$general-next-color;
+				color: colorScheme.$general-next-color;
 
 				&::before,
 				&::after {
-					border-color: transparent transparent transparent $general-next-color;
+					border-color: transparent transparent transparent colorScheme.$general-next-color;
 				}
 
 				.segment-timeline__part__nextline__label {
-					color: $general-next-color;
+					color: colorScheme.$general-next-color;
 					display: block;
 
 					.segment-timeline__part__nextline__label__carriage-return {
 						> svg {
-							fill: $general-next-color;
+							fill: colorScheme.$general-next-color;
 						}
 					}
 				}
@@ -1712,7 +1733,7 @@ svg.icon {
 
 				.segment-timeline__part__quickloop-start,
 				.segment-timeline__part__quickloop-end {
-					background: $segment-background-color;
+					background: variables.$segment-background-color;
 					padding: 0 0.3em;
 					margin-bottom: -2px;
 					white-space: nowrap;
@@ -1752,7 +1773,7 @@ svg.icon {
 						$output-layer-group-collapse-animation-duration border ease-in-out;
 
 					.segment-timeline__piece {
-						background: $segment-layer-background-unknown;
+						background: itemTypeColors.$segment-layer-background-unknown;
 						transition: box-shadow 0.5s ease-out;
 						box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5);
 						cursor: default;
@@ -1771,10 +1792,10 @@ svg.icon {
 							transform: translate3d(0, 0, 10px);
 						}
 
-						@include piece-colors();
+						@include itemTypeColors.piece-colors();
 
 						&.next-is-touching {
-							border-right: 1px solid $segment-timeline-background-color;
+							border-right: 1px solid itemTypeColors.$segment-timeline-background-color;
 							overflow: hidden;
 						}
 						&.super-infinite {
@@ -1802,7 +1823,7 @@ svg.icon {
 									min-height: 0;
 									transform-style: preserve-3d;
 
-									@include item-type-colors;
+									@include itemTypeColors.item-type-colors;
 
 									> .segment-timeline__piece__label.right-side {
 										margin-right: 0 !important;
@@ -1946,7 +1967,7 @@ svg.icon {
 							}
 						}
 
-						@include missing-overlay();
+						@include itemTypeColors.missing-overlay();
 					}
 				}
 
@@ -2271,7 +2292,7 @@ svg.icon {
 			.segment-timeline__piece-appendage {
 				&.script-line {
 					width: 0;
-					border-left: 2px dotted $segment-layer-background-mic;
+					border-left: 2px dotted itemTypeColors.$segment-layer-background-mic;
 					margin-left: -2px;
 					box-shadow: 0px 0px 1px 1px rgba(0, 30, 0, 0.18);
 
@@ -2303,9 +2324,9 @@ svg.icon {
 				z-index: -1;
 				padding: 0 4px 0 10px;
 				box-sizing: border-box;
-				background-color: $part-identifier;
+				background-color: colorScheme.$part-identifier;
 				border-radius: 0 8px 8px 0;
-				color: $part-identifier-text;
+				color: colorScheme.$part-identifier-text;
 				font-size: 0.85rem;
 			}
 
@@ -2355,7 +2376,7 @@ svg.icon {
 				opacity: 1;
 				transition: $output-layer-group-collapse-animation-duration opacity;
 
-				text-shadow: 0 0 5px $segment-background-color;
+				text-shadow: 0 0 5px variables.$segment-background-color;
 				z-index: 2;
 			}
 
@@ -2762,7 +2783,7 @@ svg.icon {
 
 		> .rundown-divider-timeline__expected-start__countdown {
 			font-weight: 600;
-			color: $general-late-color;
+			color: colorScheme.$general-late-color;
 		}
 	}
 
@@ -2896,7 +2917,7 @@ svg.icon {
 		border-left: 1px solid #333;
 		border-right: 1px solid #333;
 		background: $segment-mini-inspector-timeline-background;
-		margin-top: $segment-header-height * -1;
+		margin-top: variables.$segment-header-height * -1;
 		padding: $segment-timeline-padding;
 
 		overflow: hidden;
@@ -2939,7 +2960,7 @@ svg.icon {
 		}
 	}
 
-	@include item-type-borders();
+	@include itemTypeColors.item-type-borders();
 
 	&::before {
 		content: ' ';
@@ -2956,7 +2977,7 @@ svg.icon {
 		z-index: 1;
 	}
 
-	@include item-type-before-background();
+	@include itemTypeColors.item-type-before-background();
 
 	&.segment-timeline__mini-inspector--graphics--preview {
 		border: none;
@@ -3017,13 +3038,13 @@ svg.icon {
 
 	&.segment-timeline__mini-inspector--notice.notice-warning {
 		> .segment-timeline__mini-inspector__notice-header {
-			background-color: $color-status-warning;
+			background-color: colorScheme.$color-status-warning;
 		}
 	}
 
 	&.segment-timeline__mini-inspector--notice.notice-critical {
 		> .segment-timeline__mini-inspector__notice-header {
-			background-color: $color-status-fatal;
+			background-color: colorScheme.$color-status-fatal;
 		}
 	}
 
@@ -3094,7 +3115,7 @@ svg.icon {
 			display: block;
 			width: 414px;
 			height: 233px;
-			@include checkerboard-background;
+			@include checkerboard.checkerboard-background;
 		}
 
 		> .segment-timeline__mini-inspector__warnings {
@@ -3168,7 +3189,7 @@ svg.icon {
 			}
 
 			& > * {
-				@include item-type-colors;
+				@include itemTypeColors.item-type-colors;
 			}
 
 			.video-preview__label {
@@ -3314,7 +3335,7 @@ svg.icon {
 	cursor: pointer;
 	top: 160px;
 	right: 1.5em;
-	background: $general-live-color;
+	background: colorScheme.$general-live-color;
 	color: #000;
 	padding: 0.7em 1em;
 	border-radius: 3px;
@@ -3408,5 +3429,3 @@ svg.icon {
 	> .segment-opl__main-piece__label__step-chevron {
 	padding-left: 4em;
 }
-
-@import 'rundownOverview';

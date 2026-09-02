@@ -1,5 +1,6 @@
-@import '../colorScheme';
-@import '../variables';
+@use '../colorScheme' as colorScheme;
+@use '../variables' as variables;
+@use '../itemTypeColors' as itemTypeColors;
 
 .shelf-inspector {
 	overflow-y: auto;
@@ -57,13 +58,13 @@
 	}
 
 	.btn {
-		background: $ui-dark-color;
+		background: colorScheme.$ui-dark-color;
 		border: 1px solid rgba(255, 255, 255, 0.3);
 		padding-left: 8px;
 		padding-right: 8px;
 
 		&:active {
-			background: $ui-dark-color-brighter;
+			background: colorScheme.$ui-dark-color-brighter;
 		}
 	}
 
@@ -74,7 +75,7 @@
 			'body'
 			'footer' min-content;
 		grid-gap: 5px;
-		top: $inspector-shelf-tabs-height;
+		top: variables.$inspector-shelf-tabs-height;
 		left: 0;
 		right: 0;
 		bottom: 2px;
@@ -94,7 +95,7 @@
 	}
 
 	.shelf-inspector__title {
-		line-height: $inspector-shelf-tabs-height;
+		line-height: variables.$inspector-shelf-tabs-height;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -116,9 +117,9 @@
 			margin-right: 0.5em;
 			text-align: center;
 
-			@include item-type-colors();
-			@include missing-overlay();
-			@include floated-overlay();
+			@include itemTypeColors.item-type-colors();
+			@include itemTypeColors.missing-overlay();
+			@include itemTypeColors.floated-overlay();
 		}
 
 		.shelf-inspector__title__layer {

@@ -1,7 +1,8 @@
+@use '../../styles/itemTypeColors' as itemTypeColors;
 svg.piece_icon {
-	@include item-type-colors-svg();
+	@include itemTypeColors.item-type-colors-svg();
 
 	rect {
-		@include item-type-colors-svg();
+		@include itemTypeColors.item-type-colors-svg();
 	}
 }

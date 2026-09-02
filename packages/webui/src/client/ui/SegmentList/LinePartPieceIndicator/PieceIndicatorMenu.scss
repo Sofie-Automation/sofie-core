@@ -1,3 +1,5 @@
+@use '../../../styles/itemTypeColors' as itemTypeColors;
+
 .segment-opl__piece-indicator-menu {
 	background: #5a5a5a;
 	pointer-events: all;
@@ -9,8 +11,8 @@
 		width: 300px;
 		margin: 0 0 0.2em;
 
-		@include piece-colors();
-		@include missing-overlay();
+		@include itemTypeColors.piece-colors();
+		@include itemTypeColors.missing-overlay();
 
 		&:last-child {
 			margin: 0;

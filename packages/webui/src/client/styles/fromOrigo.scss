@@ -1,6 +1,8 @@
+@use 'variables';
+
 .header-clear {
 	padding-top: 4rem;
-	padding-right: $statusbar-width;
+	padding-right: variables.$statusbar-width;
 	padding-left: 0;
 
 	&.header-clear--no-rundown-header {
@@ -79,7 +81,7 @@ h5,
 .text-s {
 	font-size: 0.875rem;
 	font-weight: 400;
-    opacity: .7;
+	opacity: 0.7;
 	line-height: 1.5;
 	letter-spacing: 0.5px;
 }

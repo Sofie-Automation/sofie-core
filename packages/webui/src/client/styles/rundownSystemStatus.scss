@@ -1,4 +1,4 @@
-@import 'colorScheme';
+@use 'colorScheme';
 
 .rundown-system-status {
 	position: absolute;
@@ -42,29 +42,29 @@
 			height: 7px;
 
 			&.good {
-				background: $color-status-good;
-				box-shadow: 0 0 15px 0px $color-status-good;
+				background: colorScheme.$color-status-good;
+				box-shadow: 0 0 15px 0px colorScheme.$color-status-good;
 			}
 
 			&.minor {
-				background: $color-status-minor-warning;
-				box-shadow: 0 0 15px 1px $color-status-minor-warning;
-				color: $color-status-minor-warning-text;
+				background: colorScheme.$color-status-minor-warning;
+				box-shadow: 0 0 15px 1px colorScheme.$color-status-minor-warning;
+				color: colorScheme.$color-status-minor-warning-text;
 			}
 
 			&.major {
-				background: $color-status-warning;
-				box-shadow: 0 0 15px 3px $color-status-warning;
+				background: colorScheme.$color-status-warning;
+				box-shadow: 0 0 15px 3px colorScheme.$color-status-warning;
 			}
 
 			&.bad {
-				background: $color-status-bad;
-				box-shadow: 0 0 15px 3px $color-status-bad;
+				background: colorScheme.$color-status-bad;
+				box-shadow: 0 0 15px 3px colorScheme.$color-status-bad;
 			}
 
 			&.fatal {
-				background: $color-status-fatal;
-				box-shadow: 0 0 15px 3px $color-status-fatal;
+				background: colorScheme.$color-status-fatal;
+				box-shadow: 0 0 15px 3px colorScheme.$color-status-fatal;
 			}
 
 			> .indicator__tooltip {

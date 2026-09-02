@@ -1,4 +1,4 @@
-@import '../../styles/colorScheme';
+@use '../../styles/colorScheme' as colorScheme;
 
 .timecode-encoder {
 	display: flex;
@@ -15,7 +15,7 @@
 			padding: 0 0.33em;
 
 			&:focus {
-				text-shadow: 0 0 5px $ui-button-primary--translucent;
+				text-shadow: 0 0 5px colorScheme.$ui-button-primary--translucent;
 			}
 		}
 	}
@@ -33,8 +33,8 @@
 
 	&.error {
 		> input {
-			box-shadow: 0 0 10px $color-status-fatal--translucent;
-			background: $color-status-fatal;
+			box-shadow: 0 0 10px colorScheme.$color-status-fatal--translucent;
+			background: colorScheme.$color-status-fatal;
 		}
 	}
 }

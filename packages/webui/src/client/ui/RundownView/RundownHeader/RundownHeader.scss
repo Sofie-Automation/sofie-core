@@ -1,6 +1,6 @@
-@import '../../../styles/colorScheme';
-@import './shared';
-@import './Countdown';
+@use '../../../styles/colorScheme';
+@use './shared';
+@use './Countdown';
 
 .rundown-header {
 	height: 64px;
@@ -27,11 +27,11 @@
 
 	// State-based background colors
 	&.not-active {
-		background-color: $color-header-inactive;
+		background-color: colorScheme.$color-header-inactive;
 	}
 
 	&.active {
-		background-color: $color-header-on-air;
+		background-color: colorScheme.$color-header-on-air;
 		border-bottom: 1px solid #256b91;
 
 		.rundown-header__clocks {
@@ -248,7 +248,6 @@
 				'YTDE' -203,
 				'YTUC' 712;
 		}
-
 	}
 
 	.rundown-header__clocks-timers {
@@ -389,12 +388,12 @@
 		}
 
 		.countdown__counter {
-			color: $general-countdown-to-next-color;
+			color: colorScheme.$general-countdown-to-next-color;
 		}
 
 		.overtime,
 		.overtime .countdown__counter {
-			color: $general-late-color;
+			color: colorScheme.$general-late-color;
 		}
 	}
 

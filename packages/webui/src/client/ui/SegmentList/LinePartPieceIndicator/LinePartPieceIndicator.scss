@@ -1,3 +1,5 @@
+@use '../../../styles/itemTypeColors' as itemTypeColors;
+
 .segment-opl__piece-indicator-placeholder {
 	position: relative;
 	flex: 0 1 1.3em;
@@ -19,11 +21,11 @@
 
 		background: #33333333;
 
-		@include piece-colors();
-		@include missing-overlay();
+		@include itemTypeColors.piece-colors();
+		@include itemTypeColors.missing-overlay();
 
 		&.continuation {
-			@include item-type-before-background();
+			@include itemTypeColors.item-type-before-background();
 			&::before {
 				content: ' ';
 				display: block;

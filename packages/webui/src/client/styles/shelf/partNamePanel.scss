@@ -1,3 +1,5 @@
+@use '../itemTypeColors' as itemTypeColors;
+
 .part-name-panel {
 	position: absolute;
 	margin: 0 0;
@@ -7,7 +9,7 @@
 	padding: 1vw 1vh;
 	overflow: hidden;
 
-	@include item-type-colors();
+	@include itemTypeColors.item-type-colors();
 
 	.wrapper {
 		position: relative;

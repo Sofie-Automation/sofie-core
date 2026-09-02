@@ -1,7 +1,9 @@
+@use 'mixins';
+@use 'variables';
 /* BEGIN Light */
 @font-face {
 	font-family: Roboto;
-	@include fontdef-woff($FontPath, $FontName, $FontVersion, 'Light');
+	@include mixins.fontdef-woff(variables.$FontPath, variables.$FontName, variables.$FontVersion, 'Light');
 	font-weight: 300;
 	font-style: normal;
 }

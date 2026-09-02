@@ -1,4 +1,4 @@
-@import '../../../styles/variables';
+@use '../../../styles/itemTypeColors' as itemTypeColors;
 
 // Variables
 $text-color: #ffffff;
@@ -8,18 +8,18 @@ $letter-spacing: 0.03em;
 
 $background-live-speak: linear-gradient(
 	to bottom,
-	$segment-layer-background-live-speak-1 74%,
-	$segment-layer-background-live-speak-2 74%
+	itemTypeColors.$segment-layer-background-live-speak-1 74%,
+	itemTypeColors.$segment-layer-background-live-speak-2 74%
 );
 
 $background-remote-speak: linear-gradient(
 	to bottom,
-	$segment-layer-background-remote-speak-1 74%,
-	$segment-layer-background-remote-speak-2 74%
+	itemTypeColors.$segment-layer-background-remote-speak-1 74%,
+	itemTypeColors.$segment-layer-background-remote-speak-2 74%
 );
 
 @mixin layer-type-backgrounds {
-	@each $layer-type in $layer-types {
+	@each $layer-type in itemTypeColors.$layer-types {
 		&.#{$layer-type} {
 			// Background:
 			display: inline-block;
@@ -100,10 +100,10 @@ $background-remote-speak: linear-gradient(
 	}
 
 	.remote-speak {
-			background-image: $background-remote-speak;
-			display: flex;
-			justify-content: center;
-			align-items: center;
+		background-image: $background-remote-speak;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	// Split view container and layers
@@ -118,7 +118,7 @@ $background-remote-speak: linear-gradient(
 		z-index: 1;
 
 		// Apply item-type-colors to each source layer type
-		@each $layer-type in $layer-types {
+		@each $layer-type in itemTypeColors.$layer-types {
 			> .#{$layer-type} {
 				position: absolute;
 				left: 0;

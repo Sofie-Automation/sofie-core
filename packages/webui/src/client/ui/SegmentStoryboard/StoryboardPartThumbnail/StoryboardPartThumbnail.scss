@@ -1,18 +1,19 @@
 @use 'sass:color';
 
-@import '../../../styles/variables';
-@import '../../../styles/checkerboard';
+@use '../../../styles/variables' as variables;
+@use '../../../styles/checkerboard' as checkerboard;
+@use '../../../styles/itemTypeColors' as itemTypeColors;
 
 .segment-storyboard__part__thumbnail {
 	position: relative;
 	width: 100%;
-	height: $segment-storyboard-thumbnail-height;
+	height: variables.$segment-storyboard-thumbnail-height;
 	border-radius: 4px;
 	overflow: hidden;
 	cursor: default;
 
-	@include item-type-colors;
-	@include missing-overlay();
+	@include itemTypeColors.item-type-colors;
+	@include itemTypeColors.missing-overlay();
 
 	// LiveSpeak needs a bit of special set up, because the thumbnail may make the dual-color setup invisible
 	&.live-speak {
@@ -37,7 +38,7 @@
 	}
 
 	&.segment-storyboard__part__thumbnail--placeholder {
-		background: color.scale($segment-background-color, $lightness: 10%);
+		background: color.scale(variables.$segment-background-color, $lightness: 10%);
 	}
 
 	.segment-storyboard__thumbnail__icon {
@@ -61,7 +62,7 @@
 			position: relative;
 			overflow: hidden;
 			min-height: 0;
-			@include item-type-colors;
+			@include itemTypeColors.item-type-colors;
 
 			> img,
 			.segment-storyboard__thumbnail__item__image {
@@ -82,7 +83,7 @@
 		right: 0;
 		bottom: 0;
 		overflow: hidden;
-		@include checkerboard-background;
+		@include checkerboard.checkerboard-background;
 
 		> .box,
 		> .background {
@@ -109,7 +110,7 @@
 		}
 
 		& > * {
-			@include item-type-colors;
+			@include itemTypeColors.item-type-colors;
 		}
 	}
 
@@ -218,7 +219,7 @@
 		}
 
 		&--playing {
-			color: $liveline-timecode-color;
+			color: variables.$liveline-timecode-color;
 		}
 	}
 

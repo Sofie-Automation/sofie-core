@@ -1,6 +1,8 @@
-@import '../colorScheme';
-$liveline-timecode-color: $general-countdown-to-next-color; //$general-live-color;
-$hold-status-color: $liveline-timecode-color;
+@use '../colorScheme' as colorScheme;
+@use '../variables' as variables;
+
+$liveline-timecode-color: colorScheme.$general-countdown-to-next-color; //colorScheme.$general-live-color;
+$hold-status-color: variables.$liveline-timecode-color;
 
 .piece__label__colored-mark {
 	display: inline-block;
@@ -63,7 +65,7 @@ $hold-status-color: $liveline-timecode-color;
 						rgba(116, 0, 0, 0.808) 70%,
 						rgba(0, 0, 0, 0.8) 75%
 					),
-					$general-live-color;
+					colorScheme.$general-live-color;
 				color: #fff;
 				-webkit-text-stroke: black;
 				-webkit-text-stroke-width: 0.025em;
@@ -71,7 +73,7 @@ $hold-status-color: $liveline-timecode-color;
 			}
 
 			&.next {
-				background: $general-next-color;
+				background: colorScheme.$general-next-color;
 				color: #000;
 			}
 		}
@@ -133,7 +135,7 @@ $hold-status-color: $liveline-timecode-color;
 			line-height: 1em;
 
 			> .overtime {
-				color: $general-late-color;
+				color: colorScheme.$general-late-color;
 			}
 
 			> img.freeze-icon {
@@ -164,7 +166,7 @@ $hold-status-color: $liveline-timecode-color;
 		.presenter-screen__part__part-countdown {
 			grid-row: 3;
 			grid-column: 2;
-			color: $general-countdown-to-next-color;
+			color: colorScheme.$general-countdown-to-next-color;
 		}
 
 		&.presenter-screen__part--next-part {
@@ -180,7 +182,7 @@ $hold-status-color: $liveline-timecode-color;
 	}
 
 	.clocks-segment-countdown-red {
-		color: $general-late-color;
+		color: colorScheme.$general-late-color;
 	}
 
 	.clocks-counter-heavy {
@@ -198,7 +200,7 @@ $hold-status-color: $liveline-timecode-color;
 				position: relative;
 				margin-right: 1em;
 				font-weight: 100;
-				color: $general-clock;
+				color: colorScheme.$general-clock;
 				font-size: 1.5em;
 				margin-top: 0.8em;
 				word-break: keep-all;
@@ -237,12 +239,12 @@ $hold-status-color: $liveline-timecode-color;
 					position: absolute;
 					left: calc(50% + 3.5em);
 					text-align: left;
-					color: $liveline-timecode-color;
+					color: variables.$liveline-timecode-color;
 					font-weight: 500;
 
 					.overtime {
-						color: $general-fast-color;
-						text-shadow: 0px 0px 6px $general-fast-color--shadow;
+						color: colorScheme.$general-fast-color;
+						text-shadow: 0px 0px 6px colorScheme.$general-fast-color--shadow;
 					}
 				}
 
@@ -293,14 +295,14 @@ $hold-status-color: $liveline-timecode-color;
 					font-weight: 600;
 
 					&.heavy {
-						// color: $general-late-color;
+						// color: colorScheme.$general-late-color;
 						color: #ffe900;
 						background: none;
 					}
 
 					&.light {
-						color: $general-fast-color;
-						text-shadow: 0px 0px 6px $general-fast-color--shadow;
+						color: colorScheme.$general-fast-color;
+						text-shadow: 0px 0px 6px colorScheme.$general-fast-color--shadow;
 						background: none;
 					}
 				}
@@ -320,7 +322,7 @@ $hold-status-color: $liveline-timecode-color;
 				padding: 2px 5px 1px;
 
 				&.rundown__header-status--hold {
-					background: $hold-status-color;
+					background: variables.$hold-status-color;
 				}
 			}
 

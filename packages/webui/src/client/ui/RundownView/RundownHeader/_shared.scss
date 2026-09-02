@@ -1,5 +1,5 @@
 // Shared placeholder used by both RundownHeader.scss and Countdown.scss.
-// Extracted to break the circular @import dependency.
+// Extracted to break the circular @use dependency.
 
 %hoverable-label {
 	font-size: 0.75em;

@@ -1,3 +1,5 @@
+@use 'colorScheme';
+
 $fullscreen-controls__button--radius: 3.125rem;
 
 $statusbar-width: 3.6rem;
@@ -17,7 +19,7 @@ $segment-border-radius: 11px;
 $part-start-color: #a5a5a5;
 $segment-background-color: #000;
 
-$liveline-timecode-color: $general-countdown-to-next-color; //$general-live-color;
+$liveline-timecode-color: colorScheme.$general-countdown-to-next-color; //colorScheme.$general-live-color;
 $hold-status-color: $liveline-timecode-color;
 
 $segment-storyboard-part-width: 166px;

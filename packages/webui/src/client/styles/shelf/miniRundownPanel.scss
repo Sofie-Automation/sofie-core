@@ -1,4 +1,4 @@
-@import '../colorScheme';
+@use '../colorScheme' as colorScheme;
 
 .mini-rundown-panel {
 	--dashboard-panel-scale: 1;

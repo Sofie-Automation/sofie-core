@@ -1,3 +1,4 @@
+@use '../../styles/itemTypeColors' as itemTypeColors;
 // Variables
 $text-color: #ffffff;
 $font-size-base: 70px;
@@ -7,7 +8,7 @@ $letter-spacing: 0.02em;
 // Base icon styles
 .piece-icon {
 	rect.piece-icon-bkg {
-		@include item-type-colors-svg();
+		@include itemTypeColors.item-type-colors-svg();
 		rx: 4;
 		ry: 4;
 	}

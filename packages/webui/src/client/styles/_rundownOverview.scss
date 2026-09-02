@@ -9,7 +9,7 @@
 	position: relative;
 	white-space: nowrap;
 	padding: 0.9em 0;
-	background: $segment-timeline-background-color;
+	background: itemTypeColors.$segment-timeline-background-color;
 	background-clip: content-box;
 	overflow: hidden;
 
@@ -54,13 +54,13 @@
 
 		&.live {
 			color: $segment-title-text-color-live;
-			background: $general-live-color;
+			background: colorScheme.$general-live-color;
 			font-weight: 500;
 			text-shadow: 0px 0px 6px rgba(255, 255, 255, 0.8);
 		}
 
 		&.next {
-			background: $general-next-color;
+			background: colorScheme.$general-next-color;
 			font-weight: 500;
 			text-shadow: 0px 0px 6px rgba(255, 255, 255, 0.8);
 		}
@@ -76,7 +76,7 @@
 			right: auto;
 			bottom: -1.5em;
 			width: 2px;
-			background: #ff0000; //$general-live-color;
+			background: #ff0000; //colorScheme.$general-live-color;
 			z-index: 4;
 		}
 
@@ -87,7 +87,7 @@
 			right: auto;
 			bottom: -5px;
 			width: 2px;
-			background: #00ff00; //$general-next-color;
+			background: #00ff00; //colorScheme.$general-next-color;
 			z-index: 3;
 		}
 	}
@@ -117,7 +117,7 @@
 
 		&.next {
 			.rundown__overview__segment__part {
-				background: $general-next-color;
+				background: colorScheme.$general-next-color;
 				font-weight: 500;
 				text-shadow: 0px 0px 6px rgba(255, 255, 255, 0.8);
 			}
@@ -126,7 +126,7 @@
 		&.live {
 			.rundown__overview__segment__part {
 				color: $segment-title-text-color-live;
-				background: $general-live-color;
+				background: colorScheme.$general-live-color;
 				font-weight: 500;
 				text-shadow: 0px 0px 6px rgba(255, 255, 255, 0.8);
 			}

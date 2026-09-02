@@ -1,8 +1,9 @@
 @use 'sass:color';
 
-@import '../../styles/colorScheme';
-@import '../../styles/utils';
-@import '../../styles/variables';
+@use '../../styles/colorScheme' as colorScheme;
+@use '../../styles/utils' as utils;
+@use '../../styles/variables' as variables;
+@use '../../styles/itemTypeColors' as itemTypeColors;
 
 $part-left-padding: 6px;
 $part-right-padding: 5px;
@@ -87,8 +88,8 @@ $break-width: 35rem;
 				&:active {
 					> svg {
 						.btn-bkg {
-							fill: $ui-button-primary;
-							border-color: $ui-button-primary;
+							fill: colorScheme.$ui-button-primary;
+							border-color: colorScheme.$ui-button-primary;
 							transition: 0s fill;
 						}
 					}
@@ -141,7 +142,7 @@ $break-width: 35rem;
 	}
 
 	> .segment-timeline__source-layers {
-		margin: $segment-storyboard-thumbnail-height 0.3em 0;
+		margin: variables.$segment-storyboard-thumbnail-height 0.3em 0;
 
 		grid-column: segment-group-controls / timeline;
 		grid-row: main-view / zoom-area;
@@ -167,15 +168,15 @@ $break-width: 35rem;
 .segment-storyboard__part {
 	position: relative;
 	flex: 0 0;
-	min-width: $segment-storyboard-part-width;
+	min-width: variables.$segment-storyboard-part-width;
 	margin-top: 1em;
 	padding: 1.3rem $part-right-padding 1.5rem $part-left-padding;
 
 	--invalid-reason-color-transparent: transparent;
-	--invalid-reason-color-opaque: #{$segment-background-color}; // HERE
+	--invalid-reason-color-opaque: #{variables.$segment-background-color}; // HERE
 
 	&--invalid {
-		background: $segment-timeline-background-color;
+		background: itemTypeColors.$segment-timeline-background-color;
 	}
 
 	&--outside-quickloop {
@@ -195,7 +196,7 @@ $break-width: 35rem;
 
 	> .segment-storyboard__part__background {
 		position: absolute;
-		background-image: linear-gradient(to bottom, $general-live-color 20px, black 8rem);
+		background-image: linear-gradient(to bottom, colorScheme.$general-live-color 20px, black 8rem);
 		top: 0;
 		left: 3px;
 		bottom: 1.5em;
@@ -216,27 +217,27 @@ $break-width: 35rem;
 		left: 0;
 		bottom: 0;
 		width: 0;
-		border-left: 2px solid $part-start-color;
+		border-left: 2px solid variables.$part-start-color;
 		z-index: 3;
 
 		&--autonext {
 			top: 7px;
-			border-left: 1px solid $part-start-color;
+			border-left: 1px solid variables.$part-start-color;
 		}
 
 		&--live {
-			border-left-color: $general-live-color;
+			border-left-color: colorScheme.$general-live-color;
 			opacity: 0;
 			transition: 200ms opacity;
 		}
 
 		&--next {
-			border-left-color: $general-next-color;
+			border-left-color: colorScheme.$general-next-color;
 		}
 
 		&--invalid {
 			top: 7px;
-			border-left: 1px solid $part-start-color;
+			border-left: 1px solid variables.$part-start-color;
 		}
 
 		&--opposite {
@@ -252,13 +253,13 @@ $break-width: 35rem;
 				.segment-storyboard__part__next-line--invalid
 			) {
 			&::before {
-				@include take-arrow();
+				@include utils.take-arrow();
 				top: -3px;
 				left: -2px;
 			}
 
 			&::after {
-				@include take-arrow();
+				@include utils.take-arrow();
 				top: auto;
 				left: -2px;
 				bottom: -1px;
@@ -282,11 +283,11 @@ $break-width: 35rem;
 				}
 				&.segment-storyboard__part__next-line--opposite {
 					&::before {
-						border-color: transparent transparent transparent $general-next-color;
+						border-color: transparent transparent transparent colorScheme.$general-next-color;
 					}
 				}
 				&::after {
-					border-color: transparent transparent transparent $general-next-color;
+					border-color: transparent transparent transparent colorScheme.$general-next-color;
 				}
 			}
 		}
@@ -295,7 +296,7 @@ $break-width: 35rem;
 			&::before {
 				display: block !important;
 				border: none !important;
-				border-left: 1px solid $part-start-color !important;
+				border-left: 1px solid variables.$part-start-color !important;
 				top: 0 !important;
 				left: 2px !important;
 				bottom: 0 !important;
@@ -318,12 +319,12 @@ $break-width: 35rem;
 		line-height: 0.9em;
 		white-space: nowrap;
 		word-wrap: none;
-		color: $part-start-color;
+		color: variables.$part-start-color;
 		padding: 3px 0.3em 1px;
 		z-index: 5;
 
 		&.segment-storyboard__part__next-line-label--live {
-			background: $general-live-color;
+			background: colorScheme.$general-live-color;
 			color: #fff;
 			text-align: center;
 			right: 0.2rem;
@@ -332,7 +333,7 @@ $break-width: 35rem;
 		}
 
 		&:not(.segment-storyboard__part__next-line-label--opposite).segment-storyboard__part__next-line-label--next {
-			background: $general-next-color;
+			background: colorScheme.$general-next-color;
 			color: #000;
 			right: auto;
 			padding: 3px 0 1px 2px;
@@ -340,7 +341,7 @@ $break-width: 35rem;
 
 			&::after {
 				content: ' ';
-				border-color: transparent transparent transparent $general-next-color;
+				border-color: transparent transparent transparent colorScheme.$general-next-color;
 				display: block;
 				position: absolute;
 				bottom: 0;
@@ -384,7 +385,7 @@ $break-width: 35rem;
 			left: 100% !important;
 
 			&.segment-storyboard__part__next-line-label--next {
-				color: $general-next-color;
+				color: colorScheme.$general-next-color;
 				font-weight: 500;
 
 				&:not(.segment-storyboard__part__next-line-label--autonext) {
@@ -408,11 +409,11 @@ $break-width: 35rem;
 		left: -2px;
 		width: 6px;
 		z-index: 5;
-		background: $segment-background-color;
+		background: variables.$segment-background-color;
 	}
 
 	&--next > .segment-storyboard__part__quickloop-start {
-		border-color: $general-next-color;
+		border-color: colorScheme.$general-next-color;
 	}
 
 	> .segment-storyboard__part__quickloop-end {
@@ -425,7 +426,7 @@ $break-width: 35rem;
 		right: -4px;
 		width: 6px;
 		z-index: 4;
-		background: $segment-background-color;
+		background: variables.$segment-background-color;
 	}
 
 	> .segment-storyboard__part__bottom-left {
@@ -455,15 +456,15 @@ $break-width: 35rem;
 			padding: 0 4px 0 12px;
 			font-size: 0.85rem;
 			box-sizing: border-box;
-			background-color: $part-identifier;
+			background-color: colorScheme.$part-identifier;
 			border-radius: 0 10px 10px 0;
-			color: $part-identifier-text;
+			color: colorScheme.$part-identifier-text;
 		}
 	}
 
 	.segment-storyboard__part__quickloop-start-icon,
 	.segment-storyboard__part__quickloop-end-icon {
-		background: $segment-background-color;
+		background: variables.$segment-background-color;
 		padding: 0 0.3em;
 		white-space: nowrap;
 		color: white;
@@ -506,7 +507,7 @@ $break-width: 35rem;
 			text-align: right;
 			z-index: 2;
 			white-space: nowrap;
-			background: $segment-background-color;
+			background: variables.$segment-background-color;
 			color: #888;
 			font-size: 0.9em;
 
@@ -531,11 +532,11 @@ $break-width: 35rem;
 				font-size: 1.2em;
 				line-height: 1em;
 				font-weight: 500;
-				color: $liveline-timecode-color;
+				color: variables.$liveline-timecode-color;
 				opacity: 1;
 
 				> .overtime {
-					color: $general-late-color;
+					color: colorScheme.$general-late-color;
 				}
 			}
 		}
@@ -564,14 +565,14 @@ $break-width: 35rem;
 			font-size: 0.9em;
 
 			> svg > path {
-				stroke: $part-start-color;
+				stroke: variables.$part-start-color;
 			}
 		}
 
 		&.segment-storyboard__part__segment-end--next {
 			> .segment-storyboard__part__segment-end__label {
 				> svg > path {
-					stroke: $general-next-color;
+					stroke: colorScheme.$general-next-color;
 				}
 			}
 		}
@@ -623,7 +624,6 @@ $break-width: 35rem;
 				var(--invalid-reason-color-opaque) 5px,
 				var(--invalid-reason-color-opaque) 8px
 			);
-
 	}
 	> .segment-storyboard__part__invalid-part-instance-cover {
 		position: absolute;
@@ -664,8 +664,8 @@ $break-width: 35rem;
 			-45deg,
 			transparent 0%,
 			transparent 8px,
-			color.scale($part-start-color, $lightness: -50%) 8px,
-			color.scale($part-start-color, $lightness: -50%) 10px
+			color.scale(variables.$part-start-color, $lightness: -50%) 8px,
+			color.scale(variables.$part-start-color, $lightness: -50%) 10px
 		);
 		backdrop-filter: saturate(0%) brightness(50%);
 	}
@@ -676,7 +676,7 @@ $break-width: 35rem;
 	> .segment-storyboard__part-list
 	> .segment-storyboard__part-list.segment-storyboard__part-list--squished-parts {
 	> .segment-storyboard__part {
-		max-width: $segment-storyboard-part-width;
+		max-width: variables.$segment-storyboard-part-width;
 		position: absolute;
 		z-index: 1;
 

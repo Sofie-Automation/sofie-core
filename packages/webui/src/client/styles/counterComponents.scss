@@ -1,4 +1,4 @@
-@import '../styles/colorScheme';
+@use '../styles/colorScheme' as colorScheme;
 
 .counter-component__planned-end,
 .counter-component__time-to-planned-end,
@@ -50,7 +50,7 @@
 		'wght' 500;
 
 	.under {
-		background-color: $general-countdown-to-next-color;
+		background-color: colorScheme.$general-countdown-to-next-color;
 		border-radius: 139px;
 		align-self: stretch;
 		gap: 10px;
@@ -62,7 +62,7 @@
 		display: inline-block;
 	}
 	.over {
-		background-color: $over-under-over-color;
+		background-color: colorScheme.$over-under-over-color;
 		border-radius: 139px;
 		align-self: stretch;
 		gap: 10px;
@@ -144,7 +144,7 @@
 }
 
 .counter-component__time-since-planned-end {
-	color: $over-under-over-color;
+	color: colorScheme.$over-under-over-color;
 	text-align: center;
 
 	&.countdown {

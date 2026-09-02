@@ -1,5 +1,5 @@
-@use '../../styles/itemTypeColors';
-@import '../../styles/checkerboard';
+@use '../../styles/itemTypeColors' as itemTypeColors;
+@use '../../styles/checkerboard' as checkerboard;
 
 .preview-popUp {
 	border: 1px solid var(--sofie-segment-layer-hover-popup-border);
@@ -381,7 +381,7 @@
 
 		position: relative;
 		overflow: hidden;
-		@include checkerboard-background;
+		@include checkerboard.checkerboard-background;
 
 		> .background {
 			position: absolute;

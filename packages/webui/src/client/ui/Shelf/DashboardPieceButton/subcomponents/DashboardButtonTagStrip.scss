@@ -1,5 +1,5 @@
-@import './SplitButtonLayerBackground';
-@import '../../../../styles/itemTypeColors';
+@use './SplitButtonLayerBackground' as SplitButtonLayerBackground;
+@use '../../../../styles/itemTypeColors' as itemTypeColors;
 
 .dashboard-panel__panel__button__tag-container {
 	width: 100%;
@@ -9,7 +9,7 @@
 	padding: 1px 1px 1px 1px;
 	display: flex;
 	flex-direction: column;
-	@include item-type-colors;
+	@include itemTypeColors.item-type-colors;
 
 	> .dashboard-panel__panel__button__label-container {
 		margin-left: 8px;

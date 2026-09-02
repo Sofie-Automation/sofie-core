@@ -1,5 +1,6 @@
-@import '../colorScheme';
-@import '../checkerboard';
+@use '../colorScheme' as colorScheme;
+@use '../checkerboard' as checkerboard;
+@use '../itemTypeColors' as itemTypeColors;
 
 $dashboard-button-width: 6.40625em;
 $dashboard-button-height: 3.625em;
@@ -88,7 +89,7 @@ $dashboard-button-height: 3.625em;
 				height: calc(100% - 8px);
 
 				&.type--take {
-					background-color: $general-live-color;
+					background-color: colorScheme.$general-live-color;
 				}
 
 				&.active {
@@ -295,10 +296,10 @@ $dashboard-button-height: 3.625em;
 		vertical-align: top;
 		cursor: pointer;
 
-		@include item-type-colors;
-		@include invalid-overlay();
-		@include floated-overlay();
-		@include missing-overlay();
+		@include itemTypeColors.item-type-colors;
+		@include itemTypeColors.invalid-overlay();
+		@include itemTypeColors.floated-overlay();
+		@include itemTypeColors.missing-overlay();
 
 		&.source-broken,
 		&.source-missing,
@@ -401,11 +402,13 @@ $dashboard-button-height: 3.625em;
 
 		&.live {
 			box-shadow:
-				$dashboard-panel__button__border-width $dashboard-panel__button__border-width 0 $general-live-color,
+				$dashboard-panel__button__border-width $dashboard-panel__button__border-width 0 colorScheme.$general-live-color,
 				($dashboard-panel__button__border-width * -1) ($dashboard-panel__button__border-width * -1) 0
-					$general-live-color,
-				($dashboard-panel__button__border-width * -1) $dashboard-panel__button__border-width 0 $general-live-color,
-				$dashboard-panel__button__border-width ($dashboard-panel__button__border-width * -1) 0 $general-live-color;
+					colorScheme.$general-live-color,
+				($dashboard-panel__button__border-width * -1) $dashboard-panel__button__border-width 0
+					colorScheme.$general-live-color,
+				$dashboard-panel__button__border-width ($dashboard-panel__button__border-width * -1) 0
+					colorScheme.$general-live-color;
 
 			@keyframes button-flash {
 				0% {
@@ -633,7 +636,7 @@ $dashboard-button-height: 3.625em;
 						height: 100%;
 						aspect-ratio: 16 / 9;
 						flex: none;
-						@include checkerboard-background;
+						@include checkerboard.checkerboard-background;
 
 						@supports not (aspect-ratio: 1 / 1) {
 							height: 100%;
@@ -665,7 +668,7 @@ $dashboard-button-height: 3.625em;
 						}
 
 						& > * {
-							@include item-type-colors;
+							@include itemTypeColors.item-type-colors;
 						}
 					}
 				}
@@ -829,7 +832,7 @@ $dashboard-button-height: 3.625em;
 				> .dashboard-panel__panel__button__tag-container > .video-preview {
 					position: absolute;
 					overflow: hidden;
-					@include checkerboard-background;
+					@include checkerboard.checkerboard-background;
 					height: 100%;
 					width: 67px;
 					margin-left: 4px;
@@ -858,7 +861,7 @@ $dashboard-button-height: 3.625em;
 					}
 
 					& > * {
-						@include item-type-colors;
+						@include itemTypeColors.item-type-colors;
 					}
 				}
 			}
@@ -1123,7 +1126,7 @@ $dashboard-button-height: 3.625em;
 			background: linear-gradient(90deg, rgb(84, 84, 84) 0%, rgb(61, 61, 61) 100%);
 
 			.dashboard-panel__panel__button__tag-container {
-				@include item-type-colors;
+				@include itemTypeColors.item-type-colors;
 				> .dashboard-panel__panel__button__tag-container--inner > .dashboard-panel__panel__button__label-container {
 					background-color: rgba(0, 0, 0, 0.8);
 					display: flex;

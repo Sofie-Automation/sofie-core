@@ -1,4 +1,4 @@
-@import '../../styles/colorScheme';
+@use '../../styles/colorScheme';
 
 .over-under-chip {
 	font-family: Roboto Flex;
@@ -31,12 +31,12 @@
 
 	&.over-under-chip--over {
 		--overUnderChipWght: 700;
-		background-color: $general-late-color;
+		background-color: colorScheme.$general-late-color;
 	}
 
 	&.over-under-chip--under {
 		--overUnderChipWght: 500;
-		background-color: #ff0; // Should probably be changed to $general-fast-color;
+		background-color: #ff0; // Should probably be changed to colorScheme.$general-fast-color;
 	}
 }
 

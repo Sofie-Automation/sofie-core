@@ -1,6 +1,6 @@
-@import '../styles/itemTypeColors';
-@import '_colorScheme';
-@import '_variables';
+@use 'colorScheme';
+@use 'variables';
+@use 'itemTypeColors';
 
 .properties-panel {
 	position: fixed;
@@ -9,7 +9,7 @@
 	top: 4rem;
 	right: 0;
 	bottom: 0;
-	width: $properties-panel-width;
+	width: variables.$properties-panel-width;
 	z-index: 292;
 
 	transform: translateX(100%);
@@ -200,7 +200,7 @@
 				margin-bottom: 0.5em;
 
 				> .propertiespanel-pop-up__groupselector__button {
-					@include item-type-colors();
+					@include itemTypeColors.item-type-colors();
 
 					& {
 						width: 50px;
@@ -216,8 +216,8 @@
 					&.splits {
 						background: linear-gradient(
 							to right,
-							$segment-layer-background-camera 50%,
-							$segment-layer-background-remote 50.0001%
+							itemTypeColors.$segment-layer-background-camera 50%,
+							itemTypeColors.$segment-layer-background-remote 50.0001%
 						);
 					}
 

@@ -1,4 +1,5 @@
-@import '../../../styles/colorScheme';
+@use '../../../styles/colorScheme' as colorScheme;
+@use '../../../styles/itemTypeColors' as itemTypeColors;
 
 .media-status-popup-item {
 	.media-status-popup-item__playout-indicator {
@@ -7,14 +8,14 @@
 	}
 
 	.media-status-popup-item__live-indicator {
-		background: $general-live-color;
+		background: colorScheme.$general-live-color;
 		width: 0.75em;
 		height: 1.3em;
 		border-radius: 0 1em 1em 0;
 	}
 
 	.media-status-popup-item__next-indicator {
-		background: $general-next-color;
+		background: colorScheme.$general-next-color;
 		width: 0.75em;
 		height: 1.3em;
 		clip-path: polygon(20% 0, 100% 50%, 20% 100%, 0 100%, 0 0);
@@ -75,8 +76,8 @@
 		overflow: hidden;
 		white-space: nowrap;
 
-		@include item-type-colors();
-		@include missing-overlay();
+		@include itemTypeColors.item-type-colors();
+		@include itemTypeColors.missing-overlay();
 
 		&.media-status-popup-item__source-layer-overlay {
 			display: block;
@@ -87,7 +88,7 @@
 			bottom: 0;
 			right: 0;
 
-			@include invalid-overlay();
+			@include itemTypeColors.invalid-overlay();
 		}
 
 		> .media-status-popup-item__source-layer-label {

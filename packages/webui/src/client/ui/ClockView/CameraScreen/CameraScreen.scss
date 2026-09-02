@@ -1,9 +1,11 @@
-@import '../../../styles/variables';
+@use 'sass:list';
+@use '../../../styles/variables' as variables;
+@use '../../../styles/itemTypeColors' as itemTypeColors;
 
 $page-margin: 1rem 1rem 0 3rem;
 
 .camera-screen {
-	margin-top: nth($page-margin, 1);
+	margin-top: list.nth($page-margin, 1);
 	margin-bottom: calc(100vh - 4rem);
 
 	--piece-type-indicator-width: 2rem;
@@ -15,8 +17,8 @@ $page-margin: 1rem 1rem 0 3rem;
 .camera-screen__segment {
 	> .camera-screen__segment-name {
 		font-size: 1em;
-		margin-left: nth($page-margin, 4);
-		margin-right: nth($page-margin, 2);
+		margin-left: list.nth($page-margin, 4);
+		margin-right: list.nth($page-margin, 2);
 	}
 
 	.camera-screen__piece {
@@ -49,11 +51,11 @@ $page-margin: 1rem 1rem 0 3rem;
 			border-bottom-right-radius: var(--piece-type-indicator-border-radius);
 			overflow: hidden;
 
-			@include item-type-colors();
+			@include itemTypeColors.item-type-colors();
 
 			.camera-screen__piece-type-indicator-sub-background {
 				flex: 1 1;
-				@include item-type-colors();
+				@include itemTypeColors.item-type-colors();
 			}
 		}
 
@@ -69,11 +71,11 @@ $page-margin: 1rem 1rem 0 3rem;
 			flex-direction: column;
 			filter: brightness(0.6);
 
-			@include item-type-colors();
+			@include itemTypeColors.item-type-colors();
 
 			.camera-screen__piece-sub-background {
 				flex: 1 1;
-				@include item-type-colors();
+				@include itemTypeColors.item-type-colors();
 			}
 		}
 	}
@@ -87,7 +89,7 @@ $page-margin: 1rem 1rem 0 3rem;
 			top: 0;
 			bottom: auto;
 			left: auto;
-			right: nth($page-margin, 2);
+			right: list.nth($page-margin, 2);
 			display: none;
 			font-weight: 500;
 			letter-spacing: -0.3px;
@@ -98,7 +100,7 @@ $page-margin: 1rem 1rem 0 3rem;
 			top: auto;
 			left: auto;
 			bottom: 0;
-			right: nth($page-margin, 2);
+			right: list.nth($page-margin, 2);
 			letter-spacing: -0.3px;
 			opacity: 0.5;
 		}

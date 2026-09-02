@@ -1,3 +1,6 @@
+@use 'colorScheme';
+@use 'variables';
+
 .notification-pop-ups {
 	position: fixed;
 	top: 4rem;
@@ -62,8 +65,8 @@
 			display: block;
 			flex: 0;
 			min-width: 2.5rem;
-			background: $color-status-minor-warning;
-			color: $color-status-minor-warning-text;
+			background: colorScheme.$color-status-minor-warning;
+			color: colorScheme.$color-status-minor-warning-text;
 
 			text-align: center;
 			padding-top: 0.5rem;
@@ -78,15 +81,15 @@
 
 		&.warning {
 			> .notification-pop-up__header {
-				background: $color-status-warning;
+				background: colorScheme.$color-status-warning;
 				color: #000;
 			}
 		}
 
 		&.critical {
 			> .notification-pop-up__header {
-				background: $color-status-fatal;
-				color: $color-status-warning;
+				background: colorScheme.$color-status-fatal;
+				color: colorScheme.$color-status-warning;
 			}
 		}
 
@@ -99,8 +102,8 @@
 
 		&.tip {
 			> .notification-pop-up__header {
-				background: $color-status-good;
-				color: $color-status-minor-warning;
+				background: colorScheme.$color-status-good;
+				color: colorScheme.$color-status-minor-warning;
 			}
 		}
 
@@ -220,8 +223,8 @@
 
 		> svg {
 			position: absolute;
-			width: calc($fullscreen-controls__button--radius / 1.75);
-			height: calc($fullscreen-controls__button--radius / 1.75);
+			width: calc(variables.$fullscreen-controls__button--radius / 1.75);
+			height: calc(variables.$fullscreen-controls__button--radius / 1.75);
 			top: 50%;
 			left: 50%;
 			transform: translate(-50%, -50%);
@@ -328,7 +331,7 @@
 	top: 0;
 	right: 0;
 	bottom: 0;
-	width: calc(#{$notification-center-width} + 4.6875rem);
+	width: calc(#{variables.$notification-center-width} + 4.6875rem);
 	z-index: 292;
 
 	&::before {
@@ -354,7 +357,7 @@
 		bottom: 0;
 		overflow-x: hidden;
 		overflow-y: auto;
-		width: calc(#{$notification-center-width} + 10px);
+		width: calc(#{variables.$notification-center-width} + 10px);
 		pointer-events: auto;
 
 		mask-image: none;

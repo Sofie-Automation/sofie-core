@@ -1,10 +1,12 @@
+@use '../../../styles/itemTypeColors' as itemTypeColors;
+
 .segment-opl__main-piece {
 	position: relative;
 	overflow: visible;
 	min-height: 1.2em;
 
-	@include piece-colors();
-	@include missing-overlay();
+	@include itemTypeColors.piece-colors();
+	@include itemTypeColors.missing-overlay();
 
 	> .segment-opl__main-piece__bkg {
 		position: absolute;
@@ -16,7 +18,7 @@
 
 		> .segment-opl__main-piece__item {
 			flex: 1 1;
-			@include piece-colors();
+			@include itemTypeColors.piece-colors();
 		}
 	}
 
@@ -110,7 +112,7 @@
 		background: repeating-linear-gradient(0deg, black, black 3px, rgba(0, 0, 0, 0.2) 3px, rgba(0, 0, 0, 0.2) 6px);
 	}
 
-	@include invalid-overlay();
+	@include itemTypeColors.invalid-overlay();
 
 	&.invalid {
 		position: absolute;

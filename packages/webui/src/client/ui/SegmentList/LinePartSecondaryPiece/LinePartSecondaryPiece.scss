@@ -1,3 +1,5 @@
+@use '../../../styles/itemTypeColors' as itemTypeColors;
+
 .segment-opl__secondary-piece {
 	position: absolute;
 	// overflow: hidden;
@@ -5,8 +7,8 @@
 	height: 2px;
 	top: -3px;
 
-	@include piece-colors();
-	@include missing-overlay();
+	@include itemTypeColors.piece-colors();
+	@include itemTypeColors.missing-overlay();
 
 	/** This pseudo-element is used to increase the hit target of the main element */
 	&::after {

@@ -1,3 +1,6 @@
+@use 'variables';
+@use 'colorScheme';
+
 .system-status {
 	.device-item-container {
 		.children {
@@ -147,37 +150,37 @@
 
 	&.device-item__device-status--minor-warning {
 		.pill {
-			background: $color-status-minor-warning;
-			border: $color-status-minor-warning;
-			color: $color-status-minor-warning-text;
+			background: colorScheme.$color-status-minor-warning;
+			border: colorScheme.$color-status-minor-warning;
+			color: colorScheme.$color-status-minor-warning-text;
 		}
 	}
 
 	&.device-status--good {
 		.pill {
-			background: $color-status-good;
-			border: $color-status-good;
+			background: colorScheme.$color-status-good;
+			border: colorScheme.$color-status-good;
 		}
 	}
 
 	&.device-status--minor-warning {
 		.pill {
-			background: $color-status-minor-warning;
-			border: $color-status-minor-warning;
+			background: colorScheme.$color-status-minor-warning;
+			border: colorScheme.$color-status-minor-warning;
 		}
 	}
 
 	&.device-status--warning {
 		.pill {
-			background: $color-status-warning;
-			border: $color-status-warning;
+			background: colorScheme.$color-status-warning;
+			border: colorScheme.$color-status-warning;
 		}
 	}
 
 	&.device-status--bad {
 		.pill {
-			background: $color-status-bad;
-			border: $color-status-bad;
+			background: colorScheme.$color-status-bad;
+			border: colorScheme.$color-status-bad;
 		}
 	}
 
@@ -187,15 +190,15 @@
 
 	&.device-status--fatal {
 		.pill {
-			background: $color-status-fatal;
-			border: $color-status-fatal;
+			background: colorScheme.$color-status-fatal;
+			border: colorScheme.$color-status-fatal;
 		}
 	}
 
 	&.device-status--unknown {
 		.pill {
-			background: $color-status-unknown;
-			border: $color-status-unknown;
+			background: colorScheme.$color-status-unknown;
+			border: colorScheme.$color-status-unknown;
 		}
 	}
 }
@@ -298,7 +301,7 @@
 					position: absolute;
 
 					&.ok {
-						background: $color-status-good;
+						background: colorScheme.$color-status-good;
 
 						> svg.svg-inline--fa {
 							transform: translate(-50%, -50%);
@@ -314,7 +317,7 @@
 					}
 
 					&.error {
-						background: $color-status-fatal;
+						background: colorScheme.$color-status-fatal;
 
 						> svg {
 							transform: translate(-50%, -50%);
@@ -431,11 +434,11 @@
 		&.ok {
 			> .workflow__header {
 				.workflow__header__status {
-					color: $color-status-good;
+					color: colorScheme.$color-status-good;
 
 					> svg {
 						> path {
-							stroke: $color-status-good;
+							stroke: colorScheme.$color-status-good;
 						}
 					}
 				}
@@ -445,13 +448,13 @@
 		&.error {
 			> .workflow__header {
 				.workflow__header__status {
-					color: $color-status-fatal;
+					color: colorScheme.$color-status-fatal;
 
 					> svg {
 						transform: translate(0, 2px);
 
 						> path {
-							stroke: $color-status-fatal;
+							stroke: colorScheme.$color-status-fatal;
 						}
 					}
 				}

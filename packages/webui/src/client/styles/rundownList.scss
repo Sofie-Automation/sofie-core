@@ -1,4 +1,6 @@
 // Root playlist/rundown list, see RundownList.tsx
+@use 'colorScheme';
+
 .rundown-list {
 	--defaultSpacing: 20px;
 	--defaultItemBackgroundColor: #f6f6f6;
@@ -179,7 +181,7 @@
 			left: 0;
 			bottom: 0;
 			right: 0;
-			border: 4px dashed $ui-button-primary--hover;
+			border: 4px dashed colorScheme.$ui-button-primary--hover;
 		}
 	}
 
@@ -203,7 +205,7 @@
 					left: 0;
 					bottom: 0;
 					right: 0;
-					border: 4px dashed $ui-button-primary--hover;
+					border: 4px dashed colorScheme.$ui-button-primary--hover;
 				}
 			}
 
@@ -233,7 +235,7 @@
 
 					.rundown-playlist__heading-text {
 						margin-left: 1.5em;
-						color: $ui-button-primary;
+						color: colorScheme.$ui-button-primary;
 						font-weight: 700;
 
 						> a > svg.icon {
@@ -248,7 +250,7 @@
 
 					&.btn-secondary {
 						font-weight: 400 !important;
-						color: $ui-dark-color !important;
+						color: colorScheme.$ui-dark-color !important;
 					}
 				}
 
@@ -382,7 +384,7 @@
 	// be dropped to move it to a new playlist. See RundownDropZone.tsx
 	.rundown-dropzone {
 		display: none;
-		border: 4px dashed $ui-button-primary--hover;
+		border: 4px dashed colorScheme.$ui-button-primary--hover;
 		height: 61px;
 		margin-top: 8px;
 		align-items: center;

@@ -1,6 +1,8 @@
-@import '../colorScheme';
-$liveline-timecode-color: $general-countdown-to-next-color; //$general-live-color;
-$hold-status-color: $liveline-timecode-color;
+@use '../colorScheme' as colorScheme;
+@use '../variables' as variables;
+
+$liveline-timecode-color: colorScheme.$general-countdown-to-next-color; //colorScheme.$general-live-color;
+$hold-status-color: variables.$liveline-timecode-color;
 
 .piece__label__colored-mark {
 	display: inline-block;
@@ -109,16 +111,16 @@ $hold-status-color: $liveline-timecode-color;
 				z-index: 1;
 
 				&.live {
-					background: $general-live-color;
+					background: colorScheme.$general-live-color;
 					text-shadow: 0px 0px 6px #000000;
 				}
 
 				&.next {
-					background: $general-next-color;
+					background: colorScheme.$general-next-color;
 					text-shadow: 0px 0px 6px #000000;
 				}
 				&.notext {
-					background: $general-next-color;
+					background: colorScheme.$general-next-color;
 					height: 2.2vh;
 					margin-top: 8.7vh;
 					text-shadow: 0px 0px 6px #000000;
@@ -136,7 +138,7 @@ $hold-status-color: $liveline-timecode-color;
 					padding-right: 30px;
 
 					font-size: 110px;
-					color: $general-countdown-to-next-color;
+					color: colorScheme.$general-countdown-to-next-color;
 					font-variation-settings:
 						'GRAD' 0,
 						'XOPQ' 96,
@@ -160,8 +162,8 @@ $hold-status-color: $liveline-timecode-color;
 						rgba(0, 0, 0, 0.8) 24.94%
 					);
 					.overtime {
-						color: $general-fast-color;
-						//text-shadow: 0px 0px 6px $general-fast-color--shadow;
+						color: colorScheme.$general-fast-color;
+						//text-shadow: 0px 0px 6px colorScheme.$general-fast-color--shadow;
 						font-variation-settings:
 							'GRAD' 0,
 							'XOPQ' 96,
@@ -229,7 +231,7 @@ $hold-status-color: $liveline-timecode-color;
 					text-align: center;
 					justify-content: center;
 					font-size: 60em;
-					color: $general-countdown-to-next-color;
+					color: colorScheme.$general-countdown-to-next-color;
 					font-feature-settings:
 						'liga' off,
 						'tnum' on;
@@ -254,7 +256,7 @@ $hold-status-color: $liveline-timecode-color;
 					align-items: center;
 
 					> .overtime {
-						color: $general-late-color;
+						color: colorScheme.$general-late-color;
 						font-variation-settings:
 							'GRAD' 0,
 							'XOPQ' 96,
@@ -296,7 +298,7 @@ $hold-status-color: $liveline-timecode-color;
 					padding: 0 0.2em;
 					line-height: 1em;
 					margin-top: 10px;
-					color: $general-countdown-to-next-color;
+					color: colorScheme.$general-countdown-to-next-color;
 				}
 
 				/* Update next part styling if needed */
@@ -331,7 +333,7 @@ $hold-status-color: $liveline-timecode-color;
 					align-items: center;
 
 					> .overtime {
-						color: $general-late-color;
+						color: colorScheme.$general-late-color;
 						font-variation-settings:
 							'GRAD' 0,
 							'XOPQ' 96,
@@ -352,7 +354,7 @@ $hold-status-color: $liveline-timecode-color;
 						font-size: 0.5em;
 						margin-left: 0.2em;
 						margin-top: -4vh;
-						color: $general-next-color;
+						color: colorScheme.$general-next-color;
 						font-variation-settings:
 							'GRAD' 0,
 							'XOPQ' 96,
@@ -370,7 +372,7 @@ $hold-status-color: $liveline-timecode-color;
 					}
 
 					.freeze-counter {
-						color: $general-freeze-color;
+						color: colorScheme.$general-freeze-color;
 						margin-left: 4vw;
 						display: flex;
 						align-items: center;
@@ -403,7 +405,7 @@ $hold-status-color: $liveline-timecode-color;
 			.director-screen__body__part__piece-countdown,
 			.director-screen__body__part__part-countdown {
 				grid-column: 2;
-				color: $general-countdown-to-next-color;
+				color: colorScheme.$general-countdown-to-next-color;
 			}
 
 			&.director-screen__body__part--next-part {
@@ -455,7 +457,7 @@ $hold-status-color: $liveline-timecode-color;
 			}
 			.director-screen__body__part__next-icon,
 			.director-screen__body__part__auto-icon {
-				background-color: $general-next-color;
+				background-color: colorScheme.$general-next-color;
 				text-transform: uppercase;
 				justify-content: left;
 				position: relative;
@@ -481,7 +483,7 @@ $hold-status-color: $liveline-timecode-color;
 		}
 
 		.clocks-segment-countdown-red {
-			color: $general-late-color;
+			color: colorScheme.$general-late-color;
 		}
 
 		.clocks-counter-heavy {

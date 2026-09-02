@@ -1,4 +1,4 @@
-@import '../variables';
+@use '../variables' as variables;
 
 .rundown-view__shelf {
 	position: fixed;
@@ -122,7 +122,7 @@
 		flex-direction: row;
 		align-items: stretch;
 		justify-items: left;
-		min-height: $inspector-shelf-tabs-height;
+		min-height: variables.$inspector-shelf-tabs-height;
 
 		.rundown-view__shelf__tabs__tab-group {
 			display: flex;
@@ -143,7 +143,7 @@
 			text-overflow: ellipsis;
 			white-space: nowrap;
 			text-align: center;
-			line-height: $inspector-shelf-tabs-height;
+			line-height: variables.$inspector-shelf-tabs-height;
 			cursor: pointer;
 			user-select: none;
 			padding-inline: 1.5em;
@@ -209,7 +209,7 @@
 		flex: 1 1;
 		position: relative;
 		width: 100%;
-		height: calc(100% - #{$inspector-shelf-tabs-height});
+		height: calc(100% - #{variables.$inspector-shelf-tabs-height});
 
 		& > * {
 			position: absolute;
