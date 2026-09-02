@@ -53,6 +53,8 @@ import { createMeteorTriggersContext } from '../triggersContext'
 import { DeviceTriggerMountedActionAdlibsPreview, DeviceTriggerMountedActions } from '../observer'
 import { TagsService } from '../TagsService'
 import { StudioActionManagers } from '../StudioActionManagers'
+import { RundownPlaylists } from '../../../collections'
+import { MongoMock } from '../../../../__mocks__/mongo'
 import { DeviceActionId } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 import { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 
@@ -411,5 +413,45 @@ describe('StudioDeviceTriggerManager', () => {
 		expect(baselineAdLibPieceStart.mock.calls.map((call) => call.slice(2))).toEqual([
 			[playlistId, partInstanceId0, protectString('baselinePiece0'), false],
 		])
+	})
+
+	describe('createContextForRundownPlaylistChain', () => {
+		const activationChain = [{ object: 'rundownPlaylist' as const, field: 'activationId' as const, value: true }]
+
+		afterEach(() => {
+			MongoMock.deleteAllData()
+		})
+
+		it('builds the context from the cache when the chain resolves to the observed playlist', async () => {
+			const cache = createAndPopulateCache()
+			MongoMock.getInnerMockCollection(RundownPlaylists).insert({
+				_id: playlistId,
+				studioId,
+				activationId,
+			} as any)
+
+			const context = createMeteorTriggersContext({} as IMeteorCall, () => cache)
+			const result = await context.createContextForRundownPlaylistChain(studioId, activationChain)
+
+			expect(result?.rundownPlaylistId.get(null)).toBe(playlistId)
+			expect(result?.currentPartId.get(null)).toBe(partId0)
+		})
+
+		it('gives up when the chain resolves to a playlist that is not the observed one', async () => {
+			const cache = createAndPopulateCache()
+			MongoMock.getInnerMockCollection(RundownPlaylists).insert({
+				_id: protectString<RundownPlaylistId>('someOtherPlaylist'),
+				studioId,
+				activationId,
+			} as any)
+
+			const context = createMeteorTriggersContext({} as IMeteorCall, () => cache)
+
+			// The cache holds none of that playlist's content, so a context for it could only ever produce an
+			// empty result
+			await expect(
+				context.createContextForRundownPlaylistChain(studioId, activationChain)
+			).resolves.toBeUndefined()
+		})
 	})
 })
