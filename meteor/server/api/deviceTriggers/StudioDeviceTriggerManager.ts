@@ -6,7 +6,6 @@ import {
 	createAction,
 	ExecutableAction,
 	isPreviewableAction,
-	ReactivePlaylistActionContext,
 } from '@sofie-automation/meteor-lib/dist/triggers/actionFactory'
 import {
 	DeviceActionId,
@@ -28,9 +27,8 @@ import { ContentCache as PieceInstancesContentCache } from './reactiveContentCac
 import { logger } from '../../logging'
 import { SomeAction, SomeBlueprintTrigger } from '@sofie-automation/blueprints-integration'
 import { DeviceActions } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
-import { DummyReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/reactive-var'
 import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
-import { TriggersContextFactory } from './triggersContext'
+import { createCurrentContextFromCache, TriggersContextFactory } from './triggersContext'
 import { TagsService } from './TagsService'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
@@ -314,51 +312,4 @@ function convertDocument(doc: ReadonlyObjectDeep<DBTriggeredActions>): UITrigger
 
 		styleClassNames: doc.styleClassNames,
 	})
-}
-
-async function createCurrentContextFromCache(
-	cache: ContentCache,
-	studioId: StudioId
-): Promise<ReactivePlaylistActionContext> {
-	const rundownPlaylist = cache.RundownPlaylists.findOne({
-		activationId: {
-			$exists: true,
-		},
-	})
-
-	if (!rundownPlaylist) throw new Error('There should be an active RundownPlaylist!')
-
-	const currentPartInstance = rundownPlaylist.currentPartInfo
-		? cache.PartInstances.findOne(rundownPlaylist.currentPartInfo.partInstanceId)
-		: undefined
-	const nextPartInstance = rundownPlaylist.nextPartInfo
-		? cache.PartInstances.findOne(rundownPlaylist.nextPartInfo.partInstanceId)
-		: undefined
-
-	const currentSegmentPartIds = currentPartInstance
-		? cache.Parts.findFetch({
-				segmentId: currentPartInstance.part.segmentId,
-			}).map((part) => part._id)
-		: []
-	const nextSegmentPartIds = nextPartInstance
-		? nextPartInstance.part.segmentId === currentPartInstance?.part.segmentId
-			? currentSegmentPartIds
-			: cache.Parts.findFetch({
-					segmentId: nextPartInstance.part.segmentId,
-				}).map((part) => part._id)
-		: []
-
-	return {
-		studioId: new DummyReactiveVar(studioId),
-		currentPartInstanceId: new DummyReactiveVar(currentPartInstance?._id ?? null),
-		currentPartId: new DummyReactiveVar(currentPartInstance?.part._id ?? null),
-		nextPartId: new DummyReactiveVar(nextPartInstance?.part._id ?? null),
-		currentRundownId: new DummyReactiveVar(
-			currentPartInstance?.part.rundownId ?? nextPartInstance?.part.rundownId ?? null
-		),
-		rundownPlaylist: new DummyReactiveVar(rundownPlaylist),
-		rundownPlaylistId: new DummyReactiveVar(rundownPlaylist._id),
-		currentSegmentPartIds: new DummyReactiveVar(currentSegmentPartIds),
-		nextSegmentPartIds: new DummyReactiveVar(nextSegmentPartIds),
-	}
 }
