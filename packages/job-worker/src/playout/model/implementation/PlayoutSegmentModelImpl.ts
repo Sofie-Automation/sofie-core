@@ -3,7 +3,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PlayoutSegmentModel } from '../PlayoutSegmentModel.js'
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString.js'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 
 export class PlayoutSegmentModelImpl implements PlayoutSegmentModel {
 	readonly #segment: DBSegment
