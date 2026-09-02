@@ -10,6 +10,7 @@ import {
 	StudioBlueprintManifest,
 } from '@sofie-automation/blueprints-integration'
 import { PeripheralDevice, PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
+import type { IBranding } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import {
 	BlueprintId,
@@ -31,6 +32,7 @@ import {
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import {
 	APIBlueprint,
+	APIBranding,
 	APIBucket,
 	APIBucketComplete,
 	APIOutputLayer,
@@ -96,6 +98,19 @@ export async function showStyleBaseFrom(
 		? updateOverrides(showStyleBase.sourceLayersWithOverrides, newSourceLayers)
 		: wrapDefaultObject({})
 
+	// Note: `branding` is optional in the API. When it is omitted the existing Branding is kept, so that a
+	// client which does not know about Branding cannot wipe it.
+	let branding: ObjectWithOverrides<Record<string, IBranding>>
+	if (apiShowStyleBase.branding) {
+		const newBranding = apiShowStyleBase.branding.reduce<Record<string, IBranding>>((acc, apiBranding) => {
+			acc[apiBranding.id] = brandingFrom(apiBranding)
+			return acc
+		}, {})
+		branding = showStyleBase ? updateOverrides(showStyleBase.branding, newBranding) : wrapDefaultObject(newBranding)
+	} else {
+		branding = showStyleBase?.branding ?? wrapDefaultObject({})
+	}
+
 	const blueprintManifest = evalBlueprint(blueprint) as ShowStyleBlueprintManifest
 	let blueprintConfig: ObjectWithOverrides<IBlueprintConfig>
 	if (typeof blueprintManifest.blueprintConfigFromAPI !== 'function') {
@@ -119,7 +134,7 @@ export async function showStyleBaseFrom(
 		outputLayersWithOverrides: outputLayers,
 		sourceLayersWithOverrides: sourceLayers,
 		blueprintConfigWithOverrides: blueprintConfig,
-		branding: wrapDefaultObject({}), // nocommit: implement this
+		branding,
 		_rundownVersionHash: showStyleBase?._rundownVersionHash ?? '',
 		lastBlueprintConfig: undefined,
 		lastBlueprintFixUpHash: undefined,
@@ -137,7 +152,27 @@ export async function APIShowStyleBaseFrom(showStyleBase: DBShowStyleBase): Prom
 		sourceLayers: Object.values<ISourceLayer | undefined>(
 			applyAndValidateOverrides(showStyleBase.sourceLayersWithOverrides).obj
 		).map((layer) => APISourceLayerFrom(layer!)),
+		branding: Object.entries<IBranding>(applyAndValidateOverrides(showStyleBase.branding).obj).map(
+			([id, branding]) => APIBrandingFrom(id, branding)
+		),
 		config: await APIShowStyleBlueprintConfigFrom(showStyleBase, showStyleBase.blueprintId),
+	}
+}
+
+export function brandingFrom(apiBranding: APIBranding): IBranding {
+	return {
+		name: apiBranding.name,
+		// Note: this is described by the blueprint's `brandingConfigSchema`, and is not translated by
+		// `blueprintConfigFromAPI`, which covers only the ShowStyle's own config
+		config: apiBranding.config as IBlueprintConfig,
+	}
+}
+
+export function APIBrandingFrom(id: string, branding: IBranding): APIBranding {
+	return {
+		id,
+		name: branding.name,
+		config: branding.config,
 	}
 }
 

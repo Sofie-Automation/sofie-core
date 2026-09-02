@@ -157,7 +157,6 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 		id: 'Add branding to ShowStyleBase',
 		canBeRunAutomatically: true,
 		validate: async () => {
-			console.log('Validating ShowStyleBases for branding')
 			const count = await ShowStyleBases.countDocuments({
 				branding: { $exists: false },
 			})
