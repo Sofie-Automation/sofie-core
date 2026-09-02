@@ -21,18 +21,13 @@ import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { UserAction } from '@sofie-automation/meteor-lib/dist/userAction'
 import { TFunction } from 'i18next'
 import { logger } from '../../logging'
-import { IBaseFilterLink, IRundownPlaylistFilterLink } from '@sofie-automation/blueprints-integration'
-import { PartId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { IRundownPlaylistFilterLink } from '@sofie-automation/blueprints-integration'
+import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DummyReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/reactive-var'
 import { ReactivePlaylistActionContext } from '@sofie-automation/meteor-lib/dist/triggers/actionFactory'
 import { FindOneOptions, FindOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import {
-	DBRundownPlaylist,
-	SelectedPartInstance,
-} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { PartInstances, Parts, RundownPlaylists } from '../../collections'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { RundownPlaylists } from '../../collections'
 import { ContentCache } from './reactiveContentCache'
 
 export function hashSingleUseToken(token: string): string {
@@ -164,71 +159,30 @@ export function createMeteorTriggersContext(
 			return fnc(computation, ...params)
 		},
 
-		createContextForRundownPlaylistChain,
-	}
-}
+		/**
+		 * The `ContentCache` holds only the active playlist, so the lookup hits the database but the context
+		 * comes from the cache. Any other playlist has to give up here, as the chains would find nothing for it.
+		 */
+		createContextForRundownPlaylistChain: async (studioId, filterChain) => {
+			const playlist = await rundownPlaylistFilter(
+				studioId,
+				filterChain.filter((link) => link.object === 'rundownPlaylist') as IRundownPlaylistFilterLink[]
+			)
 
-async function createContextForRundownPlaylistChain(
-	studioId: StudioId,
-	filterChain: IBaseFilterLink[]
-): Promise<ReactivePlaylistActionContext | undefined> {
-	const playlist = await rundownPlaylistFilter(
-		studioId,
-		filterChain.filter((link) => link.object === 'rundownPlaylist') as IRundownPlaylistFilterLink[]
-	)
+			if (!playlist) return undefined
 
-	if (!playlist) return undefined
+			const cache = getCache()
+			if (!cache) return undefined
 
-	const [currentPartInfo, nextPartInfo] = await Promise.all([
-		fetchInfoForSelectedPart(playlist.currentPartInfo),
-		fetchInfoForSelectedPart(playlist.nextPartInfo),
-	])
+			if (!cache.RundownPlaylists.findOne(playlist._id)) {
+				logger.warn(
+					`Device trigger filter chain resolved to RundownPlaylist "${playlist._id}", which is not the one being observed in Studio "${studioId}". Only the active playlist is supported.`
+				)
+				return undefined
+			}
 
-	return {
-		studioId: new DummyReactiveVar(studioId),
-		rundownPlaylistId: new DummyReactiveVar(playlist?._id),
-		rundownPlaylist: new DummyReactiveVar(playlist),
-		currentRundownId: new DummyReactiveVar(
-			playlist.currentPartInfo?.rundownId ?? playlist.rundownIdsInOrder[0] ?? null
-		),
-		currentPartId: new DummyReactiveVar(currentPartInfo?.partId ?? null),
-		currentSegmentPartIds: new DummyReactiveVar(currentPartInfo?.segmentPartIds ?? []),
-		nextPartId: new DummyReactiveVar(nextPartInfo?.partId ?? null),
-		nextSegmentPartIds: new DummyReactiveVar(nextPartInfo?.segmentPartIds ?? []),
-		currentPartInstanceId: new DummyReactiveVar(playlist.currentPartInfo?.partInstanceId ?? null),
-	}
-}
-
-async function fetchInfoForSelectedPart(partInfo: SelectedPartInstance | null): Promise<{
-	partId: PartId
-	segmentPartIds: PartId[]
-} | null> {
-	if (!partInfo) return null
-
-	const partInstance = (await PartInstances.findOneAsync(partInfo.partInstanceId, {
-		projection: {
-			'part._id': 1,
-			segmentId: 1,
-		} as any,
-	})) as (Pick<DBPartInstance, 'segmentId'> & { part: Pick<DBPart, '_id'> }) | null
-
-	if (!partInstance) return null
-
-	const partId = partInstance.part._id
-	const segmentPartIds = await Parts.findFetchAsync(
-		{
-			segmentId: partInstance.segmentId,
+			return createCurrentContextFromCache(cache, studioId)
 		},
-		{
-			projection: {
-				_id: 1,
-			},
-		}
-	).then((parts) => parts.map((part) => part._id))
-
-	return {
-		partId,
-		segmentPartIds,
 	}
 }
 
@@ -273,4 +227,55 @@ async function rundownPlaylistFilter(
 	})
 
 	return RundownPlaylists.findOneAsync(selector)
+}
+
+/**
+ * Build a `ReactivePlaylistActionContext` from the studio's `ContentCache`, so that the context and the
+ * collections the compiled filter chains query are the same snapshot of the same playlist.
+ */
+export async function createCurrentContextFromCache(
+	cache: ContentCache,
+	studioId: StudioId
+): Promise<ReactivePlaylistActionContext> {
+	const rundownPlaylist = cache.RundownPlaylists.findOne({
+		activationId: {
+			$exists: true,
+		},
+	})
+
+	if (!rundownPlaylist) throw new Error('There should be an active RundownPlaylist!')
+
+	const currentPartInstance = rundownPlaylist.currentPartInfo
+		? cache.PartInstances.findOne(rundownPlaylist.currentPartInfo.partInstanceId)
+		: undefined
+	const nextPartInstance = rundownPlaylist.nextPartInfo
+		? cache.PartInstances.findOne(rundownPlaylist.nextPartInfo.partInstanceId)
+		: undefined
+
+	const currentSegmentPartIds = currentPartInstance
+		? cache.Parts.findFetch({
+				segmentId: currentPartInstance.part.segmentId,
+			}).map((part) => part._id)
+		: []
+	const nextSegmentPartIds = nextPartInstance
+		? nextPartInstance.part.segmentId === currentPartInstance?.part.segmentId
+			? currentSegmentPartIds
+			: cache.Parts.findFetch({
+					segmentId: nextPartInstance.part.segmentId,
+				}).map((part) => part._id)
+		: []
+
+	return {
+		studioId: new DummyReactiveVar(studioId),
+		currentPartInstanceId: new DummyReactiveVar(currentPartInstance?._id ?? null),
+		currentPartId: new DummyReactiveVar(currentPartInstance?.part._id ?? null),
+		nextPartId: new DummyReactiveVar(nextPartInstance?.part._id ?? null),
+		currentRundownId: new DummyReactiveVar(
+			currentPartInstance?.part.rundownId ?? nextPartInstance?.part.rundownId ?? null
+		),
+		rundownPlaylist: new DummyReactiveVar(rundownPlaylist),
+		rundownPlaylistId: new DummyReactiveVar(rundownPlaylist._id),
+		currentSegmentPartIds: new DummyReactiveVar(currentSegmentPartIds),
+		nextSegmentPartIds: new DummyReactiveVar(nextSegmentPartIds),
+	}
 }
