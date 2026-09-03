@@ -44,7 +44,7 @@ function ComponentDatastoreControls() {
 								<td>{entry.modified}</td>
 								<td>{entry.mode}</td>
 								<td>
-									<pre>{entry.value}</pre>
+									<pre>{JSON.stringify(entry.value)}</pre>
 								</td>
 							</tr>
 						))}
