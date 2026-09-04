@@ -112,7 +112,8 @@ const ddpConnectionRegistry = createDdpConnectionRegistry()
 	setupPrometheusMetrics('meteor')
 
 	// Start observing studios for device triggers, dispatching their actions through the method registry
-	await startDeviceTriggersObserver(createMeteorTriggersContext(makeMeteorCallForRegistry(methodRegistry)))
+	const meteorCallForTriggers = makeMeteorCallForRegistry(methodRegistry)
+	await startDeviceTriggersObserver((getCache) => createMeteorTriggersContext(meteorCallForTriggers, getCache))
 	await Promise.all([
 		setupSystemStatusObservers(),
 		startMediaObjectDurationMonitor(),
