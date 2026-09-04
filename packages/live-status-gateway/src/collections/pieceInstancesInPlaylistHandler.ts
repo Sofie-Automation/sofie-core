@@ -2,7 +2,7 @@ import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler.js'
 import { PublicationCollection } from '../publicationCollection.js'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import _ from 'underscore'
 import throttleToNextTick from '@sofie-automation/shared-lib/dist/lib/throttleToNextTick'
@@ -22,8 +22,8 @@ type Playlist = Pick<DBRundownPlaylist, (typeof PLAYLIST_KEYS)[number]>
  */
 export class PieceInstancesInPlaylistHandler extends PublicationCollection<
 	PieceInstance[],
-	CorelibPubSub.pieceInstances,
-	CollectionName.PieceInstances
+	CorelibPubSub.uiPieceInstances,
+	CustomCollectionName.UIPieceInstances
 > {
 	private _currentRundownIds: Playlist['rundownIdsInOrder'] | undefined
 	private _currentActivationId: RundownPlaylistActivationId | undefined
@@ -34,7 +34,7 @@ export class PieceInstancesInPlaylistHandler extends PublicationCollection<
 	})
 
 	constructor(logger: Logger, coreHandler: CoreHandler) {
-		super(CollectionName.PieceInstances, CorelibPubSub.pieceInstances, logger, coreHandler)
+		super(CustomCollectionName.UIPieceInstances, CorelibPubSub.uiPieceInstances, logger, coreHandler)
 		this._collectionData = []
 	}
 
@@ -103,7 +103,12 @@ export class PieceInstancesInPlaylistHandler extends PublicationCollection<
 		if (!sameSubscription) {
 			// Subscription arguments changed; recreate the server-side observer with new filters.
 			this.stopSubscription()
-			this.setupSubscription(this._currentRundownIds, this._partInstanceIds, {})
+			this.setupSubscription(
+				this._currentRundownIds,
+				this._partInstanceIds,
+				this._currentActivationId ?? null,
+				{}
+			)
 		} else if (this._subscriptionId) {
 			// Filter scope is unchanged and subscription is alive; just republish latest local snapshot.
 			this.updateAndNotify()

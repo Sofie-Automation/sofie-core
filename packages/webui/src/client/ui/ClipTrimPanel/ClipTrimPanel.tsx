@@ -86,7 +86,7 @@ export function ClipTrimPanel({
 }: IProps): JSX.Element {
 	const { t } = useTranslation()
 
-	useSubscription(CorelibPubSub.pieces, [rundownId], null) // TODO: This should filter by pieceId, but that requires a different publication and this panel isnt used
+	useSubscription(CorelibPubSub.uiPieces, [rundownId], null) // TODO: This should filter by pieceId, but that requires a different publication and this panel isnt used
 
 	const piece = useTracker(() => Pieces.findOne(pieceId), [pieceId])
 

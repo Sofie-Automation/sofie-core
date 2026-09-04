@@ -10,7 +10,10 @@
 import type { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import type { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import type { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
-import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import {
+	CollectionName,
+	CustomCollectionName as CustomCorelibCollectionName,
+} from '@sofie-automation/corelib/dist/dataModel/Collections'
 import type { ExpectedPackageWorkStatus } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackageWorkStatuses'
 import type { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
 import type { PackageContainerStatusDB } from '@sofie-automation/corelib/dist/dataModel/PackageContainerStatus'
@@ -20,7 +23,11 @@ import type { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import type { Evaluation } from '@sofie-automation/meteor-lib/dist/collections/Evaluations'
 import type { ExpectedPackageDB } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
-import { createSyncMongoCollection, createSyncReadOnlyMongoCollection } from './lib.js'
+import {
+	createSyncCorelibCustomPublicationMongoCollection,
+	createSyncMongoCollection,
+	createSyncReadOnlyMongoCollection,
+} from './lib.js'
 import type { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import type { RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import type { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
@@ -30,20 +37,26 @@ import type { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import type { TranslationsBundle } from '@sofie-automation/meteor-lib/dist/collections/TranslationsBundles'
 import type { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
 import type { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
-import type { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
-import type { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import type { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import type { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
-import type { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import type { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 
-export const AdLibActions = createSyncReadOnlyMongoCollection<AdLibAction>(CollectionName.AdLibActions)
+/**
+ * AdLibActions, as published by the `uiAdLibActions` and `uiAdLibActionsForPart` custom publications.
+ * Note: this is populated by custom publications rather than being a plain mirror of the server
+ * collection, so the documents may have been modified for the UI.
+ */
+export const AdLibActions = createSyncCorelibCustomPublicationMongoCollection(
+	CustomCorelibCollectionName.UIAdLibActions
+)
 
-export const AdLibPieces = createSyncReadOnlyMongoCollection<AdLibPiece>(CollectionName.AdLibPieces)
+/**
+ * AdLibPieces, as published by the `uiAdLibPieces` and `uiAdLibPiecesForPart` custom publications.
+ * Note: this is populated by custom publications rather than being a plain mirror of the server
+ * collection, so the documents may have been modified for the UI.
+ */
+export const AdLibPieces = createSyncCorelibCustomPublicationMongoCollection(CustomCorelibCollectionName.UIAdLibPieces)
 
 export const Blueprints = createSyncMongoCollection<Blueprint>(CollectionName.Blueprints)
 
@@ -77,16 +90,38 @@ export const PackageContainerStatuses = createSyncReadOnlyMongoCollection<Packag
 
 export const PeripheralDevices = createSyncMongoCollection<PeripheralDevice>(CollectionName.PeripheralDevices)
 
-export const PieceInstances = createSyncReadOnlyMongoCollection<PieceInstance>(CollectionName.PieceInstances)
-
-export const Pieces = createSyncReadOnlyMongoCollection<Piece>(CollectionName.Pieces)
-
-export const RundownBaselineAdLibActions = createSyncReadOnlyMongoCollection<RundownBaselineAdLibAction>(
-	CollectionName.RundownBaselineAdLibActions
+/**
+ * PieceInstances, as published by the `uiPieceInstances` custom publication.
+ * Note: this is populated by a custom publication rather than being a plain mirror of the server
+ * collection, so the documents may have been modified for the UI.
+ */
+export const PieceInstances = createSyncCorelibCustomPublicationMongoCollection(
+	CustomCorelibCollectionName.UIPieceInstances
 )
 
-export const RundownBaselineAdLibPieces = createSyncReadOnlyMongoCollection<RundownBaselineAdLibItem>(
-	CollectionName.RundownBaselineAdLibPieces
+/**
+ * Pieces, as published by the `uiPieces` and `uiPiecesInfiniteStartingBefore` custom publications.
+ * Note: this is populated by custom publications rather than being a plain mirror of the server
+ * collection, so the documents may have been modified for the UI.
+ */
+export const Pieces = createSyncCorelibCustomPublicationMongoCollection(CustomCorelibCollectionName.UIPieces)
+
+/**
+ * RundownBaselineAdLibActions, as published by the `uiRundownBaselineAdLibActions` custom publication.
+ * Note: this is populated by a custom publication rather than being a plain mirror of the server
+ * collection, so the documents may have been modified for the UI.
+ */
+export const RundownBaselineAdLibActions = createSyncCorelibCustomPublicationMongoCollection(
+	CustomCorelibCollectionName.UIRundownBaselineAdLibActions
+)
+
+/**
+ * RundownBaselineAdLibPieces, as published by the `uiRundownBaselineAdLibPieces` custom publication.
+ * Note: this is populated by a custom publication rather than being a plain mirror of the server
+ * collection, so the documents may have been modified for the UI.
+ */
+export const RundownBaselineAdLibPieces = createSyncCorelibCustomPublicationMongoCollection(
+	CustomCorelibCollectionName.UIRundownBaselineAdLibPieces
 )
 
 export const RundownLayouts = createSyncMongoCollection<RundownLayoutBase>(CollectionName.RundownLayouts)

@@ -3,7 +3,7 @@ import { CoreHandler } from '../coreHandler.js'
 import { PublicationCollection } from '../publicationCollection.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import areElementsShallowEqual from '@sofie-automation/shared-lib/dist/lib/isShallowEqual'
 import _ from 'underscore'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
@@ -54,8 +54,8 @@ export interface SelectedPieceInstances {
 
 export class PieceInstancesHandler extends PublicationCollection<
 	SelectedPieceInstances,
-	CorelibPubSub.pieceInstances,
-	CollectionName.PieceInstances
+	CorelibPubSub.uiPieceInstances,
+	CustomCollectionName.UIPieceInstances
 > {
 	private _currentPlaylist: Playlist | undefined
 	private _partInstanceIds: PartInstanceId[] = []
@@ -63,7 +63,7 @@ export class PieceInstancesHandler extends PublicationCollection<
 	private _partInstances: PartInstances | undefined
 
 	constructor(logger: Logger, coreHandler: CoreHandler) {
-		super(CollectionName.PieceInstances, CorelibPubSub.pieceInstances, logger, coreHandler)
+		super(CustomCollectionName.UIPieceInstances, CorelibPubSub.uiPieceInstances, logger, coreHandler)
 		this._collectionData = {
 			active: [],
 			currentPartInstance: [],
@@ -236,7 +236,7 @@ export class PieceInstancesHandler extends PublicationCollection<
 				) &&
 				prevPlaylist?.activationId === this._currentPlaylist?.activationId
 			if (!sameSubscription) {
-				this.setupSubscription(this._currentPlaylist.rundownIdsInOrder, this._partInstanceIds, {})
+				this.setupSubscription(this._currentPlaylist.rundownIdsInOrder, this._partInstanceIds, null, {})
 			} else if (this._subscriptionId) {
 				this.updateAndNotify()
 			} else {

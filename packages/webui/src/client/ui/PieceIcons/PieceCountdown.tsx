@@ -43,7 +43,9 @@ export function PieceCountdownContainer(props: Readonly<IPropsHeader>): JSX.Elem
 		}
 	)
 
-	useSubscription(CorelibPubSub.pieceInstancesSimple, props.rundownIds, props.playlistActivationId ?? null)
+	useSubscription(CorelibPubSub.uiPieceInstances, props.rundownIds, null, props.playlistActivationId ?? null, {
+		omitTimings: true,
+	})
 
 	useSubscription(MeteorPubSub.uiShowStyleBase, props.showStyleBaseId)
 

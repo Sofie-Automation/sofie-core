@@ -46,7 +46,7 @@ export const SegmentAdlibTestingContainer = withResolvedSegment<IProps>(function
 		[segmentId]
 	)
 
-	const piecesReady = useSubscription(CorelibPubSub.pieces, [rundownId], partIds ?? [])
+	const piecesReady = useSubscription(CorelibPubSub.uiPieces, [rundownId], partIds ?? [])
 
 	const partInstanceIds = useTracker(
 		() =>
@@ -67,7 +67,13 @@ export const SegmentAdlibTestingContainer = withResolvedSegment<IProps>(function
 		[segmentId]
 	)
 
-	const pieceInstancesReady = useSubscription(CorelibPubSub.pieceInstances, [rundownId], partInstanceIds ?? [], {})
+	const pieceInstancesReady = useSubscription(
+		CorelibPubSub.uiPieceInstances,
+		[rundownId],
+		partInstanceIds ?? [],
+		props.playlist.activationId ?? null,
+		{}
+	)
 
 	useTracker(() => {
 		const segment = Segments.findOne(segmentId, {
@@ -79,7 +85,7 @@ export const SegmentAdlibTestingContainer = withResolvedSegment<IProps>(function
 		if (!segment) return
 
 		meteorSubscribe(
-			CorelibPubSub.piecesInfiniteStartingBefore,
+			CorelibPubSub.uiPiecesInfiniteStartingBefore,
 			rundownId,
 			Array.from(segmentsIdsBefore.values()),
 			Array.from(rundownIdsBefore.values())
