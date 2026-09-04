@@ -5,7 +5,7 @@ import { AdLibAction } from './dataModel/AdlibAction.js'
 import { AdLibPiece } from './dataModel/AdLibPiece.js'
 import { RundownBaselineAdLibAction } from './dataModel/RundownBaselineAdLibAction.js'
 import { RundownBaselineAdLibItem } from './dataModel/RundownBaselineAdLibPiece.js'
-import { DBPartInstance } from './dataModel/PartInstance.js'
+import { DBPartInstance, PartInstance } from './dataModel/PartInstance.js'
 import { DBRundown } from './dataModel/Rundown.js'
 import { DBRundownPlaylist } from './dataModel/RundownPlaylist/RundownPlaylist.js'
 import { DBSegment } from './dataModel/Segment.js'
@@ -82,21 +82,6 @@ export enum CorelibPubSub {
 	 *  Fetch Segments belonging to the specified Rundowns, optionally omitting ones set as hidden
 	 */
 	segments = 'segments',
-	/**
-	 * Fetch Parts belonging to the specified Rundowns
-	 */
-	parts = 'parts',
-	/**
-	 * Fetch PartInstances in the specified Rundowns. If set, the result will be limited to the supplied RundownPlaylistActivationId.
-	 * Any reset PartInstances will be omitted
-	 */
-	partInstances = 'partInstances',
-	/**
-	 * Fetch PartInstances in the specified Rundowns. If set, the result will be limited to the supplied RundownPlaylistActivationId.
-	 * Any reset PartInstances will be omitted
-	 * This provides a simplified form of the PartInstance, with any timing information omitted to reduce data churn
-	 */
-	partInstancesSimple = 'partInstancesSimple',
 	/**
 	 * Fetch Pieces belonging to the specified Rundowns, optionally limiting the result to the specified Parts
 	 */
@@ -200,6 +185,17 @@ export enum CorelibPubSub {
 	 * If the id is null, nothing will be returned
 	 */
 	uiPieceContentStatuses = 'uiPieceContentStatuses',
+	/**
+	 * Fetch all Parts in the given RundownPlaylist, with the calculated overrides applied (such as those from the QuickLoop).
+	 * If the id is null, nothing will be returned.
+	 */
+	uiParts = 'uiParts',
+	/**
+	 * Fetch all PartInstances for the given RundownPlaylist activation, with the calculated overrides applied
+	 * (such as those from the QuickLoop). Any reset PartInstances will be omitted.
+	 * If the id is null, nothing will be returned.
+	 */
+	uiPartInstances = 'uiPartInstances',
 }
 
 /**
@@ -275,22 +271,6 @@ export interface CorelibPubSubTypes {
 		playlistActivationId: RundownPlaylistActivationId | null,
 		token?: string
 	) => CollectionName.PieceInstances
-	[CorelibPubSub.parts]: (
-		rundownIds: RundownId[],
-		/** SegmentIds to fetch for, or null to fetch all */
-		segmentIds: SegmentId[] | null,
-		token?: string
-	) => CollectionName.Parts
-	[CorelibPubSub.partInstances]: (
-		rundownIds: RundownId[],
-		playlistActivationId: RundownPlaylistActivationId | null,
-		token?: string
-	) => CollectionName.PartInstances
-	[CorelibPubSub.partInstancesSimple]: (
-		rundownIds: RundownId[],
-		playlistActivationId: RundownPlaylistActivationId | null,
-		token?: string
-	) => CollectionName.PartInstances
 	[CorelibPubSub.segments]: (
 		rundownIds: RundownId[],
 		filter: {
@@ -347,6 +327,10 @@ export interface CorelibPubSubTypes {
 	[CorelibPubSub.uiPieceContentStatuses]: (
 		rundownPlaylistId: RundownPlaylistId | null
 	) => CustomCollectionName.UIPieceContentStatuses
+	[CorelibPubSub.uiParts]: (playlistId: RundownPlaylistId | null) => CustomCollectionName.UIParts
+	[CorelibPubSub.uiPartInstances]: (
+		playlistActivationId: RundownPlaylistActivationId | null
+	) => CustomCollectionName.UIPartInstances
 }
 
 export type CorelibPubSubCollections = {
@@ -382,4 +366,6 @@ export type CorelibPubSubCollections = {
 
 export type CorelibPubSubCustomCollections = {
 	[CustomCollectionName.UIPieceContentStatuses]: UIPieceContentStatus
+	[CustomCollectionName.UIParts]: DBPart
+	[CustomCollectionName.UIPartInstances]: PartInstance
 }

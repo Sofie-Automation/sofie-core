@@ -208,8 +208,8 @@ export const TriggeredActionsEditor: React.FC<IProps> = function TriggeredAction
 		null
 	)
 
-	useSubscription(MeteorPubSub.uiPartInstances, rundownPlaylist?.activationId ?? null)
-	useSubscription(MeteorPubSub.uiParts, rundownPlaylist?._id ?? null)
+	useSubscription(CorelibPubSub.uiPartInstances, rundownPlaylist?.activationId ?? null)
+	useSubscription(CorelibPubSub.uiParts, rundownPlaylist?._id ?? null)
 
 	const previewContext = useTracker(
 		() => {
