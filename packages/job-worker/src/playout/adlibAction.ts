@@ -237,7 +237,7 @@ export async function executeActionInner(
 		showStyle,
 		context.getShowStyleBlueprintConfig(showStyle),
 		watchedPackages,
-		new PartAndPieceInstanceActionService(context, playoutModel, showStyle, rundown)
+		new PartAndPieceInstanceActionService(context, playoutModel, showStyle)
 	)
 
 	// If any action cannot be done due to timings, that needs to be rejected by the context

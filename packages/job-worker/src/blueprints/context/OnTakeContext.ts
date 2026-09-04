@@ -177,16 +177,26 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 		return executePeripheralDeviceAction(this._context, deviceId, timeoutMs ?? null, actionId, payload)
 	}
 
-	queuePartAfterTake(rawPart: IBlueprintPart, rawPieces: IBlueprintPiece[]): void {
+	/**
+	 * If the target is invalid, prepareQueueablePartAndPieces throws synchronously; executeOnTakeCallback catches and logs the error,
+	 * sets an onTake notification, and continues the take without queuing the part.
+	 */
+	queuePartAfterTake(
+		rawPart: IBlueprintPart,
+		rawPieces: IBlueprintPiece[],
+		targetPartOrInstanceId?: string,
+		insertBefore?: boolean
+	): void {
 		const currentPartInstance = this._playoutModel.currentPartInstance
 		if (!currentPartInstance) {
 			throw new Error('Cannot queue part when no current partInstance')
 		}
-		this.partToQueueAfterTake = this.partAndPieceInstanceService.processPartAndPiecesToQueueOrFail(
+		this.partToQueueAfterTake = this.partAndPieceInstanceService.prepareQueueablePartAndPieces(
 			rawPart,
 			rawPieces,
-			this._playoutModel.currentPartInstance.partInstance.rundownId,
-			this._playoutModel.currentPartInstance.partInstance.segmentId
+			currentPartInstance,
+			targetPartOrInstanceId,
+			insertBefore
 		)
 	}
 

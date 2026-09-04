@@ -252,7 +252,7 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 	 * @returns The inserted PlayoutPartInstanceModel
 	 */
 	createAdlibbedPartInstance(
-		part: Omit<DBPart, 'segmentId' | 'rundownId'>,
+		part: DBPart,
 		pieces: Omit<PieceInstancePiece, 'startPartId'>[],
 		fromAdlibId: PieceId | BucketAdLibId | undefined,
 		infinitePieceInstances: PieceInstance[]

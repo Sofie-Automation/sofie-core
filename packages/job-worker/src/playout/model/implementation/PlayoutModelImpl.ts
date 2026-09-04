@@ -432,7 +432,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 	}
 
 	createAdlibbedPartInstance(
-		part: Omit<DBPart, 'segmentId' | 'rundownId'>,
+		part: DBPart,
 		pieces: Omit<PieceInstancePiece, 'startPartId'>[],
 		fromAdlibId: PieceId | undefined,
 		infinitePieceInstances: PieceInstance[]
@@ -440,20 +440,21 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		const currentPartInstance = this.currentPartInstance
 		if (!currentPartInstance) throw new Error('No currentPartInstance')
 
+		const segmentPlayoutId: SegmentPlayoutId =
+			part.segmentId === currentPartInstance.partInstance.segmentId
+				? currentPartInstance.partInstance.segmentPlayoutId
+				: getRandomId()
+
 		const newPartInstance: DBPartInstance = {
 			_id: getRandomId(),
-			rundownId: currentPartInstance.partInstance.rundownId,
-			segmentId: currentPartInstance.partInstance.segmentId,
+			rundownId: part.rundownId,
+			segmentId: part.segmentId,
 			playlistActivationId: currentPartInstance.partInstance.playlistActivationId,
-			segmentPlayoutId: currentPartInstance.partInstance.segmentPlayoutId,
+			segmentPlayoutId,
 			takeCount: currentPartInstance.partInstance.takeCount + 1,
 			rehearsal: currentPartInstance.partInstance.rehearsal,
 			orphaned: 'adlib-part',
-			part: {
-				...part,
-				rundownId: currentPartInstance.partInstance.rundownId,
-				segmentId: currentPartInstance.partInstance.segmentId,
-			},
+			part: clone<DBPart>(part),
 		}
 
 		this.#fixupPieceInstancesForPartInstance(newPartInstance, infinitePieceInstances)
