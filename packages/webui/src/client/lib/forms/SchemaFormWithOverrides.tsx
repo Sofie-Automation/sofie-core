@@ -36,6 +36,7 @@ import { ToggleSwitchControl } from '../Components/ToggleSwitch.js'
 import { BreadCrumbTextInput } from '../Components/BreadCrumbTextInput.js'
 import { OneOfButtonsWithOverrides } from './SchemaFormOneOfButtons/OneOfButtons.js'
 import { TimeMsInputControl } from '../Components/TimeMsInput.js'
+import { OGrafSchemaForm } from './OGrafSchemaForm.js'
 
 interface SchemaFormWithOverridesProps extends SchemaFormCommonProps {
 	/** Base path of the schema within the document */
@@ -105,6 +106,10 @@ export function SchemaFormWithOverrides(props: Readonly<SchemaFormWithOverridesP
 
 	if (props.schema.const) {
 		return null
+	}
+
+	if (isOGrafSchema(props.schema)) {
+		return <OGrafFormWithOverrides {...childProps} />
 	}
 
 	switch (props.schema.type) {
@@ -478,6 +483,23 @@ const BreadCrumbsFormWithOverrides = ({ commonAttrs }: Readonly<FormComponentPro
 	return (
 		<LabelAndOverrides {...commonAttrs}>
 			{(value, handleUpdate) => <BreadCrumbTextInput value={value || []} handleUpdate={handleUpdate} />}
+		</LabelAndOverrides>
+	)
+}
+
+/**
+ * Returns true if the schema provided looks like an OGraf schema
+ * and can be rendered by <OGrafFormWithOverrides>
+ */
+function isOGrafSchema(schema: JSONSchema | undefined) {
+	return schema?.$schema === 'https://ograf.ebu.io/v1/specification/json-schemas/gdd/object.json'
+}
+const OGrafFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponentProps>) => {
+	return (
+		<LabelAndOverrides {...commonAttrs}>
+			{(value, handleUpdate) => (
+				<OGrafSchemaForm {...commonAttrs} data={value} schema={schema} onUpdate={handleUpdate} />
+			)}
 		</LabelAndOverrides>
 	)
 }
