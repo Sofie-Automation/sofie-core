@@ -137,6 +137,8 @@ export interface UserEditingProperties {
 	 * could be whether it an element is locked from NRCS updates
 	 *
 	 * if you do not want the piece type to be changed, then use only this field.
+	 *
+	 * To define an ograf-json-schema, set the $schema property to be "https://ograf.ebu.io/v1/specification/json-schemas/gdd/object.json"
 	 */
 	globalProperties?: { schema: JSONBlob<JSONSchema>; currentValue: Record<string, any> }
 
