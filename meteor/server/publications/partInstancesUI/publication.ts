@@ -8,7 +8,8 @@ import {
 	setUpCollectionOptimizedObserver,
 } from '../../lib/customPublication'
 import { logger } from '../../logging'
-import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
+import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
+import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { ContentCache, PartInstanceOmitedFields, createReactiveContentCache } from './reactiveContentCache'
 import { ReadonlyDeep } from 'type-fest'
 import { RundownPlaylists } from '../../collections'
@@ -210,7 +211,7 @@ export async function manipulateUIPartInstancesPublicationData(
 
 export function registerPartInstancesUIPublications(registry: PublicationRegistry): void {
 	registry.customPublish(
-		MeteorPubSub.uiPartInstances,
+		CorelibPubSub.uiPartInstances,
 		CustomCollectionName.UIPartInstances,
 		async (_context, pub, playlistActivationId: RundownPlaylistActivationId | null) => {
 			check(playlistActivationId, z.string().nullish())
@@ -218,7 +219,7 @@ export function registerPartInstancesUIPublications(registry: PublicationRegistr
 			triggerWriteAccessBecauseNoCheckNecessary()
 
 			if (!playlistActivationId) {
-				logger.info(`Pub.${CustomCollectionName.UISegmentPartNotes}: Not playlistActivationId`)
+				logger.info(`Pub.${CorelibPubSub.uiPartInstances}: Not playlistActivationId`)
 				return
 			}
 
@@ -228,7 +229,7 @@ export function registerPartInstancesUIPublications(registry: PublicationRegistr
 				UIPartInstancesState,
 				UIPartInstancesUpdateProps
 			>(
-				`pub_${MeteorPubSub.uiPartInstances}_${playlistActivationId}`,
+				`pub_${CorelibPubSub.uiPartInstances}_${playlistActivationId}`,
 				{ playlistActivationId },
 				setupUIPartInstancesPublicationObservers,
 				manipulateUIPartInstancesPublicationData,

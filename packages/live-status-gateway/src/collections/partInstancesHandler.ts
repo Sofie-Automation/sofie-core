@@ -3,12 +3,12 @@ import { CoreHandler } from '../coreHandler.js'
 import { PublicationCollection } from '../publicationCollection.js'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import areElementsShallowEqual from '@sofie-automation/shared-lib/dist/lib/isShallowEqual'
 import _ from 'underscore'
 import throttleToNextTick from '@sofie-automation/shared-lib/dist/lib/throttleToNextTick'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
-import { RundownId, RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { CollectionHandlers } from '../liveStatusServer.js'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
 
@@ -20,23 +20,15 @@ export interface SelectedPartInstances {
 	inCurrentSegment: DBPartInstance[]
 }
 
-const PLAYLIST_KEYS = [
-	'_id',
-	'activationId',
-	'previousPartsInfo',
-	'currentPartInfo',
-	'nextPartInfo',
-	'rundownIdsInOrder',
-] as const
+const PLAYLIST_KEYS = ['_id', 'activationId', 'previousPartsInfo', 'currentPartInfo', 'nextPartInfo'] as const
 type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 
 export class PartInstancesHandler extends PublicationCollection<
 	SelectedPartInstances,
-	CorelibPubSub.partInstances,
-	CollectionName.PartInstances
+	CorelibPubSub.uiPartInstances,
+	CustomCollectionName.UIPartInstances
 > {
 	private _currentPlaylist: Playlist | undefined
-	private _rundownIds: RundownId[] = []
 	private _activationId: RundownPlaylistActivationId | undefined
 
 	private _throttledUpdateAndNotify = throttleToNextTick(() => {
@@ -45,7 +37,7 @@ export class PartInstancesHandler extends PublicationCollection<
 	})
 
 	constructor(logger: Logger, coreHandler: CoreHandler) {
-		super(CollectionName.PartInstances, CorelibPubSub.partInstances, logger, coreHandler)
+		super(CustomCollectionName.UIPartInstances, CorelibPubSub.uiPartInstances, logger, coreHandler)
 		this._collectionData = {
 			previous: [],
 			current: undefined,
@@ -122,7 +114,6 @@ export class PartInstancesHandler extends PublicationCollection<
 	}
 
 	private onPlaylistUpdate = (data: Playlist | undefined): void => {
-		const prevRundownIds = [...this._rundownIds]
 		const prevActivationId = this._activationId
 
 		this.logUpdateReceived(
@@ -131,14 +122,14 @@ export class PartInstancesHandler extends PublicationCollection<
 		)
 		this._currentPlaylist = data
 
-		this._rundownIds = this._currentPlaylist ? this._currentPlaylist.rundownIdsInOrder : []
 		this._activationId = this._currentPlaylist?.activationId
-		if (this._currentPlaylist && this._rundownIds.length && this._activationId) {
-			const sameSubscription =
-				areElementsShallowEqual(this._rundownIds, prevRundownIds) && prevActivationId === this._activationId
+		if (this._currentPlaylist && this._activationId) {
+			// The publication tracks the Rundowns of the playlist itself, so it only needs re-subscribing
+			// when the activation changes
+			const sameSubscription = prevActivationId === this._activationId
 			if (!sameSubscription) {
 				this.stopSubscription()
-				this.setupSubscription(this._rundownIds, this._activationId)
+				this.setupSubscription(this._activationId)
 			} else if (this._subscriptionId) {
 				this.updateAndNotify()
 			} else {
