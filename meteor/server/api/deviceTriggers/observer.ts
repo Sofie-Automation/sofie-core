@@ -19,7 +19,7 @@ import { StudioObserver } from './StudioObserver'
 import { Studios } from '../../collections'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
-import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
+import { TriggersContextFactory } from './triggersContext'
 import { TagsService } from './TagsService'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
@@ -29,11 +29,11 @@ type ObserverAndManager = {
 }
 
 /**
- * Start observing studios and maintaining a device-trigger manager per studio. `triggersContext` is
+ * Start observing studios and maintaining a device-trigger manager per studio. `createTriggersContext` is
  * injected (rather than importing a global) so the compiled actions dispatch through the process's
- * `MethodRegistry`.
+ * `MethodRegistry`. It is a factory because each studio needs a context bound to its own `ContentCache`.
  */
-export async function startDeviceTriggersObserver(triggersContext: TriggersContext): Promise<void> {
+export async function startDeviceTriggersObserver(createTriggersContext: TriggersContextFactory): Promise<void> {
 	const studioObserversAndManagers = new Map<StudioId, ObserverAndManager>()
 	const jobQueue = new JobQueueWithClasses({
 		autoStart: true,
@@ -52,7 +52,7 @@ export async function startDeviceTriggersObserver(triggersContext: TriggersConte
 
 	function createObserverAndManager(studioId: StudioId) {
 		logger.debug(`Creating observer for studio "${studioId}"`)
-		const manager = new StudioDeviceTriggerManager(studioId, new TagsService(), triggersContext)
+		const manager = new StudioDeviceTriggerManager(studioId, new TagsService(), createTriggersContext)
 		const observer = new StudioObserver(
 			studioId,
 			(showStyleBaseId, cache) => {

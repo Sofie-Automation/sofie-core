@@ -1,6 +1,14 @@
 import {
+	TriggersAdLibAction,
+	TriggersAdLibPiece,
 	TriggersAsyncCollection,
 	TriggersContext,
+	TriggersPart,
+	TriggersRundown,
+	TriggersRundownBaselineAdLibAction,
+	TriggersRundownBaselineAdLibItem,
+	TriggersRundownPlaylist,
+	TriggersSegment,
 	TriggerTrackerComputation,
 } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
 import { SINGLE_USE_TOKEN_SALT } from '@sofie-automation/meteor-lib/dist/api/userActions'
@@ -13,41 +21,33 @@ import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { UserAction } from '@sofie-automation/meteor-lib/dist/userAction'
 import { TFunction } from 'i18next'
 import { logger } from '../../logging'
-import { IBaseFilterLink, IRundownPlaylistFilterLink } from '@sofie-automation/blueprints-integration'
-import { PartId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { IRundownPlaylistFilterLink } from '@sofie-automation/blueprints-integration'
+import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DummyReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/reactive-var'
 import { ReactivePlaylistActionContext } from '@sofie-automation/meteor-lib/dist/triggers/actionFactory'
 import { FindOneOptions, FindOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import {
-	DBRundownPlaylist,
-	SelectedPartInstance,
-} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import {
-	AdLibActions,
-	AdLibPieces,
-	PartInstances,
-	Parts,
-	RundownBaselineAdLibActions,
-	RundownBaselineAdLibPieces,
-	RundownPlaylists,
-	Rundowns,
-	Segments,
-} from '../../collections'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { AsyncOnlyReadOnlyMongoCollection } from '../../collections/collection'
+import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { RundownPlaylists } from '../../collections'
+import { ContentCache } from './reactiveContentCache'
 
 export function hashSingleUseToken(token: string): string {
 	return getHash(SINGLE_USE_TOKEN_SALT + token)
 }
 
-class MeteorTriggersCollectionWrapper<
+/**
+ * Reads one of the in-memory `ContentCache` collections that the device-trigger observers already maintain,
+ * so that the compiled filter chains do not re-query the database for data that is held in memory.
+ *
+ * The collection is fetched on each call rather than held, because the cache is replaced whenever the set of
+ * rundowns in the playlist changes.
+ */
+class InMemoryTriggersCollectionWrapper<
 	DBInterface extends { _id: ProtectedString<any> },
 > implements TriggersAsyncCollection<DBInterface> {
-	readonly #collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>
+	readonly #getCollection: () => CachedCollection<DBInterface> | undefined
 
-	constructor(collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>) {
-		this.#collection = collection
+	constructor(getCollection: () => CachedCollection<DBInterface> | undefined) {
+		this.#getCollection = getCollection
 	}
 
 	async findFetchAsync(
@@ -56,7 +56,7 @@ class MeteorTriggersCollectionWrapper<
 		options?: FindOptions<DBInterface>
 	): Promise<Array<DBInterface>> {
 		// Note: the _computation is not used, since we are not using Tracker server-side
-		return this.#collection.findFetchAsync(selector, options)
+		return this.#getCollection()?.findFetch(selector, options) ?? []
 	}
 
 	async findOneAsync(
@@ -65,16 +65,48 @@ class MeteorTriggersCollectionWrapper<
 		options?: FindOneOptions<DBInterface>
 	): Promise<DBInterface | undefined> {
 		// Note: the _computation is not used, since we are not using Tracker server-side
-		return this.#collection.findOneAsync(selector, options)
+		return this.#getCollection()?.findOne(selector, options)
 	}
 }
+
+/**
+ * The read half of an `InMemoryMongoCollection`, declared as function properties rather than methods so that
+ * Typescript checks the document type strictly. Methods are compared bivariantly, which would let a cache
+ * collection that is *missing* one of the required fields through.
+ */
+interface CachedCollection<DBInterface extends { _id: ProtectedString<any> }> {
+	readonly findFetch: (selector?: MongoQuery<DBInterface>, options?: FindOptions<DBInterface>) => DBInterface[]
+	readonly findOne: (
+		selector?: MongoQuery<DBInterface> | DBInterface['_id'],
+		options?: FindOneOptions<DBInterface>
+	) => DBInterface | undefined
+}
+
+/**
+ * Wrap a `ContentCache` collection as a `TriggersAsyncCollection`.
+ *
+ * The type argument is the set of fields the compiled filter chains read (see the `Triggers*` types in
+ * meteor-lib's `triggersContext.ts`). Passing a cache collection whose projection does not cover them is a
+ * compile error here, rather than a trigger that quietly stops firing.
+ */
+function wrapCachedCollection<DBInterface extends { _id: ProtectedString<any> }>(
+	getCollection: () => CachedCollection<DBInterface> | undefined
+): TriggersAsyncCollection<DBInterface> {
+	return new InMemoryTriggersCollectionWrapper<DBInterface>(getCollection)
+}
+
+/** Builds the `TriggersContext` for one studio, reading through to that studio's `ContentCache`. */
+export type TriggersContextFactory = (getCache: () => ContentCache | undefined) => TriggersContext
 
 /**
  * Build the server-side `TriggersContext` used to compile and execute device-trigger actions.
  * `meteorCall` is injected (rather than imported as a global) so it dispatches through the process's
  * `MethodRegistry`.
  */
-export function createMeteorTriggersContext(meteorCall: IMeteorCall): TriggersContext {
+export function createMeteorTriggersContext(
+	meteorCall: IMeteorCall,
+	getCache: () => ContentCache | undefined
+): TriggersContext {
 	return {
 		MeteorCall: meteorCall,
 
@@ -82,14 +114,18 @@ export function createMeteorTriggersContext(meteorCall: IMeteorCall): TriggersCo
 
 		isClient: false,
 
-		AdLibActions: new MeteorTriggersCollectionWrapper(AdLibActions),
-		AdLibPieces: new MeteorTriggersCollectionWrapper(AdLibPieces),
-		Parts: new MeteorTriggersCollectionWrapper(Parts),
-		RundownBaselineAdLibActions: new MeteorTriggersCollectionWrapper(RundownBaselineAdLibActions),
-		RundownBaselineAdLibPieces: new MeteorTriggersCollectionWrapper(RundownBaselineAdLibPieces),
-		RundownPlaylists: new MeteorTriggersCollectionWrapper(RundownPlaylists),
-		Rundowns: new MeteorTriggersCollectionWrapper(Rundowns),
-		Segments: new MeteorTriggersCollectionWrapper(Segments),
+		AdLibActions: wrapCachedCollection<TriggersAdLibAction>(() => getCache()?.AdLibActions),
+		AdLibPieces: wrapCachedCollection<TriggersAdLibPiece>(() => getCache()?.AdLibPieces),
+		Parts: wrapCachedCollection<TriggersPart>(() => getCache()?.Parts),
+		RundownBaselineAdLibActions: wrapCachedCollection<TriggersRundownBaselineAdLibAction>(
+			() => getCache()?.RundownBaselineAdLibActions
+		),
+		RundownBaselineAdLibPieces: wrapCachedCollection<TriggersRundownBaselineAdLibItem>(
+			() => getCache()?.RundownBaselineAdLibPieces
+		),
+		RundownPlaylists: wrapCachedCollection<TriggersRundownPlaylist>(() => getCache()?.RundownPlaylists),
+		Rundowns: wrapCachedCollection<TriggersRundown>(() => getCache()?.Rundowns),
+		Segments: wrapCachedCollection<TriggersSegment>(() => getCache()?.Segments),
 
 		hashSingleUseToken,
 
@@ -123,71 +159,30 @@ export function createMeteorTriggersContext(meteorCall: IMeteorCall): TriggersCo
 			return fnc(computation, ...params)
 		},
 
-		createContextForRundownPlaylistChain,
-	}
-}
+		/**
+		 * The `ContentCache` holds only the active playlist, so the lookup hits the database but the context
+		 * comes from the cache. Any other playlist has to give up here, as the chains would find nothing for it.
+		 */
+		createContextForRundownPlaylistChain: async (studioId, filterChain) => {
+			const playlist = await rundownPlaylistFilter(
+				studioId,
+				filterChain.filter((link) => link.object === 'rundownPlaylist') as IRundownPlaylistFilterLink[]
+			)
 
-async function createContextForRundownPlaylistChain(
-	studioId: StudioId,
-	filterChain: IBaseFilterLink[]
-): Promise<ReactivePlaylistActionContext | undefined> {
-	const playlist = await rundownPlaylistFilter(
-		studioId,
-		filterChain.filter((link) => link.object === 'rundownPlaylist') as IRundownPlaylistFilterLink[]
-	)
+			if (!playlist) return undefined
 
-	if (!playlist) return undefined
+			const cache = getCache()
+			if (!cache) return undefined
 
-	const [currentPartInfo, nextPartInfo] = await Promise.all([
-		fetchInfoForSelectedPart(playlist.currentPartInfo),
-		fetchInfoForSelectedPart(playlist.nextPartInfo),
-	])
+			if (!cache.RundownPlaylists.findOne(playlist._id)) {
+				logger.warn(
+					`Device trigger filter chain resolved to RundownPlaylist "${playlist._id}", which is not the one being observed in Studio "${studioId}". Only the active playlist is supported.`
+				)
+				return undefined
+			}
 
-	return {
-		studioId: new DummyReactiveVar(studioId),
-		rundownPlaylistId: new DummyReactiveVar(playlist?._id),
-		rundownPlaylist: new DummyReactiveVar(playlist),
-		currentRundownId: new DummyReactiveVar(
-			playlist.currentPartInfo?.rundownId ?? playlist.rundownIdsInOrder[0] ?? null
-		),
-		currentPartId: new DummyReactiveVar(currentPartInfo?.partId ?? null),
-		currentSegmentPartIds: new DummyReactiveVar(currentPartInfo?.segmentPartIds ?? []),
-		nextPartId: new DummyReactiveVar(nextPartInfo?.partId ?? null),
-		nextSegmentPartIds: new DummyReactiveVar(nextPartInfo?.segmentPartIds ?? []),
-		currentPartInstanceId: new DummyReactiveVar(playlist.currentPartInfo?.partInstanceId ?? null),
-	}
-}
-
-async function fetchInfoForSelectedPart(partInfo: SelectedPartInstance | null): Promise<{
-	partId: PartId
-	segmentPartIds: PartId[]
-} | null> {
-	if (!partInfo) return null
-
-	const partInstance = (await PartInstances.findOneAsync(partInfo.partInstanceId, {
-		projection: {
-			'part._id': 1,
-			segmentId: 1,
-		} as any,
-	})) as (Pick<DBPartInstance, 'segmentId'> & { part: Pick<DBPart, '_id'> }) | null
-
-	if (!partInstance) return null
-
-	const partId = partInstance.part._id
-	const segmentPartIds = await Parts.findFetchAsync(
-		{
-			segmentId: partInstance.segmentId,
+			return createCurrentContextFromCache(cache, studioId)
 		},
-		{
-			projection: {
-				_id: 1,
-			},
-		}
-	).then((parts) => parts.map((part) => part._id))
-
-	return {
-		partId,
-		segmentPartIds,
 	}
 }
 
@@ -232,4 +227,55 @@ async function rundownPlaylistFilter(
 	})
 
 	return RundownPlaylists.findOneAsync(selector)
+}
+
+/**
+ * Build a `ReactivePlaylistActionContext` from the studio's `ContentCache`, so that the context and the
+ * collections the compiled filter chains query are the same snapshot of the same playlist.
+ */
+export async function createCurrentContextFromCache(
+	cache: ContentCache,
+	studioId: StudioId
+): Promise<ReactivePlaylistActionContext> {
+	const rundownPlaylist = cache.RundownPlaylists.findOne({
+		activationId: {
+			$exists: true,
+		},
+	})
+
+	if (!rundownPlaylist) throw new Error('There should be an active RundownPlaylist!')
+
+	const currentPartInstance = rundownPlaylist.currentPartInfo
+		? cache.PartInstances.findOne(rundownPlaylist.currentPartInfo.partInstanceId)
+		: undefined
+	const nextPartInstance = rundownPlaylist.nextPartInfo
+		? cache.PartInstances.findOne(rundownPlaylist.nextPartInfo.partInstanceId)
+		: undefined
+
+	const currentSegmentPartIds = currentPartInstance
+		? cache.Parts.findFetch({
+				segmentId: currentPartInstance.part.segmentId,
+			}).map((part) => part._id)
+		: []
+	const nextSegmentPartIds = nextPartInstance
+		? nextPartInstance.part.segmentId === currentPartInstance?.part.segmentId
+			? currentSegmentPartIds
+			: cache.Parts.findFetch({
+					segmentId: nextPartInstance.part.segmentId,
+				}).map((part) => part._id)
+		: []
+
+	return {
+		studioId: new DummyReactiveVar(studioId),
+		currentPartInstanceId: new DummyReactiveVar(currentPartInstance?._id ?? null),
+		currentPartId: new DummyReactiveVar(currentPartInstance?.part._id ?? null),
+		nextPartId: new DummyReactiveVar(nextPartInstance?.part._id ?? null),
+		currentRundownId: new DummyReactiveVar(
+			currentPartInstance?.part.rundownId ?? nextPartInstance?.part.rundownId ?? null
+		),
+		rundownPlaylist: new DummyReactiveVar(rundownPlaylist),
+		rundownPlaylistId: new DummyReactiveVar(rundownPlaylist._id),
+		currentSegmentPartIds: new DummyReactiveVar(currentSegmentPartIds),
+		nextSegmentPartIds: new DummyReactiveVar(nextSegmentPartIds),
+	}
 }
