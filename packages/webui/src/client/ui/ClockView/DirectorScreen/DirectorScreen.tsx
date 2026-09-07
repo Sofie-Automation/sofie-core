@@ -411,9 +411,10 @@ function useDirectorScreenSubscriptions(props: DirectorScreenProps): void {
 		}
 	)
 
-	useSubscriptions(CorelibPubSub.pieceInstances, [
-		currentPartInstance && [[currentPartInstance.rundownId], [currentPartInstance._id], {}],
-		nextPartInstance && [[nextPartInstance.rundownId], [nextPartInstance._id], {}],
+	const playlistActivationId = playlist?.activationId ?? null
+	useSubscriptions(CorelibPubSub.uiPieceInstances, [
+		currentPartInstance && [[currentPartInstance.rundownId], [currentPartInstance._id], playlistActivationId, {}],
+		nextPartInstance && [[nextPartInstance.rundownId], [nextPartInstance._id], playlistActivationId, {}],
 	])
 }
 

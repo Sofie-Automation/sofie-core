@@ -426,7 +426,7 @@ export function usePresenterScreenSubscriptions(props: PresenterScreenProps): vo
 	useSubscriptionIfEnabled(CorelibPubSub.segments, rundownIds.length > 0, rundownIds, {})
 	useSubscriptionIfEnabled(CorelibPubSub.uiParts, !!playlist, playlist?._id ?? null)
 	useSubscriptionIfEnabled(CorelibPubSub.uiPartInstances, !!playlist?.activationId, playlist?.activationId ?? null)
-	useSubscriptionIfEnabled(CorelibPubSub.pieces, rundownIds.length > 0, rundownIds, null)
+	useSubscriptionIfEnabled(CorelibPubSub.uiPieces, rundownIds.length > 0, rundownIds, null)
 	useSubscriptions(
 		MeteorPubSub.uiShowStyleBase,
 		showStyleBaseIds.map((id) => [id])
@@ -455,9 +455,10 @@ export function usePresenterScreenSubscriptions(props: PresenterScreenProps): vo
 		{ currentPartInstance: undefined, nextPartInstance: undefined, previousPartInstance: undefined }
 	)
 
-	useSubscriptions(CorelibPubSub.pieceInstances, [
-		currentPartInstance && [[currentPartInstance.rundownId], [currentPartInstance._id], {}],
-		nextPartInstance && [[nextPartInstance.rundownId], [nextPartInstance._id], {}],
+	const playlistActivationId = playlist?.activationId ?? null
+	useSubscriptions(CorelibPubSub.uiPieceInstances, [
+		currentPartInstance && [[currentPartInstance.rundownId], [currentPartInstance._id], playlistActivationId, {}],
+		nextPartInstance && [[nextPartInstance.rundownId], [nextPartInstance._id], playlistActivationId, {}],
 	])
 }
 

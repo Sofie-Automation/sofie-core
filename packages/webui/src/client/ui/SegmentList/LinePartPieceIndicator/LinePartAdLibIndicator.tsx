@@ -9,7 +9,7 @@ import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMes
 import StudioContext from '../../RundownView/StudioContext.js'
 import { AdLibActions, AdLibPieces } from '../../../collections/index.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
+import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 
 interface IProps {
@@ -25,8 +25,8 @@ export const LinePartAdLibIndicator: React.FC<IProps> = function LinePartAdLibIn
 	const sourceLayerIds = useMemo(() => sourceLayers.map((sourceLayer) => sourceLayer._id), [sourceLayers])
 	const label = useMemo(() => sourceLayers[0]?.name ?? '', [sourceLayers])
 
-	useSubscription(MeteorPubSub.adLibPiecesForPart, partId, sourceLayerIds)
-	useSubscription(MeteorPubSub.adLibActionsForPart, partId, sourceLayerIds)
+	useSubscription(CorelibPubSub.uiAdLibPiecesForPart, partId, sourceLayerIds)
+	useSubscription(CorelibPubSub.uiAdLibActionsForPart, partId, sourceLayerIds)
 
 	const adLibPieces = useTracker(
 		() =>

@@ -1,14 +1,14 @@
 import { Logger } from 'winston'
 import { CoreHandler } from '../coreHandler.js'
-import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { RundownContentHandlerBase } from './rundownContentHandlerBase.js'
 
-export class GlobalAdLibActionsHandler extends RundownContentHandlerBase<CorelibPubSub.rundownBaselineAdLibActions> {
+export class GlobalAdLibActionsHandler extends RundownContentHandlerBase<CorelibPubSub.uiRundownBaselineAdLibActions> {
 	constructor(logger: Logger, coreHandler: CoreHandler) {
 		super(
-			CollectionName.RundownBaselineAdLibActions,
-			CorelibPubSub.rundownBaselineAdLibActions,
+			CustomCollectionName.UIRundownBaselineAdLibActions,
+			CorelibPubSub.uiRundownBaselineAdLibActions,
 			logger,
 			coreHandler
 		)
