@@ -304,11 +304,12 @@ export async function performTakeToNextedPart(
 		await insertQueuedPartWithPieces(
 			context,
 			playoutModel,
-			takeRundown,
 			takePartInstance,
 			partToQueueAfterTake.part,
 			partToQueueAfterTake.pieces,
-			undefined
+			undefined,
+			partToQueueAfterTake.targetPartOrInstanceId,
+			partToQueueAfterTake.insertBefore ?? true
 		)
 	} else {
 		// Once everything is synced, we can choose the next part
@@ -358,7 +359,7 @@ async function executeOnTakeCallback(
 
 		// Clear any existing notifications for this partInstance. This will clear any from the previous take
 		playoutModel.clearAllNotifications(NOTIFICATION_CATEGORY)
-		const actionService = new PartAndPieceInstanceActionService(context, playoutModel, showStyle, currentRundown)
+		const actionService = new PartAndPieceInstanceActionService(context, playoutModel, showStyle)
 
 		const watchedPackagesHelper = WatchedPackagesHelper.empty(context)
 		const onSetAsNextContext = new OnTakeContext(

@@ -275,7 +275,7 @@ export async function handleAdLibPieceStart(context: JobContext, data: AdlibPiec
 					UserErrorMessage.AdlibUnplayable
 				)
 
-			await innerStartOrQueueAdLibPiece(context, playoutModel, rundown, !!data.queue, partInstance, adLibPiece)
+			await innerStartOrQueueAdLibPiece(context, playoutModel, !!data.queue, partInstance, adLibPiece)
 		}
 	)
 }
@@ -326,7 +326,7 @@ export async function handleStartStickyPieceOnSourceLayer(
 			}
 
 			const lastPiece = convertPieceToAdLibPiece(context, lastPieceInstance.piece)
-			await innerStartOrQueueAdLibPiece(context, playoutModel, rundown, false, currentPartInstance, lastPiece)
+			await innerStartOrQueueAdLibPiece(context, playoutModel, false, currentPartInstance, lastPiece)
 		}
 	)
 }

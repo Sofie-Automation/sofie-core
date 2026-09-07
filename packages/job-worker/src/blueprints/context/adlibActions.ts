@@ -181,20 +181,35 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 		return this.partAndPieceInstanceService.updatePieceInstance(pieceInstanceId, piece)
 	}
 
-	async queuePart(rawPart: IBlueprintPart, rawPieces: IBlueprintPiece[]): Promise<IBlueprintPartInstance> {
-		return this.partAndPieceInstanceService.queuePart(rawPart, rawPieces)
+	async queuePart(
+		rawPart: IBlueprintPart,
+		rawPieces: IBlueprintPiece[],
+		targetPartOrInstanceId?: string,
+		insertBefore?: boolean
+	): Promise<IBlueprintPartInstance> {
+		return this.partAndPieceInstanceService.queuePart(rawPart, rawPieces, targetPartOrInstanceId, insertBefore)
 	}
 
-	queuePartAfterTake(rawPart: IBlueprintPart, rawPieces: IBlueprintPiece[]): void {
+	/**
+	 * If the target is invalid, prepareQueueablePartAndPieces throws synchronously.
+	 * When called during executeAction, the error fails the action before any take occurs.
+	 */
+	queuePartAfterTake(
+		rawPart: IBlueprintPart,
+		rawPieces: IBlueprintPiece[],
+		targetPartOrInstanceId?: string,
+		insertBefore?: boolean
+	): void {
 		const currentPartInstance = this._playoutModel.currentPartInstance
 		if (!currentPartInstance) {
 			throw new Error('Cannot queue part when no current partInstance')
 		}
-		this.partToQueueAfterTake = this.partAndPieceInstanceService.processPartAndPiecesToQueueOrFail(
+		this.partToQueueAfterTake = this.partAndPieceInstanceService.prepareQueueablePartAndPieces(
 			rawPart,
 			rawPieces,
-			this._playoutModel.currentPartInstance.partInstance.rundownId,
-			this._playoutModel.currentPartInstance.partInstance.segmentId
+			currentPartInstance,
+			targetPartOrInstanceId,
+			insertBefore
 		)
 	}
 

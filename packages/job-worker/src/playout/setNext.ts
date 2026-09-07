@@ -228,7 +228,7 @@ async function executeOnSetAsNextCallback(
 		playoutModel,
 		showStyle,
 		watchedPackagesHelper,
-		new PartAndPieceInstanceActionService(context, playoutModel, showStyle, rundownOfNextPart),
+		new PartAndPieceInstanceActionService(context, playoutModel, showStyle),
 		setManually
 	)
 
