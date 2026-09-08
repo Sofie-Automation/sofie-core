@@ -49,6 +49,11 @@ Currently only valid for:
 - object properties. Valid values are 'json'.
 - string properties. Valid values are 'base64-image'.
 - boolean properties. Valid values are 'switch'.
+- number properties. Valid values are 'timeMs', 'timecode', 'timecodeFrames', or 'tod'.
+
+For number properties, set `ui:displayType` to `timeMs` for the existing input, `timecode` for durations up to `99:59:59`, `timecodeFrames` for `HH:mm:ss:FF` frame-based timecode, or `tod` for a 24-hour time of day. The frame-based input uses the current studio frame rate, with `FF` starting at zero.
+
+These settings configure the input and do not add user-facing controls.
 
 ### `tsEnumNames`
 
