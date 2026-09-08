@@ -7,7 +7,7 @@ Sofie persists the majority of its data in a MongoDB database. This allows us to
 without needing to worry too much about the strictness of schemas, and allows us to watch for changes happening inside
 the database as a way of ensuring that updates are reactive.
 
-Data is typically pushed to the UI or the gateways through [Publications](./publications) over the DDP connection that Meteor provides.
+Data is typically pushed to the UI or the gateways through [Publications](publications/) over the DDP connection that Meteor provides.
 
 ## Collection Ownership
 
