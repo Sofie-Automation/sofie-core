@@ -1,0 +1,39 @@
+.prompter-control-buttons {
+	z-index: 999;
+	position: fixed;
+	background-color: rgba(0, 0, 0, 0.67);
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: center;
+
+	&__bottom {
+		bottom: 0;
+		left: 0;
+		right: 0;
+		flex-direction: row;
+	}
+	&__left {
+		top: 0;
+		left: 0;
+		bottom: 0;
+		flex-direction: column;
+	}
+	&__right {
+		top: 0;
+		right: 0;
+		bottom: 0;
+		flex-direction: column;
+	}
+	&__top {
+		top: 0;
+		left: 0;
+		right: 0;
+		flex-direction: row;
+	}
+
+	> button {
+		margin: 0.5em;
+		// margin-left: 0.5em;
+		// margin-right: 0.5em;
+	}
+}
