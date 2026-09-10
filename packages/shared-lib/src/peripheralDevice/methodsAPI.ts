@@ -285,6 +285,11 @@ export interface NewPeripheralDeviceAPI {
 		changes: UpdateExpectedPackageWorkStatusesChanges[]
 	): Promise<void>
 	removeAllExpectedPackageWorkStatusOfDevice(deviceId: PeripheralDeviceId, deviceToken: string): Promise<void>
+	removeAllExpectedPackageWorkStatusOfDeviceNotInList(
+		deviceId: PeripheralDeviceId,
+		deviceToken: string,
+		expectedWorkStatusIds: ExpectedPackageWorkStatusId[]
+	): Promise<void>
 
 	updatePackageContainerPackageStatuses(
 		deviceId: PeripheralDeviceId,
@@ -292,6 +297,17 @@ export interface NewPeripheralDeviceAPI {
 		changes: UpdatePackageContainerPackageStatusesChanges[]
 	): Promise<void>
 	removeAllPackageContainerPackageStatusesOfDevice(deviceId: PeripheralDeviceId, deviceToken: string): Promise<void>
+	/**
+	 *
+	 * @param deviceId The ID of the peripheral device
+	 * @param deviceToken The authentication token of the peripheral device
+	 * @param packageContainerPackageIdPairs An array of [containerId, packageId] pairs that should not be removed
+	 */
+	removeAllPackageContainerPackageStatusesOfDeviceNotInList(
+		deviceId: PeripheralDeviceId,
+		deviceToken: string,
+		packageContainerPackageIdPairs: { containerId: string; packageId: string }[]
+	): Promise<void>
 
 	updatePackageContainerStatuses(
 		deviceId: PeripheralDeviceId,
@@ -299,6 +315,11 @@ export interface NewPeripheralDeviceAPI {
 		changes: UpdatePackageContainerStatusesChanges[]
 	): Promise<void>
 	removeAllPackageContainerStatusesOfDevice(deviceId: PeripheralDeviceId, deviceToken: string): Promise<void>
+	removeAllPackageContainerStatusesOfDeviceNotInList(
+		deviceId: PeripheralDeviceId,
+		deviceToken: string,
+		packageContainerIds: string[]
+	): Promise<void>
 
 	fetchPackageInfoMetadata(
 		deviceId: PeripheralDeviceId,
@@ -422,12 +443,15 @@ export enum PeripheralDeviceAPIMethods {
 
 	'updateExpectedPackageWorkStatuses' = 'peripheralDevice.packageManager.updateExpectedPackageWorkStatuses',
 	'removeAllExpectedPackageWorkStatusOfDevice' = 'peripheralDevice.packageManager.removeAllExpectedPackageWorkStatusOfDevice',
+	'removeAllExpectedPackageWorkStatusOfDeviceNotInList' = 'peripheralDevice.packageManager.removeAllExpectedPackageWorkStatusOfDeviceNotInList',
 
 	'updatePackageContainerPackageStatuses' = 'peripheralDevice.packageManager.updatePackageContainerPackageStatuses',
 	'removeAllPackageContainerPackageStatusesOfDevice' = 'peripheralDevice.packageManager.removeAllPackageContainerPackageStatusesOfDevice',
+	'removeAllPackageContainerPackageStatusesOfDeviceNotInList' = 'peripheralDevice.packageManager.removeAllPackageContainerPackageStatusesOfDeviceNotInList',
 
 	'updatePackageContainerStatuses' = 'peripheralDevice.packageManager.updatePackageContainerStatuses',
 	'removeAllPackageContainerStatusesOfDevice' = 'peripheralDevice.packageManager.removeAllPackageContainerStatusesOfDevice',
+	'removeAllPackageContainerStatusesOfDeviceNotInList' = 'peripheralDevice.packageManager.removeAllPackageContainerStatusesOfDeviceNotInList',
 
 	'fetchPackageInfoMetadata' = 'peripheralDevice.packageManager.fetchPackageInfoMetadata',
 	'updatePackageInfo' = 'peripheralDevice.packageManager.updatePackageInfo',

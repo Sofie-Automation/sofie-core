@@ -1528,6 +1528,18 @@ export class ServerPeripheralDeviceAPIClass extends MethodContextAPI implements 
 	async removeAllExpectedPackageWorkStatusOfDevice(deviceId: PeripheralDeviceId, deviceToken: string): Promise<void> {
 		await PackageManagerIntegration.removeAllExpectedPackageWorkStatusOfDevice(this, deviceId, deviceToken)
 	}
+	async removeAllExpectedPackageWorkStatusOfDeviceNotInList(
+		deviceId: PeripheralDeviceId,
+		deviceToken: string,
+		expectedWorkStatusIds: ExpectedPackageWorkStatusId[]
+	): Promise<void> {
+		await PackageManagerIntegration.removeAllExpectedPackageWorkStatusOfDeviceNotInList(
+			this,
+			deviceId,
+			deviceToken,
+			expectedWorkStatusIds
+		)
+	}
 	async updatePackageContainerPackageStatuses(
 		deviceId: PeripheralDeviceId,
 		deviceToken: string,
@@ -1553,6 +1565,18 @@ export class ServerPeripheralDeviceAPIClass extends MethodContextAPI implements 
 	): Promise<void> {
 		await PackageManagerIntegration.removeAllPackageContainerPackageStatusesOfDevice(this, deviceId, deviceToken)
 	}
+	async removeAllPackageContainerPackageStatusesOfDeviceNotInList(
+		deviceId: PeripheralDeviceId,
+		deviceToken: string,
+		packageContainerPackageIdPairs: { containerId: string; packageId: string }[]
+	): Promise<void> {
+		await PackageManagerIntegration.removeAllPackageContainerPackageStatusesOfDeviceNotInList(
+			this,
+			deviceId,
+			deviceToken,
+			packageContainerPackageIdPairs
+		)
+	}
 	async updatePackageContainerStatuses(
 		deviceId: PeripheralDeviceId,
 		deviceToken: string,
@@ -1572,6 +1596,18 @@ export class ServerPeripheralDeviceAPIClass extends MethodContextAPI implements 
 	}
 	async removeAllPackageContainerStatusesOfDevice(deviceId: PeripheralDeviceId, deviceToken: string): Promise<void> {
 		await PackageManagerIntegration.removeAllPackageContainerStatusesOfDevice(this, deviceId, deviceToken)
+	}
+	async removeAllPackageContainerStatusesOfDeviceNotInList(
+		deviceId: PeripheralDeviceId,
+		deviceToken: string,
+		packageContainerIds: string[]
+	): Promise<void> {
+		await PackageManagerIntegration.removeAllPackageContainerStatusesOfDeviceNotInList(
+			this,
+			deviceId,
+			deviceToken,
+			packageContainerIds
+		)
 	}
 
 	async fetchPackageInfoMetadata(
