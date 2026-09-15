@@ -30,6 +30,7 @@ import { DeviceActions } from '@sofie-automation/shared-lib/dist/core/model/Show
 import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
 import { createContextFromCache, TriggersContextFactory } from './triggersContext'
 import { TagsService } from './TagsService'
+import { ResolvedAdLibCache } from './resolvedAdLibCache'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 export class StudioDeviceTriggerManager {
@@ -39,13 +40,16 @@ export class StudioDeviceTriggerManager {
 
 	private readonly triggersContext: TriggersContext
 
+	/** The AdLibs of the active Playlist, resolved for its Branding. Rebuilt whenever the triggers are. */
+	readonly #resolvedAdLibs = new ResolvedAdLibCache()
+
 	constructor(
 		public studioId: StudioId,
 		protected tagsService: TagsService,
 		createTriggersContext: TriggersContextFactory
 	) {
 		// `lastCache` is reassigned during the lifetime, so pass a getter
-		this.triggersContext = createTriggersContext(() => this.lastCache)
+		this.triggersContext = createTriggersContext(() => this.#getCacheForTriggers())
 
 		if (StudioActionManagers.get(studioId)) {
 			logger.error(`A StudioActionManager for "${studioId}" already exists`)
@@ -55,8 +59,28 @@ export class StudioDeviceTriggerManager {
 		StudioActionManagers.set(studioId, new StudioActionManager())
 	}
 
+	/**
+	 * The ContentCache as the compiled filter chains should see it: the AdLibs resolved for the Branding,
+	 * everything else as stored. AdLibs are matched on properties a Branding can change, so they must be
+	 * resolved before the filter chain queries them.
+	 */
+	#getCacheForTriggers(): ContentCache | undefined {
+		if (!this.lastCache) return undefined
+
+		return {
+			...this.lastCache,
+			AdLibActions: this.#resolvedAdLibs.AdLibActions,
+			AdLibPieces: this.#resolvedAdLibs.AdLibPieces,
+			RundownBaselineAdLibActions: this.#resolvedAdLibs.RundownBaselineAdLibActions,
+			RundownBaselineAdLibPieces: this.#resolvedAdLibs.RundownBaselineAdLibPieces,
+		}
+	}
+
 	async updateTriggers(cache: ContentCache, showStyleBaseId: ShowStyleBaseId): Promise<void> {
 		const studioId = this.studioId
+
+		// Must be before anything reads AdLibs through the TriggersContext
+		this.#resolvedAdLibs.update(cache)
 
 		const showStyleBase = cache.ShowStyleBases.findOne(showStyleBaseId)
 		const rundownPlaylist = cache.RundownPlaylists.findOne({

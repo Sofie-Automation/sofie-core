@@ -22,6 +22,7 @@ export type RundownPlaylistFields =
 	| 'nextPartInfo'
 	| 'studioId'
 	| 'rehearsal'
+	| 'defaultBrandingId'
 	| 'rundownIdsInOrder'
 export const rundownPlaylistFieldSpecifier = literal<
 	MongoFieldSpecifierOnesStrict<Pick<DBRundownPlaylist, RundownPlaylistFields>>
@@ -80,12 +81,13 @@ export const partFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBP
 	untimed: 1,
 })
 
-export type PartInstanceFields = '_id' | 'part'
+export type PartInstanceFields = '_id' | 'part' | 'brandingId'
 export const partInstanceFieldSpecifier = literal<
 	MongoFieldSpecifierOnesStrict<Pick<DBPartInstance, PartInstanceFields>>
 >({
 	_id: 1,
 	part: 1,
+	brandingId: 1,
 })
 
 export type AdLibActionFields =
@@ -98,6 +100,8 @@ export type AdLibActionFields =
 	| 'userData'
 	| 'uniquenessId'
 	| 'userDataManifest'
+	| 'onlyValidForBranding'
+	| 'branding'
 export const adLibActionFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<AdLibAction, AdLibActionFields>>>({
 	_id: 1,
 	actionId: 1,
@@ -108,6 +112,8 @@ export const adLibActionFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<P
 	uniquenessId: 1,
 	userData: 1,
 	userDataManifest: 1,
+	onlyValidForBranding: 1,
+	branding: 1,
 })
 
 export type AdLibPieceFields =
@@ -128,6 +134,8 @@ export type AdLibPieceFields =
 	| 'partId'
 	| 'tags'
 	| 'uniquenessId'
+	| 'onlyValidForBranding'
+	| 'branding'
 export const adLibPieceFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<AdLibPiece, AdLibPieceFields>>>({
 	_id: 1,
 	_rank: 1,
@@ -146,6 +154,8 @@ export const adLibPieceFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pi
 	rundownId: 1,
 	tags: 1,
 	uniquenessId: 1,
+	onlyValidForBranding: 1,
+	branding: 1,
 })
 
 export interface ContentCache {
