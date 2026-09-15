@@ -737,8 +737,8 @@ function Prompter(props: Readonly<PropsWithChildren<IPrompterProps>>): JSX.Eleme
 	)
 	const rundownIDs = playlist ? RundownPlaylistCollectionUtil.getRundownUnorderedIDs(playlist) : []
 	useSubscriptionIfEnabled(CorelibPubSub.segments, rundownIDs.length > 0, rundownIDs, {})
-	useSubscription(MeteorPubSub.uiParts, props.rundownPlaylistId)
-	useSubscriptionIfEnabled(MeteorPubSub.uiPartInstances, !!playlist?.activationId, playlist?.activationId ?? null)
+	useSubscription(CorelibPubSub.uiParts, props.rundownPlaylistId)
+	useSubscriptionIfEnabled(CorelibPubSub.uiPartInstances, !!playlist?.activationId, playlist?.activationId ?? null)
 	useSubscriptionIfEnabled(CorelibPubSub.pieces, rundownIDs.length > 0, rundownIDs, null)
 	useSubscriptionIfEnabled(CorelibPubSub.pieceInstancesSimple, rundownIDs.length > 0, rundownIDs, null)
 
