@@ -737,9 +737,11 @@ components:
         id:
           type: string
           description: Branding Id, as referenced by documents which vary with it.
+          example: branding0
         name:
           type: string
           description: User-presentable name of this Branding.
+          example: My Branding
         config:
           type: object
           description: Config for this Branding, as described by the blueprint's brandingConfigSchema.
@@ -749,6 +751,11 @@ components:
         - name
         - config
       additionalProperties: false
+      example:
+        id: branding0
+        name: My Branding
+        config:
+          channelName: My Channel
     outputLayer:
       type: object
       properties:
