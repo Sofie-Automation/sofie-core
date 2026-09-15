@@ -87,7 +87,7 @@ export function SegmentTimelineContainer(props: Readonly<IProps>): JSX.Element {
 		[props.segmentId],
 		[]
 	)
-	useSubscription(CorelibPubSub.pieces, [props.rundownId], partIds)
+	useSubscription(CorelibPubSub.uiPieces, [props.rundownId], partIds)
 
 	const partInstanceIds = useTracker(
 		() =>
@@ -113,7 +113,13 @@ export function SegmentTimelineContainer(props: Readonly<IProps>): JSX.Element {
 		40,
 		(oldVal, newVal) => !oldVal || (!!newVal && !equivalentArrays(oldVal, newVal))
 	)
-	useSubscription(CorelibPubSub.pieceInstances, [props.rundownId], debouncedPartInstanceIds ?? [], {})
+	useSubscription(
+		CorelibPubSub.uiPieceInstances,
+		[props.rundownId],
+		debouncedPartInstanceIds ?? [],
+		props.playlist.activationId ?? null,
+		{}
+	)
 
 	// Convert to an array and sort to allow the `useSubscription` to better detect them being unchanged
 	const sortedSegmentIds = useMemo(() => {
@@ -132,7 +138,7 @@ export function SegmentTimelineContainer(props: Readonly<IProps>): JSX.Element {
 	}, [props.rundownIdsBefore])
 
 	// past infinites subscription
-	useSubscription(CorelibPubSub.piecesInfiniteStartingBefore, props.rundownId, sortedSegmentIds, sortedRundownIds)
+	useSubscription(CorelibPubSub.uiPiecesInfiniteStartingBefore, props.rundownId, sortedSegmentIds, sortedRundownIds)
 
 	return <SegmentTimelineContainerContent {...props} />
 }
