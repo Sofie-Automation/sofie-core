@@ -243,6 +243,104 @@ describe('TagsService', () => {
 		expect(result).toEqual(true)
 	})
 
+	describe('branding', () => {
+		/** A cache with one on-air PieceInstance in the current PartInstance, played with `brandingId` */
+		function createCacheWithOnAirPiece(
+			brandingId: string | null,
+			piece: Partial<PieceInstance['piece']>
+		): ContentCache {
+			const cache: ContentCache = {
+				RundownPlaylists: new InMemoryMongoCollection('rundownPlaylists'),
+				ShowStyleBases: new InMemoryMongoCollection('showStyleBases'),
+				PieceInstances: new InMemoryMongoCollection('pieceInstances'),
+				PartInstances: new InMemoryMongoCollection('partInstances'),
+			}
+
+			cache.RundownPlaylists.insert({
+				_id: playlistId,
+				activationId,
+				currentPartInfo: { partInstanceId: partInstanceId0 },
+			} as DBRundownPlaylist)
+
+			cache.ShowStyleBases.insert({
+				_id: showStyleBaseId,
+				sourceLayersWithOverrides: wrapDefaultObject(
+					normalizeArray(
+						[
+							literal<ISourceLayer>({
+								_id: sourceLayerId0,
+								_rank: 0,
+								name: 'Camera',
+								type: SourceLayerType.CAMERA,
+							}),
+						],
+						'_id'
+					)
+				),
+			} as DBShowStyleBase)
+
+			cache.PartInstances.insert({ _id: partInstanceId0, brandingId } as unknown as DBPartInstance)
+
+			cache.PieceInstances.insert({
+				_id: pieceInstanceId0,
+				partInstanceId: partInstanceId0,
+				plannedStartedPlayback: 1,
+				piece: {
+					sourceLayerId: sourceLayerId0,
+					enable: { start: 0 },
+					lifespan: PieceLifespan.WithinPart,
+					...piece,
+				},
+			} as PieceInstance)
+
+			return cache
+		}
+
+		test('a Piece hidden by the Branding contributes no tally tags', () => {
+			const testee = createTestee()
+			testee.observeTallyTags({ currentPieceTags: [tag0] } as IWrappedAdLib)
+			testee.updatePieceInstances(
+				createCacheWithOnAirPiece('brandingA', { tags: [tag0], onlyValidForBranding: ['brandingB'] }),
+				showStyleBaseId
+			)
+
+			expect(testee.getTallyStateFromTags({ currentPieceTags: [tag0] } as IWrappedAdLib)).toEqual({
+				isActive: false,
+				isNext: false,
+			})
+		})
+
+		test('a Piece used with the Branding contributes its tally tags', () => {
+			const testee = createTestee()
+			testee.observeTallyTags({ currentPieceTags: [tag0] } as IWrappedAdLib)
+			testee.updatePieceInstances(
+				createCacheWithOnAirPiece('brandingA', { tags: [tag0], onlyValidForBranding: ['brandingA'] }),
+				showStyleBaseId
+			)
+
+			expect(testee.getTallyStateFromTags({ currentPieceTags: [tag0] } as IWrappedAdLib)).toEqual({
+				isActive: true,
+				isNext: false,
+			})
+		})
+
+		test('the tally matches the tags as authored, as an AdLib cannot brand its currentPieceTags', () => {
+			const testee = createTestee()
+			testee.observeTallyTags({ currentPieceTags: [tag0] } as IWrappedAdLib)
+			testee.updatePieceInstances(
+				createCacheWithOnAirPiece('brandingA', {
+					tags: [tag0],
+					branding: { brandingA: { tags: [tag1] } },
+				}),
+				showStyleBaseId
+			)
+
+			// Applying the Branding here would break the tally, as the AdLib's `currentPieceTags` cannot follow
+			expect(testee.getTallyStateFromTags({ currentPieceTags: [tag0] } as IWrappedAdLib).isActive).toBe(true)
+			expect(testee.getTallyStateFromTags({ currentPieceTags: [tag1] } as IWrappedAdLib).isActive).toBe(false)
+		})
+	})
+
 	test('piece in previousPartsInfo[0] (most-recent previous) is treated as on-air', () => {
 		// partInstanceId3 = previous (index 0), partInstanceId0 = current
 		const testee = createTestee()
