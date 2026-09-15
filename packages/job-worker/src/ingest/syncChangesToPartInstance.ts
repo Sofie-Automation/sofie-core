@@ -261,7 +261,7 @@ export class SyncChangesToPartInstancesWorker {
 		const originalNextPartInfo = this.#playoutModel.playlist.nextPartInfo
 
 		// Clear the next part
-		await setNextPart(this.#context, this.#playoutModel, null, false, 0)
+		await setNextPart(this.#context, this.#playoutModel, null, false, 0, this.#ingestModel)
 
 		if (originalNextPartInfo?.manuallySelected && newPart) {
 			// If the next part was manually selected, we need to force it to be re-created
@@ -273,7 +273,8 @@ export class SyncChangesToPartInstancesWorker {
 					consumesQueuedSegmentId: originalNextPartInfo.consumesQueuedSegmentId,
 				},
 				true,
-				this.#playoutModel.playlist.nextTimeOffset || 0
+				this.#playoutModel.playlist.nextTimeOffset || 0,
+				this.#ingestModel
 			)
 		} else {
 			// A new next part will be selected automatically during the commit

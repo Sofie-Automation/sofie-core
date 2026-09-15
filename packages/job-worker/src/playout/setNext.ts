@@ -36,6 +36,7 @@ import { PersistentPlayoutStateStore } from '../blueprints/context/services/Pers
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PlayoutPartInstanceModelImpl } from './model/implementation/PlayoutPartInstanceModelImpl.js'
 import { QuickLoopService } from './model/services/QuickLoopService.js'
+import type { IngestModelReadonly } from '../ingest/model/IngestModel.js'
 import { recalculateTTimerProjections } from './tTimers.js'
 
 /**
@@ -45,13 +46,15 @@ import { recalculateTTimerProjections } from './tTimers.js'
  * @param rawNextPart The Part to set as next
  * @param setManually Whether this was manually chosen by the user
  * @param nextTimeOffset The offset into the Part to start playback
+ * @param unsavedIngestModel If an ingest operation is still being written, the unsaved Ingest model. Without this, the new PartInstance would be built from the pre-ingest Pieces
  */
 export async function setNextPart(
 	context: JobContext,
 	playoutModel: PlayoutModel,
 	rawNextPart: ReadonlyDeep<Omit<SelectNextPartResult, 'index'>> | PlayoutPartInstanceModel | null,
 	setManually: boolean,
-	nextTimeOffset?: number
+	nextTimeOffset?: number,
+	unsavedIngestModel?: IngestModelReadonly
 ): Promise<void> {
 	const span = context.startSpan('setNextPart')
 
@@ -63,7 +66,8 @@ export async function setNextPart(
 		playoutModel,
 		rawNextPart,
 		setManually,
-		nextTimeOffset
+		nextTimeOffset,
+		unsavedIngestModel
 	)
 	while (moveNextToPart) {
 		// Ensure that we aren't stuck in an infinite loop. If this while loop is being run for a part twice, then the blueprints are behaving oddly and will likely get stuck
@@ -88,7 +92,9 @@ export async function setNextPart(
 						consumesQueuedSegmentId: false,
 					}
 				: null,
-			true
+			true,
+			undefined,
+			unsavedIngestModel
 		)
 	}
 
@@ -111,7 +117,8 @@ async function setNextPartAndCheckForPendingMoveNextPart(
 	playoutModel: PlayoutModel,
 	rawNextPart: ReadonlyDeep<Omit<SelectNextPartResult, 'index'>> | PlayoutPartInstanceModel | null,
 	setManually: boolean,
-	nextTimeOffset?: number
+	nextTimeOffset: number | undefined,
+	unsavedIngestModel: IngestModelReadonly | undefined
 ): Promise<{ selectedPart: ReadonlyDeep<DBPart> | null } | undefined> {
 	if (rawNextPart) {
 		if (!playoutModel.playlist.activationId)
@@ -133,7 +140,12 @@ async function setNextPartAndCheckForPendingMoveNextPart(
 			}
 
 			consumesQueuedSegmentId = false
-			newPartInstance = await prepareExistingPartInstanceForBeingNexted(context, playoutModel, inputPartInstance)
+			newPartInstance = await prepareExistingPartInstanceForBeingNexted(
+				context,
+				playoutModel,
+				inputPartInstance,
+				unsavedIngestModel
+			)
 		} else {
 			const selectedPart: ReadonlyDeep<Omit<SelectNextPartResult, 'index'>> = rawNextPart
 			if (selectedPart.part.invalid) {
@@ -157,7 +169,8 @@ async function setNextPartAndCheckForPendingMoveNextPart(
 				newPartInstance = await prepareExistingPartInstanceForBeingNexted(
 					context,
 					playoutModel,
-					nextPartInstance
+					nextPartInstance,
+					unsavedIngestModel
 				)
 			} else {
 				// Create new instance
@@ -165,7 +178,8 @@ async function setNextPartAndCheckForPendingMoveNextPart(
 					context,
 					playoutModel,
 					currentPartInstance,
-					selectedPart.part
+					selectedPart.part,
+					unsavedIngestModel
 				)
 			}
 		}
@@ -290,12 +304,13 @@ async function applyOnSetAsNextSideEffects(
 async function prepareExistingPartInstanceForBeingNexted(
 	context: JobContext,
 	playoutModel: PlayoutModel,
-	instance: PlayoutPartInstanceModel
+	instance: PlayoutPartInstanceModel,
+	unsavedIngestModel: IngestModelReadonly | undefined
 ): Promise<PlayoutPartInstanceModel> {
 	await syncPlayheadInfinitesForNextPartInstance(
 		context,
 		playoutModel,
-		undefined, // Any ingest model must have been fully written before we get here
+		unsavedIngestModel,
 		playoutModel.currentPartInstance,
 		instance
 	)
@@ -307,14 +322,15 @@ async function preparePartInstanceForPartBeingNexted(
 	context: JobContext,
 	playoutModel: PlayoutModel,
 	currentPartInstance: PlayoutPartInstanceModel | null,
-	nextPart: ReadonlyDeep<DBPart>
+	nextPart: ReadonlyDeep<DBPart>,
+	unsavedIngestModel: IngestModelReadonly | undefined
 ): Promise<PlayoutPartInstanceModel> {
 	const rundown = playoutModel.getRundown(nextPart.rundownId)
 	if (!rundown) throw new Error(`Could not find rundown ${nextPart.rundownId}`)
 
 	const partInstanceId = protectString('') // Replaced inside playoutModel.createInstanceForPart
 
-	const possiblePieces = await fetchPiecesThatMayBeActiveForPart(context, playoutModel, undefined, nextPart)
+	const possiblePieces = await fetchPiecesThatMayBeActiveForPart(context, playoutModel, unsavedIngestModel, nextPart)
 	const newPieceInstances = getPieceInstancesForPart(
 		context,
 		playoutModel,
@@ -330,7 +346,7 @@ async function preparePartInstanceForPartBeingNexted(
 		const baselineInfinites = await getBaselineInfinitesForPart(
 			context,
 			playoutModel,
-			undefined, // Any ingest model must have been fully written before we get here
+			unsavedIngestModel,
 			nextPart,
 			partInstanceId
 		)
