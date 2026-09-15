@@ -86,6 +86,7 @@ export async function insertShowStyleBaseInner(): Promise<ShowStyleBaseId> {
 		outputLayersWithOverrides: wrapDefaultObject({}),
 		sourceLayersWithOverrides: wrapDefaultObject({}),
 		blueprintConfigWithOverrides: wrapDefaultObject({}),
+		branding: wrapDefaultObject({}),
 		_rundownVersionHash: '',
 		lastBlueprintConfig: undefined,
 		lastBlueprintFixUpHash: undefined,

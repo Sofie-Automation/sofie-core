@@ -147,6 +147,7 @@ describe('Migrations', () => {
 			sourceLayersWithOverrides: wrapDefaultObject({}),
 			hotkeyLegend: [],
 			blueprintConfigWithOverrides: wrapDefaultObject({}),
+			branding: wrapDefaultObject({}),
 			_rundownVersionHash: '',
 			lastBlueprintConfig: undefined,
 			lastBlueprintFixUpHash: undefined,
