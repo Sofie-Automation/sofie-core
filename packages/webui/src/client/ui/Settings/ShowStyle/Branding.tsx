@@ -25,7 +25,7 @@ import { Blueprints, ShowStyleBases } from '../../../collections/index.js'
 import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
 import { JSONBlobParse } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { BlueprintConfigSchemaSettingsForItem } from '../BlueprintConfigSchema/index.js'
-import type { BlueprintId } from '@sofie-automation/corelib/src/dataModel/Ids.js'
+import type { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
 
 interface IBrandingSettingsProps {
 	showStyleBase: DBShowStyleBase
@@ -89,7 +89,7 @@ export function ShowStyleBrandingSettings({
 				'branding.overrides': addOp,
 			},
 		})
-	}, [showStyleBase._id])
+	}, [t, showStyleBase._id])
 
 	const saveOverrides = useCallback(
 		(newOps: SomeObjectOverrideOp[]) => {
