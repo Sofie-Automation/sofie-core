@@ -5,6 +5,7 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
+import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
@@ -21,6 +22,7 @@ export type RundownPlaylistFields =
 	| 'nextPartInfo'
 	| 'studioId'
 	| 'rehearsal'
+	| 'rundownIdsInOrder'
 export const rundownPlaylistFieldSpecifier = literal<
 	MongoFieldSpecifierOnesStrict<Pick<DBRundownPlaylist, RundownPlaylistFields>>
 >({
@@ -31,6 +33,13 @@ export const rundownPlaylistFieldSpecifier = literal<
 	nextPartInfo: 1,
 	studioId: 1,
 	rehearsal: 1,
+	rundownIdsInOrder: 1,
+})
+
+export type RundownFields = '_id' | 'playlistId'
+export const rundownFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBRundown, RundownFields>>>({
+	_id: 1,
+	playlistId: 1,
 })
 
 export type SegmentFields = '_id' | '_rank' | 'isHidden' | 'name' | 'rundownId' | 'identifier'
@@ -141,6 +150,7 @@ export const adLibPieceFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pi
 
 export interface ContentCache {
 	RundownPlaylists: InMemoryMongoCollection<Pick<DBRundownPlaylist, RundownPlaylistFields>>
+	Rundowns: InMemoryMongoCollection<Pick<DBRundown, RundownFields>>
 	ShowStyleBases: InMemoryMongoCollection<DBShowStyleBase>
 	Segments: InMemoryMongoCollection<Pick<DBSegment, SegmentFields>>
 	Parts: InMemoryMongoCollection<Pick<DBPart, PartFields>>
@@ -173,6 +183,9 @@ export function createReactiveContentCache(
 			'rundownPlaylists',
 			{ onChange: innerReaction }
 		),
+		Rundowns: new InMemoryMongoCollection<Pick<DBRundown, RundownFields>>('rundowns', {
+			onChange: innerReaction,
+		}),
 		ShowStyleBases: new InMemoryMongoCollection<DBShowStyleBase>('showStyleBases', { onChange: innerReaction }),
 		Segments: new InMemoryMongoCollection<Pick<DBSegment, SegmentFields>>('segments', { onChange: innerReaction }),
 		PartInstances: new InMemoryMongoCollection<Pick<DBPartInstance, PartInstanceFields>>('partInstances', {

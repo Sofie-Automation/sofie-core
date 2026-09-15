@@ -5,6 +5,7 @@ import {
 	RundownBaselineAdLibActions,
 	RundownBaselineAdLibPieces,
 	RundownPlaylists,
+	Rundowns,
 	AdLibActions,
 	AdLibPieces,
 	Segments,
@@ -19,6 +20,7 @@ import {
 	createReactiveContentCache,
 	partFieldSpecifier,
 	partInstanceFieldSpecifier,
+	rundownFieldSpecifier,
 	rundownPlaylistFieldSpecifier,
 	segmentFieldSpecifier,
 } from './reactiveContentCache'
@@ -73,6 +75,17 @@ export class RundownContentObserver {
 			RundownPlaylists.observeChanges(rundownPlaylistId, this.#cache.RundownPlaylists.link(), {
 				projection: rundownPlaylistFieldSpecifier,
 			}),
+			Rundowns.observeChanges(
+				{
+					_id: {
+						$in: rundownIds,
+					},
+				},
+				this.#cache.Rundowns.link(),
+				{
+					projection: rundownFieldSpecifier,
+				}
+			),
 			ShowStyleBases.observeChanges(showStyleBaseId, this.#cache.ShowStyleBases.link()),
 			TriggeredActions.observeChanges(
 				{

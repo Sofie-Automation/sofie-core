@@ -565,3 +565,49 @@ describe('mongoProjectDocument', () => {
 		expect(doc).toEqual(before)
 	})
 })
+
+describe('mongoWhere $regex', () => {
+	const where = (doc: Record<string, any>, selector: MongoQuery<any>) => mongoWhere(doc, selector)
+
+	test('matches a string field against a pattern', () => {
+		expect(where({ name: 'Camera 1' }, { name: { $regex: 'Camera' } })).toBe(true)
+		expect(where({ name: 'Camera 1' }, { name: { $regex: 'Graphic' } })).toBe(false)
+	})
+
+	test('is case-sensitive unless $options says otherwise', () => {
+		expect(where({ name: 'Camera 1' }, { name: { $regex: 'camera' } })).toBe(false)
+		expect(where({ name: 'Camera 1' }, { name: { $regex: 'camera', $options: 'i' } })).toBe(true)
+	})
+
+	test('supports the alternation the trigger filter compilers generate', () => {
+		const selector: MongoQuery<any> = { name: { $regex: 'Camera|Graphic' } }
+		expect(where({ name: 'Graphic 2' }, selector)).toBe(true)
+		expect(where({ name: 'Replay' }, selector)).toBe(false)
+	})
+
+	test('matches through a dotted path, as the adlib-action label filter uses', () => {
+		expect(where({ display: { label: { key: 'Camera 1' } } }, { 'display.label.key': { $regex: 'Camera' } })).toBe(
+			true
+		)
+	})
+
+	test('matches any string element of an array field', () => {
+		expect(where({ tags: ['live', 'camera'] }, { tags: { $regex: 'cam' } })).toBe(true)
+		expect(where({ tags: ['live', 'camera'] }, { tags: { $regex: 'gfx' } })).toBe(false)
+	})
+
+	test('does not match non-string values', () => {
+		expect(where({ name: 12 }, { name: { $regex: '12' } })).toBe(false)
+		expect(where({}, { name: { $regex: '.*' } })).toBe(false)
+	})
+
+	test('is not stateful across repeated evaluations of the same selector', () => {
+		const selector: MongoQuery<any> = { name: { $regex: /Camera/g } }
+		expect(where({ name: 'Camera 1' }, selector)).toBe(true)
+		expect(where({ name: 'Camera 1' }, selector)).toBe(true)
+	})
+
+	test('rejects $options without a sibling $regex', () => {
+		expect(() => where({ name: 'Camera 1' }, { name: { $options: 'i' } })).toThrow(/\$regex/)
+	})
+})
