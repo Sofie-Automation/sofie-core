@@ -28,7 +28,7 @@ import { logger } from '../../logging'
 import { SomeAction, SomeBlueprintTrigger } from '@sofie-automation/blueprints-integration'
 import { DeviceActions } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
 import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
-import { createCurrentContextFromCache, TriggersContextFactory } from './triggersContext'
+import { createContextFromCache, TriggersContextFactory } from './triggersContext'
 import { TagsService } from './TagsService'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
@@ -70,7 +70,7 @@ export class StudioDeviceTriggerManager {
 			return
 		}
 
-		const context = await createCurrentContextFromCache(cache, studioId)
+		const context = createContextFromCache(cache, studioId, rundownPlaylist)
 		const actionManager = StudioActionManagers.get(studioId)
 		if (!actionManager)
 			throw new SofieError(
@@ -289,6 +289,9 @@ export class StudioDeviceTriggerManager {
 
 		actionManager.deleteContext()
 
+		// Drop the cache too: it belongs to the observer that is being torn down, and `triggersContext` reads
+		// it to evaluate filter chains.
+		this.lastCache = undefined
 		this.#lastShowStyleBaseId = null
 		return
 	}
