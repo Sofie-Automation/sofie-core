@@ -373,7 +373,6 @@ function useDirectorScreenSubscriptions(props: DirectorScreenProps): void {
 	const { rundownIds, showStyleBaseIds, showStyleVariantIds } = useRundownAndShowStyleIdsForPlaylist(playlist?._id)
 
 	useSubscription(CorelibPubSub.segments, rundownIds, {})
-	useSubscription(CorelibPubSub.parts, rundownIds, null)
 	useSubscription(MeteorPubSub.uiParts, playlist?._id ?? null)
 	useSubscription(MeteorPubSub.uiPartInstances, playlist?.activationId ?? null)
 	useSubscriptions(
