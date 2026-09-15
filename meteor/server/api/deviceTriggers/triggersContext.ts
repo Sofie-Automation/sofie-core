@@ -27,8 +27,7 @@ import { DummyReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/rea
 import { ReactivePlaylistActionContext } from '@sofie-automation/meteor-lib/dist/triggers/actionFactory'
 import { FindOneOptions, FindOptions, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { RundownPlaylists } from '../../collections'
-import { ContentCache } from './reactiveContentCache'
+import { ContentCache, RundownPlaylistFields } from './reactiveContentCache'
 
 export function hashSingleUseToken(token: string): string {
 	return getHash(SINGLE_USE_TOKEN_SALT + token)
@@ -160,37 +159,34 @@ export function createMeteorTriggersContext(
 		},
 
 		/**
-		 * The `ContentCache` holds only the active playlist, so the lookup hits the database but the context
-		 * comes from the cache. Any other playlist has to give up here, as the chains would find nothing for it.
+		 * The filter chain is resolved against the same `ContentCache` the chains themselves read, rather than
+		 * against the database, so that one evaluation cannot straddle two different snapshots of the playlist.
+		 *
+		 * The cache holds only the studio's active playlist, so a chain selecting any other playlist simply
+		 * finds nothing here.
 		 */
 		createContextForRundownPlaylistChain: async (studioId, filterChain) => {
-			const playlist = await rundownPlaylistFilter(
-				studioId,
-				filterChain.filter((link) => link.object === 'rundownPlaylist') as IRundownPlaylistFilterLink[]
-			)
-
-			if (!playlist) return undefined
-
 			const cache = getCache()
 			if (!cache) return undefined
 
-			if (!cache.RundownPlaylists.findOne(playlist._id)) {
-				logger.warn(
-					`Device trigger filter chain resolved to RundownPlaylist "${playlist._id}", which is not the one being observed in Studio "${studioId}". Only the active playlist is supported.`
-				)
-				return undefined
-			}
+			const playlist = rundownPlaylistFilter(
+				cache,
+				studioId,
+				filterChain.filter((link) => link.object === 'rundownPlaylist') as IRundownPlaylistFilterLink[]
+			)
+			if (!playlist) return undefined
 
-			return createCurrentContextFromCache(cache, studioId)
+			return createContextFromCache(cache, studioId, playlist)
 		},
 	}
 }
 
-async function rundownPlaylistFilter(
+function rundownPlaylistFilter(
+	cache: ContentCache,
 	studioId: StudioId,
 	filterChain: IRundownPlaylistFilterLink[]
-): Promise<DBRundownPlaylist | undefined> {
-	const selector: MongoQuery<DBRundownPlaylist> = {
+): Pick<DBRundownPlaylist, RundownPlaylistFields> | undefined {
+	const selector: MongoQuery<Pick<DBRundownPlaylist, RundownPlaylistFields>> = {
 		$and: [
 			{
 				studioId,
@@ -226,25 +222,18 @@ async function rundownPlaylistFilter(
 		}
 	})
 
-	return RundownPlaylists.findOneAsync(selector)
+	return cache.RundownPlaylists.findOne(selector)
 }
 
 /**
  * Build a `ReactivePlaylistActionContext` from the studio's `ContentCache`, so that the context and the
  * collections the compiled filter chains query are the same snapshot of the same playlist.
  */
-export async function createCurrentContextFromCache(
+export function createContextFromCache(
 	cache: ContentCache,
-	studioId: StudioId
-): Promise<ReactivePlaylistActionContext> {
-	const rundownPlaylist = cache.RundownPlaylists.findOne({
-		activationId: {
-			$exists: true,
-		},
-	})
-
-	if (!rundownPlaylist) throw new Error('There should be an active RundownPlaylist!')
-
+	studioId: StudioId,
+	rundownPlaylist: Pick<DBRundownPlaylist, RundownPlaylistFields>
+): ReactivePlaylistActionContext {
 	const currentPartInstance = rundownPlaylist.currentPartInfo
 		? cache.PartInstances.findOne(rundownPlaylist.currentPartInfo.partInstanceId)
 		: undefined

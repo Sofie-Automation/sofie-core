@@ -13,7 +13,10 @@ import {
 	TriggeredActionId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
+	IAdLibFilterLink,
 	IBlueprintDeviceTrigger,
+	IGUIContextFilterLink,
+	IRundownPlaylistFilterLink,
 	PieceLifespan,
 	PlayoutActions,
 	SomeAction,
@@ -57,6 +60,8 @@ import { RundownPlaylists } from '../../../collections'
 import { MongoMock } from '../../../../__mocks__/mongo'
 import { DeviceActionId } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 import { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
+
+type AdLibFilterChain = (IRundownPlaylistFilterLink | IGUIContextFilterLink | IAdLibFilterLink)[]
 
 const studioId = protectString<StudioId>('studio0')
 const playlistId = protectString<RundownPlaylistId>('playlist0')
@@ -132,7 +137,8 @@ const cacheCancellations: (() => void)[] = []
  * from one sorted by position in the rundown.
  */
 function createAndPopulateCache(
-	pieceLabels: { inPart0: string; inPart1: string } = { inPart0: 'B piece', inPart1: 'A piece' }
+	pieceLabels: { inPart0: string; inPart1: string } = { inPart0: 'B piece', inPart1: 'A piece' },
+	filterChain: AdLibFilterChain = [{ object: 'view' }]
 ): ContentCache {
 	const { cache, cancel } = createReactiveContentCache(() => {
 		// Nothing to react to: the test drives `updateTriggers` itself
@@ -282,7 +288,7 @@ function createAndPopulateCache(
 		actionsWithOverrides: wrapDefaultObject<Record<string, SomeAction>>({
 			action0: {
 				action: PlayoutActions.adlib,
-				filterChain: [{ object: 'view' }],
+				filterChain,
 			},
 		}),
 	} as any as DBTriggeredActions)
@@ -416,19 +422,16 @@ describe('StudioDeviceTriggerManager', () => {
 	})
 
 	describe('createContextForRundownPlaylistChain', () => {
-		const activationChain = [{ object: 'rundownPlaylist' as const, field: 'activationId' as const, value: true }]
+		const activationChain: IRundownPlaylistFilterLink[] = [
+			{ object: 'rundownPlaylist', field: 'activationId', value: true },
+		]
 
 		afterEach(() => {
 			MongoMock.deleteAllData()
 		})
 
-		it('builds the context from the cache when the chain resolves to the observed playlist', async () => {
+		it('builds the context from the cache when the chain matches the observed playlist', async () => {
 			const cache = createAndPopulateCache()
-			MongoMock.getInnerMockCollection(RundownPlaylists).insert({
-				_id: playlistId,
-				studioId,
-				activationId,
-			} as any)
 
 			const context = createMeteorTriggersContext({} as IMeteorCall, () => cache)
 			const result = await context.createContextForRundownPlaylistChain(studioId, activationChain)
@@ -437,21 +440,77 @@ describe('StudioDeviceTriggerManager', () => {
 			expect(result?.currentPartId.get(null)).toBe(partId0)
 		})
 
-		it('gives up when the chain resolves to a playlist that is not the observed one', async () => {
+		it('resolves the chain against the cache, not the database', async () => {
+			// The database says the playlist is in rehearsal, the cache (which is what the rest of the
+			// evaluation reads) says it is not. The chain must follow the cache, so that one evaluation
+			// cannot straddle two snapshots.
 			const cache = createAndPopulateCache()
 			MongoMock.getInnerMockCollection(RundownPlaylists).insert({
-				_id: protectString<RundownPlaylistId>('someOtherPlaylist'),
+				_id: playlistId,
 				studioId,
 				activationId,
+				rehearsal: true,
 			} as any)
 
 			const context = createMeteorTriggersContext({} as IMeteorCall, () => cache)
 
-			// The cache holds none of that playlist's content, so a context for it could only ever produce an
-			// empty result
+			const rehearsalChain: IRundownPlaylistFilterLink[] = [
+				...activationChain,
+				{ object: 'rundownPlaylist', field: 'rehearsal', value: true },
+			]
 			await expect(
-				context.createContextForRundownPlaylistChain(studioId, activationChain)
+				context.createContextForRundownPlaylistChain(studioId, rehearsalChain)
 			).resolves.toBeUndefined()
 		})
+
+		it('matches a name filter link, which compiles to a $regex selector', async () => {
+			const cache = createAndPopulateCache()
+			const context = createMeteorTriggersContext({} as IMeteorCall, () => cache)
+
+			const matchingChain: IRundownPlaylistFilterLink[] = [
+				...activationChain,
+				{ object: 'rundownPlaylist', field: 'name', value: 'Playlist' },
+			]
+			const nonMatchingChain: IRundownPlaylistFilterLink[] = [
+				...activationChain,
+				{ object: 'rundownPlaylist', field: 'name', value: 'Some other playlist' },
+			]
+
+			const matching = await context.createContextForRundownPlaylistChain(studioId, matchingChain)
+			expect(matching?.rundownPlaylistId.get(null)).toBe(playlistId)
+
+			await expect(
+				context.createContextForRundownPlaylistChain(studioId, nonMatchingChain)
+			).resolves.toBeUndefined()
+		})
+
+		it('gives up when the chain does not match the observed playlist', async () => {
+			const cache = createAndPopulateCache()
+
+			const context = createMeteorTriggersContext({} as IMeteorCall, () => cache)
+
+			// The cache only ever holds the studio's active playlist, so a chain asking for anything else can
+			// only produce an empty result
+			const notActivatedChain: IRundownPlaylistFilterLink[] = [
+				{ object: 'rundownPlaylist', field: 'activationId', value: false },
+			]
+			await expect(
+				context.createContextForRundownPlaylistChain(studioId, notActivatedChain)
+			).resolves.toBeUndefined()
+		})
+	})
+
+	it('filters previews by adLib label, which compiles to a $regex selector', async () => {
+		const manager = createManager()
+
+		await manager.updateTriggers(
+			createAndPopulateCache(undefined, [
+				{ object: 'view' },
+				{ object: 'adLib', field: 'label', value: ['B piece', 'C action'] },
+			]),
+			showStyleBaseId
+		)
+
+		expect(previewLabels()).toEqual(['B piece', { key: 'C action' }])
 	})
 })

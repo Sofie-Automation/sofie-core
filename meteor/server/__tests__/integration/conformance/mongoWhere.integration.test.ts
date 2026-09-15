@@ -90,15 +90,55 @@ const cases: ConformanceCase[] = [
 		query: { 'objs.kind': 'durian' },
 	},
 
-	// Operators the in-memory matcher deliberately does NOT implement: it must throw (loud), not silently
-	// mis-match. Real mongo supports these, so we only assert the in-memory side throws.
+	// `$regex` is what the device-trigger filter chains compile label/name filters down to, so the
+	// in-memory matcher has to agree with real mongo on it.
+	{ kind: 'where', name: '$regex anchored', seed: scalars, query: { name: { $regex: '^abc' } } },
+	{ kind: 'where', name: '$regex substring', seed: scalars, query: { name: { $regex: 'bc' } } },
+	{ kind: 'where', name: '$regex alternation', seed: scalars, query: { name: { $regex: 'abcd|xyz' } } },
+	{ kind: 'where', name: '$regex no match', seed: scalars, query: { name: { $regex: 'nope' } } },
 	{
 		kind: 'where',
-		name: 'UNSUPPORTED $regex throws',
+		name: '$regex is case-sensitive by default',
 		seed: scalars,
-		query: { name: { $regex: '^abc' } },
-		expectation: { status: 'inMemoryThrows', reason: 'Operand "$regex" is not implemented' },
+		query: { name: { $regex: 'ABC' } },
 	},
+	{
+		kind: 'where',
+		name: '$regex with $options: i',
+		seed: scalars,
+		query: { name: { $regex: 'ABC', $options: 'i' } },
+	},
+	{
+		kind: 'where',
+		name: '$regex combined with another operator on the same field',
+		seed: scalars,
+		query: { name: { $regex: '^abc', $ne: 'abcd' } },
+	},
+	{
+		kind: 'where',
+		name: '$regex matches any element of an array field',
+		seed: withArrays,
+		query: { tags: { $regex: 'x' } },
+	},
+	{ kind: 'where', name: '$regex does not match non-string values', seed: scalars, query: { rank: { $regex: '1' } } },
+	{
+		kind: 'where',
+		name: '$regex does not match a missing field',
+		seed: withMissing,
+		query: { val: { $regex: '.*' } },
+	},
+	{ kind: 'where', name: 'bare RegExp field value', seed: scalars, query: { name: /^abc/ } },
+	{ kind: 'where', name: 'bare RegExp field value, case-insensitive', seed: scalars, query: { name: /ABC/i } },
+	{
+		kind: 'where',
+		name: '$options without $regex is rejected',
+		seed: scalars,
+		query: { name: { $options: 'i' } },
+		expectation: { status: 'bothThrow', reason: 'Operand "$options" requires a sibling "$regex"' },
+	},
+
+	// Operators the in-memory matcher deliberately does NOT implement: it must throw (loud), not silently
+	// mis-match. Real mongo supports these, so we only assert the in-memory side throws.
 	{
 		kind: 'where',
 		name: 'UNSUPPORTED $size throws',
