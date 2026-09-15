@@ -17,6 +17,7 @@ import { NoteSeverity, PartEndState, VTContent } from '@sofie-automation/bluepri
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { ReadonlyDeep } from 'type-fest'
 import { getResolvedPiecesForCurrentPartInstance } from './resolvedPieces.js'
+import { resolvePieceInstancesForBranding } from './branding.js'
 import { clone, generateTranslation, getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { updateTimeline } from './timeline/generate.js'
@@ -603,7 +604,8 @@ export function updatePartInstanceOnTake(
 	const partTimes = createPartCurrentTimes(getCurrentTime(), null)
 	const tmpTakePieces = processAndPrunePieceInstanceTimings(
 		showStyle.sourceLayers,
-		takePartInstance.pieceInstances.map((p) => p.pieceInstance),
+		// A Piece hidden by the Branding is not played, so must not contribute preroll or postroll
+		resolvePieceInstancesForBranding(takePartInstance),
 		partTimes
 	)
 	const partPlayoutTimings = playoutModel.calculatePartTimings(currentPartInstance, takePartInstance, tmpTakePieces)
