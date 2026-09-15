@@ -245,8 +245,8 @@ function BrandingEntry({
 				<td className="settings-studio-source-table__id c4">{item.id}</td>
 				<td className="settings-studio-source-table__actions table-item-actions c3">
 					{!item.defaults && (
-						<button className="action-btn" disabled>
-							<FontAwesomeIcon icon={faSync} title={t('Branding cannot be reset as it has no default values')} />
+						<button className="action-btn" disabled title={t('Branding cannot be reset as it has no default values')}>
+							<FontAwesomeIcon icon={faSync} />
 						</button>
 					)}
 					{item.defaults && item.overrideOps.length > 0 && (
