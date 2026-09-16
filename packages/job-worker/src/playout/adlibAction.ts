@@ -86,7 +86,7 @@ export async function executeAdlibActionAndSaveModel(
 
 	const adLibActionDoc = await findActionDoc(context, data)
 
-	if (adLibActionDoc && 'invalid' in adLibActionDoc && adLibActionDoc.invalid)
+	if (adLibActionDoc && adLibActionDoc.invalid)
 		throw UserError.from(
 			new Error(`Cannot take invalid AdLib Action "${adLibActionDoc._id}"!`),
 			UserErrorMessage.AdlibUnplayable
@@ -223,10 +223,12 @@ async function findActionDoc(context: JobContext, data: ExecuteActionProps) {
 				rundownId: 1,
 				privateData: 1,
 				publicData: 1,
+				invalid: 1,
 				onlyValidForBranding: 1,
 			},
 		}) as Promise<
-			Pick<AdLibAction, '_id' | 'rundownId' | 'privateData' | 'publicData' | 'onlyValidForBranding'> | undefined
+			| Pick<AdLibAction, '_id' | 'rundownId' | 'privateData' | 'publicData' | 'invalid' | 'onlyValidForBranding'>
+			| undefined
 		>,
 		context.directCollections.RundownBaselineAdLibActions.findOne(
 			data.actionDocId as RundownBaselineAdLibActionId,
@@ -237,12 +239,13 @@ async function findActionDoc(context: JobContext, data: ExecuteActionProps) {
 					privateData: 1,
 					publicData: 1,
 					onlyValidForBranding: 1,
+					invalid: 1,
 				},
 			}
 		) as Promise<
 			| Pick<
 					RundownBaselineAdLibAction,
-					'_id' | 'rundownId' | 'privateData' | 'publicData' | 'onlyValidForBranding'
+					'_id' | 'rundownId' | 'privateData' | 'publicData' | 'invalid' | 'onlyValidForBranding'
 			  >
 			| undefined
 		>,
@@ -252,8 +255,11 @@ async function findActionDoc(context: JobContext, data: ExecuteActionProps) {
 				bucketId: 1,
 				privateData: 1,
 				publicData: 1,
+				invalid: 1,
 			},
-		}) as Promise<Pick<BucketAdLibAction, '_id' | 'bucketId' | 'privateData' | 'publicData'> | undefined>,
+		}) as Promise<
+			Pick<BucketAdLibAction, '_id' | 'bucketId' | 'privateData' | 'publicData' | 'invalid'> | undefined
+		>,
 	])
 	return adLibAction ?? baselineAdLibAction ?? bucketAdLibAction
 }
