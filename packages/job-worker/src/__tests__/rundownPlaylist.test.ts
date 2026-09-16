@@ -252,7 +252,7 @@ describe('Rundown', () => {
 			expect(playlist.defaultBrandingId).toBeNull()
 		})
 
-		test('is retained when there is no studio blueprint', async () => {
+		test('is cleared when there is no studio blueprint', async () => {
 			const { playlistId } = await setupDefaultRundownPlaylist(context, showStyle)
 			const existingPlaylist = (await context.mockCollections.RundownPlaylists.findOne(
 				playlistId
@@ -263,7 +263,30 @@ describe('Rundown', () => {
 				defaultBrandingId: 'branding0',
 			})
 
+			expect(playlist.defaultBrandingId).toBeNull()
+		})
+
+		test('is cleared when the studio blueprint stops providing playlist info', async () => {
+			let playlist = await producePlaylist(makeStudioBlueprint({ defaultBrandingId: 'branding0' }))
 			expect(playlist.defaultBrandingId).toBe('branding0')
+
+			const studioBlueprint = {
+				blueprintId: protectString('studioBlueprint0'),
+				blueprint: {
+					getRundownPlaylistInfo: () => null,
+				},
+			} as any
+			const rundowns = await context.mockCollections.Rundowns.findFetch({ playlistId: playlist._id })
+			playlist = produceRundownPlaylistInfoFromRundown(
+				context,
+				studioBlueprint,
+				playlist,
+				playlist._id,
+				playlist.externalId,
+				rundowns
+			)
+
+			expect(playlist.defaultBrandingId).toBeNull()
 		})
 	})
 })

@@ -337,7 +337,6 @@ function defaultPlaylistForRundown(
 ): Omit<DBRundownPlaylist, '_id' | 'externalId'> {
 	return {
 		created: getCurrentTime(),
-		defaultBrandingId: null,
 		currentPartInfo: null,
 		nextPartInfo: null,
 		previousPartsInfo: [],
@@ -353,6 +352,9 @@ function defaultPlaylistForRundown(
 		studioId: studio._id,
 		name: rundown.name,
 		timing: rundown.timing,
+
+		// Without a playlist from the blueprint, there is nothing to provide a default Branding
+		defaultBrandingId: null,
 
 		modified: getCurrentTime(),
 	}
