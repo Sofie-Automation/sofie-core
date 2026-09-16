@@ -27,7 +27,7 @@ export type { Complete, ArrayElement, Subtract } from '@sofie-automation/shared-
 export { assertNever, literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 
 export function getSofieHostUrl(): string {
-	const url = process.env.ROOT_URL
+	const url = process.env.ROOT_URL ?? 'http://localhost:3000'
 	if (url) return url
 
 	throw new Error('ROOT_URL must be defined to launch Sofie')
