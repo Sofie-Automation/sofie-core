@@ -1,3 +1,4 @@
+import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import {
 	IActionExecutionContext,
 	IDataStoreActionExecutionContext,
@@ -288,8 +289,11 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 	}
 
 	async setBranding(target: BrandingChangeTarget, brandingId: string | null): Promise<void> {
-		if (brandingId !== null && !this.showStyleCompound.branding[brandingId])
-			throw new Error(`Branding "${brandingId}" does not exist in the ShowStyle`)
+		if (brandingId !== null && !this.showStyleCompound.branding[brandingId]) {
+			// This is a mistake in the blueprint or its config, not a fault in the server
+			const message = `Branding "${brandingId}" does not exist in the ShowStyle`
+			throw UserError.from(new Error(message), UserErrorMessage.ValidationFailed, { message }, 400)
+		}
 
 		this._playoutModel.setBranding(target, brandingId)
 

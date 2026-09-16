@@ -680,6 +680,17 @@ export function isCandidateMoreImportant(
 		return true
 	}
 
+	// If both are continuing from a previous part, prefer the one which started more recently
+	// Note: infiniteInstanceIndex counts the parts the infinite has been continued through, but it is only tracked when
+	// continuing into the part after the current one. Otherwise both will be 0, and this is unable to decide
+	if (
+		best.infinite?.fromPreviousPart &&
+		candidate.infinite?.fromPreviousPart &&
+		best.infinite.infiniteInstanceIndex !== candidate.infinite.infiniteInstanceIndex
+	) {
+		return candidate.infinite.infiniteInstanceIndex < best.infinite.infiniteInstanceIndex
+	}
+
 	return undefined
 }
 

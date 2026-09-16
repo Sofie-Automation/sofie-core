@@ -25,15 +25,12 @@ import {
 	BucketAdLibActions,
 	BucketAdLibs,
 	Buckets,
-	PartInstances,
 	Parts,
 	RundownBaselineAdLibActions,
 	RundownBaselineAdLibPieces,
 	RundownPlaylists,
 	Segments,
 } from '../../../collections'
-import { isValidForBranding } from '@sofie-automation/corelib/dist/playout/branding'
-import type { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { ServerClientAPI } from '../../client'
 import { QueueNextSegmentResult, StudioJobs, TakeNextPartResult } from '@sofie-automation/corelib/dist/worker/studio'
@@ -42,6 +39,10 @@ import { TriggerReloadDataResponse } from '@sofie-automation/meteor-lib/dist/api
 import { ServerRundownAPI } from '../../rundown'
 import { triggerWriteAccess } from '../../../security/securityVerify'
 import type { DDPClientConnection } from '../../../ddp-server/types'
+import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
+import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
+import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
+import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 
 function parseTimerIndex(rawTimerIndex: string): RundownTTimerIndex {
 	const timerIndex = Number(rawTimerIndex)
@@ -183,18 +184,6 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 		)
 	}
 
-	/** Whether an AdLib is used with the Branding the current PartInstance is being played with */
-	async #isAdLibValidForCurrentBranding(
-		currentPartInstanceId: PartInstanceId,
-		adLib: Pick<AdLibPiece, 'onlyValidForBranding'>
-	): Promise<boolean> {
-		const currentPartInstance = await PartInstances.findOneAsync(currentPartInstanceId, {
-			projection: { brandingId: 1 },
-		})
-
-		return isValidForBranding(adLib, currentPartInstance?.brandingId ?? null)
-	}
-
 	async executeAdLib(
 		connection: DDPClientConnection,
 		event: string,
@@ -203,24 +192,23 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 		triggerMode?: string | null,
 		adLibOptions?: { [key: string]: any }
 	): Promise<ClientAPI.ClientResponse<object>> {
-		const baselineAdLibPiece = RundownBaselineAdLibPieces.findOneAsync(adLibId as PieceId, {
-			projection: { _id: 1, onlyValidForBranding: 1 },
-		})
-		const segmentAdLibPiece = AdLibPieces.findOneAsync(adLibId as PieceId, {
-			projection: { _id: 1, onlyValidForBranding: 1 },
-		})
-		const bucketAdLibPiece = BucketAdLibs.findOneAsync(adLibId as BucketAdLibId, { projection: { _id: 1 } })
 		const [baselineAdLibDoc, segmentAdLibDoc, bucketAdLibDoc, adLibAction, baselineAdLibAction] = await Promise.all(
 			[
-				baselineAdLibPiece,
-				segmentAdLibPiece,
-				bucketAdLibPiece,
+				RundownBaselineAdLibPieces.findOneAsync(adLibId as PieceId, {
+					projection: { _id: 1 },
+				}) as Promise<Pick<AdLibPiece, '_id'> | undefined>,
+				AdLibPieces.findOneAsync(adLibId as PieceId, { projection: { _id: 1 } }) as Promise<
+					Pick<AdLibPiece, '_id'> | undefined
+				>,
+				BucketAdLibs.findOneAsync(adLibId as BucketAdLibId, { projection: { _id: 1 } }) as Promise<
+					Pick<BucketAdLib, '_id'> | undefined
+				>,
 				AdLibActions.findOneAsync(adLibId as AdLibActionId, {
-					projection: { _id: 1, actionId: 1, userData: 1, onlyValidForBranding: 1 },
-				}),
+					projection: { _id: 1, actionId: 1, userData: 1 },
+				}) as Promise<Pick<AdLibAction, '_id' | 'actionId' | 'userData'> | undefined>,
 				RundownBaselineAdLibActions.findOneAsync(adLibId as RundownBaselineAdLibActionId, {
-					projection: { _id: 1, actionId: 1, userData: 1, onlyValidForBranding: 1 },
-				}),
+					projection: { _id: 1, actionId: 1, userData: 1 },
+				}) as Promise<Pick<RundownBaselineAdLibAction, '_id' | 'actionId' | 'userData'> | undefined>,
 			]
 		)
 		const adLibActionDoc = adLibAction ?? baselineAdLibAction
@@ -248,23 +236,6 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 					UserError.from(
 						Error(`No active Part in ${rundownPlaylistId}`),
 						UserErrorMessage.PartNotFound,
-						undefined,
-						412
-					)
-				)
-
-			// A bucket AdLib is never limited to a Branding, so it is only the other two which can be
-			if (
-				pieceType !== 'bucket' &&
-				!(await this.#isAdLibValidForCurrentBranding(
-					rundownPlaylist.currentPartInfo.partInstanceId,
-					regularAdLibDoc
-				))
-			)
-				return ClientAPI.responseError(
-					UserError.from(
-						new Error(`AdLib ${adLibId} is not used with the selected Branding`),
-						UserErrorMessage.AdlibNotFound,
 						undefined,
 						412
 					)
@@ -321,21 +292,6 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 					UserError.from(
 						new Error(`Rundown playlist ${rundownPlaylistId} must be playing`),
 						UserErrorMessage.NoCurrentPart,
-						undefined,
-						412
-					)
-				)
-
-			if (
-				!(await this.#isAdLibValidForCurrentBranding(
-					rundownPlaylist.currentPartInfo.partInstanceId,
-					adLibActionDoc
-				))
-			)
-				return ClientAPI.responseError(
-					UserError.from(
-						new Error(`AdLib ${adLibId} is not used with the selected Branding`),
-						UserErrorMessage.AdlibNotFound,
 						undefined,
 						412
 					)

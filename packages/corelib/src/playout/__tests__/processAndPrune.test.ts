@@ -411,6 +411,36 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			},
 		])
 	})
+	test('prefer the more recently started of two continuing infinites on a layer', () => {
+		// The ids are ordered so that falling back to comparing them would choose the older 'b'
+		const pieceInstances = [
+			createPieceInstance('a', { start: 0 }, 'one', PieceLifespan.OutOnSegmentEnd, false, {
+				fromPreviousPart: true,
+				infiniteInstanceId: protectString('a_a'),
+				infiniteInstanceIndex: 1,
+				infinitePieceId: protectString('a_b'),
+			}),
+			createPieceInstance('b', { start: 0 }, 'one', PieceLifespan.OutOnSegmentEnd, false, {
+				fromPreviousPart: true,
+				infiniteInstanceId: protectString('b_a'),
+				infiniteInstanceIndex: 2,
+				infinitePieceId: protectString('b_b'),
+			}),
+		]
+
+		const expected = [
+			{
+				_id: 'a',
+				priority: 2,
+				start: 0,
+				end: undefined,
+			},
+		]
+		expect(runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))).toEqual(expected)
+		// The order they are provided in should not matter
+		expect(runAndTidyResult([...pieceInstances].reverse(), createPartCurrentTimes(500, 0))).toEqual(expected)
+	})
+
 	test('stop onRundownEnd continuation when start=0 and onSegmentEnd is present', () => {
 		const pieceInstances = [
 			createPieceInstance('one', { start: 0 }, 'one', PieceLifespan.OutOnRundownEnd, false, {

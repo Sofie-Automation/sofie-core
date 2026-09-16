@@ -39,6 +39,10 @@ import { NotificationsModelHelper } from '../notifications/NotificationsModelHel
 import type { INotificationsModel } from '../notifications/NotificationsModel.js'
 import { PersistentPlayoutStateStore } from '../blueprints/context/services/PersistantStateStore.js'
 import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
+import { isValidForBranding } from '@sofie-automation/corelib/dist/playout/branding'
+import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
+import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
+import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 
 /**
  * Execute an AdLib Action
@@ -82,11 +86,28 @@ export async function executeAdlibActionAndSaveModel(
 
 	const adLibActionDoc = await findActionDoc(context, data)
 
-	if (adLibActionDoc && adLibActionDoc.invalid)
+	if (adLibActionDoc && 'invalid' in adLibActionDoc && adLibActionDoc.invalid)
 		throw UserError.from(
 			new Error(`Cannot take invalid AdLib Action "${adLibActionDoc._id}"!`),
 			UserErrorMessage.AdlibUnplayable
 		)
+
+	// Note: a bucket action is never limited to a Branding, and an action executed without an actionDocId
+	// has nothing to check the Branding against
+	if (adLibActionDoc && 'onlyValidForBranding' in adLibActionDoc) {
+		// This must be checked before executeDataStoreAction, as that runs without the full PlayoutModel
+		const currentPartInstance = await context.directCollections.PartInstances.findOne(
+			playlist.currentPartInfo.partInstanceId,
+			{ projection: { brandingId: 1 } }
+		)
+		if (!isValidForBranding(adLibActionDoc, currentPartInstance?.brandingId ?? null))
+			throw UserError.from(
+				new Error(`AdLib Action "${adLibActionDoc._id}" is not used with the selected Branding!`),
+				UserErrorMessage.AdlibNotValidForBranding,
+				undefined,
+				412
+			)
+	}
 
 	let watchedPackages = WatchedPackagesHelper.empty(context)
 	if (adLibActionDoc && 'rundownId' in adLibActionDoc) {
@@ -197,17 +218,42 @@ async function findActionDoc(context: JobContext, data: ExecuteActionProps) {
 
 	const [adLibAction, baselineAdLibAction, bucketAdLibAction] = await Promise.all([
 		context.directCollections.AdLibActions.findOne(data.actionDocId as AdLibActionId, {
-			projection: { _id: 1, privateData: 1, publicData: 1 },
-		}),
+			projection: {
+				_id: 1,
+				rundownId: 1,
+				privateData: 1,
+				publicData: 1,
+				onlyValidForBranding: 1,
+			},
+		}) as Promise<
+			Pick<AdLibAction, '_id' | 'rundownId' | 'privateData' | 'publicData' | 'onlyValidForBranding'> | undefined
+		>,
 		context.directCollections.RundownBaselineAdLibActions.findOne(
 			data.actionDocId as RundownBaselineAdLibActionId,
 			{
-				projection: { _id: 1, privateData: 1, publicData: 1 },
+				projection: {
+					_id: 1,
+					rundownId: 1,
+					privateData: 1,
+					publicData: 1,
+					onlyValidForBranding: 1,
+				},
 			}
-		),
+		) as Promise<
+			| Pick<
+					RundownBaselineAdLibAction,
+					'_id' | 'rundownId' | 'privateData' | 'publicData' | 'onlyValidForBranding'
+			  >
+			| undefined
+		>,
 		context.directCollections.BucketAdLibActions.findOne(data.actionDocId as BucketAdLibActionId, {
-			projection: { _id: 1, privateData: 1, publicData: 1 },
-		}),
+			projection: {
+				_id: 1,
+				bucketId: 1,
+				privateData: 1,
+				publicData: 1,
+			},
+		}) as Promise<Pick<BucketAdLibAction, '_id' | 'bucketId' | 'privateData' | 'publicData'> | undefined>,
 	])
 	return adLibAction ?? baselineAdLibAction ?? bucketAdLibAction
 }
