@@ -1,5 +1,8 @@
-import { RundownPlaylistId, AdLibActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { RundownPlaylistId, AdLibActionId, BucketAdLibActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type {
+	DBRundownPlaylist,
+	SelectedPartInstance,
+} from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
@@ -133,9 +136,12 @@ describe('Playout API', () => {
 				executeAction: async (context0) => {
 					const context = context0 as ActionExecutionContext
 
-					await expect(context.setBranding('both', 'not-a-branding')).rejects.toThrow(
+					const setBranding = context.setBranding('both', 'not-a-branding')
+					await expect(setBranding).rejects.toThrow(
 						'Branding "not-a-branding" does not exist in the ShowStyle'
 					)
+					await expect(setBranding).rejects.toMatchUserError(UserErrorMessage.ValidationFailed)
+					await expect(setBranding).rejects.toMatchObject({ errorCode: 400 })
 
 					// null is always a valid selection
 					await context.setBranding('both', null)
@@ -150,6 +156,131 @@ describe('Playout API', () => {
 			})
 
 			await expect(getSelectedBrandings()).resolves.toEqual([null, null])
+		})
+
+		describe('onlyValidForBranding', () => {
+			const actionDocId = protectString<AdLibActionId>('branded-action')
+
+			async function getCurrentPartInfo(): Promise<SelectedPartInstance> {
+				const playlist = (await context.mockCollections.RundownPlaylists.findOne(
+					playlistId
+				)) as DBRundownPlaylist
+				if (!playlist.currentPartInfo) throw new Error('Playlist has no current PartInstance')
+				return playlist.currentPartInfo
+			}
+
+			async function insertAction(onlyValidForBranding: string[] | undefined) {
+				const currentPartInfo = await getCurrentPartInfo()
+				await context.mockCollections.AdLibActions.insertOne({
+					_id: actionDocId,
+					rundownId: currentPartInfo.rundownId,
+					partId: protectString('part0'),
+					externalId: 'branded-action',
+					actionId: 'some-action',
+					userData: {},
+					display: { label: { key: 'Branded Action' } },
+					userDataManifest: {},
+					onlyValidForBranding,
+				})
+			}
+
+			async function setCurrentBranding(brandingId: string | null) {
+				const currentPartInfo = await getCurrentPartInfo()
+				await context.mockCollections.PartInstances.update(currentPartInfo.partInstanceId, {
+					$set: { brandingId },
+				})
+			}
+
+			test('rejects an action hidden by the Branding', async () => {
+				const executeAction = jest.fn()
+				context.updateShowStyleBlueprint({ executeAction })
+
+				await insertAction(['branding0'])
+
+				await expect(
+					handleExecuteAdlibAction(context, {
+						playlistId,
+						actionDocId,
+						actionId: 'some-action',
+						userData: {},
+					})
+				).rejects.toMatchUserError(UserErrorMessage.AdlibNotValidForBranding)
+
+				expect(executeAction).toHaveBeenCalledTimes(0)
+			})
+
+			test('rejects before executeDataStoreAction', async () => {
+				const executeDataStoreAction = jest.fn()
+				context.updateShowStyleBlueprint({ executeDataStoreAction })
+
+				await insertAction(['branding0'])
+
+				await expect(
+					handleExecuteAdlibAction(context, {
+						playlistId,
+						actionDocId,
+						actionId: 'some-action',
+						userData: {},
+					})
+				).rejects.toMatchUserError(UserErrorMessage.AdlibNotValidForBranding)
+
+				expect(executeDataStoreAction).toHaveBeenCalledTimes(0)
+			})
+
+			test('runs an action valid for the Branding', async () => {
+				const executeAction = jest.fn()
+				context.updateShowStyleBlueprint({ executeAction })
+
+				await insertAction(['branding0'])
+				await setCurrentBranding('branding0')
+
+				await handleExecuteAdlibAction(context, {
+					playlistId,
+					actionDocId,
+					actionId: 'some-action',
+					userData: {},
+				})
+
+				expect(executeAction).toHaveBeenCalledTimes(1)
+			})
+
+			test('a bucket action is unaffected', async () => {
+				const executeAction = jest.fn()
+				context.updateShowStyleBlueprint({ executeAction })
+
+				await setCurrentBranding('branding0')
+
+				const bucketActionId = protectString<BucketAdLibActionId>('bucket-action')
+				await context.mockCollections.BucketAdLibActions.insertOne({
+					_id: bucketActionId,
+					bucketId: protectString('bucket0'),
+					externalId: 'bucket-action',
+					studioId: context.studioId,
+					showStyleBaseId: protectString('showStyleBase0'),
+					showStyleVariantId: null,
+					importVersions: {
+						studio: '',
+						showStyleBase: '',
+						showStyleVariant: '',
+						blueprint: '',
+						core: '',
+					},
+					ingestInfo: undefined,
+					actionId: 'some-action',
+					userData: {},
+					display: { label: { key: 'Bucket Action' } },
+					userDataManifest: {},
+				})
+
+				await handleExecuteAdlibAction(context, {
+					playlistId,
+					actionDocId: bucketActionId,
+					actionId: 'some-action',
+					userData: {},
+				})
+
+				expect(executeAction).toHaveBeenCalledTimes(1)
+			})
 		})
 
 		test('no changes', async () => {

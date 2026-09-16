@@ -276,6 +276,21 @@ export async function handleAdLibPieceStart(context: JobContext, data: AdlibPiec
 					UserErrorMessage.AdlibUnplayable
 				)
 
+			// A bucket AdLib is never limited to a Branding
+			if ('onlyValidForBranding' in adLibPiece) {
+				// A queued AdLib is played in a new PartInstance, which inherits the Branding
+				const brandingId = data.queue
+					? playoutModel.getBrandingForNewPartInstance()
+					: partInstance.partInstance.brandingId
+				if (!isValidForBranding(adLibPiece, brandingId))
+					throw UserError.from(
+						new Error(`AdLib Piece "${data.adLibPieceId}" is not used with the selected Branding!`),
+						UserErrorMessage.AdlibNotValidForBranding,
+						undefined,
+						412
+					)
+			}
+
 			await innerStartOrQueueAdLibPiece(context, playoutModel, rundown, !!data.queue, partInstance, adLibPiece)
 		}
 	)
