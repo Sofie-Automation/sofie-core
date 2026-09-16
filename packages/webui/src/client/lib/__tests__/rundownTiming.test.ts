@@ -25,6 +25,7 @@ function makeMockPlaylist(): DBRundownPlaylist {
 		name: 'Mock Playlist',
 		created: 0,
 		modified: 0,
+		defaultBrandingId: null,
 		currentPartInfo: null,
 		nextPartInfo: null,
 		previousPartsInfo: [],

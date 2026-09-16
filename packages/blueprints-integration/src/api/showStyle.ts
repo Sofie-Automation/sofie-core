@@ -1,4 +1,4 @@
-import type { ActionUserData, IBlueprintActionManifest } from '../action.js'
+import type { ActionUserData, IBlueprintActionManifest, IBlueprintBucketActionManifest } from '../action.js'
 import type {
 	IActionExecutionContext,
 	ISyncIngestUpdateToPartInstanceContext,
@@ -26,6 +26,7 @@ import type { IngestAdlib, ExtendedIngestRundown, IngestRundown } from '../inges
 import type { IBlueprintExternalMessageQueueObj } from '../message.js'
 import type {
 	IBlueprintAdLibPiece,
+	IBlueprintBucketAdLibPiece,
 	IBlueprintResolvedPieceInstance,
 	IBlueprintPartInstance,
 	PartEndState,
@@ -168,9 +169,9 @@ export interface ShowStyleBlueprintManifest<
 		context: IShowStyleUserContext,
 		ingestItem: IngestAdlib
 	) =>
-		| Promise<IBlueprintAdLibPiece | IBlueprintActionManifest | null>
-		| IBlueprintAdLibPiece
-		| IBlueprintActionManifest
+		| Promise<IBlueprintBucketAdLibPiece | IBlueprintBucketActionManifest | null>
+		| IBlueprintBucketAdLibPiece
+		| IBlueprintBucketActionManifest
 		| null
 
 	/**

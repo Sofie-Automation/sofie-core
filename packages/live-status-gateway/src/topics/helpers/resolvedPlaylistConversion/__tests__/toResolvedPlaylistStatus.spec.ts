@@ -51,6 +51,7 @@ describe('toResolvedPlaylistStatus', () => {
 			activationId: protectString('activation0'),
 			rehearsal: true,
 			quickLoop: makeQuickLoop(),
+			defaultBrandingId: null,
 			currentPartInfo: { partInstanceId: protectString('current_pi') },
 			nextPartInfo: { partInstanceId: protectString('next_pi') },
 			startedPlayback: 1706371806000,

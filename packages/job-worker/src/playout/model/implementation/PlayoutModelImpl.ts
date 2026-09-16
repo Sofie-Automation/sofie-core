@@ -9,6 +9,7 @@ import {
 	SegmentId,
 	SegmentPlayoutId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { BrandingChangeTarget } from '@sofie-automation/blueprints-integration'
 import { PeripheralDevice, PeripheralDeviceType } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import {
 	ABSessionAssignments,
@@ -189,6 +190,13 @@ export class PlayoutModelReadonlyImpl implements PlayoutModelReadonly {
 		const partInstance = this.allPartInstances.get(this.playlist.nextPartInfo.partInstanceId)
 		if (!partInstance) return null // throw new Error('NextPartInstance is missing')
 		return partInstance
+	}
+
+	public getBrandingForNewPartInstance(): string | null {
+		const inheritFrom = this.currentPartInstance ?? this.nextPartInstance
+		if (inheritFrom) return inheritFrom.partInstance.brandingId ?? null
+
+		return this.playlistImpl.defaultBrandingId ?? null
 	}
 
 	public get selectedPartInstanceIds(): PartInstanceId[] {
@@ -449,6 +457,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 			takeCount: currentPartInstance.partInstance.takeCount + 1,
 			rehearsal: currentPartInstance.partInstance.rehearsal,
 			orphaned: 'adlib-part',
+			brandingId: this.getBrandingForNewPartInstance(),
 			part: {
 				...part,
 				rundownId: currentPartInstance.partInstance.rundownId,
@@ -496,6 +505,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 			segmentPlayoutId,
 			takeCount: newTakeCount,
 			rehearsal: !!this.playlist.rehearsal,
+			brandingId: this.getBrandingForNewPartInstance(),
 			part: clone<DBPart>(nextPart),
 			timings: {
 				setAsNext: getCurrentTime(),
@@ -541,6 +551,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 			takeCount: 1,
 			rehearsal: !!this.playlist.rehearsal,
 			orphaned: 'adlib-part',
+			brandingId: this.getBrandingForNewPartInstance(),
 			part: {
 				...part,
 				rundownId: rundown.rundown._id,
@@ -889,6 +900,12 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 		}
 
 		this.#playlistHasChanged = true
+	}
+
+	setBranding(target: BrandingChangeTarget, brandingId: string | null): void {
+		// Note: this intentionally does nothing for a target which has no PartInstance selected
+		if (target !== 'next') this.currentPartInstance?.setBranding(brandingId)
+		if (target !== 'current') this.nextPartInstance?.setBranding(brandingId)
 	}
 
 	setQueuedSegment(segment: PlayoutSegmentModel | null): void {

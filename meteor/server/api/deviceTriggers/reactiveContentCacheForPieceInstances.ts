@@ -49,7 +49,7 @@ export const pieceInstanceFieldSpecifier = literal<
 	reset: 1,
 })
 
-export type PartInstanceFields = '_id' | 'playlistActivationId' | 'timings' | 'reset'
+export type PartInstanceFields = '_id' | 'playlistActivationId' | 'timings' | 'reset' | 'brandingId'
 export const partInstanceFieldSpecifier = literal<
 	MongoFieldSpecifierOnesStrict<Pick<DBPartInstance, PartInstanceFields>>
 >({
@@ -57,6 +57,7 @@ export const partInstanceFieldSpecifier = literal<
 	playlistActivationId: 1,
 	timings: 1,
 	reset: 1,
+	brandingId: 1,
 })
 
 export interface ContentCache {

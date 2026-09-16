@@ -52,12 +52,21 @@ import {
 	IBlueprintShowStyleBase,
 	IBlueprintShowStyleVariant,
 	IOutputLayer,
+	IBlueprintActionManifestBranding,
+	IBlueprintBrandingInfo,
+	IBlueprintPartBranding,
+	IBlueprintPieceBranding,
 	ISourceLayer,
 	NoteSeverity,
 	PieceAbSessionInfo,
 	RundownPlaylistTiming,
 } from '@sofie-automation/blueprints-integration'
-import { JobContext, ProcessedShowStyleBase, ProcessedShowStyleVariant } from '../../jobs/index.js'
+import {
+	JobContext,
+	ProcessedShowStyleBase,
+	ProcessedShowStyleCompound,
+	ProcessedShowStyleVariant,
+} from '../../jobs/index.js'
 import {
 	DBRundownPlaylist,
 	QuickLoopMarkerType,
@@ -121,6 +130,8 @@ export const IBlueprintPieceObjectsSampleKeys = allKeysOfObject<IBlueprintPiece>
 	userEditProperties: true,
 	excludeDuringPartKeepalive: true,
 	displayAbChannel: true,
+	onlyValidForBranding: true,
+	branding: true,
 })
 
 // Compile a list of the keys which are allowed to be set
@@ -149,6 +160,7 @@ export const PlayoutMutatablePartSampleKeys = allKeysOfObject<PlayoutMutatablePa
 	hackListenToMediaObjectUpdates: true,
 	userEditOperations: true,
 	userEditProperties: true,
+	branding: true,
 })
 
 /*
@@ -218,6 +230,7 @@ export function convertPartInstanceToBlueprints(partInstance: ReadonlyDeep<DBPar
 		_id: unprotectString(partInstance._id),
 		segmentId: unprotectString(partInstance.segmentId),
 		part: convertPartToBlueprints(partInstance.part),
+		brandingId: partInstance.brandingId ?? null,
 		rehearsal: partInstance.rehearsal,
 		timings: clone(partInstance.timings),
 		previousPartEndState: clone(partInstance.previousPartEndState),
@@ -233,6 +246,8 @@ function convertPieceGenericToBlueprintsInner(piece: ReadonlyDeep<PieceGeneric>)
 	const obj: Complete<IBlueprintPieceGeneric> = {
 		externalId: piece.externalId,
 		name: piece.name,
+		onlyValidForBranding: clone<string[] | undefined>(piece.onlyValidForBranding),
+		branding: clone<Record<string, IBlueprintPieceBranding> | undefined>(piece.branding),
 		privateData: clone(piece.privateData),
 		publicData: clone(piece.publicData),
 		lifespan: piece.lifespan,
@@ -314,6 +329,7 @@ export function convertPartToBlueprints(part: ReadonlyDeep<DBPart>): IBlueprintP
 		_id: unprotectString(part._id),
 		segmentId: unprotectString(part.segmentId),
 		externalId: part.externalId,
+		branding: clone<Record<string, IBlueprintPartBranding> | undefined>(part.branding),
 		invalid: part.invalid,
 		invalidReason: clone(part.invalidReason),
 		untimed: part.untimed,
@@ -388,6 +404,8 @@ export function convertAdLibActionToBlueprints(action: ReadonlyDeep<AdLibAction>
 		partId: unprotectString(action.partId),
 		invalid: action.invalid,
 		allVariants: action.allVariants,
+		onlyValidForBranding: clone<string[] | undefined>(action.onlyValidForBranding),
+		branding: clone<Record<string, IBlueprintActionManifestBranding> | undefined>(action.branding),
 		userDataManifest: clone(action.userDataManifest),
 		display: clone<IBlueprintActionManifestDisplay | IBlueprintActionManifestDisplayContent>(action.display), // TODO - type mismatch
 		triggerModes: clone<IBlueprintActionTriggerMode[] | undefined>(action.triggerModes), // TODO - type mismatch
@@ -469,6 +487,21 @@ export function convertRundownToBlueprintSegmentRundown(
 }
 
 /**
+ * Resolve a Branding selected on a PartInstance into the Branding of the ShowStyle
+ * @param showStyle ShowStyle the Branding belongs to
+ * @param brandingId Id of the selected Branding, if any
+ * @returns The Branding, or null if none is selected or it no longer exists in the ShowStyle
+ */
+export function resolveSelectedBranding(
+	showStyle: ReadonlyDeep<ProcessedShowStyleCompound>,
+	brandingId: string | null | undefined
+): ReadonlyDeep<IBlueprintBrandingInfo> | null {
+	if (!brandingId) return null
+
+	return showStyle.branding[brandingId] ?? null
+}
+
+/**
  * Convert a DBRundownPlaylist into IBlueprintRundownPlaylist, for passing into the blueprints
  * Note: also requires an array of Rundowns that belong to the studio (or that belong to the playlist)
  * @param playlist the DBRundownPlaylist to convert
@@ -488,6 +521,7 @@ export function convertRundownPlaylistToBlueprints(
 			playlist.quickLoop?.start?.type === QuickLoopMarkerType.PLAYLIST &&
 			playlist.quickLoop.end?.type === QuickLoopMarkerType.PLAYLIST,
 		timeOfDayCountdowns: playlist.timeOfDayCountdowns,
+		defaultBrandingId: playlist.defaultBrandingId,
 
 		privateData: clone(playlist.privateData),
 		publicData: clone(playlist.publicData),

@@ -26,6 +26,7 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { ReadonlyDeep } from 'type-fest'
 import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { filterPieceInstancesForNextPartWithOffset } from './lookaheadOffset.js'
+import { resolvePieceForBranding } from '@sofie-automation/corelib/dist/playout/branding'
 
 const LOOKAHEAD_OBJ_PRIORITY = 0.1
 
@@ -164,12 +165,19 @@ export async function getLookeaheadObjects(
 	// In reality, there are not likely to be any/many conflicts if the blueprints are written well so it shouldnt be a problem
 	const piecesToSearch = await pPiecesToSearch
 
+	// These Parts have no PartInstance of their own yet, so they are resolved with the Branding they will be
+	// created with if nothing changes before they are reached
+	const projectedBrandingId = playoutModel.getBrandingForNewPartInstance()
+
 	const piecesByPart = new Map<PartId, Array<PieceInstance>>()
 	for (const piece of piecesToSearch) {
 		// Don't lookahead any rundown owned pieces, that should only happen once they become PieceInstances
 		if (!piece.startPartId) continue
 
-		const pieceInstance = wrapPieceToInstance(piece, protectString(''), protectString(''), true)
+		const resolvedPiece = resolvePieceForBranding(piece, projectedBrandingId)
+		if (!resolvedPiece) continue // Not used with this Branding
+
+		const pieceInstance = wrapPieceToInstance(resolvedPiece, protectString(''), protectString(''), true)
 		const existing = piecesByPart.get(piece.startPartId)
 		if (existing) {
 			existing.push(pieceInstance)

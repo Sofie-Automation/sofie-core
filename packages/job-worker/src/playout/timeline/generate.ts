@@ -45,6 +45,7 @@ import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
 import { PersistentPlayoutStateStore } from '../../blueprints/context/services/PersistantStateStore.js'
 import { PlayoutChangedType } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import { resolvePartInstanceForBranding, resolvePieceInstancesForBranding } from '../branding.js'
 
 const DEFAULT_ABSOLUTE_PIECE_PREPARE_TIME = 30000
 
@@ -251,7 +252,7 @@ function getPartInstanceTimelineInfo(
 	let regenerateTimelineAt: Time | undefined = undefined
 
 	const rawPieceInstances: ReadonlyDeep<PieceInstance>[] = []
-	for (const { pieceInstance } of partInstance.pieceInstances) {
+	for (const pieceInstance of resolvePieceInstancesForBranding(partInstance)) {
 		if (
 			pieceInstance.piece.enable.isAbsolute &&
 			typeof pieceInstance.piece.enable.start === 'number' &&
@@ -269,7 +270,9 @@ function getPartInstanceTimelineInfo(
 		rawPieceInstances.push(pieceInstance)
 	}
 
-	const partInstanceWithOverrides = partInstance.getPartInstanceWithQuickLoopOverrides()
+	const partInstanceWithOverrides = resolvePartInstanceForBranding(
+		partInstance.getPartInstanceWithQuickLoopOverrides()
+	)
 	return {
 		partInstance: partInstanceWithOverrides,
 		pieceInstances: processAndPrunePieceInstanceTimings(sourceLayers, rawPieceInstances, partTimes),
@@ -390,9 +393,9 @@ export async function getTimelineRundown(
 					context.getShowStyleBlueprintConfig(showStyle),
 					playoutModel.playlist,
 					activeRundown.rundown,
-					previousPartInstances.map((pi) => pi.partInstance),
-					currentPartInstance?.partInstance,
-					nextPartInstance?.partInstance,
+					partInstancesInfo.previous.map((info) => info.partInstance),
+					partInstancesInfo.current?.partInstance,
+					partInstancesInfo.next?.partInstance,
 					resolvedPieces
 				)
 				try {

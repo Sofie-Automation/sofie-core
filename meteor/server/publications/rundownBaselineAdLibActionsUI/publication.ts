@@ -1,3 +1,5 @@
+import { resolveAdLibActionForBranding } from '@sofie-automation/corelib/dist/playout/branding'
+import { BrandingState, updateProjectedBrandingId } from '../lib/branding'
 import { RundownBaselineAdLibActionId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check, zAnyArray } from '../../lib/check'
 import {
@@ -23,12 +25,15 @@ import type { PublicationRegistry } from '../../publicationRegistry'
 
 type PublicationDoc = Omit<RundownBaselineAdLibAction, RundownBaselineAdLibActionOmitedFields>
 
-export interface UIRundownBaselineAdLibActionsState {
+export interface UIRundownBaselineAdLibActionsState extends BrandingState {
 	contentCache: ReadonlyDeep<ContentCache>
 }
 
 interface UIRundownBaselineAdLibActionsUpdateProps {
 	newCache: ContentCache
+
+	/** The Branding may have changed, so it must be resolved again to check */
+	invalidateBranding: boolean
 
 	invalidateAdLibActionIds: RundownBaselineAdLibActionId[]
 }
@@ -49,6 +54,17 @@ async function setupUIRundownBaselineAdLibActionsPublicationObservers(
 	// Note: this is attached after the content observer has been populated, so it will be told about
 	// every document already in the cache
 	const innerQueries = [
+		// Any change to these means the Branding may have changed
+		cache.RundownPlaylists.observeChanges({
+			added: () => triggerUpdate({ invalidateBranding: true }),
+			changed: () => triggerUpdate({ invalidateBranding: true }),
+			removed: () => triggerUpdate({ invalidateBranding: true }),
+		}),
+		cache.PartInstances.observeChanges({
+			added: () => triggerUpdate({ invalidateBranding: true }),
+			changed: () => triggerUpdate({ invalidateBranding: true }),
+			removed: () => triggerUpdate({ invalidateBranding: true }),
+		}),
 		cache.RundownBaselineAdLibActions.observeChanges({
 			added: (id) => triggerUpdate({ invalidateAdLibActionIds: [id] }),
 			changed: (id) => triggerUpdate({ invalidateAdLibActionIds: [id] }),
@@ -95,12 +111,21 @@ export async function manipulateUIRundownBaselineAdLibActionsPublicationData(
 
 	const invalidatedAdLibActionsSet = new Set(updateProps?.invalidateAdLibActionIds ?? [])
 
-	state.contentCache.RundownBaselineAdLibActions.findFetch({}).forEach((adLibAction) => {
-		if (invalidatedAdLibActionsSet.has(adLibAction._id)) {
-			// Note: this is where any transformation of the RundownBaselineAdLibAction will be performed
-			collection.replace(adLibAction)
+	const { brandingId, brandingChanged } = updateProjectedBrandingId(state, state.contentCache)
+
+	for (const adLibAction of state.contentCache.RundownBaselineAdLibActions.findFetch({})) {
+		if (!brandingChanged && !invalidatedAdLibActionsSet.has(adLibAction._id)) continue
+
+		// Flatten the Branding overrides, so that consumers see the document as it should be displayed
+		const resolved = resolveAdLibActionForBranding(adLibAction, brandingId)
+		if (!resolved) {
+			// Not used with this Branding
+			collection.remove(adLibAction._id)
+			continue
 		}
-	})
+
+		collection.replace(resolved)
+	}
 }
 
 export function registerRundownBaselineAdLibActionsUIPublications(registry: PublicationRegistry): void {

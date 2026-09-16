@@ -6,6 +6,7 @@ import {
 	PartInstanceId,
 	PeripheralDeviceId,
 	RundownId,
+	RundownPlaylistActivationId,
 	RundownPlaylistId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -77,6 +78,7 @@ describe('PlayoutModelImpl', () => {
 		opts?: {
 			plannedStartedPlayback?: number
 			partPlayoutTimings?: PartCalculatedTimings
+			brandingId?: string | null
 		}
 	): DBPartInstance {
 		const { plannedStartedPlayback, partPlayoutTimings } = opts ?? {}
@@ -88,6 +90,7 @@ describe('PlayoutModelImpl', () => {
 			segmentPlayoutId: protectString('segpayout0'),
 			rehearsal: false,
 			takeCount: 0,
+			brandingId: opts?.brandingId ?? null,
 			part: {
 				_id: protectString(id + '_part'),
 				_rank: 0,
@@ -118,6 +121,8 @@ describe('PlayoutModelImpl', () => {
 			currentPartInfo?: SelectedPartInstance | null
 			nextPartInfo?: SelectedPartInstance | null
 			previousPartsInfo?: SelectedPartInstance[]
+			defaultBrandingId?: string | null
+			activationId?: RundownPlaylistActivationId
 		}
 	): PlayoutModelImpl {
 		const modelContext = setupDefaultJobEnvironment()
@@ -336,6 +341,165 @@ describe('PlayoutModelImpl', () => {
 				expect(model.playlist.quickLoop?.end?.type).toBe(QuickLoopMarkerType.PLAYLIST)
 				expect(model.playlist.activationId).not.toBe(activationId)
 				expect(model.playlist.currentPartInfo).toBeNull()
+			})
+		})
+	})
+
+	// --- branding selection ---
+
+	describe('branding selection', () => {
+		const activationId = protectString<RundownPlaylistActivationId>('act0')
+
+		function createModelForBranding(
+			partInstances: DBPartInstance[],
+			playlistOverrides?: {
+				currentPartInfo?: SelectedPartInstance | null
+				nextPartInfo?: SelectedPartInstance | null
+				defaultBrandingId?: string | null
+			}
+		): PlayoutModelImpl {
+			return createModel(partInstances, { activationId, ...playlistOverrides })
+		}
+
+		function createNewPartInstance(model: PlayoutModelImpl): ReadonlyDeep<DBPartInstance> {
+			const part = defaultPart(protectString('part0'), protectString('rd0'), protectString('seg0'))
+			return model.createInstanceForPart(part, []).partInstance
+		}
+
+		describe('when creating a PartInstance', () => {
+			it('takes the playlist default when nothing is selected', () => {
+				const model = createModelForBranding([], { defaultBrandingId: 'branding0' })
+
+				expect(createNewPartInstance(model).brandingId).toBe('branding0')
+			})
+
+			it('takes a null playlist default when nothing is selected', () => {
+				const model = createModelForBranding([], { defaultBrandingId: null })
+
+				expect(createNewPartInstance(model).brandingId).toBeNull()
+			})
+
+			it('follows the current PartInstance, not the playlist default', () => {
+				const model = createModelForBranding([makePartInstance('pi0', { brandingId: 'branding1' })], {
+					defaultBrandingId: 'branding0',
+					currentPartInfo: makeSelectedPartInfo('pi0'),
+				})
+
+				expect(createNewPartInstance(model).brandingId).toBe('branding1')
+			})
+
+			it('follows the current PartInstance when it has no Branding', () => {
+				const model = createModelForBranding([makePartInstance('pi0', { brandingId: null })], {
+					defaultBrandingId: 'branding0',
+					currentPartInfo: makeSelectedPartInfo('pi0'),
+				})
+
+				expect(createNewPartInstance(model).brandingId).toBeNull()
+			})
+
+			it('follows the next PartInstance when there is no current one', () => {
+				const model = createModelForBranding([makePartInstance('pi0', { brandingId: 'branding1' })], {
+					defaultBrandingId: 'branding0',
+					currentPartInfo: null,
+					nextPartInfo: makeSelectedPartInfo('pi0'),
+				})
+
+				expect(createNewPartInstance(model).brandingId).toBe('branding1')
+			})
+		})
+
+		it('keeps the Branding of a PartInstance which is no longer selected', () => {
+			const model = createModelForBranding(
+				[
+					makePartInstance('pi0', { brandingId: 'branding0' }),
+					makePartInstance('pi1', { brandingId: 'branding0' }),
+				],
+				{
+					currentPartInfo: makeSelectedPartInfo('pi0'),
+					nextPartInfo: makeSelectedPartInfo('pi1'),
+				}
+			)
+
+			// Take, then change the Branding of what is now current
+			model.cycleSelectedPartInstances()
+			model.setBranding('current', 'branding1')
+
+			expect(model.getPartInstance(protectString<PartInstanceId>('pi1'))?.partInstance.brandingId).toBe(
+				'branding1'
+			)
+			expect(model.getPartInstance(protectString<PartInstanceId>('pi0'))?.partInstance.brandingId).toBe(
+				'branding0'
+			)
+		})
+
+		describe('setBranding', () => {
+			function createModelWithSelections(): PlayoutModelImpl {
+				return createModelForBranding(
+					[makePartInstance('pi0', { brandingId: null }), makePartInstance('pi1', { brandingId: null })],
+					{
+						currentPartInfo: makeSelectedPartInfo('pi0'),
+						nextPartInfo: makeSelectedPartInfo('pi1'),
+					}
+				)
+			}
+
+			function brandings(model: PlayoutModelImpl): Array<string | null | undefined> {
+				return [
+					model.currentPartInstance?.partInstance.brandingId,
+					model.nextPartInstance?.partInstance.brandingId,
+				]
+			}
+
+			it('applies to the current PartInstance only', () => {
+				const model = createModelWithSelections()
+
+				model.setBranding('current', 'branding0')
+
+				expect(brandings(model)).toEqual(['branding0', null])
+			})
+
+			it('applies to the next PartInstance only', () => {
+				const model = createModelWithSelections()
+
+				model.setBranding('next', 'branding0')
+
+				expect(brandings(model)).toEqual([null, 'branding0'])
+			})
+
+			it('applies to both PartInstances', () => {
+				const model = createModelWithSelections()
+
+				model.setBranding('both', 'branding0')
+
+				expect(brandings(model)).toEqual(['branding0', 'branding0'])
+			})
+
+			it('clears the Branding when given null', () => {
+				const model = createModelForBranding(
+					[
+						makePartInstance('pi0', { brandingId: 'branding0' }),
+						makePartInstance('pi1', { brandingId: 'branding0' }),
+					],
+					{
+						currentPartInfo: makeSelectedPartInfo('pi0'),
+						nextPartInfo: makeSelectedPartInfo('pi1'),
+					}
+				)
+
+				model.setBranding('both', null)
+
+				expect(brandings(model)).toEqual([null, null])
+			})
+
+			it('does nothing for a target with no PartInstance selected', () => {
+				const model = createModelForBranding([makePartInstance('pi0', { brandingId: null })], {
+					currentPartInfo: makeSelectedPartInfo('pi0'),
+					nextPartInfo: null,
+				})
+
+				model.setBranding('both', 'branding0')
+
+				expect(brandings(model)).toEqual(['branding0', undefined])
 			})
 		})
 	})
