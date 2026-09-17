@@ -5,9 +5,13 @@ import { setupDefaultRundown, setupMockShowStyleCompound } from '../../__mocks__
 import { defaultRundownPlaylist } from '../../__mocks__/defaultCollectionObjects.js'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { resolveQueuedAdlibInsertTarget } from '../adlibUtils.js'
+import { insertQueuedPartWithPieces, resolveQueuedAdlibInsertTarget } from '../adlibUtils.js'
 import { runJobWithPlayoutModel } from '../lock.js'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { handleActivateRundownPlaylist } from '../activePlaylistJobs.js'
+import { handleTakeNextPart } from '../take.js'
+import { QueuePartTarget } from '@sofie-automation/blueprints-integration'
 
 describe('adlibUtils', () => {
 	async function setupActivatedPlaylist(rundownId: RundownId, playlistId: RundownPlaylistId) {
@@ -319,6 +323,208 @@ describe('adlibUtils', () => {
 					after: true,
 				})
 			).toThrow('Cannot queue part: target is in orphaned segment')
+		})
+	})
+
+	describe('insertQueuedPartWithPieces quick loop', () => {
+		async function setupPlayingPlaylist() {
+			const context = setupDefaultJobEnvironment()
+			const playlistId: RundownPlaylistId = protectString('playlist0')
+			const rundownId: RundownId = getRandomId()
+
+			await context.mockCollections.RundownPlaylists.insertOne({
+				...defaultRundownPlaylist(playlistId, context.studioId),
+			})
+
+			const showStyleCompound = await setupMockShowStyleCompound(context)
+			await setupDefaultRundown(context, showStyleCompound, playlistId, rundownId)
+
+			await handleActivateRundownPlaylist(context, { playlistId, rehearsal: true })
+			await handleTakeNextPart(context, { playlistId, fromPartInstanceId: null })
+
+			return { context, playlistId, rundownId }
+		}
+
+		function queuedPart(target?: QueuePartTarget) {
+			return {
+				part: {
+					_id: getRandomId(),
+					externalId: 'queued_adlib',
+					title: 'Queued adlib',
+					expectedDurationWithTransition: undefined,
+				},
+				pieces: [],
+				target,
+			}
+		}
+
+		test('extends quick loop when inserted immediately after current', async () => {
+			const { context, playlistId } = await setupPlayingPlaylist()
+
+			await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) => {
+				const currentPartInstance = playoutModel.currentPartInstance
+				expect(currentPartInstance).toBeTruthy()
+				if (!currentPartInstance) throw new Error('currentPartInstance not found')
+
+				playoutModel.setQuickLoopMarker('start', {
+					type: QuickLoopMarkerType.PART,
+					id: currentPartInstance.partInstance.part._id,
+				})
+				playoutModel.setQuickLoopMarker('end', {
+					type: QuickLoopMarkerType.PART,
+					id: currentPartInstance.partInstance.part._id,
+				})
+
+				const setQuickLoopMarker = jest.spyOn(playoutModel, 'setQuickLoopMarker')
+
+				const newPartInstance = await insertQueuedPartWithPieces(
+					context,
+					playoutModel,
+					currentPartInstance,
+					queuedPart(),
+					undefined
+				)
+
+				expect(newPartInstance.partInstance.segmentId).toEqual(currentPartInstance.partInstance.segmentId)
+				expect(newPartInstance.partInstance.part._rank).toBeGreaterThan(
+					currentPartInstance.partInstance.part._rank
+				)
+				expect(playoutModel.playlist.nextPartInfo?.partInstanceId).toEqual(newPartInstance.partInstance._id)
+				expect(setQuickLoopMarker).toHaveBeenCalledWith(
+					'end',
+					expect.objectContaining({
+						type: QuickLoopMarkerType.PART,
+						id: newPartInstance.partInstance.part._id,
+						overridenId: currentPartInstance.partInstance.part._id,
+					})
+				)
+			})
+		})
+
+		test('extends quick loop when explicit target is the next part in the same segment', async () => {
+			const { context, playlistId } = await setupPlayingPlaylist()
+
+			await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) => {
+				const currentPartInstance = playoutModel.currentPartInstance
+				expect(currentPartInstance).toBeTruthy()
+				if (!currentPartInstance) throw new Error('currentPartInstance not found')
+
+				const nextPartInSegment = playoutModel
+					.getAllOrderedParts()
+					.find(
+						(part) =>
+							part.segmentId === currentPartInstance.partInstance.segmentId &&
+							part._rank > currentPartInstance.partInstance.part._rank
+					)
+				expect(nextPartInSegment).toBeTruthy()
+				if (!nextPartInSegment) throw new Error('nextPartInSegment not found')
+
+				playoutModel.setQuickLoopMarker('start', {
+					type: QuickLoopMarkerType.PART,
+					id: currentPartInstance.partInstance.part._id,
+				})
+				playoutModel.setQuickLoopMarker('end', {
+					type: QuickLoopMarkerType.PART,
+					id: currentPartInstance.partInstance.part._id,
+				})
+
+				const setQuickLoopMarker = jest.spyOn(playoutModel, 'setQuickLoopMarker')
+
+				const newPartInstance = await insertQueuedPartWithPieces(
+					context,
+					playoutModel,
+					currentPartInstance,
+					queuedPart({ targetPartId: unprotectString(nextPartInSegment._id) }),
+					undefined
+				)
+
+				expect(newPartInstance.partInstance.segmentId).toEqual(currentPartInstance.partInstance.segmentId)
+				expect(playoutModel.playlist.nextPartInfo?.partInstanceId).toEqual(newPartInstance.partInstance._id)
+				expect(setQuickLoopMarker).toHaveBeenCalledWith(
+					'end',
+					expect.objectContaining({
+						type: QuickLoopMarkerType.PART,
+						id: newPartInstance.partInstance.part._id,
+					})
+				)
+			})
+		})
+
+		test('skips extending quick loop for explicit target in another segment', async () => {
+			const { context, playlistId, rundownId } = await setupPlayingPlaylist()
+
+			const targetPart = await context.mockCollections.Parts.findOne({
+				externalId: 'MOCK_PART_1_1',
+				rundownId,
+			})
+			expect(targetPart).toBeTruthy()
+			if (!targetPart) throw new Error('targetPart not found')
+
+			await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) => {
+				const currentPartInstance = playoutModel.currentPartInstance
+				expect(currentPartInstance).toBeTruthy()
+				if (!currentPartInstance) throw new Error('currentPartInstance not found')
+
+				playoutModel.setQuickLoopMarker('start', {
+					type: QuickLoopMarkerType.PART,
+					id: currentPartInstance.partInstance.part._id,
+				})
+				playoutModel.setQuickLoopMarker('end', {
+					type: QuickLoopMarkerType.PART,
+					id: currentPartInstance.partInstance.part._id,
+				})
+
+				const setQuickLoopMarker = jest.spyOn(playoutModel, 'setQuickLoopMarker')
+
+				const newPartInstance = await insertQueuedPartWithPieces(
+					context,
+					playoutModel,
+					currentPartInstance,
+					queuedPart({ targetPartId: unprotectString(targetPart._id) }),
+					undefined
+				)
+
+				expect(newPartInstance.partInstance.segmentId).toEqual(targetPart.segmentId)
+				expect(newPartInstance.partInstance.part._rank).toBeLessThan(targetPart._rank)
+				expect(playoutModel.playlist.nextPartInfo?.partInstanceId).toEqual(newPartInstance.partInstance._id)
+				expect(setQuickLoopMarker).not.toHaveBeenCalled()
+			})
+		})
+
+		test('skips extending quick loop for explicit target before current', async () => {
+			const { context, playlistId } = await setupPlayingPlaylist()
+
+			await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) => {
+				const currentPartInstance = playoutModel.currentPartInstance
+				expect(currentPartInstance).toBeTruthy()
+				if (!currentPartInstance) throw new Error('currentPartInstance not found')
+
+				playoutModel.setQuickLoopMarker('start', {
+					type: QuickLoopMarkerType.PART,
+					id: currentPartInstance.partInstance.part._id,
+				})
+				playoutModel.setQuickLoopMarker('end', {
+					type: QuickLoopMarkerType.PART,
+					id: currentPartInstance.partInstance.part._id,
+				})
+
+				const setQuickLoopMarker = jest.spyOn(playoutModel, 'setQuickLoopMarker')
+
+				const newPartInstance = await insertQueuedPartWithPieces(
+					context,
+					playoutModel,
+					currentPartInstance,
+					queuedPart({ targetPartId: unprotectString(currentPartInstance.partInstance.part._id) }),
+					undefined
+				)
+
+				expect(newPartInstance.partInstance.segmentId).toEqual(currentPartInstance.partInstance.segmentId)
+				expect(newPartInstance.partInstance.part._rank).toBeLessThan(
+					currentPartInstance.partInstance.part._rank
+				)
+				expect(playoutModel.playlist.nextPartInfo?.partInstanceId).toEqual(newPartInstance.partInstance._id)
+				expect(setQuickLoopMarker).not.toHaveBeenCalled()
+			})
 		})
 	})
 })
