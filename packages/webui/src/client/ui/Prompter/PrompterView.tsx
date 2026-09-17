@@ -39,6 +39,7 @@ import { MeteorCall } from '../../lib/meteorApi.js'
 import { MdDisplay } from './Formatted/MdDisplay.js'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import { OverUnderChip } from '../../lib/Components/OverUnderChip.js'
+import { PrompterControlButtons } from './PrompterControlButtons/PrompterControlButtons.js'
 
 const DEFAULT_UPDATE_THROTTLE = 250 //ms
 const PIECE_MISSING_UPDATE_THROTTLE = 2000 //ms
@@ -54,6 +55,7 @@ interface PrompterConfig {
 	followTake?: boolean
 	fontSize?: number
 	margin?: number
+	controlButtons?: 'bottom' | 'left' | 'right' | 'top'
 	joycon_invertJoystick: boolean
 	joycon_speedMap?: number[]
 	joycon_reverseSpeedMap?: number[]
@@ -177,6 +179,8 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			followTake: queryParams['followtake'] === undefined ? true : queryParams['followtake'] === '1',
 			fontSize: parseInt(firstIfArray(queryParams['fontsize']) as string, 10) || undefined,
 			margin: parseInt(firstIfArray(queryParams['margin']) as string, 10) || undefined,
+			controlButtons: queryParams['controlButtons'] as PrompterConfig['controlButtons'],
+
 			joycon_invertJoystick:
 				queryParams['joycon_invertJoystick'] === undefined ? true : queryParams['joycon_invertJoystick'] === '1',
 			joycon_speedMap:
@@ -223,7 +227,7 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 			debug: queryParams['debug'] === undefined ? false : queryParams['debug'] === '1',
 			showOverUnder: queryParams['showoverunder'] === undefined ? true : queryParams['showoverunder'] === '1',
 			showPlaylistName: queryParams['showplaylistname'] === '1',
-			addBlankLine: queryParams['addblanklinke'] === undefined ? true : queryParams['adblankline'] === '1',
+			addBlankLine: queryParams['adblankline'] === undefined ? true : queryParams['adblankline'] === '1',
 		}
 
 		this._controller = new PrompterControlManager(this)
@@ -1196,7 +1200,8 @@ const PrompterContent = withTranslation()(
 					className={ClassNames(
 						'prompter',
 						this.props.config.mirror ? 'mirror' : undefined,
-						this.props.config.mirrorv ? 'mirrorv' : undefined
+						this.props.config.mirrorv ? 'mirrorv' : undefined,
+						this.props.config.controlButtons ? 'show-cursor' : undefined
 					)}
 					style={{
 						fontSize: this.props.config.fontSize ? this.props.config.fontSize + 'vh' : undefined,
@@ -1222,7 +1227,13 @@ const PrompterContent = withTranslation()(
 							<div className="next-indicator hidden"></div>
 						</div>
 					</div>
-
+					{this.props.config.controlButtons && (
+						<PrompterControlButtons
+							playlistId={this.props.rundownPlaylistId}
+							t={this.props.t}
+							controlButtons={this.props.config.controlButtons}
+						/>
+					)}
 					<div
 						className="prompter-display"
 						style={{

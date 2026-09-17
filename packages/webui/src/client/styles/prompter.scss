@@ -62,6 +62,10 @@ body.prompter-scrollbar {
 
 	font-family: Roboto, Helvetica, Arial, sans-serif;
 
+	&.show-cursor {
+		cursor: auto;
+	}
+
 	&.mirror {
 		transform: scaleX(-1);
 	}

@@ -21,6 +21,8 @@ interface PrompterConfigState {
 	showoverunder: boolean | null
 	debug: boolean | null
 
+	controlButtons: string | null
+
 	// Mode selections
 	mode_mouse: boolean
 	mode_keyboard: boolean
@@ -71,6 +73,7 @@ const initialState: PrompterConfigState = {
 	followtake: null,
 	showoverunder: null,
 	debug: null,
+	controlButtons: null,
 
 	mode_mouse: false,
 	mode_keyboard: false,
@@ -158,6 +161,7 @@ function addDisplayParams(params: URLSearchParams, config: PrompterConfigState):
 	addParam(params, 'followtake', config.followtake)
 	addParam(params, 'showoverunder', config.showoverunder)
 	addParam(params, 'debug', config.debug)
+	addParam(params, 'controlButtons', config.controlButtons)
 }
 
 /** Add controller-specific parameters */
@@ -328,6 +332,20 @@ export function PrompterConfigForm({ studioId }: Readonly<{ studioId: StudioId }
 										checked={config.debug === true}
 										onChange={(e) => updateConfig('debug', e.target.checked ? true : null)}
 									/>
+								</Form.Group>
+								<Form.Group className="mb-2">
+									<Form.Label>{t('Display control buttons')}</Form.Label>
+									<Form.Select
+										size="sm"
+										value={config.controlButtons ?? ''}
+										onChange={(e) => updateConfig('controlButtons', e.target.value || null)}
+									>
+										<option value="">{t('Default (hide)')}</option>
+										<option value="bottom">{t('Bottom')}</option>
+										<option value="left">{t('Left')}</option>
+										<option value="right">{t('Right')}</option>
+										<option value="top">{t('Top')}</option>
+									</Form.Select>
 								</Form.Group>
 							</div>
 						</div>
