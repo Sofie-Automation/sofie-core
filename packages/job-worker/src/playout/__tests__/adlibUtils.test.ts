@@ -1,4 +1,4 @@
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { setupDefaultRundown, setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
@@ -68,7 +68,9 @@ describe('adlibUtils', () => {
 			currentPartInstance.setTaken(Date.now(), 0)
 			playoutModel.cycleSelectedPartInstances()
 
-			const insertTarget = resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, targetPart._id)
+			const insertTarget = resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, {
+				targetPartId: unprotectString(targetPart._id),
+			})
 
 			expect(insertTarget.targetSegment.segment._id).toEqual(targetPart.segmentId)
 			expect(insertTarget.newRank).toBeLessThan(targetPart._rank)
@@ -108,11 +110,9 @@ describe('adlibUtils', () => {
 			expect(targetPart).toBeTruthy()
 			if (!targetPart) throw new Error('targetPart not found')
 
-			const insertTarget = resolveQueuedAdlibInsertTarget(
-				playoutModel,
-				currentPartInstance,
-				existingAdlibPartInstance.partInstance._id
-			)
+			const insertTarget = resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, {
+				targetPartInstanceId: unprotectString(existingAdlibPartInstance.partInstance._id),
+			})
 
 			expect(insertTarget.newRank).toBeLessThan(existingAdlibPartInstance.partInstance.part._rank)
 			expect(insertTarget.newRank).toBeLessThan(targetPart._rank)
@@ -136,11 +136,9 @@ describe('adlibUtils', () => {
 			currentPartInstance.setTaken(Date.now(), 0)
 			playoutModel.cycleSelectedPartInstances()
 
-			const insertTarget = resolveQueuedAdlibInsertTarget(
-				playoutModel,
-				currentPartInstance,
-				firstPartInSegment1._id
-			)
+			const insertTarget = resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, {
+				targetPartId: unprotectString(firstPartInSegment1._id),
+			})
 
 			expect(insertTarget.targetSegment.segment._id).toEqual(firstPartInSegment1.segmentId)
 			expect(insertTarget.newRank).toBeLessThan(firstPartInSegment1._rank)
@@ -171,9 +169,11 @@ describe('adlibUtils', () => {
 			currentPartInstance.setTaken(Date.now(), 0)
 			playoutModel.cycleSelectedPartInstances()
 
-			expect(() => resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, targetPart._id)).toThrow(
-				'Cannot queue part: target is in orphaned segment'
-			)
+			expect(() =>
+				resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, {
+					targetPartId: unprotectString(targetPart._id),
+				})
+			).toThrow('Cannot queue part: target is in orphaned segment')
 		})
 	})
 
@@ -204,12 +204,10 @@ describe('adlibUtils', () => {
 			currentPartInstance.setTaken(Date.now(), 0)
 			playoutModel.cycleSelectedPartInstances()
 
-			const insertTarget = resolveQueuedAdlibInsertTarget(
-				playoutModel,
-				currentPartInstance,
-				targetPart._id,
-				false
-			)
+			const insertTarget = resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, {
+				targetPartId: unprotectString(targetPart._id),
+				after: true,
+			})
 
 			expect(insertTarget.newRank).toBeGreaterThan(targetPart._rank)
 			expect(insertTarget.newRank).toBeLessThan(partAfterTarget._rank)
@@ -255,12 +253,10 @@ describe('adlibUtils', () => {
 			expect(partAfterTarget).toBeTruthy()
 			if (!partAfterTarget) throw new Error('partAfterTarget not found')
 
-			const insertTarget = resolveQueuedAdlibInsertTarget(
-				playoutModel,
-				currentPartInstance,
-				existingAdlibPartInstance.partInstance._id,
-				false
-			)
+			const insertTarget = resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, {
+				targetPartInstanceId: unprotectString(existingAdlibPartInstance.partInstance._id),
+				after: true,
+			})
 
 			expect(insertTarget.newRank).toBeGreaterThan(existingAdlibPartInstance.partInstance.part._rank)
 			expect(insertTarget.newRank).toBeLessThan(partAfterTarget._rank)
@@ -284,12 +280,10 @@ describe('adlibUtils', () => {
 			currentPartInstance.setTaken(Date.now(), 0)
 			playoutModel.cycleSelectedPartInstances()
 
-			const insertTarget = resolveQueuedAdlibInsertTarget(
-				playoutModel,
-				currentPartInstance,
-				lastPartInSegment1._id,
-				false
-			)
+			const insertTarget = resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, {
+				targetPartId: unprotectString(lastPartInSegment1._id),
+				after: true,
+			})
 
 			expect(insertTarget.newRank).toBeGreaterThan(lastPartInSegment1._rank)
 		})
@@ -320,7 +314,10 @@ describe('adlibUtils', () => {
 			playoutModel.cycleSelectedPartInstances()
 
 			expect(() =>
-				resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, targetPart._id, false)
+				resolveQueuedAdlibInsertTarget(playoutModel, currentPartInstance, {
+					targetPartId: unprotectString(targetPart._id),
+					after: true,
+				})
 			).toThrow('Cannot queue part: target is in orphaned segment')
 		})
 	})

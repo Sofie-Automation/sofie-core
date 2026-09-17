@@ -32,10 +32,17 @@ export interface IOnTakeContext
 	 * If the target is invalid, prepareQueueablePartAndPieces throws synchronously; executeOnTakeCallback catches and logs the error,
 	 * sets an onTake notification, and continues the take without queuing the part.
 	 */
-	queuePartAfterTake(
-		part: IBlueprintPart,
-		pieces: IBlueprintPiece[],
-		targetPartOrInstanceId?: string,
-		insertBefore?: boolean
-	): void
+	queuePartAfterTake(part: IBlueprintPart, pieces: IBlueprintPiece[], target?: QueuePartTarget): void
+}
+
+export type QueuePartTarget = { after?: boolean } & (QueuePartTargetProps | QueuePartInstanceTargetProps)
+
+interface QueuePartTargetProps {
+	targetPartId: string
+	targetPartInstanceId?: never
+}
+
+interface QueuePartInstanceTargetProps {
+	targetPartInstanceId: string
+	targetPartId?: never
 }

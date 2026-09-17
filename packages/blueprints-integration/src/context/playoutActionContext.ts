@@ -1,4 +1,4 @@
-import type { IBlueprintPart, IBlueprintPartInstance, IBlueprintPiece } from '../index.js'
+import type { IBlueprintPart, IBlueprintPartInstance, IBlueprintPiece, QueuePartTarget } from '../index.js'
 
 /**
  * The playout-action methods shared between {@link IActionExecutionContext} and {@link IExternalEventContext}.
@@ -22,8 +22,7 @@ export interface IPlayoutActionContext {
 	queuePart(
 		part: IBlueprintPart,
 		pieces: IBlueprintPiece[],
-		targetPartOrInstanceId?: string,
-		insertBefore?: boolean
+		target?: QueuePartTarget
 	): Promise<IBlueprintPartInstance>
 	/**
 	 * Insert an adlibbed part into the rundown after the take completes and set it as next.
@@ -33,10 +32,5 @@ export interface IPlayoutActionContext {
 	 * The target must exist and must not be in an orphaned segment.
 	 * The inserted part always becomes next via setNextPart, even when the target is far ahead — intervening scripted parts are skipped.
 	 */
-	queuePartAfterTake(
-		part: IBlueprintPart,
-		pieces: IBlueprintPiece[],
-		targetPartOrInstanceId?: string,
-		insertBefore?: boolean
-	): void
+	queuePartAfterTake(part: IBlueprintPart, pieces: IBlueprintPiece[], target?: QueuePartTarget): void
 }

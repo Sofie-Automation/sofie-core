@@ -14,6 +14,7 @@ import {
 	IBlueprintPlayoutDevice,
 	IOnTakeContext,
 	IBlueprintSegmentDB,
+	QueuePartTarget,
 } from '@sofie-automation/blueprints-integration'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
@@ -181,12 +182,7 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 	 * If the target is invalid, prepareQueueablePartAndPieces throws synchronously; executeOnTakeCallback catches and logs the error,
 	 * sets an onTake notification, and continues the take without queuing the part.
 	 */
-	queuePartAfterTake(
-		rawPart: IBlueprintPart,
-		rawPieces: IBlueprintPiece[],
-		targetPartOrInstanceId?: string,
-		insertBefore?: boolean
-	): void {
+	queuePartAfterTake(rawPart: IBlueprintPart, rawPieces: IBlueprintPiece[], target?: QueuePartTarget): void {
 		const currentPartInstance = this._playoutModel.currentPartInstance
 		if (!currentPartInstance) {
 			throw new Error('Cannot queue part when no current partInstance')
@@ -195,8 +191,7 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 			rawPart,
 			rawPieces,
 			currentPartInstance,
-			targetPartOrInstanceId,
-			insertBefore
+			target
 		)
 	}
 

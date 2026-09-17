@@ -12,6 +12,7 @@ import {
 	IBlueprintResolvedPieceInstance,
 	IBlueprintSegmentDB,
 	OmitId,
+	QueuePartTarget,
 	SomeContent,
 	Time,
 	WithTimeline,
@@ -32,13 +33,12 @@ import {
 import { getResolvedPiecesForCurrentPartInstance } from '../../../playout/resolvedPieces.js'
 import { ReadonlyDeep } from 'type-fest'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
 	innerFindLastPieceOnLayer,
 	innerFindLastScriptedPieceOnLayer,
 	innerStopPieces,
 	insertQueuedPartWithPieces,
-	QueuedAdlibInsertRelativeId,
 	resolveQueuedAdlibInsertTarget,
 } from '../../../playout/adlibUtils.js'
 import { assertNever, getRandomId, omit } from '@sofie-automation/corelib/dist/lib'
@@ -75,9 +75,8 @@ export interface IPartAndPieceInstanceActionContext {
 
 export interface QueueablePartAndPieces {
 	part: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'>
-	pieces: Piece[]
-	targetPartOrInstanceId?: QueuedAdlibInsertRelativeId
-	insertBefore?: boolean
+	pieces: Omit<PieceInstancePiece, 'startPartId'>[]
+	target?: QueuePartTarget
 }
 
 export class PartAndPieceInstanceActionService {
@@ -400,8 +399,7 @@ export class PartAndPieceInstanceActionService {
 	async queuePart(
 		rawPart: IBlueprintPart,
 		rawPieces: IBlueprintPiece[],
-		targetPartOrInstanceId?: string,
-		insertBefore = true
+		target?: QueuePartTarget
 	): Promise<IBlueprintPartInstance> {
 		const currentPartInstance = this._playoutModel.currentPartInstance
 		if (!currentPartInstance) {
@@ -419,18 +417,9 @@ export class PartAndPieceInstanceActionService {
 			throw new Error('Too close to an autonext to queue a part')
 		}
 
-		const targetId = targetPartOrInstanceId
-			? protectString<QueuedAdlibInsertRelativeId>(targetPartOrInstanceId)
-			: undefined
+		const insertTarget = resolveQueuedAdlibInsertTarget(this._playoutModel, currentPartInstance, target)
 
-		const insertTarget = resolveQueuedAdlibInsertTarget(
-			this._playoutModel,
-			currentPartInstance,
-			targetId,
-			insertBefore
-		)
-
-		const { part, pieces } = this.processPartAndPiecesToQueueOrFail(
+		const processedPartsAndPieces = this.processPartAndPiecesToQueueOrFail(
 			rawPart,
 			rawPieces,
 			insertTarget.targetRundown.rundown._id,
@@ -442,11 +431,8 @@ export class PartAndPieceInstanceActionService {
 			this._context,
 			this._playoutModel,
 			currentPartInstance,
-			part,
-			pieces,
+			{ ...processedPartsAndPieces, target },
 			undefined,
-			targetId,
-			insertBefore,
 			insertTarget
 		)
 
@@ -460,19 +446,9 @@ export class PartAndPieceInstanceActionService {
 		rawPart: IBlueprintPart,
 		rawPieces: IBlueprintPiece[],
 		currentPartInstance: PlayoutPartInstanceModel,
-		targetPartOrInstanceId?: string,
-		insertBefore = true
+		target?: QueuePartTarget
 	): QueueablePartAndPieces {
-		const targetId = targetPartOrInstanceId
-			? protectString<QueuedAdlibInsertRelativeId>(targetPartOrInstanceId)
-			: undefined
-
-		const insertTarget = resolveQueuedAdlibInsertTarget(
-			this._playoutModel,
-			currentPartInstance,
-			targetId,
-			insertBefore
-		)
+		const insertTarget = resolveQueuedAdlibInsertTarget(this._playoutModel, currentPartInstance, target)
 
 		const { part, pieces } = this.processPartAndPiecesToQueueOrFail(
 			rawPart,
@@ -481,7 +457,7 @@ export class PartAndPieceInstanceActionService {
 			insertTarget.targetSegment.segment._id
 		)
 
-		return { part, pieces, targetPartOrInstanceId: targetId, insertBefore: targetId ? insertBefore : undefined }
+		return { part, pieces, target }
 	}
 
 	public processPartAndPiecesToQueueOrFail(

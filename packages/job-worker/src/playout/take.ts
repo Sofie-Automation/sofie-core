@@ -301,16 +301,7 @@ export async function performTakeToNextedPart(
 	}
 
 	if (partToQueueAfterTake) {
-		await insertQueuedPartWithPieces(
-			context,
-			playoutModel,
-			takePartInstance,
-			partToQueueAfterTake.part,
-			partToQueueAfterTake.pieces,
-			undefined,
-			partToQueueAfterTake.targetPartOrInstanceId,
-			partToQueueAfterTake.insertBefore ?? true
-		)
+		await insertQueuedPartWithPieces(context, playoutModel, takePartInstance, partToQueueAfterTake, undefined)
 	} else {
 		// Once everything is synced, we can choose the next part
 		const nextPart = selectNextPart(
