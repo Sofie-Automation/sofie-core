@@ -35,6 +35,7 @@ import { PlayoutSegmentModel } from './model/PlayoutSegmentModel.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { compareMarkerPositions, MarkerPosition } from '@sofie-automation/corelib/dist/playout/playlist'
 import { QueueablePartAndPieces } from '../blueprints/context/services/PartAndPieceInstanceActionService.js'
 
 export type QueuedAdlibInsertTarget = {
@@ -360,11 +361,48 @@ export async function insertQueuedPartWithPieces(
 
 	await setNextPart(context, playoutModel, newPartInstance, false)
 
-	temporarilyExtendQuickLoop(playoutModel, currentPartInstance, newPartInstance)
+	if (queuedPartFollowsCurrentInQuickLoopOrder(playoutModel, currentPartInstance, newPartInstance)) {
+		temporarilyExtendQuickLoop(playoutModel, currentPartInstance, newPartInstance)
+	}
 
 	if (span) span.end()
 
 	return newPartInstance
+}
+
+function getPartQuickLoopPosition(playoutModel: PlayoutModel, part: ReadonlyDeep<DBPart>): MarkerPosition {
+	const rundownIds = playoutModel.getRundownIds()
+	const segment = playoutModel.findSegment(part.segmentId)?.segment
+
+	return {
+		partRank: part._rank,
+		segmentRank: segment?._rank ?? 0,
+		rundownRank: rundownIds.indexOf(part.rundownId),
+	}
+}
+
+function queuedPartFollowsCurrentInQuickLoopOrder(
+	playoutModel: PlayoutModel,
+	currentPartInstance: PlayoutPartInstanceModel,
+	newPartInstance: PlayoutPartInstanceModel
+): boolean {
+	const currentPart = currentPartInstance.partInstance.part
+	const newPart = newPartInstance.partInstance.part
+
+	if (currentPart.segmentId !== newPart.segmentId) {
+		return false
+	}
+
+	const currentPosition = getPartQuickLoopPosition(playoutModel, currentPart)
+	const newPosition = getPartQuickLoopPosition(playoutModel, newPart)
+	if (compareMarkerPositions(currentPosition, newPosition) <= 0) {
+		return false
+	}
+
+	const partsInSegment = getAllPartsInSegment(playoutModel, currentPart.segmentId)
+	return !partsInSegment.some(
+		(part) => part._id !== newPart._id && part._rank > currentPart._rank && part._rank < newPart._rank
+	)
 }
 
 function temporarilyExtendQuickLoop(
