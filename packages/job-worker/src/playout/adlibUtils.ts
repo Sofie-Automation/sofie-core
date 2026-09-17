@@ -44,8 +44,8 @@ export type QueuedAdlibInsertTarget = {
 }
 
 /**
- * Resolve the target Part from a PartInstanceId or PartId.
- * PartInstanceId is checked first, then PartId.
+ * Resolve the target Part from a {@link QueuePartTarget}.
+ * Uses `targetPartInstanceId` or `targetPartId`, whichever is set.
  */
 function resolveRelativePart(playoutModel: PlayoutModel, target?: QueuePartTarget): ReadonlyDeep<DBPart> {
 	if (!target) throw new Error(`Cannot resolve relative part: target is undefined`)
@@ -107,8 +107,8 @@ function getRankAfterPart(playoutModel: PlayoutModel, segmentId: SegmentId, afte
 
 /**
  * Resolve where an adlibbed part should be inserted in the rundown.
- * When targetPartOrInstanceId is omitted, inserts after currentPartInstance.
- * When provided, inserts before or after the target based on insertBefore.
+ * When `target` is omitted, inserts after currentPartInstance.
+ * When provided, inserts relative to the given part or part instance; before the target unless `after` is true.
  * Rank computation includes orphaned adlib part-instances in the target segment.
  */
 export function resolveQueuedAdlibInsertTarget(
