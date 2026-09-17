@@ -1,5 +1,4 @@
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import {
 	PeripheralDeviceCategory,
@@ -20,6 +19,7 @@ import { getCurrentTime } from '../../lib/index.js'
 
 jest.mock('../../blueprints/postProcess')
 import { postProcessPieces } from '../../blueprints/postProcess.js'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 const { postProcessPieces: postProcessPiecesOrig } = jest.requireActual('../../blueprints/postProcess')
 ;(postProcessPieces as jest.Mock).mockImplementation(postProcessPiecesOrig)
 
@@ -90,11 +90,11 @@ describe('take', () => {
 					},
 				],
 				currentPartInstance,
-				unprotectString(targetPart._id)
+				{ targetPartId: unprotectString(targetPart._id) }
 			)
 
-			expect(partToQueueAfterTake.targetPartOrInstanceId).toEqual(targetPart._id)
-			expect(partToQueueAfterTake.insertBefore).toEqual(true)
+			expect(partToQueueAfterTake.target?.targetPartId).toEqual(unprotectString(targetPart._id))
+			expect(partToQueueAfterTake.target?.after).toBeFalsy()
 
 			await performTakeToNextedPart(context, playoutModel, getCurrentTime(), partToQueueAfterTake)
 
@@ -156,12 +156,11 @@ describe('take', () => {
 					},
 				],
 				currentPartInstance,
-				unprotectString(targetPart._id),
-				false
+				{ targetPartId: unprotectString(targetPart._id), after: true }
 			)
 
-			expect(partToQueueAfterTake.targetPartOrInstanceId).toEqual(targetPart._id)
-			expect(partToQueueAfterTake.insertBefore).toEqual(false)
+			expect(partToQueueAfterTake.target?.targetPartId).toEqual(unprotectString(targetPart._id))
+			expect(partToQueueAfterTake.target?.after).toEqual(true)
 
 			await performTakeToNextedPart(context, playoutModel, getCurrentTime(), partToQueueAfterTake)
 

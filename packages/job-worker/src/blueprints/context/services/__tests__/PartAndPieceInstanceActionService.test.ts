@@ -1247,7 +1247,11 @@ describe('Test blueprint api context', () => {
 
 					postProcessPiecesMock.mockImplementationOnce(postProcessPiecesOrig)
 					insertQueuedPartWithPiecesMock.mockImplementationOnce(insertQueuedPartWithPiecesOrig)
-					await service.queuePart(newPart, [newPiece], unprotectString(targetPart!._id))
+					await service.queuePart(
+						newPart,
+						[newPiece],
+						targetPart ? { targetPartId: unprotectString(targetPart._id) } : undefined
+					)
 
 					const newPartInstance = playoutModel.getPartInstance(
 						playoutModel.playlist.nextPartInfo!.partInstanceId
@@ -1287,7 +1291,7 @@ describe('Test blueprint api context', () => {
 									},
 								},
 							],
-							'unknown_part_id'
+							{ targetPartId: 'unknown_part_id' }
 						)
 					).rejects.toThrow('Cannot queue part: target "unknown_part_id" not found')
 				})
@@ -1338,7 +1342,9 @@ describe('Test blueprint api context', () => {
 					})
 					expect(targetPart).toBeTruthy()
 
-					await service.queuePart(newPart, [newPiece], unprotectString(existingAdlibPartInstanceId))
+					await service.queuePart(newPart, [newPiece], {
+						targetPartInstanceId: unprotectString(existingAdlibPartInstanceId),
+					})
 
 					const newPartInstance = playoutModel.getPartInstance(
 						playoutModel.playlist.nextPartInfo!.partInstanceId
@@ -1388,7 +1394,11 @@ describe('Test blueprint api context', () => {
 
 					postProcessPiecesMock.mockImplementationOnce(postProcessPiecesOrig)
 					insertQueuedPartWithPiecesMock.mockImplementationOnce(insertQueuedPartWithPiecesOrig)
-					await service.queuePart(newPart, [newPiece], unprotectString(targetPart!._id))
+					await service.queuePart(
+						newPart,
+						[newPiece],
+						targetPart ? { targetPartId: unprotectString(targetPart._id) } : undefined
+					)
 
 					const newPartInstance = playoutModel.getPartInstance(
 						playoutModel.playlist.nextPartInfo!.partInstanceId
@@ -1442,11 +1452,11 @@ describe('Test blueprint api context', () => {
 						newPart,
 						[newPiece],
 						currentPartInstance,
-						unprotectString(targetPart!._id)
+						targetPart ? { targetPartId: unprotectString(targetPart._id) } : undefined
 					)
 
-					expect(queueable.targetPartOrInstanceId).toEqual(targetPart!._id)
-					expect(queueable.insertBefore).toEqual(true)
+					expect(queueable.target?.targetPartId).toEqual(targetPart!._id)
+					expect(queueable.target?.after).toBeFalsy()
 					expect(queueable.part.title).toEqual('something')
 					expect(queueable.pieces).toHaveLength(1)
 				})
@@ -1495,7 +1505,11 @@ describe('Test blueprint api context', () => {
 
 					postProcessPiecesMock.mockImplementationOnce(postProcessPiecesOrig)
 					insertQueuedPartWithPiecesMock.mockImplementationOnce(insertQueuedPartWithPiecesOrig)
-					await service.queuePart(newPart, [newPiece], unprotectString(targetPart!._id), false)
+					await service.queuePart(
+						newPart,
+						[newPiece],
+						targetPart ? { targetPartId: unprotectString(targetPart._id), after: true } : undefined
+					)
 
 					const newPartInstance = playoutModel.getPartInstance(
 						playoutModel.playlist.nextPartInfo!.partInstanceId
@@ -1543,12 +1557,11 @@ describe('Test blueprint api context', () => {
 							},
 						],
 						currentPartInstance,
-						unprotectString(targetPart!._id),
-						false
+						targetPart ? { targetPartId: unprotectString(targetPart._id), after: true } : undefined
 					)
 
-					expect(queueable.targetPartOrInstanceId).toEqual(targetPart!._id)
-					expect(queueable.insertBefore).toEqual(false)
+					expect(queueable.target?.targetPartId).toEqual(targetPart!._id)
+					expect(queueable.target?.after).toEqual(true)
 				})
 			})
 
@@ -1591,8 +1604,7 @@ describe('Test blueprint api context', () => {
 								},
 							},
 						],
-						unprotectString(targetPart!._id),
-						false
+						targetPart ? { targetPartId: unprotectString(targetPart._id), after: true } : undefined
 					)
 
 					const newPartInstance = playoutModel.getPartInstance(

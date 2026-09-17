@@ -16,6 +16,7 @@ import {
 	IBlueprintPlayoutDevice,
 	StudioRouteSet,
 	IBlueprintSegmentDB,
+	QueuePartTarget,
 } from '@sofie-automation/blueprints-integration'
 import { PartInstanceId, PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
@@ -184,22 +185,16 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 	async queuePart(
 		rawPart: IBlueprintPart,
 		rawPieces: IBlueprintPiece[],
-		targetPartOrInstanceId?: string,
-		insertBefore?: boolean
+		target?: QueuePartTarget
 	): Promise<IBlueprintPartInstance> {
-		return this.partAndPieceInstanceService.queuePart(rawPart, rawPieces, targetPartOrInstanceId, insertBefore)
+		return this.partAndPieceInstanceService.queuePart(rawPart, rawPieces, target)
 	}
 
 	/**
 	 * If the target is invalid, prepareQueueablePartAndPieces throws synchronously.
 	 * When called during executeAction, the error fails the action before any take occurs.
 	 */
-	queuePartAfterTake(
-		rawPart: IBlueprintPart,
-		rawPieces: IBlueprintPiece[],
-		targetPartOrInstanceId?: string,
-		insertBefore?: boolean
-	): void {
+	queuePartAfterTake(rawPart: IBlueprintPart, rawPieces: IBlueprintPiece[], target?: QueuePartTarget): void {
 		const currentPartInstance = this._playoutModel.currentPartInstance
 		if (!currentPartInstance) {
 			throw new Error('Cannot queue part when no current partInstance')
@@ -208,8 +203,7 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 			rawPart,
 			rawPieces,
 			currentPartInstance,
-			targetPartOrInstanceId,
-			insertBefore
+			target
 		)
 	}
 
