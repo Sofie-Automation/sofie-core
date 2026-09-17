@@ -1085,6 +1085,30 @@ describe('Test blueprint api context', () => {
 				insertQueuedPartWithPiecesMock.mockClear()
 			})
 
+			async function addRundownWithDifferentShowStyle(
+				jobContext: MockJobContext,
+				playlistId: RundownPlaylistId,
+				currentRundownId: RundownId
+			) {
+				const otherShowStyle = await setupMockShowStyleCompound(jobContext)
+				const otherRundownId: RundownId = getRandomId()
+				await setupDefaultRundown(jobContext, otherShowStyle, playlistId, otherRundownId)
+				await jobContext.mockCollections.RundownPlaylists.update(playlistId, {
+					$set: { rundownIdsInOrder: [currentRundownId, otherRundownId] },
+				})
+
+				const targetPart = await jobContext.mockCollections.Parts.findOne({
+					externalId: 'MOCK_PART_0_0',
+					rundownId: otherRundownId,
+				})
+				expect(targetPart).toBeTruthy()
+				expect(otherShowStyle.showStyleVariantId).not.toEqual(
+					(await jobContext.mockCollections.Rundowns.findOne(currentRundownId))?.showStyleVariantId
+				)
+
+				return { otherRundownId, targetPart: targetPart! }
+			}
+
 			test('bad parameters', async () => {
 				const { jobContext, playlistId, rundownId } = await setupMyDefaultRundown()
 
@@ -1294,6 +1318,98 @@ describe('Test blueprint api context', () => {
 							{ targetPartId: 'unknown_part_id' }
 						)
 					).rejects.toThrow('Cannot queue part: target "unknown_part_id" not found')
+				})
+			})
+
+			test('rejects insert target with incompatible showStyleVariantId', async () => {
+				const { jobContext, playlistId, rundownId } = await setupMyDefaultRundown()
+
+				const partInstance = (await jobContext.mockCollections.PartInstances.findOne({
+					rundownId,
+					'part.externalId': 'MOCK_PART_0_0',
+				})) as DBPartInstance
+				expect(partInstance).toBeTruthy()
+				await setPartInstances(jobContext, playlistId, partInstance, undefined)
+
+				const { otherRundownId, targetPart } = await addRundownWithDifferentShowStyle(
+					jobContext,
+					playlistId,
+					rundownId
+				)
+
+				await wrapWithPlayoutModel(jobContext, playlistId, async (playoutModel) => {
+					const { service } = await getTestee(jobContext, playoutModel)
+
+					await expect(
+						service.queuePart(
+							{ externalId: 'nope', title: 'something' },
+							[
+								{
+									name: 'test piece',
+									sourceLayerId: 'sl1',
+									outputLayerId: 'o1',
+									externalId: '-',
+									enable: { start: 0 },
+									lifespan: PieceLifespan.OutOnRundownEnd,
+									content: {
+										timelineObjects: [],
+									},
+								},
+							],
+							{ targetPartId: unprotectString(targetPart._id) }
+						)
+					).rejects.toThrow(
+						`Cannot queue part: target rundown "${otherRundownId}" is not compatible with the current show style`
+					)
+
+					expect(postProcessPiecesMock).toHaveBeenCalledTimes(0)
+					expect(insertQueuedPartWithPiecesMock).toHaveBeenCalledTimes(0)
+				})
+			})
+
+			test('prepareQueueablePartAndPieces rejects insert target with incompatible showStyleVariantId', async () => {
+				const { jobContext, playlistId, rundownId } = await setupMyDefaultRundown()
+
+				const partInstance = (await jobContext.mockCollections.PartInstances.findOne({
+					rundownId,
+					'part.externalId': 'MOCK_PART_0_0',
+				})) as DBPartInstance
+				expect(partInstance).toBeTruthy()
+				await setPartInstances(jobContext, playlistId, partInstance, undefined)
+
+				const { otherRundownId, targetPart } = await addRundownWithDifferentShowStyle(
+					jobContext,
+					playlistId,
+					rundownId
+				)
+
+				await wrapWithPlayoutModel(jobContext, playlistId, async (playoutModel) => {
+					const { service } = await getTestee(jobContext, playoutModel)
+
+					expect(() =>
+						service.prepareQueueablePartAndPieces(
+							{ externalId: 'nope', title: 'something' },
+							[
+								{
+									name: 'test piece',
+									sourceLayerId: 'sl1',
+									outputLayerId: 'o1',
+									externalId: '-',
+									enable: { start: 0 },
+									lifespan: PieceLifespan.OutOnRundownEnd,
+									content: {
+										timelineObjects: [],
+									},
+								},
+							],
+							playoutModel.currentPartInstance!,
+							{ targetPartId: unprotectString(targetPart._id) }
+						)
+					).toThrow(
+						`Cannot queue part: target rundown "${otherRundownId}" is not compatible with the current show style`
+					)
+
+					expect(postProcessPiecesMock).toHaveBeenCalledTimes(0)
 				})
 			})
 

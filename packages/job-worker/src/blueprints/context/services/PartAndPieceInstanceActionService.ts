@@ -40,6 +40,7 @@ import {
 	innerStopPieces,
 	insertQueuedPartWithPieces,
 	resolveQueuedAdlibInsertTarget,
+	type QueuedAdlibInsertTarget,
 } from '../../../playout/adlibUtils.js'
 import { assertNever, getRandomId, omit } from '@sofie-automation/corelib/dist/lib'
 import { logger } from '../../../logging.js'
@@ -99,6 +100,14 @@ export class PartAndPieceInstanceActionService {
 		this._context = context
 		this._playoutModel = playoutModel
 		this.showStyleCompound = showStyle
+	}
+
+	#assertInsertTargetShowStyleCompatible(insertTarget: QueuedAdlibInsertTarget): void {
+		if (insertTarget.targetRundown.rundown.showStyleVariantId !== this.showStyleCompound.showStyleVariantId) {
+			throw new Error(
+				`Cannot queue part: target rundown "${insertTarget.targetRundown.rundown._id}" is not compatible with the current show style`
+			)
+		}
 	}
 
 	#trackStateChange(part: 'current' | 'next', change: ActionPartChange): void {
@@ -418,6 +427,7 @@ export class PartAndPieceInstanceActionService {
 		}
 
 		const insertTarget = resolveQueuedAdlibInsertTarget(this._playoutModel, currentPartInstance, target)
+		this.#assertInsertTargetShowStyleCompatible(insertTarget)
 
 		const processedPartsAndPieces = this.processPartAndPiecesToQueueOrFail(
 			rawPart,
@@ -449,6 +459,7 @@ export class PartAndPieceInstanceActionService {
 		target?: QueuePartTarget
 	): QueueablePartAndPieces {
 		const insertTarget = resolveQueuedAdlibInsertTarget(this._playoutModel, currentPartInstance, target)
+		this.#assertInsertTargetShowStyleCompatible(insertTarget)
 
 		const { part, pieces } = this.processPartAndPiecesToQueueOrFail(
 			rawPart,
