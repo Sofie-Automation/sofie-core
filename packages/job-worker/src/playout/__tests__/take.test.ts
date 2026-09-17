@@ -15,6 +15,8 @@ import { handleActivateRundownPlaylist } from '../activePlaylistJobs.js'
 import { performTakeToNextedPart, handleTakeNextPart } from '../take.js'
 import { runJobWithPlayoutModel } from '../lock.js'
 import { PartAndPieceInstanceActionService } from '../../blueprints/context/services/PartAndPieceInstanceActionService.js'
+import { OnTakeContext } from '../../blueprints/context/OnTakeContext.js'
+import { WatchedPackagesHelper } from '../../blueprints/context/watchedPackages.js'
 import { getCurrentTime } from '../../lib/index.js'
 
 jest.mock('../../blueprints/postProcess')
@@ -174,6 +176,84 @@ describe('take', () => {
 
 			expect(queuedPartInstance.partInstance.part._rank).toBeGreaterThan(targetPart._rank)
 			expect(queuedPartInstance.partInstance.part._rank).toBeLessThan(partAfterTarget._rank)
+			expect(queuedPartInstance.partInstance.part.title).toEqual('After take part')
+		})
+	})
+
+	test('performTakeToNextedPart queues omitted-target part using next part rundown and segment', async () => {
+		const { context, playlistId } = await setupTakenPlaylist()
+
+		const playlist = await context.mockCollections.RundownPlaylists.findOne(playlistId)
+		if (!playlist?.currentPartInfo?.partInstanceId) throw new Error('currentPartInstance not found')
+
+		await handleTakeNextPart(context, {
+			playlistId,
+			fromPartInstanceId: playlist.currentPartInfo.partInstanceId,
+		})
+
+		await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) => {
+			const currentPartInstance = playoutModel.currentPartInstance
+			const nextPartInstance = playoutModel.nextPartInstance
+			expect(currentPartInstance).toBeTruthy()
+			expect(nextPartInstance).toBeTruthy()
+			if (!currentPartInstance || !nextPartInstance) throw new Error('partInstances not found')
+			expect(currentPartInstance.partInstance.segmentId).not.toEqual(nextPartInstance.partInstance.segmentId)
+
+			const takenSegmentId = nextPartInstance.partInstance.segmentId
+			const takenRundownId = nextPartInstance.partInstance.rundownId
+
+			const showStyle = await context.getShowStyleCompound(
+				playoutModel.rundowns[0].rundown.showStyleVariantId,
+				playoutModel.rundowns[0].rundown.showStyleBaseId
+			)
+			const onTakeContext = new OnTakeContext(
+				{ name: 'test', identifier: 'test' },
+				context,
+				playoutModel,
+				showStyle,
+				WatchedPackagesHelper.empty(context),
+				new PartAndPieceInstanceActionService(context, playoutModel, showStyle)
+			)
+
+			;(postProcessPieces as jest.Mock).mockClear()
+			onTakeContext.queuePartAfterTake({ externalId: 'after_take', title: 'After take part' }, [
+				{
+					name: 'after take piece',
+					sourceLayerId: 'sl0',
+					outputLayerId: 'o0',
+					externalId: '-',
+					enable: { start: 0 },
+					lifespan: PieceLifespan.WithinPart,
+					content: {
+						timelineObjects: [],
+					},
+				},
+			])
+
+			expect(postProcessPieces).toHaveBeenCalledTimes(1)
+			expect(postProcessPieces).toHaveBeenCalledWith(
+				expect.anything(),
+				expect.any(Array),
+				expect.anything(),
+				takenRundownId,
+				takenSegmentId,
+				expect.anything(),
+				false
+			)
+
+			await performTakeToNextedPart(context, playoutModel, getCurrentTime(), onTakeContext.partToQueueAfterTake)
+
+			const nextPartInstanceId = playoutModel.playlist.nextPartInfo?.partInstanceId
+			expect(nextPartInstanceId).toBeTruthy()
+			if (!nextPartInstanceId) throw new Error('nextPartInstanceId not found')
+
+			const queuedPartInstance = playoutModel.getPartInstance(nextPartInstanceId)
+			expect(queuedPartInstance).toBeTruthy()
+			if (!queuedPartInstance) throw new Error('queuedPartInstance not found')
+
+			expect(queuedPartInstance.partInstance.segmentId).toEqual(takenSegmentId)
+			expect(queuedPartInstance.partInstance.rundownId).toEqual(takenRundownId)
+			expect(queuedPartInstance.pieceInstances[0].pieceInstance.rundownId).toEqual(takenRundownId)
 			expect(queuedPartInstance.partInstance.part.title).toEqual('After take part')
 		})
 	})
