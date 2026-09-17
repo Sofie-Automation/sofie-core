@@ -187,10 +187,16 @@ export class OnTakeContext extends ShowStyleUserContext implements IOnTakeContex
 		if (!currentPartInstance) {
 			throw new Error('Cannot queue part when no current partInstance')
 		}
+
+		const destinationPartInstance = target ? currentPartInstance : this._playoutModel.nextPartInstance
+		if (!destinationPartInstance) {
+			throw new Error('Cannot queue part after take when no next partInstance')
+		}
+
 		this.partToQueueAfterTake = this.partAndPieceInstanceService.prepareQueueablePartAndPieces(
 			rawPart,
 			rawPieces,
-			currentPartInstance,
+			destinationPartInstance,
 			target
 		)
 	}
