@@ -10,7 +10,7 @@ import { ProcessedShowStyleConfig } from '../config.js'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 describe('Test blueprint api context', () => {
-	async function getTestee(rehearsal?: boolean) {
+	async function getTestee(rehearsal?: boolean, partInstances?: { current?: object | null; next?: object | null }) {
 		const mockActionService = mock<PartAndPieceInstanceActionService>()
 		const mockPlayoutModel = mock<PlayoutModel>()
 		Object.defineProperty(mockPlayoutModel, 'playlist', {
@@ -23,6 +23,12 @@ describe('Test blueprint api context', () => {
 						{ index: 3, label: 'Timer 3', mode: null, state: null },
 					],
 				}) satisfies Partial<DBRundownPlaylist>,
+		})
+		Object.defineProperty(mockPlayoutModel, 'currentPartInstance', {
+			get: () => partInstances?.current ?? null,
+		})
+		Object.defineProperty(mockPlayoutModel, 'nextPartInstance', {
+			get: () => partInstances?.next ?? null,
 		})
 		const context = new ActionExecutionContext(
 			{
@@ -136,7 +142,7 @@ describe('Test blueprint api context', () => {
 
 			await context.queuePart({ title: 'My Piece' } as IBlueprintPart<unknown>, [])
 			expect(mockActionService.queuePart).toHaveBeenCalledTimes(1)
-			expect(mockActionService.queuePart).toHaveBeenCalledWith({ title: 'My Piece' }, [])
+			expect(mockActionService.queuePart).toHaveBeenCalledWith({ title: 'My Piece' }, [], undefined)
 		})
 
 		test('stopPiecesOnLayers', async () => {
@@ -209,6 +215,73 @@ describe('Test blueprint api context', () => {
 			const { context } = await getTestee()
 
 			expect(context.isRehearsal).toBe(false)
+		})
+
+		test('queuePartAfterTake uses next partInstance when target is omitted', async () => {
+			const currentPartInstance = { id: 'current' }
+			const nextPartInstance = { id: 'next' }
+			const { context, mockActionService } = await getTestee(undefined, {
+				current: currentPartInstance,
+				next: nextPartInstance,
+			})
+
+			const queued = { part: {}, pieces: [] }
+			mockActionService.prepareQueueablePartAndPieces.mockReturnValue(queued as any)
+
+			const rawPart = { title: 'Queued' } as IBlueprintPart
+			const rawPieces = [{ name: 'Piece' }] as IBlueprintPiece[]
+			context.queuePartAfterTake(rawPart, rawPieces)
+
+			expect(mockActionService.prepareQueueablePartAndPieces).toHaveBeenCalledTimes(1)
+			expect(mockActionService.prepareQueueablePartAndPieces).toHaveBeenCalledWith(
+				rawPart,
+				rawPieces,
+				nextPartInstance,
+				undefined
+			)
+			expect(context.partToQueueAfterTake).toBe(queued)
+		})
+
+		test('queuePartAfterTake uses current partInstance when target is provided', async () => {
+			const currentPartInstance = { id: 'current' }
+			const nextPartInstance = { id: 'next' }
+			const { context, mockActionService } = await getTestee(undefined, {
+				current: currentPartInstance,
+				next: nextPartInstance,
+			})
+
+			const queued = { part: {}, pieces: [] }
+			mockActionService.prepareQueueablePartAndPieces.mockReturnValue(queued as any)
+
+			const rawPart = { title: 'Queued' } as IBlueprintPart
+			const rawPieces = [{ name: 'Piece' }] as IBlueprintPiece[]
+			const target = { targetPartId: 'part1' }
+			context.queuePartAfterTake(rawPart, rawPieces, target)
+
+			expect(mockActionService.prepareQueueablePartAndPieces).toHaveBeenCalledTimes(1)
+			expect(mockActionService.prepareQueueablePartAndPieces).toHaveBeenCalledWith(
+				rawPart,
+				rawPieces,
+				currentPartInstance,
+				target
+			)
+			expect(context.partToQueueAfterTake).toBe(queued)
+		})
+
+		test('queuePartAfterTake throws when no current partInstance', async () => {
+			const { context } = await getTestee()
+
+			expect(() => context.queuePartAfterTake({ title: 'Queued' } as IBlueprintPart, [])).toThrow(
+				'Cannot queue part when no current partInstance'
+			)
+		})
+
+		test('queuePartAfterTake throws when target is omitted and no next partInstance', async () => {
+			const { context } = await getTestee(undefined, { current: { id: 'current' } })
+
+			expect(() => context.queuePartAfterTake({ title: 'Queued' } as IBlueprintPart, [])).toThrow(
+				'Cannot queue part after take when no next partInstance'
+			)
 		})
 	})
 })

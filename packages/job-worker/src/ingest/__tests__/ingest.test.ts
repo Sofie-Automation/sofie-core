@@ -1882,15 +1882,16 @@ describe('Test ingest actions for rundowns and segments', () => {
 					const newPartInstance = await insertQueuedPartWithPieces(
 						context,
 						playoutModel,
-						rundown0,
 						currentPartInstance,
 						{
-							_id: protectString(`after_${currentPartInstance.partInstance._id}_part`),
-							externalId: `after_${currentPartInstance.partInstance._id}_externalId`,
-							title: 'New part',
-							expectedDurationWithTransition: undefined,
+							part: {
+								_id: protectString(`after_${currentPartInstance.partInstance._id}_part`),
+								externalId: `after_${currentPartInstance.partInstance._id}_externalId`,
+								title: 'New part',
+								expectedDurationWithTransition: undefined,
+							},
+							pieces: [],
 						},
-						[],
 						undefined
 					)
 

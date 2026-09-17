@@ -98,7 +98,7 @@ async function executeOnExternalEventsForPlaylist(
 		showStyle,
 		context.getShowStyleBlueprintConfig(showStyle),
 		WatchedPackagesHelper.empty(context),
-		new PartAndPieceInstanceActionService(context, playoutModel, showStyle, currentRundown)
+		new PartAndPieceInstanceActionService(context, playoutModel, showStyle)
 	)
 
 	const persistentState = new PersistentPlayoutStateStore(
