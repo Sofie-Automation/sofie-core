@@ -4165,6 +4165,36 @@ paths:
                       - rank
                       - layerType
                     additionalProperties: false
+                branding:
+                  type: array
+                  description: >-
+                    Branding variations for this ShowStyle. Optional: omit it to leave the existing Branding unchanged,
+                    so that a client which does not know about Branding cannot remove it.
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: Branding Id, as referenced by documents which vary with it.
+                        example: branding0
+                      name:
+                        type: string
+                        description: User-presentable name of this Branding.
+                        example: My Branding
+                      config:
+                        type: object
+                        description: Config for this Branding, as described by the blueprint's brandingConfigSchema.
+                        additionalProperties: true
+                    required:
+                      - id
+                      - name
+                      - config
+                    additionalProperties: false
+                    example:
+                      id: branding0
+                      name: My Branding
+                      config:
+                        channelName: My Channel
                 config:
                   type: object
                   description: Blueprint config.
@@ -4367,6 +4397,36 @@ paths:
                             - rank
                             - layerType
                           additionalProperties: false
+                      branding:
+                        type: array
+                        description: >-
+                          Branding variations for this ShowStyle. Optional: omit it to leave the existing Branding
+                          unchanged, so that a client which does not know about Branding cannot remove it.
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: Branding Id, as referenced by documents which vary with it.
+                              example: branding0
+                            name:
+                              type: string
+                              description: User-presentable name of this Branding.
+                              example: My Branding
+                            config:
+                              type: object
+                              description: Config for this Branding, as described by the blueprint's brandingConfigSchema.
+                              additionalProperties: true
+                          required:
+                            - id
+                            - name
+                            - config
+                          additionalProperties: false
+                          example:
+                            id: branding0
+                            name: My Branding
+                            config:
+                              channelName: My Channel
                       config:
                         type: object
                         description: Blueprint config.
@@ -4542,6 +4602,36 @@ paths:
                       - rank
                       - layerType
                     additionalProperties: false
+                branding:
+                  type: array
+                  description: >-
+                    Branding variations for this ShowStyle. Optional: omit it to leave the existing Branding unchanged,
+                    so that a client which does not know about Branding cannot remove it.
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: Branding Id, as referenced by documents which vary with it.
+                        example: branding0
+                      name:
+                        type: string
+                        description: User-presentable name of this Branding.
+                        example: My Branding
+                      config:
+                        type: object
+                        description: Config for this Branding, as described by the blueprint's brandingConfigSchema.
+                        additionalProperties: true
+                    required:
+                      - id
+                      - name
+                      - config
+                    additionalProperties: false
+                    example:
+                      id: branding0
+                      name: My Branding
+                      config:
+                        channelName: My Channel
                 config:
                   type: object
                   description: Blueprint config.

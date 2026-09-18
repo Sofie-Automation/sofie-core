@@ -214,6 +214,18 @@ export interface APIShowStyleBase {
 	blueprintConfigPresetId?: string
 	outputLayers: APIOutputLayer[]
 	sourceLayers: APISourceLayer[]
+	/**
+	 * Branding variations for this ShowStyle.
+	 * Optional: when omitted the existing Branding is left unchanged, so that a client which does not know
+	 * about Branding cannot remove it.
+	 */
+	branding?: APIBranding[]
+	config: object
+}
+
+export interface APIBranding {
+	id: string
+	name: string
 	config: object
 }
 
