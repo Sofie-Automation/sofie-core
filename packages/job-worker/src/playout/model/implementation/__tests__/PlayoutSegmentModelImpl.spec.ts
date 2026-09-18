@@ -69,6 +69,22 @@ describe('PlayoutSegmentModelImpl', () => {
 
 			expect(model.getPart(fakePart._id)).toBe(fakePart)
 		})
+		it('matches by _id even when another part has that id as externalId and a lower rank', async () => {
+			const byId: DBPart = { _id: protectString('part0'), _rank: 5, externalId: 'other' } as any
+			const byExternalId: DBPart = { _id: protectString('part1'), _rank: 1, externalId: 'part0' } as any
+			const segment = createBasicDBSegment()
+			const model = new PlayoutSegmentModelImpl(segment, [byId, byExternalId])
+
+			expect(model.getPart(byId._id)).toBe(byId)
+			expect(model.getPart(protectString('part0'))).toBe(byId)
+		})
+		it('does not match by externalId', async () => {
+			const fakePart: DBPart = { _id: protectString('part0'), _rank: 1, externalId: 'ext-part' } as any
+			const segment = createBasicDBSegment()
+			const model = new PlayoutSegmentModelImpl(segment, [fakePart])
+
+			expect(model.getPart(protectString('ext-part'))).toBeUndefined()
+		})
 	})
 
 	describe('setAdlibTestingRank', () => {

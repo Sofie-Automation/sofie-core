@@ -38,11 +38,13 @@ export interface IOnTakeContext
 /**
  * Insertion point for {@link IPlayoutActionContext.queuePart} and {@link IOnTakeContext.queuePartAfterTake}.
  * Specify exactly one of `targetPartId` or `targetPartInstanceId`.
+ * `targetPartId` may be a Part `_id` or `externalId`; Core converts it to `_id` before playout.
  * Inserts before the target unless `after` is true.
  */
 export type QueuePartTarget = { after?: boolean } & (QueuePartTargetProps | QueuePartInstanceTargetProps)
 
 interface QueuePartTargetProps {
+	/** Part `_id` or `externalId` */
 	targetPartId: string
 	targetPartInstanceId?: never
 }
