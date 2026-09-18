@@ -49,7 +49,13 @@ import {
 	PieceTimelineObjectsBlob,
 	serializePieceTimelineObjectsBlob,
 } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { PartInstanceId, PieceInstanceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	PartId,
+	PartInstanceId,
+	PieceInstanceId,
+	RundownId,
+	SegmentId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	protectString,
 	unprotectString,
@@ -100,6 +106,24 @@ export class PartAndPieceInstanceActionService {
 		this._context = context
 		this._playoutModel = playoutModel
 		this.showStyleCompound = showStyle
+	}
+
+	/**
+	 * Convert blueprint `targetPartId` to an internal Part `_id`.
+	 * Accepts either `_id` or `externalId`; playout only ever sees `_id`.
+	 */
+	#toInternalQueuePartTarget(target?: QueuePartTarget): QueuePartTarget | undefined {
+		if (!target?.targetPartId) return target
+
+		const part =
+			this._playoutModel.findPart(protectString<PartId>(target.targetPartId)) ??
+			this._playoutModel.getAllOrderedParts().find((p) => p.externalId === target.targetPartId)
+		if (!part) return target
+
+		return {
+			...target,
+			targetPartId: unprotectString(part._id),
+		}
 	}
 
 	#assertInsertTargetShowStyleCompatible(insertTarget: QueuedAdlibInsertTarget): void {
@@ -426,7 +450,8 @@ export class PartAndPieceInstanceActionService {
 			throw new Error('Too close to an autonext to queue a part')
 		}
 
-		const insertTarget = resolveQueuedAdlibInsertTarget(this._playoutModel, currentPartInstance, target)
+		const internalTarget = this.#toInternalQueuePartTarget(target)
+		const insertTarget = resolveQueuedAdlibInsertTarget(this._playoutModel, currentPartInstance, internalTarget)
 		this.#assertInsertTargetShowStyleCompatible(insertTarget)
 
 		const processedPartsAndPieces = this.processPartAndPiecesToQueueOrFail(
@@ -441,7 +466,7 @@ export class PartAndPieceInstanceActionService {
 			this._context,
 			this._playoutModel,
 			currentPartInstance,
-			{ ...processedPartsAndPieces, target },
+			{ ...processedPartsAndPieces, target: internalTarget },
 			undefined,
 			insertTarget
 		)
@@ -458,7 +483,8 @@ export class PartAndPieceInstanceActionService {
 		currentPartInstance: PlayoutPartInstanceModel,
 		target?: QueuePartTarget
 	): QueueablePartAndPieces {
-		const insertTarget = resolveQueuedAdlibInsertTarget(this._playoutModel, currentPartInstance, target)
+		const internalTarget = this.#toInternalQueuePartTarget(target)
+		const insertTarget = resolveQueuedAdlibInsertTarget(this._playoutModel, currentPartInstance, internalTarget)
 		this.#assertInsertTargetShowStyleCompatible(insertTarget)
 
 		const { part, pieces } = this.processPartAndPiecesToQueueOrFail(
@@ -468,7 +494,7 @@ export class PartAndPieceInstanceActionService {
 			insertTarget.targetSegment.segment._id
 		)
 
-		return { part, pieces, target }
+		return { part, pieces, target: internalTarget }
 	}
 
 	public processPartAndPiecesToQueueOrFail(
