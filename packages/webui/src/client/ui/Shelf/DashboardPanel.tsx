@@ -582,7 +582,7 @@ export function useDashboardPanelTrackedProps(
 		[props.playlist._id],
 		[]
 	)
-	useSubscription(CorelibPubSub.pieceInstances, unorderedRundownIds, null, {
+	useSubscription(CorelibPubSub.uiPieceInstances, unorderedRundownIds, null, props.playlist.activationId ?? null, {
 		onlyPlayingAdlibsOrWithTags: true,
 	})
 

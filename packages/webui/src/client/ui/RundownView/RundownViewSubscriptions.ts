@@ -71,13 +71,13 @@ export function useRundownViewSubscriptions(playlistId: RundownPlaylistId): bool
 	)
 
 	auxSubsReady.push(useSubscriptionIfEnabled(CorelibPubSub.segments, rundownIds.length > 0, rundownIds, {}))
-	auxSubsReady.push(useSubscriptionIfEnabled(CorelibPubSub.adLibPieces, rundownIds.length > 0, rundownIds))
+	auxSubsReady.push(useSubscriptionIfEnabled(CorelibPubSub.uiAdLibPieces, rundownIds.length > 0, rundownIds))
 	auxSubsReady.push(
-		useSubscriptionIfEnabled(CorelibPubSub.rundownBaselineAdLibPieces, rundownIds.length > 0, rundownIds)
+		useSubscriptionIfEnabled(CorelibPubSub.uiRundownBaselineAdLibPieces, rundownIds.length > 0, rundownIds)
 	)
-	auxSubsReady.push(useSubscriptionIfEnabled(CorelibPubSub.adLibActions, rundownIds.length > 0, rundownIds))
+	auxSubsReady.push(useSubscriptionIfEnabled(CorelibPubSub.uiAdLibActions, rundownIds.length > 0, rundownIds))
 	auxSubsReady.push(
-		useSubscriptionIfEnabled(CorelibPubSub.rundownBaselineAdLibActions, rundownIds.length > 0, rundownIds)
+		useSubscriptionIfEnabled(CorelibPubSub.uiRundownBaselineAdLibActions, rundownIds.length > 0, rundownIds)
 	)
 	auxSubsReady.push(useSubscriptionIfEnabled(CorelibPubSub.uiParts, rundownIds.length > 0, playlistId))
 	auxSubsReady.push(
@@ -91,24 +91,28 @@ export function useRundownViewSubscriptions(playlistId: RundownPlaylistId): bool
 	useTracker(() => {
 		const playlist = RundownPlaylists.findOne(playlistId, {
 			fields: {
+				activationId: 1,
 				currentPartInfo: 1,
 				nextPartInfo: 1,
 				previousPartsInfo: 1,
 			},
-		}) as Pick<DBRundownPlaylist, '_id' | 'currentPartInfo' | 'nextPartInfo' | 'previousPartsInfo'> | undefined
+		}) as
+			| Pick<DBRundownPlaylist, '_id' | 'activationId' | 'currentPartInfo' | 'nextPartInfo' | 'previousPartsInfo'>
+			| undefined
 		if (playlist) {
 			const rundownIds = RundownPlaylistCollectionUtil.getRundownUnorderedIDs(playlist)
 			// Use meteorSubscribe so that this subscription doesn't mess with this.subscriptionsReady()
 			// it's run in useTracker, so the subscription will be stopped along with the autorun,
 			// so we don't have to manually clean up after ourselves.
 			meteorSubscribe(
-				CorelibPubSub.pieceInstances,
+				CorelibPubSub.uiPieceInstances,
 				rundownIds,
 				[
 					playlist.currentPartInfo?.partInstanceId,
 					playlist.nextPartInfo?.partInstanceId,
 					playlist.previousPartsInfo?.[0]?.partInstanceId,
-				].filter((p): p is PartInstanceId => p !== null),
+				].filter((p): p is PartInstanceId => p !== null && p !== undefined),
+				playlist.activationId ?? null,
 				{}
 			)
 		}
