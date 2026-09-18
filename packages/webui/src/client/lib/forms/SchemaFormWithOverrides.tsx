@@ -1,5 +1,8 @@
 import { joinObjectPathFragments, literal } from '@sofie-automation/corelib/dist/lib'
 import { useMemo } from 'react'
+import { useRouteMatch } from 'react-router-dom'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { useTracker } from '../ReactMeteorData/react-meteor-data.js'
 import { useTranslation } from 'react-i18next'
 import type {
 	WrappedOverridableItemNormal,
@@ -36,6 +39,7 @@ import { ToggleSwitchControl } from '../Components/ToggleSwitch.js'
 import { BreadCrumbTextInput } from '../Components/BreadCrumbTextInput.js'
 import { OneOfButtonsWithOverrides } from './SchemaFormOneOfButtons/OneOfButtons.js'
 import { TimeMsInputControl } from '../Components/TimeMsInput.js'
+import { UIStudios } from '../../ui/Collections.js'
 
 interface SchemaFormWithOverridesProps extends SchemaFormCommonProps {
 	/** Base path of the schema within the document */
@@ -140,12 +144,19 @@ export function SchemaFormWithOverrides(props: Readonly<SchemaFormWithOverridesP
 			} else {
 				return <IntegerFormWithOverrides {...childProps} />
 			}
-		case TypeName.Number:
-			if (getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'timeMs') {
+		case TypeName.Number: {
+			const displayType = getSchemaUIField(props.schema, SchemaFormUIField.DisplayType)
+			if (
+				displayType === 'timeMs' ||
+				displayType === 'timecode' ||
+				displayType === 'timecodeFrames' ||
+				displayType === 'tod'
+			) {
 				return <TimeMsFormWithOverrides {...childProps} />
 			} else {
 				return <NumberFormWithOverrides {...childProps} />
 			}
+		}
 		case TypeName.Boolean:
 			if (getSchemaUIField(props.schema, SchemaFormUIField.DisplayType) === 'switch') {
 				return <SwitchFormWithOverrides {...childProps} />
@@ -355,6 +366,15 @@ const IntegerFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponen
 }
 
 const TimeMsFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponentProps>) => {
+	// UIStudios exposes the flattened studio settings already used by the playout UI.
+	const routeMatch = useRouteMatch<{ studioId: string }>()
+	const studioId = routeMatch ? protectString(routeMatch.params.studioId) : undefined
+	const frameRate =
+		useTracker(() => (studioId ? UIStudios.findOne(studioId)?.settings.frameRate : undefined), [studioId]) ?? 25
+	const displayType = getSchemaUIField(schema, SchemaFormUIField.DisplayType)
+	const inputFormat =
+		displayType === 'timecode' || displayType === 'timecodeFrames' || displayType === 'tod' ? displayType : undefined
+
 	return (
 		<LabelAndOverrides {...commonAttrs}>
 			{(value, handleUpdate) => (
@@ -366,6 +386,8 @@ const TimeMsFormWithOverrides = ({ schema, commonAttrs }: Readonly<FormComponent
 					max={schema['maximum']}
 					multipleOf={schema['multipleOf']}
 					readOnly={commonAttrs.readOnly}
+					inputFormat={inputFormat}
+					frameRate={frameRate}
 				/>
 			)}
 		</LabelAndOverrides>
