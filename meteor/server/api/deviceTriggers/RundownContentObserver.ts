@@ -22,44 +22,30 @@ import {
 	rundownPlaylistFieldSpecifier,
 	segmentFieldSpecifier,
 } from './reactiveContentCache'
-import { waitForAllObserversReady } from '../../publications/lib/lib'
-import type { LiveQueryHandleSync } from '../../lib/lib'
 
 const REACTIVITY_DEBOUNCE = 20
 
-type ChangedHandler = (cache: ContentCache) => () => void
+type ChangedHandler = (cache: ContentCache) => void
 
 export class RundownContentObserver {
-	#observers: LiveQueryHandleSync[] = []
 	#cache: ContentCache
-	#cancelCache: () => void
-	#cleanup: (() => void) | undefined
-	#disposed = false
 
-	private constructor(onChanged: ChangedHandler) {
-		const { cache, cancel: cancelCache } = createReactiveContentCache(() => {
-			if (this.#disposed) {
-				this.#cleanup?.()
-				return
-			}
-			this.#cleanup = onChanged(cache)
-		}, REACTIVITY_DEBOUNCE)
-
-		this.#cache = cache
-		this.#cancelCache = cancelCache
+	private constructor(onChanged: ChangedHandler, signal: AbortSignal) {
+		this.#cache = createReactiveContentCache(onChanged, REACTIVITY_DEBOUNCE, signal)
 	}
 
 	static async create(
 		rundownPlaylistId: RundownPlaylistId,
 		showStyleBaseId: ShowStyleBaseId,
 		rundownIds: RundownId[],
-		onChanged: ChangedHandler
+		onChanged: ChangedHandler,
+		signal: AbortSignal
 	): Promise<RundownContentObserver> {
 		logger.silly(`Creating RundownContentObserver for playlist "${rundownPlaylistId}"`)
 
-		const observer = new RundownContentObserver(onChanged)
+		const observer = new RundownContentObserver(onChanged, signal)
 
-		await observer.initObservers(rundownPlaylistId, showStyleBaseId, rundownIds)
+		await observer.initObservers(rundownPlaylistId, showStyleBaseId, rundownIds, signal)
 
 		return observer
 	}
@@ -67,20 +53,23 @@ export class RundownContentObserver {
 	private async initObservers(
 		rundownPlaylistId: RundownPlaylistId,
 		showStyleBaseId: ShowStyleBaseId,
-		rundownIds: RundownId[]
+		rundownIds: RundownId[],
+		signal: AbortSignal
 	) {
-		this.#observers = await waitForAllObserversReady([
+		await Promise.all([
 			RundownPlaylists.observeChanges(rundownPlaylistId, this.#cache.RundownPlaylists.link(), {
 				projection: rundownPlaylistFieldSpecifier,
+				signal,
 			}),
-			ShowStyleBases.observeChanges(showStyleBaseId, this.#cache.ShowStyleBases.link()),
+			ShowStyleBases.observeChanges(showStyleBaseId, this.#cache.ShowStyleBases.link(), { signal }),
 			TriggeredActions.observeChanges(
 				{
 					showStyleBaseId: {
 						$in: [showStyleBaseId, null],
 					},
 				},
-				this.#cache.TriggeredActions.link()
+				this.#cache.TriggeredActions.link(),
+				{ signal }
 			),
 			Segments.observeChanges(
 				{
@@ -91,6 +80,7 @@ export class RundownContentObserver {
 				this.#cache.Segments.link(),
 				{
 					projection: segmentFieldSpecifier,
+					signal,
 				}
 			),
 			Parts.observeChanges(
@@ -102,6 +92,7 @@ export class RundownContentObserver {
 				this.#cache.Parts.link(),
 				{
 					projection: partFieldSpecifier,
+					signal,
 				}
 			),
 			PartInstances.observeChanges(
@@ -116,6 +107,7 @@ export class RundownContentObserver {
 				this.#cache.PartInstances.link(),
 				{
 					projection: partInstanceFieldSpecifier,
+					signal,
 				}
 			),
 			RundownBaselineAdLibActions.observeChanges(
@@ -127,6 +119,7 @@ export class RundownContentObserver {
 				this.#cache.RundownBaselineAdLibActions.link(),
 				{
 					projection: adLibActionFieldSpecifier,
+					signal,
 				}
 			),
 			RundownBaselineAdLibPieces.observeChanges(
@@ -138,6 +131,7 @@ export class RundownContentObserver {
 				this.#cache.RundownBaselineAdLibPieces.link(),
 				{
 					projection: adLibPieceFieldSpecifier,
+					signal,
 				}
 			),
 			AdLibActions.observeChanges(
@@ -149,6 +143,7 @@ export class RundownContentObserver {
 				this.#cache.AdLibActions.link(),
 				{
 					projection: adLibActionFieldSpecifier,
+					signal,
 				}
 			),
 			AdLibPieces.observeChanges(
@@ -160,6 +155,7 @@ export class RundownContentObserver {
 				this.#cache.AdLibPieces.link(),
 				{
 					projection: adLibPieceFieldSpecifier,
+					signal,
 				}
 			),
 		])
@@ -167,13 +163,5 @@ export class RundownContentObserver {
 
 	public get cache(): ContentCache {
 		return this.#cache
-	}
-
-	public stop = (): void => {
-		this.#disposed = true
-		this.#cancelCache()
-		this.#observers.forEach((observer) => observer.stop())
-		this.#cleanup?.()
-		this.#cleanup = undefined
 	}
 }

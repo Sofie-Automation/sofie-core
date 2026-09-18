@@ -13,11 +13,6 @@ import {
 } from '../mongo.js'
 import { diffObject } from '../diffObject.js'
 
-/** A handle to a running observe; call `stop()` to tear it down. */
-export interface MongoLiveQueryHandle {
-	stop(): void
-}
-
 type Doc = { _id: ProtectedString<any> }
 
 /**

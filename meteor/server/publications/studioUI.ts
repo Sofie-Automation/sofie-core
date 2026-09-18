@@ -6,12 +6,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { CustomCollectionName, MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { DBStudio, UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { Complete, literal } from '@sofie-automation/corelib/dist/lib'
-import {
-	CustomPublishCollection,
-	setUpCollectionOptimizedObserver,
-	SetupObserversResult,
-	TriggerUpdate,
-} from '../lib/customPublication'
+import { CustomPublishCollection, setUpCollectionOptimizedObserver, TriggerUpdate } from '../lib/customPublication'
 import { Studios } from '../collections'
 import { check } from '../lib/check'
 import { triggerWriteAccessBecauseNoCheckNecessary } from '../security/securityVerify'
@@ -58,14 +53,15 @@ const fieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBStudio, Stud
 
 async function setupUIStudioPublicationObservers(
 	args: ReadonlyDeep<UIStudioArgs>,
-	triggerUpdate: TriggerUpdate<UIStudioUpdateProps>
-): Promise<SetupObserversResult> {
+	triggerUpdate: TriggerUpdate<UIStudioUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
 	const trackChange = (id: StudioId): Partial<UIStudioUpdateProps> => ({
 		invalidateStudioIds: [id],
 	})
 
 	// Set up observers:
-	return [
+	await Promise.all([
 		Studios.observeChanges(
 			args.studioId ? args.studioId : {},
 			{
@@ -73,9 +69,9 @@ async function setupUIStudioPublicationObservers(
 				changed: (id) => triggerUpdate(trackChange(id)),
 				removed: (id) => triggerUpdate(trackChange(id)),
 			},
-			{ projection: fieldSpecifier }
+			{ projection: fieldSpecifier, signal }
 		),
-	]
+	])
 }
 async function manipulateUIStudioPublicationData(
 	args: UIStudioArgs,

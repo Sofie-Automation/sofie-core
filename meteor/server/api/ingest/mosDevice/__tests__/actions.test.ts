@@ -15,7 +15,6 @@ import { PeripheralDeviceCommands } from '../../../../collections'
 import { SupressLogMessages } from '../../../../../__mocks__/suppressLogging'
 import { logger } from '../../../../logging'
 import { generateRundownSource } from '../../lib'
-import type { LiveQueryHandleSync } from '../../../../lib/lib'
 
 const mosTypes = MOS.getMosTypes(true)
 
@@ -33,16 +32,16 @@ function fakeMinimalRo() {
 describe('Test sending mos actions', () => {
 	let device: PeripheralDevice
 	let studioId: StudioId
-	let observer: LiveQueryHandleSync | null = null
+	let observerAbort: AbortController | null = null
 	beforeAll(async () => {
 		const env = await setupDefaultStudioEnvironment()
 		device = env.ingestDevice
 		studioId = env.studio._id
 	})
 	afterEach(() => {
-		if (observer != null) {
-			observer.stop()
-			observer = null
+		if (observerAbort != null) {
+			observerAbort.abort()
+			observerAbort = null
 		}
 	})
 
@@ -53,7 +52,8 @@ describe('Test sending mos actions', () => {
 		const fakeRundown = { _id: rundownId, externalId: getRandomString(), studioId: studioId }
 
 		// Listen for changes
-		observer = await PeripheralDeviceCommands.observeChanges(
+		const abort = (observerAbort = new AbortController())
+		await PeripheralDeviceCommands.observeChanges(
 			{ deviceId: device._id },
 			{
 				added: (id: PeripheralDeviceCommandId) => {
@@ -75,7 +75,8 @@ describe('Test sending mos actions', () => {
 						(e) => logger.error(stringifyError(e))
 					)
 				},
-			}
+			},
+			{ signal: abort.signal }
 		)
 
 		await expect(MOSDeviceActions.reloadRundown(device, fakeRundown)).rejects.toMatch(`unknown annoying error`)
@@ -95,7 +96,8 @@ describe('Test sending mos actions', () => {
 		}
 
 		// Listen for changes
-		observer = await PeripheralDeviceCommands.observeChanges(
+		const abort = (observerAbort = new AbortController())
+		await PeripheralDeviceCommands.observeChanges(
 			{ deviceId: device._id },
 			{
 				added: (id: PeripheralDeviceCommandId) => {
@@ -116,7 +118,8 @@ describe('Test sending mos actions', () => {
 						(e) => logger.error(stringifyError(e))
 					)
 				},
-			}
+			},
+			{ signal: abort.signal }
 		)
 
 		QueueIngestJobSpy.mockImplementation(async () => CreateFakeResult(Promise.resolve()))
@@ -152,7 +155,8 @@ describe('Test sending mos actions', () => {
 		}
 
 		// Listen for changes
-		observer = await PeripheralDeviceCommands.observeChanges(
+		const abort = (observerAbort = new AbortController())
+		await PeripheralDeviceCommands.observeChanges(
 			{ deviceId: device._id },
 			{
 				added: (id: PeripheralDeviceCommandId) => {
@@ -175,7 +179,8 @@ describe('Test sending mos actions', () => {
 						(e) => logger.error(stringifyError(e))
 					)
 				},
-			}
+			},
+			{ signal: abort.signal }
 		)
 
 		SupressLogMessages.suppressLogMessage(/Error in MOSDeviceActions\.reloadRundown/i)

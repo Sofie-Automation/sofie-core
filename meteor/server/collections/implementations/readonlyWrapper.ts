@@ -1,7 +1,6 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import type { IndexDescriptionInfo } from 'mongodb'
 import type { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection, MinimalMongoCursor } from '../collection'
-import type { LiveQueryHandleSync } from '../../lib/lib'
 
 export class WrappedReadOnlyMongoCollection<
 	DBInterface extends { _id: ProtectedString<any> },
@@ -50,13 +49,11 @@ export class WrappedReadOnlyMongoCollection<
 
 	async observeChanges(
 		...args: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observeChanges']>
-	): Promise<LiveQueryHandleSync> {
+	): Promise<void> {
 		return this.#mutableCollection.observeChanges(...args)
 	}
 
-	async observe(
-		...args: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observe']>
-	): Promise<LiveQueryHandleSync> {
+	async observe(...args: Parameters<AsyncOnlyReadOnlyMongoCollection<DBInterface>['observe']>): Promise<void> {
 		return this.#mutableCollection.observe(...args)
 	}
 

@@ -3,12 +3,7 @@ import { check, zAnyArray } from '../lib/check'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { getActiveRoutes, getRoutedMappings } from '@sofie-automation/meteor-lib/dist/collections/Studios'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
-import {
-	CustomPublish,
-	SetupObserversResult,
-	setUpOptimizedObserverArray,
-	TriggerUpdate,
-} from '../lib/customPublication'
+import { CustomPublish, setUpOptimizedObserverArray, TriggerUpdate } from '../lib/customPublication'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { ReadonlyDeep } from 'type-fest'
 import { FindOptions } from '@sofie-automation/meteor-lib/dist/collections/lib'
@@ -166,10 +161,11 @@ interface RoutedMappingsUpdateProps {
 
 async function setupMappingsPublicationObservers(
 	args: ReadonlyDeep<RoutedMappingsArgs>,
-	triggerUpdate: TriggerUpdate<RoutedMappingsUpdateProps>
-): Promise<SetupObserversResult> {
+	triggerUpdate: TriggerUpdate<RoutedMappingsUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
 	// Set up observers:
-	return [
+	await Promise.all([
 		Studios.observeChanges(
 			args.studioId,
 			{
@@ -183,9 +179,10 @@ async function setupMappingsPublicationObservers(
 					// change to the mappings or the routes
 					mappingsHash: 1,
 				},
+				signal,
 			}
 		),
-	]
+	])
 }
 async function manipulateMappingsPublicationData(
 	args: RoutedMappingsArgs,
