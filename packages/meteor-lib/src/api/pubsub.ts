@@ -2,7 +2,6 @@ import {
 	BucketId,
 	PartId,
 	PeripheralDeviceId,
-	RundownPlaylistActivationId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
 	StudioId,
@@ -27,10 +26,8 @@ import {
 } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 import { CorelibPubSub, CorelibPubSubCollections, CorelibPubSubTypes } from '@sofie-automation/corelib/dist/pubsub'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 
 /**
  * Ids of possible DDP subscriptions for the UI only
@@ -128,14 +125,6 @@ export enum MeteorPubSub {
 	 * Fetch the Upgrade Statuses of all Blueprints in the system
 	 */
 	uiBlueprintUpgradeStatuses = 'uiBlueprintUpgradeStatuses',
-	/**
-	 * Fetch all Parts with UI overrides
-	 */
-	uiParts = 'uiParts',
-	/**
-	 * Fetch all PartInstances with UI overrides
-	 */
-	uiPartInstances = 'uiPartInstances',
 }
 
 /**
@@ -203,10 +192,6 @@ export interface MeteorPubSubTypes {
 		bucketId: BucketId
 	) => CustomCollectionName.UIBucketContentStatuses
 	[MeteorPubSub.uiBlueprintUpgradeStatuses]: () => CustomCollectionName.UIBlueprintUpgradeStatuses
-	[MeteorPubSub.uiParts]: (playlistId: RundownPlaylistId | null) => CustomCollectionName.UIParts
-	[MeteorPubSub.uiPartInstances]: (
-		playlistActivationId: RundownPlaylistActivationId | null
-	) => CustomCollectionName.UIPartInstances
 }
 
 export type AllPubSubCollections = PeripheralDevicePubSubCollections &
@@ -224,8 +209,6 @@ export enum CustomCollectionName {
 	UISegmentPartNotes = 'uiSegmentPartNotes',
 	UIBucketContentStatuses = 'uiBucketContentStatuses',
 	UIBlueprintUpgradeStatuses = 'uiBlueprintUpgradeStatuses',
-	UIParts = 'uiParts',
-	UIPartInstances = 'uiPartInstances',
 }
 
 export type MeteorPubSubCollections = {
@@ -248,6 +231,4 @@ export type MeteorPubSubCustomCollections = {
 	[CustomCollectionName.UISegmentPartNotes]: UISegmentPartNote
 	[CustomCollectionName.UIBucketContentStatuses]: UIBucketContentStatus
 	[CustomCollectionName.UIBlueprintUpgradeStatuses]: UIBlueprintUpgradeStatus
-	[CustomCollectionName.UIParts]: DBPart
-	[CustomCollectionName.UIPartInstances]: PartInstance
 }

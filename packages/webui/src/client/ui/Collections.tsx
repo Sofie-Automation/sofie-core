@@ -45,12 +45,14 @@ export const UIPieceContentStatuses = createSyncCorelibCustomPublicationMongoCol
 /**
  * A playout UI version of Parts.
  */
-export const UIParts = createSyncCustomPublicationMongoCollection(CustomCollectionName.UIParts)
+export const UIParts = createSyncCorelibCustomPublicationMongoCollection(CustomCorelibCollectionName.UIParts)
 
 /**
  * A playout UI version of PartInstances.
  */
-export const UIPartInstances = createSyncCustomPublicationMongoCollection(CustomCollectionName.UIPartInstances)
+export const UIPartInstances = createSyncCorelibCustomPublicationMongoCollection(
+	CustomCorelibCollectionName.UIPartInstances
+)
 
 /**
  * Pre-processed MediaObjectIssue for Adlibbs in a Bucket
