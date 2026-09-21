@@ -7,17 +7,6 @@ export function getCurrentTime(): Time {
 	return Date.now()
 }
 
-export interface LiveQueryHandleSync {
-	stop(): void
-}
-
-/**
- * Async version of LiveQueryHandleSync
- */
-export interface LiveQueryHandle {
-	stop(): void | Promise<void>
-}
-
 /**
  * Replaces all invalid characters in order to make the path a valid one
  * @param path

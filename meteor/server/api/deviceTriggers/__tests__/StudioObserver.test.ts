@@ -18,10 +18,9 @@ let capturedRundownContentOnChanged: OnChangedRundown | undefined
 let capturedPieceInstancesOnChanged: OnChangedPieceInstances | undefined
 
 jest.mock('../../../publications/lib/observerChain', () => {
-	const fakeHandle = { stop: jest.fn() }
 	const chain: any = {
 		next: jest.fn(() => chain),
-		end: jest.fn(() => fakeHandle),
+		end: jest.fn(() => undefined),
 	}
 	return {
 		observerChain: jest.fn(() => chain),
@@ -32,10 +31,14 @@ jest.mock('../RundownsObserver', () => {
 	return {
 		RundownsObserver: {
 			create: jest.fn(
-				async (_playlistId: RundownPlaylistId, onChanged: (ids: RundownId[]) => Promise<() => void>) => {
+				async (
+					_playlistId: RundownPlaylistId,
+					signal: AbortSignal,
+					onChanged: (ids: RundownId[], invocationSignal: AbortSignal) => Promise<void>
+				) => {
 					// Immediately drive the callback once, to emulate initial observer execution
-					await onChanged([protectString<RundownId>('r0')])
-					return { stop: jest.fn() }
+					await onChanged([protectString<RundownId>('r0')], signal)
+					return {}
 				}
 			),
 		},
@@ -50,10 +53,11 @@ jest.mock('../RundownContentObserver', () => {
 					_playlistId: RundownPlaylistId,
 					_showStyleBaseId: ShowStyleBaseId,
 					_rundownIds: RundownId[],
-					onChanged: OnChangedRundown
+					onChanged: OnChangedRundown,
+					_signal: AbortSignal
 				) => {
 					capturedRundownContentOnChanged = onChanged
-					return { stop: jest.fn() }
+					return {}
 				}
 			),
 		},
@@ -67,10 +71,11 @@ jest.mock('../PieceInstancesObserver', () => {
 				async (
 					_activationId: RundownPlaylistActivationId,
 					_showStyleBaseId: ShowStyleBaseId,
-					onChanged: OnChangedPieceInstances
+					onChanged: OnChangedPieceInstances,
+					_signal: AbortSignal
 				) => {
 					capturedPieceInstancesOnChanged = onChanged
-					return { stop: jest.fn() }
+					return {}
 				}
 			),
 		},
@@ -95,17 +100,17 @@ describe('StudioObserver', () => {
 		const rundownId = protectString<RundownId>('rundown0')
 		const showStyleBaseId = protectString<ShowStyleBaseId>('showStyleBase0')
 
-		const rundownCleanup = jest.fn()
-		const pieceCleanup = jest.fn()
-
-		const onRundownContentChanged = jest.fn(
-			(_ssbId: ShowStyleBaseId, _cache: RundownContentCache) => rundownCleanup
-		)
+		const onRundownContentChanged = jest.fn((_ssbId: ShowStyleBaseId, _cache: RundownContentCache) => undefined)
+		const onRundownContentGone = jest.fn()
 		const onPieceInstancesChanged = jest.fn(
-			(_ssbId: ShowStyleBaseId, _cache: PieceInstancesContentCache) => pieceCleanup
+			(_ssbId: ShowStyleBaseId, _cache: PieceInstancesContentCache) => undefined
 		)
 
-		const observer = new StudioObserver(studioId, onRundownContentChanged, onPieceInstancesChanged)
+		const observer = new StudioObserver(studioId, {
+			onRundownContentChanged,
+			onRundownContentGone,
+			onPieceInstancesChanged,
+		})
 
 		// Prime state so updateShowStyle goes down the creation path
 		;(observer as any).nextProps = {
@@ -138,20 +143,13 @@ describe('StudioObserver', () => {
 		expect(() => capturedRundownContentOnChanged!(mockRundownCache)).not.toThrow()
 		expect(() => capturedPieceInstancesOnChanged!(mockPieceInstancesCache)).not.toThrow()
 
-		// They should return cleanup fns
-		const cleanup1 = capturedRundownContentOnChanged!(mockRundownCache)
-		const cleanup2 = capturedPieceInstancesOnChanged!(mockPieceInstancesCache)
-		expect(typeof cleanup1).toBe('function')
-		expect(typeof cleanup2).toBe('function')
-
 		// Ensure our handlers were called with expected args
 		expect(onRundownContentChanged).toHaveBeenCalledWith(showStyleBaseId, mockRundownCache)
 		expect(onPieceInstancesChanged).toHaveBeenCalledWith(showStyleBaseId, mockPieceInstancesCache)
 
-		// Ensure returned cleanup fns are callable
-		expect(() => cleanup1()).not.toThrow()
-		expect(() => cleanup2()).not.toThrow()
-
+		// Teardown is registered on the observer's signal rather than returned from the change handler
+		expect(onRundownContentGone).not.toHaveBeenCalled()
 		observer.stop()
+		expect(onRundownContentGone).toHaveBeenCalledTimes(1)
 	})
 })

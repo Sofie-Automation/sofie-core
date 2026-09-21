@@ -4,7 +4,7 @@ import { CustomPublish, CustomPublishChanges } from '../publish'
 import { sleep } from '../../lib'
 
 interface CustomPublishMockExt {
-	stop?: () => void
+	stop: () => void
 }
 
 class CustomPublishMock<DBObj extends { _id: ProtectedString<any> }>
@@ -12,17 +12,22 @@ class CustomPublishMock<DBObj extends { _id: ProtectedString<any> }>
 {
 	static create<DBObj extends { _id: ProtectedString<any> }>(): CustomPublish<DBObj> & CustomPublishMockExt {
 		const mock = new CustomPublishMock<DBObj>()
-		return mock as CustomPublish<DBObj>
+		return mock as CustomPublish<DBObj> & CustomPublishMockExt
 	}
+
+	readonly #abort = new AbortController()
 
 	get isReady(): boolean {
 		return false
 	}
 
-	stop?: () => void
+	get signal(): AbortSignal {
+		return this.#abort.signal
+	}
 
-	onStop(callback: () => void) {
-		this.stop = callback
+	/** Ends this subscriber's lifetime, as unsubscribing would */
+	stop = (): void => {
+		this.#abort.abort()
 	}
 
 	init: CustomPublish<DBObj>['init'] = jest.fn()
@@ -48,7 +53,6 @@ describe('optimizedObserver base', () => {
 			let triggerUpdate: TriggerUpdate<Record<string, never>> | undefined
 			const setupObservers = jest.fn(async (_args, triggerUpdate0) => {
 				triggerUpdate = triggerUpdate0
-				return []
 			})
 			const manipulateData = jest.fn(async (): Promise<ManipulateDataRes> => [[], emptyChanges()])
 
@@ -100,7 +104,7 @@ describe('optimizedObserver base', () => {
 		const receiver2 = CustomPublishMock.create<any>()
 
 		try {
-			const setupObservers = jest.fn(async () => [])
+			const setupObservers = jest.fn(async () => {})
 			const manipulateData = jest.fn(async (): Promise<ManipulateDataRes> => [[], emptyChanges()])
 
 			// Start off the first subscriber

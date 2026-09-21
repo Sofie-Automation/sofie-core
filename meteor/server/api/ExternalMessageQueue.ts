@@ -50,7 +50,7 @@ function updateExternalMessageQueueStatus(): void {
 	}
 }
 
-export async function startExternalMessageQueueStatusMonitor(): Promise<void> {
+export async function startExternalMessageQueueStatusMonitor(signal: AbortSignal): Promise<void> {
 	await ExternalMessageQueue.observeChanges(
 		{
 			sent: { $not: { $gt: 0 } },
@@ -60,7 +60,8 @@ export async function startExternalMessageQueueStatusMonitor(): Promise<void> {
 			added: updateExternalMessageQueueStatus,
 			changed: updateExternalMessageQueueStatus,
 			removed: updateExternalMessageQueueStatus,
-		}
+		},
+		{ signal }
 	)
 
 	updateExternalMessageQueueStatus()
