@@ -57,8 +57,6 @@ export class StudioDeviceTriggerManager {
 
 	async updateTriggers(cache: ContentCache, showStyleBaseId: ShowStyleBaseId): Promise<void> {
 		const studioId = this.studioId
-		this.lastCache = cache
-		this.#lastShowStyleBaseId = showStyleBaseId
 
 		const showStyleBase = cache.ShowStyleBases.findOne(showStyleBaseId)
 		const rundownPlaylist = cache.RundownPlaylists.findOne({
@@ -67,8 +65,14 @@ export class StudioDeviceTriggerManager {
 			},
 		})
 		if (!showStyleBase || !rundownPlaylist) {
+			// The observer doesn't clear before re-running an update, so tear down anything mounted from a
+			// previous (valid) cache rather than leaving it active against this one
+			await this.clearTriggers()
 			return
 		}
+
+		this.lastCache = cache
+		this.#lastShowStyleBaseId = showStyleBaseId
 
 		const context = createContextFromCache(cache, studioId, rundownPlaylist)
 		const actionManager = StudioActionManagers.get(studioId)

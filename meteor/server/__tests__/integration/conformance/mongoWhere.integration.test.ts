@@ -127,6 +127,31 @@ const cases: ConformanceCase[] = [
 		seed: withMissing,
 		query: { val: { $regex: '.*' } },
 	},
+	{
+		kind: 'where',
+		name: '$regex RegExp with $options: i',
+		seed: scalars,
+		query: { name: { $regex: /ABC/, $options: 'i' } },
+	},
+	{
+		kind: 'where',
+		name: '$regex RegExp with flags and $options is rejected',
+		seed: scalars,
+		query: { name: { $regex: /ABC/m, $options: 'i' } },
+		expectation: { status: 'bothThrow', reason: 'options set in both $regex and $options' },
+	},
+	{
+		kind: 'where',
+		name: '$regex with $options: x ignores whitespace and comments',
+		seed: scalars,
+		query: { name: { $regex: '^ a b c # a comment\n d', $options: 'x' } },
+	},
+	{
+		kind: 'where',
+		name: '$regex with $options: x keeps escaped whitespace and character classes',
+		seed: [...scalars, { _id: 'e', name: 'ab c' }, { _id: 'f', name: 'ab  c' }],
+		query: { name: { $regex: '^ab\\ [ ] c$', $options: 'x' } },
+	},
 	{ kind: 'where', name: 'bare RegExp field value', seed: scalars, query: { name: /^abc/ } },
 	{ kind: 'where', name: 'bare RegExp field value, case-insensitive', seed: scalars, query: { name: /ABC/i } },
 	{

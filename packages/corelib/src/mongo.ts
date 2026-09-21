@@ -160,14 +160,54 @@ function mongoMatchesAnyOf(value: any, list: any[]): boolean {
  *
  * The `g`/`y` flags are stripped, because `RegExp.test` advances `lastIndex` with them set, which would make
  * repeated matches against the same compiled selector return alternating results.
+ *
+ * As in MongoDB, `$options` applies to a RegExp pattern too, but not when the RegExp carries its own flags.
+ * MongoDB's `x` (extended) option has no JS equivalent, so it is applied by rewriting the pattern.
  */
 function mongoMatchesRegex(value: any, pattern: string | RegExp, options: string | undefined): boolean {
-	const flags = (pattern instanceof RegExp ? pattern.flags : (options ?? '')).replace(/[gy]/g, '')
-	const regex = new RegExp(pattern instanceof RegExp ? pattern.source : pattern, flags)
+	let source = pattern instanceof RegExp ? pattern.source : pattern
+	let flags = (pattern instanceof RegExp ? pattern.flags : '').replace(/[gy]/g, '')
+	if (options) {
+		if (flags) throw new Error('options set in both $regex and $options')
+		flags = options
+	}
+	if (flags.includes('x')) {
+		source = stripExtendedRegexSyntax(source)
+		flags = flags.replace(/x/g, '')
+	}
+	const regex = new RegExp(source, flags)
 
 	const matches = (v: any) => typeof v === 'string' && regex.test(v)
 	if (matches(value)) return true
 	return Array.isArray(value) && value.some(matches)
+}
+
+/**
+ * Apply PCRE extended-mode (MongoDB's `x` option) to a pattern: unescaped whitespace, and `#` comments up to
+ * the end of the line, are removed, except inside a character class.
+ */
+function stripExtendedRegexSyntax(source: string): string {
+	let result = ''
+	let inClass = false
+	for (let i = 0; i < source.length; i++) {
+		const char = source[i]
+		if (char === '\\') {
+			// Keep the escape and the escaped character verbatim
+			result += source.slice(i, i + 2)
+			i++
+		} else if (inClass) {
+			if (char === ']') inClass = false
+			result += char
+		} else if (char === '[') {
+			inClass = true
+			result += char
+		} else if (char === '#') {
+			while (i + 1 < source.length && source[i + 1] !== '\n') i++
+		} else if (!/\s/.test(char)) {
+			result += char
+		}
+	}
+	return result
 }
 
 /**

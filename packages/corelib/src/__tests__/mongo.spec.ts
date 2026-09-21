@@ -607,6 +607,23 @@ describe('mongoWhere $regex', () => {
 		expect(where({ name: 'Camera 1' }, selector)).toBe(true)
 	})
 
+	test('applies $options to a RegExp $regex without flags', () => {
+		expect(where({ name: 'Camera 1' }, { name: { $regex: /camera/, $options: 'i' } })).toBe(true)
+	})
+
+	test('rejects $options alongside a RegExp $regex which has its own flags', () => {
+		expect(() => where({ name: 'Camera 1' }, { name: { $regex: /camera/m, $options: 'i' } })).toThrow(
+			/options set in both/
+		)
+	})
+
+	test('supports the extended ($options: x) syntax', () => {
+		const selector: MongoQuery<any> = { name: { $regex: 'Cam era # a comment\n \\ 1 [ ]', $options: 'x' } }
+		expect(where({ name: 'Camera 1 ' }, selector)).toBe(true)
+		expect(where({ name: 'Cam era 1 ' }, selector)).toBe(false)
+		expect(where({ name: 'Camera 1' }, selector)).toBe(false)
+	})
+
 	test('rejects $options without a sibling $regex', () => {
 		expect(() => where({ name: 'Camera 1' }, { name: { $options: 'i' } })).toThrow(/\$regex/)
 	})
