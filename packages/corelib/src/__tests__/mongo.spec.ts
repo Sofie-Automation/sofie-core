@@ -617,6 +617,12 @@ describe('mongoWhere $regex', () => {
 		)
 	})
 
+	test('rejects $options which MongoDB does not support', () => {
+		expect(() => where({ name: 'Camera 1' }, { name: { $regex: 'Camera', $options: 'g' } })).toThrow(
+			/invalid flag in regex options/
+		)
+	})
+
 	test('supports the extended ($options: x) syntax', () => {
 		const selector: MongoQuery<any> = { name: { $regex: 'Cam era # a comment\n \\ 1 [ ]', $options: 'x' } }
 		expect(where({ name: 'Camera 1 ' }, selector)).toBe(true)

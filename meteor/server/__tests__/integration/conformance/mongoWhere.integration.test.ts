@@ -142,6 +142,13 @@ const cases: ConformanceCase[] = [
 	},
 	{
 		kind: 'where',
+		name: '$regex with unsupported $options: g is rejected',
+		seed: scalars,
+		query: { name: { $regex: 'abc', $options: 'g' } },
+		expectation: { status: 'bothThrow', reason: 'invalid flag in regex options: g' },
+	},
+	{
+		kind: 'where',
 		name: '$regex with $options: x ignores whitespace and comments',
 		seed: scalars,
 		query: { name: { $regex: '^ a b c # a comment\n d', $options: 'x' } },

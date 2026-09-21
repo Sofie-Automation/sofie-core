@@ -169,6 +169,9 @@ function mongoMatchesRegex(value: any, pattern: string | RegExp, options: string
 	let flags = (pattern instanceof RegExp ? pattern.flags : '').replace(/[gy]/g, '')
 	if (options) {
 		if (flags) throw new Error('options set in both $regex and $options')
+		// MongoDB only supports these; JS-only flags such as `g` would otherwise be accepted by `RegExp`
+		const invalidOption = options.match(/[^imsux]/)
+		if (invalidOption) throw new Error(`invalid flag in regex options: ${invalidOption[0]}`)
 		flags = options
 	}
 	if (flags.includes('x')) {
