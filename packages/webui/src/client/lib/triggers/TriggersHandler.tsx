@@ -85,10 +85,10 @@ function useSubscriptions(
 		useSubscription(CorelibPubSub.rundownPlaylists, [rundownPlaylistId], null),
 		useSubscription(CorelibPubSub.rundownsInPlaylists, [rundownPlaylistId]),
 
-		useSubscription(CorelibPubSub.adLibActions, rundownIds),
-		useSubscription(CorelibPubSub.adLibPieces, rundownIds),
-		useSubscription(CorelibPubSub.rundownBaselineAdLibActions, rundownIds),
-		useSubscription(CorelibPubSub.rundownBaselineAdLibPieces, rundownIds),
+		useSubscription(CorelibPubSub.uiAdLibActions, rundownIds),
+		useSubscription(CorelibPubSub.uiAdLibPieces, rundownIds),
+		useSubscription(CorelibPubSub.uiRundownBaselineAdLibActions, rundownIds),
+		useSubscription(CorelibPubSub.uiRundownBaselineAdLibPieces, rundownIds),
 		useSubscription(MeteorPubSub.uiShowStyleBase, showStyleBaseId),
 	]
 
