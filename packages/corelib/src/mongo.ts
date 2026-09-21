@@ -155,6 +155,65 @@ function mongoMatchesAnyOf(value: any, list: any[]): boolean {
 }
 
 /**
+ * MongoDB `$regex`: matches string field values against the pattern, or (when the field is an array) any
+ * string element of it. Non-string values never match, as in MongoDB.
+ *
+ * The `g`/`y` flags are stripped, because `RegExp.test` advances `lastIndex` with them set, which would make
+ * repeated matches against the same compiled selector return alternating results.
+ *
+ * As in MongoDB, `$options` applies to a RegExp pattern too, but not when the RegExp carries its own flags.
+ * MongoDB's `x` (extended) option has no JS equivalent, so it is applied by rewriting the pattern.
+ */
+function mongoMatchesRegex(value: any, pattern: string | RegExp, options: string | undefined): boolean {
+	let source = pattern instanceof RegExp ? pattern.source : pattern
+	let flags = (pattern instanceof RegExp ? pattern.flags : '').replace(/[gy]/g, '')
+	if (options) {
+		if (flags) throw new Error('options set in both $regex and $options')
+		// MongoDB only supports these; JS-only flags such as `g` would otherwise be accepted by `RegExp`
+		const invalidOption = options.match(/[^imsux]/)
+		if (invalidOption) throw new Error(`invalid flag in regex options: ${invalidOption[0]}`)
+		flags = options
+	}
+	if (flags.includes('x')) {
+		source = stripExtendedRegexSyntax(source)
+		flags = flags.replace(/x/g, '')
+	}
+	const regex = new RegExp(source, flags)
+
+	const matches = (v: any) => typeof v === 'string' && regex.test(v)
+	if (matches(value)) return true
+	return Array.isArray(value) && value.some(matches)
+}
+
+/**
+ * Apply PCRE extended-mode (MongoDB's `x` option) to a pattern: unescaped whitespace, and `#` comments up to
+ * the end of the line, are removed, except inside a character class.
+ */
+function stripExtendedRegexSyntax(source: string): string {
+	let result = ''
+	let inClass = false
+	for (let i = 0; i < source.length; i++) {
+		const char = source[i]
+		if (char === '\\') {
+			// Keep the escape and the escaped character verbatim
+			result += source.slice(i, i + 2)
+			i++
+		} else if (inClass) {
+			if (char === ']') inClass = false
+			result += char
+		} else if (char === '[') {
+			inClass = true
+			result += char
+		} else if (char === '#') {
+			while (i + 1 < source.length && source[i + 1] !== '\n') i++
+		} else if (!/\s/.test(char)) {
+			result += char
+		}
+	}
+	return result
+}
+
+/**
  * Match a single field's operator-object (e.g. `{ $gte: 2, $lte: 4 }`) against the field value. MongoDB
  * applies ALL operators in such an object, so every one must hold (logical AND). Throws on any operator we
  * do not implement (rather than silently ignoring it). `o`/`key` are passed through for `$not`/`$exists`,
@@ -194,6 +253,15 @@ function mongoMatchFieldOperators(oAttr: any, s: Record<string, any>, o: Record<
 				break
 			case '$exists':
 				ok = (o[key] !== undefined) === !!value
+				break
+			case '$regex':
+				ok = mongoMatchesRegex(oAttr, value, s['$options'])
+				break
+			case '$options':
+				// Consumed by the sibling `$regex`, but reject it on its own so that a selector which would
+				// be an error in MongoDB doesn't quietly match everything here.
+				if (!('$regex' in s)) throw new Error('Operand "$options" requires a sibling "$regex"')
+				ok = true
 				break
 			case '$not': {
 				const innerSelector: any = {}
@@ -262,7 +330,11 @@ export function mongoWhere<T>(o: Record<string, any>, selector: MongoQuery<T>): 
 		} else {
 			const oAttr = o[key]
 
-			if (_.isObject(s) && !Array.isArray(s) && Object.keys(s).some((k) => k.startsWith('$'))) {
+			if (s instanceof RegExp) {
+				// A bare RegExp field value, which MongoDB treats as `{ $regex: ... }`. Handled before the
+				// sub-document branch below, which would otherwise compare it field-by-field and never match.
+				ok = mongoMatchesRegex(oAttr, s, undefined)
+			} else if (_.isObject(s) && !Array.isArray(s) && Object.keys(s).some((k) => k.startsWith('$'))) {
 				// An operator object such as `{ $gte: 2, $lte: 4 }` — every operator must hold (logical AND).
 				ok = mongoMatchFieldOperators(oAttr, s as Record<string, any>, o, key)
 			} else if (_.isObject(s)) {

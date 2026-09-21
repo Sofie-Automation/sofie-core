@@ -6,7 +6,6 @@ import {
 	createAction,
 	ExecutableAction,
 	isPreviewableAction,
-	ReactivePlaylistActionContext,
 } from '@sofie-automation/meteor-lib/dist/triggers/actionFactory'
 import {
 	DeviceActionId,
@@ -28,8 +27,8 @@ import { ContentCache as PieceInstancesContentCache } from './reactiveContentCac
 import { logger } from '../../logging'
 import { SomeAction, SomeBlueprintTrigger } from '@sofie-automation/blueprints-integration'
 import { DeviceActions } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
-import { DummyReactiveVar } from '@sofie-automation/meteor-lib/dist/triggers/reactive-var'
 import { TriggersContext } from '@sofie-automation/meteor-lib/dist/triggers/triggersContext'
+import { createContextFromCache, TriggersContextFactory } from './triggersContext'
 import { TagsService } from './TagsService'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
@@ -38,11 +37,16 @@ export class StudioDeviceTriggerManager {
 
 	lastCache: ContentCache | undefined
 
+	private readonly triggersContext: TriggersContext
+
 	constructor(
 		public studioId: StudioId,
 		protected tagsService: TagsService,
-		private readonly triggersContext: TriggersContext
+		createTriggersContext: TriggersContextFactory
 	) {
+		// `lastCache` is reassigned during the lifetime, so pass a getter
+		this.triggersContext = createTriggersContext(() => this.lastCache)
+
 		if (StudioActionManagers.get(studioId)) {
 			logger.error(`A StudioActionManager for "${studioId}" already exists`)
 			return
@@ -53,8 +57,6 @@ export class StudioDeviceTriggerManager {
 
 	async updateTriggers(cache: ContentCache, showStyleBaseId: ShowStyleBaseId): Promise<void> {
 		const studioId = this.studioId
-		this.lastCache = cache
-		this.#lastShowStyleBaseId = showStyleBaseId
 
 		const showStyleBase = cache.ShowStyleBases.findOne(showStyleBaseId)
 		const rundownPlaylist = cache.RundownPlaylists.findOne({
@@ -63,10 +65,16 @@ export class StudioDeviceTriggerManager {
 			},
 		})
 		if (!showStyleBase || !rundownPlaylist) {
+			// The observer doesn't clear before re-running an update, so tear down anything mounted from a
+			// previous (valid) cache rather than leaving it active against this one
+			await this.clearTriggers()
 			return
 		}
 
-		const context = await createCurrentContextFromCache(cache, studioId)
+		this.lastCache = cache
+		this.#lastShowStyleBaseId = showStyleBaseId
+
+		const context = createContextFromCache(cache, studioId, rundownPlaylist)
 		const actionManager = StudioActionManagers.get(studioId)
 		if (!actionManager)
 			throw new SofieError(
@@ -285,6 +293,9 @@ export class StudioDeviceTriggerManager {
 
 		actionManager.deleteContext()
 
+		// Drop the cache too: it belongs to the observer that is being torn down, and `triggersContext` reads
+		// it to evaluate filter chains.
+		this.lastCache = undefined
 		this.#lastShowStyleBaseId = null
 		return
 	}
@@ -308,51 +319,4 @@ function convertDocument(doc: ReadonlyObjectDeep<DBTriggeredActions>): UITrigger
 
 		styleClassNames: doc.styleClassNames,
 	})
-}
-
-async function createCurrentContextFromCache(
-	cache: ContentCache,
-	studioId: StudioId
-): Promise<ReactivePlaylistActionContext> {
-	const rundownPlaylist = cache.RundownPlaylists.findOne({
-		activationId: {
-			$exists: true,
-		},
-	})
-
-	if (!rundownPlaylist) throw new Error('There should be an active RundownPlaylist!')
-
-	const currentPartInstance = rundownPlaylist.currentPartInfo
-		? cache.PartInstances.findOne(rundownPlaylist.currentPartInfo.partInstanceId)
-		: undefined
-	const nextPartInstance = rundownPlaylist.nextPartInfo
-		? cache.PartInstances.findOne(rundownPlaylist.nextPartInfo.partInstanceId)
-		: undefined
-
-	const currentSegmentPartIds = currentPartInstance
-		? cache.Parts.findFetch({
-				segmentId: currentPartInstance.part.segmentId,
-			}).map((part) => part._id)
-		: []
-	const nextSegmentPartIds = nextPartInstance
-		? nextPartInstance.part.segmentId === currentPartInstance?.part.segmentId
-			? currentSegmentPartIds
-			: cache.Parts.findFetch({
-					segmentId: nextPartInstance.part.segmentId,
-				}).map((part) => part._id)
-		: []
-
-	return {
-		studioId: new DummyReactiveVar(studioId),
-		currentPartInstanceId: new DummyReactiveVar(currentPartInstance?._id ?? null),
-		currentPartId: new DummyReactiveVar(currentPartInstance?.part._id ?? null),
-		nextPartId: new DummyReactiveVar(nextPartInstance?.part._id ?? null),
-		currentRundownId: new DummyReactiveVar(
-			currentPartInstance?.part.rundownId ?? nextPartInstance?.part.rundownId ?? null
-		),
-		rundownPlaylist: new DummyReactiveVar(rundownPlaylist),
-		rundownPlaylistId: new DummyReactiveVar(rundownPlaylist._id),
-		currentSegmentPartIds: new DummyReactiveVar(currentSegmentPartIds),
-		nextSegmentPartIds: new DummyReactiveVar(nextSegmentPartIds),
-	}
 }
