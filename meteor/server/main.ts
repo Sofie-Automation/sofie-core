@@ -51,6 +51,7 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 
 // Register all migration steps
 import './migration/migrations'
+import { USER_PERMISSIONS_HEADER } from './security/auth'
 
 // Build and populate the method registry
 const methodRegistry = new MethodRegistry()
@@ -112,7 +113,29 @@ const ddpConnectionRegistry = createDdpConnectionRegistry()
 	setupPrometheusMetrics('meteor')
 
 	// Start observing studios for device triggers, dispatching their actions through the method registry
-	const meteorCallForTriggers = makeMeteorCallForRegistry(methodRegistry)
+	const meteorCallForTriggers = makeMeteorCallForRegistry(methodRegistry, () => ({
+		connection: {
+			// This is a workaround for triggering actions using input-gateway,
+			// where the connection-context isn't provided to the triggerContext,
+			// since the trigger action does MeteorCall server-side.
+			// This context passes the auth.
+			// Long term, this should be replaced with some non-meteor connection-context.
+			id: 'fakeConnectionId',
+			signal: new AbortController().signal, // noop signal for tests
+			close: () => {
+				throw new Error('Not implemented')
+			},
+			onClose: () => {
+				throw new Error('Not implemented')
+			},
+			clientAddress: '127.0.0.1',
+			httpHeaders: {
+				// Allow all studio actions
+				[USER_PERMISSIONS_HEADER]: 'studio',
+			},
+		},
+		unblock: () => undefined,
+	}))
 	await startDeviceTriggersObserver((getCache) => createMeteorTriggersContext(meteorCallForTriggers, getCache))
 	await Promise.all([
 		setupSystemStatusObservers(),
