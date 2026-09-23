@@ -8,16 +8,8 @@ import {
 	ITranslatableMessage,
 	PieceLifespan,
 } from '@sofie-automation/blueprints-integration'
-import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
-import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
-import { RundownBaselineAdLibItem } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibPiece'
-import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { sortAdlibs } from '../adlibs.js'
 import { ReactivePlaylistActionContext } from './actionFactory.js'
 import { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -25,7 +17,14 @@ import { IWrappedAdLibBase } from '@sofie-automation/shared-lib/dist/input-gatew
 import { MountedAdLibTriggerType } from '../api/MountedTriggers.js'
 import { assertNever, generateTranslation } from '@sofie-automation/corelib/dist/lib'
 import { FindOptions } from '../collections/lib.js'
-import { TriggersContext, TriggerTrackerComputation } from './triggersContext.js'
+import {
+	TriggersAdLibAction,
+	TriggersAdLibPiece,
+	TriggersContext,
+	TriggersRundownBaselineAdLibAction,
+	TriggersRundownBaselineAdLibItem,
+	TriggerTrackerComputation,
+} from './triggersContext.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 
 export type AdLibFilterChainLink = IRundownPlaylistFilterLink | IGUIContextFilterLink | IAdLibFilterLink
@@ -50,11 +49,10 @@ type CompiledAdLibFilter<T> = {
 }
 
 type SomeAdLib =
-	| RundownBaselineAdLibItem
-	| RundownBaselineAdLibAction
-	// eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
-	| AdLibPiece
-	| AdLibAction
+	| TriggersRundownBaselineAdLibItem
+	| TriggersRundownBaselineAdLibAction
+	| TriggersAdLibPiece
+	| TriggersAdLibAction
 
 interface IWrappedAdLibType<T extends SomeAdLib, typeName extends MountedAdLibTriggerType> extends IWrappedAdLibBase {
 	_id: T['_id']
@@ -71,7 +69,7 @@ interface IWrappedAdLibType<T extends SomeAdLib, typeName extends MountedAdLibTr
 
 /** What follows are utility functions to wrap various AdLib objects to IWrappedAdLib */
 
-function wrapAdLibAction(adLib: AdLibAction, type: MountedAdLibTriggerType.adLibAction): IWrappedAdLib {
+function wrapAdLibAction(adLib: TriggersAdLibAction, type: MountedAdLibTriggerType.adLibAction): IWrappedAdLib {
 	return {
 		_id: adLib._id,
 		_rank: adLib.display?._rank || 0,
@@ -87,7 +85,7 @@ function wrapAdLibAction(adLib: AdLibAction, type: MountedAdLibTriggerType.adLib
 }
 
 function wrapRundownBaselineAdLibAction(
-	adLib: RundownBaselineAdLibAction,
+	adLib: TriggersRundownBaselineAdLibAction,
 	type: MountedAdLibTriggerType.rundownBaselineAdLibAction
 ): IWrappedAdLib {
 	return {
@@ -104,12 +102,7 @@ function wrapRundownBaselineAdLibAction(
 	}
 }
 
-function wrapAdLibPiece<
-	T extends
-		| RundownBaselineAdLibItem
-		// eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
-		| AdLibPiece,
->(
+function wrapAdLibPiece<T extends TriggersRundownBaselineAdLibItem | TriggersAdLibPiece>(
 	adLib: T,
 	type: MountedAdLibTriggerType.adLibPiece | MountedAdLibTriggerType.rundownBaselineAdLibItem
 ): IWrappedAdLib {
@@ -127,10 +120,10 @@ function wrapAdLibPiece<
 }
 
 export type IWrappedAdLib =
-	| IWrappedAdLibType<RundownBaselineAdLibItem, MountedAdLibTriggerType.rundownBaselineAdLibItem>
-	| IWrappedAdLibType<RundownBaselineAdLibAction, MountedAdLibTriggerType.rundownBaselineAdLibAction>
-	| IWrappedAdLibType<AdLibPiece, MountedAdLibTriggerType.adLibPiece>
-	| IWrappedAdLibType<AdLibAction, MountedAdLibTriggerType.adLibAction>
+	| IWrappedAdLibType<TriggersRundownBaselineAdLibItem, MountedAdLibTriggerType.rundownBaselineAdLibItem>
+	| IWrappedAdLibType<TriggersRundownBaselineAdLibAction, MountedAdLibTriggerType.rundownBaselineAdLibAction>
+	| IWrappedAdLibType<TriggersAdLibPiece, MountedAdLibTriggerType.adLibPiece>
+	| IWrappedAdLibType<TriggersAdLibAction, MountedAdLibTriggerType.adLibAction>
 	| {
 			_id: ISourceLayer['_id']
 			_rank: number
@@ -302,7 +295,7 @@ function compileAndRunStickyFilter(filterChain: IAdLibFilterLink[], sourceLayers
 	return result
 }
 
-type AdLibActionType = RundownBaselineAdLibAction | AdLibAction
+type AdLibActionType = TriggersRundownBaselineAdLibAction | TriggersAdLibAction
 
 function compileAdLibActionFilter(
 	filterChain: IAdLibFilterLink[],
@@ -398,10 +391,7 @@ function compileAdLibActionFilter(
 	}
 }
 
-type AdLibPieceType =
-	| RundownBaselineAdLibItem
-	// eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
-	| AdLibPiece
+type AdLibPieceType = TriggersRundownBaselineAdLibItem | TriggersAdLibPiece
 
 function compileAdLibPieceFilter(
 	filterChain: IAdLibFilterLink[],
@@ -672,7 +662,7 @@ export function compileAdLibFilter(
 								...adLibPieceTypeFilter.selector,
 								...currentNextOverride,
 								rundownId: currentRundownId,
-							} as MongoQuery<RundownBaselineAdLibItem>,
+							} as MongoQuery<TriggersRundownBaselineAdLibItem>,
 							adLibPieceTypeFilter.options
 						)
 					).map((item) => wrapAdLibPiece(item, MountedAdLibTriggerType.rundownBaselineAdLibItem))
@@ -684,7 +674,7 @@ export function compileAdLibFilter(
 								...adLibPieceTypeFilter.selector,
 								...currentNextOverride,
 								rundownId: currentRundownId,
-							} as MongoQuery<AdLibPiece>,
+							} as MongoQuery<TriggersAdLibPiece>,
 							adLibPieceTypeFilter.options
 						)
 					).map((item) => wrapAdLibPiece(item, MountedAdLibTriggerType.adLibPiece))
@@ -715,7 +705,7 @@ export function compileAdLibFilter(
 								...adLibActionTypeFilter.selector,
 								...currentNextOverride,
 								rundownId: currentRundownId,
-							} as MongoQuery<RundownBaselineAdLibAction>,
+							} as MongoQuery<TriggersRundownBaselineAdLibAction>,
 							adLibActionTypeFilter.options
 						)
 					).map((item) =>
@@ -729,7 +719,7 @@ export function compileAdLibFilter(
 								...adLibActionTypeFilter.selector,
 								...currentNextOverride,
 								rundownId: currentRundownId,
-							} as MongoQuery<AdLibAction>,
+							} as MongoQuery<TriggersAdLibAction>,
 							adLibActionTypeFilter.options
 						)
 					).map((item) => wrapAdLibAction(item, MountedAdLibTriggerType.adLibAction))
@@ -748,7 +738,7 @@ export function compileAdLibFilter(
 				const rundownRanks = await triggersContext.memoizedIsolatedAutorun(
 					computation,
 					async (computation) => {
-						const playlist = (await triggersContext.RundownPlaylists.findOneAsync(
+						const playlist = await triggersContext.RundownPlaylists.findOneAsync(
 							computation,
 							rundownPlaylistId,
 							{
@@ -756,12 +746,12 @@ export function compileAdLibFilter(
 									rundownIdsInOrder: 1,
 								},
 							}
-						)) as Pick<DBRundownPlaylist, 'rundownIdsInOrder'> | undefined
+						)
 
 						if (playlist?.rundownIdsInOrder) {
 							return playlist.rundownIdsInOrder
 						} else {
-							const rundowns = (await triggersContext.Rundowns.findFetchAsync(
+							const rundowns = await triggersContext.Rundowns.findFetchAsync(
 								computation,
 								{
 									playlistId: rundownPlaylistId,
@@ -771,7 +761,7 @@ export function compileAdLibFilter(
 										_id: 1,
 									},
 								}
-							)) as Pick<DBRundown, '_id'>[]
+							)
 
 							return rundowns.map((r) => r._id)
 						}
@@ -785,7 +775,7 @@ export function compileAdLibFilter(
 				const segmentRanks = await triggersContext.memoizedIsolatedAutorun(
 					computation,
 					async (computation) =>
-						(await triggersContext.Segments.findFetchAsync(
+						triggersContext.Segments.findFetchAsync(
 							computation,
 							{
 								rundownId: { $in: Array.from(rundownRankMap.keys()) },
@@ -796,7 +786,7 @@ export function compileAdLibFilter(
 									_rank: 1,
 								},
 							}
-						)) as Pick<DBSegment, '_id' | '_rank'>[],
+						),
 					`segmentRanksForRundowns_${Array.from(rundownRankMap.keys()).join(',')}`
 				)
 				segmentRanks.forEach((segment) => {
@@ -807,7 +797,7 @@ export function compileAdLibFilter(
 					computation,
 					async (computation) => {
 						if (!partFilter) {
-							return (await triggersContext.Parts.findFetchAsync(
+							return triggersContext.Parts.findFetchAsync(
 								computation,
 								{
 									rundownId: { $in: Array.from(rundownRankMap.keys()) },
@@ -820,9 +810,9 @@ export function compileAdLibFilter(
 										_rank: 1,
 									},
 								}
-							)) as Pick<DBPart, '_id' | '_rank' | 'segmentId' | 'rundownId'>[]
+							)
 						} else {
-							return (await triggersContext.Parts.findFetchAsync(
+							return triggersContext.Parts.findFetchAsync(
 								computation,
 								{ _id: { $in: partFilter } },
 								{
@@ -833,7 +823,7 @@ export function compileAdLibFilter(
 										_rank: 1,
 									},
 								}
-							)) as Pick<DBPart, '_id' | '_rank' | 'segmentId' | 'rundownId'>[]
+							)
 						}
 					},
 					`partRanks_${JSON.stringify(partFilter ?? rundownRankMap.keys())}`

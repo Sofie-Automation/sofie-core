@@ -5,7 +5,7 @@ import { AdLibAction } from './dataModel/AdlibAction.js'
 import { AdLibPiece } from './dataModel/AdLibPiece.js'
 import { RundownBaselineAdLibAction } from './dataModel/RundownBaselineAdLibAction.js'
 import { RundownBaselineAdLibItem } from './dataModel/RundownBaselineAdLibPiece.js'
-import { DBPartInstance } from './dataModel/PartInstance.js'
+import { DBPartInstance, PartInstance } from './dataModel/PartInstance.js'
 import { DBRundown } from './dataModel/Rundown.js'
 import { DBRundownPlaylist } from './dataModel/RundownPlaylist/RundownPlaylist.js'
 import { DBSegment } from './dataModel/Segment.js'
@@ -64,59 +64,51 @@ export enum CorelibPubSub {
 	/**
 	 * Fetch baseline adlib pieces belonging to the specified Rundowns
 	 */
-	rundownBaselineAdLibPieces = 'rundownBaselineAdLibPieces',
+	uiRundownBaselineAdLibPieces = 'uiRundownBaselineAdLibPieces',
 	/**
 	 * Fetch baseline adlib actions belonging to the specified Rundowns
 	 */
-	rundownBaselineAdLibActions = 'rundownBaselineAdLibActions',
+	uiRundownBaselineAdLibActions = 'uiRundownBaselineAdLibActions',
 	/**
 	 * Fetch adlib actions belonging to the specified Rundowns
 	 */
-	adLibActions = 'adLibActions',
+	uiAdLibActions = 'uiAdLibActions',
+	/**
+	 * Fetch adlib actions belonging to the specified Part, limited to the specified sourceLayerIds
+	 * These are published into the same collection as {@link CorelibPubSub.uiAdLibActions}.
+	 */
+	uiAdLibActionsForPart = 'uiAdLibActionsForPart',
 	/**
 	 * Fetch adlib pieces belonging to the specified Rundowns
 	 */
-	adLibPieces = 'adLibPieces',
+	uiAdLibPieces = 'uiAdLibPieces',
+	/**
+	 * Fetch adlib pieces belonging to the specified Part, limited to the specified sourceLayerIds
+	 * These are published into the same collection as {@link CorelibPubSub.uiAdLibPieces}.
+	 */
+	uiAdLibPiecesForPart = 'uiAdLibPiecesForPart',
 
 	/**
 	 *  Fetch Segments belonging to the specified Rundowns, optionally omitting ones set as hidden
 	 */
 	segments = 'segments',
 	/**
-	 * Fetch Parts belonging to the specified Rundowns
-	 */
-	parts = 'parts',
-	/**
-	 * Fetch PartInstances in the specified Rundowns. If set, the result will be limited to the supplied RundownPlaylistActivationId.
-	 * Any reset PartInstances will be omitted
-	 */
-	partInstances = 'partInstances',
-	/**
-	 * Fetch PartInstances in the specified Rundowns. If set, the result will be limited to the supplied RundownPlaylistActivationId.
-	 * Any reset PartInstances will be omitted
-	 * This provides a simplified form of the PartInstance, with any timing information omitted to reduce data churn
-	 */
-	partInstancesSimple = 'partInstancesSimple',
-	/**
 	 * Fetch Pieces belonging to the specified Rundowns, optionally limiting the result to the specified Parts
 	 */
-	pieces = 'pieces',
+	uiPieces = 'uiPieces',
 	/**
 	 * Fetch Pieces which are infinite and start within the specified range of Segments or Rundowns.
+	 * These are published into the same collection as {@link CorelibPubSub.uiPieces}.
 	 */
-	piecesInfiniteStartingBefore = 'piecesInfiniteStartingBefore',
+	uiPiecesInfiniteStartingBefore = 'uiPiecesInfiniteStartingBefore',
 	/**
-	 * Fetch PieceInstances in the specified Rundowns, optionally limiting the result to the specified PartInstances.
+	 * Fetch PieceInstances in the specified Rundowns, optionally limiting the result to the specified PartInstances
+	 * and/or RundownPlaylistActivationId.
 	 * Optionally only returning PieceInstances which are playing and were sourced from adlibs, or have tags set.
+	 * Optionally omitting any timing information, to reduce data churn.
 	 * Any reset PieceInstances will be omitted
 	 */
-	pieceInstances = 'pieceInstances',
-	/**
-	 * Fetch PieceInstances in the specified Rundowns. If set, the result will be limited to the supplied RundownPlaylistActivationId.
-	 * Any reset PieceInstances will be omitted
-	 * This provides a simplified form of the PieceInstance, with any timing information omitted to reduce data churn
-	 */
-	pieceInstancesSimple = 'pieceInstancesSimple',
+	uiPieceInstances = 'uiPieceInstances',
 
 	/**
 	 * Fetch all Timeline Datastore entries in the specified Studio
@@ -200,6 +192,17 @@ export enum CorelibPubSub {
 	 * If the id is null, nothing will be returned
 	 */
 	uiPieceContentStatuses = 'uiPieceContentStatuses',
+	/**
+	 * Fetch all Parts in the given RundownPlaylist, with the calculated overrides applied (such as those from the QuickLoop).
+	 * If the id is null, nothing will be returned.
+	 */
+	uiParts = 'uiParts',
+	/**
+	 * Fetch all PartInstances for the given RundownPlaylist activation, with the calculated overrides applied
+	 * (such as those from the QuickLoop). Any reset PartInstances will be omitted.
+	 * If the id is null, nothing will be returned.
+	 */
+	uiPartInstances = 'uiPartInstances',
 }
 
 /**
@@ -222,14 +225,12 @@ export interface CorelibPubSubTypes {
 		token?: string
 	) => CollectionName.PeripheralDevices
 	[CorelibPubSub.peripheralDevicesAndSubDevices]: (studioId: StudioId) => CollectionName.PeripheralDevices
-	[CorelibPubSub.rundownBaselineAdLibPieces]: (
-		rundownIds: RundownId[],
-		token?: string
-	) => CollectionName.RundownBaselineAdLibPieces
-	[CorelibPubSub.rundownBaselineAdLibActions]: (
-		rundownIds: RundownId[],
-		token?: string
-	) => CollectionName.RundownBaselineAdLibActions
+	[CorelibPubSub.uiRundownBaselineAdLibPieces]: (
+		rundownIds: RundownId[]
+	) => CustomCollectionName.UIRundownBaselineAdLibPieces
+	[CorelibPubSub.uiRundownBaselineAdLibActions]: (
+		rundownIds: RundownId[]
+	) => CustomCollectionName.UIRundownBaselineAdLibActions
 	[CorelibPubSub.ingestDataCache]: (
 		selector: MongoQuery<NrcsIngestDataCacheObj>,
 		token?: string
@@ -246,51 +247,39 @@ export interface CorelibPubSubTypes {
 		showStyleBaseIds: ShowStyleBaseId[],
 		token?: string
 	) => CollectionName.Rundowns
-	[CorelibPubSub.adLibActions]: (rundownIds: RundownId[], token?: string) => CollectionName.AdLibActions
-	[CorelibPubSub.adLibPieces]: (rundownIds: RundownId[], token?: string) => CollectionName.AdLibPieces
-	[CorelibPubSub.pieces]: (
+	[CorelibPubSub.uiAdLibActions]: (rundownIds: RundownId[]) => CustomCollectionName.UIAdLibActions
+	[CorelibPubSub.uiAdLibActionsForPart]: (
+		partId: PartId,
+		sourceLayerIds: string[]
+	) => CustomCollectionName.UIAdLibActions
+	[CorelibPubSub.uiAdLibPieces]: (rundownIds: RundownId[]) => CustomCollectionName.UIAdLibPieces
+	[CorelibPubSub.uiAdLibPiecesForPart]: (
+		partId: PartId,
+		sourceLayerIds: string[]
+	) => CustomCollectionName.UIAdLibPieces
+	[CorelibPubSub.uiPieces]: (
 		rundownIds: RundownId[],
 		/** PartIds to fetch for, or null to fetch all */
-		partIds: PartId[] | null,
-		token?: string
-	) => CollectionName.Pieces
-	[CorelibPubSub.piecesInfiniteStartingBefore]: (
+		partIds: PartId[] | null
+	) => CustomCollectionName.UIPieces
+	[CorelibPubSub.uiPiecesInfiniteStartingBefore]: (
 		thisRundownId: RundownId,
 		segmentsIdsBefore: SegmentId[],
-		rundownIdsBefore: RundownId[],
-		token?: string
-	) => CollectionName.Pieces
-	[CorelibPubSub.pieceInstances]: (
+		rundownIdsBefore: RundownId[]
+	) => CustomCollectionName.UIPieces
+	[CorelibPubSub.uiPieceInstances]: (
 		rundownIds: RundownId[],
 		/** PartInstanceIds to fetch for, or null to fetch all */
 		partInstanceIds: PartInstanceId[] | null,
+		/** RundownPlaylistActivationId to limit the result to, or null for any */
+		playlistActivationId: RundownPlaylistActivationId | null,
 		filter: {
 			/** Only include PieceInstances which are playing as an adlib, or with tags */
 			onlyPlayingAdlibsOrWithTags?: boolean
-		},
-		token?: string
-	) => CollectionName.PieceInstances
-	[CorelibPubSub.pieceInstancesSimple]: (
-		rundownIds: RundownId[],
-		playlistActivationId: RundownPlaylistActivationId | null,
-		token?: string
-	) => CollectionName.PieceInstances
-	[CorelibPubSub.parts]: (
-		rundownIds: RundownId[],
-		/** SegmentIds to fetch for, or null to fetch all */
-		segmentIds: SegmentId[] | null,
-		token?: string
-	) => CollectionName.Parts
-	[CorelibPubSub.partInstances]: (
-		rundownIds: RundownId[],
-		playlistActivationId: RundownPlaylistActivationId | null,
-		token?: string
-	) => CollectionName.PartInstances
-	[CorelibPubSub.partInstancesSimple]: (
-		rundownIds: RundownId[],
-		playlistActivationId: RundownPlaylistActivationId | null,
-		token?: string
-	) => CollectionName.PartInstances
+			/** Omit any timing information from the PieceInstances, to reduce data churn */
+			omitTimings?: boolean
+		}
+	) => CustomCollectionName.UIPieceInstances
 	[CorelibPubSub.segments]: (
 		rundownIds: RundownId[],
 		filter: {
@@ -347,6 +336,10 @@ export interface CorelibPubSubTypes {
 	[CorelibPubSub.uiPieceContentStatuses]: (
 		rundownPlaylistId: RundownPlaylistId | null
 	) => CustomCollectionName.UIPieceContentStatuses
+	[CorelibPubSub.uiParts]: (playlistId: RundownPlaylistId | null) => CustomCollectionName.UIParts
+	[CorelibPubSub.uiPartInstances]: (
+		playlistActivationId: RundownPlaylistActivationId | null
+	) => CustomCollectionName.UIPartInstances
 }
 
 export type CorelibPubSubCollections = {
@@ -382,4 +375,12 @@ export type CorelibPubSubCollections = {
 
 export type CorelibPubSubCustomCollections = {
 	[CustomCollectionName.UIPieceContentStatuses]: UIPieceContentStatus
+	[CustomCollectionName.UIParts]: DBPart
+	[CustomCollectionName.UIPartInstances]: PartInstance
+	[CustomCollectionName.UIPieceInstances]: PieceInstance
+	[CustomCollectionName.UIPieces]: Piece
+	[CustomCollectionName.UIAdLibPieces]: AdLibPiece
+	[CustomCollectionName.UIAdLibActions]: AdLibAction
+	[CustomCollectionName.UIRundownBaselineAdLibActions]: RundownBaselineAdLibAction
+	[CustomCollectionName.UIRundownBaselineAdLibPieces]: RundownBaselineAdLibItem
 }

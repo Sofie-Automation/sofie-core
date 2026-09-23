@@ -22,6 +22,34 @@ export interface IOnTakeContext
 	 * but the next part will not be taken.
 	 */
 	abortTake(): void
-	/** Insert a queued part to follow the taken part */
-	queuePartAfterTake(part: IBlueprintPart, pieces: IBlueprintPiece[]): void
+	/**
+	 * Insert an adlibbed part into the rundown after the take completes and set it as next.
+	 * @param target When omitted, inserts immediately after the taken part.
+	 * When provided, inserts relative to the given part or part instance (exactly one of `targetPartId` or `targetPartInstanceId`).
+	 * Inserts before the target unless `after` is true.
+	 * The target must exist and must not be in an orphaned segment.
+	 * The inserted part always becomes next via setNextPart, even when the target is far ahead — intervening scripted parts are skipped.
+	 * If the target is invalid, prepareQueueablePartAndPieces throws synchronously; executeOnTakeCallback catches and logs the error,
+	 * sets an onTake notification, and continues the take without queuing the part.
+	 */
+	queuePartAfterTake(part: IBlueprintPart, pieces: IBlueprintPiece[], target?: QueuePartTarget): void
+}
+
+/**
+ * Insertion point for {@link IPlayoutActionContext.queuePart} and {@link IOnTakeContext.queuePartAfterTake}.
+ * Specify exactly one of `targetPartId` or `targetPartInstanceId`.
+ * `targetPartId` may be a Part `_id` or `externalId`; Core converts it to `_id` before playout.
+ * Inserts before the target unless `after` is true.
+ */
+export type QueuePartTarget = { after?: boolean } & (QueuePartTargetProps | QueuePartInstanceTargetProps)
+
+interface QueuePartTargetProps {
+	/** Part `_id` or `externalId` */
+	targetPartId: string
+	targetPartInstanceId?: never
+}
+
+interface QueuePartInstanceTargetProps {
+	targetPartInstanceId: string
+	targetPartId?: never
 }

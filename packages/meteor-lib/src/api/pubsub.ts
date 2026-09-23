@@ -1,8 +1,6 @@
 import {
 	BucketId,
-	PartId,
 	PeripheralDeviceId,
-	RundownPlaylistActivationId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
 	StudioId,
@@ -27,10 +25,8 @@ import {
 } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 import { CorelibPubSub, CorelibPubSubCollections, CorelibPubSubTypes } from '@sofie-automation/corelib/dist/pubsub'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 
 /**
  * Ids of possible DDP subscriptions for the UI only
@@ -49,14 +45,6 @@ export enum MeteorPubSub {
 	 * Fetch RundownPlaylists for the specified Studio, limited to either active or inactive playlists
 	 */
 	rundownPlaylistForStudio = 'rundownPlaylistForStudio',
-	/**
-	 * Fetch all the AdlibActions for specified PartId, limited to the specified sourceLayerIds
-	 */
-	adLibActionsForPart = 'adLibActionsForPart',
-	/**
-	 * Fetch all the AdlibPieces for specified PartId, limited to the specified sourceLayerIds
-	 */
-	adLibPiecesForPart = 'adLibPiecesForPart',
 
 	/**
 	 * Fetch either all TriggeredActions or limited to the specified ShowStyleBases
@@ -128,14 +116,6 @@ export enum MeteorPubSub {
 	 * Fetch the Upgrade Statuses of all Blueprints in the system
 	 */
 	uiBlueprintUpgradeStatuses = 'uiBlueprintUpgradeStatuses',
-	/**
-	 * Fetch all Parts with UI overrides
-	 */
-	uiParts = 'uiParts',
-	/**
-	 * Fetch all PartInstances with UI overrides
-	 */
-	uiPartInstances = 'uiPartInstances',
 }
 
 /**
@@ -158,8 +138,6 @@ export interface MeteorPubSubTypes {
 	[MeteorPubSub.evaluations]: (dateFrom: number, dateTo: number, token?: string) => CollectionName.Evaluations
 
 	[MeteorPubSub.rundownPlaylistForStudio]: (studioId: StudioId, isActive: boolean) => CollectionName.RundownPlaylists
-	[MeteorPubSub.adLibActionsForPart]: (partId: PartId, sourceLayerIds: string[]) => CollectionName.AdLibActions
-	[MeteorPubSub.adLibPiecesForPart]: (partId: PartId, sourceLayerIds: string[]) => CollectionName.AdLibPieces
 
 	[MeteorPubSub.triggeredActions]: (
 		/** ShowStyleBaseIds to fetch for, or null to just fetch global */
@@ -203,10 +181,6 @@ export interface MeteorPubSubTypes {
 		bucketId: BucketId
 	) => CustomCollectionName.UIBucketContentStatuses
 	[MeteorPubSub.uiBlueprintUpgradeStatuses]: () => CustomCollectionName.UIBlueprintUpgradeStatuses
-	[MeteorPubSub.uiParts]: (playlistId: RundownPlaylistId | null) => CustomCollectionName.UIParts
-	[MeteorPubSub.uiPartInstances]: (
-		playlistActivationId: RundownPlaylistActivationId | null
-	) => CustomCollectionName.UIPartInstances
 }
 
 export type AllPubSubCollections = PeripheralDevicePubSubCollections &
@@ -224,8 +198,6 @@ export enum CustomCollectionName {
 	UISegmentPartNotes = 'uiSegmentPartNotes',
 	UIBucketContentStatuses = 'uiBucketContentStatuses',
 	UIBlueprintUpgradeStatuses = 'uiBlueprintUpgradeStatuses',
-	UIParts = 'uiParts',
-	UIPartInstances = 'uiPartInstances',
 }
 
 export type MeteorPubSubCollections = {
@@ -248,6 +220,4 @@ export type MeteorPubSubCustomCollections = {
 	[CustomCollectionName.UISegmentPartNotes]: UISegmentPartNote
 	[CustomCollectionName.UIBucketContentStatuses]: UIBucketContentStatus
 	[CustomCollectionName.UIBlueprintUpgradeStatuses]: UIBlueprintUpgradeStatus
-	[CustomCollectionName.UIParts]: DBPart
-	[CustomCollectionName.UIPartInstances]: PartInstance
 }

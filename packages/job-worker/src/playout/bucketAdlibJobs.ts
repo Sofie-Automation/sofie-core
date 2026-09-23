@@ -42,15 +42,11 @@ export async function handleExecuteBucketAdLibOrAction(
 
 			const playoutModel = await createPlayoutModelfromInitModel(context, initCache)
 
-			const fullRundown = playoutModel.getRundown(rundown._id)
-			if (!fullRundown) throw new Error(`Rundown "${rundown._id}" missing between caches`)
-
 			const partInstance = playoutModel.currentPartInstance
 			if (!partInstance) throw new Error(`PartInstance "${playlist.currentPartInfo.partInstanceId}" not found!`)
 			await innerStartOrQueueAdLibPiece(
 				context,
 				playoutModel,
-				fullRundown,
 				!!bucketAdLib.toBeQueued,
 				partInstance,
 				bucketAdLib

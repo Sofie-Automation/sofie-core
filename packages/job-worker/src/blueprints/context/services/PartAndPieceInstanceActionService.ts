@@ -12,6 +12,7 @@ import {
 	IBlueprintResolvedPieceInstance,
 	IBlueprintSegmentDB,
 	OmitId,
+	QueuePartTarget,
 	SomeContent,
 	Time,
 	WithTimeline,
@@ -32,12 +33,14 @@ import {
 import { getResolvedPiecesForCurrentPartInstance } from '../../../playout/resolvedPieces.js'
 import { ReadonlyDeep } from 'type-fest'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
-import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
+import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
 	innerFindLastPieceOnLayer,
 	innerFindLastScriptedPieceOnLayer,
 	innerStopPieces,
 	insertQueuedPartWithPieces,
+	resolveQueuedAdlibInsertTarget,
+	type QueuedAdlibInsertTarget,
 } from '../../../playout/adlibUtils.js'
 import { assertNever, getRandomId, omit } from '@sofie-automation/corelib/dist/lib'
 import { logger } from '../../../logging.js'
@@ -46,7 +49,13 @@ import {
 	PieceTimelineObjectsBlob,
 	serializePieceTimelineObjectsBlob,
 } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { PartInstanceId, PieceInstanceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	PartId,
+	PartInstanceId,
+	PieceInstanceId,
+	RundownId,
+	SegmentId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	protectString,
 	unprotectString,
@@ -59,7 +68,6 @@ import _ from 'underscore'
 import { syncPlayheadInfinitesForNextPartInstance } from '../../../playout/infinites.js'
 import { validateAdlibTestingPartInstanceProperties } from '../../../playout/adlibTesting.js'
 import { DBPart, isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PlayoutRundownModel } from '../../../playout/model/PlayoutRundownModel.js'
 import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 
 export enum ActionPartChange {
@@ -74,7 +82,8 @@ export interface IPartAndPieceInstanceActionContext {
 
 export interface QueueablePartAndPieces {
 	part: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'>
-	pieces: Piece[]
+	pieces: Omit<PieceInstancePiece, 'startPartId'>[]
+	target?: QueuePartTarget
 }
 
 export class PartAndPieceInstanceActionService {
@@ -93,15 +102,36 @@ export class PartAndPieceInstanceActionService {
 
 	public queuedPartInstanceId: PartInstanceId | undefined = undefined
 
-	constructor(
-		context: JobContext,
-		playoutModel: PlayoutModel,
-		showStyle: ReadonlyDeep<ProcessedShowStyleCompound>,
-		private readonly _rundown: PlayoutRundownModel
-	) {
+	constructor(context: JobContext, playoutModel: PlayoutModel, showStyle: ReadonlyDeep<ProcessedShowStyleCompound>) {
 		this._context = context
 		this._playoutModel = playoutModel
 		this.showStyleCompound = showStyle
+	}
+
+	/**
+	 * Convert blueprint `targetPartId` to an internal Part `_id`.
+	 * Accepts either `_id` or `externalId`; playout only ever sees `_id`.
+	 */
+	#toInternalQueuePartTarget(target?: QueuePartTarget): QueuePartTarget | undefined {
+		if (!target?.targetPartId) return target
+
+		const part =
+			this._playoutModel.findPart(protectString<PartId>(target.targetPartId)) ??
+			this._playoutModel.getAllOrderedParts().find((p) => p.externalId === target.targetPartId)
+		if (!part) return target
+
+		return {
+			...target,
+			targetPartId: unprotectString(part._id),
+		}
+	}
+
+	#assertInsertTargetShowStyleCompatible(insertTarget: QueuedAdlibInsertTarget): void {
+		if (insertTarget.targetRundown.rundown.showStyleVariantId !== this.showStyleCompound.showStyleVariantId) {
+			throw new Error(
+				`Cannot queue part: target rundown "${insertTarget.targetRundown.rundown._id}" is not compatible with the current show style`
+			)
+		}
 	}
 
 	#trackStateChange(part: 'current' | 'next', change: ActionPartChange): void {
@@ -399,7 +429,11 @@ export class PartAndPieceInstanceActionService {
 		return convertPartInstanceToBlueprints(partInstance.partInstance)
 	}
 
-	async queuePart(rawPart: IBlueprintPart, rawPieces: IBlueprintPiece[]): Promise<IBlueprintPartInstance> {
+	async queuePart(
+		rawPart: IBlueprintPart,
+		rawPieces: IBlueprintPiece[],
+		target?: QueuePartTarget
+	): Promise<IBlueprintPartInstance> {
 		const currentPartInstance = this._playoutModel.currentPartInstance
 		if (!currentPartInstance) {
 			throw new Error('Cannot queue part when no current partInstance')
@@ -416,28 +450,51 @@ export class PartAndPieceInstanceActionService {
 			throw new Error('Too close to an autonext to queue a part')
 		}
 
-		const { part, pieces } = this.processPartAndPiecesToQueueOrFail(
+		const internalTarget = this.#toInternalQueuePartTarget(target)
+		const insertTarget = resolveQueuedAdlibInsertTarget(this._playoutModel, currentPartInstance, internalTarget)
+		this.#assertInsertTargetShowStyleCompatible(insertTarget)
+
+		const processedPartsAndPieces = this.processPartAndPiecesToQueueOrFail(
 			rawPart,
 			rawPieces,
-			currentPartInstance.partInstance.rundownId,
-			currentPartInstance.partInstance.segmentId
+			insertTarget.targetRundown.rundown._id,
+			insertTarget.targetSegment.segment._id
 		)
 
 		// Do the work
 		const newPartInstance = await insertQueuedPartWithPieces(
 			this._context,
 			this._playoutModel,
-			this._rundown,
 			currentPartInstance,
-			part,
-			pieces,
-			undefined
+			{ ...processedPartsAndPieces, target: internalTarget },
+			undefined,
+			insertTarget
 		)
 
 		this.nextPartState = ActionPartChange.SAFE_CHANGE
 		this.queuedPartInstanceId = newPartInstance.partInstance._id
 
 		return convertPartInstanceToBlueprints(newPartInstance.partInstance)
+	}
+
+	prepareQueueablePartAndPieces(
+		rawPart: IBlueprintPart,
+		rawPieces: IBlueprintPiece[],
+		currentPartInstance: PlayoutPartInstanceModel,
+		target?: QueuePartTarget
+	): QueueablePartAndPieces {
+		const internalTarget = this.#toInternalQueuePartTarget(target)
+		const insertTarget = resolveQueuedAdlibInsertTarget(this._playoutModel, currentPartInstance, internalTarget)
+		this.#assertInsertTargetShowStyleCompatible(insertTarget)
+
+		const { part, pieces } = this.processPartAndPiecesToQueueOrFail(
+			rawPart,
+			rawPieces,
+			insertTarget.targetRundown.rundown._id,
+			insertTarget.targetSegment.segment._id
+		)
+
+		return { part, pieces, target: internalTarget }
 	}
 
 	public processPartAndPiecesToQueueOrFail(

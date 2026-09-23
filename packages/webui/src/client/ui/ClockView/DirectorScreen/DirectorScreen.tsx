@@ -373,8 +373,8 @@ function useDirectorScreenSubscriptions(props: DirectorScreenProps): void {
 	const { rundownIds, showStyleBaseIds, showStyleVariantIds } = useRundownAndShowStyleIdsForPlaylist(playlist?._id)
 
 	useSubscription(CorelibPubSub.segments, rundownIds, {})
-	useSubscription(MeteorPubSub.uiParts, playlist?._id ?? null)
-	useSubscription(MeteorPubSub.uiPartInstances, playlist?.activationId ?? null)
+	useSubscription(CorelibPubSub.uiParts, playlist?._id ?? null)
+	useSubscription(CorelibPubSub.uiPartInstances, playlist?.activationId ?? null)
 	useSubscriptions(
 		MeteorPubSub.uiShowStyleBase,
 		showStyleBaseIds.map((id) => [id])
@@ -411,9 +411,10 @@ function useDirectorScreenSubscriptions(props: DirectorScreenProps): void {
 		}
 	)
 
-	useSubscriptions(CorelibPubSub.pieceInstances, [
-		currentPartInstance && [[currentPartInstance.rundownId], [currentPartInstance._id], {}],
-		nextPartInstance && [[nextPartInstance.rundownId], [nextPartInstance._id], {}],
+	const playlistActivationId = playlist?.activationId ?? null
+	useSubscriptions(CorelibPubSub.uiPieceInstances, [
+		currentPartInstance && [[currentPartInstance.rundownId], [currentPartInstance._id], playlistActivationId, {}],
+		nextPartInstance && [[nextPartInstance.rundownId], [nextPartInstance._id], playlistActivationId, {}],
 	])
 }
 
