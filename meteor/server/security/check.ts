@@ -73,7 +73,7 @@ export async function checkAccessAndGetPeripheralDevice(
 	assertConnectionHasOneOfPermissions(context.connection, 'gateway')
 
 	// If no token, we will never match
-	if (!token) throw new SofieError(401, `Not allowed access to peripheralDevice`)
+	if (!token) throw new SofieError(401, `Not allowed access to peripheralDevice (no token)`)
 
 	const device = await PeripheralDevices.findOneAsync({ _id: deviceId })
 	if (!device) throw new SofieError(404, `PeripheralDevice "${deviceId}" not found`)
