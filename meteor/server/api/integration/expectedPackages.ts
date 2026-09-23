@@ -164,6 +164,30 @@ export namespace PackageManagerIntegration {
 		})
 	}
 
+	export async function removeAllExpectedPackageWorkStatusOfDeviceNotInList(
+		context: MethodContext,
+		deviceId: PeripheralDeviceId,
+		deviceToken: string,
+		expectedWorkStatusIds: ExpectedPackageWorkStatusId[]
+	): Promise<void> {
+		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
+
+		check(expectedWorkStatusIds, z.array(z.string()))
+
+		await ExpectedPackageWorkStatuses.removeAsync({
+			$or: _.compact([
+				{
+					deviceId: peripheralDevice._id,
+					_id: { $nin: expectedWorkStatusIds },
+				},
+				// Since we only have one PM in a studio, we can remove everything in the studio that has a different deviceId:
+				peripheralDevice.studioAndConfigId
+					? { deviceId: { $ne: peripheralDevice._id }, studioId: peripheralDevice.studioAndConfigId.studioId }
+					: null,
+			]),
+		})
+	}
+
 	export async function updatePackageContainerPackageStatuses(
 		context: MethodContext,
 		deviceId: PeripheralDeviceId,
@@ -256,6 +280,38 @@ export namespace PackageManagerIntegration {
 			]),
 		})
 	}
+	export async function removeAllPackageContainerPackageStatusesOfDeviceNotInList(
+		context: MethodContext,
+		deviceId: PeripheralDeviceId,
+		deviceToken: string,
+		packageContainerPackageIdPairs: { containerId: string; packageId: string }[] // [containerId, packageId]
+	): Promise<void> {
+		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
+
+		check(packageContainerPackageIdPairs, z.array(z.object({ containerId: z.string(), packageId: z.string() })))
+
+		await PackageContainerPackageStatuses.removeAsync({
+			$or: _.compact([
+				{
+					$and: _.compact([
+						{ deviceId: peripheralDevice._id },
+						packageContainerPackageIdPairs.length > 0
+							? {
+									$nor: packageContainerPackageIdPairs.map(({ containerId, packageId }) => ({
+										containerId: protectString(containerId),
+										packageId: protectString(packageId),
+									})),
+								}
+							: undefined,
+					]),
+				},
+				// Since we only have one PM in a studio, we can remove everything in the studio that has a different deviceId:
+				peripheralDevice.studioAndConfigId
+					? { deviceId: { $ne: peripheralDevice._id }, studioId: peripheralDevice.studioAndConfigId.studioId }
+					: null,
+			]),
+		})
+	}
 
 	export async function updatePackageContainerStatuses(
 		context: MethodContext,
@@ -338,6 +394,29 @@ export namespace PackageManagerIntegration {
 				{ deviceId: peripheralDevice._id },
 				// Since we only have one PM in a studio, we can remove everything in the studio:
 				peripheralDevice.studioAndConfigId ? { studioId: peripheralDevice.studioAndConfigId.studioId } : null,
+			]),
+		})
+	}
+	export async function removeAllPackageContainerStatusesOfDeviceNotInList(
+		context: MethodContext,
+		deviceId: PeripheralDeviceId,
+		deviceToken: string,
+		packageContainerIds: string[]
+	): Promise<void> {
+		const peripheralDevice = await checkAccessAndGetPeripheralDevice(deviceId, deviceToken, context)
+
+		check(packageContainerIds, z.array(z.string()))
+
+		await PackageContainerStatuses.removeAsync({
+			$or: _.compact([
+				{
+					deviceId: peripheralDevice._id,
+					containerId: { $nin: packageContainerIds },
+				},
+				// Since we only have one PM in a studio, we can remove everything in the studio that has a different deviceId:
+				peripheralDevice.studioAndConfigId
+					? { deviceId: { $ne: peripheralDevice._id }, studioId: peripheralDevice.studioAndConfigId.studioId }
+					: null,
 			]),
 		})
 	}
