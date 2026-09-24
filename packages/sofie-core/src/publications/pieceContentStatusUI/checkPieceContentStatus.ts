@@ -242,55 +242,30 @@ export async function checkPieceContentStatusAndDependencies(
 	piece: PieceContentStatusPiece,
 	sourceLayer: ISourceLayer
 ): Promise<[status: PieceContentStatusObj, pieceDependencies: PieceDependencies]> {
+	let status: PieceContentStatusObj = {
+		status: PieceStatusCode.UNKNOWN,
+		messages: [],
+		progress: undefined,
+
+		freezes: [],
+		blacks: [],
+		scenes: [],
+
+		thumbnailUrl: undefined,
+		previewUrl: undefined,
+
+		packageName: getMediaObjectMediaId(piece, sourceLayer) || null,
+		contentDuration: undefined,
+	}
+
 	const pieceDependencies: PieceDependencies = {
 		mediaObjects: [],
 		packageInfos: [],
 		packageContainerPackageStatuses: [],
 	}
 
-	if (studio.settings.mockPieceContentStatus) {
-		const mockStatus: PieceContentStatusObj = {
-			status: PieceStatusCode.OK,
-			messages: [],
-			progress: undefined,
-
-			freezes: [],
-			blacks: [],
-			scenes: [],
-
-			thumbnailUrl: '/dev/fakeThumbnail.png',
-			previewUrl: '/dev/fakePreview.mp4',
-
-			packageName: '/dev/fakePreview.mp4',
-			contentDuration: 30 * 1000,
-		}
-
-		if (sourceLayer.type === SourceLayerType.SPLITS) {
-			const splitsContent = piece.content as SplitsContent | undefined
-			if (splitsContent?.boxSourceConfiguration) {
-				return [
-					{
-						...mockStatus,
-						thumbnailUrl: undefined,
-						previewUrl: undefined,
-						boxPreviews: splitsContent.boxSourceConfiguration.map((box) =>
-							getMediaIdFromSplitBox(box)
-								? {
-										thumbnailUrl: '/dev/fakeThumbnail.png',
-										previewUrl: '/dev/fakePreview.mp4',
-									}
-								: {}
-						),
-					},
-					pieceDependencies,
-				]
-			}
-		}
-
-		return [mockStatus, pieceDependencies]
-	}
-
 	const ignoreMediaStatus = piece.content && piece.content.ignoreMediaObjectStatus
+
 	if (!ignoreMediaStatus) {
 		if (piece.expectedPackages) {
 			const getPackageInfos = async (packageId: ExpectedPackageId) => {
@@ -336,7 +311,7 @@ export async function checkPieceContentStatusAndDependencies(
 			}
 
 			// Using Expected Packages:
-			const status = await checkPieceContentExpectedPackageStatus(
+			status = await checkPieceContentExpectedPackageStatus(
 				piece,
 				sourceLayer,
 				studio,
@@ -348,7 +323,6 @@ export async function checkPieceContentStatusAndDependencies(
 			if (sourceLayer.type === SourceLayerType.SPLITS && status.boxPreviews) {
 				await fillSplitsBoxPreviewsFromMediaObjects(studio, piece, status, getMediaObject)
 			}
-			return [status, pieceDependencies]
 		} else {
 			// Fallback to MediaObject statuses:
 			const getMediaObject = async (mediaId: string) => {
@@ -363,24 +337,23 @@ export async function checkPieceContentStatusAndDependencies(
 			}
 
 			if (sourceLayer.type === SourceLayerType.SPLITS) {
-				const status = await checkPieceContentSplitsMediaObjectStatus(piece, studio, getMediaObject)
-				return [status, pieceDependencies]
+				status = await checkPieceContentSplitsMediaObjectStatus(piece, studio, getMediaObject)
+			} else {
+				status = await checkPieceContentMediaObjectStatus(
+					piece,
+					sourceLayer,
+					studio,
+					getMediaObject,
+					messageFactory || DEFAULT_MESSAGE_FACTORY
+				)
 			}
-
-			const status = await checkPieceContentMediaObjectStatus(
-				piece,
-				sourceLayer,
-				studio,
-				getMediaObject,
-				messageFactory || DEFAULT_MESSAGE_FACTORY
-			)
-			return [status, pieceDependencies]
 		}
 	}
 
-	return [
-		{
-			status: PieceStatusCode.UNKNOWN,
+	if (studio.settings.mockPieceContentStatus) {
+		// Replace the any status with a mocked one:
+		status = {
+			status: PieceStatusCode.OK,
 			messages: [],
 			progress: undefined,
 
@@ -388,14 +361,40 @@ export async function checkPieceContentStatusAndDependencies(
 			blacks: [],
 			scenes: [],
 
-			thumbnailUrl: undefined,
-			previewUrl: undefined,
+			thumbnailUrl: '/dev/fakeThumbnail.png',
+			previewUrl: '/dev/fakePreview.mp4',
 
-			packageName: getMediaObjectMediaId(piece, sourceLayer) || null,
-			contentDuration: undefined,
-		},
-		pieceDependencies,
-	]
+			packageName: '/dev/fakePreview.mp4',
+			contentDuration: 30 * 1000,
+		}
+
+		if (sourceLayer.type === SourceLayerType.SPLITS) {
+			const splitsContent = piece.content as SplitsContent | undefined
+			if (splitsContent?.boxSourceConfiguration) {
+				status.thumbnailUrl = undefined
+				status.previewUrl = undefined
+				status.boxPreviews = splitsContent.boxSourceConfiguration.map((box) =>
+					getMediaIdFromSplitBox(box)
+						? {
+								thumbnailUrl: '/dev/fakeThumbnail.png',
+								previewUrl: '/dev/fakePreview.mp4',
+							}
+						: {}
+				)
+			}
+		}
+	}
+
+	if (piece.content.overrideMediaObjectStatus) {
+		// Override any existing media object status with the one provided in the piece content:
+
+		status = {
+			...status,
+			...piece.content.overrideMediaObjectStatus,
+		}
+	}
+
+	return [status, pieceDependencies]
 }
 
 interface MediaObjectMessage {
