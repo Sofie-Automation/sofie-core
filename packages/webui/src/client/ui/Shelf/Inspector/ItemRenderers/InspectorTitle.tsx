@@ -8,6 +8,7 @@ import { IAdLibListItem } from '../../AdLibListItem.js'
 import { AdLibPieceUi } from '../../../../lib/shelf.js'
 import { UIShowStyleBase } from '@sofie-automation/meteor-lib/dist/api/showStyles'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
+import { getIgnorePieceContentStatus } from '../../../../lib/localStorage.js'
 
 interface IProps {
 	piece: PieceUi | IAdLibListItem | BucketAdLibUi | BucketAdLibActionUi
@@ -30,7 +31,7 @@ function InspectorTitle(props: IProps): JSX.Element {
 				className={ClassNames(
 					'shelf-inspector__title__icon',
 					layer && RundownUtils.getSourceLayerClassName(layer.type),
-					RundownUtils.getPieceStatusClassName(contentStatus?.status)
+					getIgnorePieceContentStatus() ? undefined : RundownUtils.getPieceStatusClassName(contentStatus?.status)
 				)}
 			>
 				<div className="shelf-inspector__title__layer">{layer && (layer.abbreviation || layer.name)}</div>

@@ -13,6 +13,7 @@ import { useContentStatusForAdlibPiece, WithMediaObjectStatusProps } from '../Se
 
 import { isTouchDevice } from '../../lib/lib.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
+import { getIgnorePieceContentStatus } from '../../lib/localStorage.js'
 import {
 	convertSourceLayerItemToPreview,
 	IPreviewPopUpContext,
@@ -400,7 +401,9 @@ export class DashboardPieceButtonBase<T = {}> extends React.Component<
 						selected: this.props.isNext || this.props.isSelected,
 					},
 					!this.inBucket && this.props.layer && RundownUtils.getSourceLayerClassName(this.props.layer.type),
-					RundownUtils.getPieceStatusClassName(this.props.contentStatus?.status),
+					getIgnorePieceContentStatus()
+						? undefined
+						: RundownUtils.getPieceStatusClassName(this.props.contentStatus?.status),
 					...(this.props.piece.tags ? this.props.piece.tags.map((tag) => `piece-tag--${tag}`) : [])
 				)}
 				style={{

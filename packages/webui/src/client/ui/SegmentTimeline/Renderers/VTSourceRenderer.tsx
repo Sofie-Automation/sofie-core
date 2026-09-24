@@ -21,6 +21,7 @@ import { logger } from '../../../lib/logging.js'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { ReadonlyDeep } from 'type-fest'
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import { getVisiblePieceContentStatusCode } from '../../../lib/ui/pieceContentStatus.js'
 
 interface IProps extends ICustomLayerItemProps {
 	studio: UIStudio | undefined
@@ -52,7 +53,7 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 		const labelItems = innerPiece.name.split('||')
 
 		this.state = {
-			noticeLevel: getNoticeLevelForPieceStatus(props.contentStatus?.status),
+			noticeLevel: getNoticeLevelForPieceStatus(getVisiblePieceContentStatusCode(props.contentStatus)),
 			begin: labelItems[0] || '',
 			end: labelItems[1] || '',
 		}
@@ -197,12 +198,15 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 		}
 
 		let newState: Partial<IState> = {}
+		const noticeLevel = getNoticeLevelForPieceStatus(getVisiblePieceContentStatusCode(this.props.contentStatus))
+		if (noticeLevel !== this.state.noticeLevel) {
+			newState.noticeLevel = noticeLevel
+		}
 		if (
 			innerPiece.name !== prevProps.piece.instance.piece.name ||
 			this.props.contentStatus?.status !== prevProps.contentStatus?.status
 		) {
 			const labelItems = innerPiece.name.split('||')
-			newState.noticeLevel = getNoticeLevelForPieceStatus(this.props.contentStatus?.status)
 			newState.begin = labelItems[0] || ''
 			newState.end = labelItems[1] || ''
 		}
@@ -251,7 +255,7 @@ class VTSourceRendererBase extends CustomLayerItemRenderer<IProps & WithTranslat
 		return !this.props.piece.hasOriginInPreceedingPart || this.props.isLiveLine ? (
 			<span className="segment-timeline__piece__label" ref={this.setLeftLabelRef} style={this.getItemLabelOffsetLeft()}>
 				{noticeLevel !== null && <PieceStatusIcon noticeLevel={noticeLevel} />}
-				{this.props.contentStatus?.status === PieceStatusCode.SOURCE_NOT_READY && (
+				{getVisiblePieceContentStatusCode(this.props.contentStatus) === PieceStatusCode.SOURCE_NOT_READY && (
 					<div className="piece__status-icon type-hourglass">
 						<HourglassIconSmall />
 					</div>
