@@ -10,7 +10,6 @@ import {
 	PieceInstanceId,
 } from './Ids.js'
 
-
 export type UIPieceContentStatusId = ProtectedString<'UIPieceContentStatus'>
 export interface UIPieceContentStatus {
 	_id: UIPieceContentStatusId
@@ -31,9 +30,4 @@ export interface UIPieceContentStatus {
 	status: PieceContentStatusObj
 }
 
-
-
-export type {
-	PieceContentStatusObj,
-	SplitBoxPreviewUrls
-} from '@sofie-automation/blueprints-integration'
+export type { PieceContentStatusObj, SplitBoxPreviewUrls } from '@sofie-automation/blueprints-integration'

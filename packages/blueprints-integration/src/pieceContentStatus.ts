@@ -1,5 +1,5 @@
-import { PackageInfo } from './packageInfo'
-import { ITranslatableMessage } from './translations'
+import { PackageInfo } from './packageInfo.js'
+import { ITranslatableMessage } from './translations.js'
 
 export interface PieceContentStatusObj {
 	status: PieceStatusCode
