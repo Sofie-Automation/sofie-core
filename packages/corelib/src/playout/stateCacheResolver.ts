@@ -787,6 +787,7 @@ export function wrapPartToTemporaryInstance(
 		segmentId: part.segmentId,
 		playlistActivationId,
 		segmentPlayoutId: protectString(''), // Only needed when stored in the db, and filled in nearer the time
+		brandingId: null, // Only known once the PartInstance is created
 		takeCount: -1,
 		rehearsal: false,
 		part: part as DBPart,

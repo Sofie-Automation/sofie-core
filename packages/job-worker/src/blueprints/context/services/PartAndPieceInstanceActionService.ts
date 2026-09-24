@@ -173,7 +173,10 @@ export class PartAndPieceInstanceActionService {
 		const resolvedInstances = getResolvedPiecesForCurrentPartInstance(
 			this._context,
 			this.showStyleCompound.sourceLayers,
-			partInstance
+			partInstance,
+			undefined,
+			// Blueprints may write these back, so they must not have the Branding baked into them
+			true
 		)
 		return resolvedInstances.map(convertResolvedPieceInstanceToBlueprints)
 	}

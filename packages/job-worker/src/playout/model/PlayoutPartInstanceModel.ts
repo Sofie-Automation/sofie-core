@@ -159,6 +159,12 @@ export interface PlayoutPartInstanceModel {
 	setOrphaned(orphaned: 'adlib-part' | 'deleted' | undefined): void
 
 	/**
+	 * Set the Branding this PartInstance is played with
+	 * @param brandingId Id of the Branding, or null for no Branding
+	 */
+	setBranding(brandingId: string | null): void
+
+	/**
 	 * Update the activation id of this PartInstance
 	 * This can be done to move this PartInstance when resetting the Playlist, if some previous PartInstances want to be kept
 	 * @param id New activation id

@@ -2,6 +2,7 @@ import { IBlueprintPart, IBlueprintPiece, IEventContext, IShowStyleUserContext, 
 import { IPartAndPieceActionContext } from './partsAndPieceActionContext.js'
 import { IExecuteTSRActionsContext, ITriggerIngestChangeContext } from './executeTsrActionContext.js'
 import { ITTimersContext } from './tTimersContext.js'
+import type { IBrandingReadMethods } from './brandingContext.js'
 
 /**
  * Context in which 'current' is the partInstance we're leaving, and 'next' is the partInstance we're taking
@@ -13,7 +14,8 @@ export interface IOnTakeContext
 		IEventContext,
 		IExecuteTSRActionsContext,
 		ITriggerIngestChangeContext,
-		ITTimersContext {
+		ITTimersContext,
+		IBrandingReadMethods {
 	/** Inform core that a take out of the taken partinstance should be blocked until the specified time */
 	blockTakeUntil(time: Time | null): Promise<void>
 	/**

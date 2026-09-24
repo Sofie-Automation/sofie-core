@@ -357,6 +357,7 @@ async function setDefaultDatatoDB(env: DefaultEnvironment, now: number) {
 		segmentId,
 		segmentPlayoutId: getRandomId(),
 		takeCount: 0,
+		brandingId: null,
 	})
 	await PieceInstances.mutableCollection.insertAsync({
 		_id: getRandomId(),

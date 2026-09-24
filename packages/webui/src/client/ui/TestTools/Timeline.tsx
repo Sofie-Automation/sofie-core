@@ -16,7 +16,7 @@ import {
 import { type TimelineContentObject, transformTimeline } from '@sofie-automation/corelib/dist/playout/timeline'
 import { useCurrentTime } from '../../lib/lib.js'
 import { useTranslation } from 'react-i18next'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import Classnames from 'classnames'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -243,7 +243,14 @@ function renderTimelineState(state: TimelineState, filter: RegExp | string | und
 				End: {o.instance.end}
 			</td>
 			<td>{o.content.type}</td>
-			<td>{(o.classes ?? []).join('<br />')}</td>
+			<td>
+				{(o.classes ?? []).map((className, i) => (
+					<Fragment key={className}>
+						{i > 0 && <br />}
+						{className}
+					</Fragment>
+				))}
+			</td>
 			<td style={{ whiteSpace: 'pre' }}>
 				<pre>{JSON.stringify(o.content, undefined, '\t')}</pre>
 				{

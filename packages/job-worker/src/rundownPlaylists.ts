@@ -253,6 +253,7 @@ export function produceRundownPlaylistInfoFromRundown(
 			name: playlistInfo.playlist.name,
 			timing: playlistInfo.playlist.timing,
 
+			defaultBrandingId: playlistInfo.playlist.defaultBrandingId ?? null,
 			outOfOrderTiming: playlistInfo.playlist.outOfOrderTiming,
 			timeOfDayCountdowns: playlistInfo.playlist.timeOfDayCountdowns,
 			privateData: playlistInfo.playlist.privateData,
@@ -351,6 +352,9 @@ function defaultPlaylistForRundown(
 		studioId: studio._id,
 		name: rundown.name,
 		timing: rundown.timing,
+
+		// Without a playlist from the blueprint, there is nothing to provide a default Branding
+		defaultBrandingId: null,
 
 		modified: getCurrentTime(),
 	}

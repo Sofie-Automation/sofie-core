@@ -6,13 +6,19 @@ import { MongoFieldSpecifierOnesStrict, MongoFieldSpecifierZeroes } from '@sofie
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBStudio, IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartInstanceBranding, PlaylistBranding, playlistBrandingFieldSpecifier } from '../lib/branding'
 
-export type RundownPlaylistCompact = Pick<DBRundownPlaylist, '_id' | 'activationId' | 'quickLoop' | 'rundownIdsInOrder'>
+export type RundownPlaylistCompact = Pick<
+	DBRundownPlaylist,
+	'_id' | 'activationId' | 'quickLoop' | 'rundownIdsInOrder'
+> &
+	PlaylistBranding
 export const rundownPlaylistFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<RundownPlaylistCompact>>({
 	_id: 1,
 	activationId: 1,
 	quickLoop: 1, // so that it invalidates when the markers or state of the loop change
 	rundownIdsInOrder: 1,
+	...playlistBrandingFieldSpecifier,
 })
 
 export type SegmentFields = '_id' | '_rank' | 'rundownId'
@@ -43,6 +49,7 @@ export interface ContentCache {
 	Segments: InMemoryMongoCollection<Pick<DBSegment, SegmentFields>>
 	Parts: InMemoryMongoCollection<Omit<DBPart, PartOmitedFields>>
 	RundownPlaylists: InMemoryMongoCollection<RundownPlaylistCompact>
+	PartInstances: InMemoryMongoCollection<PartInstanceBranding>
 }
 
 export function createReactiveContentCache(): ContentCache {
@@ -51,6 +58,7 @@ export function createReactiveContentCache(): ContentCache {
 		Segments: new InMemoryMongoCollection<Pick<DBSegment, SegmentFields>>('segments'),
 		Parts: new InMemoryMongoCollection<Omit<DBPart, PartOmitedFields>>('parts'),
 		RundownPlaylists: new InMemoryMongoCollection<RundownPlaylistCompact>('rundownPlaylists'),
+		PartInstances: new InMemoryMongoCollection<PartInstanceBranding>('partInstances'),
 	}
 
 	return cache

@@ -13,11 +13,78 @@ import { PieceInstance, PieceInstancePiece, rewrapPieceToInstance } from '../dat
 import { DBPartInstance } from '../dataModel/PartInstance.js'
 import { DBRundown } from '../dataModel/Rundown.js'
 import { ReadonlyDeep } from 'type-fest'
-import { assertNever, clone, flatten, getRandomId, groupByToMapFunc, max, normalizeArrayToMapFunc } from '../lib.js'
+import { assertNever, clone, getRandomId, groupByToMapFunc, normalizeArrayToMapFunc } from '../lib.js'
 import { protectString } from '../protectedString.js'
 import _ from 'underscore'
 import { MongoQuery } from '../mongo.js'
 import { DBSegment, SegmentOrphanedReason } from '../dataModel/Segment.js'
+import { isValidForBranding } from './branding.js'
+
+/**
+ * Add a candidate to the infinite Pieces being kept for a source layer, dropping any which can never be shown
+ * as a result.
+ *
+ * Ordinarily only the best candidate is kept. But a Piece limited to some Brandings may be the only one
+ * shown on a layer while one of those is selected, so it neither discards another nor is discarded by one —
+ * only Pieces used with every Branding are reduced to a single winner. The choice must not depend on which
+ * Branding is selected now, as that can change after these PieceInstances have been created.
+ */
+function addInfiniteCandidate<T>(
+	kept: T[],
+	candidate: T,
+	isLimitedToBranding: (piece: T) => boolean,
+	isCandidateBetter: (best: T, candidate: T) => boolean
+): T[] {
+	if (isLimitedToBranding(candidate)) return [...kept, candidate]
+
+	const result: T[] = []
+	for (const other of kept) {
+		if (isLimitedToBranding(other)) {
+			result.push(other)
+		} else if (!isCandidateBetter(other, candidate)) {
+			// The candidate can never be shown, as the other is preferred over it
+			return kept
+		}
+		// Otherwise the other can never be shown, so it is dropped
+	}
+
+	result.push(candidate)
+
+	return result
+}
+
+/** Whether the candidate is the later starting of two PieceInstances on a source layer */
+function isLaterStartingCandidateBetter(
+	best: ReadonlyDeep<PieceInstance>,
+	candidate: ReadonlyDeep<PieceInstance>
+): boolean {
+	const bestStart = best.piece.enable.start
+	const candidateStart = candidate.piece.enable.start
+
+	// A piece starting 'now' starts later than any planned start
+	if (bestStart === 'now' || candidateStart === 'now') return bestStart !== 'now' && candidateStart === 'now'
+
+	return bestStart < candidateStart
+}
+
+/** Whether the candidate is the one showing at the end of the Part, of two PieceInstances on a source layer */
+function isLastPieceInstanceCandidateBetter(
+	best: ReadonlyDeep<PieceInstance>,
+	candidate: ReadonlyDeep<PieceInstance>
+): boolean {
+	if (best.piece.enable.start !== candidate.piece.enable.start) {
+		return isLaterStartingCandidateBetter(best, candidate)
+	}
+
+	return isCandidateBetterToBeContinued(best, candidate)
+}
+
+/** The onEnd lifespans an infinite may be kept for, in the order they are emitted */
+const ON_END_LIFESPANS = [
+	PieceLifespan.OutOnShowStyleEnd,
+	PieceLifespan.OutOnRundownEnd,
+	PieceLifespan.OutOnSegmentEnd,
+] as const
 
 export function buildPiecesStartingInThisPartQuery(part: ReadonlyDeep<DBPart>): MongoQuery<Piece> {
 	return { startPartId: part._id }
@@ -118,10 +185,10 @@ export function getPlayheadTrackingInfinitesForPart(
 
 	const canContinueAdlibOnEnds = nextPartIsAfterCurrentPart
 	interface InfinitePieceSet {
-		[PieceLifespan.OutOnShowStyleEnd]?: ReadonlyDeep<PieceInstance>
-		[PieceLifespan.OutOnRundownEnd]?: ReadonlyDeep<PieceInstance>
-		[PieceLifespan.OutOnSegmentEnd]?: ReadonlyDeep<PieceInstance>
-		onChange?: ReadonlyDeep<PieceInstance>
+		[PieceLifespan.OutOnShowStyleEnd]?: ReadonlyDeep<PieceInstance>[]
+		[PieceLifespan.OutOnRundownEnd]?: ReadonlyDeep<PieceInstance>[]
+		[PieceLifespan.OutOnSegmentEnd]?: ReadonlyDeep<PieceInstance>[]
+		onChange?: ReadonlyDeep<PieceInstance>[]
 	}
 	const piecesOnSourceLayers = new Map<string, InfinitePieceSet>()
 
@@ -132,27 +199,27 @@ export function getPlayheadTrackingInfinitesForPart(
 		intoRundown
 	)
 
-	const groupedPlayingPieceInstances = groupByToMapFunc(currentPartPieceInstances, (p) => p.piece.sourceLayerId)
+	// A Piece hidden by the Branding is not playing, so it cannot be continued
+	const playingPieceInstances = currentPartPieceInstances.filter((p) =>
+		isValidForBranding(p.piece, currentPartInstance.brandingId)
+	)
+
+	const groupedPlayingPieceInstances = groupByToMapFunc(playingPieceInstances, (p) => p.piece.sourceLayerId)
 	for (const [sourceLayerId, pieceInstances] of groupedPlayingPieceInstances.entries()) {
-		// Find the ones that starts last. Note: any piece will stop an onChange
-		const lastPiecesByStart = groupByToMapFunc(pieceInstances, (p) => p.piece.enable.start)
-		let lastPieceInstances = lastPiecesByStart.get('now') ?? []
-		if (lastPieceInstances.length === 0) {
-			const target = max(Array.from(lastPiecesByStart.keys()), (k) => Number(k))
-			if (target !== undefined) {
-				lastPieceInstances = lastPiecesByStart.get(target) ?? []
-			}
+		// Find the ones that start last. Note: any piece will stop an onChange
+		let lastPieceInstances: ReadonlyDeep<PieceInstance>[] = []
+		for (const candidate of pieceInstances) {
+			lastPieceInstances = addInfiniteCandidate(
+				lastPieceInstances,
+				candidate,
+				(p) => !!p.piece.onlyValidForBranding,
+				isLastPieceInstanceCandidateBetter
+			)
 		}
 
-		// Some basic resolving, to figure out which is our candidate
-		let lastPieceInstance: ReadonlyDeep<PieceInstance> | undefined
-		for (const candidate of lastPieceInstances) {
-			if (lastPieceInstance === undefined || isCandidateBetterToBeContinued(lastPieceInstance, candidate)) {
-				lastPieceInstance = candidate
-			}
-		}
+		for (const lastPieceInstance of lastPieceInstances) {
+			if (lastPieceInstance.plannedStoppedPlayback || lastPieceInstance.userDuration) continue
 
-		if (lastPieceInstance && !lastPieceInstance.plannedStoppedPlayback && !lastPieceInstance.userDuration) {
 			// If it is an onChange, then it may want to continue
 			let isUsed = false
 			switch (lastPieceInstance.piece.lifespan) {
@@ -172,7 +239,7 @@ export function getPlayheadTrackingInfinitesForPart(
 
 			if (isUsed) {
 				const pieceSet = piecesOnSourceLayers.get(sourceLayerId) ?? {}
-				pieceSet.onChange = lastPieceInstance
+				pieceSet.onChange = [...(pieceSet.onChange ?? []), lastPieceInstance]
 				piecesOnSourceLayers.set(sourceLayerId, pieceSet)
 				// This may get pruned later, if somethng else has a start of 0
 			}
@@ -198,10 +265,20 @@ export function getPlayheadTrackingInfinitesForPart(
 						p.infinite &&
 						(p.infinite.fromPreviousPlayhead || p.dynamicallyInserted || p.dynamicallyConvertedToInfinite)
 				)
-				// This is the piece we may copy across
-				const candidatePiece =
-					pieces.find((p) => p.piece.enable.start === 'now') ?? max(pieces, (p) => p.piece.enable.start)
-				if (candidatePiece && !candidatePiece.plannedStoppedPlayback && !candidatePiece.userDuration) {
+				// These are the pieces we may copy across
+				let candidatePieces: ReadonlyDeep<PieceInstance>[] = []
+				for (const candidate of pieces) {
+					candidatePieces = addInfiniteCandidate(
+						candidatePieces,
+						candidate,
+						(p) => !!p.piece.onlyValidForBranding,
+						isLaterStartingCandidateBetter
+					)
+				}
+
+				for (const candidatePiece of candidatePieces) {
+					if (candidatePiece.plannedStoppedPlayback || candidatePiece.userDuration) continue
+
 					// Check this infinite is allowed to continue to this part
 					let isValid = false
 					switch (mode) {
@@ -226,7 +303,7 @@ export function getPlayheadTrackingInfinitesForPart(
 
 					if (isValid) {
 						const pieceSet = piecesOnSourceLayers.get(sourceLayerId) ?? {}
-						pieceSet[mode] = candidatePiece
+						pieceSet[mode] = [...(pieceSet[mode] ?? []), candidatePiece]
 						piecesOnSourceLayers.set(sourceLayerId, pieceSet)
 					}
 				}
@@ -269,11 +346,19 @@ export function getPlayheadTrackingInfinitesForPart(
 		return undefined
 	}
 
-	return flatten(
-		Array.from(piecesOnSourceLayers.values()).map((ps) => {
-			return _.compact(Object.values<PieceInstance | undefined>(ps as any).map(rewrapInstance))
-		})
-	)
+	const result: PieceInstance[] = []
+	for (const pieceSet of piecesOnSourceLayers.values()) {
+		for (const pieces of Object.values<PieceInstance[] | undefined>(pieceSet as any)) {
+			if (!pieces) continue
+
+			for (const piece of pieces) {
+				const instance = rewrapInstance(piece)
+				if (instance) result.push(instance)
+			}
+		}
+	}
+
+	return result
 }
 
 function markPieceInstanceAsContinuation(previousInstance: ReadonlyDeep<PieceInstance>, instance: PieceInstance) {
@@ -424,9 +509,9 @@ export function getPieceInstancesForPart(
 	}
 
 	interface InfinitePieceSet {
-		[PieceLifespan.OutOnShowStyleEnd]?: ReadonlyDeep<Piece>
-		[PieceLifespan.OutOnRundownEnd]?: ReadonlyDeep<Piece>
-		[PieceLifespan.OutOnSegmentEnd]?: ReadonlyDeep<Piece>
+		[PieceLifespan.OutOnShowStyleEnd]?: ReadonlyDeep<Piece>[]
+		[PieceLifespan.OutOnRundownEnd]?: ReadonlyDeep<Piece>[]
+		[PieceLifespan.OutOnSegmentEnd]?: ReadonlyDeep<Piece>[]
 		// onChange?: PieceInstance
 	}
 	const piecesOnSourceLayers = new Map<string, InfinitePieceSet>()
@@ -452,11 +537,13 @@ export function getPieceInstancesForPart(
 
 			if (useIt) {
 				const pieceSet = piecesOnSourceLayers.get(candidatePiece.sourceLayerId) ?? {}
-				const existingPiece = pieceSet[candidatePiece.lifespan]
-				if (!existingPiece || doesPieceAStartBeforePieceB(existingPiece, candidatePiece)) {
-					pieceSet[candidatePiece.lifespan] = candidatePiece
-					piecesOnSourceLayers.set(candidatePiece.sourceLayerId, pieceSet)
-				}
+				pieceSet[candidatePiece.lifespan] = addInfiniteCandidate(
+					pieceSet[candidatePiece.lifespan] ?? [],
+					candidatePiece,
+					(piece) => !!piece.onlyValidForBranding,
+					doesPieceAStartBeforePieceB
+				)
+				piecesOnSourceLayers.set(candidatePiece.sourceLayerId, pieceSet)
 			}
 		}
 	}
@@ -533,13 +620,13 @@ export function getPieceInstancesForPart(
 
 	const normalPieces = possiblePieces.filter((p) => p.startPartId === part._id)
 	const result = normalPieces.map(wrapPiece).concat(infinitesFromPrevious)
-	for (const pieceSet of Array.from(piecesOnSourceLayers.values())) {
-		const onEndPieces = _.compact([
-			pieceSet[PieceLifespan.OutOnShowStyleEnd],
-			pieceSet[PieceLifespan.OutOnRundownEnd],
-			pieceSet[PieceLifespan.OutOnSegmentEnd],
-		])
-		result.push(...onEndPieces.map(wrapPiece))
+	for (const pieceSet of piecesOnSourceLayers.values()) {
+		for (const lifespan of ON_END_LIFESPANS) {
+			const pieces = pieceSet[lifespan]
+			if (!pieces) continue
+
+			result.push(...pieces.map(wrapPiece))
+		}
 	}
 
 	return result
@@ -591,6 +678,17 @@ export function isCandidateMoreImportant(
 	if (!best.piece.virtual && candidate.piece.virtual) {
 		// Prefer the virtual candidate
 		return true
+	}
+
+	// If both are continuing from a previous part, prefer the one which started more recently
+	// Note: infiniteInstanceIndex counts the parts the infinite has been continued through, but it is only tracked when
+	// continuing into the part after the current one. Otherwise both will be 0, and this is unable to decide
+	if (
+		best.infinite?.fromPreviousPart &&
+		candidate.infinite?.fromPreviousPart &&
+		best.infinite.infiniteInstanceIndex !== candidate.infinite.infiniteInstanceIndex
+	) {
+		return candidate.infinite.infiniteInstanceIndex < best.infinite.infiniteInstanceIndex
 	}
 
 	return undefined

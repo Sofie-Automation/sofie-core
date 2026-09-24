@@ -12,6 +12,7 @@ import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settin
 import { IWrappedAdLib } from '@sofie-automation/meteor-lib/dist/triggers/actionFilterChainCompilers'
 import { areSetsEqual, doSetsIntersect } from '@sofie-automation/corelib/dist/lib'
 import { getCurrentTime } from '../../lib/lib'
+import { isValidForBranding } from '@sofie-automation/corelib/dist/playout/branding'
 
 export class TagsService {
 	protected onAirPiecesTags: Set<string> = new Set()
@@ -66,16 +67,22 @@ export class TagsService {
 
 		const resolvedSourceLayers = applyAndValidateOverrides(showStyleBase.sourceLayersWithOverrides).obj
 
-		const inPreviousPartInstances = previousPartInstanceIds.flatMap((previousPartInstanceId) =>
-			this.processAndPrunePieceInstanceTimings(
-				cache.PartInstances.findOne(previousPartInstanceId)?.timings,
+		const inPreviousPartInstances = previousPartInstanceIds.flatMap((previousPartInstanceId) => {
+			const partInstance = cache.PartInstances.findOne(previousPartInstanceId)
+			return this.processAndPrunePieceInstanceTimings(
+				partInstance?.timings,
+				partInstance?.brandingId ?? null,
 				cache.PieceInstances.findFetch({ partInstanceId: previousPartInstanceId }),
 				resolvedSourceLayers
 			)
-		)
+		})
+		const currentPartInstance = currentPartInstanceId
+			? cache.PartInstances.findOne(currentPartInstanceId)
+			: undefined
 		const inCurrentPartInstance = currentPartInstanceId
 			? this.processAndPrunePieceInstanceTimings(
-					cache.PartInstances.findOne(currentPartInstanceId)?.timings,
+					currentPartInstance?.timings,
+					currentPartInstance?.brandingId ?? null,
 					cache.PieceInstances.findFetch({ partInstanceId: currentPartInstanceId }),
 					resolvedSourceLayers
 				)
@@ -83,6 +90,7 @@ export class TagsService {
 		const inNextPartInstance = nextPartInstanceId
 			? this.processAndPrunePieceInstanceTimings(
 					undefined,
+					cache.PartInstances.findOne(nextPartInstanceId)?.brandingId ?? null,
 					cache.PieceInstances.findFetch({ partInstanceId: nextPartInstanceId }),
 					resolvedSourceLayers
 				)
@@ -128,15 +136,23 @@ export class TagsService {
 
 	private processAndPrunePieceInstanceTimings(
 		partInstanceTimings: DBPartInstance['timings'] | undefined,
+		brandingId: string | null,
 		pieceInstances: Array<Pick<PieceInstance, PieceInstanceFields>>,
 		sourceLayers: SourceLayers
 	): PieceInstanceWithTimings[] {
 		// Approximate when 'now' is in the PartInstance, so that any adlibbed Pieces will be timed roughly correctly
 		const partStarted = partInstanceTimings?.plannedStartedPlayback
 
+		// A Piece the Branding hides is not on air, so it must contribute no tally tags.
+		//
+		// Note: filtered, but deliberately not resolved. The tally matches an AdLib's `currentPieceTags`
+		// against these Pieces' `tags`, and `currentPieceTags` is not brandable — so applying the Branding to
+		// only one side of that comparison would break the tally whenever a Branding renamed a Piece's tags.
+		const playingPieceInstances = pieceInstances.filter((p) => isValidForBranding(p.piece, brandingId))
+
 		return processAndPrunePieceInstanceTimings(
 			sourceLayers,
-			pieceInstances as PieceInstance[],
+			playingPieceInstances as PieceInstance[],
 			createPartCurrentTimes(getCurrentTime(), partStarted),
 			false,
 			false
