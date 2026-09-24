@@ -61,6 +61,11 @@ export interface DBShowStyleBase {
 	/** Config values are used by the Blueprints */
 	blueprintConfigWithOverrides: ObjectWithOverrides<IBlueprintConfig>
 
+	/**
+	 * Branding variations for this showstyle
+	 */
+	branding: ObjectWithOverrides<Record<string, IBranding>>
+
 	/** Configuration for displaying AB resolver channel assignments across different screens */
 	abChannelDisplay?: {
 		/** Source layer IDs that should show AB channel info */
@@ -88,6 +93,12 @@ export interface DBShowStyleBase {
 	lastBlueprintConfig: LastBlueprintConfig | undefined
 	/** Last BlueprintHash where the fixupConfig method was run */
 	lastBlueprintFixUpHash: BlueprintHash | undefined
+}
+
+export interface IBranding {
+	name: string
+
+	config: IBlueprintConfig
 }
 
 /**
