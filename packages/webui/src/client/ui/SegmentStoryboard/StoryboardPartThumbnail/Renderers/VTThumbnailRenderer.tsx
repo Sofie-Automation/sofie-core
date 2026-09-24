@@ -12,11 +12,12 @@ import { useContentStatusForPieceInstance } from '../../../SegmentTimeline/withM
 import { useTiming } from '../../../RundownView/RundownTiming/withTiming.js'
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus.js'
+import { getVisiblePieceContentStatusCode } from '../../../../lib/ui/pieceContentStatus.js'
 
 export function VTThumbnailRenderer(props: Readonly<IProps>): JSX.Element {
 	const contentStatus = useContentStatusForPieceInstance(props.pieceInstance.instance)
 
-	const noticeLevel = getNoticeLevelForPieceStatus(contentStatus?.status)
+	const noticeLevel = getNoticeLevelForPieceStatus(getVisiblePieceContentStatusCode(contentStatus))
 
 	return (
 		<>

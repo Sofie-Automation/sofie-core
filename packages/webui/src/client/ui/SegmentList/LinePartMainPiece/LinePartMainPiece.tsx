@@ -8,6 +8,7 @@ import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { getNoticeLevelForPieceStatus } from '../../../lib/notifications/notifications.js'
 import { LoopingPieceIcon } from '../../../lib/ui/icons/looping.js'
 import { PieceStatusIcon } from '../../../lib/ui/PieceStatusIcon.js'
+import { getVisiblePieceContentStatusCode } from '../../../lib/ui/pieceContentStatus.js'
 import { getElementWidth } from '../../../utils/dimensions.js'
 import { getElementDocumentOffset, OffsetPosition } from '../../../utils/positions.js'
 import { getSplitItems } from '../../SegmentContainer/getSplitItems.js'
@@ -185,7 +186,7 @@ export function LinePartMainPiece({
 		)
 	}
 
-	const noticeLevel = getNoticeLevelForPieceStatus(contentStatus?.status)
+	const noticeLevel = getNoticeLevelForPieceStatus(getVisiblePieceContentStatusCode(contentStatus))
 
 	const hasStepChevron = getPieceSteps(piece)
 

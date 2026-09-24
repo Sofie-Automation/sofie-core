@@ -6,6 +6,7 @@ import { PieceUi } from '../../ui/SegmentContainer/withResolvedSegment.js'
 import { RundownUtils } from '../rundown.js'
 import { ReadonlyDeep } from 'type-fest'
 import { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import { getVisiblePieceContentStatusCode } from './pieceContentStatus.js'
 
 export function pieceUiClassNames(
 	pieceInstance: PieceUi,
@@ -25,6 +26,7 @@ export function pieceUiClassNames(
 	const typeClass = layerType ? RundownUtils.getSourceLayerClassName(layerType) : ''
 
 	const innerPiece = pieceInstance.instance.piece
+	const contentStatusCode = getVisiblePieceContentStatusCode(contentStatus)
 
 	return classNames(baseClassName, typeClass, {
 		'hide-overflow-labels':
@@ -49,12 +51,12 @@ export function pieceUiClassNames(
 		'next-is-touching': pieceInstance.cropped,
 
 		'source-missing':
-			contentStatus?.status === PieceStatusCode.SOURCE_MISSING ||
-			contentStatus?.status === PieceStatusCode.SOURCE_NOT_SET,
-		'source-unknown-state': contentStatus?.status === PieceStatusCode.SOURCE_UNKNOWN_STATE,
-		'source-broken': contentStatus?.status === PieceStatusCode.SOURCE_BROKEN,
-		'source-not-ready': contentStatus?.status === PieceStatusCode.SOURCE_NOT_READY,
-		'unknown-state': contentStatus?.status === PieceStatusCode.UNKNOWN,
+			contentStatusCode === PieceStatusCode.SOURCE_MISSING ||
+			contentStatusCode === PieceStatusCode.SOURCE_NOT_SET,
+		'source-unknown-state': contentStatusCode === PieceStatusCode.SOURCE_UNKNOWN_STATE,
+		'source-broken': contentStatusCode === PieceStatusCode.SOURCE_BROKEN,
+		'source-not-ready': contentStatusCode === PieceStatusCode.SOURCE_NOT_READY,
+		'unknown-state': contentStatusCode === PieceStatusCode.UNKNOWN,
 		disabled: pieceInstance.instance.disabled,
 
 		'invert-flash': highlight,

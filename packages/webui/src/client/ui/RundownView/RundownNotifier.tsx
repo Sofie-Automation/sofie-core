@@ -830,6 +830,7 @@ interface RundownNotifierProps {
 
 export function RundownNotifier({ playlistId, studio }: RundownNotifierProps): JSX.Element | null {
 	const userPermissions = useContext(UserPermissionsContext)
+	const ignorePieceContentStatus = getIgnorePieceContentStatus()
 
 	React.useEffect(() => {
 		const notifier = new RundownViewNotifier(playlistId, studio, userPermissions)
@@ -837,7 +838,7 @@ export function RundownNotifier({ playlistId, studio }: RundownNotifierProps): J
 		return () => {
 			notifier.stop()
 		}
-	}, [playlistId, studio._id, userPermissions])
+	}, [playlistId, studio._id, userPermissions, ignorePieceContentStatus])
 
 	return null
 }

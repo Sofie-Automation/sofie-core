@@ -8,6 +8,7 @@ import { contextMenuHoldToDisplayTime } from '../../lib/lib.js'
 import { setShelfContextMenuContext, ContextType as MenuContextType } from './ShelfContextMenu.js'
 import { UIStudio } from '@sofie-automation/meteor-lib/dist/api/studios'
 import { IAdLibListItem } from '@sofie-automation/meteor-lib/dist/uiTypes/Adlib'
+import { getVisiblePieceContentStatusCode } from '../../lib/ui/pieceContentStatus.js'
 
 export type { IAdLibListItem } from '@sofie-automation/meteor-lib/dist/uiTypes/Adlib'
 
@@ -68,7 +69,7 @@ export function AdLibListItem({
 				layer: layer,
 				outputLayer: piece.outputLayer,
 				selected: selected,
-				status: contentStatus?.status,
+				status: getVisiblePieceContentStatusCode(contentStatus),
 				messages: contentStatus?.messages,
 				studio: studio,
 			})}
