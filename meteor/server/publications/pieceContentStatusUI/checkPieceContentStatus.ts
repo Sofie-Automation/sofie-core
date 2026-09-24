@@ -242,6 +242,22 @@ export async function checkPieceContentStatusAndDependencies(
 	piece: PieceContentStatusPiece,
 	sourceLayer: ISourceLayer
 ): Promise<[status: PieceContentStatusObj, pieceDependencies: PieceDependencies]> {
+	let status: PieceContentStatusObj = {
+		status: PieceStatusCode.UNKNOWN,
+		messages: [],
+		progress: undefined,
+
+		freezes: [],
+		blacks: [],
+		scenes: [],
+
+		thumbnailUrl: undefined,
+		previewUrl: undefined,
+
+		packageName: getMediaObjectMediaId(piece, sourceLayer) || null,
+		contentDuration: undefined,
+	}
+
 	const pieceDependencies: PieceDependencies = {
 		mediaObjects: [],
 		packageInfos: [],
@@ -286,8 +302,7 @@ export async function checkPieceContentStatusAndDependencies(
 				]
 			}
 		}
-
-		return [mockStatus, pieceDependencies]
+		status = mockStatus
 	}
 
 	const ignoreMediaStatus = piece.content && piece.content.ignoreMediaObjectStatus
@@ -348,7 +363,6 @@ export async function checkPieceContentStatusAndDependencies(
 			if (sourceLayer.type === SourceLayerType.SPLITS && status.boxPreviews) {
 				await fillSplitsBoxPreviewsFromMediaObjects(studio, piece, status, getMediaObject)
 			}
-			return [status, pieceDependencies]
 		} else {
 			// Fallback to MediaObject statuses:
 			const getMediaObject = async (mediaId: string) => {
@@ -367,35 +381,26 @@ export async function checkPieceContentStatusAndDependencies(
 				return [status, pieceDependencies]
 			}
 
-			const status = await checkPieceContentMediaObjectStatus(
+			status = await checkPieceContentMediaObjectStatus(
 				piece,
 				sourceLayer,
 				studio,
 				getMediaObject,
 				messageFactory || DEFAULT_MESSAGE_FACTORY
 			)
-			return [status, pieceDependencies]
 		}
 	}
 
-	return [
-		{
-			status: PieceStatusCode.UNKNOWN,
-			messages: [],
-			progress: undefined,
+	if (piece.content.overrideMediaObjectStatus) {
+		// Override any existing media object status with the one provided in the piece content:
 
-			freezes: [],
-			blacks: [],
-			scenes: [],
+		status = {
+			...status,
+			...piece.content.overrideMediaObjectStatus,
+		}
+	}
 
-			thumbnailUrl: undefined,
-			previewUrl: undefined,
-
-			packageName: getMediaObjectMediaId(piece, sourceLayer) || null,
-			contentDuration: undefined,
-		},
-		pieceDependencies,
-	]
+	return [status, pieceDependencies]
 }
 
 interface MediaObjectMessage {
