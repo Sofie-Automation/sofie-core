@@ -302,7 +302,8 @@ export class CoreHandler implements ICoreHandler {
 		this.logger.info('KillProcess command received for live-status-gateway')
 		if (this._k8sRestarter) {
 			this.logger.info('Running on kubernetes was true, restarting deployment')
-			return await this._k8sRestarter.restartKube()
+			await this._k8sRestarter.restartKube()
+			return true
 		} else {
 			this.logger.info('killing process in 1000ms!')
 			setTimeout(() => {
