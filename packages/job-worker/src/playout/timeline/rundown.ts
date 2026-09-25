@@ -319,7 +319,7 @@ function generateCurrentInfinitePieceObjects(
 	   Notes on the "Infinite Part Group":
 	   Infinite pieces are put into a parent "infinite Part Group" object instead of the usual Part Group,
 	   because their lifetime can be outside of their Part.
-	   
+
 	   The Infinite Part Group's start time is set to be the start time of the Piece, but this is then complicated by
 	   the Piece.enable.start assuming that it is relative to the PartGroup it is in. This is being factored in if an
 	   absolute start time is known for the piece.
