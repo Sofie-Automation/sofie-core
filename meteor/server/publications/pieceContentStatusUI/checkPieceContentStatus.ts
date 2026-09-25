@@ -264,48 +264,8 @@ export async function checkPieceContentStatusAndDependencies(
 		packageContainerPackageStatuses: [],
 	}
 
-	if (studio.settings.mockPieceContentStatus) {
-		const mockStatus: PieceContentStatusObj = {
-			status: PieceStatusCode.OK,
-			messages: [],
-			progress: undefined,
-
-			freezes: [],
-			blacks: [],
-			scenes: [],
-
-			thumbnailUrl: '/dev/fakeThumbnail.png',
-			previewUrl: '/dev/fakePreview.mp4',
-
-			packageName: '/dev/fakePreview.mp4',
-			contentDuration: 30 * 1000,
-		}
-
-		if (sourceLayer.type === SourceLayerType.SPLITS) {
-			const splitsContent = piece.content as SplitsContent | undefined
-			if (splitsContent?.boxSourceConfiguration) {
-				return [
-					{
-						...mockStatus,
-						thumbnailUrl: undefined,
-						previewUrl: undefined,
-						boxPreviews: splitsContent.boxSourceConfiguration.map((box) =>
-							getMediaIdFromSplitBox(box)
-								? {
-										thumbnailUrl: '/dev/fakeThumbnail.png',
-										previewUrl: '/dev/fakePreview.mp4',
-									}
-								: {}
-						),
-					},
-					pieceDependencies,
-				]
-			}
-		}
-		status = mockStatus
-	}
-
 	const ignoreMediaStatus = piece.content && piece.content.ignoreMediaObjectStatus
+
 	if (!ignoreMediaStatus) {
 		if (piece.expectedPackages) {
 			const getPackageInfos = async (packageId: ExpectedPackageId) => {
@@ -351,7 +311,7 @@ export async function checkPieceContentStatusAndDependencies(
 			}
 
 			// Using Expected Packages:
-			const status = await checkPieceContentExpectedPackageStatus(
+			status = await checkPieceContentExpectedPackageStatus(
 				piece,
 				sourceLayer,
 				studio,
@@ -377,17 +337,51 @@ export async function checkPieceContentStatusAndDependencies(
 			}
 
 			if (sourceLayer.type === SourceLayerType.SPLITS) {
-				const status = await checkPieceContentSplitsMediaObjectStatus(piece, studio, getMediaObject)
-				return [status, pieceDependencies]
+				status = await checkPieceContentSplitsMediaObjectStatus(piece, studio, getMediaObject)
+			} else {
+				status = await checkPieceContentMediaObjectStatus(
+					piece,
+					sourceLayer,
+					studio,
+					getMediaObject,
+					messageFactory || DEFAULT_MESSAGE_FACTORY
+				)
 			}
+		}
+	}
 
-			status = await checkPieceContentMediaObjectStatus(
-				piece,
-				sourceLayer,
-				studio,
-				getMediaObject,
-				messageFactory || DEFAULT_MESSAGE_FACTORY
-			)
+	if (studio.settings.mockPieceContentStatus) {
+		// Replace the any status with a mocked one:
+		status = {
+			status: PieceStatusCode.OK,
+			messages: [],
+			progress: undefined,
+
+			freezes: [],
+			blacks: [],
+			scenes: [],
+
+			thumbnailUrl: '/dev/fakeThumbnail.png',
+			previewUrl: '/dev/fakePreview.mp4',
+
+			packageName: '/dev/fakePreview.mp4',
+			contentDuration: 30 * 1000,
+		}
+
+		if (sourceLayer.type === SourceLayerType.SPLITS) {
+			const splitsContent = piece.content as SplitsContent | undefined
+			if (splitsContent?.boxSourceConfiguration) {
+				status.thumbnailUrl = undefined
+				status.previewUrl = undefined
+				status.boxPreviews = splitsContent.boxSourceConfiguration.map((box) =>
+					getMediaIdFromSplitBox(box)
+						? {
+								thumbnailUrl: '/dev/fakeThumbnail.png',
+								previewUrl: '/dev/fakePreview.mp4',
+							}
+						: {}
+				)
+			}
 		}
 	}
 
