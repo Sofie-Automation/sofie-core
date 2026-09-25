@@ -40,7 +40,7 @@ export enum SchemaFormUIField {
 	 *     to determine which variant is selected.
 	 * - string properties. Valid values are `base64-image`.
 	 * - boolean properties. Valid values are `switch`.
-	 * - number properties. Valid values are `timeMs`.
+	 * - number properties. Valid values are `timeMs`, `timecode`, `timecodeFrames`, `tod`.
 	 * - array properties with items.type string. Valid values are `bread-crumbs`.
 	 */
 	DisplayType = 'ui:displayType',
