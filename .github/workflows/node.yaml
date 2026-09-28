@@ -348,11 +348,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [22.x]
         include:
-          # Only send coverage from one version
+          # Everything is tested on the node version core runs on
           - node-version: 22.x
             send-coverage: true
+          # The published libraries are also tested on newer node versions, as they are used by other projects
+          - node-version: 24.x
+            test-projects: server-core-integration,shared-lib
+            build-tsconfig: packages/server-core-integration/tsconfig.build.json
+          - node-version: 26.x
+            test-projects: server-core-integration,shared-lib
+            build-tsconfig: packages/server-core-integration/tsconfig.build.json
 
     steps:
       - uses: actions/checkout@v7
@@ -375,14 +381,25 @@ jobs:
 
           yarn config set cacheFolder /home/runner/test-packages-cache
           yarn install
-          yarn build
+
+          if [ -n "${{ matrix.build-tsconfig }}" ]; then
+            yarn build:single ${{ matrix.build-tsconfig }}
+          else
+            yarn build
+          fi
         env:
           CI: true
       - name: Run tests
         run: |
-          NODE_OPTIONS="--max-old-space-size=6144" yarn unit:coverage
+          if [ "${{ matrix.send-coverage }}" = "true" ]; then
+            NODE_OPTIONS="--max-old-space-size=6144" yarn unit:coverage
+          else
+            yarn unit
+          fi
         env:
           CI: true
+          # Limit the run to some projects (all when empty), see vitest.config.mts
+          SOFIE_TEST_PROJECTS: ${{ matrix.test-projects }}
       - name: Send coverage
         if: matrix.send-coverage && (((github.event_name == 'pull_request') && (!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release'))))
         uses: codecov/codecov-action@v7

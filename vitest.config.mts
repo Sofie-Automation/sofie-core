@@ -7,6 +7,14 @@ const packagesDir = path.join(import.meta.dirname, 'packages')
 const includeIntegrationTests = !!process.env.SOFIE_INTEGRATION_TESTS
 /** The openapi tests need a server to test against, so are only included when run via `openapi/run_server_tests.mjs` (or `unit:no-server`) */
 const includeOpenApiTests = !!process.env.SOFIE_OPENAPI_TESTS
+/**
+ * Comma separated list of the projects to run (eg `server-core-integration,shared-lib`), for when only some packages
+ * need testing, such as the published libraries on newer node versions in CI. Runs every project when unset.
+ */
+const onlyProjects = (process.env.SOFIE_TEST_PROJECTS ?? '')
+	.split(',')
+	.map((name) => name.trim())
+	.filter(Boolean)
 
 /** Point imports of server-core-integration at its sources, so tests don't need it to be built first */
 const serverCoreIntegrationSrcAlias = {
@@ -55,10 +63,25 @@ function packageProject(name: string, options: ProjectOptions = {}): TestProject
 	}
 }
 
+/** Apply SOFIE_TEST_PROJECTS. Unknown names are an error, so that a typo doesn't quietly run nothing */
+function selectProjects(projects: TestProjectInlineConfiguration[]): TestProjectInlineConfiguration[] {
+	if (onlyProjects.length === 0) return projects
+
+	const knownNames = projects.map((project) => project.test?.name)
+	const unknownNames = onlyProjects.filter((name) => !knownNames.includes(name))
+	if (unknownNames.length > 0) {
+		throw new Error(
+			`SOFIE_TEST_PROJECTS contains unknown projects: ${unknownNames.join(', ')}. Known projects: ${knownNames.join(', ')}`
+		)
+	}
+
+	return projects.filter((project) => onlyProjects.includes(project.test?.name as string))
+}
+
 export default defineConfig({
 	test: {
 		root: packagesDir,
-		projects: [
+		projects: selectProjects([
 			packageProject('blueprints-integration', {
 				include: ['src/**/__tests__/**/*.spec.{ts,js}'],
 			}),
@@ -142,7 +165,7 @@ export default defineConfig({
 						}),
 					]
 				: []),
-		],
+		]),
 		coverage: {
 			// Match jest's previous collectCoverage: true. Disable with --coverage=false
 			enabled: true,
