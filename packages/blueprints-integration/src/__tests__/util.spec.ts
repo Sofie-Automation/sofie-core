@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { iterateDeeply, iterateDeeplyAsync, iterateDeeplyEnum } from '../util.js'
 
 describe('Util', () => {

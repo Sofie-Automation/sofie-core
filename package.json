@@ -60,6 +60,7 @@
 		"@types/node": "^22.20.1",
 		"@types/object-path": "^0.11.4",
 		"@types/underscore": "^1.13.0",
+		"@vitest/coverage-v8": "^5.0.1",
 		"babel-jest": "^30.4.1",
 		"commit-and-tag-version": "^13.1.0",
 		"concurrently": "^10.0.3",
@@ -84,7 +85,8 @@
 		"ts-jest": "29.4.9",
 		"ts-node": "^10.9.2",
 		"typedoc": "^0.27.9",
-		"typescript": "~5.9.3"
+		"typescript": "~5.9.3",
+		"vitest": "^5.0.1"
 	},
 	"packageManager": "yarn@4.17.0",
 	"resolutions": {

@@ -19,6 +19,7 @@ const extendedRules = await generateEslintConfig({
 		'packages/sofie-core/src/_force_restart.js',
 		'packages/sofie-core/dist',
 		'scripts',
+		'vitest.config.mts', // This errors because of tsconfig structure
 		// Repo-level config, not part of any package
 		'.github',
 		'*.yml',

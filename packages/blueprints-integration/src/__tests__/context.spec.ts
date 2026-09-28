@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { isCommonContext, isUserNotesContext } from '../context/index.js'
 
 describe('Context', () => {
