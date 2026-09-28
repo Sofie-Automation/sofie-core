@@ -1,7 +1,7 @@
-import '../../../../__mocks__/_extendJest'
+import '../../../__mocks__/_extendJest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { runUpgradeForShowStyleBase, validateConfigForShowStyleBase } from '../showStyleBase'
-import { setupMockShowStyleBase, setupMockShowStyleBlueprint } from '../../../../__mocks__/helpers/database'
+import { setupMockShowStyleBase, setupMockShowStyleBlueprint } from '../../../__mocks__/helpers/database'
 import {
 	BlueprintManifestType,
 	BlueprintResultApplyShowStyleConfig,

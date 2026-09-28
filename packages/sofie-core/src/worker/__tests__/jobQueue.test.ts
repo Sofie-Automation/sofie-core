@@ -1,5 +1,5 @@
-import '../../../__mocks__/_extendJest'
-import { waitTime } from '../../../__mocks__/helpers/jest'
+import '../../__mocks__/_extendJest'
+import { waitTime } from '../../__mocks__/helpers/jest'
 import { WorkerJobQueueManager } from '../jobQueue'
 
 // Mock the logging module

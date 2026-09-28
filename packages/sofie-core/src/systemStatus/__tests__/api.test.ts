@@ -1,16 +1,16 @@
-import '../../../__mocks__/_extendJest'
-import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
+import '../../__mocks__/_extendJest'
+import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../__mocks__/helpers/database'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { sleepNoFakeTimers } from '../../../__mocks__/time'
+import { sleepNoFakeTimers } from '../../__mocks__/time'
 import { status2ExternalStatus, setSystemStatus } from '../systemStatus'
 import { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { SystemStatusAPIMethods } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
-import { callKoaRoute } from '../../../__mocks__/koa-util'
+import { callKoaRoute } from '../../__mocks__/koa-util'
 import { healthRouter, ServerSystemStatusAPI } from '../api'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
-import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../api/deviceTriggers/observer')

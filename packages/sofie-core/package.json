@@ -7,7 +7,7 @@
 		"node": ">=22.20.0"
 	},
 	"scripts": {
-		"debug": "tsx --watch server/main.ts",
+		"debug": "tsx --watch src/main.ts",
 		"start": "node dist/main.js",
 		"inject-git-hash": "node ./scripts/generate-version-file.js",
 		"lint": "run -T lint packages/sofie-core",

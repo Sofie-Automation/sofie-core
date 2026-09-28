@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { overrideLogger } from '../server/logging'
+import { overrideLogger } from '../logging'
 
 export class SupressLogMessages {
 	private static suppressMessages: RegExp[] = []

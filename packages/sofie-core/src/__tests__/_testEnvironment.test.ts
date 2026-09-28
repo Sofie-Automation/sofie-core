@@ -1,5 +1,5 @@
-import { RandomMock } from '../../__mocks__/random'
-import { MongoMock } from '../../__mocks__/mongo'
+import { RandomMock } from '../__mocks__/random'
+import { MongoMock } from '../__mocks__/mongo'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { sleep } from '../lib/lib'
@@ -27,7 +27,7 @@ import {
 	UserActionsLog,
 } from '../collections'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { defaultStudio } from '../../__mocks__/defaultCollectionObjects'
+import { defaultStudio } from '../__mocks__/defaultCollectionObjects'
 import { createMockCollection } from '../collections/implementations/mock'
 
 describe('Basic test of test environment', () => {

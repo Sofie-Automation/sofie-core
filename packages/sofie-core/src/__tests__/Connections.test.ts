@@ -4,7 +4,7 @@ import { trackConnectionClose } from '../Connections'
 import { PeripheralDevices } from '../collections'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { waitUntil } from '../../__mocks__/helpers/jest'
+import { waitUntil } from '../__mocks__/helpers/jest'
 
 describe('Connections.trackConnectionClose', () => {
 	beforeEach(async () => {

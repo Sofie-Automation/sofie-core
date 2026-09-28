@@ -16,7 +16,7 @@ const extendedRules = await generateEslintConfig({
 		'packages/webui/src/meteor',
 		'packages/webui/vite.config.mts', // This errors because of tsconfig structure
 		'packages/sofie-core/scripts',
-		'packages/sofie-core/server/_force_restart.js',
+		'packages/sofie-core/src/_force_restart.js',
 		'packages/sofie-core/dist',
 		'scripts',
 		// Leftover from the old layout, which existing checkouts may still have
@@ -171,7 +171,7 @@ extendedRules.push(
 		},
 	},
 	{
-		files: ['packages/sofie-core/server/worker/worker.ts'],
+		files: ['packages/sofie-core/src/worker/worker.ts'],
 		rules: {
 			// require('../_force_restart') only exists in dev, not in prod builds; can't use an
 			// inline eslint-disable since it'd be "unused" (and stripped by --fix) locally

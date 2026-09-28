@@ -8,7 +8,7 @@ import {
 	ServiceMessage,
 } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { CoreSystem } from '../../../collections'
-import { SupressLogMessages } from '../../../../__mocks__/suppressLogging'
+import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
 function convertExternalToServiceMessage(message: ExternalServiceMessage): ServiceMessage {

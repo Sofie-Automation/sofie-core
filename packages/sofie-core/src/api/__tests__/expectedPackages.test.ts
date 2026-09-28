@@ -3,8 +3,8 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getPackageContainerId } from '@sofie-automation/corelib/dist/dataModel/PackageContainerStatus'
 import { getPackageContainerPackageId } from '@sofie-automation/corelib/dist/dataModel/PackageContainerPackageStatus'
 import { getPackageInfoId } from '@sofie-automation/corelib/dist/dataModel/PackageInfos'
-import { setupDefaultStudioEnvironment } from '../../../__mocks__/helpers/database'
-import { getMethodContext } from '../../../__mocks__/helpers/methods'
+import { setupDefaultStudioEnvironment } from '../../__mocks__/helpers/database'
+import { getMethodContext } from '../../__mocks__/helpers/methods'
 import {
 	ExpectedPackages,
 	ExpectedPackageWorkStatuses,

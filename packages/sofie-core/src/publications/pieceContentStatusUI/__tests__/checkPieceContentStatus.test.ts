@@ -19,7 +19,7 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { Complete, literal } from '@sofie-automation/corelib/dist/lib'
-import { MongoMock } from '../../../../__mocks__/mongo'
+import { MongoMock } from '../../../__mocks__/mongo'
 import {
 	PieceGeneric,
 	PieceStatusCode,
@@ -34,7 +34,7 @@ import {
 	MediaStream,
 	MediaStreamType,
 } from '@sofie-automation/shared-lib/dist/core/model/MediaObjects'
-import { defaultStudio } from '../../../../__mocks__/defaultCollectionObjects'
+import { defaultStudio } from '../../../__mocks__/defaultCollectionObjects'
 import { MediaObjects } from '../../../collections'
 import { PieceDependencies } from '../common'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'

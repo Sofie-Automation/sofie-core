@@ -1,5 +1,5 @@
-import { PublicationRegistry } from '../../server/publicationRegistry'
-import { registerAllPublications } from '../../server/publicationRegistrations'
+import { PublicationRegistry } from '../../publicationRegistry'
+import { registerAllPublications } from '../../publicationRegistrations'
 
 /**
  * Test helper: register all DDP publications on a fresh PublicationRegistry and apply them to the

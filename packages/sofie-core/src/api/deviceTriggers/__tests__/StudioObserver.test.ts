@@ -9,7 +9,7 @@ import {
 
 import type { ContentCache as RundownContentCache } from '../reactiveContentCache'
 import type { ContentCache as PieceInstancesContentCache } from '../reactiveContentCacheForPieceInstances'
-import { runAllTimers } from '../../../../__mocks__/helpers/jest'
+import { runAllTimers } from '../../../__mocks__/helpers/jest'
 
 type OnChangedRundown = (cache: RundownContentCache) => () => void
 type OnChangedPieceInstances = (cache: PieceInstancesContentCache) => () => void

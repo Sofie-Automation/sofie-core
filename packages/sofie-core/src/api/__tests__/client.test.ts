@@ -9,12 +9,12 @@ import {
 	PeripheralDeviceType,
 	PERIPHERAL_SUBTYPE_PROCESS,
 } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import { setupMockPeripheralDevice, setupMockStudio } from '../../../__mocks__/helpers/database'
+import { setupMockPeripheralDevice, setupMockStudio } from '../../__mocks__/helpers/database'
 import { ServerClientAPIClass } from '../client'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PeripheralDeviceCommands, UserActionsLog } from '../../collections'
-import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
-import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
+import { SupressLogMessages } from '../../__mocks__/suppressLogging'
+import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
 
 const MeteorCall = makeMeteorCallForTest({ methods: ClientAPIMethods, class: ServerClientAPIClass })
 

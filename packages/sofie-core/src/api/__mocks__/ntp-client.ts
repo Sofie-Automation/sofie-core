@@ -1,4 +1,4 @@
-import { RandomMock } from '../../../__mocks__/random'
+import { RandomMock } from '../../__mocks__/random'
 
 export const ntpReplyTimeout = 1000
 

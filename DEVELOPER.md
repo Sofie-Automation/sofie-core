@@ -6,13 +6,13 @@ Before you start, be sure to read the [Contribution guidelines](CONTRIBUTING.md)
 
 ### Documentation
 
-The documentation can be found at [Sofie TV Automation Documentation](https://sofie-automation.github.io/sofie-core/) and its for subsection [For Developers](https://sofie-automation.github.io/sofie-core/docs/for-developers/intro). Specific _Sofie Core_ information can also be in `DOCS.md` and `DEVELOPER.md` in the subfolders of this git project, for example [packages/sofie-core/server/api/playout](packages/sofie-core/server/api/playout/DOCS.md).
+The documentation can be found at [Sofie TV Automation Documentation](https://sofie-automation.github.io/sofie-core/) and its for subsection [For Developers](https://sofie-automation.github.io/sofie-core/docs/for-developers/intro). Specific _Sofie Core_ information can also be in `DOCS.md` and `DEVELOPER.md` in the subfolders of this git project, for example [packages/sofie-core/src/api/playout](packages/sofie-core/src/api/playout/DOCS.md).
 
 ### Monorepo Layout
 
 This repository is a monorepo, set up as a single yarn workspace, and contains both the main application (usually called server-core) as well as multiple auxiliary projects. Everything lives under `packages`:
 
-- `packages/sofie-core` is the main Sofie application, with the server-side application in its `server` folder.
+- `packages/sofie-core` is the main Sofie application, with its source in the `src` folder.
 - `packages/webui` is the frontend.
 - The other folders are libraries and gateways that are part of the functionality that Sofie offers. The libraries are referenced by core directly through the workspace, so they behave the same as if `npm link` was used. Each package has its own README explaining its purpose and usage.
 

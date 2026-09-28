@@ -27,7 +27,7 @@ export async function extractTranslations() {
 		extract: {
 			input: [
 				// `${entryPointRoot}/**/*.ts`,
-				'./server/**/*.+(ts|tsx)',
+				'./src/**/*.+(ts|tsx)',
 				'../job-worker/src/**/*.+(ts|tsx)',
 				'../corelib/src/**/*.+(ts|tsx)',
 				'../webui/src/**/*.+(ts|tsx)',

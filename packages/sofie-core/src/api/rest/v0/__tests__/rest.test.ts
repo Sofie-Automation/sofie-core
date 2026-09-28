@@ -2,7 +2,7 @@ import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/user
 import { MethodRegistry, AnyMethodApiRegistration } from '../../../../methodRegistry'
 import { PublicationRegistry } from '../../../../publicationRegistry'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
-import { callKoaRoute } from '../../../../../__mocks__/koa-util'
+import { callKoaRoute } from '../../../../__mocks__/koa-util'
 import { createLegacyApiRouter } from '..'
 import { ServerUserActionAPI } from '../../../userActions'
 

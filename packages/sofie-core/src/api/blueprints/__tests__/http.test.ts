@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import { PassThrough } from 'stream'
-import { SupressLogMessages } from '../../../../__mocks__/suppressLogging'
-import { callKoaRoute } from '../../../../__mocks__/koa-util'
+import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
+import { callKoaRoute } from '../../../__mocks__/koa-util'
 import { blueprintsRouter } from '../http'
 
 jest.mock('../../deviceTriggers/observer')
