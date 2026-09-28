@@ -1,16 +1,16 @@
-import '../../../__mocks__/_extendJest'
+import '../../__mocks__/_extendJest'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
 import { ExternalMessageQueue, RundownPlaylists, Rundowns } from '../../collections'
 import { IBlueprintExternalMessageQueueType, PlaylistTimingType } from '@sofie-automation/blueprints-integration'
-import { DefaultEnvironment, setupDefaultStudioEnvironment } from '../../../__mocks__/helpers/database'
+import { DefaultEnvironment, setupDefaultStudioEnvironment } from '../../__mocks__/helpers/database'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
 import { ExternalMessageQueueAPIMethods } from '@sofie-automation/meteor-lib/dist/api/ExternalMessageQueue'
 import { ServerExternalMessageQueueAPI } from '../ExternalMessageQueue'
 
-import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
-import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
+import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
+import { SupressLogMessages } from '../../__mocks__/suppressLogging'
 
 const MeteorCall = makeMeteorCallForTest({
 	methods: ExternalMessageQueueAPIMethods,

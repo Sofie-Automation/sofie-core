@@ -1,4 +1,4 @@
-import { runTimersUntilNow } from '../../__mocks__/helpers/jest'
+import { runTimersUntilNow } from '../__mocks__/helpers/jest'
 import { TimeJumpDetector } from '../systemTime'
 
 describe('lib/systemTime', () => {

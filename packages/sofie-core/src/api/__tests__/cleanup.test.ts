@@ -6,7 +6,7 @@ import {
 	DefaultEnvironment,
 	setupDefaultRundownPlaylist,
 	setupDefaultStudioEnvironment,
-} from '../../../__mocks__/helpers/database'
+} from '../../__mocks__/helpers/database'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import {
 	RundownPlaylists,

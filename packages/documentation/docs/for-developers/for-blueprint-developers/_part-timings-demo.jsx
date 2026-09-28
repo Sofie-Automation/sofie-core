@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 /**
  * This is a demo showing the interactions between the part and piece groups on the timeline.
- * The maths should be the same as in `packages/sofie-core/server/lib/rundown/timings.ts`, but in a simplified form
+ * The maths should be the same as in `packages/sofie-core/src/lib/rundown/timings.ts`, but in a simplified form
  */
 
 const MS_TO_PIXEL_CONSTANT = 0.1

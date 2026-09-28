@@ -3,9 +3,7 @@
 	"include": [
 		"packages/*/src/**/__tests__/**/*",
 		"packages/*/src/**/__mocks__/**/*",
-		"packages/*/src/**/integrationTests/**/*",
-		"packages/sofie-core/**/__tests__/**/*",
-		"packages/sofie-core/**/__mocks__/**/*"
+		"packages/*/src/**/integrationTests/**/*"
 	],
 	"exclude": ["node_modules/**", "packages/webui/**", "packages/openapi/**"],
 	"compilerOptions": {

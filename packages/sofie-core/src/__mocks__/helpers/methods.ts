@@ -1,8 +1,8 @@
 import type { IMeteorCall } from '@sofie-automation/meteor-lib/dist/api/methods'
-import { AnyMethodApiRegistration, MethodRegistry } from '../../server/methodRegistry'
-import { makeMeteorCallForRegistry } from '../../server/api/meteorCall'
-import { USER_PERMISSIONS_HEADER } from '../../server/security/auth'
-import { MethodContext } from '../../server/api/methodContext'
+import { AnyMethodApiRegistration, MethodRegistry } from '../../methodRegistry'
+import { makeMeteorCallForRegistry } from '../../api/meteorCall'
+import { USER_PERMISSIONS_HEADER } from '../../security/auth'
+import { MethodContext } from '../../api/methodContext'
 
 /**
  * Test helper: build an `IMeteorCall` backed by a fresh `MethodRegistry` containing only the given

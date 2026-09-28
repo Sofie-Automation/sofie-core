@@ -1,7 +1,7 @@
 // import { IngestJobFunc } from '@sofie-automation/corelib/dist/worker/ingest'
 // import { StudioJobFunc } from '@sofie-automation/corelib/dist/worker/studio'
-// import { StudioId } from '../lib/collections/Studios'
-import { QueueForceClearAllCaches, QueueIngestJob, QueueStudioJob, WorkerJob } from '../server/worker/worker'
+// import { StudioId } from '../../lib/collections/Studios'
+import { QueueForceClearAllCaches, QueueIngestJob, QueueStudioJob, WorkerJob } from '../worker/worker'
 
 export function CreateFakeResult<T>(result: Promise<T>): WorkerJob<T> {
 	return {

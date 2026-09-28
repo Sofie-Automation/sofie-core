@@ -1,4 +1,4 @@
-import { setLogLevel } from '../server/logging'
+import { setLogLevel } from '../logging'
 import { resetRandomId } from './random'
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { SupressLogMessages } from './suppressLogging'
@@ -10,8 +10,8 @@ jest.mock('nanoid', (...args) => require('./random').setup(args), { virtual: tru
 
 // Add references to all "meteor" mocks below, so that jest resolves the imports properly.
 
-jest.mock('../server/api/integration/slack', (...args) => require('./slack').setup(args), { virtual: true })
-jest.mock('../server/worker/worker', (...args) => require('./worker').setup(args), { virtual: true })
+jest.mock('../api/integration/slack', (...args) => require('./slack').setup(args), { virtual: true })
+jest.mock('../worker/worker', (...args) => require('./worker').setup(args), { virtual: true })
 
 SupressLogMessages.init()
 

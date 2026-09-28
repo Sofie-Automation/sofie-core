@@ -57,7 +57,7 @@ import { DeviceTriggerMountedActionAdlibsPreview, DeviceTriggerMountedActions } 
 import { TagsService } from '../TagsService'
 import { StudioActionManagers } from '../StudioActionManagers'
 import { RundownPlaylists } from '../../../collections'
-import { MongoMock } from '../../../../__mocks__/mongo'
+import { MongoMock } from '../../../__mocks__/mongo'
 import { DeviceActionId } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 import { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 

@@ -37,8 +37,8 @@ import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowSt
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { ICoreSystem, SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
-import { stripVersion } from '../../server/systemStatus/semverUtils'
-import { internalUploadBlueprint } from '../../server/api/blueprints/api'
+import { stripVersion } from '../../systemStatus/semverUtils'
+import { internalUploadBlueprint } from '../../api/blueprints/api'
 import { literal, getRandomId, getRandomString, normalizeArray } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -51,7 +51,7 @@ import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { restartRandomId } from '../random'
 import { MongoMock } from '../mongo'
 import { defaultRundownPlaylist, defaultStudio } from '../defaultCollectionObjects'
-import { PackageInfo } from '../../server/coreSystem'
+import { PackageInfo } from '../../coreSystem'
 import { DBTriggeredActions } from '@sofie-automation/meteor-lib/dist/collections/TriggeredActions'
 import { WorkerStatus } from '@sofie-automation/meteor-lib/dist/collections/Workers'
 import { WorkerThreadStatus } from '@sofie-automation/corelib/dist/dataModel/WorkerThreads'
@@ -82,7 +82,7 @@ import {
 	TriggeredActions,
 	Workers,
 	WorkerThreadStatuses,
-} from '../../server/collections'
+} from '../../collections'
 import { TSR_VERSION } from '@sofie-automation/shared-lib/dist/tsr'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 

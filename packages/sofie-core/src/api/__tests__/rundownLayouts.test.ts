@@ -1,5 +1,5 @@
-import '../../../__mocks__/_extendJest'
-import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
+import '../../__mocks__/_extendJest'
+import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../__mocks__/helpers/database'
 import { literal, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
@@ -10,10 +10,10 @@ import {
 import { RundownLayoutsAPIMethods } from '@sofie-automation/meteor-lib/dist/api/rundownLayouts'
 import { RundownLayoutId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownLayouts } from '../../collections'
-import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
+import { SupressLogMessages } from '../../__mocks__/suppressLogging'
 import { shelfLayoutsRouter, ServerRundownLayoutsAPI } from '../rundownLayouts'
-import { callKoaRoute } from '../../../__mocks__/koa-util'
-import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
+import { callKoaRoute } from '../../__mocks__/koa-util'
+import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
 
 const MeteorCall = makeMeteorCallForTest({ methods: RundownLayoutsAPIMethods, class: ServerRundownLayoutsAPI })
 

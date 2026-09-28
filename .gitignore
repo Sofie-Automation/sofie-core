@@ -23,7 +23,7 @@ packages/*/dist
 packages/*/coverage
 packages/*/CHANGELOG.md
 packages/sofie-core/.coverage/
-packages/sofie-core/server/_force_restart.js
+packages/sofie-core/src/_force_restart.js
 packages/documentation/build
 docs
 .nx/

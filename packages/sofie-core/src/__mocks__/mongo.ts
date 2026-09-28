@@ -1,12 +1,12 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
-import { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from '../server/collections/collection'
-import { Collections } from '../server/collections/lib'
+import { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from '../collections/collection'
+import { Collections } from '../collections/lib'
 
 /**
  * Helpers for manipulating the in-memory collections during unit tests. The collections themselves are
  * `WrappedMockCollection`s backed by corelib's {@link InMemoryMongoCollection} (see
- * `server/collections/implementations/mock`); these helpers reach the backing store via `.mockCollection`.
+ * `src/collections/implementations/mock`); these helpers reach the backing store via `.mockCollection`.
  */
 export namespace MongoMock {
 	interface CollectionObject {

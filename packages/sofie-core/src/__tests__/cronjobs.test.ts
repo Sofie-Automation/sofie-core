@@ -1,5 +1,5 @@
-import '../../__mocks__/_extendJest'
-import { runAllTimers, waitUntil } from '../../__mocks__/helpers/jest'
+import '../__mocks__/_extendJest'
+import { runAllTimers, waitUntil } from '../__mocks__/helpers/jest'
 import { logger } from '../logging'
 import { getRandomId, getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -67,7 +67,7 @@ import {
 	DefaultEnvironment,
 	setupDefaultRundownPlaylist,
 	setupDefaultStudioEnvironment,
-} from '../../__mocks__/helpers/database'
+} from '../__mocks__/helpers/database'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { DEFAULT_MAXIMUM_DATA_AGE } from '@sofie-automation/shared-lib/dist/core/constants'
 import { SofieIngestCacheType } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
@@ -76,7 +76,7 @@ import { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInsta
 import { MethodRegistry } from '../methodRegistry'
 import { PeripheralDeviceAPIMethods } from '@sofie-automation/server-core-integration'
 import { ServerPeripheralDeviceAPIClass } from '../api/peripheralDevice'
-import { getMethodContext } from '../../__mocks__/helpers/methods'
+import { getMethodContext } from '../__mocks__/helpers/methods'
 import { startCronjobs } from '../cronjobs'
 
 describe('cronjobs', () => {

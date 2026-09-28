@@ -84,7 +84,7 @@ The `uiPieceContentStatuses` publication includes `status.boxPreviews` on [`Piec
 
 ## How Core resolves preview URLs
 
-Implementation: [`checkPieceContentStatus.ts`](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/sofie-core/server/publications/pieceContentStatusUI/checkPieceContentStatus.ts). Helpers: [`splitBoxMedia.ts`](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/shared-lib/src/package-manager/splitBoxMedia.ts).
+Implementation: [`checkPieceContentStatus.ts`](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/sofie-core/src/publications/pieceContentStatusUI/checkPieceContentStatus.ts). Helpers: [`splitBoxMedia.ts`](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/shared-lib/src/package-manager/splitBoxMedia.ts).
 
 ### Via expected packages
 

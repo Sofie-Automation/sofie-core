@@ -1,5 +1,5 @@
-import '../../../../__mocks__/_extendJest'
-import { setupDefaultStudioEnvironment } from '../../../../__mocks__/helpers/database'
+import '../../../__mocks__/_extendJest'
+import { setupDefaultStudioEnvironment } from '../../../__mocks__/helpers/database'
 import { hashSingleUseToken } from '../../deviceTriggers/triggersContext'
 import { getCurrentTime, sleep } from '../../../lib/lib'
 import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
@@ -8,7 +8,7 @@ import { SystemAPIMethods } from '@sofie-automation/meteor-lib/dist/api/system'
 import { SystemAPIClass } from '../../system'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { UserActionsLog } from '../../../collections'
-import { makeMeteorCallForTest } from '../../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
 
 const MeteorCall = makeMeteorCallForTest([
 	{ methods: UserActionAPIMethods, class: ServerUserActionAPI },

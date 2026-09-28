@@ -1,7 +1,7 @@
 import { postHandler } from '../../../api/serviceMessages/postHandler'
 import { Criticality, ExternalServiceMessage } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import * as serviceMessagesApi from '../../../api/serviceMessages/serviceMessagesApi'
-import { SupressLogMessages } from '../../../../__mocks__/suppressLogging'
+import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
 import { createMockContext } from '@shopify/jest-koa-mocks'
 
 jest.mock('../../../api/serviceMessages/serviceMessagesApi', () => {

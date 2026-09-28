@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import { setupEmptyEnvironment, setupMockStudio } from '../../../__mocks__/helpers/database'
+import { setupEmptyEnvironment, setupMockStudio } from '../../__mocks__/helpers/database'
 import { ICoreSystem, GENESIS_SYSTEM_VERSION } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { clearMigrationSteps, addMigrationSteps, prepareMigration, PreparedMigration } from '../databaseMigration'
 import { CURRENT_SYSTEM_VERSION } from '../currentSystemVersion'
@@ -13,7 +13,7 @@ import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objec
 import { ShowStyleBases, ShowStyleVariants, Studios } from '../../collections'
 import { getCoreSystemAsync } from '../../coreSystem/collection'
 import fs from 'fs'
-import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
 
 const MeteorCall = makeMeteorCallForTest({ methods: MigrationAPIMethods, class: ServerMigrationAPI })
 

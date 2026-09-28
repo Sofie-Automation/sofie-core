@@ -1,8 +1,8 @@
-import '../../../__mocks__/_extendJest'
-import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
+import '../../__mocks__/_extendJest'
+import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../__mocks__/helpers/database'
 import { generateTranslation, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { sleepNoFakeTimers } from '../../../__mocks__/time'
+import { sleepNoFakeTimers } from '../../__mocks__/time'
 import { status2ExternalStatus, setSystemStatus } from '../systemStatus'
 import { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { stripVersion } from '../semverUtils'
@@ -13,7 +13,7 @@ import { ServerSystemStatusAPI } from '../api'
 import { PeripheralDeviceStatusObject } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import { PeripheralDevices } from '../../collections'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
-import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../api/deviceTriggers/observer')

@@ -1,4 +1,4 @@
-import '../../../__mocks__/_extendJest'
+import '../../__mocks__/_extendJest'
 import {
 	PeripheralDevice,
 	PeripheralDeviceCategory,
@@ -9,8 +9,8 @@ import { literal, getRandomId, getRandomString } from '@sofie-automation/corelib
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { protectString, ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { getCurrentTime } from '../../lib/lib'
-import { waitUntil } from '../../../__mocks__/helpers/jest'
-import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../../__mocks__/helpers/database'
+import { waitUntil } from '../../__mocks__/helpers/jest'
+import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../__mocks__/helpers/database'
 import { setLogLevel } from '../../logging'
 import { IngestDeviceSecretSettings } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceSettings/ingestDevice'
 import { MediaObject } from '@sofie-automation/shared-lib/dist/core/model/MediaObjects'
@@ -20,10 +20,10 @@ import {
 	PlaylistTimingType,
 	StatusCode,
 } from '@sofie-automation/blueprints-integration'
-import { CreateFakeResult, QueueStudioJobSpy } from '../../../__mocks__/worker'
-import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
+import { CreateFakeResult, QueueStudioJobSpy } from '../../__mocks__/worker'
+import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
 
-jest.mock('../../api/deviceTriggers/observer')
+jest.mock('../deviceTriggers/observer')
 
 import { OnTimelineTriggerTimeProps, StudioJobFunc, StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { PeripheralDeviceAPIMethods } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI'
@@ -45,7 +45,7 @@ import {
 	Rundowns,
 	Segments,
 } from '../../collections'
-import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
+import { SupressLogMessages } from '../../__mocks__/suppressLogging'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { PeripheralDeviceCommand } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceCommand'
 

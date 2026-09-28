@@ -12,8 +12,8 @@ import {
 	DefaultEnvironment,
 	setupDefaultStudioEnvironment,
 	setupMockPeripheralDevice,
-} from '../../../../__mocks__/helpers/database'
-import '../../../../__mocks__/_extendJest'
+} from '../../../__mocks__/helpers/database'
+import '../../../__mocks__/_extendJest'
 import { Studios } from '../../../collections'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import {
@@ -23,7 +23,7 @@ import {
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { StudioPlayoutDevice } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { makeMeteorCallForTest } from '../../../../__mocks__/helpers/methods'
+import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
 
 const MeteorCall = makeMeteorCallForTest({ methods: UserActionAPIMethods, class: ServerUserActionAPI })
 
