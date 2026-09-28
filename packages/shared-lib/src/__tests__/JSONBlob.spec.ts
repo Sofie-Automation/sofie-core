@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 import { JSONBlobParse, JSONBlobStringify } from '../lib/JSONBlob.js'
 
 test('JSONBlob', () => {

@@ -1,8 +1,9 @@
+import { describe, test, expect, vi } from 'vitest'
 import { JobQueueWithClasses } from '../JobQueueWithClasses.js'
 import { sleep } from '../lib.js'
 
 describe('JobQueueWithClasses', () => {
-	const defaultErrorHandler = jest.fn((e: any) => {
+	const defaultErrorHandler = vi.fn((e: any) => {
 		console.error(e)
 		throw e
 	})
@@ -83,7 +84,7 @@ describe('JobQueueWithClasses', () => {
 	})
 
 	test('remove classNames synchronously', async () => {
-		const errorHandler = jest.fn((...args) => console.error(...args))
+		const errorHandler = vi.fn((...args) => console.error(...args))
 
 		const queue = new JobQueueWithClasses()
 
@@ -165,7 +166,7 @@ describe('JobQueueWithClasses', () => {
 	})
 
 	test('remove classNames asynchronously', async () => {
-		const errorHandler = jest.fn((...args) => console.error(...args))
+		const errorHandler = vi.fn((...args) => console.error(...args))
 		const queue = new JobQueueWithClasses()
 
 		const results: string[] = []
@@ -224,7 +225,7 @@ describe('JobQueueWithClasses', () => {
 		expect(defaultErrorHandler).toHaveBeenCalledTimes(0)
 	})
 	test('handle Errors', async () => {
-		const errorHandler = jest.fn()
+		const errorHandler = vi.fn()
 		const queue = new JobQueueWithClasses()
 
 		// const results: string[] = []
@@ -251,7 +252,7 @@ describe('JobQueueWithClasses', () => {
 		expect(defaultErrorHandler).toHaveBeenCalledTimes(0)
 	})
 	test('executionWrapper', async () => {
-		const errorHandler = jest.fn()
+		const errorHandler = vi.fn()
 
 		let wrapCalls = 0
 		const results: string[] = []
@@ -311,7 +312,7 @@ describe('JobQueueWithClasses', () => {
 		expect(defaultErrorHandler).toHaveBeenCalledTimes(0)
 	})
 	test('error in executionWrapper setup', async () => {
-		const errorHandler = jest.fn()
+		const errorHandler = vi.fn()
 
 		const results: string[] = []
 
@@ -342,7 +343,7 @@ describe('JobQueueWithClasses', () => {
 		expect(defaultErrorHandler).toHaveBeenCalledTimes(0)
 	})
 	test('error in executionWrapper execution', async () => {
-		const errorHandler = jest.fn()
+		const errorHandler = vi.fn()
 
 		const results: string[] = []
 

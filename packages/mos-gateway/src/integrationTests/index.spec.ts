@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 import { protectString } from '@sofie-automation/server-core-integration'
 import { Connector } from '../connector.js'
 import * as Winston from 'winston'

@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 import { stringifyError } from '../stringifyError.js'
 
 test('stringifyError', () => {

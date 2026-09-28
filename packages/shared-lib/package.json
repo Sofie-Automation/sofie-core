@@ -30,11 +30,11 @@
 	"homepage": "https://github.com/nrkno/sofie-core/blob/master/packages/shared-lib#readme",
 	"scripts": {
 		"lint": "run -T lint packages/shared-lib",
-		"unit": "run -T jest",
+		"unit": "run -T vitest run --config ../../vitest.config.mts --project shared-lib",
 		"test": "run lint && run unit",
-		"watch": "run -T jest --watch",
-		"cov": "run -T jest --coverage; open-cli coverage/lcov-report/index.html",
-		"cov-open": "open-cli coverage/lcov-report/index.html",
+		"watch": "run -T vitest --config ../../vitest.config.mts --project shared-lib --coverage=false",
+		"cov": "run unit; open-cli ../coverage/lcov-report/index.html",
+		"cov-open": "open-cli ../coverage/lcov-report/index.html",
 		"validate:dependencies": "yarn npm audit --environment production && run license-validate",
 		"validate:dev-dependencies": "yarn npm audit --environment development",
 		"license-validate": "run -T sofie-licensecheck"

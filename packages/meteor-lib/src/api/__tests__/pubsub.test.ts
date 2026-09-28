@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { MeteorPubSub } from '../pubsub.js'
 import { PeripheralDevicePubSub } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'

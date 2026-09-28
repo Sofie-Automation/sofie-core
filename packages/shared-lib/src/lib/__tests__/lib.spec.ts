@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 import { equalSets, equivalentArrays } from '../lib.js'
 
 test('equalSets', () => {

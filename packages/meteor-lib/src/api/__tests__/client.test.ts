@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { ClientAPI } from '../client.js'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 
