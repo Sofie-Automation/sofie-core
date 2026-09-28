@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { calculateSegmentTiming } from '../segmentTiming.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'

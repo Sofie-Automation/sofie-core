@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { serializePart, serializePiece, serializeSegmentExtended } from '../segments/serializeResolvedSegment.js'
 
 describe('serializeResolvedSegment helpers', () => {

@@ -11356,6 +11356,7 @@ asn1@evs-broadcast/node-asn1:
     typedoc: "npm:^0.27.9"
     typescript: "npm:~5.9.3"
     vitest: "npm:^5.0.1"
+    vitest-mock-extended: "npm:^5.1.1"
   dependenciesMeta:
     esbuild:
       built: true
@@ -31837,7 +31838,7 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"ts-essentials@npm:^10.1.1":
+"ts-essentials@npm:^10.1.1, ts-essentials@npm:^10.2.1":
   version: 10.2.1
   resolution: "ts-essentials@npm:10.2.1"
   peerDependencies:
@@ -33161,6 +33162,18 @@ asn1@evs-broadcast/node-asn1:
   bin:
     vite: bin/vite.js
   checksum: 10/6fcbadb1a409990e1bbd4ff0ff41e763c87049228cdc407984bdca40b96ab32de0f1f70fa62fb1f3ca001a5b90accbbe22ddfad5cc436855058357b3f2141d3b
+  languageName: node
+  linkType: hard
+
+"vitest-mock-extended@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "vitest-mock-extended@npm:5.1.1"
+  dependencies:
+    ts-essentials: "npm:^10.2.1"
+  peerDependencies:
+    typescript: 3.x || 4.x || 5.x || 6.x || 7.x
+    vitest: ">=4.0.0"
+  checksum: 10/d9439f80aa25fb1206969d8cad8917c2628ceb4b0add332c0ff4873c0e9f38dd2965fa9ea325e98111f85c4dfd7fa16537e702f0e95a3dd995aafda6a71d09fc
   languageName: node
   linkType: hard
 

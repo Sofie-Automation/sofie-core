@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ResolvedPartState } from '@sofie-automation/live-status-gateway-api'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'

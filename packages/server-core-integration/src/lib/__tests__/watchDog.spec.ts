@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import { WatchDog } from '../watchDog.js'
 
 const setTimeoutOrg = setTimeout
@@ -11,7 +12,7 @@ describe('watchDog', () => {
 	let coreIsHappy: any
 	let coreReplies: any
 	let watchDog: WatchDog
-	const checkFcn = jest.fn(async () => {
+	const checkFcn = vi.fn(async () => {
 		// mock that we're sending the message to Core
 		// console.log('checkFcn')
 		// Core replies with message
@@ -22,13 +23,13 @@ describe('watchDog', () => {
 			else if (coreReplies) reject(new Error('Core is not happy'))
 		})
 	})
-	const exitFcn = jest.fn(() => {
+	const exitFcn = vi.fn(() => {
 		// console.log('exit')
 	})
 	const timeout = 10000
 
 	beforeEach(() => {
-		jest.useFakeTimers()
+		vi.useFakeTimers()
 		checkFcn.mockClear()
 		exitFcn.mockClear()
 
@@ -45,24 +46,24 @@ describe('watchDog', () => {
 	afterEach(() => {
 		watchDog.removeCheck(checkFcn)
 
-		jest.useRealTimers()
+		vi.useRealTimers()
 	})
 
 	test('good reply', async () => {
 		coreIsHappy = true
 		watchDog.startWatching()
 
-		jest.advanceTimersByTime(1000) // 1000
+		vi.advanceTimersByTime(1000) // 1000
 		await delay(1) // allow for promises to be resolved
 		expect(checkFcn).toHaveBeenCalledTimes(0)
 
-		jest.advanceTimersByTime(timeout)
+		vi.advanceTimersByTime(timeout)
 		await delay(1) // allow for promises to be resolved
 
 		expect(checkFcn).toHaveBeenCalledTimes(1)
 		expect(exitFcn).toHaveBeenCalledTimes(0)
 
-		jest.advanceTimersByTime(timeout)
+		vi.advanceTimersByTime(timeout)
 		await delay(1) // allow for promises to be resolved
 		expect(checkFcn).toHaveBeenCalledTimes(2)
 		expect(exitFcn).toHaveBeenCalledTimes(0)
@@ -71,13 +72,13 @@ describe('watchDog', () => {
 		coreIsHappy = false
 		watchDog.startWatching()
 
-		jest.advanceTimersByTime(timeout)
+		vi.advanceTimersByTime(timeout)
 		await delay(1) // allow for promises to be resolved
 
 		expect(checkFcn).toHaveBeenCalledTimes(1)
 		expect(exitFcn).toHaveBeenCalledTimes(0)
 
-		jest.advanceTimersByTime(10000)
+		vi.advanceTimersByTime(10000)
 		await delay(1) // allow for promises to be resolved
 
 		expect(exitFcn).toHaveBeenCalledTimes(1)
@@ -87,13 +88,13 @@ describe('watchDog', () => {
 		coreReplies = false // will cause the promise not to be resolved at all
 		watchDog.startWatching()
 
-		jest.advanceTimersByTime(timeout)
+		vi.advanceTimersByTime(timeout)
 		await delay(1) // allow for promises to be resolved
 
 		expect(checkFcn).toHaveBeenCalledTimes(1)
 		expect(exitFcn).toHaveBeenCalledTimes(0)
 
-		jest.advanceTimersByTime(10000)
+		vi.advanceTimersByTime(10000)
 		await delay(1) // allow for promises to be resolved
 
 		expect(exitFcn).toHaveBeenCalledTimes(1)

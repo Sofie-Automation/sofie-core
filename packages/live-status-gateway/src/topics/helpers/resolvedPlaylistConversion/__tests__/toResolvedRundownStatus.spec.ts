@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest'
 import { toResolvedRundownStatus } from '../rundowns/toResolvedRundownStatus.js'
 import {
 	makePart,
@@ -9,8 +10,8 @@ import {
 } from './resolvedPlaylistConversionTestUtils.js'
 import { createResolvedPlaylistConversionContext } from '../context/conversionContext.js'
 
-jest.mock('../segments/toResolvedSegmentStatus.js', () => ({
-	toResolvedSegmentStatus: jest.fn((_ctx, segment) => ({ id: String(segment._id) })),
+vi.mock('../segments/toResolvedSegmentStatus.js', () => ({
+	toResolvedSegmentStatus: vi.fn((_ctx, segment) => ({ id: String(segment._id) })),
 }))
 
 describe('toResolvedRundownStatus', () => {

@@ -5,6 +5,7 @@
 	"compilerOptions": {
 		"rootDir": "./",
 		"types": ["jest", "node"],
+		"skipLibCheck": true, // vitest's types reference DOM types
 		"verbatimModuleSyntax": false
 	}
 }

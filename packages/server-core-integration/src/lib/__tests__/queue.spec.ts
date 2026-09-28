@@ -1,4 +1,4 @@
-/* eslint-disable jest/no-conditional-expect */
+import { test, expect } from 'vitest'
 import { Queue } from '../queue.js'
 
 test('queue', async () => {

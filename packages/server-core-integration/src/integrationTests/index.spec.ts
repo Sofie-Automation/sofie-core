@@ -1,4 +1,5 @@
-jest.dontMock('ddp')
+import { test, expect, vi } from 'vitest'
+vi.doUnmock('ddp')
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString.js'
 import { StatusCode } from '@sofie-automation/shared-lib/dist/lib/status.js'
 import {
@@ -38,10 +39,10 @@ test('Integration: Test connection and basic Core functionality', async () => {
 		configManifest: {} as any,
 	})
 
-	const onConnectionChanged = jest.fn()
-	const onConnected = jest.fn()
-	const onDisconnected = jest.fn()
-	const onError = jest.fn()
+	const onConnectionChanged = vi.fn()
+	const onConnected = vi.fn()
+	const onDisconnected = vi.fn()
+	const onError = vi.fn()
 	core.onConnectionChanged(onConnectionChanged)
 	core.onConnected(onConnected)
 	core.onDisconnected(onDisconnected)
@@ -86,9 +87,9 @@ test('Integration: Test connection and basic Core functionality', async () => {
 
 	// Observe data:
 	const observer = core.observe(PeripheralDevicePubSubCollectionsNames.peripheralDeviceForDevice)
-	observer.added = jest.fn()
-	observer.changed = jest.fn()
-	observer.removed = jest.fn()
+	observer.added = vi.fn()
+	observer.changed = vi.fn()
+	observer.removed = vi.fn()
 
 	// Subscribe to data:
 	const coll0 = core.getCollection(PeripheralDevicePubSubCollectionsNames.peripheralDeviceForDevice)
@@ -163,11 +164,11 @@ test('Integration: Connection timeout', async () => {
 		configManifest: {} as any,
 	})
 
-	const onConnectionChanged = jest.fn()
-	const onConnected = jest.fn()
-	const onDisconnected = jest.fn()
-	const onFailed = jest.fn()
-	const onError = jest.fn()
+	const onConnectionChanged = vi.fn()
+	const onConnected = vi.fn()
+	const onDisconnected = vi.fn()
+	const onFailed = vi.fn()
+	const onError = vi.fn()
 	core.onConnectionChanged(onConnectionChanged)
 	core.onConnected(onConnected)
 	core.onDisconnected(onDisconnected)
@@ -206,11 +207,11 @@ test('Integration: Connection recover from close', async () => {
 		configManifest: {} as any,
 	})
 
-	const onConnectionChanged = jest.fn()
-	const onConnected = jest.fn()
-	const onDisconnected = jest.fn()
-	const onFailed = jest.fn()
-	const onError = jest.fn()
+	const onConnectionChanged = vi.fn()
+	const onConnected = vi.fn()
+	const onDisconnected = vi.fn()
+	const onFailed = vi.fn()
+	const onError = vi.fn()
 	core.onConnectionChanged(onConnectionChanged)
 	core.onConnected(onConnected)
 	core.onDisconnected(onDisconnected)
@@ -253,11 +254,11 @@ test('Integration: autoSubscription', async () => {
 		configManifest: {} as any,
 	})
 
-	const onConnectionChanged = jest.fn()
-	const onConnected = jest.fn()
-	const onDisconnected = jest.fn()
-	const onFailed = jest.fn()
-	const onError = jest.fn()
+	const onConnectionChanged = vi.fn()
+	const onConnected = vi.fn()
+	const onDisconnected = vi.fn()
+	const onFailed = vi.fn()
+	const onError = vi.fn()
 	core.onConnectionChanged(onConnectionChanged)
 	core.onConnected(onConnected)
 	core.onDisconnected(onDisconnected)
@@ -273,9 +274,9 @@ test('Integration: autoSubscription', async () => {
 	})
 	expect(core.connected).toEqual(true)
 
-	const observerAdded = jest.fn()
-	const observerChanged = jest.fn()
-	const observerRemoved = jest.fn()
+	const observerAdded = vi.fn()
+	const observerChanged = vi.fn()
+	const observerRemoved = vi.fn()
 	const observer = core.observe(PeripheralDevicePubSubCollectionsNames.peripheralDeviceForDevice)
 	observer.added = observerAdded
 	observer.changed = observerChanged
@@ -326,11 +327,11 @@ test('Integration: Connection recover from a close that lasts some time', async 
 		configManifest: {} as any,
 	})
 
-	const onConnectionChanged = jest.fn()
-	const onConnected = jest.fn()
-	const onDisconnected = jest.fn()
-	const onFailed = jest.fn()
-	const onError = jest.fn()
+	const onConnectionChanged = vi.fn()
+	const onConnected = vi.fn()
+	const onDisconnected = vi.fn()
+	const onFailed = vi.fn()
+	const onError = vi.fn()
 	core.onConnectionChanged(onConnectionChanged)
 	core.onConnected(onConnected)
 	core.onDisconnected(onDisconnected)
@@ -379,10 +380,10 @@ test('Integration: Parent connections', async () => {
 		versions: {},
 		configManifest: {} as any,
 	})
-	const onError = jest.fn()
+	const onError = vi.fn()
 	coreParent.onError(onError)
 
-	const parentOnConnectionChanged = jest.fn()
+	const parentOnConnectionChanged = vi.fn()
 	coreParent.onConnectionChanged(parentOnConnectionChanged)
 
 	let id = await coreParent.init({
@@ -398,7 +399,7 @@ test('Integration: Parent connections', async () => {
 		deviceName: 'Jest test framework child',
 	})
 
-	const onChildError = jest.fn()
+	const onChildError = vi.fn()
 	coreChild.on('error', onChildError)
 
 	expect(coreChild.connected).toEqual(true)
@@ -455,7 +456,7 @@ test('Integration: Parent destroy', async () => {
 		versions: {},
 		configManifest: {} as any,
 	})
-	const onParentError = jest.fn()
+	const onParentError = vi.fn()
 	coreParent.onError(onParentError)
 
 	await coreParent.init({
@@ -470,7 +471,7 @@ test('Integration: Parent destroy', async () => {
 		deviceName: 'Jest test framework child',
 	})
 
-	const onChildError = jest.fn()
+	const onChildError = vi.fn()
 	coreChild.on('error', onChildError)
 
 	expect(coreChild.connected).toEqual(true)
@@ -507,7 +508,7 @@ test('Integration: Child destroy', async () => {
 		versions: {},
 		configManifest: {} as any,
 	})
-	const onParentError = jest.fn()
+	const onParentError = vi.fn()
 	coreParent.onError(onParentError)
 	await coreParent.init({
 		host: coreHost,
@@ -521,7 +522,7 @@ test('Integration: Child destroy', async () => {
 		deviceName: 'Jest test framework child',
 	})
 
-	const onChildError = jest.fn()
+	const onChildError = vi.fn()
 	coreChild.on('error', onChildError)
 
 	expect(coreChild.connected).toEqual(true)
@@ -550,7 +551,7 @@ test('Integration: Test callMethodLowPrio', async () => {
 		configManifest: {} as any,
 	})
 
-	const onError = jest.fn()
+	const onError = vi.fn()
 	core.onError(onError)
 
 	await core.init({

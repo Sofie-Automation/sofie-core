@@ -63,6 +63,12 @@ export default defineConfig({
 			}),
 			packageProject('live-status-gateway-api'),
 			packageProject('corelib'),
+			packageProject('server-core-integration', {
+				include: ['src/**/__tests__/**/*.spec.{ts,js}'],
+			}),
+			packageProject('live-status-gateway', {
+				alias: [serverCoreIntegrationSrcAlias],
+			}),
 
 			...(includeOpenApiTests
 				? [
@@ -77,6 +83,11 @@ export default defineConfig({
 				? [
 						packageProject('mos-gateway-integration', {
 							dir: 'mos-gateway',
+							include: ['src/integrationTests/**/*.spec.{ts,js}'],
+							test: { exclude: ['**/node_modules/**', '**/dist/**'] },
+						}),
+						packageProject('server-core-integration-integration', {
+							dir: 'server-core-integration',
 							include: ['src/integrationTests/**/*.spec.{ts,js}'],
 							test: { exclude: ['**/node_modules/**', '**/dist/**'] },
 						}),

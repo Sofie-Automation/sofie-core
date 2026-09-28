@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { toResolvedPieceStatus } from '../pieces/toResolvedPieceStatus.js'
 import { makePieceInstance } from './resolvedPlaylistConversionTestUtils.js'
 

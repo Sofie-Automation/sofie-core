@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { ActivePlaylistTopic } from '../activePlaylistTopic.js'
 import {
 	makeMockHandlers,

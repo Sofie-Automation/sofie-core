@@ -1,5 +1,6 @@
+import { it, expect, vi } from 'vitest'
 import { DDPClient, type DDPConnectorOptions } from '../../index.js'
-jest.mock('ws')
+vi.mock('ws')
 
 const wait = async (t: number): Promise<void> =>
 	new Promise((resolve) => {
@@ -22,7 +23,7 @@ it('Creates a DDP Client with options', () => {
 })
 
 it('Connects to mock server', async () => {
-	const connected = jest.fn()
+	const connected = vi.fn()
 	const ddp = new DDPClient()
 	ddp.on('connected', connected)
 	ddp.connect()

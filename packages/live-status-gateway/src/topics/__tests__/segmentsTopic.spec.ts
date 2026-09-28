@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { SegmentsTopic } from '../segmentsTopic.js'
 import { protectString, unprotectString } from '@sofie-automation/server-core-integration'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -41,10 +42,10 @@ function makeTestPart(
 
 describe('SegmentsTopic', () => {
 	beforeEach(() => {
-		jest.useFakeTimers()
+		vi.useFakeTimers()
 	})
 	afterEach(() => {
-		jest.useRealTimers()
+		vi.useRealTimers()
 	})
 
 	it('notifies added subscribers immediately', async () => {
@@ -79,7 +80,7 @@ describe('SegmentsTopic', () => {
 			rundownPlaylistId: unprotectString(testPlaylist._id),
 			segments: [],
 		}
-		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
+		vi.advanceTimersByTime(THROTTLE_PERIOD_MS)
 		expect(mockSubscriber.send.mock.calls).toEqual([[JSON.stringify(expectedStatus)]])
 	})
 
@@ -96,7 +97,7 @@ describe('SegmentsTopic', () => {
 
 		const testPlaylist2 = makeTestPlaylist('PLAYLIST_2')
 		handlers.playlistHandler.notify(testPlaylist2)
-		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
+		vi.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
 		const expectedStatus2: SegmentsEvent = {
 			event: 'segments',
@@ -123,7 +124,7 @@ describe('SegmentsTopic', () => {
 			makeTestSegment('1_2', 2, RUNDOWN_1_ID),
 			makeTestSegment('1_1', 1, RUNDOWN_1_ID),
 		])
-		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
+		vi.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
 		const expectedStatus: SegmentsEvent = {
 			event: 'segments',
@@ -182,7 +183,7 @@ describe('SegmentsTopic', () => {
 		const testPlaylist2 = makeTestPlaylist()
 		testPlaylist2.rundownIdsInOrder = [protectString(RUNDOWN_2_ID), protectString(RUNDOWN_1_ID)]
 		handlers.playlistHandler.notify(testPlaylist2)
-		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
+		vi.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
 		const expectedStatus: SegmentsEvent = {
 			event: 'segments',
@@ -251,7 +252,7 @@ describe('SegmentsTopic', () => {
 			makeTestPart('2_2_2', 2, RUNDOWN_1_ID, segment_2_2_id),
 			makeTestPart('1_1_2', 2, RUNDOWN_1_ID, segment_1_1_id),
 		])
-		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
+		vi.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
 		const expectedStatus: SegmentsEvent = {
 			event: 'segments',
@@ -339,7 +340,7 @@ describe('SegmentsTopic', () => {
 				expectedDurationWithTransition: 1000,
 			}),
 		])
-		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
+		vi.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
 		const expectedStatus: SegmentsEvent = {
 			event: 'segments',
@@ -396,7 +397,7 @@ describe('SegmentsTopic', () => {
 		const testPlaylist2 = makeTestPlaylist()
 		testPlaylist2.rundownIdsInOrder = [protectString(RUNDOWN_2_ID), protectString(RUNDOWN_1_ID)]
 		handlers.playlistHandler.notify(testPlaylist2)
-		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
+		vi.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
 		const expectedStatus: SegmentsEvent = {
 			event: 'segments',

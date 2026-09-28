@@ -40,12 +40,12 @@
 	],
 	"scripts": {
 		"lint": "run -T lint packages/server-core-integration",
-		"unit": "run -T jest",
+		"unit": "run -T vitest run --config ../../vitest.config.mts --project server-core-integration",
 		"test": "run lint && run unit",
-		"test:integration": "run lint && run -T jest --config=jest-integration.config.js",
-		"watch": "run -T jest --watch",
-		"cov": "run -T jest --coverage; open-cli coverage/lcov-report/index.html",
-		"cov-open": "open-cli coverage/lcov-report/index.html",
+		"test:integration": "run lint && SOFIE_INTEGRATION_TESTS=1 run -T vitest run --config ../../vitest.config.mts --project server-core-integration-integration --coverage=false",
+		"watch": "run -T vitest --config ../../vitest.config.mts --project server-core-integration --coverage=false",
+		"cov": "run unit; open-cli ../coverage/lcov-report/index.html",
+		"cov-open": "open-cli ../coverage/lcov-report/index.html",
 		"validate:dependencies": "yarn npm audit --environment production && run license-validate",
 		"validate:dev-dependencies": "yarn npm audit --environment development",
 		"license-validate": "run -T sofie-licensecheck"

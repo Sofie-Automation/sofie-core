@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { protectString, unprotectString } from '@sofie-automation/server-core-integration'
 import { makeMockHandlers, makeMockLogger, makeMockSubscriber } from './utils.js'
 import { PackagesTopic } from '../packagesTopic.js'

@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	createResolvedPlaylistConversionContext,

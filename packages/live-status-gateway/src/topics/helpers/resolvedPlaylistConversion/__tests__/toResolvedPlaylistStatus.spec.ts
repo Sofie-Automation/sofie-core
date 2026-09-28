@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest'
 import { PlaylistTimingType } from '@sofie-automation/blueprints-integration'
 import { PlaylistActivationStatus, ResolvedPlaylistTimingType } from '@sofie-automation/live-status-gateway-api'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -13,8 +14,8 @@ import {
 	makeTestShowStyleBaseExt,
 } from './resolvedPlaylistConversionTestUtils.js'
 
-jest.mock('../rundowns/toResolvedRundownStatus.js', () => ({
-	toResolvedRundownStatus: jest.fn((_ctx, rundownId) => ({ id: rundownId })),
+vi.mock('../rundowns/toResolvedRundownStatus.js', () => ({
+	toResolvedRundownStatus: vi.fn((_ctx, rundownId) => ({ id: rundownId })),
 }))
 
 describe('toResolvedPlaylistStatus', () => {
@@ -86,7 +87,7 @@ describe('toResolvedPlaylistStatus', () => {
 
 	it('warns and omits quickLoop markers with unknown markerType', () => {
 		const unknownMarkerType = 'unknownMarkerType'
-		const mockLogger = { warn: jest.fn() } as any
+		const mockLogger = { warn: vi.fn() } as any
 
 		const playlist = makePlaylist({
 			quickLoop: {

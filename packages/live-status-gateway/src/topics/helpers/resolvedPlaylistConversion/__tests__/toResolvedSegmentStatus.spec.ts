@@ -1,3 +1,4 @@
+import { describe, it, expect, vi, type Mock } from 'vitest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getResolvedSegment } from '@sofie-automation/corelib/dist/playout/stateCacheResolver'
 import { toResolvedSegmentStatus } from '../segments/toResolvedSegmentStatus.js'
@@ -12,13 +13,13 @@ import {
 } from './resolvedPlaylistConversionTestUtils.js'
 import { createResolvedPlaylistConversionContext } from '../context/conversionContext.js'
 
-jest.mock('@sofie-automation/corelib/dist/playout/stateCacheResolver', () => ({
-	getResolvedSegment: jest.fn(),
+vi.mock('@sofie-automation/corelib/dist/playout/stateCacheResolver', () => ({
+	getResolvedSegment: vi.fn(),
 }))
 
 describe('toResolvedSegmentStatus', () => {
 	it('maps resolved segment to API shape and sorts layers', () => {
-		;(getResolvedSegment as jest.Mock).mockReturnValue({
+		;(getResolvedSegment as Mock).mockReturnValue({
 			segmentExtended: {
 				sourceLayers: {
 					sl2: { _rank: 2, name: 'SL2', abbreviation: 'S2', isHidden: true, type: 3 },
@@ -75,7 +76,7 @@ describe('toResolvedSegmentStatus', () => {
 			outputLayerNamesById: new Map([['outputLayerX', 'OutputLayerX_fromShowStyleB']]),
 		}
 
-		;(getResolvedSegment as jest.Mock).mockReturnValue({
+		;(getResolvedSegment as Mock).mockReturnValue({
 			segmentExtended: {
 				sourceLayers: {
 					sourceLayerX: { _rank: 1 },

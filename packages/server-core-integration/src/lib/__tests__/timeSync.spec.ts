@@ -1,9 +1,10 @@
+import { test, expect, vi } from 'vitest'
 import { TimeSync } from '../timeSync.js'
 
 test('timeSync', async () => {
 	const serverDiff = -5000
 
-	const getServerTime = jest.fn(async (): Promise<number> => {
+	const getServerTime = vi.fn(async (): Promise<number> => {
 		return new Promise<number>((resolve) => {
 			// simulate delay to the server:
 			setTimeout(() => {
