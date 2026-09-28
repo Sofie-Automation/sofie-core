@@ -18,7 +18,7 @@ const PackageInfo = require('../../package.json')
 import { startAgent } from '../api/profiler/apm'
 import { profiler } from '../api/profiler'
 import { ICoreSystemSettings, TMP_TSR_VERSION } from '@sofie-automation/blueprints-integration'
-import { getAbsolutePath, isInDevelopmentMode, isInTestMode } from '../lib'
+import { getDevDataPath, isInDevelopmentMode, isInTestMode } from '../lib'
 import path from 'path'
 import { checkDatabaseVersions } from './checkDatabaseVersions'
 import PLazy from 'p-lazy'
@@ -41,8 +41,8 @@ export function getSystemStorePath(): string {
 	if (storePath) return path.resolve(storePath)
 
 	if (isInDevelopmentMode()) {
-		// For development, fallback to inside the .meteor folder
-		return getAbsolutePath() + '/.meteor/local/sofie-store'
+		// For development, fallback to inside the dev-data folder
+		return getDevDataPath('sofie-store')
 	}
 
 	throw new SofieError(500, 'SOFIE_STORE_PATH must be defined to launch Sofie')

@@ -29,10 +29,12 @@ export function describeRunMode(): string {
 	return `${mode} mode (NODE_ENV=${process.env.NODE_ENV ? `"${process.env.NODE_ENV}"` : '<unset>'})`
 }
 
-/** Returns absolute path to programs/server directory of your compiled application, without trailing slash. */
-export function getAbsolutePath(): string {
-	const rootPath = path.resolve('.')
-	return rootPath.split(`${path.sep}.meteor`)[0]
+/**
+ * Absolute path to a directory for data that only exists in development (dev logs, the fallback snapshot store).
+ * `scripts/run.mjs` points `SOFIE_DEV_DATA_DIR` at the repo-root `.dev-data`; when unset it is resolved from the cwd.
+ */
+export function getDevDataPath(subdir: string): string {
+	return path.resolve(process.env.SOFIE_DEV_DATA_DIR ?? '.dev-data', subdir)
 }
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export function extractFunctionSignature(f: Function): string[] | undefined {
