@@ -3,15 +3,19 @@
 	"out": "docs",
 	"theme": "default",
 	"readme": "none",
+	"entryPoints": ["packages/*"],
 	"exclude": [
 		"*.spec.ts",
 		"node_modules",
-		"*/node_modules",
+		"packages/*/node_modules",
 		"docs",
-		"*/dist",
-		"*/src/types",
-		"*/examples",
-		"*-gateway"
+		"packages/*/dist",
+		"packages/*/src/types",
+		"packages/*/examples",
+		"packages/*-gateway",
+		"packages/sofie-core",
+		"packages/webui",
+		"packages/documentation"
 	],
 	"entryPointStrategy": "packages"
 }

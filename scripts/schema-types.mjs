@@ -16,13 +16,13 @@ const PrettierConf = JSON.parse(
 
 // convert playout-gateway options
 try {
-	const schema = await compileFromFile('./playout-gateway/src/$schemas/options.json', {
+	const schema = await compileFromFile('./packages/playout-gateway/src/$schemas/options.json', {
 		additionalProperties: false,
 		style: PrettierConf,
 		bannerComment: '',
 	})
 
-	await fs.writeFile('./shared-lib/src/generated/PlayoutGatewayConfigTypes.ts', BANNER + '\n' + schema)
+	await fs.writeFile('./packages/shared-lib/src/generated/PlayoutGatewayConfigTypes.ts', BANNER + '\n' + schema)
 } catch (e) {
 	console.error('Error while generating playout-gateway options.json, continuing...')
 	console.error(e)
@@ -30,25 +30,25 @@ try {
 
 // convert mos-gateway options
 try {
-	const schema = await compileFromFile('./mos-gateway/src/$schemas/options.json', {
+	const schema = await compileFromFile('./packages/mos-gateway/src/$schemas/options.json', {
 		additionalProperties: false,
 		style: PrettierConf,
 		bannerComment: '',
 	})
 
-	await fs.writeFile('./shared-lib/src/generated/MosGatewayOptionsTypes.ts', BANNER + '\n' + schema)
+	await fs.writeFile('./packages/shared-lib/src/generated/MosGatewayOptionsTypes.ts', BANNER + '\n' + schema)
 } catch (e) {
 	console.error('Error while generating mos-gateway options.json, continuing...')
 	console.error(e)
 }
 try {
-	const schema = await compileFromFile('./mos-gateway/src/$schemas/devices.json', {
+	const schema = await compileFromFile('./packages/mos-gateway/src/$schemas/devices.json', {
 		additionalProperties: false,
 		style: PrettierConf,
 		bannerComment: '',
 	})
 
-	await fs.writeFile('./shared-lib/src/generated/MosGatewayDevicesTypes.ts', BANNER + '\n' + schema)
+	await fs.writeFile('./packages/shared-lib/src/generated/MosGatewayDevicesTypes.ts', BANNER + '\n' + schema)
 } catch (e) {
 	console.error('Error while generating mos-gateway devices.json, continuing...')
 	console.error(e)
@@ -56,13 +56,13 @@ try {
 
 // convert live-status-gateway options
 try {
-	const schema = await compileFromFile('./live-status-gateway/src/$schemas/options.json', {
+	const schema = await compileFromFile('./packages/live-status-gateway/src/$schemas/options.json', {
 		additionalProperties: false,
 		style: PrettierConf,
 		bannerComment: '',
 	})
 
-	await fs.writeFile('./shared-lib/src/generated/LiveStatusGatewayOptionsTypes.ts', BANNER + '\n' + schema)
+	await fs.writeFile('./packages/shared-lib/src/generated/LiveStatusGatewayOptionsTypes.ts', BANNER + '\n' + schema)
 } catch (e) {
 	console.error('Error while generating live-status-gateway options.json, continuing...')
 	console.error(e)

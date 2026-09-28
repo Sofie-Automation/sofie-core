@@ -1,10 +1,9 @@
 const path = require('path')
 
 const commonConfig = {
-	modulePaths: ['<rootDir>/node_modules/'],
 	moduleNameMapper: {
-		'^@sofie-automation/shared-lib/dist/(.+)\\.js$': '<rootDir>/../packages/shared-lib/src/$1',
-		'^@sofie-automation/shared-lib/dist/(.+)$': '<rootDir>/../packages/shared-lib/src/$1',
+		'^@sofie-automation/shared-lib/dist/(.+)\\.js$': '<rootDir>/../shared-lib/src/$1',
+		'^@sofie-automation/shared-lib/dist/(.+)$': '<rootDir>/../shared-lib/src/$1',
 		// Ensure libraries that would match the extension rule are still resolved
 		'bignumber.js': 'bignumber.js',
 		// Drop file extensions in imports
@@ -24,12 +23,11 @@ const commonConfig = {
 				},
 			},
 		],
-		'^.+\\.(js|jsx|mjs)$': path.resolve('./scripts/babel-jest.js'),
+		'^.+\\.(js|jsx|mjs)$': path.join(__dirname, 'scripts/babel-jest.js'),
 	},
 	transformIgnorePatterns: ['node_modules/(?!(debounce-fn|p-queue|p-timeout|mimic-fn)/)', '\\.pnp\\.[^\\/]+$'],
 	globalSetup: './__mocks__/global-setup.js',
 	setupFilesAfterEnv: ['./__mocks__/_setupMocks.ts'],
-	watchPathIgnorePatterns: ['/.meteor/'],
 }
 
 module.exports = {
@@ -41,7 +39,6 @@ module.exports = {
 			testMatch: [
 				'<rootDir>/server/__tests__/**/*.(spec|test).(ts|js)',
 				'<rootDir>/server/**/__tests__/**/*.(spec|test).(ts|js)',
-				'!.meteor/*.*',
 			],
 			testPathIgnorePatterns: ['/node_modules/', '\\.integration\\.test\\.(ts|js)$'],
 			testEnvironment: 'node',
@@ -76,7 +73,6 @@ module.exports = {
 		'server/**/*.{js,ts}',
 		'lib/**/*.{js,ts}',
 		'!**/*.{tsx}',
-		'!.meteor/**/*.*',
 		'!**/__tests__/**',
 		'!**/__mocks__/**',
 		'!**/node_modules/**',

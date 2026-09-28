@@ -14,7 +14,7 @@ const translations = await getTranslations('i18n', 'translations')
 const errors = []
 for (const { language, data } of translations) {
 	try {
-		const outDir = join('..', 'packages', 'webui', 'public', 'locales', language)
+		const outDir = join('..', 'webui', 'public', 'locales', language)
 		await mkdir(outDir, { recursive: true })
 		const outPath = join(outDir, 'translations.json')
 		await writeFile(outPath, JSON.stringify(data, null, '\t') + '\n', 'utf-8')

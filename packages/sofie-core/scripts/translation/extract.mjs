@@ -27,11 +27,10 @@ export async function extractTranslations() {
 		extract: {
 			input: [
 				// `${entryPointRoot}/**/*.ts`,
-				'./lib/**/*.+(ts|tsx)',
 				'./server/**/*.+(ts|tsx)',
-				'../packages/job-worker/src/**/*.+(ts|tsx)',
-				'../packages/corelib/src/**/*.+(ts|tsx)',
-				'../packages/webui/src/**/*.+(ts|tsx)',
+				'../job-worker/src/**/*.+(ts|tsx)',
+				'../corelib/src/**/*.+(ts|tsx)',
+				'../webui/src/**/*.+(ts|tsx)',
 			],
 			output: outputPattern,
 			sort: true,

@@ -5,16 +5,24 @@ import globals from 'globals'
 
 const extendedRules = await generateEslintConfig({
 	ignores: [
-		'openapi/client',
-		'openapi/server',
-		'live-status-gateway/server',
-		'live-status-gateway-api/server',
-		'documentation', // Temporary?
-		'webui/public',
-		'webui/dist',
-		'webui/src/fonts',
-		'webui/src/meteor',
-		'webui/vite.config.mts', // This errors because of tsconfig structure
+		'packages/openapi/client',
+		'packages/openapi/server',
+		'packages/live-status-gateway/server',
+		'packages/live-status-gateway-api/server',
+		'packages/documentation', // Temporary?
+		'packages/webui/public',
+		'packages/webui/dist',
+		'packages/webui/src/fonts',
+		'packages/webui/src/meteor',
+		'packages/webui/vite.config.mts', // This errors because of tsconfig structure
+		'packages/sofie-core/scripts',
+		'packages/sofie-core/server/_force_restart.js',
+		'packages/sofie-core/dist',
+		'scripts',
+		// Repo-level config, not part of any package
+		'.github',
+		'*.yml',
+		'*.yaml',
 	],
 })
 extendedRules.push(
@@ -29,7 +37,7 @@ extendedRules.push(
 		},
 	},
 	{
-		files: ['openapi/**/*'],
+		files: ['packages/openapi/**/*'],
 		rules: {
 			'n/no-missing-import': 'off', // erroring on every single import
 		},
@@ -59,7 +67,7 @@ extendedRules.push(
 	pluginReact.configs.flat.recommended,
 	pluginReact.configs.flat['jsx-runtime'],
 	{
-		files: ['webui/src/**/*', 'shared-lib/src/**/*', 'server-core-integration/src/**/*'],
+		files: ['packages/webui/src/**/*', 'packages/shared-lib/src/**/*', 'packages/server-core-integration/src/**/*'],
 		rules: {
 			// Override default behaviour for ESM and verbatimModuleSyntax
 			'n/no-missing-import': [
@@ -82,7 +90,7 @@ extendedRules.push(
 		},
 	},
 	{
-		files: ['webui/src/**/*'],
+		files: ['packages/webui/src/**/*'],
 		languageOptions: {
 			globals: {
 				...globals.browser,
@@ -93,16 +101,16 @@ extendedRules.push(
 	},
 	{
 		// For some reason, the tsconfig has to be specified here explicitly
-		files: ['webui/src/**/*.ts', 'webui/src/**/*.tsx'],
+		files: ['packages/webui/src/**/*.ts', 'packages/webui/src/**/*.tsx'],
 		languageOptions: {
 			parserOptions: {
-				project: './webui/tsconfig.eslint.json',
+				project: './packages/webui/tsconfig.eslint.json',
 			},
 		},
 		rules: {},
 	},
 	{
-		files: ['webui/src/**/*'],
+		files: ['packages/webui/src/**/*'],
 		rules: {
 			// custom
 			'no-inner-declarations': 'off', // some functions are unexported and placed inside a namespace next to related ones
@@ -115,6 +123,56 @@ extendedRules.push(
 			'@typescript-eslint/promise-function-async': 'off', // event handlers can't be async
 
 			...tmpWebuiRules,
+		},
+	}
+)
+
+// The server (packages/sofie-core)
+const tmpServerRules = {
+	// Temporary rules to be removed over time
+	'@typescript-eslint/ban-types': 'off',
+	'@typescript-eslint/no-namespace': 'off',
+	'@typescript-eslint/no-var-requires': 'off',
+	'@typescript-eslint/no-non-null-assertion': 'off',
+	'@typescript-eslint/unbound-method': 'off',
+	'@typescript-eslint/no-misused-promises': 'off',
+	'@typescript-eslint/no-unnecessary-type-assertion': 'off',
+	'@typescript-eslint/no-require-imports': 'off',
+}
+extendedRules.push(
+	{
+		// The tests and mocks are not part of the server's own tsconfig, they are type-checked as part of the shared test
+		// project. eslint needs to be told about both to cover every file.
+		files: ['packages/sofie-core/**/*.ts'],
+		languageOptions: {
+			parserOptions: {
+				project: ['./packages/sofie-core/tsconfig.json', './tsconfig.test.json'],
+			},
+		},
+	},
+	{
+		files: ['packages/sofie-core/**/*'],
+		rules: {
+			// custom
+			'no-inner-declarations': 'off', // some functions are unexported and placed inside a namespace next to related ones
+
+			'n/no-extraneous-import': 'off', // because there are a lot of them as dev-dependencies
+			'n/no-missing-import': 'off', // erroring on every single import
+			'react/prop-types': 'off', // we don't use this
+			'@typescript-eslint/no-empty-interface': 'off', // many prop/state types are {}
+			'@typescript-eslint/promise-function-async': 'off', // event handlers can't be async
+
+			'n/file-extension-in-import': ['error', 'never'], // Imports of ts files must not carry a js extension
+
+			...tmpServerRules,
+		},
+	},
+	{
+		files: ['packages/sofie-core/server/worker/worker.ts'],
+		rules: {
+			// require('../_force_restart') only exists in dev, not in prod builds; can't use an
+			// inline eslint-disable since it'd be "unused" (and stripped by --fix) locally
+			'n/no-missing-require': 'off',
 		},
 	}
 )
