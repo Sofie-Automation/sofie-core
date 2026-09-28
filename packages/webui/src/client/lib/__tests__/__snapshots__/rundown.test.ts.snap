@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`client/lib/rundown RundownUtils.getResolvedSegment Basic Segment resolution 1`] = `
+exports[`client/lib/rundown > RundownUtils.getResolvedSegment > Basic Segment resolution 1`] = `
 {
   "autoNextPart": false,
   "currentLivePart": undefined,

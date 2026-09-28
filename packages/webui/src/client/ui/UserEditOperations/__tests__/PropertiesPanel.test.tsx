@@ -22,8 +22,7 @@ import { PropertiesPanel } from '../PropertiesPanel.js'
 import type { UserAction } from '../../../lib/clientUserAction.js'
 import type { AdLibAction } from '@sofie-automation/corelib/src/dataModel/AdlibAction.js'
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-vi.mock('meteor/tracker', (...args) => require('../../../../__mocks__/tracker').setup(args))
+vi.mock('meteor/tracker', async () => (await import('../../../../__mocks__/tracker.js')).setup())
 
 vi.mock('react-i18next', () => ({
 	// this mock makes sure any components using the translate hook can use it without a warning being shown
