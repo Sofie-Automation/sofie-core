@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { objectToXML } from '../object-to-xml.js'
 
 describe('objectToXML', () => {

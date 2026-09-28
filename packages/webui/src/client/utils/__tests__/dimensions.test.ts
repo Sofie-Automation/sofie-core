@@ -1,14 +1,15 @@
+import { describe, test, expect, beforeEach, afterEach, vi, type MockInstance } from 'vitest'
 import { getElementWidth, getElementHeight } from '../dimensions.js'
 
 describe('client/utils/dimensions', () => {
-	let getComputedStyle: jest.SpyInstance
+	let getComputedStyle: MockInstance
 
 	beforeEach(() => {
-		getComputedStyle = jest.spyOn(window, 'getComputedStyle')
+		getComputedStyle = vi.spyOn(window, 'getComputedStyle')
 	})
 
 	afterEach(() => {
-		jest.restoreAllMocks()
+		vi.restoreAllMocks()
 	})
 
 	describe('getElementWidth', () => {

@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest'
 import { useCurrentTime } from '../lib' // Adjust the import path as needed
 import { act, renderHook } from '@testing-library/react'
 
@@ -10,12 +11,12 @@ describe('useCurrentTime Hook', () => {
 	})
 
 	it('should update the time after the default refresh period (1000ms)', () => {
-		jest.useFakeTimers() // Enable Jest's fake timers
+		vi.useFakeTimers() // Enable Jest's fake timers
 		const { result } = renderHook(() => useCurrentTime())
 		const initialTime = result.current
 
 		act(() => {
-			jest.advanceTimersByTime(1000) // Advance the timers by the default refresh period
+			vi.advanceTimersByTime(1000) // Advance the timers by the default refresh period
 		})
 
 		const nextSecond = Math.ceil((initialTime + 1) / 1000) * 1000 // Round to the next second
@@ -24,13 +25,13 @@ describe('useCurrentTime Hook', () => {
 	})
 
 	it('should update the time after a custom refresh period', () => {
-		jest.useFakeTimers() // Enable Jest's fake timers
+		vi.useFakeTimers() // Enable Jest's fake timers
 		const refreshPeriod = 500
 		const { result } = renderHook(() => useCurrentTime(refreshPeriod))
 		const initialTime = result.current
 
 		act(() => {
-			jest.advanceTimersByTime(refreshPeriod)
+			vi.advanceTimersByTime(refreshPeriod)
 		})
 
 		const nextInterval = Math.ceil((initialTime + 1) / refreshPeriod) * refreshPeriod // Round to the next refreshPeriod
@@ -40,7 +41,7 @@ describe('useCurrentTime Hook', () => {
 
 	it('should clear the timeout on unmount', () => {
 		const { unmount } = renderHook(() => useCurrentTime())
-		const mockClearTimeout = jest.spyOn(global, 'clearTimeout')
+		const mockClearTimeout = vi.spyOn(global, 'clearTimeout')
 
 		unmount()
 

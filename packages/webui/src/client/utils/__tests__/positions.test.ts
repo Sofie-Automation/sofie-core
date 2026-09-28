@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { getElementDocumentOffset } from '../positions.js'
 
 describe('getElementDocumentOffset', () => {

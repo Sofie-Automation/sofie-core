@@ -78,6 +78,14 @@ export default defineConfig({
 			packageProject('live-status-gateway', {
 				alias: [serverCoreIntegrationSrcAlias],
 			}),
+			packageProject('webui', {
+				include: ['src/**/__tests__/**/*.{spec,test}.{ts,tsx,js}'],
+				alias: [{ find: /^meteor\/(.*)$/, replacement: path.join(packagesDir, 'webui/src/meteor/$1') }],
+				test: {
+					environment: 'jsdom',
+					setupFiles: ['./src/__mocks__/_setupMocks.ts', './src/client/__tests__/vitest-setup.ts'],
+				},
+			}),
 			packageProject('job-worker', {
 				alias: [corelibSrcAlias],
 				test: {

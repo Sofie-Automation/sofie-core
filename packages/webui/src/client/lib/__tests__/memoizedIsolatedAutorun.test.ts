@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { memoizedIsolatedAutorun } from '../memoizedIsolatedAutorun.js'
 import { Tracker } from 'meteor/tracker'
 

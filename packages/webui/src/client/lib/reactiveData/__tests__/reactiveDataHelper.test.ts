@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { Tracker } from 'meteor/tracker'
 import { slowDownReactivity } from '../reactiveDataHelper.js'
 import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'

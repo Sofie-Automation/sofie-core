@@ -218,7 +218,7 @@ export namespace MeteorMock {
 		await waitTimeNoFakeTimers(10) // So that any observers or defers has had time to run.
 	}
 
-	/** Wait for time to pass ( unaffected by jest.useFakeTimers() ) */
+	/** Wait for time to pass ( unaffected by vi.useFakeTimers() ) */
 	export async function sleepNoFakeTimers(time: number): Promise<void> {
 		return new Promise<void>((resolve) => $.orgSetTimeout(resolve, time))
 	}
@@ -233,7 +233,7 @@ export function setup(): any {
 	}
 }
 
-/** Wait for time to pass ( unaffected by jest.useFakeTimers() ) */
+/** Wait for time to pass ( unaffected by vi.useFakeTimers() ) */
 export async function waitTimeNoFakeTimers(time: number): Promise<void> {
 	await MeteorMock.sleepNoFakeTimers(time)
 }

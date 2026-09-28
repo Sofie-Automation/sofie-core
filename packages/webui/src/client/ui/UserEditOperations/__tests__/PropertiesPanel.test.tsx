@@ -1,5 +1,6 @@
+import { describe, test, expect, beforeEach, afterEach, vi, type Mock } from 'vitest'
 import { renderHook, act, render, screen, waitFor, type RenderOptions } from '@testing-library/react'
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { MeteorCall } from '../../../lib/meteorApi.js'
 import type { TFunction } from 'i18next'
 
@@ -22,9 +23,9 @@ import type { UserAction } from '../../../lib/clientUserAction.js'
 import type { AdLibAction } from '@sofie-automation/corelib/src/dataModel/AdlibAction.js'
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-jest.mock('meteor/tracker', (...args) => require('../../../../__mocks__/tracker').setup(args), { virtual: true })
+vi.mock('meteor/tracker', (...args) => require('../../../../__mocks__/tracker').setup(args))
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
 	// this mock makes sure any components using the translate hook can use it without a warning being shown
 	useTranslation: () => {
 		return {
@@ -46,7 +47,7 @@ jest.mock('react-i18next', () => ({
 }))
 
 // Mock the ReactiveDataHelper:
-jest.mock('../../../lib/reactiveData/reactiveDataHelper', () => {
+vi.mock('../../../lib/reactiveData/reactiveDataHelper', () => {
 	interface MockSubscription {
 		stop: () => void
 		ready: () => boolean
@@ -58,8 +59,8 @@ jest.mock('../../../lib/reactiveData/reactiveDataHelper', () => {
 
 		protected subscribe(_name: string, ..._args: any[]): MockSubscription {
 			const sub: MockSubscription = {
-				stop: jest.fn(),
-				ready: jest.fn().mockReturnValue(true),
+				stop: vi.fn(),
+				ready: vi.fn().mockReturnValue(true),
 			}
 			this._subs.push(sub)
 			return sub
@@ -69,12 +70,12 @@ jest.mock('../../../lib/reactiveData/reactiveDataHelper', () => {
 			// Execute the function immediately
 			f()
 			const computation = {
-				stop: jest.fn(),
+				stop: vi.fn(),
 				_recompute: () => f(),
 				invalidate: function () {
 					this._recompute()
 				},
-				onInvalidate: jest.fn(),
+				onInvalidate: vi.fn(),
 			}
 			this._computations.push(computation)
 			return computation
@@ -101,85 +102,83 @@ jest.mock('../../../lib/reactiveData/reactiveDataHelper', () => {
 	return {
 		__esModule: true,
 		WithManagedTracker: MockWithManagedTracker,
-		meteorSubscribe: jest.fn().mockReturnValue({
-			stop: jest.fn(),
-			ready: jest.fn().mockReturnValue(true),
+		meteorSubscribe: vi.fn().mockReturnValue({
+			stop: vi.fn(),
+			ready: vi.fn().mockReturnValue(true),
 		}),
 	}
 })
 
-jest.mock('i18next', () => ({
-	use: jest.fn().mockReturnThis(),
-	init: jest.fn().mockImplementation(() => Promise.resolve()),
+vi.mock('i18next', () => ({
+	use: vi.fn().mockReturnThis(),
+	init: vi.fn().mockImplementation(() => Promise.resolve()),
 	t: (key: string) => key,
-	changeLanguage: jest.fn().mockImplementation(() => Promise.resolve()),
+	changeLanguage: vi.fn().mockImplementation(() => Promise.resolve()),
 	language: 'en',
-	exists: jest.fn(),
-	on: jest.fn(),
-	off: jest.fn(),
+	exists: vi.fn(),
+	on: vi.fn(),
+	off: vi.fn(),
 	options: {},
 }))
 
 // React-i18next with Promise support
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
 	useTranslation: () => ({
 		t: (key: string) => key,
 		i18n: {
-			changeLanguage: jest.fn().mockImplementation(() => Promise.resolve()),
+			changeLanguage: vi.fn().mockImplementation(() => Promise.resolve()),
 			language: 'en',
-			exists: jest.fn(),
-			use: jest.fn().mockReturnThis(),
-			init: jest.fn().mockImplementation(() => Promise.resolve()),
-			on: jest.fn(),
-			off: jest.fn(),
+			exists: vi.fn(),
+			use: vi.fn().mockReturnThis(),
+			init: vi.fn().mockImplementation(() => Promise.resolve()),
+			on: vi.fn(),
+			off: vi.fn(),
 			options: {},
 		},
 	}),
 	initReactI18next: {
 		type: '3rdParty',
-		init: jest.fn(),
+		init: vi.fn(),
 	},
 }))
 
-global.fetch = jest.fn(() =>
+global.fetch = vi.fn(() =>
 	Promise.resolve({
 		ok: true,
 		status: 200,
 		headers: new Map([['content-type', 'image/svg']]),
 		text: () => Promise.resolve('<svg></svg>'),
 	})
-) as jest.Mock
+) as Mock
 
 const mockSegmentsCollection = MongoMock.getInnerMockCollection(Segments)
 const mockPartsCollection = MongoMock.getInnerMockCollection(UIParts)
 const mockAdlibActionsCollection = MongoMock.getInnerMockCollection(AdLibActions)
 
 // Mock Client User Action:
-jest.mock('../../../lib/clientUserAction', () => ({
+vi.mock('../../../lib/clientUserAction', () => ({
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-	doUserAction: jest.fn((_t: TFunction, e: unknown, _action: UserAction, callback: Function) =>
-		callback(e, Date.now())
-	),
+	doUserAction: vi.fn((_t: TFunction, e: unknown, _action: UserAction, callback: Function) => callback(e, Date.now())),
 	UserAction: {
 		EXECUTE_USER_OPERATION: 51,
 	},
 }))
 
 // Mock Userchange Operation:
-jest.mock('../../../lib/meteorApi', () => ({
+vi.mock('../../../lib/meteorApi', () => ({
 	__esModule: true,
 	MeteorCall: {
 		userAction: {
-			executeUserChangeOperation: jest.fn(),
+			executeUserChangeOperation: vi.fn(),
 		},
 	},
 }))
 
 // Mock SchemaFormInPlace Component
-jest.mock('../../../lib/forms/SchemaFormInPlace', () => ({
+vi.mock('../../../lib/forms/SchemaFormInPlace', () => ({
 	SchemaFormInPlace: () => <div data-testid="schema-form">Schema Form</div>,
 }))
-jest.mock('../../../lib/forms/SchemaFormWithState', () => ({
+vi.mock('../../../lib/forms/SchemaFormWithState', () => ({
 	SchemaFormWithState: () => <div data-testid="schema-form">Schema Form</div>,
 }))
 
@@ -201,12 +200,12 @@ describe('PropertiesPanel', () => {
 	beforeEach(() => {
 		mockSegmentsCollection.remove({})
 		mockPartsCollection.remove({})
-		jest.clearAllMocks()
-		// jest.useFakeTimers()
+		vi.clearAllMocks()
+		// vi.useFakeTimers()
 	})
 
 	afterEach(() => {
-		jest.useRealTimers()
+		vi.useRealTimers()
 	})
 
 	const createMockSegment = (id: string): DBSegment => ({

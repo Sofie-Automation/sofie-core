@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { parseMosPluginMessageXml, generateMosPluginItemXml } from '../mosXml2Js.js'
 import { readFileSync } from 'fs'
 import { join } from 'path'

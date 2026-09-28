@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach } from 'vitest'
 import createParser, { type Parser } from '../index'
 import type { RootNode, Node } from '../astNodes'
 

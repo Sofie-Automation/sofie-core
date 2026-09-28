@@ -11340,6 +11340,7 @@ asn1@evs-broadcast/node-asn1:
     jest: "npm:^30.4.2"
     jest-environment-jsdom: "npm:^30.4.1"
     jest-mock-extended: "npm:^4.0.1"
+    jsdom: "npm:^26.1.0"
     json-schema-to-typescript: "npm:^15.0.4"
     legally: "npm:^3.5.10"
     lerna: "npm:^9.0.7"

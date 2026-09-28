@@ -71,6 +71,7 @@
 		"jest": "^30.4.2",
 		"jest-environment-jsdom": "^30.4.1",
 		"jest-mock-extended": "^4.0.1",
+		"jsdom": "^26.1.0",
 		"json-schema-to-typescript": "^15.0.4",
 		"legally": "^3.5.10",
 		"lerna": "^9.0.7",

@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll } from 'vitest'
 import { createMosAppInfoXmlString } from '../plugin-support.js'
 import { parseStringPromise } from 'xml2js'
 
