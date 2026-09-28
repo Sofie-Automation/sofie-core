@@ -33,7 +33,7 @@ Typical triggers: **Settings → Snapshots** (system snapshot), **REST/API** (`P
 
 - **Studio-scoped system snapshot** (`studioId` set in snapshot options): one invocation for that studio.
 - **Full-system snapshot** (no `studioId`, all studios in the file): one invocation **per studio** included in the snapshot.
-- **Debug snapshot** ([`storeDebugSnapshot`](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/server/api/snapshot.ts)): one invocation for the target studio (`info.type` is `'debug'`). This is available from the rundown UI / triggered actions (“create snapshot for debug”), not from cron. The embedded system data inside the debug file does not fire additional system hooks.
+- **Debug snapshot** ([`storeDebugSnapshot`](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/sofie-core/server/api/snapshot.ts)): one invocation for the target studio (`info.type` is `'debug'`). This is available from the rundown UI / triggered actions (“create snapshot for debug”), not from cron. The embedded system data inside the debug file does not fire additional system hooks.
 
 If no studio is in scope (empty studio list), the hook is not called.
 
@@ -77,7 +77,7 @@ Called **after** playlist snapshot data has been generated in the job-worker, **
 
 - User triggers “store snapshot” on a rundown playlist (rundown header, shelf, after-broadcast form, triggered actions, etc.)
 - **REST/API** playlist snapshots
-- **Cron** — when `coreSystem.settings.cron.storeRundownSnapshots.enabled` is true ([`meteor/server/cronjobs.ts`](https://github.com/Sofie-Automation/sofie-core/blob/main/meteor/server/cronjobs.ts)); optional filter by playlist name
+- **Cron** — when `coreSystem.settings.cron.storeRundownSnapshots.enabled` is true ([`packages/sofie-core/server/cronjobs.ts`](https://github.com/Sofie-Automation/sofie-core/blob/main/packages/sofie-core/server/cronjobs.ts)); optional filter by playlist name
 - **Debug capture** — for each **active** playlist in the studio, when the user runs debug snapshot capture (same UI/trigger path as above; one hook per active playlist)
 
 ### Show style selection

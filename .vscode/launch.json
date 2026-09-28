@@ -5,31 +5,39 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"type": "pwa-chrome",
+			"type": "chrome",
 			"request": "launch",
 			"name": "Launch Chrome",
-			"url": "http://localhost:3000/",
-			"sourceMaps": true,
-			"webRoot": "${workspaceFolder}/meteor",
-			"sourceMapPathOverrides": {
-				"meteor://💻app/*": "${webRoot}/*"
-			}
+			"url": "http://localhost:3005/",
+			"webRoot": "${workspaceFolder}/packages/webui"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Server: Node",
+			"runtimeExecutable": "yarn",
+			"runtimeArgs": ["debug"],
+			"cwd": "${workspaceFolder}/packages/sofie-core",
+			"port": 9229,
+			"timeout": 240000
 		},
 		{
 			"type": "node",
 			"request": "attach",
 			"name": "Attach",
 			"port": 9229,
-			"cwd": "${workspaceFolder}/meteor",
+			"cwd": "${workspaceFolder}/packages/sofie-core",
 			"sourceMapPathOverrides": {
 				"db:///blueprint/*": "${workspaceFolder:Blueprints}/dist/*",
 				"blueprint:///*": "${workspaceFolder:Blueprints}/*"
 			},
-			"outFiles": [
-				"${workspaceFolder}/**/*.js",
-				"!**/node_modules/**",
-				"${workspaceFolder:Blueprints}/dist/*.js"
-			]
+			"outFiles": ["${workspaceFolder}/**/*.js", "!**/node_modules/**", "${workspaceFolder:Blueprints}/dist/*.js"]
+		}
+	],
+	"compounds": [
+		{
+			"name": "Server: All",
+			"configurations": ["Server: Node", "Launch Chrome"]
 		}
 	]
 }

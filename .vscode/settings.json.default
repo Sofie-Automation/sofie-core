@@ -1,20 +1,5 @@
 {
-    "eslint.workingDirectories": [
-        "meteor",
-        "packages/blueprints-integration",
-        "packages/mos-gateway",
-        "packages/playout-gateway",
-        "packages/server-core-integration",
-        "packages/corelib",
-		"packages/meteor-lib",
-        "packages/shared-lib",
-        "packages/job-worker",
-        "packages/openapi",
-        "packages/live-status-gateway-api",
-        "packages/live-status-gateway",
-		"packages/webui"
-    ],
-    "prettier.enable": true,
-    "sonarlint.connectedMode.project": { "projectKey": "nrkno_sofie-core" },
-    "eslint.validate": ["typescript", "yaml"]
+	"prettier.enable": true,
+	"sonarlint.connectedMode.project": { "projectKey": "nrkno_sofie-core" },
+	"eslint.validate": ["typescript", "yaml"]
 }

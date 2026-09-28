@@ -8,7 +8,7 @@ In its most basic form, this allows for streaming MongoDB document updates as th
 
 It is possible to subscribe to these publications outside of Meteor, but we have not found any maintained ddp clients, except for the one we are using in `server-core-integration`. The protocol is simple and stable and has documentation on the [Meteor GitHub](https://github.com/meteor/meteor/blob/devel/packages/ddp/DDP.md), and should be easy to implement in another language if desired.
 
-All of the publication implementations reside in [`meteor/server/publications` folder](https://github.com/Sofie-Automation/sofie-core/tree/main/meteor/server/publications), and are typically pretty well isolated from the rest of the code we have in Meteor.
+All of the publication implementations reside in [`packages/sofie-core/server/publications` folder](https://github.com/Sofie-Automation/sofie-core/tree/main/packages/sofie-core/server/publications), and are typically pretty well isolated from the rest of the code we have in Meteor.
 
 We prefer using publications in Sofie over polling because:
 
