@@ -3,7 +3,7 @@ import { logger } from './logging.js'
 
 let active = false
 export function setupApmAgent(): void {
-	if (process.env.JEST_WORKER_ID) {
+	if (process.env.JEST_WORKER_ID || process.env.VITEST) {
 		return
 	}
 

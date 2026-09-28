@@ -6,7 +6,8 @@ export async function sendRabbitMQMessage(
 	msg0: ExternalMessageQueueObjRabbitMQ & ExternalMessageQueueObj
 ): Promise<void> {
 	return new Promise<void>((resolve, reject) => {
-		process.nextTick(() => {
+		// Use setImmediate, as unlike jest vitest is unable to fake process.nextTick
+		setImmediate(() => {
 			if (msg0.message.message.match(/error/)) {
 				reject(new Error('Failed to send slack rabbitMQ message'))
 			} else {

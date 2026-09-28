@@ -637,8 +637,8 @@ interface UpdateTimelineFromIngestDataTimeout {
 }
 const updateTimelineFromIngestDataTimeouts = new Map<RundownPlaylistId, UpdateTimelineFromIngestDataTimeout>()
 export function triggerUpdateTimelineAfterIngestData(context: JobContext, playlistId: RundownPlaylistId): void {
-	if (process.env.JEST_WORKER_ID) {
-		// Don't run this when in jest, as it is not useful and ends up producing errors
+	if (process.env.JEST_WORKER_ID || process.env.VITEST) {
+		// Don't run this when in tests, as it is not useful and ends up producing errors
 		return
 	}
 

@@ -4,7 +4,8 @@ import { IncomingWebhookResult } from '@slack/webhook'
 export async function sendSlackMessageToWebhook(message: string, _webhookURL: string): Promise<IncomingWebhookResult> {
 	return new Promise((resolve, reject) => {
 		const result: IncomingWebhookResult = { text: message }
-		process.nextTick(() => {
+		// Use setImmediate, as unlike jest vitest is unable to fake process.nextTick
+		setImmediate(() => {
 			if (message.match(/error/)) {
 				reject(new Error('Failed to send slack message'))
 			} else {

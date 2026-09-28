@@ -132,7 +132,5 @@ describe('Test blueprint api context', () => {
 		})
 	})
 
-	describe('SegmentUserContext', () => {
-		// TODO?
-	})
+	describe.todo('SegmentUserContext')
 })

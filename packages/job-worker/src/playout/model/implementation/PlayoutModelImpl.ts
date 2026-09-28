@@ -784,7 +784,7 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 			this.context.hackPublishTimelineToFastTrack(this.timelineImpl)
 
 			await this.context.directCollections.Timelines.replace(this.timelineImpl)
-			if (!process.env.JEST_WORKER_ID) {
+			if (!process.env.JEST_WORKER_ID && !process.env.VITEST) {
 				// Wait a little bit before saving the rest.
 				// The idea is that this allows for the high priority publications to update (such as the Timeline),
 				// sending the updated timeline to Playout-gateway

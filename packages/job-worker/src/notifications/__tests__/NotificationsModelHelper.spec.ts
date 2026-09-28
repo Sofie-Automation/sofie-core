@@ -214,6 +214,7 @@ describe('NotificationsModelHelper', () => {
 							category: 'test:my-category',
 							'relatedTo.studioId': context.studioId,
 						},
+						undefined,
 					],
 				},
 			])
@@ -245,6 +246,7 @@ describe('NotificationsModelHelper', () => {
 							category: 'test:my-category',
 							'relatedTo.studioId': context.studioId,
 						},
+						undefined,
 					],
 				},
 			])
@@ -267,6 +269,7 @@ describe('NotificationsModelHelper', () => {
 							category: 'test:my-category',
 							'relatedTo.studioId': context.studioId,
 						},
+						undefined,
 					],
 				},
 			])
@@ -317,6 +320,7 @@ describe('NotificationsModelHelper', () => {
 							category: 'test:my-category',
 							'relatedTo.studioId': context.studioId,
 						},
+						undefined,
 					],
 				},
 			])
@@ -351,6 +355,7 @@ describe('NotificationsModelHelper', () => {
 							category: 'test:my-category',
 							'relatedTo.studioId': context.studioId,
 						},
+						undefined,
 					],
 				},
 				{
@@ -383,6 +388,7 @@ describe('NotificationsModelHelper', () => {
 							category: 'test:my-category',
 							'relatedTo.studioId': context.studioId,
 						},
+						undefined,
 					],
 				},
 				{
@@ -738,6 +744,7 @@ describe('NotificationsModelHelper', () => {
 						category: 'test:my-category',
 						'relatedTo.studioId': context.studioId,
 					},
+					undefined,
 				],
 			},
 			{
@@ -764,6 +771,7 @@ describe('NotificationsModelHelper', () => {
 						category: 'test:my-category',
 						'relatedTo.studioId': context.studioId,
 					},
+					undefined,
 				],
 			},
 			{
@@ -808,6 +816,7 @@ describe('NotificationsModelHelper', () => {
 						category: 'test:my-category',
 						'relatedTo.studioId': context.studioId,
 					},
+					undefined,
 				],
 			},
 			{

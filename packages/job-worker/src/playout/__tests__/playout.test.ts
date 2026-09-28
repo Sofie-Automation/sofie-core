@@ -54,7 +54,7 @@ import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
 // const mockGetCurrentTime = vi.spyOn(lib, 'getCurrentTime')
-const mockExecutePeripheralDeviceFunction = jest
+const mockExecutePeripheralDeviceFunction = vi
 	.spyOn(peripheralDeviceLib, 'executePeripheralDeviceFunction')
 	.mockImplementation(async () => sleep(10))
 

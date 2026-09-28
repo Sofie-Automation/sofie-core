@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { describe, test, expect, beforeEach, vi, type MockedFunction } from 'vitest'
+import { describe, test, expect, beforeAll, beforeEach, vi, type MockedFunction } from 'vitest'
 import _ from 'underscore'
 import {
 	IBlueprintPart,
@@ -61,8 +61,13 @@ import { postProcessPieces, postProcessTimelineObjects } from '../../../postProc
 import { ActionPartChange, PartAndPieceInstanceActionService } from '../PartAndPieceInstanceActionService.js'
 import { mock } from 'vitest-mock-extended'
 import { QuickLoopService } from '../../../../playout/model/services/QuickLoopService.js'
-const { postProcessPieces: postProcessPiecesOrig, postProcessTimelineObjects: postProcessTimelineObjectsOrig } =
-	await vi.importActual('../../../postProcess')
+let postProcessPiecesOrig: typeof postProcessPieces
+beforeAll(async () => {
+	// Loaded here as top level await isn't possible in this commonjs package
+	const actual = await vi.importActual<typeof import('../../../postProcess.js')>('../../../postProcess.js')
+	postProcessPiecesOrig = actual.postProcessPieces
+	postProcessTimelineObjectsMock.mockImplementation(actual.postProcessTimelineObjects)
+})
 
 type TpostProcessPieces = MockedFunction<typeof postProcessPieces>
 const postProcessPiecesMock = postProcessPieces as TpostProcessPieces
@@ -70,7 +75,6 @@ postProcessPiecesMock.mockImplementation(() => [])
 
 type TpostProcessTimelineObjects = MockedFunction<typeof postProcessTimelineObjects>
 const postProcessTimelineObjectsMock = postProcessTimelineObjects as TpostProcessTimelineObjects
-postProcessTimelineObjectsMock.mockImplementation(postProcessTimelineObjectsOrig)
 
 // TODO: These should be rewritten to only test as far as the PartInstanceWithPieces interface
 describe('Test blueprint api context', () => {

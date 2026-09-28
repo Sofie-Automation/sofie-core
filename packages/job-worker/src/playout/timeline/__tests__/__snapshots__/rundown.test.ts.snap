@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`buildTimelineObjsForRundown current and previous parts 1`] = `
+exports[`buildTimelineObjsForRundown > current and previous parts 1`] = `
 {
   "timeline": [
     {
@@ -124,7 +124,7 @@ exports[`buildTimelineObjsForRundown current and previous parts 1`] = `
 }
 `;
 
-exports[`buildTimelineObjsForRundown current part with startedPlayback 1`] = `
+exports[`buildTimelineObjsForRundown > current part with startedPlayback 1`] = `
 {
   "timeline": [
     {
@@ -212,7 +212,7 @@ exports[`buildTimelineObjsForRundown current part with startedPlayback 1`] = `
 }
 `;
 
-exports[`buildTimelineObjsForRundown infinite pieces infinite continuing from previous 1`] = `
+exports[`buildTimelineObjsForRundown > infinite pieces > infinite continuing from previous 1`] = `
 {
   "timeline": [
     {
@@ -371,7 +371,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite continuing from pr
 }
 `;
 
-exports[`buildTimelineObjsForRundown infinite pieces infinite continuing into next with autonext 1`] = `
+exports[`buildTimelineObjsForRundown > infinite pieces > infinite continuing into next with autonext 1`] = `
 {
   "timeline": [
     {
@@ -557,7 +557,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite continuing into ne
 }
 `;
 
-exports[`buildTimelineObjsForRundown infinite pieces infinite ending with previous 1`] = `
+exports[`buildTimelineObjsForRundown > infinite pieces > infinite ending with previous 1`] = `
 {
   "timeline": [
     {
@@ -703,7 +703,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite ending with previo
 }
 `;
 
-exports[`buildTimelineObjsForRundown infinite pieces infinite ending with previous excludeDuringPartKeepalive=true 1`] = `
+exports[`buildTimelineObjsForRundown > infinite pieces > infinite ending with previous excludeDuringPartKeepalive=true 1`] = `
 {
   "timeline": [
     {
@@ -862,7 +862,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite ending with previo
 }
 `;
 
-exports[`buildTimelineObjsForRundown infinite pieces infinite starting in current 1`] = `
+exports[`buildTimelineObjsForRundown > infinite pieces > infinite starting in current 1`] = `
 {
   "timeline": [
     {
@@ -1020,7 +1020,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite starting in curren
 }
 `;
 
-exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in current with autonext 1`] = `
+exports[`buildTimelineObjsForRundown > infinite pieces > infinite stopping in current with autonext 1`] = `
 {
   "timeline": [
     {
@@ -1207,7 +1207,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in curren
 }
 `;
 
-exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in current with autonext excludeDuringPartKeepalive=true 1`] = `
+exports[`buildTimelineObjsForRundown > infinite pieces > infinite stopping in current with autonext excludeDuringPartKeepalive=true 1`] = `
 {
   "timeline": [
     {
@@ -1394,7 +1394,7 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in curren
 }
 `;
 
-exports[`buildTimelineObjsForRundown next part no autonext 1`] = `
+exports[`buildTimelineObjsForRundown > next part no autonext 1`] = `
 {
   "timeline": [
     {
@@ -1481,7 +1481,7 @@ exports[`buildTimelineObjsForRundown next part no autonext 1`] = `
 }
 `;
 
-exports[`buildTimelineObjsForRundown next part with autonext 1`] = `
+exports[`buildTimelineObjsForRundown > next part with autonext 1`] = `
 {
   "timeline": [
     {
@@ -1633,7 +1633,7 @@ exports[`buildTimelineObjsForRundown next part with autonext 1`] = `
 }
 `;
 
-exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next part 1`] = `
+exports[`buildTimelineObjsForRundown > overlap and keepalive > autonext into next part 1`] = `
 {
   "timeline": [
     {
@@ -1785,7 +1785,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
 }
 `;
 
-exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next part with excludeDuringPartKeepalive 1`] = `
+exports[`buildTimelineObjsForRundown > overlap and keepalive > autonext into next part with excludeDuringPartKeepalive 1`] = `
 {
   "timeline": [
     {
@@ -1972,7 +1972,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
 }
 `;
 
-exports[`buildTimelineObjsForRundown overlap and keepalive current and previous parts 1`] = `
+exports[`buildTimelineObjsForRundown > overlap and keepalive > current and previous parts 1`] = `
 {
   "timeline": [
     {
@@ -2118,7 +2118,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive current and previous 
 }
 `;
 
-exports[`buildTimelineObjsForRundown overlap and keepalive current and previous parts with excludeDuringPartKeepalive 1`] = `
+exports[`buildTimelineObjsForRundown > overlap and keepalive > current and previous parts with excludeDuringPartKeepalive 1`] = `
 {
   "timeline": [
     {
@@ -2277,7 +2277,7 @@ exports[`buildTimelineObjsForRundown overlap and keepalive current and previous 
 }
 `;
 
-exports[`buildTimelineObjsForRundown simple current part 1`] = `
+exports[`buildTimelineObjsForRundown > simple current part 1`] = `
 {
   "timeline": [
     {

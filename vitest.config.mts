@@ -14,6 +14,15 @@ const serverCoreIntegrationSrcAlias = {
 	replacement: path.join(packagesDir, 'server-core-integration/src/index.ts'),
 }
 
+/**
+ * Point imports of corelib's built output at its sources. This is needed for vi.mock to affect modules that corelib imports
+ * (such as nanoid), as the built commonjs output is loaded natively rather than through vitest
+ */
+const corelibSrcAlias = {
+	find: /^@sofie-automation\/corelib\/dist\/(.+?)(\.js)?$/,
+	replacement: path.join(packagesDir, 'corelib/src/$1'),
+}
+
 /** Point imports of shared-lib's built output at its sources, so tests don't need it to be built first */
 const sharedLibSrcAlias = {
 	find: /^@sofie-automation\/shared-lib\/dist\/(.+?)(\.js)?$/,
@@ -70,6 +79,7 @@ export default defineConfig({
 				alias: [serverCoreIntegrationSrcAlias],
 			}),
 			packageProject('job-worker', {
+				alias: [corelibSrcAlias],
 				test: {
 					globalSetup: './src/__mocks__/global-setup.mjs',
 					setupFiles: ['./src/__mocks__/_setupMocks.ts'],

@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, type Mock } from 'vitest'
+import { describe, test, expect, beforeAll, vi, type Mock } from 'vitest'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import {
@@ -23,8 +23,13 @@ import { getCurrentTime } from '../../lib/index.js'
 vi.mock('../../blueprints/postProcess')
 import { postProcessPieces } from '../../blueprints/postProcess.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-const { postProcessPieces: postProcessPiecesOrig } = await vi.importActual('../../blueprints/postProcess')
-;(postProcessPieces as Mock).mockImplementation(postProcessPiecesOrig)
+beforeAll(async () => {
+	// Loaded here as top level await isn't possible in this commonjs package
+	const { postProcessPieces: postProcessPiecesOrig } = await vi.importActual<
+		typeof import('../../blueprints/postProcess.js')
+	>('../../blueprints/postProcess.js')
+	vi.mocked(postProcessPieces).mockImplementation(postProcessPiecesOrig)
+})
 
 describe('take', () => {
 	async function setupTakenPlaylist() {

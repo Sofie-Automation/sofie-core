@@ -69,7 +69,7 @@ describe('lookahead offset integration', () => {
 			{ _id: protectString('p4'), classesForNext: [] } as any,
 		])
 
-		const findFetchMock = jest
+		const findFetchMock = vi
 			.fn()
 			.mockResolvedValue([
 				makeSimplePiece({ partId: 'p1', layer: 'layer1' }),
@@ -142,7 +142,7 @@ describe('lookahead offset integration', () => {
 			{ _id: protectString('p2'), classesForNext: [] } as any,
 		])
 
-		context.directCollections.Pieces.findFetch = jest
+		context.directCollections.Pieces.findFetch = vi
 			.fn()
 			.mockResolvedValue([
 				makeSimplePiece({ partId: 'p1', layer: 'layer1' }),
@@ -167,7 +167,7 @@ describe('lookahead offset integration', () => {
 		} as PlayoutModel
 		getOrderedPartsAfterPlayheadMock.mockReturnValue([{ _id: protectString('p1'), classesForNext: [] } as any])
 
-		context.directCollections.Pieces.findFetch = jest
+		context.directCollections.Pieces.findFetch = vi
 			.fn()
 			.mockResolvedValue([
 				makeSimplePiece({ partId: 'pNext', layer: 'layer1', start: 0 }),
@@ -214,7 +214,7 @@ describe('lookahead offset integration', () => {
 			{ ...lookaheadOffsetTestConstants.multiLayerPart, classesForNext: [] } as any,
 		])
 
-		context.directCollections.Pieces.findFetch = jest
+		context.directCollections.Pieces.findFetch = vi
 			.fn()
 			.mockResolvedValue(lookaheadOffsetTestConstants.multiLayerPart.pieces)
 
@@ -276,7 +276,7 @@ describe('lookahead offset integration', () => {
 			{ ...lookaheadOffsetTestConstants.multiLayerPartWhile, classesForNext: [] } as any,
 		])
 
-		context.directCollections.Pieces.findFetch = jest
+		context.directCollections.Pieces.findFetch = vi
 			.fn()
 			.mockResolvedValue(lookaheadOffsetTestConstants.multiLayerPartWhile.pieces)
 
@@ -331,7 +331,7 @@ describe('lookahead offset integration', () => {
 			{ ...lookaheadOffsetTestConstants.singleLayerPart, classesForNext: [] } as any,
 		])
 
-		context.directCollections.Pieces.findFetch = jest
+		context.directCollections.Pieces.findFetch = vi
 			.fn()
 			.mockResolvedValue(lookaheadOffsetTestConstants.singleLayerPart.pieces)
 
@@ -369,7 +369,7 @@ describe('lookahead offset integration', () => {
 			{ ...lookaheadOffsetTestConstants.singleLayerPartWhile, classesForNext: [] } as any,
 		])
 
-		context.directCollections.Pieces.findFetch = jest
+		context.directCollections.Pieces.findFetch = vi
 			.fn()
 			.mockResolvedValue(lookaheadOffsetTestConstants.singleLayerPartWhile.pieces)
 

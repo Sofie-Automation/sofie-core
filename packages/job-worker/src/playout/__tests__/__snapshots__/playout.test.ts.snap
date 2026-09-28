@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Playout API Basic rundown control 1`] = `
+exports[`Playout API > Basic rundown control 1`] = `
 [
   {
     "_id": "mockStudio0",
@@ -17,7 +17,7 @@ exports[`Playout API Basic rundown control 1`] = `
 ]
 `;
 
-exports[`Playout API Basic rundown control 2`] = `
+exports[`Playout API > Basic rundown control 2`] = `
 {
   "_id": "randomId9000",
   "created": 0,
@@ -44,7 +44,7 @@ exports[`Playout API Basic rundown control 2`] = `
 }
 `;
 
-exports[`Playout API Basic rundown control 3`] = `
+exports[`Playout API > Basic rundown control 3`] = `
 [
   {
     "_id": "mockStudio0",
@@ -61,7 +61,7 @@ exports[`Playout API Basic rundown control 3`] = `
 ]
 `;
 
-exports[`Playout API Basic rundown control 4`] = `
+exports[`Playout API > Basic rundown control 4`] = `
 {
   "_id": "playlist_randomId9000",
   "created": 0,
@@ -103,7 +103,7 @@ exports[`Playout API Basic rundown control 4`] = `
 }
 `;
 
-exports[`Playout API Basic rundown control 5`] = `
+exports[`Playout API > Basic rundown control 5`] = `
 {
   "_id": "randomId9000",
   "created": 0,
