@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll } from 'vitest'
 import { randomUUID } from 'crypto'
 import { Configuration, SnapshotsApi, PlaylistsApi } from '../../client/ts/index.js'
 import { checkServer } from '../checkServer.js'

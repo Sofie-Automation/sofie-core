@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll } from 'vitest'
 import { Configuration, SofieApi } from '../../client/ts/index.js'
 import { checkServer } from '../checkServer.js'
 import Logging from '../httpLogging.js'

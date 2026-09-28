@@ -11,8 +11,8 @@
 	"scripts": {
 		"build": "run -T rimraf dist && run genclient:ts && run build:main",
 		"build:main": "run -T tsc -p tsconfig.build.json",
-		"cov": "run unit && open-cli coverage/lcov-report/index.html",
-		"cov-open": "open-cli coverage/lcov-report/index.html",
+		"cov": "run unit && open-cli ../coverage/lcov-report/index.html",
+		"cov-open": "open-cli ../coverage/lcov-report/index.html",
 		"lint": "run -T lint packages/openapi",
 		"bundle": "node ./scripts/bundle-openapi.mjs",
 		"unit": "run genserver && node --experimental-fetch run_server_tests.mjs",
@@ -23,7 +23,7 @@
 		"genserver": "run bundle && run -T rimraf server && node install_swagger.mjs && java -jar ./jars/swagger-codegen-cli.jar generate -i ./api/actions.yaml -l nodejs-server -o server && cd server && npm install && cd ../",
 		"runserver": "run genserver && cd server && node index.js",
 		"test": "run lint && run genclient:ts && run unit",
-		"unit:no-server": "node --experimental-fetch ../../node_modules/jest/bin/jest.js --detectOpenHandles --forceExit"
+		"unit:no-server": "SOFIE_OPENAPI_TESTS=1 run -T vitest run --config ../../vitest.config.mts --project openapi"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"engines": {

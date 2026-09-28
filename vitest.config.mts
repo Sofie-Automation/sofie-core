@@ -5,6 +5,8 @@ const packagesDir = path.join(import.meta.dirname, 'packages')
 
 /** Integration tests need external services (eg a running Core), so are only included when explicitly requested */
 const includeIntegrationTests = !!process.env.SOFIE_INTEGRATION_TESTS
+/** The openapi tests need a server to test against, so are only included when run via `openapi/run_server_tests.mjs` (or `unit:no-server`) */
+const includeOpenApiTests = !!process.env.SOFIE_OPENAPI_TESTS
 
 /** Point imports of server-core-integration at its sources, so tests don't need it to be built first */
 const serverCoreIntegrationSrcAlias = {
@@ -62,6 +64,15 @@ export default defineConfig({
 			packageProject('live-status-gateway-api'),
 			packageProject('corelib'),
 
+			...(includeOpenApiTests
+				? [
+						packageProject('openapi', {
+							include: ['src/**/__tests__/**/*.spec.{ts,js}'],
+							test: { globalSetup: './vitest.global-setup.mjs' },
+						}),
+					]
+				: []),
+
 			...(includeIntegrationTests
 				? [
 						packageProject('mos-gateway-integration', {
@@ -78,13 +89,30 @@ export default defineConfig({
 			provider: 'v8',
 			reportsDirectory: './coverage',
 			reporter: ['text', 'lcov'],
-			exclude: ['**/__tests__/**', '**/__mocks__/**', '**/node_modules/**', '**/dist/**'],
+			exclude: [
+				'**/__tests__/**',
+				'**/__mocks__/**',
+				'**/node_modules/**',
+				'**/dist/**',
+				// These are relative to the project root when using `--project`, so match both forms
+				'{openapi/,}client/ts/index.ts',
+				'{openapi/,}client/ts/runtime.ts',
+				'{openapi/,}client/ts/models/**',
+				'{openapi/,}src/httpLogging*',
+				'{openapi/,}src/checkServer*',
+			],
 			thresholds: {
 				'blueprints-integration/src/**': {
 					branches: 80,
 					functions: 100,
 					lines: 95,
 					statements: 90,
+				},
+				'openapi/**': {
+					branches: 60,
+					functions: 60,
+					lines: 60,
+					statements: 60,
 				},
 				'playout-gateway/src/**': {
 					branches: 100,

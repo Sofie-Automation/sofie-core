@@ -1,7 +1,7 @@
-const yaml = require('js-yaml')
-const fs = require('fs')
+import yaml from 'js-yaml'
+import fs from 'node:fs'
 
-module.exports = async function () {
+export default async function () {
 	// Read the required URL from the API yaml file
 	const doc = yaml.load(fs.readFileSync('./api/actions.yaml', 'utf8'))
 
