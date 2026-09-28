@@ -1,6 +1,0 @@
-package*.json
-CHANGELOG*.md
-*.snap
-*.xml
-public/locales
-.meteor

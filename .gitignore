@@ -1,11 +1,11 @@
 _gsdata_/
 settings.json
 .env
-meteor/.coverage/
-node_modules
-**/yarn-error.log
 scratch/
 meteor-settings.json
+
+# Development data (dev MongoDB, snapshot store, dev logs), see scripts/run.mjs
+.dev-data/
 
 # Exclude JetBrains IDE specific files
 .idea
@@ -16,7 +16,22 @@ meteor-settings.json
 .github/workflows/forkSync.yml
 .github/workflows/forkSynk.yml
 
+**/node_modules/**
+**/yarn-error.log
 **/*.tsbuildinfo
+packages/*/dist
+packages/*/coverage
+packages/*/CHANGELOG.md
+packages/sofie-core/.coverage/
+packages/sofie-core/server/_force_restart.js
+packages/documentation/build
+docs
+.nx/
+
+# Leftovers from the old layout (meteor/ and packages/ were separate yarn roots), kept ignored so existing checkouts stay clean
+/meteor/
+/packages/.yarn/
+/packages/coverage/
 
 .pnp.*
 .yarn/*
