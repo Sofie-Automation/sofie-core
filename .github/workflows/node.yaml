@@ -380,55 +380,18 @@ jobs:
           tags: "${{ steps.dockerhub-tag.outputs.tags }}"
 
   test-packages:
-    name: Test Package ${{ matrix.package-name }} (Node ${{ matrix.node-version }})
+    name: Test Packages
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
-    strategy:
-      fail-fast: false
-      matrix:
-        package-name:
-          - blueprints-integration
-          - server-core-integration
-          - shared-lib
-          # - live-status-gateway-api # no tests yet
-          - openapi
-        node-version: [22.x]
-        include:
-          # include additional configs, to run certain packages only for a certain version of node
-          - node-version: 22.x
-            package-name: corelib
-            send-coverage: true
-          - node-version: 22.x
-            package-name: job-worker
-            send-coverage: true
-          # No tests for some gateways yet
-          # - node-version: 22.x
-          #   package-name: playout-gateway
-          #   send-coverage: true
-          - node-version: 22.x
-            package-name: mos-gateway
-            send-coverage: true
-          - node-version: 22.x
-            package-name: live-status-gateway
-            send-coverage: true
-          - node-version: 22.x
-            package-name: webui
-            send-coverage: true
-            tsconfig-name: tsconfig.json
-          # manual meteor-lib as it only needs a couple of versions
-          - node-version: 22.x
-            package-name: meteor-lib
-            send-coverage: true
 
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: ".node-version"
       - name: restore node_modules
         uses: actions/cache@v6
         with:
@@ -442,22 +405,58 @@ jobs:
 
           yarn config set cacheFolder /home/runner/test-packages-cache
           yarn install
-
-          if [ "${{ matrix.package-name }}" = "openapi" ]; then
-            yarn workspace @sofie-automation/openapi run build
-          else
-            yarn build:single packages/${{ matrix.package-name }}/${{ matrix.tsconfig-name || 'tsconfig.build.json' }}
-          fi
+          yarn build
         env:
           CI: true
       - name: Run tests
         run: |
-          cd packages/${{ matrix.package-name }}
+          yarn unit:coverage
+        env:
+          CI: true
+      - name: Send coverage
+        if: ((github.event_name == 'pull_request') && (!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release')))
+        uses: codecov/codecov-action@v7
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  test-openapi:
+    # These tests run against a generated mock server, so are not part of the main test run
+    name: Test OpenAPI
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Use Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".node-version"
+      - name: restore node_modules
+        uses: actions/cache@v6
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+      - name: Prepare Environment
+        run: |
+          corepack enable
+
+          yarn config set cacheFolder /home/runner/test-openapi-cache
+          yarn install
+          yarn workspace @sofie-automation/openapi run build
+        env:
+          CI: true
+      - name: Run tests
+        run: |
+          cd packages/openapi
           yarn unit
         env:
           CI: true
       - name: Send coverage
-        if: (matrix.node-version == '22.x' || matrix.send-coverage == true) && (((github.event_name == 'pull_request') && (!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release'))))
+        if: ((github.event_name == 'pull_request') && (!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release')))
         uses: codecov/codecov-action@v7
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
