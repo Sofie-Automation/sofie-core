@@ -8,11 +8,9 @@ import { blueprintsRouter } from '../http'
 vi.mock('../../deviceTriggers/observer')
 import * as api from '../api'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
-vi.mock('../api.ts')
+vi.mock('../api')
 
 const DEFAULT_CONTEXT = expect.objectContaining({ req: expect.any(Object), res: expect.any(Object) })
-
-require('../http.ts') // include in order to create the Meteor methods needed
 
 describe('Test blueprint http api', () => {
 	describe('router restore single', () => {

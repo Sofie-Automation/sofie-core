@@ -39,7 +39,16 @@ import {
 
 // Set up mocks for tests in this suite
 let mockCurrentTime = 0
-let origGetCurrentTime = lib.getCurrentTime
+
+// Tests can override the current time. lib.getCurrentTime is a spy, so tests can also check that it was called
+const libMock = vi.hoisted(() => ({ getCurrentTime: undefined as (() => number) | undefined }))
+vi.mock('../lib/lib', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('../lib/lib')>()
+	return {
+		...actual,
+		getCurrentTime: vi.fn(() => (libMock.getCurrentTime ? libMock.getCurrentTime() : actual.getCurrentTime())),
+	}
+})
 vi.mock('../logging')
 // we don't want the deviceTriggers observer to start up at this time
 vi.mock('../api/deviceTriggers/observer')
@@ -113,17 +122,10 @@ describe('cronjobs', () => {
 		// set time to 2020/07/19 00:00 Local Time
 		mockCurrentTime = new Date(2020, 6, 19, 0, 0, 0).getTime()
 		startCronjobs()
-		origGetCurrentTime = lib.getCurrentTime
-		//@ts-ignore Mock getCurrentTime for tests
-		// eslint-disable-next-line no-import-assign
-		lib.getCurrentTime = vi.fn(() => {
-			return mockCurrentTime
-		})
+		libMock.getCurrentTime = () => mockCurrentTime
 	})
 	afterAll(async () => {
-		//@ts-ignore Return getCurrentTime to orig
-		// eslint-disable-next-line no-import-assign
-		lib.getCurrentTime = origGetCurrentTime
+		libMock.getCurrentTime = undefined
 		await CoreSystem.removeAsync(SYSTEM_ID)
 	})
 	describe('Runs at the appropriate time', () => {

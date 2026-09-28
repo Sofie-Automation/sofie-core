@@ -17,7 +17,7 @@ import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
 vi.mock('../../api/deviceTriggers/observer')
 
 const MeteorCall = makeMeteorCallForTest({ methods: SystemStatusAPIMethods, class: ServerSystemStatusAPI })
-require('../../coreSystem/index')
+import '../../coreSystem/index'
 const PackageInfo = require('../../../package.json')
 
 import * as getServerBlueprintUpgradeStatuses from '../../publications/blueprintUpgradeStatus/systemStatus'

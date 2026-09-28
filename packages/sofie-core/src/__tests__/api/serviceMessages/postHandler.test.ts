@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, type Mock, type ExpectationResult } from 'vitest'
+import { describe, it, expect, vi, type Mock } from 'vitest'
 import { postHandler } from '../../../api/serviceMessages/postHandler'
 import { Criticality, ExternalServiceMessage } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import * as serviceMessagesApi from '../../../api/serviceMessages/serviceMessagesApi'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
-import { createMockContext } from '@shopify/jest-koa-mocks'
+import { createMockContext } from '../../../__mocks__/koa-util'
 
 vi.mock('../../../api/serviceMessages/serviceMessagesApi', () => {
 	return {
@@ -20,16 +20,15 @@ const validInput: ExternalServiceMessage = {
 	timestamp: new Date(),
 }
 
-declare global {
-	namespace jest {
-		interface Matchers<R> {
-			toBeHttpOkStatusCode(): R
-		}
+declare module 'vitest' {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	interface Matchers<R extends void | Promise<void> = void | Promise<void>, T = unknown> {
+		toBeHttpOkStatusCode(): R
 	}
 }
 
 expect.extend({
-	toBeHttpOkStatusCode(value): ExpectationResult {
+	toBeHttpOkStatusCode(value) {
 		const allowed = [200, 201, 204]
 		if (allowed.indexOf(value) > -1) {
 			return {

@@ -31,7 +31,8 @@ describe('User Actions - General', () => {
 		expect(res).toMatchObject({ success: 200 })
 		expect(typeof res.result).toBe('string')
 
-		const mockExit = vi.spyOn(process, 'exit').mockImplementation()
+		// vitest's mockImplementation() without an argument calls through, unlike jest's, so provide a no-op
+		const mockExit = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
 
 		// Use an invalid token to try and restart it
 		await expect(

@@ -17,19 +17,21 @@ export function CreateFakeResult<T>(result: Promise<T>): WorkerJob<T> {
 	}
 }
 
-export const QueueForceClearAllCachesSpy = vi.fn<(...args: Parameters<typeof QueueForceClearAllCaches>) => ReturnType<typeof QueueForceClearAllCaches>>(async () => {
+export const QueueForceClearAllCachesSpy = vi.fn<
+	(...args: Parameters<typeof QueueForceClearAllCaches>) => ReturnType<typeof QueueForceClearAllCaches>
+>(async () => {
 	throw new Error('Not implemented')
 })
-export const QueueStudioJobSpy = vi.fn<(...args: Parameters<typeof QueueStudioJob>) => ReturnType<typeof QueueStudioJob>>(
-	async () => {
-		throw new Error('Not implemented')
-	}
-)
-export const QueueIngestJobSpy = vi.fn<(...args: Parameters<typeof QueueIngestJob>) => ReturnType<typeof QueueIngestJob>>(
-	async () => {
-		throw new Error('Not implemented')
-	}
-)
+export const QueueStudioJobSpy = vi.fn<
+	(...args: Parameters<typeof QueueStudioJob>) => ReturnType<typeof QueueStudioJob>
+>(async () => {
+	throw new Error('Not implemented')
+})
+export const QueueIngestJobSpy = vi.fn<
+	(...args: Parameters<typeof QueueIngestJob>) => ReturnType<typeof QueueIngestJob>
+>(async () => {
+	throw new Error('Not implemented')
+})
 
 export function setup(): any {
 	return {

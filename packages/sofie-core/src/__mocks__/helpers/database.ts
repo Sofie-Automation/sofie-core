@@ -83,7 +83,9 @@ import {
 	Workers,
 	WorkerThreadStatuses,
 } from '../../collections'
-import { TSR_VERSION } from '@sofie-automation/shared-lib/dist/tsr'
+// Imported under another name, as the blueprint code below uses TSR_VERSION as a placeholder. A shadowing local
+// would be renamed by the test transform, breaking the placeholder replacement in packageBlueprint
+import { TSR_VERSION as SHARED_TSR_VERSION } from '@sofie-automation/shared-lib/dist/tsr'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 
 export enum LAYER_IDS {
@@ -99,7 +101,7 @@ function getBlueprintDependencyVersions(): { TSR_VERSION: string; INTEGRATION_VE
 
 	return {
 		INTEGRATION_VERSION,
-		TSR_VERSION,
+		TSR_VERSION: SHARED_TSR_VERSION,
 	}
 }
 

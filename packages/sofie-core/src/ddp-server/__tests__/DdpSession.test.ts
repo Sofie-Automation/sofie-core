@@ -129,13 +129,14 @@ describe('DdpSession', () => {
 		/**
 		 * `auth.ts` reads its env vars once, at import time, so each case re-imports it with the env it wants.
 		 */
-		function loadAuth(
+		async function loadAuth(
 			env: Partial<Record<(typeof ENV_KEYS)[number], string>>
-		): typeof import('../../security/auth') {
+		): Promise<typeof import('../../security/auth')> {
 			for (const key of ENV_KEYS) delete process.env[key]
 			Object.assign(process.env, env)
 			vi.resetModules()
-			return require('../../security/auth')
+			// eslint-disable-next-line n/file-extension-in-import -- dynamic import() in a commonjs package needs the extension
+			return import('../../security/auth.js')
 		}
 
 		/** Header names arrive lowercased from node's http parser. */
@@ -144,22 +145,22 @@ describe('DdpSession', () => {
 				.connection
 		}
 
-		test('the raw request headers reach auth, which reads the configured permissions header', () => {
-			const { parseConnectionPermissions } = loadAuth({ SOFIE_ENABLE_HEADER_AUTH: '1' })
+		test('the raw request headers reach auth, which reads the configured permissions header', async () => {
+			const { parseConnectionPermissions } = await loadAuth({ SOFIE_ENABLE_HEADER_AUTH: '1' })
 			// Headers pass through untouched; auth reads USER_PERMISSIONS_HEADER (default `dnt`).
 			expect(parseConnectionPermissions(connectionWithHeaders({ dnt: 'gateway' })).gateway).toBe(true)
 		})
 
-		test('a request without the permissions header grants nothing', () => {
-			const { parseConnectionPermissions } = loadAuth({ SOFIE_ENABLE_HEADER_AUTH: 'true' })
+		test('a request without the permissions header grants nothing', async () => {
+			const { parseConnectionPermissions } = await loadAuth({ SOFIE_ENABLE_HEADER_AUTH: 'true' })
 			const permissions = parseConnectionPermissions(connectionWithHeaders({ 'x-unrelated': 'admin' }))
 			expect(permissions.gateway).toBe(false)
 			expect(permissions.configure).toBe(false)
 			expect(permissions.studio).toBe(false)
 		})
 
-		test('the header name is configurable via SOFIE_PERMISSIONS_HEADER', () => {
-			const { parseConnectionPermissions } = loadAuth({
+		test('the header name is configurable via SOFIE_PERMISSIONS_HEADER', async () => {
+			const { parseConnectionPermissions } = await loadAuth({
 				SOFIE_ENABLE_HEADER_AUTH: '1',
 				SOFIE_PERMISSIONS_HEADER: 'X-Sofie-Permissions', // lowercased by auth.ts to match node's headers
 			})
@@ -170,8 +171,8 @@ describe('DdpSession', () => {
 			expect(parseConnectionPermissions(connectionWithHeaders({ dnt: 'gateway' })).gateway).toBe(false)
 		})
 
-		test('with SOFIE_ENABLE_HEADER_AUTH unset, everything is granted and headers are ignored', () => {
-			const { parseConnectionPermissions } = loadAuth({})
+		test('with SOFIE_ENABLE_HEADER_AUTH unset, everything is granted and headers are ignored', async () => {
+			const { parseConnectionPermissions } = await loadAuth({})
 			expect(parseConnectionPermissions(connectionWithHeaders({}))).toEqual({
 				studio: true,
 				configure: true,

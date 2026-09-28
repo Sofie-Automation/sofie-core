@@ -1,5 +1,5 @@
 import { MongoMemoryReplSet } from 'mongodb-memory-server'
-import { DEV_MONGO_VERSION } from '../../scripts/dev-mongo.mjs'
+import { DEV_MONGO_VERSION } from '../../scripts/dev-mongo'
 
 /**
  * vitest globalSetup for the `sofie-core-integration` project: boot ONE in-memory MongoDB replica set, shared by every

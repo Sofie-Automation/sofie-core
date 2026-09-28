@@ -99,9 +99,7 @@ describe('StudioObserver', () => {
 		const rundownCleanup = vi.fn()
 		const pieceCleanup = vi.fn()
 
-		const onRundownContentChanged = vi.fn(
-			(_ssbId: ShowStyleBaseId, _cache: RundownContentCache) => rundownCleanup
-		)
+		const onRundownContentChanged = vi.fn((_ssbId: ShowStyleBaseId, _cache: RundownContentCache) => rundownCleanup)
 		const onPieceInstancesChanged = vi.fn(
 			(_ssbId: ShowStyleBaseId, _cache: PieceInstancesContentCache) => pieceCleanup
 		)

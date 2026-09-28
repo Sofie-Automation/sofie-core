@@ -14,18 +14,21 @@ import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objec
 import { ShowStyleBases, ShowStyleVariants, Studios } from '../../collections'
 import { getCoreSystemAsync } from '../../coreSystem/collection'
 import fs from 'fs'
+import path from 'path'
 import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
 
 const MeteorCall = makeMeteorCallForTest({ methods: MigrationAPIMethods, class: ServerMigrationAPI })
 
-require('../migrations') // include in order to create the migration steps
+import '../migrations' // include in order to create the migration steps
 
-// Include all migration scripts:
-const normalizedPath = require('path').join(__dirname, '../')
-fs.readdirSync(normalizedPath).forEach((fileName) => {
-	if (fileName.match(/\d+_\d+_\d+\.ts/)) {
-		// x_y_z.ts
-		require('../' + fileName)
+beforeAll(async () => {
+	// Include all migration scripts:
+	const normalizedPath = path.join(__dirname, '../')
+	for (const fileName of fs.readdirSync(normalizedPath)) {
+		if (fileName.match(/\d+_\d+_\d+\.ts/)) {
+			// x_y_z.ts
+			await import('../' + fileName)
+		}
 	}
 })
 
