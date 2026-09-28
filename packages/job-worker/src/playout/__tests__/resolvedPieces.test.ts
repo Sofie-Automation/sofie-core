@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { describe, test, expect, beforeEach } from 'vitest'
 import { setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
@@ -231,7 +232,7 @@ describe('Resolved Pieces', () => {
 			expect(sourceLayerId).toBeTruthy()
 
 			const piece0 = createPieceInstance(sourceLayerId, { start: 1000 })
-			const piece1 = createPieceInstance(sourceLayerId, { start: 'now' }, { virtual: true })
+			const piece1 = createPieceInstance(sourceLayerId, { start: 'now' })
 
 			const resolvedPieces = getResolvedPiecesInner(sourceLayers, null, [piece0, piece1])
 
@@ -254,7 +255,7 @@ describe('Resolved Pieces', () => {
 			expect(sourceLayerId).toBeTruthy()
 
 			const piece0 = createPieceInstance(sourceLayerId, { start: 1000 })
-			const piece1 = createPieceInstance(sourceLayerId, { start: 'now' }, { virtual: true })
+			const piece1 = createPieceInstance(sourceLayerId, { start: 'now' })
 
 			const resolvedPieces = getResolvedPiecesInner(sourceLayers, 2500, [piece0, piece1])
 
@@ -427,13 +428,7 @@ describe('Resolved Pieces', () => {
 			const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
 
 			// insert a virtual piece on the same layer
-			const virtualPiece = createPieceInstance(
-				sourceLayerId,
-				{ start: 'now' },
-				{
-					virtual: true,
-				}
-			)
+			const virtualPiece = createPieceInstance(sourceLayerId, { start: 'now' })
 
 			const now = 990000
 			const partTimes = createPartCurrentTimes(now, now - 2000)
@@ -468,13 +463,7 @@ describe('Resolved Pieces', () => {
 			const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
 
 			// insert a virtual piece on the same layer
-			const virtualPiece = createPieceInstance(
-				sourceLayerId,
-				{ start: 7000 },
-				{
-					virtual: true,
-				}
-			)
+			const virtualPiece = createPieceInstance(sourceLayerId, { start: 7000 })
 
 			const now = 990000
 			const partTimes = createPartCurrentTimes(now, now - 2000)

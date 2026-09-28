@@ -1,7 +1,8 @@
+import { describe, test, expect, beforeEach, vi } from 'vitest'
 import { findLookaheadForLayer } from '../../findForLayer.js'
 import { setupDefaultJobEnvironment } from '../../../../__mocks__/context.js'
 
-jest.mock('../../findObjects')
+vi.mock('../../findObjects')
 import { findForLayerTestConstants } from './constants.js'
 import { expectPartToMatch } from '../utils.js'
 import { findLookaheadObjectsForPart } from '../../findObjects.js'

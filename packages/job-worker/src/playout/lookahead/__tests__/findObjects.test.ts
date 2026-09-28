@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { findLookaheadObjectsForPart } from '../findObjects.js'
 import {
 	IBlueprintPieceType,

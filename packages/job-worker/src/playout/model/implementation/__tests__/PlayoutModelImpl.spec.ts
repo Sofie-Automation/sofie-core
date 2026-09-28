@@ -1,6 +1,7 @@
+import { describe, it, expect, beforeEach, afterEach, beforeAll, vi } from 'vitest'
 import { JSONBlobStringify, PieceLifespan, StatusCode } from '@sofie-automation/blueprints-integration'
 import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
-import { mock } from 'jest-mock-extended'
+import { mock } from 'vitest-mock-extended'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import {
 	PartInstanceId,
@@ -142,7 +143,7 @@ describe('PlayoutModelImpl', () => {
 
 	describe('nowInPlayout', () => {
 		beforeEach(async () => {
-			jest.useFakeTimers()
+			vi.useFakeTimers()
 		})
 
 		afterEach(async () =>
@@ -181,7 +182,7 @@ describe('PlayoutModelImpl', () => {
 
 			if (!playlist) throw new Error('Playlist not found!')
 
-			jest.setSystemTime(TIME_NOW)
+			vi.setSystemTime(TIME_NOW)
 
 			await runWithPlaylistLock(context, playlistId0, async (lock) => {
 				const model = new PlayoutModelImpl(
@@ -225,7 +226,7 @@ describe('PlayoutModelImpl', () => {
 
 			if (!playlist) throw new Error('Playlist not found!')
 
-			jest.setSystemTime(TIME_NOW)
+			vi.setSystemTime(TIME_NOW)
 
 			await runWithPlaylistLock(context, playlistId0, async (lock) => {
 				const model = new PlayoutModelImpl(
@@ -245,7 +246,7 @@ describe('PlayoutModelImpl', () => {
 				peripheralDevices[0].latencies = [20, 30, 50, 10]
 				peripheralDevices[1].latencies = [20, 30, 50, 10]
 
-				jest.advanceTimersByTime(TIME_DELTA)
+				vi.advanceTimersByTime(TIME_DELTA)
 
 				const now0 = model.getNowInPlayout()
 				expect(now0).toBeGreaterThanOrEqual(TIME_NOW)
@@ -256,7 +257,7 @@ describe('PlayoutModelImpl', () => {
 				const now1 = model.getNowInPlayout()
 				expect(now1).toBeGreaterThanOrEqual(now0)
 
-				jest.advanceTimersByTime(TIME_DELTA)
+				vi.advanceTimersByTime(TIME_DELTA)
 
 				const now2 = model.getNowInPlayout()
 				expect(now2).toBeGreaterThanOrEqual(now1)

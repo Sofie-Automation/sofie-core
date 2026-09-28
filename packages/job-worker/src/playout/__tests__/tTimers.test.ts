@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import { useFakeCurrentTime, useRealCurrentTime } from '../../__mocks__/time.js'
 import {
@@ -422,12 +423,12 @@ describe('tTimers utils', () => {
 		const MOCK_DATE = new Date('2026-01-19T10:00:00Z').getTime()
 
 		beforeEach(() => {
-			jest.useFakeTimers()
-			jest.setSystemTime(MOCK_DATE)
+			vi.useFakeTimers()
+			vi.setSystemTime(MOCK_DATE)
 		})
 
 		afterEach(() => {
-			jest.useRealTimers()
+			vi.useRealTimers()
 		})
 
 		it('should return number input unchanged (unix timestamp)', () => {
@@ -560,12 +561,12 @@ describe('tTimers utils', () => {
 		const MOCK_DATE = new Date('2026-01-19T10:00:00Z').getTime()
 
 		beforeEach(() => {
-			jest.useFakeTimers()
-			jest.setSystemTime(MOCK_DATE)
+			vi.useFakeTimers()
+			vi.setSystemTime(MOCK_DATE)
 		})
 
 		afterEach(() => {
-			jest.useRealTimers()
+			vi.useRealTimers()
 		})
 
 		it('should create a timeOfDay timer with valid time string', () => {
@@ -619,12 +620,12 @@ describe('tTimers utils', () => {
 		const MOCK_DATE = new Date('2026-01-19T10:00:00Z').getTime()
 
 		beforeEach(() => {
-			jest.useFakeTimers()
-			jest.setSystemTime(MOCK_DATE)
+			vi.useFakeTimers()
+			vi.setSystemTime(MOCK_DATE)
 		})
 
 		afterEach(() => {
-			jest.useRealTimers()
+			vi.useRealTimers()
 		})
 
 		it('should restart a timeOfDay timer with valid targetRaw', () => {

@@ -1,3 +1,5 @@
+// Imported from the module, so that it isn't replaced by fake timers
+import { setImmediate as realSetImmediate } from 'node:timers'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
@@ -290,7 +292,7 @@ export class MockChangeStream<TDoc extends { _id: ProtectedString<any> }>
 }
 
 export async function defer(): Promise<void> {
-	return new Promise((resolve) => jest.requireActual('timers').setImmediate(resolve))
+	return new Promise((resolve) => realSetImmediate(resolve))
 }
 
 export function getMockCollections(): {

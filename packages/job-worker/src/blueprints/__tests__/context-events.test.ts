@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach } from 'vitest'
 import { IBlueprintSegmentDB } from '@sofie-automation/blueprints-integration'
 import { PartEventContext, RundownDataChangedEventContext, RundownTimingEventContext } from '../context/index.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -15,7 +16,7 @@ import { convertPartInstanceToBlueprints } from '../context/lib.js'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { ProcessedShowStyleCompound } from '../../jobs/index.js'
 import type { PlayoutModel } from '../../playout/model/PlayoutModel.js'
-import { mock } from 'jest-mock-extended'
+import { mock } from 'vitest-mock-extended'
 
 describe('Test blueprint api context', () => {
 	async function generateSparsePieceInstances(rundown: DBRundown) {

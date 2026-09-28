@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi, type MockedFunction } from 'vitest'
 import { ABResolverConfiguration, TSR } from '@sofie-automation/blueprints-integration'
 import { ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
@@ -12,8 +13,8 @@ const POOL_NAME = 'clip'
 describe('applyMediaPlayersAssignments', () => {
 	const abSessionHelper = new AbSessionHelper([], [])
 
-	const mockGetPieceSessionId: jest.MockedFunction<typeof abSessionHelper.getPieceABSessionId> = jest.fn()
-	const mockGetObjectSessionId: jest.MockedFunction<typeof abSessionHelper.getTimelineObjectAbSessionId> = jest.fn()
+	const mockGetPieceSessionId: MockedFunction<typeof abSessionHelper.getPieceABSessionId> = vi.fn()
+	const mockGetObjectSessionId: MockedFunction<typeof abSessionHelper.getTimelineObjectAbSessionId> = vi.fn()
 
 	const context = new CommonContext({
 		name: 'test',

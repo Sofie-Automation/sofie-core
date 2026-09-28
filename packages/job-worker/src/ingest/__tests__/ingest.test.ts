@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, beforeAll, vi } from 'vitest'
 import '../../__mocks__/_extendJest.js'
 import {
 	IBlueprintPiece,
@@ -153,11 +154,11 @@ describe('Test ingest actions for rundowns and segments', () => {
 			PERIPHERAL_SUBTYPE_PROCESS
 		)
 
-		jest.clearAllMocks()
+		vi.clearAllMocks()
 	})
 
 	beforeEach(async () => {
-		context.queueIngestJob = jest.fn(() => {
+		context.queueIngestJob = vi.fn(() => {
 			throw new Error('Not implemented')
 		})
 

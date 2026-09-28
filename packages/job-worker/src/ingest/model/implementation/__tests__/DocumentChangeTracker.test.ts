@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { AnyBulkWriteOperation } from 'mongodb'

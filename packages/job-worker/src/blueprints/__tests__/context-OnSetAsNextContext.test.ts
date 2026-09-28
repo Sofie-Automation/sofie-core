@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/unbound-method */
+import { describe, test, expect } from 'vitest'
 import { IBlueprintMutatablePart, IBlueprintPiece } from '@sofie-automation/blueprints-integration'
 import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
 import { WatchedPackagesHelper } from '../context/watchedPackages.js'
 import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
-import { mock } from 'jest-mock-extended'
+import { mock } from 'vitest-mock-extended'
 import { PartAndPieceInstanceActionService } from '../context/services/PartAndPieceInstanceActionService.js'
 import { OnSetAsNextContext } from '../context/index.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { describe, test, expect, beforeEach, vi, type MockedFunction } from 'vitest'
 import _ from 'underscore'
 import {
 	IBlueprintPart,
@@ -40,34 +41,34 @@ import { DatabasePersistedModel } from '../../../../modelBase.js'
 import { SelectedPartInstance } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 import * as PlayoutAdlib from '../../../../playout/adlibUtils.js'
-type TinnerStopPieces = jest.MockedFunction<typeof PlayoutAdlib.innerStopPieces>
-const innerStopPiecesMock = jest.spyOn(PlayoutAdlib, 'innerStopPieces') as TinnerStopPieces
+type TinnerStopPieces = MockedFunction<typeof PlayoutAdlib.innerStopPieces>
+const innerStopPiecesMock = vi.spyOn(PlayoutAdlib, 'innerStopPieces') as TinnerStopPieces
 const insertQueuedPartWithPiecesOrig = PlayoutAdlib.insertQueuedPartWithPieces
-type TinsertQueuedPartWithPieces = jest.MockedFunction<typeof PlayoutAdlib.insertQueuedPartWithPieces>
-const insertQueuedPartWithPiecesMock = jest.spyOn(
+type TinsertQueuedPartWithPieces = MockedFunction<typeof PlayoutAdlib.insertQueuedPartWithPieces>
+const insertQueuedPartWithPiecesMock = vi.spyOn(
 	PlayoutAdlib,
 	'insertQueuedPartWithPieces'
 ) as TinsertQueuedPartWithPieces
 
-jest.mock('../../../../playout/resolvedPieces')
+vi.mock('../../../../playout/resolvedPieces')
 import { getResolvedPiecesForCurrentPartInstance } from '../../../../playout/resolvedPieces.js'
-type TgetResolvedPiecesForCurrentPartInstance = jest.MockedFunction<typeof getResolvedPiecesForCurrentPartInstance>
+type TgetResolvedPiecesForCurrentPartInstance = MockedFunction<typeof getResolvedPiecesForCurrentPartInstance>
 const getResolvedPiecesForCurrentPartInstanceMock =
 	getResolvedPiecesForCurrentPartInstance as TgetResolvedPiecesForCurrentPartInstance
 
-jest.mock('../../../postProcess')
+vi.mock('../../../postProcess')
 import { postProcessPieces, postProcessTimelineObjects } from '../../../postProcess.js'
 import { ActionPartChange, PartAndPieceInstanceActionService } from '../PartAndPieceInstanceActionService.js'
-import { mock } from 'jest-mock-extended'
+import { mock } from 'vitest-mock-extended'
 import { QuickLoopService } from '../../../../playout/model/services/QuickLoopService.js'
 const { postProcessPieces: postProcessPiecesOrig, postProcessTimelineObjects: postProcessTimelineObjectsOrig } =
-	jest.requireActual('../../../postProcess')
+	await vi.importActual('../../../postProcess')
 
-type TpostProcessPieces = jest.MockedFunction<typeof postProcessPieces>
+type TpostProcessPieces = MockedFunction<typeof postProcessPieces>
 const postProcessPiecesMock = postProcessPieces as TpostProcessPieces
 postProcessPiecesMock.mockImplementation(() => [])
 
-type TpostProcessTimelineObjects = jest.MockedFunction<typeof postProcessTimelineObjects>
+type TpostProcessTimelineObjects = MockedFunction<typeof postProcessTimelineObjects>
 const postProcessTimelineObjectsMock = postProcessTimelineObjects as TpostProcessTimelineObjects
 postProcessTimelineObjectsMock.mockImplementation(postProcessTimelineObjectsOrig)
 
@@ -1913,7 +1914,7 @@ describe('Test blueprint api context', () => {
 					expect(currentPartInstance).toBeTruthy()
 					currentPartInstance.setTaken(getCurrentTime(), 0)
 
-					const insertSpy = jest.spyOn(currentPartInstance, 'insertAdlibbedPiece')
+					const insertSpy = vi.spyOn(currentPartInstance, 'insertAdlibbedPiece')
 
 					// @ts-ignore
 					await expect(service.insertPiece()).rejects.toThrow('Unknown part "undefined"')
@@ -1955,7 +1956,7 @@ describe('Test blueprint api context', () => {
 					expect(currentPartInstance).toBeTruthy()
 					currentPartInstance.setTaken(getCurrentTime(), 0)
 
-					const insertSpy = jest.spyOn(currentPartInstance, 'insertAdlibbedPiece')
+					const insertSpy = vi.spyOn(currentPartInstance, 'insertAdlibbedPiece')
 
 					const newPieceInstanceId = (await service.insertPiece('current', { externalId: 'input1' } as any))
 						._id

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { useFakeCurrentTime, useRealCurrentTime } from '../../../../__mocks__/time.js'
 import { TTimersService, PlaylistTTimerImpl } from '../TTimersService.js'
 import type { PlayoutModel } from '../../../../playout/model/PlayoutModel.js'
@@ -7,7 +8,7 @@ import type {
 	RundownTTimerIndex,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { mock, MockProxy } from 'jest-mock-extended'
+import { mock, MockProxy } from 'vitest-mock-extended'
 import type { ReadonlyDeep } from 'type-fest'
 import type { JobContext } from '../../../../jobs/index.js'
 
@@ -51,7 +52,7 @@ describe('TTimersService', () => {
 	describe('constructor', () => {
 		it('should create three timer instances', () => {
 			const timers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(timers)
 			const mockJobContext = createMockJobContext()
 
@@ -83,7 +84,7 @@ describe('TTimersService', () => {
 	describe('getTimer', () => {
 		it('should return the correct timer for index 1', () => {
 			const timers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(timers)
 			const mockJobContext = createMockJobContext()
 
@@ -96,7 +97,7 @@ describe('TTimersService', () => {
 
 		it('should return the correct timer for index 2', () => {
 			const timers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(timers)
 			const mockJobContext = createMockJobContext()
 
@@ -109,7 +110,7 @@ describe('TTimersService', () => {
 
 		it('should return the correct timer for index 3', () => {
 			const timers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(timers)
 			const mockJobContext = createMockJobContext()
 
@@ -122,7 +123,7 @@ describe('TTimersService', () => {
 
 		it('should throw for invalid index', () => {
 			const timers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(timers)
 			const mockJobContext = createMockJobContext()
 
@@ -141,7 +142,7 @@ describe('TTimersService', () => {
 			tTimers[1].mode = { type: 'countdown', duration: 60000, stopAtZero: true }
 			tTimers[1].state = { paused: false, zeroTime: 65000 }
 
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 
@@ -170,7 +171,7 @@ describe('PlaylistTTimerImpl', () => {
 	describe('getters', () => {
 		it('should return the correct index', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[1], updateFn, mockPlayoutModel, mockJobContext)
@@ -181,7 +182,7 @@ describe('PlaylistTTimerImpl', () => {
 		it('should return the correct label', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[1].label = 'Custom Label'
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[1], updateFn, mockPlayoutModel, mockJobContext)
@@ -193,7 +194,7 @@ describe('PlaylistTTimerImpl', () => {
 	describe('setLabel', () => {
 		it('should update the label', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -214,7 +215,7 @@ describe('PlaylistTTimerImpl', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].mode = { type: 'freeRun' }
 			tTimers[0].state = { paused: false, zeroTime: 5000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -233,7 +234,7 @@ describe('PlaylistTTimerImpl', () => {
 	describe('startCountdown', () => {
 		it('should start a running countdown with default options', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -254,7 +255,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should start a paused countdown', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -277,7 +278,7 @@ describe('PlaylistTTimerImpl', () => {
 	describe('startFreeRun', () => {
 		it('should start a running free-run timer', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -296,7 +297,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should start a paused free-run timer', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -317,7 +318,7 @@ describe('PlaylistTTimerImpl', () => {
 	describe('startTimeOfDay', () => {
 		it('should start a timeOfDay timer with time string', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -341,7 +342,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should start a timeOfDay timer with numeric timestamp', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -366,7 +367,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should start a timeOfDay timer with stopAtZero false', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -390,7 +391,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should start a timeOfDay timer with 12-hour format', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -414,7 +415,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should throw for invalid time string', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -424,7 +425,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should throw for empty time string', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -438,7 +439,7 @@ describe('PlaylistTTimerImpl', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].mode = { type: 'freeRun' }
 			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW - 5_000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -460,7 +461,7 @@ describe('PlaylistTTimerImpl', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].mode = { type: 'countdown', duration: 60000, stopAtZero: true }
 			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW + 60_000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -482,7 +483,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should return false for timer with no mode', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -501,7 +502,7 @@ describe('PlaylistTTimerImpl', () => {
 				stopAtZero: true,
 			}
 			tTimers[0].state = { paused: false, zeroTime: 20000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -518,7 +519,7 @@ describe('PlaylistTTimerImpl', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].mode = { type: 'freeRun' }
 			tTimers[0].state = { paused: true, duration: -3000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -540,7 +541,7 @@ describe('PlaylistTTimerImpl', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].mode = { type: 'freeRun' }
 			tTimers[0].state = { paused: false, zeroTime: 5000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -554,7 +555,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should return false for timer with no mode', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -573,7 +574,7 @@ describe('PlaylistTTimerImpl', () => {
 				stopAtZero: true,
 			}
 			tTimers[0].state = { paused: false, zeroTime: 20000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -590,7 +591,7 @@ describe('PlaylistTTimerImpl', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].mode = { type: 'countdown', duration: 60000, stopAtZero: true }
 			tTimers[0].state = { paused: false, zeroTime: 40000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -618,7 +619,7 @@ describe('PlaylistTTimerImpl', () => {
 				stopAtZero: false,
 			}
 			tTimers[0].state = { paused: true, duration: 15000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -642,7 +643,7 @@ describe('PlaylistTTimerImpl', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].mode = { type: 'freeRun' }
 			tTimers[0].state = { paused: false, zeroTime: 5000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -666,7 +667,7 @@ describe('PlaylistTTimerImpl', () => {
 				stopAtZero: true,
 			}
 			tTimers[0].state = { paused: false, zeroTime: 5000 } // old target time
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -697,7 +698,7 @@ describe('PlaylistTTimerImpl', () => {
 				stopAtZero: true,
 			}
 			tTimers[0].state = { paused: false, zeroTime: 5000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -710,7 +711,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should return false for timer with no mode', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -727,7 +728,7 @@ describe('PlaylistTTimerImpl', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].anchorPartId = 'part1' as any
 			tTimers[0].projectedState = { paused: false, zeroTime: 50000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -746,7 +747,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should work when projections are already cleared', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -768,7 +769,7 @@ describe('PlaylistTTimerImpl', () => {
 		it('should set anchorPartId and clear projectedState', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].projectedState = { paused: false, zeroTime: 50000 }
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -787,7 +788,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should not queue job or throw error', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -803,7 +804,7 @@ describe('PlaylistTTimerImpl', () => {
 	describe('setProjectedTime', () => {
 		it('should set projectedState with absolute time (not paused)', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -822,7 +823,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should set projectedState with absolute time (paused)', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -842,7 +843,7 @@ describe('PlaylistTTimerImpl', () => {
 		it('should clear anchorPartId when setting manual projection', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].anchorPartId = 'part1' as any
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -858,7 +859,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should default paused to false when not provided', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -876,7 +877,7 @@ describe('PlaylistTTimerImpl', () => {
 	describe('setProjectedDuration', () => {
 		it('should set projectedState with relative duration (not paused)', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -895,7 +896,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should set projectedState with relative duration (paused)', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -915,7 +916,7 @@ describe('PlaylistTTimerImpl', () => {
 		it('should clear anchorPartId when setting manual projection', () => {
 			const tTimers = createEmptyTTimers()
 			tTimers[0].anchorPartId = 'part1' as any
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -931,7 +932,7 @@ describe('PlaylistTTimerImpl', () => {
 
 		it('should default paused to false when not provided', () => {
 			const tTimers = createEmptyTTimers()
-			const updateFn = jest.fn()
+			const updateFn = vi.fn()
 			const mockPlayoutModel = createMockPlayoutModel(tTimers)
 			const mockJobContext = createMockJobContext()
 			const timer = new PlaylistTTimerImpl(tTimers[0], updateFn, mockPlayoutModel, mockJobContext)
@@ -951,7 +952,7 @@ describe('PlaylistTTimerImpl', () => {
 			const tTimers = createEmptyTTimers()
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -965,7 +966,7 @@ describe('PlaylistTTimerImpl', () => {
 			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW + 40_000 }
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -979,7 +980,7 @@ describe('PlaylistTTimerImpl', () => {
 			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW - 5_000 }
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -993,7 +994,7 @@ describe('PlaylistTTimerImpl', () => {
 			tTimers[0].state = { paused: true, duration: 30_000 }
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -1007,7 +1008,7 @@ describe('PlaylistTTimerImpl', () => {
 			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW - 10_000 }
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -1021,7 +1022,7 @@ describe('PlaylistTTimerImpl', () => {
 			const tTimers = createEmptyTTimers()
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -1035,7 +1036,7 @@ describe('PlaylistTTimerImpl', () => {
 			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW + 40_000 }
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -1049,7 +1050,7 @@ describe('PlaylistTTimerImpl', () => {
 			tTimers[0].state = { paused: true, duration: 30_000 }
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -1065,7 +1066,7 @@ describe('PlaylistTTimerImpl', () => {
 			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW + 40_000 }
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -1080,7 +1081,7 @@ describe('PlaylistTTimerImpl', () => {
 			tTimers[0].projectedState = { paused: false, zeroTime: FAKE_NOW + 30_000 }
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -1095,7 +1096,7 @@ describe('PlaylistTTimerImpl', () => {
 			tTimers[0].projectedState = { paused: true, duration: 25_000 }
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -1111,7 +1112,7 @@ describe('PlaylistTTimerImpl', () => {
 			tTimers[0].state = { paused: false, zeroTime: FAKE_NOW + 40_000 }
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -1124,7 +1125,7 @@ describe('PlaylistTTimerImpl', () => {
 			tTimers[0].projectedState = { paused: false, zeroTime: FAKE_NOW + 30_000 }
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)
@@ -1137,7 +1138,7 @@ describe('PlaylistTTimerImpl', () => {
 			tTimers[0].projectedState = { paused: true, duration: 25_000 }
 			const timer = new PlaylistTTimerImpl(
 				tTimers[0],
-				jest.fn(),
+				vi.fn(),
 				createMockPlayoutModel(tTimers),
 				createMockJobContext()
 			)

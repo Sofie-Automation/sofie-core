@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { IBlueprintPieceType, TSR, LookaheadMode } from '@sofie-automation/blueprints-integration'
 import { Piece, PieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { literal } from '@sofie-automation/corelib/dist/lib'
@@ -351,7 +352,7 @@ export const lookaheadOffsetTestConstants = {
 	nextTimeOffset: 1000,
 }
 export const baseContext = {
-	startSpan: jest.fn(() => ({ end: jest.fn() })),
+	startSpan: vi.fn(() => ({ end: vi.fn() })),
 	studio: {
 		mappings: {
 			layer1: {
@@ -376,7 +377,7 @@ export const baseContext = {
 	},
 	directCollections: {
 		Pieces: {
-			findFetch: jest.fn(),
+			findFetch: vi.fn(),
 		},
 	},
 } as unknown as JobContext

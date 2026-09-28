@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/unbound-method */
+import { describe, test, expect, beforeEach, vi, type MockedFunction } from 'vitest'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
 import {
@@ -7,7 +8,7 @@ import {
 	PartInstanceToSync,
 	SyncChangesToPartInstancesWorker,
 } from '../syncChangesToPartInstance.js'
-import { mock } from 'jest-mock-extended'
+import { mock } from 'vitest-mock-extended'
 import type { PlayoutModel } from '../../playout/model/PlayoutModel.js'
 import type { IngestModelReadonly } from '../model/IngestModel.js'
 import type { PlayoutRundownModel } from '../../playout/model/PlayoutRundownModel.js'
@@ -35,7 +36,7 @@ import { PartialDeep, ReadonlyDeep } from 'type-fest'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { defaultPiece } from '../../__mocks__/defaultCollectionObjects.js'
 
-jest.mock('../../playout/adlibTesting')
+vi.mock('../../playout/adlibTesting')
 import { validateAdlibTestingPartInstanceProperties } from '../../playout/adlibTesting.js'
 
 const mockOptions = {
@@ -99,9 +100,9 @@ describe('SyncChangesToPartInstancesWorker', () => {
 					nextPartInstance: partialModel?.nextPartInstance ?? null,
 					previousPartInstance: null,
 
-					clearAllNotifications: jest.fn(),
-					// setPartInstanceAsNext: jest.fn(),
-					// removeUntakenPartInstances: jest.fn(),
+					clearAllNotifications: vi.fn(),
+					// setPartInstanceAsNext: vi.fn(),
+					// removeUntakenPartInstances: vi.fn(),
 				},
 				mockOptions
 			)
@@ -125,11 +126,11 @@ describe('SyncChangesToPartInstancesWorker', () => {
 		function createMockIngestModelReadonly(): IngestModelReadonly {
 			return mock<IngestModelReadonly>(
 				{
-					findPart: jest.fn(() => undefined),
-					getGlobalPieces: jest.fn(() => []),
-					getAllOrderedParts: jest.fn(() => []),
-					getOrderedSegments: jest.fn(() => []),
-					findAdlibPiece: jest.fn(() => undefined),
+					findPart: vi.fn(() => undefined),
+					getGlobalPieces: vi.fn(() => []),
+					getAllOrderedParts: vi.fn(() => []),
+					getOrderedSegments: vi.fn(() => []),
+					findAdlibPiece: vi.fn(() => undefined),
 				},
 				mockOptions
 			)
@@ -150,9 +151,9 @@ describe('SyncChangesToPartInstancesWorker', () => {
 					} satisfies PlayoutPartInstanceModel['partInstance'],
 					pieceInstances: [] satisfies PlayoutPartInstanceModel['pieceInstances'],
 
-					recalculateExpectedDurationWithTransition: jest.fn(),
-					snapshotMakeCopy: jest.fn(() => Date.now() as any),
-					snapshotRestore: jest.fn(() => {
+					recalculateExpectedDurationWithTransition: vi.fn(),
+					snapshotMakeCopy: vi.fn(() => Date.now() as any),
+					snapshotRestore: vi.fn(() => {
 						throw new Error('snapshotRestore not expected')
 					}),
 				},
@@ -161,14 +162,14 @@ describe('SyncChangesToPartInstancesWorker', () => {
 		}
 
 		beforeEach(() => {
-			jest.clearAllMocks()
+			vi.clearAllMocks()
 		})
 
 		test('successful with empty blueprint method', async () => {
 			const context = setupDefaultJobEnvironment()
 			const showStyleCompound = await setupMockShowStyleCompound(context)
 
-			const syncIngestUpdateToPartInstanceFn = jest.fn()
+			const syncIngestUpdateToPartInstanceFn = vi.fn()
 			context.updateShowStyleBlueprint({
 				syncIngestUpdateToPartInstance: syncIngestUpdateToPartInstanceFn,
 			})
@@ -215,7 +216,7 @@ describe('SyncChangesToPartInstancesWorker', () => {
 			const context = setupDefaultJobEnvironment()
 			const showStyleCompound = await setupMockShowStyleCompound(context)
 
-			const syncIngestUpdateToPartInstanceFn = jest.fn()
+			const syncIngestUpdateToPartInstanceFn = vi.fn()
 			context.updateShowStyleBlueprint({
 				syncIngestUpdateToPartInstance: syncIngestUpdateToPartInstanceFn,
 			})
@@ -257,10 +258,10 @@ describe('SyncChangesToPartInstancesWorker', () => {
 			const context = setupDefaultJobEnvironment()
 			const showStyleCompound = await setupMockShowStyleCompound(context)
 
-			type TsyncIngestUpdateToPartInstanceFn = jest.MockedFunction<
+			type TsyncIngestUpdateToPartInstanceFn = MockedFunction<
 				Required<ShowStyleBlueprintManifest>['syncIngestUpdateToPartInstance']
 			>
-			const syncIngestUpdateToPartInstanceFn: TsyncIngestUpdateToPartInstanceFn = jest.fn()
+			const syncIngestUpdateToPartInstanceFn: TsyncIngestUpdateToPartInstanceFn = vi.fn()
 			context.updateShowStyleBlueprint({
 				syncIngestUpdateToPartInstance: syncIngestUpdateToPartInstanceFn,
 			})
@@ -281,7 +282,7 @@ describe('SyncChangesToPartInstancesWorker', () => {
 				blueprint
 			)
 			// Mock the method, we can test it separately
-			worker.recreateNextPartInstance = jest.fn()
+			worker.recreateNextPartInstance = vi.fn()
 
 			const instanceToSync: PartInstanceToSync = {
 				playoutRundownModel: rundownModel,
@@ -418,9 +419,9 @@ describe('SyncChangesToPartInstancesWorker', () => {
 		}): IngestModelReadonly {
 			return mock<IngestModelReadonly>(
 				{
-					findPart: jest.fn(() => undefined),
+					findPart: vi.fn(() => undefined),
 					rundownId: unsavedPieces?.rundownId,
-					getAllPieces: jest.fn(() => unsavedPieces?.pieces ?? []),
+					getAllPieces: vi.fn(() => unsavedPieces?.pieces ?? []),
 				},
 				mockOptions
 			)

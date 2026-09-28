@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach } from 'vitest'
 import { RundownPlaylistId, SegmentId, PartId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'

@@ -1,12 +1,13 @@
-jest.mock('../../../../playout/lookahead/index.js', () => {
-	const actual = jest.requireActual('../../../../playout/lookahead/index.js')
+import { describe, test, expect, beforeEach, vi } from 'vitest'
+vi.mock('../../../../playout/lookahead/index.js', async () => {
+	const actual = await vi.importActual('../../../../playout/lookahead/index.js')
 	return {
 		...actual,
-		findLargestLookaheadDistance: jest.fn(() => 0),
+		findLargestLookaheadDistance: vi.fn(() => 0),
 		getLookeaheadObjects: actual.getLookeaheadObjects,
 	}
 })
-jest.mock('../../../../playout/lookahead/util.js')
+vi.mock('../../../../playout/lookahead/util.js')
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { TSR } from '@sofie-automation/blueprints-integration'
 import { JobContext } from '../../../../jobs/index.js'
@@ -17,15 +18,15 @@ import { SelectedPartInstancesTimelineInfo } from '../../../timeline/generate.js
 import { wrapPieceToInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { baseContext, basePlayoutModel, makePiece, makeSimplePiece, lookaheadOffsetTestConstants } from './constants.js'
 
-const findLargestLookaheadDistanceMock = jest.mocked(findLargestLookaheadDistance).mockImplementation(() => 0)
-const getOrderedPartsAfterPlayheadMock = jest.mocked(getOrderedPartsAfterPlayhead).mockImplementation(() => [])
+const findLargestLookaheadDistanceMock = vi.mocked(findLargestLookaheadDistance).mockImplementation(() => 0)
+const getOrderedPartsAfterPlayheadMock = vi.mocked(getOrderedPartsAfterPlayhead).mockImplementation(() => [])
 
 describe('lookahead offset integration', () => {
 	let context: JobContext
 	let playoutModel: PlayoutModel
 
 	beforeEach(() => {
-		jest.resetAllMocks()
+		vi.resetAllMocks()
 
 		context = baseContext
 		playoutModel = basePlayoutModel
@@ -38,7 +39,7 @@ describe('lookahead offset integration', () => {
 				classesForNext: [],
 			} as any,
 		])
-		const findFetchMock = jest.fn().mockResolvedValue([makePiece({ partId: 'p1', layer: 'layer1' })])
+		const findFetchMock = vi.fn().mockResolvedValue([makePiece({ partId: 'p1', layer: 'layer1' })])
 		context = {
 			...context,
 			studio: {

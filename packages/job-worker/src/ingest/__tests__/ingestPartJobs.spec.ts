@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { handleRemovedPart, handleUpdatedPart } from '../ingestPartJobs.js'
 import { clone } from '@sofie-automation/corelib/dist/lib'

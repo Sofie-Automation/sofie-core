@@ -1,3 +1,4 @@
+import { expect } from 'vitest'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 
 expect.extend({
@@ -37,14 +38,14 @@ expect.extend({
 	},
 })
 
-declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
-	namespace jest {
-		interface Matchers<R> {
-			toBeWithinRange(floor: number, ceiling: number): R
+interface CustomMatchers<R = unknown> {
+	toBeWithinRange(floor: number, ceiling: number): R
 
-			toMatchUserError(message: UserErrorMessage, args?: { [k: string]: any }): R
-			toMatchToString(message: string | RegExp): R
-		}
-	}
+	toMatchUserError(message: UserErrorMessage, args?: { [k: string]: any }): R
+	toMatchToString(message: string | RegExp): R
+}
+
+declare module 'vitest' {
+	// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-unused-vars
+	interface Matchers<R extends void | Promise<void> = void | Promise<void>, T = unknown> extends CustomMatchers<R> {}
 }

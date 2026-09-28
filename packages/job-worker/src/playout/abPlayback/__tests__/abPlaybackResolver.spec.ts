@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { ABResolverOptions } from '@sofie-automation/blueprints-integration'
 import { AssignmentResult, resolveAbAssignmentsFromRequests, SessionRequest } from '../abPlaybackResolver.js'
 

@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi, type MockedFunction } from 'vitest'
 import { RundownPlaylistId, AdLibActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -11,12 +12,12 @@ import { ActionPartChange } from '../../blueprints/context/services/PartAndPiece
 import * as Infinites from '../../playout/infinites.js'
 import * as TakeApi from '../../playout/take.js'
 
-const syncPlayheadInfinitesForNextPartInstanceMock = jest.spyOn(Infinites, 'syncPlayheadInfinitesForNextPartInstance')
-const takeNextPartMock = jest.spyOn(TakeApi, 'performTakeToNextedPart')
+const syncPlayheadInfinitesForNextPartInstanceMock = vi.spyOn(Infinites, 'syncPlayheadInfinitesForNextPartInstance')
+const takeNextPartMock = vi.spyOn(TakeApi, 'performTakeToNextedPart')
 
-jest.mock('../timeline/generate')
+vi.mock('../timeline/generate')
 import { updateTimeline } from '../timeline/generate.js'
-type TupdateTimeline = jest.MockedFunction<typeof updateTimeline>
+type TupdateTimeline = MockedFunction<typeof updateTimeline>
 const updateTimelineMock = updateTimeline as TupdateTimeline
 
 describe('Playout API', () => {

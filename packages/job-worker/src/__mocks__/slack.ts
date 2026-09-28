@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { IncomingWebhookResult } from '@slack/webhook'
 
 export async function sendSlackMessageToWebhook(message: string, _webhookURL: string): Promise<IncomingWebhookResult> {
@@ -13,7 +14,7 @@ export async function sendSlackMessageToWebhook(message: string, _webhookURL: st
 	})
 }
 
-const mockSender = jest.fn(sendSlackMessageToWebhook)
+const mockSender = vi.fn(sendSlackMessageToWebhook)
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function setup() {

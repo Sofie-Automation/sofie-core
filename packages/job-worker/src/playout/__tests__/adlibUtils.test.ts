@@ -1,3 +1,4 @@
+import { describe, test, expect, vi } from 'vitest'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { setupDefaultJobEnvironment } from '../../__mocks__/context.js'
@@ -375,7 +376,7 @@ describe('adlibUtils', () => {
 					id: currentPartInstance.partInstance.part._id,
 				})
 
-				const setQuickLoopMarker = jest.spyOn(playoutModel, 'setQuickLoopMarker')
+				const setQuickLoopMarker = vi.spyOn(playoutModel, 'setQuickLoopMarker')
 
 				const newPartInstance = await insertQueuedPartWithPieces(
 					context,
@@ -428,7 +429,7 @@ describe('adlibUtils', () => {
 					id: currentPartInstance.partInstance.part._id,
 				})
 
-				const setQuickLoopMarker = jest.spyOn(playoutModel, 'setQuickLoopMarker')
+				const setQuickLoopMarker = vi.spyOn(playoutModel, 'setQuickLoopMarker')
 
 				const newPartInstance = await insertQueuedPartWithPieces(
 					context,
@@ -474,7 +475,7 @@ describe('adlibUtils', () => {
 					id: currentPartInstance.partInstance.part._id,
 				})
 
-				const setQuickLoopMarker = jest.spyOn(playoutModel, 'setQuickLoopMarker')
+				const setQuickLoopMarker = vi.spyOn(playoutModel, 'setQuickLoopMarker')
 
 				const newPartInstance = await insertQueuedPartWithPieces(
 					context,
@@ -508,7 +509,7 @@ describe('adlibUtils', () => {
 					id: currentPartInstance.partInstance.part._id,
 				})
 
-				const setQuickLoopMarker = jest.spyOn(playoutModel, 'setQuickLoopMarker')
+				const setQuickLoopMarker = vi.spyOn(playoutModel, 'setQuickLoopMarker')
 
 				const newPartInstance = await insertQueuedPartWithPieces(
 					context,

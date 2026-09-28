@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll } from 'vitest'
 import { getHash } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'

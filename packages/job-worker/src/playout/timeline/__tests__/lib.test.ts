@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { TimelineObjHoldMode, TimelineObjOnAirMode } from '@sofie-automation/blueprints-integration'
 import { shouldIncludeObjectOnTimeline, TimelinePlayoutState } from '../lib.js'
 import { literal } from '@sofie-automation/corelib/dist/lib'

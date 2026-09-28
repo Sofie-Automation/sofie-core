@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { SofieIngestPart } from '@sofie-automation/blueprints-integration'
 import { MutableIngestPartImpl } from '../MutableIngestPartImpl.js'
 import { clone } from '@sofie-automation/corelib/dist/lib'

@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { escapeHtml } from '../lib.js'
 
 describe('lib', () => {

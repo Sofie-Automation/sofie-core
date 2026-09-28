@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { createPieceGroupAndCap, PieceTimelineMetadata } from '../pieceGroup.js'

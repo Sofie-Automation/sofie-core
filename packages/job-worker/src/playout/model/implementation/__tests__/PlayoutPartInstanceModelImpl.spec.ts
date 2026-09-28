@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'

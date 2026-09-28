@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { setupDefaultJobEnvironment } from '../../../__mocks__/context.js'
 import { WatchedPackagesHelper } from '../watchedPackages.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'

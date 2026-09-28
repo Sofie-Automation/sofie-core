@@ -1,3 +1,4 @@
+import { describe, test, expect, vi, type Mock } from 'vitest'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import {
@@ -19,11 +20,11 @@ import { OnTakeContext } from '../../blueprints/context/OnTakeContext.js'
 import { WatchedPackagesHelper } from '../../blueprints/context/watchedPackages.js'
 import { getCurrentTime } from '../../lib/index.js'
 
-jest.mock('../../blueprints/postProcess')
+vi.mock('../../blueprints/postProcess')
 import { postProcessPieces } from '../../blueprints/postProcess.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-const { postProcessPieces: postProcessPiecesOrig } = jest.requireActual('../../blueprints/postProcess')
-;(postProcessPieces as jest.Mock).mockImplementation(postProcessPiecesOrig)
+const { postProcessPieces: postProcessPiecesOrig } = await vi.importActual('../../blueprints/postProcess')
+;(postProcessPieces as Mock).mockImplementation(postProcessPiecesOrig)
 
 describe('take', () => {
 	async function setupTakenPlaylist() {
@@ -37,7 +38,7 @@ describe('take', () => {
 			}),
 		})
 
-		jest.spyOn(context, 'queueEventJob').mockImplementation(async () => Promise.resolve())
+		vi.spyOn(context, 'queueEventJob').mockImplementation(async () => Promise.resolve())
 
 		await setupMockShowStyleCompound(context)
 		await setupMockPeripheralDevice(
@@ -215,7 +216,7 @@ describe('take', () => {
 				new PartAndPieceInstanceActionService(context, playoutModel, showStyle)
 			)
 
-			;(postProcessPieces as jest.Mock).mockClear()
+			;(postProcessPieces as Mock).mockClear()
 			onTakeContext.queuePartAfterTake({ externalId: 'after_take', title: 'After take part' }, [
 				{
 					name: 'after take piece',

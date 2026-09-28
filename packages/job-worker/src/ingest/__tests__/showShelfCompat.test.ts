@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, beforeAll, vi } from 'vitest'
 import '../../__mocks__/_extendJest.js'
 import { setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { setupMockPeripheralDevice, setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
@@ -56,7 +57,7 @@ describe('Blueprint segment legacy showShelf compatibility', () => {
 			PERIPHERAL_SUBTYPE_PROCESS
 		)
 
-		jest.clearAllMocks()
+		vi.clearAllMocks()
 	})
 
 	beforeEach(async () => {
@@ -110,7 +111,7 @@ describe('Blueprint segment legacy showShelf compatibility', () => {
 	}
 
 	test('showShelf:true maps to displayMinishelf:inherit and does not persist showShelf', async () => {
-		const warnSpy = jest.spyOn(logger, 'warn').mockImplementation(() => undefined)
+		const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => undefined)
 		try {
 			const { segment } = await createRundownWithSingleSegment((ingestSegment) => {
 				const seg: IBlueprintSegment = {
@@ -138,7 +139,7 @@ describe('Blueprint segment legacy showShelf compatibility', () => {
 	})
 
 	test('showShelf:false results in minishelf hidden (no displayMinishelf) and does not persist showShelf', async () => {
-		const warnSpy = jest.spyOn(logger, 'warn').mockImplementation(() => undefined)
+		const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => undefined)
 		try {
 			const { segment } = await createRundownWithSingleSegment((ingestSegment) => {
 				const seg: IBlueprintSegment = {

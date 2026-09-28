@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, beforeAll, vi, type MockedFunction } from 'vitest'
 import { mockRO } from './mock-mos-data.js'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -33,9 +34,9 @@ import { removeRundownPlaylistFromDb } from '../../__tests__/lib.js'
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { wrapCustomIngestJob, wrapGenericIngestJob, wrapMosIngestJob } from '../../jobWrappers.js'
 
-jest.mock('../../updateNext')
+vi.mock('../../updateNext')
 import { ensureNextPartIsValid } from '../../updateNext.js'
-type TensureNextPartIsValid = jest.MockedFunction<typeof ensureNextPartIsValid>
+type TensureNextPartIsValid = MockedFunction<typeof ensureNextPartIsValid>
 const ensureNextPartIsValidMock = ensureNextPartIsValid as TensureNextPartIsValid
 
 const mosTypes = MOS.getMosTypes(true)

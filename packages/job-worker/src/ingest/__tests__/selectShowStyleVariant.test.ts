@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { describe, test, expect, vi } from 'vitest'
 import { ExtendedIngestRundown, IBlueprintShowStyleBase } from '@sofie-automation/blueprints-integration'
 import '../../__mocks__/_extendJest.js'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
@@ -94,13 +95,13 @@ describe('selectShowStyleVariant', () => {
 
 	describe('through blueprints', () => {
 		function mockBlueprintMethods(context: MockJobContext) {
-			const mockGetShowStyleId = jest.fn(context.rawStudioBlueprint.getShowStyleId)
+			const mockGetShowStyleId = vi.fn(context.rawStudioBlueprint.getShowStyleId)
 			context.setStudioBlueprint({
 				...context.studioBlueprint.blueprint,
 				getShowStyleId: mockGetShowStyleId,
 			})
 
-			const mockGetShowStyleVariantId = jest.fn(context.rawShowStyleBlueprint.getShowStyleVariantId)
+			const mockGetShowStyleVariantId = vi.fn(context.rawShowStyleBlueprint.getShowStyleVariantId)
 			context.setShowStyleBlueprint({
 				...context.rawShowStyleBlueprint,
 				getShowStyleVariantId: mockGetShowStyleVariantId,

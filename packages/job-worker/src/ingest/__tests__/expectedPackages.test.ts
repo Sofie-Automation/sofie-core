@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, vi } from 'vitest'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
@@ -112,7 +113,7 @@ describe('Expected Playout Items', () => {
 	}
 
 	test('Generates for a Part', async () => {
-		const setExpectedPlayoutItems = jest.fn()
+		const setExpectedPlayoutItems = vi.fn()
 
 		const { part, pieces, adLibPieces } = getMockPartContent()
 

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { describe, test, expect, beforeEach, afterEach } from 'vitest'
 import {
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
@@ -64,7 +65,7 @@ import {
 import _ from 'underscore'
 import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
 import { PlayoutPartInstanceModelImpl } from '../model/implementation/PlayoutPartInstanceModelImpl.js'
-import { mock } from 'jest-mock-extended'
+import { mock } from 'vitest-mock-extended'
 import { QuickLoopService } from '../model/services/QuickLoopService.js'
 import { getCurrentTime } from '../../lib/time.js'
 

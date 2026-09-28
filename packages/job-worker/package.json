@@ -16,11 +16,11 @@
 	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/job-worker#readme",
 	"scripts": {
 		"lint": "run -T lint packages/job-worker",
-		"unit": "run -T jest",
+		"unit": "run -T vitest run --config ../../vitest.config.mts --project job-worker",
 		"test": "run lint && run unit",
-		"watch": "run -T jest --watch --coverage=false",
-		"cov": "run -T jest --coverage; open-cli coverage/lcov-report/index.html",
-		"cov-open": "open-cli coverage/lcov-report/index.html",
+		"watch": "run -T vitest --config ../../vitest.config.mts --project job-worker --coverage=false",
+		"cov": "run unit; open-cli ../coverage/lcov-report/index.html",
+		"cov-open": "open-cli ../coverage/lcov-report/index.html",
 		"validate:dependencies": "yarn npm audit --environment production && run license-validate",
 		"validate:dev-dependencies": "yarn npm audit --environment development",
 		"license-validate": "run -T sofie-licensecheck"

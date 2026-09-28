@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach } from 'vitest'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'

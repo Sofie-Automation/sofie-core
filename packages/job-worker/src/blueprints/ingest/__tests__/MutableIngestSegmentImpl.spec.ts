@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { MutableIngestSegmentChanges, MutableIngestSegmentImpl } from '../MutableIngestSegmentImpl.js'
 import { SofieIngestRundownDataCacheGenerator } from '../../../ingest/sofieIngestCache.js'

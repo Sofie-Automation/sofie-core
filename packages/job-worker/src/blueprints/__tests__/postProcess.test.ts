@@ -1,3 +1,4 @@
+import { describe, test, expect, afterEach, vi } from 'vitest'
 import _ from 'underscore'
 import {
 	postProcessAdLibPieces,
@@ -27,7 +28,7 @@ import {
 // Setup the mocks
 import * as hashlib from '@sofie-automation/corelib/dist/hash'
 const getHashOrig = hashlib.getHash
-const getHashMock = jest.spyOn(hashlib, 'getHash')
+const getHashMock = vi.spyOn(hashlib, 'getHash')
 
 describe('Test blueprint post-process', () => {
 	afterEach(() => {

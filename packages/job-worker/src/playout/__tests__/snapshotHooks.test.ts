@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi } from 'vitest'
 import { CoreRundownPlaylistSnapshot } from '@sofie-automation/corelib/dist/snapshots'
 import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -18,7 +19,7 @@ describe('Snapshot blueprint hooks', () => {
 
 	describe('onPlaylistSnapshotCreated', () => {
 		test('invokes the show style blueprint callback', async () => {
-			const onPlaylistSnapshotCreated = jest.fn()
+			const onPlaylistSnapshotCreated = vi.fn()
 			context.updateShowStyleBlueprint({ onPlaylistSnapshotCreated })
 
 			const { playlistId } = await setupDefaultRundownPlaylist(context)
@@ -131,7 +132,7 @@ describe('Snapshot blueprint hooks', () => {
 
 	describe('onSystemSnapshotCreated', () => {
 		test('invokes the studio blueprint callback', async () => {
-			const onSystemSnapshotCreated = jest.fn()
+			const onSystemSnapshotCreated = vi.fn()
 			context.updateStudioBlueprint({ onSystemSnapshotCreated })
 
 			const snapshotId = getRandomId()
@@ -158,7 +159,7 @@ describe('Snapshot blueprint hooks', () => {
 		})
 
 		test('passes fullSystem flag from job props', async () => {
-			const onSystemSnapshotCreated = jest.fn()
+			const onSystemSnapshotCreated = vi.fn()
 			context.updateStudioBlueprint({ onSystemSnapshotCreated })
 
 			await handleOnSystemSnapshotCreated(context, {

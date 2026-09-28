@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { StudioRouteBehavior, StudioRouteSet } from '@sofie-automation/blueprints-integration'
 import { setupDefaultJobEnvironment } from '../../../__mocks__/context.js'
 import { StudioRouteSetUpdater } from '../StudioRouteSetUpdater.js'

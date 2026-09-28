@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi, type MockedFunction } from 'vitest'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -12,8 +13,8 @@ import { handleDeactivateRundownPlaylist } from '../activePlaylistJobs.js'
 import { runJobWithPlayoutModel } from '../lock.js'
 import { handleActivateAdlibTesting } from '../adlibTesting.js'
 
-jest.mock('../../peripheralDevice')
-type TexecutePeripheralDeviceFunction = jest.MockedFunction<typeof executePeripheralDeviceFunction>
+vi.mock('../../peripheralDevice')
+type TexecutePeripheralDeviceFunction = MockedFunction<typeof executePeripheralDeviceFunction>
 const executePeripheralDeviceFunctionMock = executePeripheralDeviceFunction as TexecutePeripheralDeviceFunction
 
 describe('Playout Actions', () => {

@@ -1,4 +1,5 @@
-jest.mock('../../findObjects')
+import { describe, test, expect, beforeEach, vi } from 'vitest'
+vi.mock('../../findObjects')
 import { context, TfindLookaheadObjectsForPart } from './helpers/mockSetup.js'
 import { findLookaheadForLayer, PartInstanceAndPieceInstancesInfos } from '../../findForLayer.js'
 import { findForLayerTestConstants } from './constants.js'

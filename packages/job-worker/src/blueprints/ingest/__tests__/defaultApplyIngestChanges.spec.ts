@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest'
 import { IngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { MutableIngestRundownImpl } from '../MutableIngestRundownImpl.js'
 import { defaultApplyIngestChanges } from '../defaultApplyIngestChanges.js'
@@ -207,15 +208,15 @@ describe('defaultApplyIngestChanges', () => {
 		const mockCalls: Array<{ target: string; name: string; args: any[] }> = []
 
 		const defaultOptions: IngestDefaultChangesOptions<unknown, unknown, unknown> = {
-			transformRundownPayload: jest.fn((payload, oldPayload) => {
+			transformRundownPayload: vi.fn((payload, oldPayload) => {
 				mockCalls.push({ target: 'options', name: 'transformRundownPayload', args: [!!oldPayload] })
 				return payload
 			}),
-			transformSegmentPayload: jest.fn((payload, oldPayload) => {
+			transformSegmentPayload: vi.fn((payload, oldPayload) => {
 				mockCalls.push({ target: 'options', name: 'transformSegmentPayload', args: [!!oldPayload] })
 				return payload
 			}),
-			transformPartPayload: jest.fn((payload, oldPayload) => {
+			transformPartPayload: vi.fn((payload, oldPayload) => {
 				mockCalls.push({ target: 'options', name: 'transformPartPayload', args: [!!oldPayload] })
 				return payload
 			}),
@@ -231,7 +232,7 @@ describe('defaultApplyIngestChanges', () => {
 			if (typeof rawMethod !== 'function') throw new Error(`Cant wrap non-method ${name}`)
 			const origMethod = rawMethod.bind(obj)
 
-			const mockMethod = jest.fn((...args) => {
+			const mockMethod = vi.fn((...args) => {
 				mockCalls.push({ target, name, args })
 				const returnVal = origMethod(...args)
 				if (interceptReturn) {

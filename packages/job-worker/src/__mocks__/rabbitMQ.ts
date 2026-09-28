@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { ExternalMessageQueueObjRabbitMQ } from '@sofie-automation/blueprints-integration'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
 
@@ -15,7 +16,7 @@ export async function sendRabbitMQMessage(
 	})
 }
 
-const sendRabbitMQMock = jest.fn(sendRabbitMQMessage)
+const sendRabbitMQMock = vi.fn(sendRabbitMQMessage)
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function setup() {

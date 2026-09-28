@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
@@ -52,7 +53,7 @@ import { handleOnPlayoutPlaybackChanged } from '../timings/index.js'
 import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
-// const mockGetCurrentTime = jest.spyOn(lib, 'getCurrentTime')
+// const mockGetCurrentTime = vi.spyOn(lib, 'getCurrentTime')
 const mockExecutePeripheralDeviceFunction = jest
 	.spyOn(peripheralDeviceLib, 'executePeripheralDeviceFunction')
 	.mockImplementation(async () => sleep(10))
@@ -110,7 +111,7 @@ describe('Playout API', () => {
 		})
 
 		// Ignore event jobs
-		jest.spyOn(context, 'queueEventJob').mockImplementation(async () => Promise.resolve())
+		vi.spyOn(context, 'queueEventJob').mockImplementation(async () => Promise.resolve())
 
 		showStyle = await setupMockShowStyleCompound(context)
 
@@ -121,7 +122,7 @@ describe('Playout API', () => {
 			PERIPHERAL_SUBTYPE_PROCESS
 		)
 
-		jest.clearAllMocks()
+		vi.clearAllMocks()
 	})
 	afterEach(() => {
 		// mockGetCurrentTime.mockClear()
@@ -950,7 +951,7 @@ describe('Playout API', () => {
 		expect(rundownId0).toBeTruthy()
 		expect(playlistId0).toBeTruthy()
 
-		const mockOnSetAsNext = jest.fn()
+		const mockOnSetAsNext = vi.fn()
 		context.updateShowStyleBlueprint({
 			onSetAsNext: mockOnSetAsNext,
 		})
@@ -991,7 +992,7 @@ describe('Playout API', () => {
 			return playlist
 		}
 
-		const mockOnTake = jest.fn()
+		const mockOnTake = vi.fn()
 		context.updateShowStyleBlueprint({
 			onTake: mockOnTake,
 		})

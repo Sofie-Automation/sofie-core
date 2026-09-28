@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -17,7 +18,7 @@ import {
 	RundownPlaylistId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { mock } from 'jest-mock-extended'
+import { mock } from 'vitest-mock-extended'
 import { QuickLoopService } from '../../services/QuickLoopService.js'
 import { ExpectedPackageDB, getExpectedPackageId } from '@sofie-automation/corelib/dist/dataModel/ExpectedPackages'
 import { ExpectedPackage } from '@sofie-automation/blueprints-integration'

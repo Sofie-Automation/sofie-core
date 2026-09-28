@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { describe, it, expect, vi } from 'vitest'
 import {
 	DBRundownPlaylist,
 	SelectedPartInstance,
@@ -784,7 +785,7 @@ describe('buildTimelineObjsForRundown', () => {
 		it('autonext into next part with excludeDuringPartKeepalive', () => {
 			const context = setupDefaultJobEnvironment()
 
-			jest.spyOn(global.Date, 'now').mockImplementation(() => 3000)
+			vi.spyOn(global.Date, 'now').mockImplementation(() => 3000)
 
 			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
 				previous: [],

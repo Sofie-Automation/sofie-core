@@ -69,6 +69,12 @@ export default defineConfig({
 			packageProject('live-status-gateway', {
 				alias: [serverCoreIntegrationSrcAlias],
 			}),
+			packageProject('job-worker', {
+				test: {
+					globalSetup: './src/__mocks__/global-setup.mjs',
+					setupFiles: ['./src/__mocks__/_setupMocks.ts'],
+				},
+			}),
 
 			...(includeOpenApiTests
 				? [

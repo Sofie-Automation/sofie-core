@@ -1,3 +1,4 @@
+import { describe, test, expect, vi } from 'vitest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
 import { setupDefaultJobEnvironment } from '../../__mocks__/context.js'
@@ -102,7 +103,7 @@ describe('Test blueprint config', () => {
 		test('undefined - normal', async () => {
 			const jobContext = setupDefaultJobEnvironment()
 
-			const modifier = jest.fn((v) => v)
+			const modifier = vi.fn((v) => v)
 
 			expect(await retrieveBlueprintConfigRefs(jobContext, '${studio.one.two}_extra', modifier)).toEqual(
 				'undefined_extra'
@@ -116,7 +117,7 @@ describe('Test blueprint config', () => {
 		test('undefined - bail', async () => {
 			const jobContext = setupDefaultJobEnvironment()
 
-			const modifier = jest.fn((v) => v)
+			const modifier = vi.fn((v) => v)
 
 			await expect(
 				retrieveBlueprintConfigRefs(jobContext, '${studio.one.two}_extra', modifier, true)
@@ -130,7 +131,7 @@ describe('Test blueprint config', () => {
 		test('undefined - modifier', async () => {
 			const jobContext = setupDefaultJobEnvironment()
 
-			const modifier = jest.fn(() => 'nope')
+			const modifier = vi.fn(() => 'nope')
 
 			expect(await retrieveBlueprintConfigRefs(jobContext, '${studio.one.two}_extra', modifier)).toEqual(
 				'nope_extra'

@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
+import { describe, test, expect } from 'vitest'
 import { updateSegmentIdsForAdlibbedPartInstances } from '../updateSegmentIdsForAdlibbedPartInstances.js'
 import { BeforePartMapItem } from '../../commit.js'
 import { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { mock } from 'jest-mock-extended'
+import { mock } from 'vitest-mock-extended'
 import { ICollection } from '../../../db/index.js'
 import { JobContext } from '../../../jobs/index.js'
 import { clone, literal } from '@sofie-automation/corelib/dist/lib'

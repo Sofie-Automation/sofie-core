@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi, type MockedFunction } from 'vitest'
 import { LOOKAHEAD_DEFAULT_SEARCH_DISTANCE } from '@sofie-automation/shared-lib/dist/core/constants'
 import { RundownPlaylistId, PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
@@ -16,13 +17,13 @@ import {
 	RundownHoldState,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
-jest.mock('../findForLayer')
-type TfindLookaheadForLayer = jest.MockedFunction<typeof findLookaheadForLayer>
+vi.mock('../findForLayer')
+type TfindLookaheadForLayer = MockedFunction<typeof findLookaheadForLayer>
 import { findLookaheadForLayer, PartInstanceAndPieceInstancesInfos } from '../findForLayer.js'
 const findLookaheadForLayerMock = findLookaheadForLayer as TfindLookaheadForLayer
 
-jest.mock('../util')
-type TgetOrderedPartsAfterPlayhead = jest.MockedFunction<typeof getOrderedPartsAfterPlayhead>
+vi.mock('../util')
+type TgetOrderedPartsAfterPlayhead = MockedFunction<typeof getOrderedPartsAfterPlayhead>
 import { getOrderedPartsAfterPlayhead, PartAndPieces } from '../util.js'
 import { LookaheadTimelineObject } from '../findObjects.js'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'

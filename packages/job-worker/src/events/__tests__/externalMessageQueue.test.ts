@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, vi } from 'vitest'
 import {
 	PlaylistTimingType,
 	ExternalMessageQueueObjSlack,
@@ -143,7 +144,7 @@ class MockDataCacheWrapper implements WorkerDataCacheWrapper {
 }
 
 describe('Test sending messages to mocked endpoints', () => {
-	jest.useFakeTimers()
+	vi.useFakeTimers()
 
 	async function setupEnvironment() {
 		const context = setupDefaultJobEnvironment()
@@ -236,7 +237,7 @@ describe('Test sending messages to mocked endpoints', () => {
 
 		// Skip over the startup execution
 		await defer()
-		jest.advanceTimersByTime(60000)
+		vi.advanceTimersByTime(60000)
 		await defer()
 
 		return { context, rundown, runner, mockMessageCollection, watcher }
@@ -271,7 +272,7 @@ describe('Test sending messages to mocked endpoints', () => {
 
 			// It shouldn't fire by itself just yet
 			await defer()
-			jest.advanceTimersByTime(60000)
+			vi.advanceTimersByTime(60000)
 			await defer()
 			expect(sendSlackMessageToWebhook).toHaveBeenCalledTimes(0)
 
@@ -292,10 +293,10 @@ describe('Test sending messages to mocked endpoints', () => {
 
 			// Run the queue
 			await defer()
-			jest.advanceTimersByTime(1000)
+			vi.advanceTimersByTime(1000)
 			const sendTime = getCurrentTime()
 			await defer()
-			jest.advanceTimersByTime(500)
+			vi.advanceTimersByTime(500)
 			const replyTime = getCurrentTime()
 			await defer()
 
@@ -365,7 +366,7 @@ describe('Test sending messages to mocked endpoints', () => {
 
 			expect(sendSlackMessageToWebhook).toHaveBeenCalledTimes(2)
 			try {
-				await (sendSlackMessageToWebhook as jest.Mock).mock.results[1].value
+				await (sendSlackMessageToWebhook as Mock).mock.results[1].value
 				fail('promise should reject')
 			} catch (e) {
 				expect(e.message).toBe('[500] Failed to send slack message')
@@ -497,7 +498,7 @@ describe('Test sending messages to mocked endpoints', () => {
 		).toBeTruthy()
 		await runAllTimers()
 		expect(sendSOAPMessage).toHaveBeenCalledTimes(1)
-		await (sendSOAPMessage as jest.Mock).mock.results[0].value
+		await (sendSOAPMessage as Mock).mock.results[0].value
 		let message = ExternalMessageQueue.findOne() as ExternalMessageQueueObj
 		expect(message).toBeTruthy()
 		expect(message.sent).toBeGreaterThanOrEqual(sendTime)
@@ -534,7 +535,7 @@ describe('Test sending messages to mocked endpoints', () => {
 
 		expect(sendSOAPMessage).toHaveBeenCalledTimes(2)
 		try {
-			await (sendSOAPMessage as jest.Mock).mock.results[1].value
+			await (sendSOAPMessage as Mock).mock.results[1].value
 			fail('promise should reject')
 		} catch (e) {
 			expect(e.message).toBe('[500] Failed to send SOAP message')
@@ -576,7 +577,7 @@ describe('Test sending messages to mocked endpoints', () => {
 
 		expect(sendSOAPMessage).toHaveBeenCalledTimes(3)
 		try {
-			await (sendSOAPMessage as jest.Mock).mock.results[2].value
+			await (sendSOAPMessage as Mock).mock.results[2].value
 			fail('promise should reject')
 		} catch (e) {
 			expect(e.message).toBe('[401] Fatal error sending SOAP message.')
@@ -629,7 +630,7 @@ describe('Test sending messages to mocked endpoints', () => {
 		await runAllTimers()
 
 		expect(sendRabbitMQMessage).toHaveBeenCalledTimes(1)
-		await (sendRabbitMQMessage as jest.Mock).mock.results[0].value
+		await (sendRabbitMQMessage as Mock).mock.results[0].value
 		let message = ExternalMessageQueue.findOne() as ExternalMessageQueueObj
 		expect(message).toBeTruthy()
 		expect(message.sent).toBeGreaterThanOrEqual(sendTime)
@@ -667,7 +668,7 @@ describe('Test sending messages to mocked endpoints', () => {
 
 		expect(sendRabbitMQMessage).toHaveBeenCalledTimes(2)
 		try {
-			await (sendRabbitMQMessage as jest.Mock).mock.results[1].value
+			await (sendRabbitMQMessage as Mock).mock.results[1].value
 			fail('promise should reject')
 		} catch (e) {
 			expect(e.message).toBe('[500] Failed to send slack rabbitMQ message')

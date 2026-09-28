@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi, type MockedFunction } from 'vitest'
 import { RundownId, RundownPlaylistId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
@@ -10,9 +11,9 @@ import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/cont
 import { setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
 import { runJobWithPlayoutModel } from '../../playout/lock.js'
 
-jest.mock('../../playout/setNext')
+vi.mock('../../playout/setNext')
 import { setNextPart } from '../../playout/setNext.js'
-type TsetNextPart = jest.MockedFunction<typeof setNextPart>
+type TsetNextPart = MockedFunction<typeof setNextPart>
 const setNextPartMock = setNextPart as TsetNextPart
 setNextPartMock.mockImplementation(async () => Promise.resolve()) // Default mock
 
@@ -315,7 +316,7 @@ describe('ensureNextPartIsValid', () => {
 	beforeEach(async () => {
 		context = setupDefaultJobEnvironment()
 		await createMockRO(context)
-		jest.clearAllMocks()
+		vi.clearAllMocks()
 	})
 
 	async function resetPartIds(
@@ -548,7 +549,7 @@ describe('ensureNextPartIsValid', () => {
 			},
 		})
 		context.updateShowStyleBlueprint({
-			syncIngestUpdateToPartInstance: jest.fn(),
+			syncIngestUpdateToPartInstance: vi.fn(),
 		})
 
 		const instanceId: PartInstanceId = protectString('orphaned_first_part_with_callback')
@@ -653,7 +654,7 @@ describe('ensureNextPartIsValid', () => {
 				expect.objectContaining({ part: expect.objectContaining({ _id: 'tmp_part_1' }) }),
 				false
 			)
-			jest.clearAllMocks()
+			vi.clearAllMocks()
 
 			// set as the part we expect
 			await resetPartIds('mock_part_instance9', instanceId, false)
