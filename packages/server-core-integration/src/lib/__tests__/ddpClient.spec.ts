@@ -1,6 +1,7 @@
 import { it, expect, vi } from 'vitest'
 import { DDPClient, type DDPConnectorOptions } from '../../index.js'
-vi.mock('ws')
+// The mock lives in src/__mocks__, which vitest doesn't search for node_modules mocks
+vi.mock('ws', async () => import('../../__mocks__/ws.js'))
 
 const wait = async (t: number): Promise<void> =>
 	new Promise((resolve) => {

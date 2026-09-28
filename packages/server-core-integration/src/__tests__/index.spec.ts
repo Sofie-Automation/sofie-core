@@ -8,7 +8,8 @@ import {
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI.js'
 import { CoreConnection, PeripheralDevicePubSub, PeripheralDevicePubSubCollectionsNames } from '../index.js'
 import type { DDPConnectorOptions } from '../lib/ddpClient.js'
-vi.mock('ws')
+// The mock lives in src/__mocks__, which vitest doesn't search for node_modules mocks
+vi.mock('ws', async () => import('../__mocks__/ws.js'))
 
 process.on('unhandledRejection', (reason) => {
 	console.log('Unhandled Promise rejection!', reason)
