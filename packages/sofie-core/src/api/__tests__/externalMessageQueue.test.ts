@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll } from 'vitest'
 import '../../__mocks__/_extendJest'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
 import { ExternalMessageQueue, RundownPlaylists, Rundowns } from '../../collections'

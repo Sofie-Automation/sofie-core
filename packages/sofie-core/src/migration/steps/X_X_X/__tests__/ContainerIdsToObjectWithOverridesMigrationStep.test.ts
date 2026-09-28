@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach } from 'vitest'
 import { setupEmptyEnvironment, setupMockStudio } from '../../../../__mocks__/helpers/database'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Studios } from '../../../../collections'

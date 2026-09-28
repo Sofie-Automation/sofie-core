@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll } from 'vitest'
 import { UserActionsLogItem } from '@sofie-automation/meteor-lib/dist/collections/UserActionsLog'
 import { ClientAPIMethods } from '@sofie-automation/meteor-lib/dist/api/client'
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'

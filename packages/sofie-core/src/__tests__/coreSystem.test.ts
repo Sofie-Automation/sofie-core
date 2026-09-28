@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { RelevantSystemVersions } from '../coreSystem'
 
 describe('coreSystem', () => {

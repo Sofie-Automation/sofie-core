@@ -1,24 +1,25 @@
+import { describe, test, expect, beforeEach, vi, type Mock, type Mocked } from 'vitest'
 import { registerRoutes } from '../playlists'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PlaylistsRestAPI } from '../../../../lib/rest/v1'
 
 describe('Playlists REST API Routes', () => {
-	let mockRegisterRoute: jest.Mock
-	let mockServerAPI: jest.Mocked<PlaylistsRestAPI>
+	let mockRegisterRoute: Mock
+	let mockServerAPI: Mocked<PlaylistsRestAPI>
 
 	beforeEach(() => {
-		mockRegisterRoute = jest.fn()
+		mockRegisterRoute = vi.fn()
 		mockServerAPI = {
-			tTimerStartCountdown: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
-			tTimerStartFreeRun: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
-			tTimerPause: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
-			tTimerResume: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
-			tTimerRestart: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
-			tTimerClearProjected: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
-			tTimerSetProjectedAnchorPart: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
-			tTimerSetProjectedTime: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
-			tTimerSetProjectedDuration: jest.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerStartCountdown: vi.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerStartFreeRun: vi.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerPause: vi.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerResume: vi.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerRestart: vi.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerClearProjected: vi.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerSetProjectedAnchorPart: vi.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerSetProjectedTime: vi.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
+			tTimerSetProjectedDuration: vi.fn().mockResolvedValue(ClientAPI.responseSuccess(undefined)),
 		} as any
 
 		registerRoutes(mockRegisterRoute)

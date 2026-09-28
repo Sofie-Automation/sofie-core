@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, afterAll, afterEach, vi, type Mock } from 'vitest'
 import '../__mocks__/_extendJest'
 import { runAllTimers, waitUntil } from '../__mocks__/helpers/jest'
 import { logger } from '../logging'
@@ -39,9 +40,9 @@ import {
 // Set up mocks for tests in this suite
 let mockCurrentTime = 0
 let origGetCurrentTime = lib.getCurrentTime
-jest.mock('../logging')
+vi.mock('../logging')
 // we don't want the deviceTriggers observer to start up at this time
-jest.mock('../api/deviceTriggers/observer')
+vi.mock('../api/deviceTriggers/observer')
 
 const MAX_WAIT_TIME = 4 * 1000
 
@@ -108,14 +109,14 @@ describe('cronjobs', () => {
 
 		await setCasparCGCronEnabled(true)
 
-		jest.useFakeTimers()
+		vi.useFakeTimers()
 		// set time to 2020/07/19 00:00 Local Time
 		mockCurrentTime = new Date(2020, 6, 19, 0, 0, 0).getTime()
 		startCronjobs()
 		origGetCurrentTime = lib.getCurrentTime
 		//@ts-ignore Mock getCurrentTime for tests
 		// eslint-disable-next-line no-import-assign
-		lib.getCurrentTime = jest.fn(() => {
+		lib.getCurrentTime = vi.fn(() => {
 			return mockCurrentTime
 		})
 	})
@@ -130,7 +131,7 @@ describe('cronjobs', () => {
 			// set time to 2020/07/19 12:00 Local Time
 			mockCurrentTime = new Date(2020, 6, 19, 12, 0, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
+			await vi.advanceTimersByTimeAsync(6 * 60 * 1000)
 			expect(lib.getCurrentTime).toHaveBeenCalled()
 
 			await runAllTimers()
@@ -141,7 +142,7 @@ describe('cronjobs', () => {
 			// set time to 2020/07/20 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, 20, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
+			await vi.advanceTimersByTimeAsync(6 * 60 * 1000)
 			expect(lib.getCurrentTime).toHaveBeenCalled()
 
 			expect(logger.info).not.toHaveBeenLastCalledWith('Nightly cronjob: done')
@@ -156,7 +157,7 @@ describe('cronjobs', () => {
 			// set time to 2020/07/21 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, 21, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
+			await vi.advanceTimersByTimeAsync(6 * 60 * 1000)
 			expect(lib.getCurrentTime).toHaveBeenCalled()
 
 			expect(logger.info).not.toHaveBeenLastCalledWith('Nightly cronjob: done')
@@ -167,10 +168,10 @@ describe('cronjobs', () => {
 			}, MAX_WAIT_TIME)
 
 			// clear the mock
-			;(logger.info as jest.Mock).mockClear()
+			;(logger.info as Mock).mockClear()
 
 			mockCurrentTime = new Date(2020, 6, 20, 4, 50, 0).getTime()
-			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
+			await vi.advanceTimersByTimeAsync(6 * 60 * 1000)
 
 			await runAllTimers()
 			// less than 24 hours have passed so we do not expect the cronjob to run
@@ -180,11 +181,11 @@ describe('cronjobs', () => {
 	describe('Does appropriate cron actions', () => {
 		let date = 23
 		async function runCronjobs() {
-			;(logger.info as jest.Mock).mockClear()
+			;(logger.info as Mock).mockClear()
 			// set time to 2020/07/{date} 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, date++, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
+			await vi.advanceTimersByTimeAsync(6 * 60 * 1000)
 
 			expect(logger.info).not.toHaveBeenLastCalledWith('Nightly cronjob: done')
 			await waitUntil(async () => {
@@ -648,11 +649,11 @@ describe('cronjobs', () => {
 
 			const { mockCasparCg, deviceToken } = await createMockPlayoutGatewayAndDevices(Date.now()) // Some time after the threshold
 
-			;(logger.info as jest.Mock).mockClear()
+			;(logger.info as Mock).mockClear()
 			// set time to 2020/07/{date} 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, date++, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
+			await vi.advanceTimersByTimeAsync(6 * 60 * 1000)
 			await runAllTimers()
 
 			// check if the correct PeripheralDevice command has been issued, and only for CasparCG devices
@@ -690,11 +691,11 @@ describe('cronjobs', () => {
 					lastSeen: 0,
 				},
 			})
-			;(logger.info as jest.Mock).mockClear()
+			;(logger.info as Mock).mockClear()
 			// set time to 2020/07/{date} 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, date++, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
+			await vi.advanceTimersByTimeAsync(6 * 60 * 1000)
 
 			await waitUntil(async () => {
 				// Run timers, so that all promises in the cronjob has a chance to resolve:
@@ -712,11 +713,11 @@ describe('cronjobs', () => {
 		test('Skips CasparCG in Studios with active Playlists when job is enabled', async () => {
 			const { studioId } = await createMockStudioAndRundown()
 			await createMockPlayoutGatewayAndDevices(Date.now(), studioId) // Some time after the threshold
-			;(logger.info as jest.Mock).mockClear()
+			;(logger.info as Mock).mockClear()
 			// set time to 2020/07/{date} 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, date++, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
+			await vi.advanceTimersByTimeAsync(6 * 60 * 1000)
 
 			await waitUntil(async () => {
 				// Run timers, so that all promises in the cronjob has a chance to resolve:
@@ -734,12 +735,12 @@ describe('cronjobs', () => {
 		test('Does not attempt to restart CasparCG when job is disabled', async () => {
 			await createMockPlayoutGatewayAndDevices(Date.now()) // Some time after the threshold
 			await setCasparCGCronEnabled(false)
-			;(logger.info as jest.Mock).mockClear()
+			;(logger.info as Mock).mockClear()
 			// set time to 2020/07/{date} 04:05 Local Time, should be more than 24 hours after 2020/07/19 00:00 UTC
 			mockCurrentTime = new Date(2020, 6, date++, 4, 5, 0).getTime()
 			// cronjob is checked every 5 minutes, so advance 6 minutes
-			await jest.advanceTimersByTimeAsync(6 * 60 * 1000)
-			jest.runOnlyPendingTimers()
+			await vi.advanceTimersByTimeAsync(6 * 60 * 1000)
+			vi.runOnlyPendingTimers()
 
 			// check if the no PeripheralDevice command have been issued
 			const pendingCommands = await PeripheralDeviceCommands.findFetchAsync({})

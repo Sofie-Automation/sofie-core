@@ -1,3 +1,4 @@
+import { describe, test, expect, vi } from 'vitest'
 import { makeDdpConnection } from '../DdpConnection'
 
 function fakeRequest(headers: Record<string, any>, remoteAddress?: string): any {
@@ -29,7 +30,7 @@ describe('makeDdpConnection', () => {
 	})
 
 	test('close() asks the owner to close', () => {
-		const requestClose = jest.fn()
+		const requestClose = vi.fn()
 		const { connection } = makeDdpConnection(fakeRequest({}, '127.0.0.1'), requestClose)
 		connection.close()
 		expect(requestClose).toHaveBeenCalledTimes(1)
@@ -51,7 +52,7 @@ describe('makeDdpConnection', () => {
 
 	test('fireClose is idempotent (callbacks fire at most once)', () => {
 		const { connection, fireClose } = makeDdpConnection(fakeRequest({}, '127.0.0.1'), () => undefined)
-		const cb = jest.fn()
+		const cb = vi.fn()
 		connection.onClose(cb)
 		fireClose()
 		fireClose()
@@ -62,7 +63,7 @@ describe('makeDdpConnection', () => {
 		const { connection, fireClose } = makeDdpConnection(fakeRequest({}, '127.0.0.1'), () => undefined)
 		fireClose()
 
-		const cb = jest.fn()
+		const cb = vi.fn()
 		connection.onClose(cb)
 		expect(cb).not.toHaveBeenCalled() // not synchronously
 		await Promise.resolve()

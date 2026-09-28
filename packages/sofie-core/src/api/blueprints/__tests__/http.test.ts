@@ -1,13 +1,14 @@
+import { describe, test, expect, beforeEach, vi, type MockInstance } from 'vitest'
 import _ from 'underscore'
 import { PassThrough } from 'stream'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
 import { callKoaRoute } from '../../../__mocks__/koa-util'
 import { blueprintsRouter } from '../http'
 
-jest.mock('../../deviceTriggers/observer')
+vi.mock('../../deviceTriggers/observer')
 import * as api from '../api'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
-jest.mock('../api.ts')
+vi.mock('../api.ts')
 
 const DEFAULT_CONTEXT = expect.objectContaining({ req: expect.any(Object), res: expect.any(Object) })
 
@@ -40,7 +41,7 @@ describe('Test blueprint http api', () => {
 		}
 
 		function resetUploadMock() {
-			const uploadBlueprint = api.uploadBlueprint as any as jest.MockInstance<any, any>
+			const uploadBlueprint = api.uploadBlueprint as any as MockInstance<(...args: any) => any>
 			uploadBlueprint.mockClear()
 			return uploadBlueprint
 		}
@@ -181,7 +182,7 @@ describe('Test blueprint http api', () => {
 		}
 
 		function resetUploadMock() {
-			const uploadBlueprint = api.uploadBlueprint as any as jest.MockInstance<any, any>
+			const uploadBlueprint = api.uploadBlueprint as any as MockInstance<(...args: any) => any>
 			uploadBlueprint.mockClear()
 			return uploadBlueprint
 		}
@@ -374,7 +375,7 @@ describe('Test blueprint http api', () => {
 			}
 
 			function resetUploadAssetMock() {
-				const uploadBlueprintAsset = api.uploadBlueprintAsset as any as jest.MockInstance<any, any>
+				const uploadBlueprintAsset = api.uploadBlueprintAsset as any as MockInstance<(...args: any) => any>
 				uploadBlueprintAsset.mockClear()
 				return uploadBlueprintAsset
 			}
@@ -498,7 +499,7 @@ describe('Test blueprint http api', () => {
 			}
 
 			function resetRetrieveAssetMock() {
-				const retrieveBlueprintAsset = api.retrieveBlueprintAsset as any as jest.MockInstance<any, any>
+				const retrieveBlueprintAsset = api.retrieveBlueprintAsset as any as MockInstance<(...args: any) => any>
 				retrieveBlueprintAsset.mockClear()
 				return retrieveBlueprintAsset
 			}

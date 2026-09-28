@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest'
 import _ from 'underscore'
 import path from 'path'
 import os from 'os'
@@ -19,7 +20,7 @@ import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
 import { DDPClientConnection } from '../../../ddp-server/types'
 
 // we don't want the deviceTriggers observer to start up at this time
-jest.mock('../../deviceTriggers/observer')
+vi.mock('../../deviceTriggers/observer')
 
 const MeteorCall = makeMeteorCallForTest({ methods: BlueprintAPIMethods, class: ServerBlueprintAPI })
 
@@ -603,11 +604,11 @@ describe('Test blueprint management api', () => {
 
 		beforeEach(async () => {
 			storePath = await fsp.mkdtemp(path.join(os.tmpdir(), 'sofie-blueprint-assets-'))
-			jest.spyOn(CoreSystemAPI, 'getSystemStorePath').mockReturnValue(storePath)
+			vi.spyOn(CoreSystemAPI, 'getSystemStorePath').mockReturnValue(storePath)
 		})
 
 		afterEach(async () => {
-			jest.restoreAllMocks()
+			vi.restoreAllMocks()
 			await fsp.rm(storePath, { recursive: true, force: true })
 		})
 

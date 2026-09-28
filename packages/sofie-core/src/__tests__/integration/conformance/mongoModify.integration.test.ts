@@ -1,3 +1,4 @@
+import { describe, beforeAll, afterAll } from 'vitest'
 /**
  * Conformance: `mongoModify` (the in-memory update applier) vs real MongoDB `updateOne`/`updateMany`.
  * Each case applies the modifier then compares the WHOLE collection state afterwards.

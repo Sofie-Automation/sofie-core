@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { PublicationRegistry } from '../publicationRegistry'
 import { registerAllPublications } from '../publicationRegistrations'
 import { AllPubSubNames } from '@sofie-automation/meteor-lib/dist/api/pubsub'

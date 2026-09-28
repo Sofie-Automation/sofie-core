@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { encodeMessage, decodeMessage } from '../wireCodec'
 import { ServerMessage } from '@sofie-automation/shared-lib/dist/ddp/messageTypes'
 

@@ -1,3 +1,4 @@
+import { describe, test, expect, vi } from 'vitest'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { optimizedObserverCountSubscribers, setUpOptimizedObserverInner, TriggerUpdate } from '../optimizedObserverBase'
 import { CustomPublish, CustomPublishChanges } from '../publish'
@@ -25,8 +26,8 @@ class CustomPublishMock<DBObj extends { _id: ProtectedString<any> }>
 		this.stop = callback
 	}
 
-	init: CustomPublish<DBObj>['init'] = jest.fn()
-	changed: CustomPublish<DBObj>['changed'] = jest.fn()
+	init: CustomPublish<DBObj>['init'] = vi.fn()
+	changed: CustomPublish<DBObj>['changed'] = vi.fn()
 }
 
 function emptyChanges<DBObj extends { _id: ProtectedString<any> }>(): CustomPublishChanges<DBObj> {
@@ -46,11 +47,11 @@ describe('optimizedObserver base', () => {
 
 		try {
 			let triggerUpdate: TriggerUpdate<Record<string, never>> | undefined
-			const setupObservers = jest.fn(async (_args, triggerUpdate0) => {
+			const setupObservers = vi.fn(async (_args, triggerUpdate0) => {
 				triggerUpdate = triggerUpdate0
 				return []
 			})
-			const manipulateData = jest.fn(async (): Promise<ManipulateDataRes> => [[], emptyChanges()])
+			const manipulateData = vi.fn(async (): Promise<ManipulateDataRes> => [[], emptyChanges()])
 
 			// Start off the first subscriber
 			setUpOptimizedObserverInner('test2', {}, setupObservers, manipulateData, receiver, 0).catch(() => null)
@@ -100,8 +101,8 @@ describe('optimizedObserver base', () => {
 		const receiver2 = CustomPublishMock.create<any>()
 
 		try {
-			const setupObservers = jest.fn(async () => [])
-			const manipulateData = jest.fn(async (): Promise<ManipulateDataRes> => [[], emptyChanges()])
+			const setupObservers = vi.fn(async () => [])
+			const manipulateData = vi.fn(async (): Promise<ManipulateDataRes> => [[], emptyChanges()])
 
 			// Start off the first subscriber
 			await setUpOptimizedObserverInner('test2', {}, setupObservers, manipulateData, receiver, 0)

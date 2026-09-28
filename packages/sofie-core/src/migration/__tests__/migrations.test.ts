@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll } from 'vitest'
 import _ from 'underscore'
 import { setupEmptyEnvironment, setupMockStudio } from '../../__mocks__/helpers/database'
 import { ICoreSystem, GENESIS_SYSTEM_VERSION } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'

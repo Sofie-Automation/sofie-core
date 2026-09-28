@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach } from 'vitest'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 
 import '../../collections' // include this in order to get all of the collection set up

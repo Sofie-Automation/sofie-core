@@ -1,3 +1,4 @@
+import { describe } from 'vitest'
 /**
  * Helpers shared by the change-stream integration tests (the moved engine test and the observe-parity test).
  * Extracted from the original `engine.integration.test.ts` so both can drive the real change-stream

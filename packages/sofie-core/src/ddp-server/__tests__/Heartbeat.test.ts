@@ -1,12 +1,13 @@
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import { Heartbeat } from '../Heartbeat'
 
 describe('Heartbeat', () => {
-	beforeEach(() => jest.useFakeTimers())
-	afterEach(() => jest.useRealTimers())
+	beforeEach(() => vi.useFakeTimers())
+	afterEach(() => vi.useRealTimers())
 
 	function setup() {
-		const sendPing = jest.fn()
-		const onTimeout = jest.fn()
+		const sendPing = vi.fn()
+		const onTimeout = vi.fn()
 		const hb = new Heartbeat({ heartbeatInterval: 1000, heartbeatTimeout: 500, onTimeout, sendPing })
 		return { hb, sendPing, onTimeout }
 	}
@@ -16,7 +17,7 @@ describe('Heartbeat', () => {
 		hb.start()
 		expect(sendPing).not.toHaveBeenCalled()
 
-		jest.advanceTimersByTime(1000)
+		vi.advanceTimersByTime(1000)
 		expect(sendPing).toHaveBeenCalledTimes(1)
 		hb.stop()
 	})
@@ -26,10 +27,10 @@ describe('Heartbeat', () => {
 		hb.start()
 
 		hb.messageReceived() // traffic seen this interval
-		jest.advanceTimersByTime(1000)
+		vi.advanceTimersByTime(1000)
 		expect(sendPing).not.toHaveBeenCalled() // no ping needed
 
-		jest.advanceTimersByTime(1000) // next interval, still no traffic
+		vi.advanceTimersByTime(1000) // next interval, still no traffic
 		expect(sendPing).toHaveBeenCalledTimes(1)
 		hb.stop()
 	})
@@ -38,10 +39,10 @@ describe('Heartbeat', () => {
 		const { hb, onTimeout } = setup()
 		hb.start()
 
-		jest.advanceTimersByTime(1000) // interval -> ping + arm timeout
+		vi.advanceTimersByTime(1000) // interval -> ping + arm timeout
 		expect(onTimeout).not.toHaveBeenCalled()
 
-		jest.advanceTimersByTime(500) // timeout elapses with no traffic
+		vi.advanceTimersByTime(500) // timeout elapses with no traffic
 		expect(onTimeout).toHaveBeenCalledTimes(1)
 		hb.stop()
 	})
@@ -50,9 +51,9 @@ describe('Heartbeat', () => {
 		const { hb, onTimeout } = setup()
 		hb.start()
 
-		jest.advanceTimersByTime(1000) // ping + arm timeout
+		vi.advanceTimersByTime(1000) // ping + arm timeout
 		hb.messageReceived() // client responded in time
-		jest.advanceTimersByTime(500)
+		vi.advanceTimersByTime(500)
 		expect(onTimeout).not.toHaveBeenCalled()
 		hb.stop()
 	})
@@ -62,7 +63,7 @@ describe('Heartbeat', () => {
 		hb.start()
 		hb.stop()
 
-		jest.advanceTimersByTime(10000)
+		vi.advanceTimersByTime(10000)
 		expect(sendPing).not.toHaveBeenCalled()
 		expect(onTimeout).not.toHaveBeenCalled()
 	})

@@ -1,3 +1,4 @@
+import { describe, test, expect, vi } from 'vitest'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 import { wrapError } from '../methodDispatch'
 import { encodeMessage } from '../wireCodec'
@@ -50,7 +51,7 @@ describe('wrapError', () => {
 	})
 
 	test('sanitizes an unexpected (non-Sofie) error to a 500 without leaking internals', () => {
-		const spy = jest.spyOn(logger, 'error').mockImplementation(() => logger)
+		const spy = vi.spyOn(logger, 'error').mockImplementation(() => logger)
 		try {
 			const err = wrapError(new Error('secret stack / internal detail'))
 			expect(err).toEqual({

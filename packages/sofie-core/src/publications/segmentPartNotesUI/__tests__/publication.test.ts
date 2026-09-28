@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi } from 'vitest'
 import { RundownId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { UISegmentPartNote } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
@@ -8,7 +9,7 @@ import { ContentCache } from '../reactiveContentCache'
 import * as generateNotesForSegment from '../generateNotesForSegment'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 
-jest.spyOn(generateNotesForSegment, 'generateNotesForSegment').mockImplementation((playlistId, segment) => {
+vi.spyOn(generateNotesForSegment, 'generateNotesForSegment').mockImplementation((playlistId, segment) => {
 	return literal<UISegmentPartNote[]>([
 		{
 			_id: protectString(`note-${segment._id}`),
@@ -33,13 +34,13 @@ class CustomPublishCollectionExt<TDoc extends { _id: ProtectedString<any> }> ext
 function createSpyPublishCollection(): CustomPublishCollectionExt<UISegmentPartNote> {
 	const collection = new CustomPublishCollectionExt<UISegmentPartNote>('UISegmentPartNote')
 
-	const findAllSpy = jest.spyOn(collection, 'findAll')
-	const findOneSpy = jest.spyOn(collection, 'findOne')
-	const insertSpy = jest.spyOn(collection, 'insert')
-	const removeSpy = jest.spyOn(collection, 'remove')
-	const updateOneSpy = jest.spyOn(collection, 'updateOne')
-	const updateAllSpy = jest.spyOn(collection, 'updateAll')
-	const replaceSpy = jest.spyOn(collection, 'replace')
+	const findAllSpy = vi.spyOn(collection, 'findAll')
+	const findOneSpy = vi.spyOn(collection, 'findOne')
+	const insertSpy = vi.spyOn(collection, 'insert')
+	const removeSpy = vi.spyOn(collection, 'remove')
+	const updateOneSpy = vi.spyOn(collection, 'updateOne')
+	const updateAllSpy = vi.spyOn(collection, 'updateAll')
+	const replaceSpy = vi.spyOn(collection, 'replace')
 
 	collection.clearAllMocks = () => {
 		findAllSpy.mockClear()
@@ -56,7 +57,7 @@ function createSpyPublishCollection(): CustomPublishCollectionExt<UISegmentPartN
 
 describe('manipulateUISegmentPartNotesPublicationData', () => {
 	beforeEach(() => {
-		jest.clearAllMocks()
+		vi.clearAllMocks()
 	})
 
 	const playlistId = protectString<RundownPlaylistId>('playlist0')

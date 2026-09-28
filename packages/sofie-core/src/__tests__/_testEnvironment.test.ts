@@ -1,3 +1,4 @@
+import { describe, test, expect, vi } from 'vitest'
 import { RandomMock } from '../__mocks__/random'
 import { MongoMock } from '../__mocks__/mongo'
 import { getRandomString } from '@sofie-automation/corelib/dist/lib'
@@ -138,9 +139,9 @@ describe('Basic test of test environment', () => {
 		expect(await Studios.findFetchAsync({})).toHaveLength(0)
 	})
 	test('Mongo mock', async () => {
-		const mockAdded = jest.fn()
-		const mockChanged = jest.fn()
-		const mockRemoved = jest.fn()
+		const mockAdded = vi.fn()
+		const mockChanged = vi.fn()
+		const mockRemoved = vi.fn()
 
 		const collection = createMockCollection<any>('testmock')
 

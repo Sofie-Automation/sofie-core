@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import _ from 'underscore'
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
@@ -6,8 +7,8 @@ import { getLogLevel, setLogLevel } from '../../logging'
 
 /*
 interface MockedCollection<T, Y extends any[]> {
-	mockClear: jest.MockInstance<T, Y>['mockClear']
-	mockReset: jest.MockInstance<T, Y>['mockReset']
+	mockClear: MockInstance<(...args: Y) => T>['mockClear']
+	mockReset: MockInstance<(...args: Y) => T>['mockReset']
 }
 */
 interface MockedCollection {
@@ -46,7 +47,7 @@ export function mockupCollection<DBInterface extends { _id: ProtectedString<any>
 
 	_.each(METHOD_NAMES, (methodName) => {
 		collection['__original' + methodName] = collection[methodName]
-		collection[methodName] = jest.fn(collection[methodName])
+		collection[methodName] = vi.fn(collection[methodName])
 	})
 
 	collection.mockClear = () => {

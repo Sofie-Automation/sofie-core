@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import { RateLimitingService } from '../rateLimitingService'
 
 describe('RateLimitingService', () => {
@@ -5,13 +6,13 @@ describe('RateLimitingService', () => {
 	const throttlingPeriodMs = 1000 // 1 second
 
 	beforeEach(() => {
-		jest.useFakeTimers()
+		vi.useFakeTimers()
 		rateLimitingService = new RateLimitingService(throttlingPeriodMs)
 	})
 
 	afterEach(() => {
-		jest.clearAllTimers()
-		jest.useRealTimers()
+		vi.clearAllTimers()
+		vi.useRealTimers()
 	})
 
 	test('allows access if no recent access', () => {
@@ -26,7 +27,7 @@ describe('RateLimitingService', () => {
 
 	test('allows access after throttling period', () => {
 		rateLimitingService.isAllowedToAccess('resource')
-		jest.advanceTimersByTime(throttlingPeriodMs + 1)
+		vi.advanceTimersByTime(throttlingPeriodMs + 1)
 		expect(rateLimitingService.isAllowedToAccess('resource')).toBe(true)
 	})
 })

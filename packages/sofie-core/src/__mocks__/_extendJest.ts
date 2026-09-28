@@ -1,3 +1,4 @@
+import { expect } from 'vitest'
 import { UserError, UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
@@ -82,16 +83,17 @@ expect.extend({
 		}
 	},
 })
-declare global {
-	namespace jest {
-		interface Matchers<R> {
-			toBeWithinRange(floor: number, ceiling: number): R
-			toBeFuzzy(target: number, fuzzyness: number): R
+interface CustomMatchers<R = unknown> {
+	toBeWithinRange(floor: number, ceiling: number): R
+	toBeFuzzy(target: number, fuzzyness: number): R
 
-			toThrowSofieError(...args: ConstructorParameters<typeof SofieError>): R
-			toMatchToString(reg: RegExp): R
-			toMatchUserError(msg: UserErrorMessage, args?: { [key: string]: any }): R
-			toMatchUserRawError(reg: RegExp): R
-		}
-	}
+	toThrowSofieError(...args: ConstructorParameters<typeof SofieError>): R
+	toMatchToString(reg: RegExp): R
+	toMatchUserError(msg: UserErrorMessage, args?: { [key: string]: any }): R
+	toMatchUserRawError(reg: RegExp): R
+}
+
+declare module 'vitest' {
+	// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-unused-vars
+	interface Matchers<R extends void | Promise<void> = void | Promise<void>, T = unknown> extends CustomMatchers<R> {}
 }

@@ -1,13 +1,14 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import '../../__mocks__/_extendJest'
 import { waitTime } from '../../__mocks__/helpers/jest'
 import { WorkerJobQueueManager } from '../jobQueue'
 
 // Mock the logging module
-jest.mock('../../logging')
+vi.mock('../../logging')
 
 // Mock getCurrentTime
-const mockCurrentTime = jest.fn(() => Date.now())
-jest.mock('../../lib/lib', () => ({
+const mockCurrentTime = vi.fn(() => Date.now())
+vi.mock('../../lib/lib', () => ({
 	getCurrentTime: () => mockCurrentTime(),
 }))
 
@@ -20,7 +21,7 @@ describe('WorkerJobQueueManager', () => {
 	})
 
 	afterEach(() => {
-		jest.clearAllMocks()
+		vi.clearAllMocks()
 	})
 
 	describe('queueJobWithoutResult', () => {
@@ -645,7 +646,7 @@ describe('WorkerJobQueueManager', () => {
 		it('should enqueue a new job when the queue is empty', async () => {
 			const queueName = 'testQueue'
 			const jobName = 'mergeJob'
-			const generateData = jest.fn((_existing: unknown | null) => ({ value: 1 }))
+			const generateData = vi.fn((_existing: unknown | null) => ({ value: 1 }))
 
 			manager.mergeOrQueueJob(queueName, jobName, generateData)
 
@@ -660,7 +661,7 @@ describe('WorkerJobQueueManager', () => {
 
 		it('should enqueue a new job when the tail has a different job name', async () => {
 			const queueName = 'testQueue'
-			const generateData = jest.fn((_existing: unknown | null) => ({ value: 42 }))
+			const generateData = vi.fn((_existing: unknown | null) => ({ value: 42 }))
 
 			await manager.queueJobWithoutResult(queueName, 'otherJob', { existing: true }, undefined)
 
@@ -681,7 +682,7 @@ describe('WorkerJobQueueManager', () => {
 			const queueName = 'testQueue'
 			const jobName = 'mergeJob'
 			const initialData = { count: 1 }
-			const generateData = jest.fn((existing: unknown | null) => ({
+			const generateData = vi.fn((existing: unknown | null) => ({
 				...(existing as object),
 				count: ((existing as { count: number } | null)?.count ?? 0) + 1,
 			}))
@@ -704,7 +705,7 @@ describe('WorkerJobQueueManager', () => {
 		it('should only merge with the tail job, not jobs earlier in the queue', async () => {
 			const queueName = 'testQueue'
 			const jobName = 'mergeJob'
-			const generateData = jest.fn((_existing: unknown | null) => ({ merged: true }))
+			const generateData = vi.fn((_existing: unknown | null) => ({ merged: true }))
 
 			// Queue: [mergeJob (index 0), otherJob (index 1/tail)]
 			await manager.queueJobWithoutResult(queueName, jobName, { original: true }, undefined)
@@ -776,7 +777,7 @@ describe('WorkerJobQueueManager', () => {
 			expect(firstJob?.data).toEqual({ round: 1 })
 
 			// Second call: queue is empty again — should create a fresh job with null as existing
-			const generateData = jest.fn(() => ({ round: 2 }))
+			const generateData = vi.fn(() => ({ round: 2 }))
 			manager.mergeOrQueueJob(queueName, jobName, generateData)
 
 			expect(generateData).toHaveBeenCalledWith(null)

@@ -1,3 +1,4 @@
+import { describe, test, expect, vi } from 'vitest'
 import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { MethodRegistry, AnyMethodApiRegistration } from '../../../../methodRegistry'
 import { PublicationRegistry } from '../../../../publicationRegistry'
@@ -7,7 +8,7 @@ import { createLegacyApiRouter } from '..'
 import { ServerUserActionAPI } from '../../../userActions'
 
 // we don't want the deviceTriggers observer to start up at this time
-jest.mock('../../../deviceTriggers/observer')
+vi.mock('../../../deviceTriggers/observer')
 
 import '../index'
 import { MethodContext } from '../../../methodContext'
@@ -15,7 +16,7 @@ import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 describe('REST API', () => {
 	describe('UNSTABLE v0', () => {
-		const methodMock = jest.fn((..._args): any => {
+		const methodMock = vi.fn((..._args): any => {
 			throw new Error('Method wrapper not setup')
 		})
 

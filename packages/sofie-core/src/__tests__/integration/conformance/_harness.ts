@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 /**
  * Differential-conformance harness: run the SAME operation against both the in-memory mock collection
  * (corelib's {@link InMemoryMongoCollection}, the real code path the unit-test mock uses) and a real

@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, afterAll, vi } from 'vitest'
 import { createServer, type Server } from 'http'
 import type { AddressInfo } from 'net'
 import { WebSocketServer } from 'ws'
@@ -89,7 +90,7 @@ describe('DDP client ↔ standalone server (integration)', () => {
 	})
 
 	test('calls a method: result + updated, with a connection in context', async () => {
-		const updated = jest.fn()
+		const updated = vi.fn()
 		const result = await new Promise((resolve, reject) => {
 			// eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
 			client.call('test.echo', ['hi'], (err, res) => (err ? reject(err) : resolve(res)), updated)

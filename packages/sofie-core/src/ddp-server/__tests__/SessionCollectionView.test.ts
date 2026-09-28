@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { SessionCollectionView, SessionCallbacks } from '../SessionCollectionView'
 
 /** Records the (collection, id, fields) emitted to the client so tests can assert the merged output. */

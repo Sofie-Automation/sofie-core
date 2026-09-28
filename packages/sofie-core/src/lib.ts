@@ -8,7 +8,7 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
  * Whether we are running in unit tests.
  */
 export function isInTestMode(): boolean {
-	return !!process.env.JEST_WORKER_ID
+	return !!process.env.JEST_WORKER_ID || !!process.env.VITEST
 }
 
 /**

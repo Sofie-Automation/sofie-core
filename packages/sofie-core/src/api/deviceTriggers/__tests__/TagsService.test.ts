@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { TagsService } from '../TagsService'
 import {

@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { supressLogging } from '../__mocks__/helpers/lib'
 import { SupressLogMessages } from '../__mocks__/suppressLogging'
 import { logger } from '../logging'

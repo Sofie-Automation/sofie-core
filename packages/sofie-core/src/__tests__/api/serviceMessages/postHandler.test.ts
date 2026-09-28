@@ -1,13 +1,14 @@
+import { describe, it, expect, vi, type Mock, type ExpectationResult } from 'vitest'
 import { postHandler } from '../../../api/serviceMessages/postHandler'
 import { Criticality, ExternalServiceMessage } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import * as serviceMessagesApi from '../../../api/serviceMessages/serviceMessagesApi'
 import { SupressLogMessages } from '../../../__mocks__/suppressLogging'
 import { createMockContext } from '@shopify/jest-koa-mocks'
 
-jest.mock('../../../api/serviceMessages/serviceMessagesApi', () => {
+vi.mock('../../../api/serviceMessages/serviceMessagesApi', () => {
 	return {
 		__esModule: true,
-		writeMessage: jest.fn(() => ({ systemError: false })),
+		writeMessage: vi.fn(() => ({ systemError: false })),
 	}
 })
 
@@ -28,7 +29,7 @@ declare global {
 }
 
 expect.extend({
-	toBeHttpOkStatusCode(value): jest.CustomMatcherResult {
+	toBeHttpOkStatusCode(value): ExpectationResult {
 		const allowed = [200, 201, 204]
 		if (allowed.indexOf(value) > -1) {
 			return {
@@ -45,7 +46,7 @@ expect.extend({
 })
 
 describe('ServiceMessages API POST endpoint', () => {
-	const mockedWriteMessage: jest.Mock<typeof serviceMessagesApi.writeMessage> = serviceMessagesApi.writeMessage as any
+	const mockedWriteMessage: Mock<typeof serviceMessagesApi.writeMessage> = serviceMessagesApi.writeMessage as any
 
 	describe('input validation', () => {
 		it('should accept valid input', async () => {
@@ -338,7 +339,7 @@ describe('ServiceMessages API POST endpoint', () => {
 
 	describe('http response', () => {
 		it('should reply 201 Created for new messages', async () => {
-			const spy = jest.spyOn(serviceMessagesApi, 'writeMessage').mockImplementation(async () => ({
+			const spy = vi.spyOn(serviceMessagesApi, 'writeMessage').mockImplementation(async () => ({
 				isUpdate: false,
 			}))
 
@@ -351,7 +352,7 @@ describe('ServiceMessages API POST endpoint', () => {
 		})
 
 		it('should put the new message in the response body', async () => {
-			const spy = jest.spyOn(serviceMessagesApi, 'writeMessage').mockImplementation(async () => ({
+			const spy = vi.spyOn(serviceMessagesApi, 'writeMessage').mockImplementation(async () => ({
 				isUpdate: false,
 			}))
 
@@ -371,7 +372,7 @@ describe('ServiceMessages API POST endpoint', () => {
 		})
 
 		it('should reply 200 OK for updated messages', async () => {
-			const spy = jest.spyOn(serviceMessagesApi, 'writeMessage').mockImplementation(async () => ({
+			const spy = vi.spyOn(serviceMessagesApi, 'writeMessage').mockImplementation(async () => ({
 				isUpdate: true,
 			}))
 
@@ -383,7 +384,7 @@ describe('ServiceMessages API POST endpoint', () => {
 			spy.mockRestore()
 		})
 		it('should put the updated message in the response body', async () => {
-			const spy = jest.spyOn(serviceMessagesApi, 'writeMessage').mockImplementation(async () => ({
+			const spy = vi.spyOn(serviceMessagesApi, 'writeMessage').mockImplementation(async () => ({
 				isUpdate: true,
 			}))
 
@@ -404,7 +405,7 @@ describe('ServiceMessages API POST endpoint', () => {
 		})
 
 		it('should reply 500 when message cant be stored', async () => {
-			const spy = jest.spyOn(serviceMessagesApi, 'writeMessage').mockImplementation(async () => {
+			const spy = vi.spyOn(serviceMessagesApi, 'writeMessage').mockImplementation(async () => {
 				throw new Error('lol')
 			})
 

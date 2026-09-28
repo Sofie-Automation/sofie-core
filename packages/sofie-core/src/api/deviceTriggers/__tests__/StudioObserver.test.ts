@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi } from 'vitest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	RundownId,
@@ -17,35 +18,35 @@ type OnChangedPieceInstances = (cache: PieceInstancesContentCache) => () => void
 let capturedRundownContentOnChanged: OnChangedRundown | undefined
 let capturedPieceInstancesOnChanged: OnChangedPieceInstances | undefined
 
-jest.mock('../../../publications/lib/observerChain', () => {
-	const fakeHandle = { stop: jest.fn() }
+vi.mock('../../../publications/lib/observerChain', () => {
+	const fakeHandle = { stop: vi.fn() }
 	const chain: any = {
-		next: jest.fn(() => chain),
-		end: jest.fn(() => fakeHandle),
+		next: vi.fn(() => chain),
+		end: vi.fn(() => fakeHandle),
 	}
 	return {
-		observerChain: jest.fn(() => chain),
+		observerChain: vi.fn(() => chain),
 	}
 })
 
-jest.mock('../RundownsObserver', () => {
+vi.mock('../RundownsObserver', () => {
 	return {
 		RundownsObserver: {
-			create: jest.fn(
+			create: vi.fn(
 				async (_playlistId: RundownPlaylistId, onChanged: (ids: RundownId[]) => Promise<() => void>) => {
 					// Immediately drive the callback once, to emulate initial observer execution
 					await onChanged([protectString<RundownId>('r0')])
-					return { stop: jest.fn() }
+					return { stop: vi.fn() }
 				}
 			),
 		},
 	}
 })
 
-jest.mock('../RundownContentObserver', () => {
+vi.mock('../RundownContentObserver', () => {
 	return {
 		RundownContentObserver: {
-			create: jest.fn(
+			create: vi.fn(
 				async (
 					_playlistId: RundownPlaylistId,
 					_showStyleBaseId: ShowStyleBaseId,
@@ -53,24 +54,24 @@ jest.mock('../RundownContentObserver', () => {
 					onChanged: OnChangedRundown
 				) => {
 					capturedRundownContentOnChanged = onChanged
-					return { stop: jest.fn() }
+					return { stop: vi.fn() }
 				}
 			),
 		},
 	}
 })
 
-jest.mock('../PieceInstancesObserver', () => {
+vi.mock('../PieceInstancesObserver', () => {
 	return {
 		PieceInstancesObserver: {
-			create: jest.fn(
+			create: vi.fn(
 				async (
 					_activationId: RundownPlaylistActivationId,
 					_showStyleBaseId: ShowStyleBaseId,
 					onChanged: OnChangedPieceInstances
 				) => {
 					capturedPieceInstancesOnChanged = onChanged
-					return { stop: jest.fn() }
+					return { stop: vi.fn() }
 				}
 			),
 		},
@@ -79,7 +80,7 @@ jest.mock('../PieceInstancesObserver', () => {
 
 describe('StudioObserver', () => {
 	beforeEach(() => {
-		jest.useFakeTimers()
+		vi.useFakeTimers()
 		capturedRundownContentOnChanged = undefined
 		capturedPieceInstancesOnChanged = undefined
 	})
@@ -95,13 +96,13 @@ describe('StudioObserver', () => {
 		const rundownId = protectString<RundownId>('rundown0')
 		const showStyleBaseId = protectString<ShowStyleBaseId>('showStyleBase0')
 
-		const rundownCleanup = jest.fn()
-		const pieceCleanup = jest.fn()
+		const rundownCleanup = vi.fn()
+		const pieceCleanup = vi.fn()
 
-		const onRundownContentChanged = jest.fn(
+		const onRundownContentChanged = vi.fn(
 			(_ssbId: ShowStyleBaseId, _cache: RundownContentCache) => rundownCleanup
 		)
-		const onPieceInstancesChanged = jest.fn(
+		const onPieceInstancesChanged = vi.fn(
 			(_ssbId: ShowStyleBaseId, _cache: PieceInstancesContentCache) => pieceCleanup
 		)
 
@@ -123,7 +124,7 @@ describe('StudioObserver', () => {
 		const ps: Promise<void> = (observer as any).updateShowStyle.call(state)
 
 		// Flush debounce timers and any queued promises
-		await jest.advanceTimersByTimeAsync(25)
+		await vi.advanceTimersByTimeAsync(25)
 		await runAllTimers()
 		await ps
 

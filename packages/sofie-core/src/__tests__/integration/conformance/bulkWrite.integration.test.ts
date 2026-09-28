@@ -1,3 +1,4 @@
+import { describe, beforeAll, afterAll } from 'vitest'
 /**
  * Conformance: the in-memory collection's hand-rolled `bulkWrite` arms vs real MongoDB `bulkWrite`
  * (`ordered: true`, matching the in-memory sequential semantics). This is the highest-risk write path.

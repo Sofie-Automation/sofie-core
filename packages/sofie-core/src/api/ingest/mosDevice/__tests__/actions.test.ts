@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, afterEach } from 'vitest'
 import '../../../../__mocks__/_extendJest'
 
 import { MOS } from '@sofie-automation/meteor-lib/dist/mos'

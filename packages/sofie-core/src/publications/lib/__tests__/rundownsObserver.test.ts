@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi } from 'vitest'
 import {
 	PeripheralDeviceId,
 	RundownId,
@@ -17,15 +18,15 @@ const MAX_WAIT_TIME = 4000
 
 describe('RundownsObserver', () => {
 	beforeEach(() => {
-		jest.useFakeTimers()
+		vi.useFakeTimers()
 	})
 
 	test('create and destroy observer', async () => {
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
-		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn(async () => onChangedCleanup)
+		const onChangedCleanup = vi.fn()
+		const onChanged = vi.fn(async () => onChangedCleanup)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
@@ -77,8 +78,8 @@ describe('RundownsObserver', () => {
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
-		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn<Promise<() => void>, [RundownId[]]>(async () => onChangedCleanup)
+		const onChangedCleanup = vi.fn()
+		const onChanged = vi.fn<(...args: [RundownId[]]) => Promise<() => void>>(async () => onChangedCleanup)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
@@ -131,8 +132,8 @@ describe('RundownsObserver', () => {
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
-		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn<Promise<() => void>, [RundownId[]]>(async () => onChangedCleanup)
+		const onChangedCleanup = vi.fn()
+		const onChanged = vi.fn<(...args: [RundownId[]]) => Promise<() => void>>(async () => onChangedCleanup)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
@@ -185,8 +186,8 @@ describe('RundownsObserver', () => {
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
-		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn<Promise<() => void>, [RundownId[]]>(async () => onChangedCleanup)
+		const onChangedCleanup = vi.fn()
+		const onChanged = vi.fn<(...args: [RundownId[]]) => Promise<() => void>>(async () => onChangedCleanup)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
@@ -241,7 +242,7 @@ describe('RundownsObserver', () => {
 			mockObserver.callbacksObserve!.changed!({ _id: mockId1 } as Rundown, { _id: mockId1 } as Rundown)
 
 			// put in a sleep to ensure debounce is ok
-			jest.advanceTimersByTime(10)
+			vi.advanceTimersByTime(10)
 			await runTimersUntilNow()
 
 			mockObserver.callbacksObserve!.added!({ _id: mockId4 } as Rundown)
@@ -272,8 +273,8 @@ describe('RundownsObserver', () => {
 	test('create and destroy observer - for peripheraldevice', async () => {
 		const deviceId = protectString<PeripheralDeviceId>('device0')
 
-		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn(async () => onChangedCleanup)
+		const onChangedCleanup = vi.fn()
+		const onChanged = vi.fn(async () => onChangedCleanup)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)

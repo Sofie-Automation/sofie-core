@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, beforeEach, afterAll, afterEach } from 'vitest'
 /**
  * Integration tests for the change-stream observe engine against a REAL MongoDB.
  *

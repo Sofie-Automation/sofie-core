@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest'
 import { readAllMessages, writeMessage } from '../../../api/serviceMessages/serviceMessagesApi'
 import * as CoreSystemUtil from '../../../coreSystem/collection'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -18,7 +19,7 @@ function convertExternalToServiceMessage(message: ExternalServiceMessage): Servi
 	}
 }
 
-jest.mock('../../../collections')
+vi.mock('../../../collections')
 
 const message1: ExternalServiceMessage = {
 	id: '294a7079efdce49fb553e52d9e352e24',
@@ -48,11 +49,11 @@ const fakeCoreSystem: ICoreSystem = {
 }
 
 describe('Service messages internal API', () => {
-	// const mockedGetCoreSystem: jest.Mock<typeof CoreSystem.getCoreSystem> = CoreSystem.getCoreSystem as any
+	// const mockedGetCoreSystem: Mock<typeof CoreSystem.getCoreSystem> = CoreSystem.getCoreSystem as any
 
 	describe('readAllMessages', () => {
 		it('should throw when core system object cant be accessed', async () => {
-			const spy = jest.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => undefined)
+			const spy = vi.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => undefined)
 			SupressLogMessages.suppressLogMessage(/coreSystem\.serviceMessages doesnt exist/i)
 
 			await expect(readAllMessages()).rejects.toThrow()
@@ -61,7 +62,7 @@ describe('Service messages internal API', () => {
 		})
 
 		it('should throw when core system object doesnt have a serviceMessages field', async () => {
-			const spy = jest.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => {
+			const spy = vi.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => {
 				const brokenCore = { ...fakeCoreSystem }
 				// @ts-expect-error
 				delete brokenCore.serviceMessages
@@ -77,7 +78,7 @@ describe('Service messages internal API', () => {
 		it('should return an empty array when there are no service messages', async () => {
 			const cs = { ...fakeCoreSystem }
 			cs.serviceMessages = {}
-			const spy = jest.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
+			const spy = vi.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
 
 			const actual = await readAllMessages()
 
@@ -90,7 +91,7 @@ describe('Service messages internal API', () => {
 			const cs = { ...fakeCoreSystem }
 			cs.serviceMessages[message1.id] = convertExternalToServiceMessage(message1)
 			cs.serviceMessages[message2.id] = convertExternalToServiceMessage(message2)
-			const spy = jest.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
+			const spy = vi.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
 
 			const actual = await readAllMessages()
 
@@ -102,7 +103,7 @@ describe('Service messages internal API', () => {
 
 	describe('writeMessage', () => {
 		it('should throw when core system object cant be accessed', async () => {
-			const spy = jest.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => undefined)
+			const spy = vi.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => undefined)
 
 			await expect(writeMessage({} as any)).rejects.toThrow()
 
@@ -110,7 +111,7 @@ describe('Service messages internal API', () => {
 		})
 
 		it('should throw when core system object doesnt have a serviceMessages field', async () => {
-			const spy = jest.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => {
+			const spy = vi.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => {
 				const brokenCore = { ...fakeCoreSystem }
 				// @ts-expect-error
 				delete brokenCore.serviceMessages
@@ -127,7 +128,7 @@ describe('Service messages internal API', () => {
 				serviceMessages: {},
 			})
 			cs.serviceMessages[message1.id] = convertExternalToServiceMessage(message1)
-			const spy = jest.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
+			const spy = vi.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
 
 			const actual = await writeMessage(convertExternalToServiceMessage(message1))
 
@@ -140,7 +141,7 @@ describe('Service messages internal API', () => {
 				serviceMessages: {},
 			})
 			cs.serviceMessages[message1.id] = convertExternalToServiceMessage(message1)
-			const spy = jest.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
+			const spy = vi.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
 			const actual = await writeMessage(convertExternalToServiceMessage(message2))
 
 			expect(actual).toHaveProperty('isUpdate', false)
@@ -153,7 +154,7 @@ describe('Service messages internal API', () => {
 			const cs = Object.assign({}, fakeCoreSystem, {
 				serviceMessages: {},
 			})
-			const spyGetCoreSystem = jest.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
+			const spyGetCoreSystem = vi.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
 
 			await writeMessage(convertExternalToServiceMessage(message2))
 
@@ -173,7 +174,7 @@ describe('Service messages internal API', () => {
 				serviceMessages: {},
 			})
 			cs.serviceMessages[message1.id] = convertExternalToServiceMessage(message1)
-			const spy = jest.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
+			const spy = vi.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
 			await writeMessage(convertExternalToServiceMessage(message2))
 
 			expect(CoreSystem.updateAsync).toHaveBeenCalledWith(cs._id, {
@@ -186,13 +187,13 @@ describe('Service messages internal API', () => {
 
 		it('should throw when message cant be written', async () => {
 			SupressLogMessages.suppressLogMessage(/lol/i)
-			const spyUpdate = jest.spyOn(CoreSystem, 'updateAsync').mockImplementation(() => {
+			const spyUpdate = vi.spyOn(CoreSystem, 'updateAsync').mockImplementation(() => {
 				throw new Error('lol')
 			})
 			const cs = Object.assign({}, fakeCoreSystem, {
 				serviceMessages: {},
 			})
-			const spyGetCoreSystem = jest.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
+			const spyGetCoreSystem = vi.spyOn(CoreSystemUtil, 'getCoreSystemAsync').mockImplementation(async () => cs)
 
 			await expect(writeMessage(convertExternalToServiceMessage(message2))).rejects.toThrow()
 

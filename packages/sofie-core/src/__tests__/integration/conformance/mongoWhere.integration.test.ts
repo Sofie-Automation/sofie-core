@@ -1,3 +1,4 @@
+import { describe, beforeAll, afterAll } from 'vitest'
 /**
  * Conformance: `mongoWhere` (the in-memory query matcher) vs real MongoDB `find`.
  * Driven through {@link InMemoryMongoCollection} so it exercises the production mock read path.

@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi } from 'vitest'
 import { UserActionAPIMethods } from '@sofie-automation/meteor-lib/dist/api/userActions'
 import { ServerUserActionAPI } from '../../userActions'
 import {
@@ -81,7 +82,7 @@ describe('User Actions - Disable Peripheral SubDevice', () => {
 			},
 		})
 
-		jest.resetAllMocks()
+		vi.resetAllMocks()
 	})
 	test('disable existing subDevice', async () => {
 		await expect(

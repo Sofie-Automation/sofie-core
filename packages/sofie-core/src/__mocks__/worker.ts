@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 // import { IngestJobFunc } from '@sofie-automation/corelib/dist/worker/ingest'
 // import { StudioJobFunc } from '@sofie-automation/corelib/dist/worker/studio'
 // import { StudioId } from '../../lib/collections/Studios'
@@ -16,18 +17,15 @@ export function CreateFakeResult<T>(result: Promise<T>): WorkerJob<T> {
 	}
 }
 
-export const QueueForceClearAllCachesSpy = jest.fn<
-	ReturnType<typeof QueueForceClearAllCaches>,
-	Parameters<typeof QueueForceClearAllCaches>
->(async () => {
+export const QueueForceClearAllCachesSpy = vi.fn<(...args: Parameters<typeof QueueForceClearAllCaches>) => ReturnType<typeof QueueForceClearAllCaches>>(async () => {
 	throw new Error('Not implemented')
 })
-export const QueueStudioJobSpy = jest.fn<ReturnType<typeof QueueStudioJob>, Parameters<typeof QueueStudioJob>>(
+export const QueueStudioJobSpy = vi.fn<(...args: Parameters<typeof QueueStudioJob>) => ReturnType<typeof QueueStudioJob>>(
 	async () => {
 		throw new Error('Not implemented')
 	}
 )
-export const QueueIngestJobSpy = jest.fn<ReturnType<typeof QueueIngestJob>, Parameters<typeof QueueIngestJob>>(
+export const QueueIngestJobSpy = vi.fn<(...args: Parameters<typeof QueueIngestJob>) => ReturnType<typeof QueueIngestJob>>(
 	async () => {
 		throw new Error('Not implemented')
 	}

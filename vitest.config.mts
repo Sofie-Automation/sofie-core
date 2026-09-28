@@ -97,6 +97,28 @@ export default defineConfig({
 				},
 			}),
 
+			packageProject('sofie-core', {
+				alias: [corelibSrcAlias],
+				test: {
+					// The integration tests need a real MongoDB, so run in their own project
+					exclude: ['**/node_modules/**', '**/dist/**', '**/*.integration.test.{ts,js}'],
+					globalSetup: './src/__mocks__/global-setup.mjs',
+					setupFiles: ['./src/__mocks__/_setupMocks.ts'],
+				},
+			}),
+			packageProject('sofie-core-integration', {
+				dir: 'sofie-core',
+				include: ['src/**/*.integration.test.{ts,js}'],
+				alias: [corelibSrcAlias],
+				test: {
+					// A single in-memory MongoDB replica set is booted for the whole project, and reused by every file
+					globalSetup: './src/__mocks__/integration-global-setup.mjs',
+					setupFiles: ['./src/__mocks__/_setupMocks.ts'],
+					// These tests wait on real change-stream / replica-set I/O, which is slower than the 5s default under load.
+					// The polling helpers (see `waitFor`) use a lower ceiling, so that they report a genuine hang
+					testTimeout: 30000,
+				},
+			}),
 			...(includeOpenApiTests
 				? [
 						packageProject('openapi', {

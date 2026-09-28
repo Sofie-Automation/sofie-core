@@ -1,4 +1,5 @@
-jest.mock('../api/integration/influx')
+import { describe, test, expect, beforeEach, vi } from 'vitest'
+vi.mock('../api/integration/influx')
 
 import { trackConnectionClose } from '../Connections'
 import { PeripheralDevices } from '../collections'

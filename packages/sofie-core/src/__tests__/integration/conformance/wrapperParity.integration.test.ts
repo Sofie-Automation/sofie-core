@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, afterAll } from 'vitest'
 /**
  * Wrapper-veneer parity (Part 2): assert the test mock wrapper ({@link WrappedMockCollection}) and the
  * production driver wrapper ({@link WrappedAsyncMongoCollection}) behave identically at the public

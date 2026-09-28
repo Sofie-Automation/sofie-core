@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { APIPeripheralDeviceFrom, buildStudioFromResolved } from '../typeConversion'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'

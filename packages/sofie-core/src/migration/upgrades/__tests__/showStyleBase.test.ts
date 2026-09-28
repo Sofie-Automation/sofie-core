@@ -1,3 +1,4 @@
+import { describe, test, expect, afterEach, vi } from 'vitest'
 import '../../../__mocks__/_extendJest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { runUpgradeForShowStyleBase, validateConfigForShowStyleBase } from '../showStyleBase'
@@ -23,11 +24,11 @@ import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlo
 
 describe('ShowStyleBase upgrades', () => {
 	afterEach(() => {
-		jest.restoreAllMocks()
+		vi.restoreAllMocks()
 	})
 
 	function setupBlueprintMockResult(snippet: Partial<ShowStyleBlueprintManifest>) {
-		jest.spyOn(blueprintCache, 'evalBlueprint').mockReturnValue(
+		vi.spyOn(blueprintCache, 'evalBlueprint').mockReturnValue(
 			literal<ShowStyleBlueprintManifest>({
 				blueprintType: BlueprintManifestType.SHOWSTYLE,
 				blueprintVersion: '0.0.0',

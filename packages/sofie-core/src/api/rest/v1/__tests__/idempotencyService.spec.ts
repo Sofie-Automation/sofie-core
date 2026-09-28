@@ -1,16 +1,17 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { IdempotencyService } from '../idempotencyService'
 
 describe('IdempotencyService', () => {
 	let idempotencyService: IdempotencyService
 
 	beforeEach(() => {
-		jest.useFakeTimers()
+		vi.useFakeTimers()
 		idempotencyService = new IdempotencyService(60 * 5 * 1000, 60 * 1000)
 	})
 
 	afterEach(() => {
-		jest.clearAllTimers()
-		jest.useRealTimers()
+		vi.clearAllTimers()
+		vi.useRealTimers()
 	})
 
 	it('should allow unique requests within the idempotency period', () => {
@@ -36,10 +37,10 @@ describe('IdempotencyService', () => {
 
 		expect(idempotencyService.isUniqueWithinIdempotencyPeriod(requestId)).toBe(true)
 
-		jest.advanceTimersByTime(55 * 5 * 1000)
+		vi.advanceTimersByTime(55 * 5 * 1000)
 		expect(idempotencyService.isUniqueWithinIdempotencyPeriod(requestId)).toBe(false)
 
-		jest.advanceTimersByTime(5 * 5 * 1000 + 1)
+		vi.advanceTimersByTime(5 * 5 * 1000 + 1)
 		expect(idempotencyService.isUniqueWithinIdempotencyPeriod(requestId)).toBe(true)
 	})
 })

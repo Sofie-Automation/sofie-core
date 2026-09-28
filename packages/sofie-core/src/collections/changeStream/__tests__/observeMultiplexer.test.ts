@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	ObserveMultiplexer,
@@ -19,10 +20,10 @@ const id = (s: string) => protectString(s)
 function makeHarness(initial: TestDoc[] = []) {
 	let docs: TestDoc[] = initial.map((d) => ({ ...d }))
 	const feedSubs: Array<{ onChange: (c: any) => void; onResync: () => void }> = []
-	const feedStop = jest.fn()
+	const feedStop = vi.fn()
 	const deps: ObserveMultiplexerDeps<TestDoc> = {
-		snapshot: jest.fn(async () => ({ docs: docs.map((d) => ({ ...d })), operationTime: undefined })),
-		subscribeFeed: jest.fn((onChange, onResync) => {
+		snapshot: vi.fn(async () => ({ docs: docs.map((d) => ({ ...d })), operationTime: undefined })),
+		subscribeFeed: vi.fn((onChange, onResync) => {
 			const s = { onChange, onResync }
 			feedSubs.push(s)
 			return {
@@ -53,7 +54,7 @@ const updateNullEv = (docId: any) => ({ operationType: 'update', documentKey: { 
 const deleteEv = (docId: any) => ({ operationType: 'delete', documentKey: { _id: docId } })
 
 function changesCallbacks() {
-	return { added: jest.fn(), changed: jest.fn(), removed: jest.fn() }
+	return { added: vi.fn(), changed: vi.fn(), removed: vi.fn() }
 }
 
 // Subscribers whose teardown isn't itself under test share this one per-test signal; afterEach aborts it
@@ -302,7 +303,7 @@ describe('ObserveMultiplexer observe (full-document) subscribers', () => {
 	test('added(doc), changed(newDoc, oldDoc), removed(doc)', async () => {
 		const h = makeHarness([{ _id: id('A'), val: 1 }])
 		const m = new ObserveMultiplexer<TestDoc>({}, undefined, undefined, h.deps, () => undefined)
-		const cb = { added: jest.fn(), changed: jest.fn(), removed: jest.fn() }
+		const cb = { added: vi.fn(), changed: vi.fn(), removed: vi.fn() }
 		await subscribeObserve(m, cb)
 
 		expect(cb.added).toHaveBeenCalledWith({ _id: id('A'), val: 1 })
@@ -323,8 +324,8 @@ describe('ObserveMultiplexer nonMutatingCallbacks', () => {
 		const m = new ObserveMultiplexer<TestDoc>({}, undefined, undefined, h.deps, () => undefined)
 
 		const captured: Record<string, any> = {}
-		const cbDefault = { added: jest.fn((_id, f) => (captured.def = f)), changed: jest.fn(), removed: jest.fn() }
-		const cbNon = { added: jest.fn((_id, f) => (captured.non = f)), changed: jest.fn(), removed: jest.fn() }
+		const cbDefault = { added: vi.fn((_id, f) => (captured.def = f)), changed: vi.fn(), removed: vi.fn() }
+		const cbNon = { added: vi.fn((_id, f) => (captured.non = f)), changed: vi.fn(), removed: vi.fn() }
 		await subscribeChanges(m, cbDefault)
 		await subscribeChanges(m, cbNon, true)
 

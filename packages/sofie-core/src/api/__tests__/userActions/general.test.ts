@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi } from 'vitest'
 import '../../../__mocks__/_extendJest'
 import { setupDefaultStudioEnvironment } from '../../../__mocks__/helpers/database'
 import { hashSingleUseToken } from '../../deviceTriggers/triggersContext'
@@ -23,14 +24,14 @@ describe('User Actions - General', () => {
 	})
 
 	test('Restart Core', async () => {
-		jest.useFakeTimers()
+		vi.useFakeTimers()
 
 		// Generate restart token
 		const res = (await MeteorCall.system.generateSingleUseToken()) as ClientAPI.ClientResponseSuccess<string>
 		expect(res).toMatchObject({ success: 200 })
 		expect(typeof res.result).toBe('string')
 
-		const mockExit = jest.spyOn(process, 'exit').mockImplementation()
+		const mockExit = vi.spyOn(process, 'exit').mockImplementation()
 
 		// Use an invalid token to try and restart it
 		await expect(
@@ -45,10 +46,10 @@ describe('User Actions - General', () => {
 			success: 200,
 		})
 
-		jest.runAllTimers()
+		vi.runAllTimers()
 
 		expect(mockExit).toHaveBeenCalledTimes(1)
-		jest.useRealTimers()
+		vi.useRealTimers()
 	})
 
 	test('GUI Status', async () => {

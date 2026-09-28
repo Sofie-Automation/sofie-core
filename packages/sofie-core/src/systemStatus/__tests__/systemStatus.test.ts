@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import '../../__mocks__/_extendJest'
 import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../__mocks__/helpers/database'
 import { generateTranslation, literal } from '@sofie-automation/corelib/dist/lib'
@@ -16,13 +17,13 @@ import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/
 import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
 
 // we don't want the deviceTriggers observer to start up at this time
-jest.mock('../../api/deviceTriggers/observer')
+vi.mock('../../api/deviceTriggers/observer')
 
 const PackageInfo = require('../../../package.json')
 
 import * as getServerBlueprintUpgradeStatuses from '../../publications/blueprintUpgradeStatus/systemStatus'
 import { setupSystemStatusObservers } from '../../coreSystem'
-const getServerBlueprintUpgradeStatusesMock = jest.spyOn(
+const getServerBlueprintUpgradeStatusesMock = vi.spyOn(
 	getServerBlueprintUpgradeStatuses,
 	'getServerBlueprintUpgradeStatuses'
 )

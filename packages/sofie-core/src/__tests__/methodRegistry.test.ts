@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { MethodApiRegistration, MethodRegistry } from '../methodRegistry'
 import { METHOD_REGISTRATIONS, registerAllApiMethods } from '../methodRegistrations'
 

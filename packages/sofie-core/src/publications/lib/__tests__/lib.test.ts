@@ -1,10 +1,11 @@
+import { describe, it, expect, vi } from 'vitest'
 import { waitForAllObserversReady } from '../lib'
 import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 import type { LiveQueryHandleSync } from '../../../lib/lib'
 
 describe('waitForAllObserversReady', () => {
 	// beforeEach(() => {
-	// 	jest.useFakeTimers()
+	// 	vi.useFakeTimers()
 	// })
 
 	it('no observers', async () => {
@@ -30,7 +31,7 @@ describe('waitForAllObserversReady', () => {
 	}
 
 	it('multiple good observers', async () => {
-		const stopFn = jest.fn()
+		const stopFn = vi.fn()
 
 		const res = waitForAllObserversReady([
 			createFakeObserver(10, stopFn),
@@ -47,7 +48,7 @@ describe('waitForAllObserversReady', () => {
 	})
 
 	it('multiple good with a bad observer', async () => {
-		const stopFn = jest.fn()
+		const stopFn = vi.fn()
 
 		const res = waitForAllObserversReady([
 			createFakeObserver(10, stopFn),

@@ -1,3 +1,4 @@
+import { describe, beforeAll, afterAll } from 'vitest'
 /**
  * Conformance: `mongoFindOptions` (sort/skip/limit) and `mongoProjectDocument` (projection) vs real MongoDB.
  * Sort cases are compared positionally (order is the thing under test); the rest are compared as a set.

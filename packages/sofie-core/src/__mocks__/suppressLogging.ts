@@ -1,3 +1,4 @@
+import { expect } from 'vitest'
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { overrideLogger } from '../logging'
 

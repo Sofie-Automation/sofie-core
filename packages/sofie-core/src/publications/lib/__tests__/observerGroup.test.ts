@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi } from 'vitest'
 import '../../../__mocks__/_extendJest'
 
 import { ReactiveMongoObserverGroup } from '../observerGroup'
@@ -5,12 +6,12 @@ import { LiveQueryHandle, sleep } from '../../../lib/lib'
 
 describe('ReactiveMongoObserverGroup', () => {
 	beforeEach(() => {
-		jest.useRealTimers()
+		vi.useRealTimers()
 	})
 
 	test('cleanup on stop', async () => {
-		const handle: LiveQueryHandle = { stop: jest.fn() }
-		const generator = jest.fn(async () => [Promise.resolve(handle)])
+		const handle: LiveQueryHandle = { stop: vi.fn() }
+		const generator = vi.fn(async () => [Promise.resolve(handle)])
 
 		const observerGroup = await ReactiveMongoObserverGroup(generator)
 
@@ -38,8 +39,8 @@ describe('ReactiveMongoObserverGroup', () => {
 	})
 
 	test('restarting', async () => {
-		const handle: LiveQueryHandle = { stop: jest.fn() }
-		const generator = jest.fn(async () => [Promise.resolve(handle)])
+		const handle: LiveQueryHandle = { stop: vi.fn() }
+		const generator = vi.fn(async () => [Promise.resolve(handle)])
 
 		const observerGroup = await ReactiveMongoObserverGroup(generator)
 
@@ -79,8 +80,8 @@ describe('ReactiveMongoObserverGroup', () => {
 	})
 
 	test('restart debounce', async () => {
-		const handle: LiveQueryHandle = { stop: jest.fn() }
-		const generator = jest.fn(async () => [Promise.resolve(handle)])
+		const handle: LiveQueryHandle = { stop: vi.fn() }
+		const generator = vi.fn(async () => [Promise.resolve(handle)])
 
 		const observerGroup = await ReactiveMongoObserverGroup(generator)
 

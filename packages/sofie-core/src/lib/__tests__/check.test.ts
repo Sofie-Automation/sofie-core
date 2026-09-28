@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { z } from 'zod'
 import { check, disableChecks, enableChecks, zAnyArray, zPlainObject } from '../check'
 import { SofieError } from '@sofie-automation/corelib/dist/error'

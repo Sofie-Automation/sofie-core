@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, afterAll } from 'vitest'
 /**
  * observe/observeChanges parity (Part 3): assert the in-memory mock ({@link WrappedMockCollection}, driven by
  * corelib's ObserveView) and the real change-stream multiplexer emit the same add/change/remove sequences for

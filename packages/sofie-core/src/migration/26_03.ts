@@ -18,7 +18,7 @@ export const addSteps = addMigrationSteps('26.3.0', [
 		canBeRunAutomatically: true,
 		validate: async () => {
 			// If there is no MongoDB connection, we are in a test environment
-			if (process.env.JEST_WORKER_ID || !process.env.MONGO_URL) return false
+			if (process.env.JEST_WORKER_ID || process.env.VITEST || !process.env.MONGO_URL) return false
 
 			const existingCollections = await getMongoDb().listCollections().toArray()
 			const collectionsToDrop = existingCollections.filter((c) =>

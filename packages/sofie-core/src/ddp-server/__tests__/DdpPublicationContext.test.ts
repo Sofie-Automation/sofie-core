@@ -1,3 +1,4 @@
+import { describe, test, expect, vi } from 'vitest'
 import { DdpPublicationContext, SessionPublicationApi } from '../DdpPublicationContext'
 
 function fakeSession() {
@@ -69,7 +70,7 @@ describe('DdpPublicationContext', () => {
 	test('stop() is idempotent', () => {
 		const { api } = fakeSession()
 		const ctx = new DdpPublicationContext(api, 's1', 'N-s1', 'pub')
-		const cb = jest.fn()
+		const cb = vi.fn()
 		ctx.onStop(cb)
 		ctx.stop()
 		ctx.stop()
@@ -81,7 +82,7 @@ describe('DdpPublicationContext', () => {
 		const ctx = new DdpPublicationContext(api, 's1', 'N-s1', 'pub')
 		ctx.stop()
 
-		const cb = jest.fn()
+		const cb = vi.fn()
 		ctx.onStop(cb)
 		expect(cb).not.toHaveBeenCalled()
 		await Promise.resolve()

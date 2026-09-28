@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PartNote, SegmentNote } from '@sofie-automation/corelib/dist/dataModel/Notes'

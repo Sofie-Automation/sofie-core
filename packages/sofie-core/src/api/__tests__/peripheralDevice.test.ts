@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, beforeEach, vi } from 'vitest'
 import '../../__mocks__/_extendJest'
 import {
 	PeripheralDevice,
@@ -23,7 +24,7 @@ import {
 import { CreateFakeResult, QueueStudioJobSpy } from '../../__mocks__/worker'
 import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
 
-jest.mock('../deviceTriggers/observer')
+vi.mock('../deviceTriggers/observer')
 
 import { OnTimelineTriggerTimeProps, StudioJobFunc, StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { PeripheralDeviceAPIMethods } from '@sofie-automation/shared-lib/dist/peripheralDevice/methodsAPI'
@@ -243,9 +244,9 @@ describe('test peripheralDevice general API methods', () => {
 	})
 
 	test('ping', async () => {
-		jest.useFakeTimers()
+		vi.useFakeTimers()
 		const EPOCH = 10000
-		jest.setSystemTime(EPOCH)
+		vi.setSystemTime(EPOCH)
 
 		// reset the lastSeen property so that this test is predictable, and not time-dependant
 		await PeripheralDevices.updateAsync(device._id, {
@@ -257,7 +258,7 @@ describe('test peripheralDevice general API methods', () => {
 		expect(await PeripheralDevices.findOneAsync(device._id)).toBeTruthy()
 		const lastSeen = ((await PeripheralDevices.findOneAsync(device._id)) as PeripheralDevice).lastSeen
 
-		await jest.advanceTimersByTimeAsync(1200)
+		await vi.advanceTimersByTimeAsync(1200)
 
 		await MeteorCall.peripheralDevice.ping(device._id, device.token)
 		await waitUntil(async () => {
@@ -266,7 +267,7 @@ describe('test peripheralDevice general API methods', () => {
 			)
 		}, 1000)
 
-		jest.useRealTimers()
+		vi.useRealTimers()
 	})
 
 	test('determineDiffTime', async () => {
@@ -297,9 +298,9 @@ describe('test peripheralDevice general API methods', () => {
 	})
 
 	test('pingWithCommand and functionReply', async () => {
-		jest.useFakeTimers()
+		vi.useFakeTimers()
 		const EPOCH = 10000
-		jest.setSystemTime(EPOCH)
+		vi.setSystemTime(EPOCH)
 		if (DEBUG) setLogLevel(LogLevel.DEBUG)
 
 		// reset the lastSeen property so that this test is predictable, and not time-dependant
@@ -311,7 +312,7 @@ describe('test peripheralDevice general API methods', () => {
 
 		let resultErr = undefined
 		let resultMessage = undefined
-		const pingCompleted = jest.fn((err: any, msg: any) => {
+		const pingCompleted = vi.fn((err: any, msg: any) => {
 			resultErr = err
 			resultMessage = msg
 		})
@@ -321,7 +322,7 @@ describe('test peripheralDevice general API methods', () => {
 		expect(device2).toBeTruthy()
 		const lastSeen = device2.lastSeen
 
-		jest.advanceTimersByTime(1200)
+		vi.advanceTimersByTime(1200)
 
 		// Note: the null is so that Metor doesnt try to use pingCompleted  as a callback instead of blocking
 		const message = 'Waving!'
@@ -329,7 +330,7 @@ describe('test peripheralDevice general API methods', () => {
 
 		let command: PeripheralDeviceCommand | undefined
 		await waitUntil(async () => {
-			jest.runAllTicks()
+			vi.runAllTicks()
 			command = await PeripheralDeviceCommands.findOneAsync({
 				deviceId: device._id,
 			})
@@ -347,7 +348,7 @@ describe('test peripheralDevice general API methods', () => {
 		const replyMessage = 'Waving back!'
 		await MeteorCall.peripheralDevice.functionReply(device._id, device.token, command._id, undefined, replyMessage)
 
-		jest.advanceTimersByTime(1200)
+		vi.advanceTimersByTime(1200)
 
 		expect(await PeripheralDeviceCommands.findOneAsync({})).toBeTruthy()
 		await waitUntil(async () => {
@@ -355,7 +356,7 @@ describe('test peripheralDevice general API methods', () => {
 		}, 100)
 
 		await waitUntil(async () => {
-			jest.runAllTicks()
+			vi.runAllTicks()
 			expect(((await PeripheralDevices.findOneAsync(device._id)) as PeripheralDevice).lastSeen).toBeGreaterThan(
 				lastSeen
 			)
@@ -363,7 +364,7 @@ describe('test peripheralDevice general API methods', () => {
 
 		expect(resultErr).toBeNull()
 		expect(resultMessage).toEqual(replyMessage)
-		jest.useRealTimers()
+		vi.useRealTimers()
 	})
 
 	test('playoutPlaybackChanged', async () => {

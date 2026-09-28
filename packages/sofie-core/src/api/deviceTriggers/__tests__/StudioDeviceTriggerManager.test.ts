@@ -1,3 +1,4 @@
+import { describe, it, expect, afterEach, vi } from 'vitest'
 import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
 import {
 	PartId,
@@ -384,9 +385,9 @@ describe('StudioDeviceTriggerManager', () => {
 	})
 
 	it('executes the action with the adLib data from the cache', async () => {
-		const executeAction = jest.fn(async () => ClientAPI.responseSuccess(undefined))
-		const segmentAdLibPieceStart = jest.fn(async () => ClientAPI.responseSuccess(undefined))
-		const baselineAdLibPieceStart = jest.fn(async () => ClientAPI.responseSuccess(undefined))
+		const executeAction = vi.fn(async () => ClientAPI.responseSuccess(undefined))
+		const segmentAdLibPieceStart = vi.fn(async () => ClientAPI.responseSuccess(undefined))
+		const baselineAdLibPieceStart = vi.fn(async () => ClientAPI.responseSuccess(undefined))
 		const manager = createManager({
 			userAction: { executeAction, segmentAdLibPieceStart, baselineAdLibPieceStart },
 		} as unknown as IMeteorCall)

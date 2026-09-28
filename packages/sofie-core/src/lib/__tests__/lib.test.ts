@@ -1,3 +1,4 @@
+import { describe, test, expect, vi } from 'vitest'
 import '../../__mocks__/_extendJest'
 import { TSR } from '@sofie-automation/blueprints-integration'
 import {
@@ -67,20 +68,20 @@ describe('server/lib', () => {
 		})
 
 		const options: SaveIntoDbHooks<any> = {
-			beforeInsert: jest.fn((o) => o),
-			beforeUpdate: jest.fn((o) => o),
-			beforeRemove: jest.fn((o) => o),
-			beforeDiff: jest.fn((o) => o),
-			// insert: jest.fn((o) => o),
-			// update: jest.fn((id, o,) => { return undefined }),
-			// remove: jest.fn((o) => { return undefined }),
-			afterInsert: jest.fn((_o) => {
+			beforeInsert: vi.fn((o) => o),
+			beforeUpdate: vi.fn((o) => o),
+			beforeRemove: vi.fn((o) => o),
+			beforeDiff: vi.fn((o) => o),
+			// insert: vi.fn((o) => o),
+			// update: vi.fn((id, o,) => { return undefined }),
+			// remove: vi.fn((o) => { return undefined }),
+			afterInsert: vi.fn((_o) => {
 				return undefined
 			}),
-			afterUpdate: jest.fn((_o) => {
+			afterUpdate: vi.fn((_o) => {
 				return undefined
 			}),
-			afterRemove: jest.fn((_o) => {
+			afterRemove: vi.fn((_o) => {
 				return undefined
 			}),
 		}

@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeAll, afterAll, afterEach, vi } from 'vitest'
 import { EventEmitter } from 'events'
 import { MethodRegistry } from '../../methodRegistry'
 import { PublicationRegistry } from '../../publicationRegistry'
@@ -122,7 +123,7 @@ describe('DdpSession', () => {
 				if (originalEnv[key] === undefined) delete process.env[key]
 				else process.env[key] = originalEnv[key]
 			}
-			jest.resetModules()
+			vi.resetModules()
 		})
 
 		/**
@@ -133,7 +134,7 @@ describe('DdpSession', () => {
 		): typeof import('../../security/auth') {
 			for (const key of ENV_KEYS) delete process.env[key]
 			Object.assign(process.env, env)
-			jest.resetModules()
+			vi.resetModules()
 			return require('../../security/auth')
 		}
 

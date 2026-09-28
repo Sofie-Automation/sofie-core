@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi } from 'vitest'
 import '../../__mocks__/_extendJest'
 import { StatusCode } from '@sofie-automation/blueprints-integration'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
@@ -120,7 +121,7 @@ describe('peripheralDevice setStatus', () => {
 		test('does not write when an unchanged status is reported again', async () => {
 			await setStatus(legacyDeviceStatus(StatusCode.BAD, ['Not enough workers']))
 
-			const updateSpy = jest.spyOn(PeripheralDevices, 'updateAsync')
+			const updateSpy = vi.spyOn(PeripheralDevices, 'updateAsync')
 			try {
 				await setStatus(legacyDeviceStatus(StatusCode.BAD, ['Not enough workers']))
 

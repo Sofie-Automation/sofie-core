@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, afterEach, vi, type MockedFunction } from 'vitest'
 import { DeviceStatusContext, TSR } from '@sofie-automation/blueprints-integration'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -5,10 +6,10 @@ import { Blueprints, PeripheralDevices, Studios } from '../../collections'
 import { evalBlueprint } from '../blueprints/cache'
 import { resolveActionResult } from '../peripheralDevice'
 
-jest.mock('../deviceTriggers/observer')
-jest.mock('../blueprints/cache')
+vi.mock('../deviceTriggers/observer')
+vi.mock('../blueprints/cache')
 
-const mockEvalBlueprint = evalBlueprint as jest.MockedFunction<typeof evalBlueprint>
+const mockEvalBlueprint = evalBlueprint as MockedFunction<typeof evalBlueprint>
 
 const ACTION_ERROR_CODE = 'ACTION_HTTP_REQUEST_FAILED'
 const deviceId = protectString<PeripheralDeviceId>('device0')
@@ -29,14 +30,14 @@ function makeErrorResult(overrides: Partial<TSR.ActionExecutionResult> = {}): TS
 
 describe('resolveActionResult', () => {
 	beforeEach(() => {
-		jest.spyOn(PeripheralDevices, 'findOneAsync').mockReset()
-		jest.spyOn(Studios, 'findOneAsync').mockReset()
-		jest.spyOn(Blueprints, 'findOneAsync').mockReset()
+		vi.spyOn(PeripheralDevices, 'findOneAsync').mockReset()
+		vi.spyOn(Studios, 'findOneAsync').mockReset()
+		vi.spyOn(Blueprints, 'findOneAsync').mockReset()
 		mockEvalBlueprint.mockReset()
 	})
 
 	afterEach(() => {
-		jest.restoreAllMocks()
+		vi.restoreAllMocks()
 	})
 
 	it('returns Ok results unchanged', async () => {
@@ -61,12 +62,12 @@ describe('resolveActionResult', () => {
 	})
 
 	it('interpolates a matching string template from deviceActionMessages', async () => {
-		jest.spyOn(PeripheralDevices, 'findOneAsync').mockResolvedValue({
+		vi.spyOn(PeripheralDevices, 'findOneAsync').mockResolvedValue({
 			name: 'Playout Gateway',
 			studioAndConfigId: { studioId, configId: 'config0' },
 		} as any)
-		jest.spyOn(Studios, 'findOneAsync').mockResolvedValue({ blueprintId: 'blueprint0' } as any)
-		jest.spyOn(Blueprints, 'findOneAsync').mockResolvedValue({
+		vi.spyOn(Studios, 'findOneAsync').mockResolvedValue({ blueprintId: 'blueprint0' } as any)
+		vi.spyOn(Blueprints, 'findOneAsync').mockResolvedValue({
 			_id: 'blueprint0',
 			name: 'test',
 			code: '',
@@ -85,12 +86,12 @@ describe('resolveActionResult', () => {
 	})
 
 	it('uses a DeviceStatusMessageFunction from deviceActionMessages', async () => {
-		jest.spyOn(PeripheralDevices, 'findOneAsync').mockResolvedValue({
+		vi.spyOn(PeripheralDevices, 'findOneAsync').mockResolvedValue({
 			name: 'Playout Gateway',
 			studioAndConfigId: { studioId, configId: 'config0' },
 		} as any)
-		jest.spyOn(Studios, 'findOneAsync').mockResolvedValue({ blueprintId: 'blueprint0' } as any)
-		jest.spyOn(Blueprints, 'findOneAsync').mockResolvedValue({
+		vi.spyOn(Studios, 'findOneAsync').mockResolvedValue({ blueprintId: 'blueprint0' } as any)
+		vi.spyOn(Blueprints, 'findOneAsync').mockResolvedValue({
 			_id: 'blueprint0',
 			name: 'test',
 			code: '',
@@ -110,12 +111,12 @@ describe('resolveActionResult', () => {
 	})
 
 	it('clears the response when the blueprint suppresses the message', async () => {
-		jest.spyOn(PeripheralDevices, 'findOneAsync').mockResolvedValue({
+		vi.spyOn(PeripheralDevices, 'findOneAsync').mockResolvedValue({
 			name: 'Playout Gateway',
 			studioAndConfigId: { studioId, configId: 'config0' },
 		} as any)
-		jest.spyOn(Studios, 'findOneAsync').mockResolvedValue({ blueprintId: 'blueprint0' } as any)
-		jest.spyOn(Blueprints, 'findOneAsync').mockResolvedValue({
+		vi.spyOn(Studios, 'findOneAsync').mockResolvedValue({ blueprintId: 'blueprint0' } as any)
+		vi.spyOn(Blueprints, 'findOneAsync').mockResolvedValue({
 			_id: 'blueprint0',
 			name: 'test',
 			code: '',
@@ -138,12 +139,12 @@ describe('resolveActionResult', () => {
 	})
 
 	it('returns the original result when there is no matching deviceActionMessages entry', async () => {
-		jest.spyOn(PeripheralDevices, 'findOneAsync').mockResolvedValue({
+		vi.spyOn(PeripheralDevices, 'findOneAsync').mockResolvedValue({
 			name: 'Playout Gateway',
 			studioAndConfigId: { studioId, configId: 'config0' },
 		} as any)
-		jest.spyOn(Studios, 'findOneAsync').mockResolvedValue({ blueprintId: 'blueprint0' } as any)
-		jest.spyOn(Blueprints, 'findOneAsync').mockResolvedValue({
+		vi.spyOn(Studios, 'findOneAsync').mockResolvedValue({ blueprintId: 'blueprint0' } as any)
+		vi.spyOn(Blueprints, 'findOneAsync').mockResolvedValue({
 			_id: 'blueprint0',
 			name: 'test',
 			code: '',
@@ -160,7 +161,7 @@ describe('resolveActionResult', () => {
 
 	it('resolves messages for child devices via the parent studio', async () => {
 		const parentDeviceId = protectString<PeripheralDeviceId>('parent0')
-		jest.spyOn(PeripheralDevices, 'findOneAsync').mockImplementation(async (id) => {
+		vi.spyOn(PeripheralDevices, 'findOneAsync').mockImplementation(async (id) => {
 			if (id === deviceId) {
 				return {
 					name: 'casparcg0',
@@ -174,8 +175,8 @@ describe('resolveActionResult', () => {
 			}
 			return undefined
 		})
-		jest.spyOn(Studios, 'findOneAsync').mockResolvedValue({ blueprintId: 'blueprint0' } as any)
-		jest.spyOn(Blueprints, 'findOneAsync').mockResolvedValue({
+		vi.spyOn(Studios, 'findOneAsync').mockResolvedValue({ blueprintId: 'blueprint0' } as any)
+		vi.spyOn(Blueprints, 'findOneAsync').mockResolvedValue({
 			_id: 'blueprint0',
 			name: 'test',
 			code: '',
@@ -194,7 +195,7 @@ describe('resolveActionResult', () => {
 	})
 
 	it('returns the original result when the device has no studio', async () => {
-		jest.spyOn(PeripheralDevices, 'findOneAsync').mockResolvedValue({
+		vi.spyOn(PeripheralDevices, 'findOneAsync').mockResolvedValue({
 			name: 'Playout Gateway',
 		} as any)
 
@@ -206,11 +207,11 @@ describe('resolveActionResult', () => {
 	})
 
 	it('returns the original result when blueprint lookup fails', async () => {
-		jest.spyOn(PeripheralDevices, 'findOneAsync').mockResolvedValue({
+		vi.spyOn(PeripheralDevices, 'findOneAsync').mockResolvedValue({
 			name: 'Playout Gateway',
 			studioAndConfigId: { studioId, configId: 'config0' },
 		} as any)
-		jest.spyOn(Studios, 'findOneAsync').mockResolvedValue(undefined)
+		vi.spyOn(Studios, 'findOneAsync').mockResolvedValue(undefined)
 
 		const result = makeErrorResult()
 		const resolved = await resolveActionResult(deviceId, result)
