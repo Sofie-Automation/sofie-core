@@ -1,46 +1,118 @@
 {
 	"name": "automation-core",
-	"version": "0.0.0",
+	"version": "26.3.0-2",
 	"license": "MIT",
 	"private": true,
 	"engines": {
 		"node": ">=22.20.0"
 	},
+	"workspaces": [
+		"packages/*"
+	],
 	"scripts": {
 		"prepare": "husky",
-		"postinstall": "run install:packages && run install:meteor",
-		"install:meteor": "cd meteor && yarn install",
-		"install:packages": "cd packages && yarn install",
-		"start": "yarn install && run install-and-build && run dev",
+		"start": "yarn install && run build && run dev",
 		"install-and-build": "node ./scripts/install-and-build.mjs",
 		"dev": "node --env-file-if-exists=.env ./scripts/run.mjs",
-		"restart:meteor": "node ./scripts/meteor-force-restart.js",
-		"build:packages": "cd packages && run build",
-		"test:packages": "cd packages && run test",
-		"lint:packages": "cd packages && run lint",
-		"unit:packages": "cd packages && run unit",
-		"check-types": "cd packages && run build",
-		"test:meteor": "cd meteor && run test",
-		"lint:meteor": "cd meteor && yarn lint",
-		"unit:meteor": "cd meteor && yarn unit",
-		"lint": "run lint:meteor && run lint:packages",
-		"lint:fix": "run lint:meteor --fix && run lint:packages --fix",
-		"unit": "run unit:meteor && run unit:packages",
-		"validate:release": "yarn install && run install-and-build && run validate:versions && run validate:release:packages && run validate:release:meteor",
-		"validate:release:meteor": "cd meteor && yarn validate:prod-dependencies && yarn license-validate && yarn lint && yarn test",
-		"validate:release:packages": "cd packages && run validate:dependencies && run test",
+		"restart:server": "node ./scripts/server-force-restart.js",
+		"build": "run build:prepare && run build:main",
+		"build:prepare": "(rimraf packages/*/dist packages/*/*.tsbuildinfo || true) && yarn workspaces foreach -Ap run build:prepare",
+		"build:main": "tsc --build tsconfig.build.json",
+		"build:all": "run build && yarn workspace @sofie-automation/openapi build",
+		"build:try": "run build || true",
+		"build:single": "run build:prepare && tsc --build",
+		"build:packages": "run build",
+		"check-types": "run build",
+		"watch": "run build:main --watch",
+		"watch-for-worker-changes": "nodemon --delay 2.5 --watch packages/job-worker/dist --watch packages/corelib/dist --watch packages/shared-lib/dist --watch packages/blueprints-integration/dist --watch packages/server-core-integration/dist ./scripts/server-force-restart.js",
+		"lint": "eslint",
+		"lint:fix": "run lint --fix",
+		"unit": "lerna run --concurrency 2 --stream unit --ignore @sofie-automation/openapi -- --coverage=false",
+		"test": "lerna run --concurrency 2 --stream test -- --coverage=false",
+		"test-all": "yarn install && run build && run lint && run test",
+		"validate:release": "yarn install && run build && run validate:versions && run validate:dependencies && run test",
+		"validate:dependencies": "yarn npm audit --environment production && run license-validate",
+		"validate:dev-dependencies": "yarn npm audit --environment development",
 		"validate:versions": "node scripts/checkForMultipleVersions.mjs",
-		"docs:serve": "cd packages && run docs:serve",
+		"license-validate": "sofie-licensecheck --allowPackages \"caniuse-lite@1.0.30001448;mos-gateway@$(node -p \"require('mos-gateway/package.json').version\");playout-gateway@$(node -p \"require('playout-gateway/package.json').version\");sofie-documentation@$(node -p \"require('sofie-documentation/package.json').version\");@sofie-automation/sofie-core@$(node -p \"require('@sofie-automation/sofie-core/package.json').version\");@sofie-automation/corelib@$(node -p \"require('@sofie-automation/corelib/package.json').version\");@sofie-automation/shared-lib@$(node -p \"require('@sofie-automation/shared-lib/package.json').version\");@sofie-automation/job-worker@$(node -p \"require('@sofie-automation/job-worker/package.json').version\");@sofie-automation/meteor-lib@$(node -p \"require('@sofie-automation/meteor-lib/package.json').version\");@sofie-automation/webui@$(node -p \"require('@sofie-automation/webui/package.json').version\");lunr-languages@1.10.0;live-status-gateway@$(node -p \"require('live-status-gateway/package.json').version\")\"",
+		"stage-versions": "git add -u \"packages/*/package.json\" \"packages/*/CHANGELOG.md\" lerna.json yarn.lock",
+		"set-version": "lerna version --exact --no-changelog --no-git-tag-version --no-push --yes",
+		"set-version-and-commit": "lerna version --exact --no-changelog --no-changelog --no-commit-hooks --force-publish='*' --no-push --yes",
+		"set-version-and-changelog": "lerna version --exact --force-publish --conventional-commits --no-git-tag-version --no-push --yes",
+		"release": "commit-and-tag-version --commit-all",
+		"prepareChangelog": "run release --prerelease --release-as patch",
+		"docs:typedoc": "typedoc .",
+		"docs:serve": "yarn workspace sofie-documentation start",
+		"generate-schema-types": "node scripts/schema-types.mjs",
 		"reset": "node scripts/reset.mjs",
-		"test-all": "yarn install && run install-and-build && run check-types && run lint:packages && run lint:meteor && run test:packages && run test:meteor"
+		"prettier": "cd $INIT_CWD && \"$PROJECT_CWD/node_modules/.bin/prettier\"",
+		"eslint": "cd $INIT_CWD && \"$PROJECT_CWD/node_modules/.bin/eslint\""
 	},
 	"devDependencies": {
+		"@babel/core": "^7.29.7",
+		"@babel/plugin-transform-export-namespace-from": "^7.27.1",
+		"@babel/plugin-transform-modules-commonjs": "^7.29.7",
+		"@sofie-automation/code-standard-preset": "^3.2.2",
+		"@types/amqplib": "0.10.6",
+		"@types/debug": "^4.1.13",
+		"@types/ejson": "^2.2.2",
+		"@types/jest": "^30.0.0",
+		"@types/node": "^22.20.1",
+		"@types/object-path": "^0.11.4",
+		"@types/underscore": "^1.13.0",
+		"babel-jest": "^30.4.1",
+		"commit-and-tag-version": "^13.1.0",
 		"concurrently": "^10.0.3",
+		"eslint": "^9.39.5",
+		"eslint-plugin-react": "^7.37.5",
+		"eslint-plugin-yml": "^3.4.0",
 		"husky": "^9.1.7",
+		"jest": "^30.4.2",
+		"jest-environment-jsdom": "^30.4.1",
+		"jest-mock-extended": "^4.0.1",
+		"json-schema-to-typescript": "^15.0.4",
+		"legally": "^3.5.10",
+		"lerna": "^9.0.7",
 		"lint-staged": "^17.1.1",
+		"nodemon": "^3.1.14",
+		"open-cli": "^9.0.0",
+		"pinst": "^3.0.0",
+		"prettier": "^3.8.4",
 		"rimraf": "^6.1.3",
 		"semver": "^7.8.5",
-		"snyk-nodejs-lockfile-parser": "^2.10.0"
+		"snyk-nodejs-lockfile-parser": "^2.10.0",
+		"ts-jest": "29.4.12",
+		"ts-node": "^10.9.2",
+		"typedoc": "^0.27.9",
+		"typescript": "~5.9.3"
 	},
-	"packageManager": "yarn@4.17.0"
+	"packageManager": "yarn@4.17.0",
+	"resolutions": {
+		"timecode@0.0.4": "patch:timecode@npm%3A0.0.4#./.yarn/patches/timecode-npm-0.0.4-82bde9e6fe.patch",
+		"@hyperjump/json-schema-core@^0.28.0": "patch:@hyperjump/json-schema-core@npm%3A0.28.5#./.yarn/patches/@hyperjump-json-schema-core-npm-0.28.5-e8b590eb0d.patch",
+		"@hyperjump/json-pointer@^0.9.4": "patch:@hyperjump/json-pointer@npm%3A0.9.8#./.yarn/patches/@hyperjump-json-pointer-npm-0.9.8-edc0d22296.patch",
+		"@hyperjump/json-pointer@^0.9.2": "patch:@hyperjump/json-pointer@npm%3A0.9.8#./.yarn/patches/@hyperjump-json-pointer-npm-0.9.8-edc0d22296.patch",
+		"@hyperjump/pact@^0.2.3": "patch:@hyperjump/pact@npm%3A0.2.5#./.yarn/patches/@hyperjump-pact-npm-0.2.5-a816d03fba.patch"
+	},
+	"dependenciesMeta": {
+		"esbuild": {
+			"built": true
+		},
+		"nx": {
+			"built": true
+		}
+	},
+	"lint-staged": {
+		"*.{css,json,md,scss}": [
+			"yarn run prettier"
+		],
+		"*.{ts,tsx,js,jsx}": [
+			"yarn lint"
+		]
+	},
+	"commit-and-tag-version": {
+		"scripts": {
+			"postbump": "node scripts/sync-versions.js && yarn install && git add yarn.lock"
+		}
+	}
 }
