@@ -160,6 +160,7 @@ describe('Test blueprint management api', () => {
 				'Blueprint id "" was not found'
 			)
 		})
+		// eslint-disable-next-line vitest/expect-expect
 		test('missing id', async () => {
 			// Should not error
 			await MeteorCall.blueprint.removeBlueprint(protectString('not_a_real_blueprint'))

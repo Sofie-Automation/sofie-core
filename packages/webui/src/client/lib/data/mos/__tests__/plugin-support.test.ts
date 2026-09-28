@@ -43,7 +43,7 @@ describe('createMosAppInfoXmlString', () => {
 				let ncsAppInfo: any
 				beforeAll(async () => {
 					ncsAppInfo = mos.ncsAppInfo
-					// eslint-disable-next-line jest/no-standalone-expect
+					// eslint-disable-next-line vitest/no-standalone-expect
 					expect(ncsAppInfo).toHaveLength(1)
 					ncsAppInfo = ncsAppInfo[0]
 				})
@@ -51,7 +51,7 @@ describe('createMosAppInfoXmlString', () => {
 					let ncsInformation: any
 					beforeAll(async () => {
 						ncsInformation = ncsAppInfo.ncsInformation
-						// eslint-disable-next-line jest/no-standalone-expect
+						// eslint-disable-next-line vitest/no-standalone-expect
 						expect(ncsInformation).toHaveLength(1)
 						ncsInformation = ncsInformation[0]
 					})

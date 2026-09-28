@@ -510,6 +510,7 @@ describe('test peripheralDevice general API methods', () => {
 		).rejects.toThrowSofieError(418, `Error thrown, as requested`)
 	})
 
+	// eslint-disable-next-line vitest/no-commented-out-tests
 	/*
 	test('timelineTriggerTime', () => {
 		if (DEBUG) setLogLevel(LogLevel.DEBUG)
@@ -578,6 +579,7 @@ describe('test peripheralDevice general API methods', () => {
 	})
 
 	// Note: this test fails, due to a backwards-compatibility hack in #c579c8f0
+	// eslint-disable-next-line vitest/no-commented-out-tests
 	// test('initialize with bad arguments', () => {
 	// 	let options: PeripheralDeviceInitOptions = {
 	// 		category: PeripheralDeviceCategory.INGEST,
@@ -599,6 +601,7 @@ describe('test peripheralDevice general API methods', () => {
 	// 	}
 	// })
 
+	// eslint-disable-next-line vitest/no-commented-out-tests
 	// test('setStatus with bad arguments', () => {
 	// 	try {
 	// 		Meteor.call(PeripheralDeviceAPIMethods.setStatus, 'wibbly', device.token, { statusCode: 0 })

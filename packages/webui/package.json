@@ -79,7 +79,6 @@
 		"xmlbuilder": "^15.1.1"
 	},
 	"devDependencies": {
-		"@babel/preset-env": "^7.29.7",
 		"@testing-library/dom": "^10.4.1",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^16.3.2",
@@ -96,7 +95,6 @@
 		"@vitejs/plugin-react": "^5.2.0",
 		"@welldone-software/why-did-you-render": "^4.3.2",
 		"@xmldom/xmldom": "^0.9.10",
-		"babel-jest": "^30.4.1",
 		"globals": "^17.7.0",
 		"sass-embedded": "^1.100.0",
 		"typescript": "~5.9.3",

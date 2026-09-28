@@ -444,7 +444,7 @@ describe('Lookahead', () => {
 		)
 	})
 
-	// eslint-disable-next-line jest/no-commented-out-tests
+	// eslint-disable-next-line vitest/no-commented-out-tests
 	// test('Pieces', () => {
 	// 	const fakeParts = partIds.map((p) => ({ _id: p })) as Part[]
 	// 	getOrderedPartsAfterPlayheadMock.mockReturnValue(fakeParts)

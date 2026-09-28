@@ -5,11 +5,11 @@ test('formatDateTime', () => {
 	expect(formatDateTime(1556194064374)).toMatch(/2019-04-\d{2} \d{2}:\d{2}:\d{2}/)
 })
 
-// eslint-disable-next-line jest/no-commented-out-tests
+// eslint-disable-next-line vitest/no-commented-out-tests
 // test('formatDateTime2', () => {
 // 	if (process.platform === 'win32') {
 // 		// Due to a bug in how timezones are handled in Windows & Node, we just have to skip these tests when running tests locally..
-// 		// eslint-disable-next-line jest/no-conditional-expect
+// 		// eslint-disable-next-line vitest/no-conditional-expect
 // 		expect(0).toEqual(0)
 // 		return
 // 	}

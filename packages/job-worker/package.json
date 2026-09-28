@@ -55,8 +55,6 @@
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"packageManager": "yarn@4.17.0",
 	"devDependencies": {
-		"jest": "^30.4.2",
-		"jest-mock-extended": "^4.0.1",
 		"typescript": "~5.9.3"
 	}
 }

@@ -440,7 +440,7 @@ describe('NotificationsModelHelper', () => {
 					const updateHelper = new NotificationsModelHelper(context, 'test', playlistId)
 
 					if (runGetAllNotifications) {
-						// eslint-disable-next-line jest/no-conditional-expect
+						// eslint-disable-next-line vitest/no-conditional-expect
 						expect(await updateHelper.getAllNotifications('my-category')).toHaveLength(1)
 					}
 

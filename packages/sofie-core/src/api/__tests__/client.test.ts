@@ -35,6 +35,7 @@ describe('ClientAPI', () => {
 		mockDeviceId = mockDevice._id
 	})
 	describe('clientErrorReport', () => {
+		// eslint-disable-next-line vitest/expect-expect
 		test('Returns a success response to the client', async () => {
 			SupressLogMessages.suppressLogMessage(/Uncaught error happened in GUI/i)
 			// should not throw:

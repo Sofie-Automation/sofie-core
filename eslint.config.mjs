@@ -4,6 +4,7 @@ import pluginReact from 'eslint-plugin-react'
 import globals from 'globals'
 
 const extendedRules = await generateEslintConfig({
+	testRunner: 'vitest',
 	ignores: [
 		'packages/openapi/client',
 		'packages/openapi/server',
@@ -35,6 +36,12 @@ extendedRules.push(
 			'yml/quotes': ['error', { prefer: 'single' }],
 			'yml/spaced-comment': ['error'],
 			'spaced-comment': ['off'],
+		},
+	},
+	{
+		files: ['**/__tests__/**/*'],
+		rules: {
+			'vitest/no-mocks-import': 'off', // Matches the preset's jest config, the shared mocks are imported directly
 		},
 	},
 	{

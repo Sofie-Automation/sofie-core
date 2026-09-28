@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-export */
 /**
  * Differential-conformance harness: run the SAME operation against both the in-memory mock collection
  * (corelib's {@link InMemoryMongoCollection}, the real code path the unit-test mock uses) and a real
@@ -151,7 +150,7 @@ function assertResult(c: ConformanceCase, inMem: RunResult, real: RunResult): vo
  * the test file's `beforeAll`.
  */
 export function runConformanceTable(getClient: () => MongoClient, cases: ConformanceCase[]): void {
-	// eslint-disable-next-line jest/expect-expect
+	// eslint-disable-next-line vitest/expect-expect
 	test.each(cases.map((c) => [c.name, c] as const))('%s', async (_name, c) => {
 		const inMem = runInMemory(c)
 		const real = await runReal(getClient(), c)

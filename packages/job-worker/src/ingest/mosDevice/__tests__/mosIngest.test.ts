@@ -577,7 +577,7 @@ describe('Test recieved mos ingest payloads', () => {
 	})
 
 	// TODO - check if this should be allowed
-	// eslint-disable-next-line jest/no-commented-out-tests
+	// eslint-disable-next-line vitest/no-commented-out-tests
 	// test('mosRoStoryInsert: Insert at end', async () => {
 	// 	const rundown = Rundowns.findOne() as DBRundown
 	// 	expect(rundown).toBeTruthy()

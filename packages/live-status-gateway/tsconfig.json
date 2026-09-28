@@ -3,7 +3,7 @@
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules/**"],
 	"compilerOptions": {
-		"types": ["jest", "node"],
+		"types": ["node"],
 		"skipLibCheck": true // vitest's types reference DOM types
 	}
 }

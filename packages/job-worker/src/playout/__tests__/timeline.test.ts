@@ -590,9 +590,9 @@ describe('Timeline', () => {
 			) => Promise<void>,
 			timeout?: number
 		) {
-			// eslint-disable-next-line jest/expect-expect
+			// eslint-disable-next-line vitest/expect-expect
 			test(
-				// eslint-disable-next-line jest/valid-title
+				// eslint-disable-next-line vitest/valid-title
 				name,
 				async () =>
 					runTimelineTimings(
@@ -949,7 +949,7 @@ describe('Timeline', () => {
 				}
 			)
 
-			// eslint-disable-next-line jest/expect-expect
+			// eslint-disable-next-line vitest/expect-expect
 			test('inTransition is disabled during hold', async () =>
 				runTimelineTimings(
 					setupRundownWithInTransitionEnableHold,
@@ -1110,7 +1110,7 @@ describe('Timeline', () => {
 				}
 			)
 
-			// eslint-disable-next-line jest/expect-expect
+			// eslint-disable-next-line vitest/expect-expect
 			test('outTransition is disabled during hold', async () =>
 				runTimelineTimings(
 					setupRundownWithOutTransitionEnableHold,
@@ -1681,9 +1681,9 @@ describe('Timeline', () => {
 			) => Promise<void>,
 			timeout?: number
 		) {
-			// eslint-disable-next-line jest/expect-expect
+			// eslint-disable-next-line vitest/expect-expect
 			test(
-				// eslint-disable-next-line jest/valid-title
+				// eslint-disable-next-line vitest/valid-title
 				name,
 				async () =>
 					runTimelineTimings(

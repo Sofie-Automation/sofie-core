@@ -4,7 +4,7 @@
 	"include": ["src/**/*.ts", "examples/*.ts", "package.json"],
 	"compilerOptions": {
 		"rootDir": "./",
-		"types": ["jest", "node"],
+		"types": ["node"],
 		"skipLibCheck": true, // vitest's types reference DOM types
 		"verbatimModuleSyntax": false
 	}

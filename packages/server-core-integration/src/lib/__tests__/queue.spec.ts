@@ -1,3 +1,4 @@
+/* eslint-disable vitest/no-conditional-expect */
 import { test, expect } from 'vitest'
 import { Queue } from '../queue.js'
 
