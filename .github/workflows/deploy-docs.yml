@@ -32,29 +32,27 @@ jobs:
         uses: actions/cache@v6
         with:
           path: |
-            packages/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('packages/yarn.lock') }}
+            node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
           corepack enable
 
           yarn config set cacheFolder /home/runner/publish-docs-cache
           yarn install
-          cd packages
           yarn build:all
         env:
           CI: true
       - name: Run docusaurus
         run: |
-          cd packages/documentation
-          yarn docs:build
+          yarn workspace sofie-documentation docs:build
         env:
           CI: true
       - name: Run typedoc
         run: |
-          cd packages
           yarn docs:typedoc
-          cp docs documentation/build/typedoc -R
+          cp docs packages/documentation/build/typedoc -R
         env:
           CI: true
 

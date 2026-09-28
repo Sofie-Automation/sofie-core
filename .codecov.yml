@@ -1,3 +1,1 @@
 fixes: []
-ignore:
-  - "meteor/client/lib/forms/schema-types.ts" # this is just a copy of typings for JSON Schema for inline docs
