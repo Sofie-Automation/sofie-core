@@ -25,15 +25,15 @@ jobs:
         uses: actions/cache@v6
         with:
           path: |
-            meteor/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('meteor/yarn.lock') }}
+            node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Validate production dependencies for vulnerabilities and compatible licenses
         run: |
           corepack enable
 
-          yarn
-          cd meteor
-          yarn validate:prod-dependencies
+          yarn install
+          yarn workspace @sofie-automation/sofie-core validate:prod-dependencies
         env:
           CI: true
 
@@ -54,15 +54,15 @@ jobs:
         uses: actions/cache@v6
         with:
           path: |
-            meteor/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('meteor/yarn.lock') }}
+            node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Validate production dependencies for vulnerabilities and compatible licenses
         run: |
           corepack enable
 
-          yarn
-          cd meteor
-          yarn run validate:all-dependencies
+          yarn install
+          yarn workspace @sofie-automation/sofie-core validate:all-dependencies
         env:
           CI: true
 
@@ -96,7 +96,6 @@ jobs:
         run: |
           corepack enable
 
-          cd packages
           yarn install
         env:
           CI: true
@@ -129,13 +128,11 @@ jobs:
         run: |
           corepack enable
 
-          cd packages
           yarn install
         env:
           CI: true
       - name: Validate production dependencies
         run: |
-          cd packages
           yarn validate:dependencies
         env:
           CI: true

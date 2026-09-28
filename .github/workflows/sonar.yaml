@@ -36,16 +36,15 @@ jobs:
         with:
           path: |
             node_modules
-            meteor/node_modules
-            packages/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock', 'meteor/yarn.lock', 'packages/yarn.lock') }}
+            packages/*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
           corepack enable
 
           yarn config set cacheFolder /home/runner/lint-core-cache
-          yarn
-          yarn build:packages
+          yarn install
+          yarn build
         env:
           CI: true
       - name: SonarQube Scan
