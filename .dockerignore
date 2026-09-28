@@ -1,6 +1,6 @@
 .git
-meteor/.meteor
-meteor/_build
-meteor/.coverage
+.dev-data
 packages/*/coverage
+packages/sofie-core/.coverage
 packages/documentation/build
+docs
