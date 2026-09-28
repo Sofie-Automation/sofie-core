@@ -95,8 +95,7 @@ export enum LAYER_IDS {
 }
 
 function getBlueprintDependencyVersions(): { TSR_VERSION: string; INTEGRATION_VERSION: string } {
-	const INTEGRATION_VERSION =
-		require('../../node_modules/@sofie-automation/blueprints-integration/package.json').version
+	const INTEGRATION_VERSION = require('@sofie-automation/blueprints-integration/package.json').version
 
 	return {
 		INTEGRATION_VERSION,
