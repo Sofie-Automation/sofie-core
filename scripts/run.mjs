@@ -6,14 +6,22 @@ import { config } from "./lib.js";
 import {
 	startDevMongo,
 	DEV_MONGO_VERSION,
-} from "../meteor/scripts/dev-mongo.mjs";
+} from "../packages/sofie-core/scripts/dev-mongo.mjs";
+
+// Where all development-only data lives: the dev MongoDB, the fallback snapshot store and dev logs.
+// Gitignored. The server is told about it through SOFIE_DEV_DATA_DIR.
+const DEV_DATA_DIR = path.resolve(".dev-data");
+const MONGO_DATA_DIR = path.join(DEV_DATA_DIR, "mongo");
+// Where the dev MongoDB lived before the server moved into packages/. Only used to point people at their old data.
+const LEGACY_MONGO_DATA_DIR = path.join("meteor", ".meteor", "local");
+const SERVER_DIR = path.join("packages", "sofie-core");
 
 // Defaults for the dev MongoDB we spawn. Overridable via env (typically a root .env file, loaded by
 // the `dev` script with `node --env-file-if-exists=.env`).
 const MONGO_DEFAULTS = {
 	version: DEV_MONGO_VERSION, // shared with the jest integration replset (see dev-mongo.mjs)
 	port: "3001", // a stable, predictable port so external tooling (Compass, mongosh) can connect
-	dbName: "meteor", // matches Meteor's dev default database name
+	dbName: "meteor", // the database name Meteor used, kept so existing dev databases keep working
 };
 
 // Address the dev server binds to, unless SOFIE_BIND_ADDRESS says otherwise. Loopback only, so a dev
@@ -35,8 +43,7 @@ function describeMongoValue(value, envVar, defaultValue) {
 }
 
 /**
- * Start the dev MongoDB (single-node replica set) and point MONGO_URL at it, so Meteor uses it instead
- * of spawning its own bundled mongod. If MONGO_URL is already set (e.g. via .env), use that external
+ * Start the dev MongoDB (single-node replica set) and point MONGO_URL at it for the server. If MONGO_URL is already set (e.g. via .env), use that external
  * server and don't spawn anything. Returns an object with an idempotent stop().
  */
 async function startMongoIfNeeded() {
@@ -50,7 +57,7 @@ async function startMongoIfNeeded() {
 	const version = process.env.MONGO_VERSION || MONGO_DEFAULTS.version;
 	const port = parseInt(process.env.MONGO_PORT || MONGO_DEFAULTS.port, 10);
 	const dbName = process.env.MONGO_DEV_DB || MONGO_DEFAULTS.dbName;
-	const dbPath = path.resolve("meteor", ".meteor", "local", "db");
+	const dbPath = path.join(MONGO_DATA_DIR, "db");
 
 	console.log("MongoDB (dev):");
 	console.log(
@@ -91,7 +98,6 @@ function watchPackages() {
 	return [
 		{
 			command: "yarn watch --preserveWatchOutput",
-			cwd: "packages",
 			name: "TSC",
 			prefixColor: "red",
 		},
@@ -102,14 +108,13 @@ function watchWorker() {
 	return [
 		{
 			command: "yarn watch-for-worker-changes",
-			cwd: "packages",
 			name: "WORKER-RESTART",
 			prefixColor: "green",
 		},
 	];
 }
 
-function watchMeteor() {
+function watchServer() {
 	const settingsFileExists = fs.existsSync("meteor-settings.json");
 	if (settingsFileExists) {
 		console.log("Found meteor-settings.json");
@@ -117,24 +122,25 @@ function watchMeteor() {
 		console.log("No meteor-settings.json");
 	}
 
-	// If a ROOT_URL is defined, meteor will serve under that. We should use the same for vite, to get the correct proxying
+	// If a ROOT_URL is defined, the server will serve under that. We should use the same for vite, to get the correct proxying
 	const rootUrl = process.env.ROOT_URL ? new URL(process.env.ROOT_URL) : null;
 
 	return [
 		{
 			command: joinCommand(
 				"yarn debug",
-				config.inspectMeteor ? " --inspect" : "",
+				config.inspectServer ? " --inspect" : "",
 				config.verbose ? " --verbose" : "",
-				settingsFileExists ? " --settings ../meteor-settings.json" : "",
+				settingsFileExists ? " --settings ../../meteor-settings.json" : "",
 			),
-			cwd: "meteor",
-			name: "METEOR",
+			cwd: SERVER_DIR,
+			name: "SERVER",
 			prefixColor: "cyan",
-			// Point Meteor at the MongoDB we spawned (see startMongoIfNeeded). With MONGO_URL set,
-			// Meteor uses it instead of spawning its own bundled mongod.
 			env: {
+				// Point the server at the MongoDB we spawned (see startMongoIfNeeded)
 				MONGO_URL: process.env.MONGO_URL,
+				// Dev-only data (fallback snapshot store, dev logs) goes next to the dev database, not into the package
+				SOFIE_DEV_DATA_DIR: DEV_DATA_DIR,
 				SOFIE_BIND_ADDRESS: process.env.SOFIE_BIND_ADDRESS || DEV_BIND_ADDRESS,
 				// Vite serves the webui itself in dev, but the server still serves some assets out of
 				// the same directory (the logo route, and the locales for the web manifest).
@@ -162,11 +168,11 @@ function hr() {
 }
 
 function listDatabases() {
-	const meteorLocalDir = path.join("meteor", ".meteor", "local");
-	const dbLink = path.join(meteorLocalDir, "db");
+	const mongoDataDir = MONGO_DATA_DIR;
+	const dbLink = path.join(mongoDataDir, "db");
 
-	if (!fs.existsSync(meteorLocalDir)) {
-		console.log("No databases found (meteor/.meteor/local does not exist yet)");
+	if (!fs.existsSync(mongoDataDir)) {
+		console.log(`No databases found (${MONGO_DATA_DIR} does not exist yet)`);
 		return;
 	}
 
@@ -186,12 +192,12 @@ function listDatabases() {
 	}
 
 	// List all db.* directories
-	const files = fs.readdirSync(meteorLocalDir);
+	const files = fs.readdirSync(mongoDataDir);
 	const dbDirs = files
 		.filter(
 			(file) =>
 				file.startsWith("db.") &&
-				fs.lstatSync(path.join(meteorLocalDir, file)).isDirectory(),
+				fs.lstatSync(path.join(mongoDataDir, file)).isDirectory(),
 		)
 		.map((file) => file.substring(3));
 
@@ -212,9 +218,9 @@ function listDatabases() {
 }
 
 function switchDatabase(dbName) {
-	const meteorLocalDir = path.join("meteor", ".meteor", "local");
-	const dbLink = path.join(meteorLocalDir, "db");
-	const dbTarget = path.join(meteorLocalDir, `db.${dbName}`);
+	const mongoDataDir = MONGO_DATA_DIR;
+	const dbLink = path.join(mongoDataDir, "db");
+	const dbTarget = path.join(mongoDataDir, `db.${dbName}`);
 
 	// Check if we're already using this database
 	if (fs.existsSync(dbLink)) {
@@ -241,7 +247,7 @@ function switchDatabase(dbName) {
 			fs.unlinkSync(dbLink);
 		} else {
 			// It's a real directory - back it up with timestamp
-			const defaultDb = path.join(meteorLocalDir, "db.default");
+			const defaultDb = path.join(mongoDataDir, "db.default");
 			if (!fs.existsSync(defaultDb)) {
 				console.log(`Backing up existing database to: default`);
 				fs.renameSync(dbLink, defaultDb);
@@ -251,13 +257,13 @@ function switchDatabase(dbName) {
 					.toISOString()
 					.replace(/[:.]/g, "-")
 					.substring(0, 19);
-				let backupName = path.join(meteorLocalDir, `db.backup.${timestamp}`);
+				let backupName = path.join(mongoDataDir, `db.backup.${timestamp}`);
 				// Ensure unique backup name
 				let suffix = 0;
 				while (fs.existsSync(backupName)) {
 					suffix++;
 					backupName = path.join(
-						meteorLocalDir,
+						mongoDataDir,
 						`db.backup.${timestamp}.${suffix}`,
 					);
 				}
@@ -274,8 +280,25 @@ function switchDatabase(dbName) {
 	console.log(`✓ Switched to database: ${dbName}`);
 }
 
+/**
+ * The dev MongoDB used to live in meteor/.meteor/local. If that is still around and nothing has been created in the
+ * new location yet, tell the developer how to bring their data along. Nothing is moved automatically.
+ */
+function warnAboutLegacyDevData() {
+	if (!fs.existsSync(LEGACY_MONGO_DATA_DIR) || fs.existsSync(MONGO_DATA_DIR)) return;
+
+	console.log(hr());
+	console.log(` ⚠️  Found a dev database from before the server moved into ${SERVER_DIR}: ${LEGACY_MONGO_DATA_DIR}`);
+	console.log(`    The dev database now lives in ${MONGO_DATA_DIR}. To keep your data, stop this and run:`);
+	console.log(`      mkdir -p ${MONGO_DATA_DIR} && mv ${path.join(LEGACY_MONGO_DATA_DIR, "db")}* ${MONGO_DATA_DIR}/`);
+	console.log(`    Otherwise a fresh database will be created and the old directory can be deleted.`);
+	console.log(hr());
+}
+
 try {
 	// Note: This script assumes that install-and-build.mjs has been run before
+
+	warnAboutLegacyDevData();
 
 	// List databases if requested
 	if (config.dbList) {
@@ -289,7 +312,7 @@ try {
 	}
 
 	// Start our own MongoDB (and set MONGO_URL) before launching anything that connects to it. This is
-	// done before concurrently (which has no startup ordering) so Mongo is ready when Meteor connects.
+	// done before concurrently (which has no startup ordering) so Mongo is ready when the server connects.
 	activeMongo = await startMongoIfNeeded();
 
 	try {
@@ -301,7 +324,7 @@ try {
 			[
 				...(config.uiOnly ? [] : watchPackages()),
 				...(config.uiOnly ? [] : watchWorker()),
-				...watchMeteor(),
+				...watchServer(),
 			],
 			{
 				prefix: "name",

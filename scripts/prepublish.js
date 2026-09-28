@@ -1,7 +1,7 @@
 /* *************************************************************************
  *
  * This script rewrites the package.json files of the packages in this mono-repo.
- * It changes the dependencies of internal packages from "link:../PACKAGE-NAME" to
+ * It changes the dependencies of internal packages from the workspace version to
  * use an absolute version instead, so that the published packages can be used externally.
  *
  *

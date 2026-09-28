@@ -1,6 +1,6 @@
 import * as Winston from 'winston'
 import * as fs from 'fs'
-import { getAbsolutePath, isInProductionMode, isInTestMode } from './lib'
+import { getDevDataPath, isInProductionMode, isInTestMode } from './lib'
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import _ from 'underscore'
@@ -83,11 +83,11 @@ if (logToFile || logPath !== '') {
 			leadingZeros(time.getMinutes(), 2) +
 			'_' +
 			leadingZeros(time.getSeconds(), 2)
-		const logDirectory = getAbsolutePath() + '/.meteor/local/log'
+		const logDirectory = getDevDataPath('log')
 		logPath = logDirectory + '/log_' + startDate + '.log'
 
 		if (!fs.existsSync(logDirectory)) {
-			fs.mkdirSync(logDirectory)
+			fs.mkdirSync(logDirectory, { recursive: true })
 		}
 	}
 	const transportConsole = new Winston.transports.Console({
