@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { protectString, ProtectedString } from '../protectedString.js'
 import { diffObject } from '../diffObject.js'
 

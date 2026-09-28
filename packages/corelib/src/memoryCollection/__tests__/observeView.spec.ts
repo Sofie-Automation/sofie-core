@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { protectString, ProtectedString } from '../../protectedString.js'
 import { MongoFieldSpecifier, MongoQuery } from '../../mongo.js'
 import { ObserveView, ObserveViewShape, ObserveViewSink, fieldsFor } from '../observeView.js'

@@ -60,6 +60,7 @@ export default defineConfig({
 				include: ['src/**/__tests__/**/*.spec.{ts,js}'],
 			}),
 			packageProject('live-status-gateway-api'),
+			packageProject('corelib'),
 
 			...(includeIntegrationTests
 				? [

@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { literal } from '../../lib.js'
 import clone from 'fast-clone'
 import {

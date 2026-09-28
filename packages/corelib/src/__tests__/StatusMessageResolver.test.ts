@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { StatusMessageResolver } from '../StatusMessageResolver.js'
 import { SystemErrorCode } from '@sofie-automation/shared-lib/dist/systemErrorMessages'
 import { protectString } from '../protectedString.js'

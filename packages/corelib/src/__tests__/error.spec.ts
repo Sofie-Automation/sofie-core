@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import EJSON from 'ejson'
 import { SofieError, UserError, UserErrorMessage } from '../error.js'

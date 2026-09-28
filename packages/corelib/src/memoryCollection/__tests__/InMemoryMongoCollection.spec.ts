@@ -1,3 +1,4 @@
+import { describe, test, expect, vi, type Mock } from 'vitest'
 import { protectString, ProtectedString } from '../../protectedString.js'
 import { MongoFieldSpecifier } from '../../mongo.js'
 import { ObserveCallbacks, ObserveChangesCallbacks } from '../../mongo.js'
@@ -245,7 +246,7 @@ describe('isolation / cloning', () => {
 describe('mockSetData / clear', () => {
 	test('mockSetData (array) bulk-replaces and fires no events', () => {
 		const c = makeCollection()
-		const added = jest.fn()
+		const added = vi.fn()
 		c.observe({ added })
 		added.mockClear()
 
@@ -266,7 +267,7 @@ describe('mockSetData / clear', () => {
 describe('onChange', () => {
 	test('fires on writes, not on mockSetData/clear; stop() unsubscribes', () => {
 		const c = makeCollection()
-		const cb = jest.fn()
+		const cb = vi.fn()
 		const handle = c.onChange(cb)
 
 		c.insert(thing('a'))
@@ -287,7 +288,7 @@ describe('onChange', () => {
 	})
 
 	test('can be registered via constructor options', () => {
-		const cb = jest.fn()
+		const cb = vi.fn()
 		const c = new InMemoryMongoCollection<Thing>('things', { onChange: cb })
 		c.insert(thing('a'))
 		expect(cb).toHaveBeenCalledTimes(1)
@@ -296,11 +297,11 @@ describe('onChange', () => {
 
 describe('observe (full document)', () => {
 	function spyCallbacks(): ObserveCallbacks<Thing> & {
-		added: jest.Mock
-		changed: jest.Mock
-		removed: jest.Mock
+		added: Mock
+		changed: Mock
+		removed: Mock
 	} {
-		return { added: jest.fn(), changed: jest.fn(), removed: jest.fn() } as any
+		return { added: vi.fn(), changed: vi.fn(), removed: vi.fn() } as any
 	}
 
 	test('initial snapshot delivered as added', () => {
@@ -400,11 +401,11 @@ describe('observe (full document)', () => {
 
 describe('observeChanges', () => {
 	function spyCallbacks(): ObserveChangesCallbacks<Thing> & {
-		added: jest.Mock
-		changed: jest.Mock
-		removed: jest.Mock
+		added: Mock
+		changed: Mock
+		removed: Mock
 	} {
-		return { added: jest.fn(), changed: jest.fn(), removed: jest.fn() } as any
+		return { added: vi.fn(), changed: vi.fn(), removed: vi.fn() } as any
 	}
 
 	test('added delivers id + fields (minus _id)', () => {
@@ -439,14 +440,14 @@ describe('observeChanges', () => {
 
 describe('observe windowing (sort/skip/limit)', () => {
 	function changesSpy(): ObserveChangesCallbacks<Thing> & {
-		added: jest.Mock
-		changed: jest.Mock
-		removed: jest.Mock
+		added: Mock
+		changed: Mock
+		removed: Mock
 	} {
-		return { added: jest.fn(), changed: jest.fn(), removed: jest.fn() } as any
+		return { added: vi.fn(), changed: vi.fn(), removed: vi.fn() } as any
 	}
-	const addedIds = (cb: { added: jest.Mock }) => cb.added.mock.calls.map((c) => String(c[0])).sort()
-	const removedIds = (cb: { removed: jest.Mock }) => cb.removed.mock.calls.map((c) => String(c[0])).sort()
+	const addedIds = (cb: { added: Mock }) => cb.added.mock.calls.map((c) => String(c[0])).sort()
+	const removedIds = (cb: { removed: Mock }) => cb.removed.mock.calls.map((c) => String(c[0])).sort()
 
 	test('initial snapshot publishes only the first N (ordered by _id when no sort)', () => {
 		const c = makeCollection()
@@ -524,7 +525,7 @@ describe('observerDeliveryScheduler', () => {
 		const c = new InMemoryMongoCollection<Thing>('things', {
 			observerDeliveryScheduler: (fn) => scheduled.push(fn),
 		})
-		const added = jest.fn()
+		const added = vi.fn()
 		c.observe({ added })
 
 		c.insert(thing('a'))

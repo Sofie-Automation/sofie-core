@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest'
 import { hashObj } from '../hash.js'
 
 describe('hashObj', () => {
