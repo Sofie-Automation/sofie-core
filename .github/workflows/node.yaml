@@ -47,45 +47,6 @@ jobs:
         env:
           CI: true
 
-  test-core:
-    name: Test Core
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - name: Use Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version-file: ".node-version"
-      - name: restore node_modules
-        uses: actions/cache@v6
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
-      - name: Prepare Environment
-        run: |
-          corepack enable
-
-          yarn config set cacheFolder /home/runner/test-core-cache
-          yarn install
-          yarn build
-        env:
-          CI: true
-      - name: Run Tests
-        run: |
-          NODE_OPTIONS="--max-old-space-size=6144" yarn workspace @sofie-automation/sofie-core unitci --force-exit
-        env:
-          CI: true
-      - name: Send coverage
-        if: ((github.event_name == 'pull_request') && (!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release')))
-        uses: codecov/codecov-action@v7
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
   build-core:
     # TODO - should this be dependant on tests or something passing if we are on a tag?
     name: Build Core and publish docker image
@@ -382,7 +343,7 @@ jobs:
   test-packages:
     name: Test Packages
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v7
@@ -410,7 +371,7 @@ jobs:
           CI: true
       - name: Run tests
         run: |
-          yarn unit:coverage
+          NODE_OPTIONS="--max-old-space-size=6144" yarn unit:coverage
         env:
           CI: true
       - name: Send coverage

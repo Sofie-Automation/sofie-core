@@ -12,7 +12,7 @@
 		// plain node resolution is used.
 		"paths": {},
 		"resolveJsonModule": true,
-		"types": ["jest", "node"],
+		"types": ["node"],
 		"composite": true,
 		"noEmit": true,
 		"skipLibCheck": true,
