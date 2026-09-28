@@ -341,18 +341,27 @@ jobs:
           tags: "${{ steps.dockerhub-tag.outputs.tags }}"
 
   test-packages:
-    name: Test Packages
+    name: Test Packages (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22.x]
+        include:
+          # Only send coverage from one version
+          - node-version: 22.x
+            send-coverage: true
 
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - name: Use Node.js
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v7
         with:
-          node-version-file: ".node-version"
+          node-version: ${{ matrix.node-version }}
       - name: restore node_modules
         uses: actions/cache@v6
         with:
@@ -375,7 +384,7 @@ jobs:
         env:
           CI: true
       - name: Send coverage
-        if: ((github.event_name == 'pull_request') && (!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release')))
+        if: matrix.send-coverage && (((github.event_name == 'pull_request') && (!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release'))))
         uses: codecov/codecov-action@v7
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
