@@ -1,6 +1,8 @@
 .git
-meteor/.meteor
-meteor/_build
-meteor/.coverage
+.dev-data
+# Leftover from the old layout, which existing checkouts may still have
+meteor
 packages/*/coverage
+packages/sofie-core/.coverage
 packages/documentation/build
+docs
