@@ -1,6 +1,7 @@
 import * as Winston from 'winston'
 import * as fs from 'fs'
-import { getDevDataPath, isInProductionMode, isInTestMode } from './lib'
+import * as path from 'path'
+import { getDevDataPath, isInDevelopmentMode, isInProductionMode, isInTestMode } from './lib'
 import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import _ from 'underscore'
@@ -50,10 +51,13 @@ const leadingZeros = (num: number | string, length: number) => {
 		return num
 	}
 }
-let logToFile = false
-if (process.env.LOG_TO_FILE) logToFile = true
-
+/**
+ * Logging to a file (in addition to the console):
+ * - `LOG_FILE=<path>`: log to that file. This is the one to use for deployments.
+ * - `LOG_TO_FILE=1`: development convenience, log to a new timestamped file in `.dev-data/log` on each startup.
+ */
 let logPath = process.env.LOG_FILE || ''
+const logToDevFile = !!process.env.LOG_TO_FILE && !logPath
 
 let logger: LoggerInstanceFixedExt
 let transports: {
@@ -68,8 +72,12 @@ function safeStringify(o: any): string {
 		return 'ERROR in safeStringify: ' + stringifyError(e)
 	}
 }
-if (logToFile || logPath !== '') {
-	if (logPath === '') {
+if (logToDevFile || logPath !== '') {
+	if (logToDevFile) {
+		if (!isInDevelopmentMode()) {
+			throw new Error('LOG_TO_FILE is only supported in development, set LOG_FILE to the file to log to instead')
+		}
+
 		const time = new Date()
 		const startDate =
 			time.getFullYear() +
@@ -84,7 +92,7 @@ if (logToFile || logPath !== '') {
 			'_' +
 			leadingZeros(time.getSeconds(), 2)
 		const logDirectory = getDevDataPath('log')
-		logPath = logDirectory + '/log_' + startDate + '.log'
+		logPath = path.join(logDirectory, 'log_' + startDate + '.log')
 
 		if (!fs.existsSync(logDirectory)) {
 			fs.mkdirSync(logDirectory, { recursive: true })
