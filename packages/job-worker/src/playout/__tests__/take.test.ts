@@ -22,11 +22,16 @@ import { getCurrentTime } from '../../lib/index.js'
 jest.mock('../../blueprints/postProcess')
 import { postProcessPieces } from '../../blueprints/postProcess.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 const { postProcessPieces: postProcessPiecesOrig } = jest.requireActual('../../blueprints/postProcess')
 ;(postProcessPieces as jest.Mock).mockImplementation(postProcessPiecesOrig)
 
 describe('take', () => {
-	async function setupTakenPlaylist() {
+	async function setupTakenPlaylist(
+		beforeActivate?: (context: MockJobContext, rundownId: RundownId) => Promise<void>
+	) {
 		const context: MockJobContext = setupDefaultJobEnvironment()
 
 		context.setStudio({
@@ -48,6 +53,8 @@ describe('take', () => {
 		)
 
 		const { rundownId, playlistId } = await setupDefaultRundownPlaylist(context)
+
+		if (beforeActivate) await beforeActivate(context, rundownId)
 
 		await handleActivateRundownPlaylist(context, { playlistId, rehearsal: false })
 		await handleTakeNextPart(context, { playlistId, fromPartInstanceId: null })
@@ -255,6 +262,111 @@ describe('take', () => {
 			expect(queuedPartInstance.partInstance.rundownId).toEqual(takenRundownId)
 			expect(queuedPartInstance.pieceInstances[0].pieceInstance.rundownId).toEqual(takenRundownId)
 			expect(queuedPartInstance.partInstance.part.title).toEqual('After take part')
+		})
+	})
+	describe('transition take block', () => {
+		const inTransition = {
+			blockTakeDuration: 5000,
+			previousPartKeepaliveDuration: 0,
+			partContentDelayDuration: 0,
+		}
+
+		/** Setup the playlist with part0 on air, and part1 taken into, with the given properties set on part0 and part1 */
+		async function setupTakenIntoSecondPart(part0Props: Partial<DBPart>, part1Props: Partial<DBPart>) {
+			const { context, rundownId, playlistId } = await setupTakenPlaylist(async (context, rundownId) => {
+				await context.mockCollections.Parts.update(
+					{ rundownId, externalId: 'MOCK_PART_0_0' },
+					{ $set: part0Props }
+				)
+				await context.mockCollections.Parts.update(
+					{ rundownId, externalId: 'MOCK_PART_0_1' },
+					{ $set: part1Props }
+				)
+			})
+
+			await takeNext(context, playlistId)
+
+			// Playback of the part has started
+			const playlist = await context.mockCollections.RundownPlaylists.findOne(playlistId)
+			const currentPartInstanceId = playlist?.currentPartInfo?.partInstanceId
+			if (!currentPartInstanceId) throw new Error('currentPartInstanceId not found')
+			await context.mockCollections.PartInstances.update(currentPartInstanceId, {
+				$set: { 'timings.plannedStartedPlayback': getCurrentTime() },
+			})
+
+			return { context, rundownId, playlistId }
+		}
+
+		async function takeNext(context: MockJobContext, playlistId: RundownPlaylistId) {
+			const playlist = await context.mockCollections.RundownPlaylists.findOne(playlistId)
+			return handleTakeNextPart(context, {
+				playlistId,
+				fromPartInstanceId: playlist?.currentPartInfo?.partInstanceId ?? null,
+			})
+		}
+
+		test('blocked by the inTransition', async () => {
+			const { context, playlistId } = await setupTakenIntoSecondPart({}, { inTransition })
+
+			await expect(takeNext(context, playlistId)).rejects.toMatchUserError(UserErrorMessage.TakeDuringTransition)
+		})
+
+		test('blocked by an exclusive outTransition', async () => {
+			const { context, playlistId } = await setupTakenIntoSecondPart(
+				{
+					outTransition: {
+						type: 'exclusive',
+						blockTakeDuration: 5000,
+						partKeepaliveDuration: 0,
+						nextPartContentDelayDuration: 0,
+					},
+				},
+				{}
+			)
+
+			await expect(takeNext(context, playlistId)).rejects.toMatchUserError(UserErrorMessage.TakeDuringTransition)
+		})
+
+		test('not blocked when an exclusive outTransition overrides the inTransition', async () => {
+			const { context, playlistId } = await setupTakenIntoSecondPart(
+				{
+					outTransition: {
+						type: 'exclusive',
+						blockTakeDuration: 0,
+						partKeepaliveDuration: 0,
+						nextPartContentDelayDuration: 0,
+					},
+				},
+				{ inTransition }
+			)
+
+			await expect(takeNext(context, playlistId)).resolves.toBeTruthy()
+		})
+
+		test('not blocked when the additive outTransition disables the inTransition', async () => {
+			const { context, playlistId } = await setupTakenIntoSecondPart(
+				{ outTransition: { duration: 0, disableNextInTransition: true } },
+				{ inTransition }
+			)
+
+			await expect(takeNext(context, playlistId)).resolves.toBeTruthy()
+		})
+
+		test('fallback for timings without blockTakeDuration', async () => {
+			const { context, playlistId } = await setupTakenIntoSecondPart({}, { inTransition })
+
+			// Simulate timings which were stored before blockTakeDuration was added
+			const playlist = await context.mockCollections.RundownPlaylists.findOne(playlistId)
+			const currentPartInstanceId = playlist?.currentPartInfo?.partInstanceId
+			if (!currentPartInstanceId) throw new Error('currentPartInstanceId not found')
+			await context.mockCollections.PartInstances.update(currentPartInstanceId, {
+				$unset: { 'partPlayoutTimings.blockTakeDuration': 1, 'partPlayoutTimings.transitionSource': 1 },
+			})
+			const partInstance = await context.mockCollections.PartInstances.findOne(currentPartInstanceId)
+			expect(partInstance?.partPlayoutTimings).toBeTruthy()
+			expect(partInstance?.partPlayoutTimings?.blockTakeDuration).toBeUndefined()
+
+			await expect(takeNext(context, playlistId)).rejects.toMatchUserError(UserErrorMessage.TakeDuringTransition)
 		})
 	})
 })

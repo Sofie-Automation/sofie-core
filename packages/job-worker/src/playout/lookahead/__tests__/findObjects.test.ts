@@ -136,6 +136,51 @@ describe('findLookaheadObjectsForPart', () => {
 		expect(objects2).toHaveLength(1)
 	})
 
+	test.each([IBlueprintPieceType.OutTransition, IBlueprintPieceType.AutoNextOutTransition])(
+		'%s pieces are ignored',
+		(pieceType) => {
+			const currentPartInstanceId: PartInstanceId | null = null
+			const rundownId: RundownId = protectString('rundown0')
+			const layer0 = 'layer0'
+
+			const partInfo = {
+				part: definePart(rundownId),
+				usesInTransition: true,
+				pieces: literal<PieceInstance[]>([
+					{
+						...defaultPieceInstanceProps,
+						rundownId: rundownId,
+						piece: {
+							...defaultPieceInstanceProps.piece,
+							pieceType,
+							content: {},
+							timelineObjectsString: serializePieceTimelineObjectsBlob([
+								{
+									id: 'obj0',
+									enable: { start: 0 },
+									layer: layer0,
+									content: { deviceType: TSR.DeviceType.ABSTRACT },
+									priority: 0,
+								},
+							]),
+						},
+					},
+				]),
+			}
+
+			const objects = findLookaheadObjectsForPart(
+				context,
+				currentPartInstanceId,
+				layer0,
+				undefined,
+				partInfo,
+				null,
+				DEFAULT_PLAYOUT_STATE
+			)
+			expect(objects).toHaveLength(0)
+		}
+	)
+
 	test('single object ids', () => {
 		const currentPartInstanceId: PartInstanceId | null = null
 		const rundownId: RundownId = protectString('rundown0')
