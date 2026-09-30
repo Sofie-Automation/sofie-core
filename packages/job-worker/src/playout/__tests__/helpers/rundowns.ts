@@ -540,7 +540,12 @@ export async function setupRundownWithInTransitionDisabled(
 	const sourceLayerIds = Object.keys(showStyle.sourceLayers)
 
 	const { rundown, segment0 } = await setupRundownBase(context, playlistId, rundownId, showStyle, {
-		disableNextInTransition: true,
+		outTransition: {
+			type: 'exclusive',
+			blockTakeDuration: 0,
+			partKeepaliveDuration: 0,
+			nextPartContentDelayDuration: 0,
+		},
 	})
 
 	const { part01 } = await setupPart2(context, rundownId, showStyle, rundown, segment0, {

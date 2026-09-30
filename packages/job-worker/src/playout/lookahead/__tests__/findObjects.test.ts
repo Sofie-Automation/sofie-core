@@ -310,7 +310,7 @@ describe('findLookaheadObjectsForPart', () => {
 		])
 
 		// Allowed transition
-		const previousPart: DBPart = { disableNextInTransition: false, classesForNext: undefined } as any
+		const previousPart: DBPart = { classesForNext: undefined } as any
 		const objects1 = findLookaheadObjectsForPart(
 			context,
 			currentPartInstanceId,
@@ -649,7 +649,7 @@ describe('findLookaheadObjectsForPart', () => {
 		])
 
 		// Allowed transition
-		const previousPart: DBPart = { disableNextInTransition: false, classesForNext: undefined } as any
+		const previousPart: DBPart = { classesForNext: undefined } as any
 		const objects1 = findLookaheadObjectsForPart(
 			context,
 			currentPartInstanceId,
@@ -841,7 +841,7 @@ describe('findLookaheadObjectsForPart', () => {
 		}
 
 		// Allowed transition
-		const previousPart: DBPart = { disableNextInTransition: false, classesForNext: undefined } as any
+		const previousPart: DBPart = { classesForNext: undefined } as any
 		const objects2 = findLookaheadObjectsForPart(
 			context,
 			currentPartInstanceId,
@@ -1188,7 +1188,7 @@ describe('findLookaheadObjectsForPart', () => {
 				]),
 			}
 
-			const previousPart: DBPart = { disableNextInTransition: false, classesForNext: undefined } as any
+			const previousPart: DBPart = { classesForNext: undefined } as any
 			const objects = findLookaheadObjectsForPart(
 				context,
 				partInstanceId,
@@ -1263,7 +1263,7 @@ describe('findLookaheadObjectsForPart', () => {
 				]),
 			}
 
-			const previousPart: DBPart = { disableNextInTransition: false, classesForNext: undefined } as any
+			const previousPart: DBPart = { classesForNext: undefined } as any
 			const objects = findLookaheadObjectsForPart(
 				context,
 				partInstanceId,
@@ -1374,7 +1374,7 @@ describe('findLookaheadObjectsForPart', () => {
 				),
 			}
 
-			const previousPart: DBPart = { disableNextInTransition: false, classesForNext: undefined } as any
+			const previousPart: DBPart = { classesForNext: undefined } as any
 			const objects = findLookaheadObjectsForPart(
 				context,
 				partInstanceId,

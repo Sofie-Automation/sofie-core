@@ -30,6 +30,7 @@ import { getCurrentTime } from '../../lib/index.js'
 import _ from 'underscore'
 import { getPieceEnableInsidePart, transformPieceGroupAndObjects } from './piece.js'
 import { logger } from '../../logging.js'
+import { getAutoNextExpectedDurationExtension } from './lib.js'
 
 /**
  * Some additional data used by the timeline generation process
@@ -49,24 +50,6 @@ export interface RundownTimelineTimingContext {
 export interface RundownTimelineResult {
 	timeline: (TimelineObjRundown & OnGenerateTimelineObjExt)[]
 	timingContext: RundownTimelineTimingContext | undefined
-}
-
-function getAutoNextExpectedDurationExtension(
-	currentPartInfo: SelectedPartInstanceTimelineInfo,
-	nextPartTimings: PartCalculatedTimings | undefined
-): number {
-	if (!nextPartTimings) return 0
-
-	// Keepalive and outTransition extend the effective expectedDuration, but preroll must stay unchanged.
-	const requiredExtension = Math.max(
-		0,
-		nextPartTimings.fromPartKeepalive,
-		currentPartInfo.partInstance.part.outTransition?.duration ?? 0
-	)
-
-	const availablePostrollDuration = currentPartInfo.partInstance.part.availablePostrollDuration ?? 0
-
-	return Math.max(0, Math.min(requiredExtension, availablePostrollDuration))
 }
 
 export function buildTimelineObjsForRundown(
@@ -266,7 +249,9 @@ function createCurrentPartGroupEnable(
 		currentPartInfo.partInstance.part.autoNext &&
 		currentPartInfo.partInstance.part.expectedDuration !== undefined
 	) {
-		const expectedDurationExtension = getAutoNextExpectedDurationExtension(currentPartInfo, nextPartTimings)
+		const expectedDurationExtension = nextPartTimings
+			? getAutoNextExpectedDurationExtension(currentPartInfo.partInstance.part, nextPartTimings)
+			: 0
 
 		// If there is a valid autonext out of the current part, then calculate the duration
 		currentPartEnable.duration =

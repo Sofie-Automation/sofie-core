@@ -44,7 +44,13 @@ export function transformPartIntoTimeline(
 	for (const pieceInstance of pieceInstances) {
 		if (pieceInstance.disabled) continue
 
-		const pieceEnable = getPieceEnableForPieceInstance(partTimings, outTransition, parentGroup, pieceInstance)
+		const pieceEnable = getPieceEnableForPieceInstance(
+			partTimings,
+			nextPartTimings,
+			outTransition,
+			parentGroup,
+			pieceInstance
+		)
 
 		// Not able to enable this piece
 		if (!pieceEnable) continue
@@ -77,9 +83,33 @@ export function transformPartIntoTimeline(
 	return timelineObjs
 }
 
+/**
+ * Enable for an out-transition piece of a transition which replaced the next Part's inTransition.
+ * This starts at the transition start, which is the start of the next Part (the take, plus any take offset)
+ */
+function getExclusiveOutTransitionPieceEnable(
+	nextPartTimings: PartCalculatedTimings,
+	parentGroup: TimelineObjGroupPart & OnGenerateTimelineObjExt,
+	pieceInstance: ReadonlyDeep<PieceInstanceWithTimings>
+): TSR.Timeline.TimelineEnable {
+	// Respect the start time of the piece, to allow for delaying it
+	const startOffset = typeof pieceInstance.piece.enable.start === 'number' ? pieceInstance.piece.enable.start : 0
+
+	const offsetFromEnd = nextPartTimings.fromPartKeepalive + nextPartTimings.fromPartPostroll - startOffset
+
+	return {
+		start:
+			offsetFromEnd >= 0
+				? `#${parentGroup.id}.end - ${offsetFromEnd}`
+				: `#${parentGroup.id}.end + ${-offsetFromEnd}`,
+		duration: pieceInstance.piece.enable.duration,
+	}
+}
+
 function getPieceEnableForPieceInstance(
 	partTimings: PartCalculatedTimings,
-	outTransition: IBlueprintPartOutTransition | null,
+	nextPartTimings: PartCalculatedTimings | null,
+	outTransition: ReadonlyDeep<IBlueprintPartOutTransition> | null,
 	parentGroup: TimelineObjGroupPart & OnGenerateTimelineObjExt,
 	pieceInstance: ReadonlyDeep<PieceInstanceWithTimings>
 ): TSR.Timeline.TimelineEnable | undefined {
@@ -98,11 +128,27 @@ function getPieceEnableForPieceInstance(
 		case IBlueprintPieceType.OutTransition: {
 			if (!outTransition) return undefined
 
-			const pieceEnable: TSR.Timeline.TimelineEnable = {
-				start: `#${parentGroup.id}.end - ${outTransition.duration + partTimings.toPartPostroll}`,
-			}
+			if (outTransition.type === 'exclusive') {
+				// Only play when this transition was the one used
+				if (nextPartTimings?.transitionSource !== 'outTransition') return undefined
 
-			return pieceEnable
+				return getExclusiveOutTransitionPieceEnable(nextPartTimings, parentGroup, pieceInstance)
+			} else {
+				// The autoNextOutTransition replaces this transition
+				if (nextPartTimings?.transitionSource === 'autoNextOutTransition') return undefined
+
+				const pieceEnable: TSR.Timeline.TimelineEnable = {
+					start: `#${parentGroup.id}.end - ${outTransition.duration + partTimings.toPartPostroll}`,
+				}
+
+				return pieceEnable
+			}
+		}
+		case IBlueprintPieceType.AutoNextOutTransition: {
+			// Only play when this transition was the one used
+			if (nextPartTimings?.transitionSource !== 'autoNextOutTransition') return undefined
+
+			return getExclusiveOutTransitionPieceEnable(nextPartTimings, parentGroup, pieceInstance)
 		}
 		case IBlueprintPieceType.Normal:
 			return getPieceEnableInsidePart(

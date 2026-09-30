@@ -165,7 +165,7 @@ describe('Lookahead', () => {
 	test('No pieces', async () => {
 		const partInstancesInfo: SelectedPartInstancesTimelineInfo = { previous: [] }
 
-		const fakeParts = partIds.map((p) => ({ part: { _id: p } as any, usesInTransition: true, pieces: [] }))
+		const fakeParts = partIds.map((p) => ({ part: { _id: p } as any, usesInTransition: false, pieces: [] }))
 		getOrderedPartsAfterPlayheadMock.mockReturnValueOnce(fakeParts.map((p) => p.part))
 
 		const res = await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) =>
@@ -175,6 +175,50 @@ describe('Lookahead', () => {
 
 		expect(getOrderedPartsAfterPlayheadMock).toHaveBeenCalledTimes(1)
 		expect(getOrderedPartsAfterPlayheadMock).toHaveBeenCalledWith(context, expect.anything(), 10) // default distance
+		await expectLookaheadForLayerMock(playlistId, { previous: [] }, fakeParts)
+	})
+
+	test('usesInTransition follows the resolved transition', async () => {
+		const partInstancesInfo: SelectedPartInstancesTimelineInfo = { previous: [] }
+
+		const inTransition = { blockTakeDuration: 0, previousPartKeepaliveDuration: 200, partContentDelayDuration: 100 }
+		const exclusive = {
+			type: 'exclusive',
+			blockTakeDuration: 0,
+			partKeepaliveDuration: 0,
+			nextPartContentDelayDuration: 0,
+		} as const
+		const partsAndExpected: Array<[Partial<DBPart>, boolean]> = [
+			// No previous part
+			[{ inTransition }, false],
+			[{ inTransition, outTransition: exclusive }, true],
+			// Previous has an exclusive outTransition
+			[{ inTransition, outTransition: { duration: 0, disableNextInTransition: true } }, false],
+			// Previous has an additive outTransition with disableNextInTransition
+			[{ inTransition, autoNext: true, autoNextOutTransition: exclusive }, false],
+			// Previous has an autoNextOutTransition
+			[{ inTransition }, false],
+			[{ inTransition }, true],
+			// No inTransition
+			[{}, false],
+			[{}, false],
+			[{}, false],
+			[{}, false],
+			[{}, false],
+		]
+
+		const fakeParts = partsAndExpected.map(([part, usesInTransition], i) => ({
+			part: { _id: partIds[i], ...part } as any,
+			usesInTransition,
+			pieces: [],
+		}))
+		getOrderedPartsAfterPlayheadMock.mockReturnValueOnce(fakeParts.map((p) => p.part))
+
+		await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) =>
+			getLookeaheadObjects(context, playoutModel, partInstancesInfo)
+		)
+
+		expect(getOrderedPartsAfterPlayheadMock).toHaveBeenCalledTimes(1)
 		await expectLookaheadForLayerMock(playlistId, { previous: [] }, fakeParts)
 	})
 
@@ -190,7 +234,7 @@ describe('Lookahead', () => {
 	test('got some objects', async () => {
 		const partInstancesInfo: SelectedPartInstancesTimelineInfo = { previous: [] }
 
-		const fakeParts = partIds.map((p) => ({ part: { _id: p } as any, usesInTransition: true, pieces: [] }))
+		const fakeParts = partIds.map((p) => ({ part: { _id: p } as any, usesInTransition: false, pieces: [] }))
 		getOrderedPartsAfterPlayheadMock.mockReturnValueOnce(fakeParts.map((p) => p.part))
 
 		findLookaheadForLayerMock
@@ -287,7 +331,7 @@ describe('Lookahead', () => {
 	})
 
 	test('PartInstances translation', async () => {
-		const fakeParts = partIds.map((p) => ({ part: { _id: p } as any, usesInTransition: true, pieces: [] }))
+		const fakeParts = partIds.map((p) => ({ part: { _id: p } as any, usesInTransition: false, pieces: [] }))
 		getOrderedPartsAfterPlayheadMock.mockReturnValue(fakeParts.map((p) => p.part))
 
 		// It does have assertions, but hidden inside helper methods
@@ -380,7 +424,7 @@ describe('Lookahead', () => {
 
 	test('Playlist state influences playoutState parameter', async () => {
 		const partInstancesInfo: SelectedPartInstancesTimelineInfo = { previous: [] }
-		const fakeParts = partIds.map((p) => ({ part: { _id: p } as any, usesInTransition: true, pieces: [] }))
+		const fakeParts = partIds.map((p) => ({ part: { _id: p } as any, usesInTransition: false, pieces: [] }))
 		getOrderedPartsAfterPlayheadMock.mockReturnValue(fakeParts.map((p) => p.part))
 
 		// Test with rehearsal mode
