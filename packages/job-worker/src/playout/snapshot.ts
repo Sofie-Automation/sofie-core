@@ -38,6 +38,7 @@ import { RundownOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/
 import { SofieIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 import * as PackagesPreR53 from '@sofie-automation/corelib/dist/dataModel/Old/ExpectedPackagesR52'
 import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
+import { convertLegacyPartTransitionPropsInPlace } from '@sofie-automation/corelib/dist/playout/legacyTransitions'
 
 class IdMapWithGenerator<V extends ProtectedString<any>> extends Map<V, V> {
 	getOrGenerate(key: V): V {
@@ -251,6 +252,21 @@ export async function handleRestorePlaylistSnapshot(
 			delete pieceOld.partId
 			piece.startSegmentId = partSegmentIds[unprotectString(partId)]
 		}
+	}
+
+	// Removed Part transition properties:
+	const transitionChangedIds: string[] = []
+	for (const part of snapshot.parts) {
+		if (convertLegacyPartTransitionPropsInPlace(part)) transitionChangedIds.push(unprotectString(part._id))
+	}
+	for (const partInstance of snapshot.partInstances) {
+		if (convertLegacyPartTransitionPropsInPlace(partInstance.part))
+			transitionChangedIds.push(unprotectString(partInstance._id))
+	}
+	if (transitionChangedIds.length) {
+		logger.warn(
+			`Parts with both autoNextOverlap and an additive outTransition will no longer use the outTransition when autonexting: ${transitionChangedIds.join(', ')}`
+		)
 	}
 
 	// List any ids that need updating on other documents
