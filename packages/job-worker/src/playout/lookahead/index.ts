@@ -27,6 +27,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { RundownHoldState } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { filterPieceInstancesForNextPartWithOffset } from './lookaheadOffset.js'
 import { resolvePieceForBranding } from '@sofie-automation/corelib/dist/playout/branding'
+import { resolvePartTransition } from '@sofie-automation/corelib/dist/playout/timings'
 
 const LOOKAHEAD_OBJ_PRIORITY = 0.1
 
@@ -194,7 +195,7 @@ export async function getLookeaheadObjects(
 
 		return {
 			part,
-			usesInTransition: !previousPart?.disableNextInTransition, // aproximate, but accurate enough
+			usesInTransition: resolvePartTransition(false, previousPart, part).playInTransitionPiece, // aproximate, but accurate enough
 			pieces: sortPieceInstancesByStart(piecesByPart.get(part._id) || [], 0),
 		}
 	})

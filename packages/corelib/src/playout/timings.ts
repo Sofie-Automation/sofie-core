@@ -1,10 +1,17 @@
-import { IBlueprintPartInTransition, IBlueprintPieceType } from '@sofie-automation/blueprints-integration'
+import { IBlueprintPieceType } from '@sofie-automation/blueprints-integration'
 import { DBPartInstance } from '../dataModel/PartInstance.js'
 import { DBPart } from '../dataModel/Part.js'
 import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
 import { Piece } from '../dataModel/Piece.js'
 import { RundownHoldState } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
 import { ReadonlyDeep } from 'type-fest'
+
+/**
+ * Whether the pieceType is one of the out-transition types, which are anchored to the end of the Part
+ */
+export function isOutTransitionPieceType(pieceType: IBlueprintPieceType): boolean {
+	return pieceType === IBlueprintPieceType.OutTransition || pieceType === IBlueprintPieceType.AutoNextOutTransition
+}
 
 /**
  * Calculate the total pre-roll duration of a PartInstance
@@ -49,6 +56,15 @@ function calculatePartPostroll(pieces: ReadonlyDeep<CalculateTimingsPiece[]>): n
 }
 
 /**
+ * Which transition was used for the boundary into a Part
+ * - `none`: no transition, a simple cut (possibly delayed by an additive outTransition)
+ * - `inTransition`: the inTransition of the Part being taken into
+ * - `outTransition`: the `'exclusive'` outTransition of the Part being taken out of
+ * - `autoNextOutTransition`: the autoNextOutTransition of the Part being taken out of
+ */
+export type PartTransitionSource = 'none' | 'inTransition' | 'outTransition' | 'autoNextOutTransition'
+
+/**
  * Numbers are relative to the start of toPartGroup. Nothing should ever be negative, the pieces of toPartGroup will be delayed to allow for other things to complete.
  * Note: once the part has been taken this should not be recalculated. Doing so may result in the timings shifting if the preroll required for the part is found to have changed
  */
@@ -59,15 +75,90 @@ export interface PartCalculatedTimings {
 	fromPartRemaining: number // How long after the start of toPartGroup should fromPartGroup continue?
 	fromPartPostroll: number
 	fromPartKeepalive: number
+
+	/** Which transition was used for the boundary into this Part. Undefined for timings persisted before this was added */
+	transitionSource?: PartTransitionSource
+	/** How long after plannedStartedPlayback takes out of this Part are blocked. Undefined for timings persisted before this was added */
+	blockTakeDuration?: number
 }
 
 export type CalculateTimingsPiece = Pick<Piece, 'enable' | 'prerollDuration' | 'postrollDuration' | 'pieceType'>
-export type CalculateTimingsFromPart = Pick<
-	DBPart,
-	'autoNext' | 'autoNextOverlap' | 'disableNextInTransition' | 'outTransition'
->
+export type CalculateTimingsFromPart = Pick<DBPart, 'autoNext' | 'autoNextOutTransition' | 'outTransition'>
 
 export type CalculateTimingsToPart = Pick<DBPart, 'inTransition'>
+
+/**
+ * The single transition used for the boundary between two Parts.
+ * Exactly one transition wins, nothing is merged between them
+ */
+export interface ResolvedPartTransition {
+	source: PartTransitionSource
+	keepalive: number
+	contentDelay: number
+	blockTakeDuration: number
+	/** Whether the InTransition piece of the Part being taken into plays */
+	playInTransitionPiece: boolean
+	/** Whether the additive outTransition.duration of the Part being taken out of contributes to the take offset */
+	applyAdditiveOutDuration: boolean
+}
+
+/**
+ * Determine which transition to use for the boundary between two Parts
+ */
+export function resolvePartTransition(
+	isInHold: boolean,
+	fromPart: CalculateTimingsFromPart | undefined,
+	toPart: CalculateTimingsToPart
+): ResolvedPartTransition {
+	const noTransition = (applyAdditiveOutDuration: boolean): ResolvedPartTransition => ({
+		source: 'none',
+		keepalive: 0,
+		contentDelay: 0,
+		blockTakeDuration: 0,
+		playInTransitionPiece: false,
+		applyAdditiveOutDuration,
+	})
+
+	if (!fromPart) return noTransition(false)
+
+	// If in a hold, we cant do the transition
+	if (isInHold) return noTransition(true)
+
+	if (fromPart.autoNext && fromPart.autoNextOutTransition) {
+		return {
+			source: 'autoNextOutTransition',
+			keepalive: fromPart.autoNextOutTransition.partKeepaliveDuration,
+			contentDelay: fromPart.autoNextOutTransition.nextPartContentDelayDuration,
+			blockTakeDuration: fromPart.autoNextOutTransition.blockTakeDuration,
+			playInTransitionPiece: false,
+			applyAdditiveOutDuration: false,
+		}
+	}
+
+	if (fromPart.outTransition?.type === 'exclusive') {
+		return {
+			source: 'outTransition',
+			keepalive: fromPart.outTransition.partKeepaliveDuration,
+			contentDelay: fromPart.outTransition.nextPartContentDelayDuration,
+			blockTakeDuration: fromPart.outTransition.blockTakeDuration,
+			playInTransitionPiece: false,
+			applyAdditiveOutDuration: false,
+		}
+	}
+
+	if (toPart.inTransition && !fromPart.outTransition?.disableNextInTransition) {
+		return {
+			source: 'inTransition',
+			keepalive: toPart.inTransition.previousPartKeepaliveDuration,
+			contentDelay: toPart.inTransition.partContentDelayDuration,
+			blockTakeDuration: toPart.inTransition.blockTakeDuration,
+			playInTransitionPiece: true,
+			applyAdditiveOutDuration: true,
+		}
+	}
+
+	return noTransition(true)
+}
 
 /**
  * Calculate the timings of the period where the parts can overlap.
@@ -88,27 +179,17 @@ export function calculatePartTimings(
 	const fromPartPostroll = fromPart && fromPieces ? calculatePartPostroll(fromPieces) : 0
 	const toPartPostroll = calculatePartPostroll(toPieces)
 
-	let inTransition: Omit<IBlueprintPartInTransition, 'blockTakeDuration'> | undefined
-	let allowTransitionPiece: boolean | undefined
-	if (fromPart && !isInHold) {
-		if (fromPart.autoNext && fromPart.autoNextOverlap) {
-			// An auto-next with overlap is essentially a simple transition, so we treat it as one
-			allowTransitionPiece = false
-			inTransition = {
-				// blockTakeDuration: fromPartInstance.part.autoNextOverlap,
-				partContentDelayDuration: 0,
-				previousPartKeepaliveDuration: fromPart.autoNextOverlap,
-			}
-		} else if (!fromPart.disableNextInTransition) {
-			allowTransitionPiece = true
-			inTransition = toPart.inTransition
-		}
-	}
+	const transition = resolvePartTransition(isInHold, fromPart, toPart)
+
+	const additiveOutDuration =
+		transition.applyAdditiveOutDuration && fromPart?.outTransition && fromPart.outTransition.type !== 'exclusive'
+			? fromPart.outTransition.duration
+			: undefined
 
 	// Try and convert the transition
-	if (!inTransition || !fromPart) {
+	if (transition.source === 'none') {
 		// The amount to delay the part 'switch' to, to ensure the outTransition has time to complete as well as any prerolls for part B
-		const takeOffset = Math.max(0, fromPart?.outTransition?.duration ?? 0, toPartPreroll)
+		const takeOffset = Math.max(0, additiveOutDuration ?? 0, toPartPreroll)
 
 		return {
 			inTransitionStart: null, // No transition to use
@@ -119,26 +200,28 @@ export function calculatePartTimings(
 			fromPartRemaining: takeOffset + fromPartPostroll,
 			fromPartPostroll: fromPartPostroll,
 			fromPartKeepalive: 0,
+			transitionSource: transition.source,
+			blockTakeDuration: transition.blockTakeDuration,
 		}
 	} else {
 		// The amount of time needed to complete the outTransition before the 'take' point
-		const outTransitionTime = fromPart.outTransition
-			? fromPart.outTransition.duration - inTransition.previousPartKeepaliveDuration
-			: 0
+		const outTransitionTime = additiveOutDuration !== undefined ? additiveOutDuration - transition.keepalive : 0
 
 		// The amount of time needed to preroll Part B before the 'take' point
-		const prerollTime = toPartPreroll - inTransition.partContentDelayDuration
+		const prerollTime = toPartPreroll - transition.contentDelay
 
 		// The amount to delay the part 'switch' to, to ensure the outTransition has time to complete as well as any prerolls for part B
 		const takeOffset = Math.max(0, outTransitionTime, prerollTime)
 
 		return {
-			inTransitionStart: allowTransitionPiece ? takeOffset : null,
-			toPartDelay: takeOffset + inTransition.partContentDelayDuration,
+			inTransitionStart: transition.playInTransitionPiece ? takeOffset : null,
+			toPartDelay: takeOffset + transition.contentDelay,
 			toPartPostroll: toPartPostroll,
-			fromPartRemaining: takeOffset + inTransition.previousPartKeepaliveDuration + fromPartPostroll,
+			fromPartRemaining: takeOffset + transition.keepalive + fromPartPostroll,
 			fromPartPostroll: fromPartPostroll,
-			fromPartKeepalive: inTransition.previousPartKeepaliveDuration,
+			fromPartKeepalive: transition.keepalive,
+			transitionSource: transition.source,
+			blockTakeDuration: transition.blockTakeDuration,
 		}
 	}
 }

@@ -86,6 +86,7 @@ function shouldIgnorePiece(partInfo: PartAndPieces, piece: PieceInstanceWithObje
 			// Ignore if the part will not use the transition
 			return !partInfo.usesInTransition
 		case IBlueprintPieceType.OutTransition:
+		case IBlueprintPieceType.AutoNextOutTransition:
 			// Always ignore for now
 			return true
 		case IBlueprintPieceType.Normal:

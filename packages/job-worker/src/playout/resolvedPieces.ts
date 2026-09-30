@@ -11,20 +11,15 @@ import {
 import { SelectedPartInstancesTimelineInfo } from './timeline/generate.js'
 import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel.js'
 import { filterPieceInstancesForBranding, resolvePieceInstancesForBranding } from './branding.js'
+import { getAutoNextExpectedDurationExtension } from './timeline/lib.js'
 
-function getAutoNextExpectedDurationExtension(partInstancesInfo: SelectedPartInstancesTimelineInfo): number {
+function getAutoNextExpectedDurationExtensionForInfo(partInstancesInfo: SelectedPartInstancesTimelineInfo): number {
 	if (!partInstancesInfo.current || !partInstancesInfo.next) return 0
 
-	// Keepalive and outTransition extend the effective expectedDuration, but preroll must stay unchanged.
-	const requiredExtension = Math.max(
-		0,
-		partInstancesInfo.next.calculatedTimings.fromPartKeepalive,
-		partInstancesInfo.current.partInstance.part.outTransition?.duration ?? 0
+	return getAutoNextExpectedDurationExtension(
+		partInstancesInfo.current.partInstance.part,
+		partInstancesInfo.next.calculatedTimings
 	)
-
-	const availablePostrollDuration = partInstancesInfo.current.partInstance.part.availablePostrollDuration ?? 0
-
-	return Math.max(0, Math.min(requiredExtension, availablePostrollDuration))
 }
 
 /**
@@ -72,7 +67,7 @@ export function getResolvedPiecesForPartInstancesOnTimeline(
 			? partInstancesInfo.current.partInstance.part.expectedDuration +
 				partInstancesInfo.current.calculatedTimings.toPartDelay +
 				partInstancesInfo.current.calculatedTimings.toPartPostroll +
-				getAutoNextExpectedDurationExtension(partInstancesInfo)
+				getAutoNextExpectedDurationExtensionForInfo(partInstancesInfo)
 			: null
 
 	const nextPartStarted =

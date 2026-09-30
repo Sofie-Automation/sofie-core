@@ -395,7 +395,7 @@ const MockShowStyleBlueprint: () => ShowStyleBlueprintManifest = () => ({
 				title: ingestPart.name,
 				privateData: ingestPart.payload,
 				// autoNext?: boolean;
-				// autoNextOverlap?: number;
+				// autoNextOutTransition?: IBlueprintPartOutTransitionExclusive;
 				// prerollDuration?: number;
 				// transitionPrerollDuration?: number | null;
 				// transitionKeepaliveDuration?: number | null;
