@@ -1763,7 +1763,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sofie-automation/blueprints-integration@portal:../packages/blueprints-integration::locator=automation-core%40workspace%3A."
   dependencies:
-    "@sofie-automation/shared-lib": "npm:26.9.0"
+    "@sofie-automation/shared-lib": "npm:26.9.1"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.41.0"
   languageName: node
@@ -1800,8 +1800,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sofie-automation/corelib@portal:../packages/corelib::locator=automation-core%40workspace%3A."
   dependencies:
-    "@sofie-automation/blueprints-integration": "npm:26.9.0"
-    "@sofie-automation/shared-lib": "npm:26.9.0"
+    "@sofie-automation/blueprints-integration": "npm:26.9.1"
+    "@sofie-automation/shared-lib": "npm:26.9.1"
     ejson: "npm:^2.2.3"
     fast-clone: "npm:^1.5.13"
     i18next: "npm:^26.3.6"
@@ -1834,9 +1834,9 @@ __metadata:
   resolution: "@sofie-automation/job-worker@portal:../packages/job-worker::locator=automation-core%40workspace%3A."
   dependencies:
     "@slack/webhook": "npm:^7.2.0"
-    "@sofie-automation/blueprints-integration": "npm:26.9.0"
-    "@sofie-automation/corelib": "npm:26.9.0"
-    "@sofie-automation/shared-lib": "npm:26.9.0"
+    "@sofie-automation/blueprints-integration": "npm:26.9.1"
+    "@sofie-automation/corelib": "npm:26.9.1"
+    "@sofie-automation/shared-lib": "npm:26.9.1"
     amqplib: "npm:0.10.5"
     chrono-node: "npm:^2.9.1"
     deepmerge: "npm:^4.3.1"
@@ -1857,9 +1857,9 @@ __metadata:
   resolution: "@sofie-automation/meteor-lib@portal:../packages/meteor-lib::locator=automation-core%40workspace%3A."
   dependencies:
     "@mos-connection/helper": "npm:^5.0.0-alpha.0"
-    "@sofie-automation/blueprints-integration": "npm:26.9.0"
-    "@sofie-automation/corelib": "npm:26.9.0"
-    "@sofie-automation/shared-lib": "npm:26.9.0"
+    "@sofie-automation/blueprints-integration": "npm:26.9.1"
+    "@sofie-automation/corelib": "npm:26.9.1"
+    "@sofie-automation/shared-lib": "npm:26.9.1"
     deep-extend: "npm:0.6.0"
     semver: "npm:^7.8.5"
     type-fest: "npm:^4.41.0"
@@ -1876,7 +1876,7 @@ __metadata:
   dependencies:
     "@koa/router": "npm:^15.7.0"
     "@kubernetes/client-node": "npm:^0.22.3"
-    "@sofie-automation/shared-lib": "npm:26.9.0"
+    "@sofie-automation/shared-lib": "npm:26.9.1"
     ejson: "npm:^2.2.3"
     koa: "npm:^3.2.1"
     prom-client: "npm:^15.1.3"

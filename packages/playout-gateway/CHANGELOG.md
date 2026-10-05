@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [26.9.1](https://github.com/Sofie-Automation/sofie-core/compare/v26.9.0...v26.9.1) (2026-10-05)
+
+**Note:** Version bump only for package playout-gateway
+
+
+
+
+
 # [26.9.0](https://github.com/Sofie-Automation/sofie-core/compare/v26.3.0-2...v26.9.0) (2026-10-05)
 
 
