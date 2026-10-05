@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [26.9.0](https://github.com/Sofie-Automation/sofie-core/compare/v26.3.0-2...v26.9.0) (2026-10-05)
+
+
+### Bug Fixes
+
+* Add missing 'rootDir' to tsconfig ([6e2487a](https://github.com/Sofie-Automation/sofie-core/commit/6e2487aa589f7699e0a2103c435e515ccea5ff72))
+* ensure _initMosConnections() is run before setupObservers() during MosHandler.init() ([594ed23](https://github.com/Sofie-Automation/sofie-core/commit/594ed23e95a699fb6fe37f2d7219ffc2d48c5309))
+
+
+### Features
+
+* add /metrics endpoint to gateways SOFIE-456 ([#1723](https://github.com/Sofie-Automation/sofie-core/issues/1723)) ([692b22f](https://github.com/Sofie-Automation/sofie-core/commit/692b22ffdbfbb8167a527394f1e384b7fde9c494))
+* drop meteor (the final step) ([#1805](https://github.com/Sofie-Automation/sofie-core/issues/1805)) ([4b084fc](https://github.com/Sofie-Automation/sofie-core/commit/4b084fc70a22b544cc0ed91ec30a51317def0cb4))
+* kubernetes restart ([#1807](https://github.com/Sofie-Automation/sofie-core/issues/1807)) ([73a9f46](https://github.com/Sofie-Automation/sofie-core/commit/73a9f46b2d8b96c29a8f59c06bab4f84a9081f62))
+* **mos-gateway:** move synchronous updateDevices out of init ([2b1643b](https://github.com/Sofie-Automation/sofie-core/commit/2b1643bb193c6edefc85d3d91ca32d67e801aea4))
+* set `rejectUnauthorized` on ddp connections instead of `NODE_TLS_REJECT_UNAUTHORIZED` ([350aa05](https://github.com/Sofie-Automation/sofie-core/commit/350aa056f50e16d68d82b680c769544766f676b0))
+* single eslint config ([#1629](https://github.com/Sofie-Automation/sofie-core/issues/1629)) ([0353093](https://github.com/Sofie-Automation/sofie-core/commit/0353093a143b39ed34d70b70f7667749c1876422))
+
+
+
+
+
 # [26.3.0-2](https://github.com/Sofie-Automation/sofie-core/compare/v26.3.0-1...v26.3.0-2) (2026-02-18)
 
 

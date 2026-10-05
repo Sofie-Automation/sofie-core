@@ -3,6 +3,63 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [26.9.0](https://github.com/Sofie-Automation/sofie-core/compare/v26.3.0-2...v26.9.0) (2026-10-05)
+
+
+### Bug Fixes
+
+* align onPlaylistSnapshotCreated show-style pick with UI ([78b3d06](https://github.com/Sofie-Automation/sofie-core/commit/78b3d0629ae69da6a755425a281b89666d075f66))
+* **blueprints-integration:** align deviceActionMessages type with deviceStatusMessages ([fd8362c](https://github.com/Sofie-Automation/sofie-core/commit/fd8362c080ab418f6f13a605b096164285c6c2e5))
+* **EAV-693:** allow current pieces to be modified from `onSetAsNext` ([3581f8a](https://github.com/Sofie-Automation/sofie-core/commit/3581f8af7ccabdc762d7e096c124b57f773d976b))
+* expose IBlueprintSegmentDB through getSegment to bluerpints ([5b6a69d](https://github.com/Sofie-Automation/sofie-core/commit/5b6a69d5064c08b89c378b41324739205ea86fdc))
+* resolve issues highlighted in code review ([6bf3302](https://github.com/Sofie-Automation/sofie-core/commit/6bf3302b0773a9a320a5a80607f9de864f78abc3))
+* restore re-export of shared-lib/core/model/StudioSettings ([41035c3](https://github.com/Sofie-Automation/sofie-core/commit/41035c312ef4c97f0221a6fd81d79983a15da1c0))
+* Same function signature for moveNextPart across contexts ([#1796](https://github.com/Sofie-Automation/sofie-core/issues/1796)) ([fc6e41a](https://github.com/Sofie-Automation/sofie-core/commit/fc6e41a3c459b742932fb700d57caceaab5a04c1))
+
+
+### Features
+
+* Add blueprint error message customization interfaces ([cc71c8d](https://github.com/Sofie-Automation/sofie-core/commit/cc71c8d31f58211784ef5ccb6aaf3a197e164852))
+* add deviceActionMessages to StudioBlueprintManifest and resolve action errors server-side ([fc94867](https://github.com/Sofie-Automation/sofie-core/commit/fc948676e3c1c8259d78ca667e9af335a3853368))
+* add ITTimersContext to IPartEventContext ([#1705](https://github.com/Sofie-Automation/sofie-core/issues/1705)) ([39ff60d](https://github.com/Sofie-Automation/sofie-core/commit/39ff60d83dc7f6b855b320ea4f278388f5f1bcc8))
+* add support to insert temporary partInstance anywhere in the rundown ([95cda4f](https://github.com/Sofie-Automation/sofie-core/commit/95cda4fb286514d960aebb06c07ae927783a9299))
+* add UserEditingType.STATE to indicate properties about Pieces ([d1dc98a](https://github.com/Sofie-Automation/sofie-core/commit/d1dc98a2087a052e47a652db171b0ca1ddaaabd2))
+* adds the Duration timing mode interfaces ([b9f2a88](https://github.com/Sofie-Automation/sofie-core/commit/b9f2a888696e6dfcea3c05b8bbc42dee24847be4))
+* align T-Timer blueprint API with DB structure ([e35811d](https://github.com/Sofie-Automation/sofie-core/commit/e35811d4c5fd73904ce2c5b01a064dc9a7d34725))
+* allow blueprints to specify preview and thumbnail containter ids in `applyConfig` ([#1613](https://github.com/Sofie-Automation/sofie-core/issues/1613)) ([8c10a53](https://github.com/Sofie-Automation/sofie-core/commit/8c10a53de71fc9ea54cda525224ae51cffe54b80))
+* allow defining OnAir only timeline objects ([#1642](https://github.com/Sofie-Automation/sofie-core/issues/1642)) ([dc3f171](https://github.com/Sofie-Automation/sofie-core/commit/dc3f171b42fb841ff37d80e4e0198bd0780606f1))
+* allow returning error from adlib actions in blueprints ([#1638](https://github.com/Sofie-Automation/sofie-core/issues/1638)) ([17ccacf](https://github.com/Sofie-Automation/sofie-core/commit/17ccacf198401913363edd46d38575c31df978f3))
+* allow t-timers from syncIngestChanges ([6d1af7f](https://github.com/Sofie-Automation/sofie-core/commit/6d1af7ff3586b5641178675ce0de4e8d1c78d9d7))
+* blueprint hook for snapshot creation ([6c96946](https://github.com/Sofie-Automation/sofie-core/commit/6c96946d4408349de3f198e2f3850e383884230f))
+* **blueprints:** Add blueprint interface methods for T-Timer estimate management ([8cceafc](https://github.com/Sofie-Automation/sofie-core/commit/8cceafc6c5ba2fcba5d812ca3659ba1339db6a92))
+* **blueprints:** Add T-Timer duration/timing methods and expose rundown timing ([2c92cdb](https://github.com/Sofie-Automation/sofie-core/commit/2c92cdbc69f09a40cfa1504347803e49343b2aec))
+* **core:** RundownPlaylist filters in Action Triggers ([d117426](https://github.com/Sofie-Automation/sofie-core/commit/d117426d2c1d53474990cca8109d34660cee1d6f))
+* **EAV-730:** allow custom timeout on TSR actions ([c77557e](https://github.com/Sofie-Automation/sofie-core/commit/c77557eae62ba1cb28fd0402213c7a9908c51f43))
+* **EAV-794:** provide `infiniteInstanceId` and `infiniteInstanceIndex` in `IBlueprintPieceInstance` ([e3f16dc](https://github.com/Sofie-Automation/sofie-core/commit/e3f16dce97dd980353b7004d7c55438e701b9e58))
+* emit ingest 'user edit' operations from adlib actions ([#1671](https://github.com/Sofie-Automation/sofie-core/issues/1671)) ([807baf3](https://github.com/Sofie-Automation/sofie-core/commit/807baf37bb5e78ba35f3422d89a61455ed863219))
+* enable rundown and segment payload validation ([5473c66](https://github.com/Sofie-Automation/sofie-core/commit/5473c66733e7304566422a7ea8b0f25febbc00d1))
+* expose `playoutPersistentState` to blueprint `syncIngestUpdateToPartInstance` SOFIE-455 ([#1722](https://github.com/Sofie-Automation/sofie-core/issues/1722)) ([72e40f6](https://github.com/Sofie-Automation/sofie-core/commit/72e40f6f5fe0b3ae70ff83af26081b21e0be440e))
+* expose persistent playout state on LSG ([#1644](https://github.com/Sofie-Automation/sofie-core/issues/1644)) ([fb5dd9f](https://github.com/Sofie-Automation/sofie-core/commit/fb5dd9f18557cc19d4a3327bfbd704a8af18e53b))
+* expose startedPlayback to blueprint contexts via getter properties ([5f151a5](https://github.com/Sofie-Automation/sofie-core/commit/5f151a53318985867da2da8512b79a25ccd35401))
+* formatting in prompter  SOFIE-215 ([#1658](https://github.com/Sofie-Automation/sofie-core/issues/1658)) ([c355cc8](https://github.com/Sofie-Automation/sofie-core/commit/c355cc8df781f66c869bf749fdd725c3ddd51490))
+* HTTP api for controlling t-timers ([#1707](https://github.com/Sofie-Automation/sofie-core/issues/1707)) ([6579177](https://github.com/Sofie-Automation/sofie-core/commit/657917780c1498fe4c2f046c99b45ee1bf9f6ecc))
+* implement ingest API ([410927b](https://github.com/Sofie-Automation/sofie-core/commit/410927bde42de27cf9864123395135007e9d1c8b))
+* partInstances invalid state  SOFIE-317 ([#1732](https://github.com/Sofie-Automation/sofie-core/issues/1732)) ([c9ea0fb](https://github.com/Sofie-Automation/sofie-core/commit/c9ea0fb94e6e4e75d6b4d7b837166ef71a42f0ef))
+* provide allParts and an approx index to syncIngest ([cefadc2](https://github.com/Sofie-Automation/sofie-core/commit/cefadc275ab9fab0d3283745abd8f87518d2c099))
+* remove deprecated system blueprint migrations ([469af0b](https://github.com/Sofie-Automation/sofie-core/commit/469af0b7f718f444e246c083f9547e6f9ee72026))
+* remove support for input during migrations ([877306a](https://github.com/Sofie-Automation/sofie-core/commit/877306a8d45d2956e597d44008d1c033d993992c))
+* report newPartChanged to syncIngestUpdateChanges blueprint method ([f5d7e30](https://github.com/Sofie-Automation/sofie-core/commit/f5d7e30815638e158ace6654a6d87b04cd4e20e1))
+* return adlib action validation errors to client ([7cad592](https://github.com/Sofie-Automation/sofie-core/commit/7cad592e3d1c871c5d744366b0b3384229de20cc))
+* RundownPlaylist T-Timers which are controllable from blueprints ([432c798](https://github.com/Sofie-Automation/sofie-core/commit/432c798f21b2aa761544e5b5881b50c0b7713139))
+* single eslint config ([#1629](https://github.com/Sofie-Automation/sofie-core/issues/1629)) ([0353093](https://github.com/Sofie-Automation/sofie-core/commit/0353093a143b39ed34d70b70f7667749c1876422))
+* support inserting after target part. ([49f18f3](https://github.com/Sofie-Automation/sofie-core/commit/49f18f35e6d91c96f79da2706205d5f6a7984e0b))
+* **T-Timers:** Add convenience method to set estimate anchor part by externalId ([0306f84](https://github.com/Sofie-Automation/sofie-core/commit/0306f84e30b130ca9b1363448ef5a5f720e88531))
+* TSR Device Feedback -> Rundown (SOFIE-311) ([#1731](https://github.com/Sofie-Automation/sofie-core/issues/1731)) ([c580d76](https://github.com/Sofie-Automation/sofie-core/commit/c580d7636bb058903789740b1ec8183455497acc))
+
+
+
+
+
 # [26.3.0-2](https://github.com/Sofie-Automation/sofie-core/compare/v26.3.0-1...v26.3.0-2) (2026-02-18)
 
 **Note:** Version bump only for package @sofie-automation/blueprints-integration

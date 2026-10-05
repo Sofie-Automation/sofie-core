@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [26.9.0](https://github.com/Sofie-Automation/sofie-core/compare/v26.3.0-2...v26.9.0) (2026-10-05)
+
+
+### Bug Fixes
+
+* Correct EJSON import ([d94a5d8](https://github.com/Sofie-Automation/sofie-core/commit/d94a5d8114c102013b0114073c1a5f1bdd910d96))
+
+
+### Features
+
+* add /metrics endpoint to gateways SOFIE-456 ([#1723](https://github.com/Sofie-Automation/sofie-core/issues/1723)) ([692b22f](https://github.com/Sofie-Automation/sofie-core/commit/692b22ffdbfbb8167a527394f1e384b7fde9c494))
+* kubernetes restart ([#1807](https://github.com/Sofie-Automation/sofie-core/issues/1807)) ([73a9f46](https://github.com/Sofie-Automation/sofie-core/commit/73a9f46b2d8b96c29a8f59c06bab4f84a9081f62))
+* reconfigure server-core-integration for esm & verbatimModuleSyntax ([7d4cba3](https://github.com/Sofie-Automation/sofie-core/commit/7d4cba3ba7cfbf893f4c88352c57023163c27e16))
+* remove server-core-integration ddp sockjs compatibility ([d6165ee](https://github.com/Sofie-Automation/sofie-core/commit/d6165ee4b50d8c0e27e938abcf07c1951e0c7a39))
+* replace faye-websocket with ws ([0fbb07c](https://github.com/Sofie-Automation/sofie-core/commit/0fbb07c833d00a50d25dc205b92e84e4207f39d9))
+* set `rejectUnauthorized` on ddp connections instead of `NODE_TLS_REJECT_UNAUTHORIZED` ([350aa05](https://github.com/Sofie-Automation/sofie-core/commit/350aa056f50e16d68d82b680c769544766f676b0))
+* single eslint config ([#1629](https://github.com/Sofie-Automation/sofie-core/issues/1629)) ([0353093](https://github.com/Sofie-Automation/sofie-core/commit/0353093a143b39ed34d70b70f7667749c1876422))
+
+
+
+
+
 # [26.3.0-2](https://github.com/Sofie-Automation/sofie-core/compare/v26.3.0-1...v26.3.0-2) (2026-02-18)
 
 **Note:** Version bump only for package @sofie-automation/server-core-integration

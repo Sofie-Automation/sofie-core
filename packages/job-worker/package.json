@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/job-worker",
-	"version": "26.3.0-2",
+	"version": "26.9.0",
 	"description": "Worker for things",
 	"main": "dist/index.js",
 	"license": "MIT",
@@ -36,9 +36,9 @@
 	],
 	"dependencies": {
 		"@slack/webhook": "^7.2.0",
-		"@sofie-automation/blueprints-integration": "26.3.0-2",
-		"@sofie-automation/corelib": "26.3.0-2",
-		"@sofie-automation/shared-lib": "26.3.0-2",
+		"@sofie-automation/blueprints-integration": "26.9.0",
+		"@sofie-automation/corelib": "26.9.0",
+		"@sofie-automation/shared-lib": "26.9.0",
 		"amqplib": "0.10.5",
 		"chrono-node": "^2.9.1",
 		"deepmerge": "^4.3.1",

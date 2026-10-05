@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [26.9.0](https://github.com/Sofie-Automation/sofie-core/compare/v26.3.0-2...v26.9.0) (2026-10-05)
+
+
+### Bug Fixes
+
+* Add missing 'rootDir' to tsconfig ([6e2487a](https://github.com/Sofie-Automation/sofie-core/commit/6e2487aa589f7699e0a2103c435e515ccea5ff72))
+* guard against missing messages in playout-gateway status normalization ([f02d966](https://github.com/Sofie-Automation/sofie-core/commit/f02d9662bff024107a97403849915b997ecfff78)), closes [#1604](https://github.com/Sofie-Automation/sofie-core/issues/1604)
+* include required messages and active fields in initial device status ([c4e5b74](https://github.com/Sofie-Automation/sofie-core/commit/c4e5b74d8110ede60685f60fe738a352a88f8835))
+* resolve issues highlighted in code review ([6bf3302](https://github.com/Sofie-Automation/sofie-core/commit/6bf3302b0773a9a320a5a80607f9de864f78abc3))
+
+
+### Features
+
+* add /metrics endpoint to gateways SOFIE-456 ([#1723](https://github.com/Sofie-Automation/sofie-core/issues/1723)) ([692b22f](https://github.com/Sofie-Automation/sofie-core/commit/692b22ffdbfbb8167a527394f1e384b7fde9c494))
+* drop meteor (the final step) ([#1805](https://github.com/Sofie-Automation/sofie-core/issues/1805)) ([4b084fc](https://github.com/Sofie-Automation/sofie-core/commit/4b084fc70a22b544cc0ed91ec30a51317def0cb4))
+* implement oneOfButtons form widget ([9a81e82](https://github.com/Sofie-Automation/sofie-core/commit/9a81e828b9a562740c98da530d3e7d2414b4f07f))
+* kubernetes restart ([#1807](https://github.com/Sofie-Automation/sofie-core/issues/1807)) ([73a9f46](https://github.com/Sofie-Automation/sofie-core/commit/73a9f46b2d8b96c29a8f59c06bab4f84a9081f62))
+* set `rejectUnauthorized` on ddp connections instead of `NODE_TLS_REJECT_UNAUTHORIZED` ([350aa05](https://github.com/Sofie-Automation/sofie-core/commit/350aa056f50e16d68d82b680c769544766f676b0))
+* single eslint config ([#1629](https://github.com/Sofie-Automation/sofie-core/issues/1629)) ([0353093](https://github.com/Sofie-Automation/sofie-core/commit/0353093a143b39ed34d70b70f7667749c1876422))
+* TSR Device Feedback -> Rundown (SOFIE-311) ([#1731](https://github.com/Sofie-Automation/sofie-core/issues/1731)) ([c580d76](https://github.com/Sofie-Automation/sofie-core/commit/c580d7636bb058903789740b1ec8183455497acc))
+
+
+
+
+
 # [26.3.0-2](https://github.com/Sofie-Automation/sofie-core/compare/v26.3.0-1...v26.3.0-2) (2026-02-18)
 
 
