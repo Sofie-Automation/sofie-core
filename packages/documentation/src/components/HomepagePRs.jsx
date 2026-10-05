@@ -1,20 +1,25 @@
-import React, { useEffect, useLayoutEffect, useState, useRef } from "react";
-import './HomepagePRs.css';
+import React, { useEffect, useLayoutEffect, useState, useRef } from 'react'
+import './HomepagePRs.css'
 
 const GITHUB_API_URL = 'https://api.github.com'
 
-const GITHUB_ORGANIZATION = "Sofie-Automation"
-const GITHUB_REPO = "sofie-core"
+const GITHUB_ORGANIZATION = 'Sofie-Automation'
+const GITHUB_REPO = 'sofie-core'
 
 export function HomepagePRs() {
-	const [isReady, setIsReady] = useState("error")
+	const [isReady, setIsReady] = useState('loading')
 	const [pulls, setPulls] = useState([])
 
 	useEffect(() => {
-		let mounted = true
-		fetch(`${GITHUB_API_URL}/repos/${GITHUB_ORGANIZATION}/${GITHUB_REPO}/pulls?state=all&sort=updated&direction=desc&per_page=100`, {
-			headers: [['Accept', 'application/vnd.github.text+json']],
-		})
+		const controller = new AbortController()
+
+		fetch(
+			`${GITHUB_API_URL}/repos/${GITHUB_ORGANIZATION}/${GITHUB_REPO}/pulls?state=all&sort=updated&direction=desc&per_page=100`,
+			{
+				headers: [['Accept', 'application/vnd.github.text+json']],
+				signal: controller.signal,
+			}
+		)
 			.then((value) => {
 				if (value.ok) {
 					return value.json()
@@ -23,18 +28,20 @@ export function HomepagePRs() {
 				}
 			})
 			.then((data) => {
-				if (!mounted) return
-				setPulls(data.filter((pull) => !pull.draft && (pull.state === 'closed' && pull.merged_at || pull.state === 'open')))
-				setIsReady("done")
+				if (controller.signal.aborted) return
+				setPulls(
+					data.filter((pull) => !pull.draft && ((pull.state === 'closed' && pull.merged_at) || pull.state === 'open'))
+				)
+				setIsReady('done')
 			})
 			.catch((error) => {
-				if (!mounted) return
+				if (controller.signal.aborted) return
 				console.error(error)
-				setIsReady("error")
+				setIsReady('error')
 			})
 
 		return () => {
-			mounted = false
+			controller.abort()
 		}
 	}, [])
 
@@ -43,13 +50,31 @@ export function HomepagePRs() {
 			<div className="container">
 				<h2 className="homepage-prs-title">What's the latest in Sofie?</h2>
 			</div>
-			{isReady === "error" && <div className="homepage-prs-error">Failed to load recent pull requests from GitHub.</div>}
-			{isReady === "loading" && <div className="homepage-prs-loading">Loading recent pull requests...</div>}
-			{isReady === "done" && <div className="homepage-pr-gallery">
-				{chunkArray(pulls, 3).map((chunk, chunkIndex) => (
-					<AnimatedRow pulls={chunk} key={chunkIndex} speed={0.025 * (chunkIndex + 1)} />
-				))}
-			</div>}
+			{isReady === 'error' && (
+				<div className="homepage-prs-error">Failed to load recent pull requests from GitHub.</div>
+			)}
+			{isReady === 'loading' && (
+				<div className="homepage-prs-loading">
+					<svg fill="hsl(228, 97%, 42%)" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+						<path d="M10.72,19.9a8,8,0,0,1-6.5-9.79A7.77,7.77,0,0,1,10.4,4.16a8,8,0,0,1,9.49,6.52A1.54,1.54,0,0,0,21.38,12h.13a1.37,1.37,0,0,0,1.38-1.54,11,11,0,1,0-12.7,12.39A1.54,1.54,0,0,0,12,21.34h0A1.47,1.47,0,0,0,10.72,19.9Z">
+							<animateTransform
+								attributeName="transform"
+								type="rotate"
+								dur="0.75s"
+								values="0 12 12;360 12 12"
+								repeatCount="indefinite"
+							/>
+						</path>
+					</svg>
+				</div>
+			)}
+			{isReady === 'done' && (
+				<div className="homepage-pr-gallery">
+					{chunkArray(pulls, 3).map((chunk, chunkIndex) => (
+						<AnimatedRow pulls={chunk} key={chunkIndex} speed={0.025 * (chunkIndex + 1)} />
+					))}
+				</div>
+			)}
 		</React.Fragment>
 	)
 }
@@ -81,7 +106,7 @@ function AnimatedRow(props) {
 			if (lastTimestamp !== null && !pausedRef.current) {
 				const delta = timestamp - lastTimestamp
 				scrollAmount += delta * (speed || 0.05) // Adjust the speed here (0.05 is the default speed factor)
-				element.style.transform = `translateX(-${scrollAmount}px)`;
+				element.style.transform = `translateX(-${scrollAmount}px)`
 			}
 			lastTimestamp = timestamp
 			animationFrameId = requestAnimationFrame(animate)
@@ -133,12 +158,17 @@ function AnimatedRow(props) {
 							<div className="homepage-pr-gallery-pull-header">
 								<div className="homepage-pr-gallery-pull-number">#{pull['number']}</div>
 								<div className="homepage-pr-gallery-pull-title">
-									<a href={pull.html_url} target="_blank" rel="noopener noreferrer">{pull.title}</a>
+									<a href={pull.html_url} target="_blank" rel="noopener noreferrer">
+										{pull.title}
+									</a>
 								</div>
 							</div>
 							<SponsorBadge sponsorLabel={pull.labels.find((label) => label.name.match(/contr(\w+) (from|by)/i))} />
 							<div className="homepage-pr-gallery-pull-author">
-								<div className="homepage-pr-gallery-pull-author-avatar" style={{ "--user-avatar": `url("${pull.user.avatar_url}")` }}></div>
+								<div
+									className="homepage-pr-gallery-pull-author-avatar"
+									style={{ '--user-avatar': `url("${pull.user.avatar_url}")` }}
+								></div>
 								<div className="homepage-pr-gallery-pull-author-name">{pull.user.login}</div>
 							</div>
 						</div>
@@ -150,10 +180,10 @@ function AnimatedRow(props) {
 }
 
 function chunkArray(arr, chunkCount) {
-	const arrLength = arr.length;
-	const chunkSize = Math.floor(arrLength / chunkCount);
+	const arrLength = arr.length
+	const chunkSize = Math.floor(arrLength / chunkCount)
 
-	const result = [];
+	const result = []
 	for (let i = 0; i < chunkCount - 1; i++) {
 		result.push(arr.slice(i * chunkSize, (i + 1) * chunkSize))
 	}
@@ -169,6 +199,8 @@ function SponsorBadge(props) {
 	const { sponsorLabel: label } = props
 
 	return (
-		<div className="homepage-pr-gallery-pull-sponsor" style={{ '--label-color': `#${label.color}` }}>{label.name}</div>
+		<div className="homepage-pr-gallery-pull-sponsor" style={{ '--label-color': `#${label.color}` }}>
+			{label.name}
+		</div>
 	)
 }
