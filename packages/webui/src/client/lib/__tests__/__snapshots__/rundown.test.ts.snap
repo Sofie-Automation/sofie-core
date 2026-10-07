@@ -14,6 +14,7 @@ exports[`client/lib/rundown RundownUtils.getResolvedSegment Basic Segment resolu
     {
       "instance": {
         "_id": "randomId9002_part0_0_tmp_instance",
+        "brandingId": null,
         "isTemporary": true,
         "part": {
           "_id": "randomId9002_part0_0",
@@ -143,6 +144,7 @@ exports[`client/lib/rundown RundownUtils.getResolvedSegment Basic Segment resolu
     {
       "instance": {
         "_id": "randomId9002_part0_1_tmp_instance",
+        "brandingId": null,
         "isTemporary": true,
         "part": {
           "_id": "randomId9002_part0_1",

@@ -63,6 +63,7 @@ import {
 	unprotectStringArray,
 } from '@sofie-automation/corelib/dist/protectedString'
 import { postProcessPieces, postProcessTimelineObjects } from '../../postProcess.js'
+import { sanitisePartBrandingFromBlueprint, sanitisePieceBrandingFromBlueprint } from '../../postProcessBranding.js'
 import { getCurrentTime } from '../../../lib/index.js'
 import _ from 'underscore'
 import { syncPlayheadInfinitesForNextPartInstance } from '../../../playout/infinites.js'
@@ -173,7 +174,10 @@ export class PartAndPieceInstanceActionService {
 		const resolvedInstances = getResolvedPiecesForCurrentPartInstance(
 			this._context,
 			this.showStyleCompound.sourceLayers,
-			partInstance
+			partInstance,
+			undefined,
+			// Blueprints may write these back, so they must not have the Branding baked into them
+			true
 		)
 		return resolvedInstances.map(convertResolvedPieceInstanceToBlueprints)
 	}
@@ -342,6 +346,11 @@ export class PartAndPieceInstanceActionService {
 		if (Object.keys(trimmedPiece).length === 0) {
 			throw new Error('Some valid properties must be defined')
 		}
+		sanitisePieceBrandingFromBlueprint(
+			trimmedPiece,
+			this.showStyleCompound.blueprintId,
+			`PieceInstance "${pieceInstanceId}"`
+		)
 
 		const foundPieceInstance = this._playoutModel.findPieceInstance(protectString(pieceInstanceId))
 		if (!foundPieceInstance) {
@@ -518,6 +527,7 @@ export class PartAndPieceInstanceActionService {
 			userEditOperations: [], // Adlibbed parts can't be edited by ingest
 			userEditProperties: undefined,
 		}
+		sanitisePartBrandingFromBlueprint(part, this.showStyleCompound.blueprintId, `Part "${part.externalId}"`)
 
 		const pieces = postProcessPieces(
 			this._context,

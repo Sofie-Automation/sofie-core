@@ -211,6 +211,13 @@ export async function innerStartOrQueueAdLibPiece(
 	return queuedPartInstanceId
 }
 
+/**
+ * Find the PieceInstance which last played on one of the given source layers.
+ *
+ * Note: this does not exclude Pieces which are limited to a Branding other than the one selected. It
+ * searches back through PartInstances which were played with whatever Branding was selected at the time,
+ * so there is no single Branding to resolve the results against.
+ */
 export async function innerFindLastPieceOnLayer(
 	context: JobContext,
 	playoutModel: PlayoutModel,
@@ -249,6 +256,13 @@ export async function innerFindLastPieceOnLayer(
 	})
 }
 
+/**
+ * Find the Piece which was scripted to last play on one of the given source layers.
+ *
+ * Note: this does not exclude Pieces limited to another Branding, for the same reasons as
+ * `innerFindLastPieceOnLayer`. These are Pieces rather than PieceInstances, so they carry no Branding of
+ * their own at all.
+ */
 export async function innerFindLastScriptedPieceOnLayer(
 	context: JobContext,
 	playoutModel: PlayoutModel,

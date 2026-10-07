@@ -51,6 +51,7 @@ import { logger } from '../logging.js'
 import { validateTimeline } from 'superfly-timeline'
 import { ReadonlyDeep } from 'type-fest'
 import { translateUserEditPropertiesFromBlueprint, translateUserEditsFromBlueprint } from './context/lib.js'
+import { sanitiseActionBrandingFromBlueprint, sanitisePieceBrandingFromBlueprint } from './postProcessBranding.js'
 
 function getIdHash(docType: string, usedIds: Map<string, number>, uniqueId: string): string {
 	const count = usedIds.get(uniqueId)
@@ -118,6 +119,7 @@ export function postProcessPieces(
 			userEditOperations: translateUserEditsFromBlueprint(orgPiece.userEditOperations, [blueprintId]),
 			userEditProperties: translateUserEditPropertiesFromBlueprint(orgPiece.userEditProperties, [blueprintId]),
 		}
+		sanitisePieceBrandingFromBlueprint(piece, blueprintId, `Piece "${piece.externalId}"`)
 
 		if (piece.pieceType !== IBlueprintPieceType.Normal) {
 			// transition pieces must not be infinite, lets enforce that
@@ -259,6 +261,7 @@ export function postProcessAdLibPieces(
 			userEditOperations: translateUserEditsFromBlueprint(orgAdlib.userEditOperations, [blueprintId]),
 			userEditProperties: translateUserEditPropertiesFromBlueprint(orgAdlib.userEditProperties, [blueprintId]),
 		}
+		sanitisePieceBrandingFromBlueprint(piece, blueprintId, `AdLib Piece "${piece.externalId}"`)
 
 		if (!piece.externalId)
 			throw new Error(
@@ -315,7 +318,7 @@ export function postProcessGlobalAdLibActions(
 
 		const processed = processAdLibActionITranslatableMessages(action, blueprintId)
 
-		return literal<RundownBaselineAdLibAction>({
+		const processedAction = literal<RundownBaselineAdLibAction>({
 			...action,
 			actionId: action.actionId,
 			_id: protectString(docId),
@@ -326,6 +329,9 @@ export function postProcessGlobalAdLibActions(
 			userEditOperations: processed.userEditOperations,
 			userEditProperties: processed.userEditProperties,
 		})
+		sanitiseActionBrandingFromBlueprint(processedAction, blueprintId, `AdLib Action "${action.externalId}"`)
+
+		return processedAction
 	})
 }
 
@@ -361,7 +367,7 @@ export function postProcessAdLibActions(
 
 		const processed = processAdLibActionITranslatableMessages(action, blueprintId)
 
-		return literal<AdLibAction>({
+		const processedAction = literal<AdLibAction>({
 			...action,
 			actionId: action.actionId,
 			_id: protectString(docId),
@@ -372,6 +378,9 @@ export function postProcessAdLibActions(
 			userEditOperations: processed.userEditOperations,
 			userEditProperties: processed.userEditProperties,
 		})
+		sanitiseActionBrandingFromBlueprint(processedAction, blueprintId, `AdLib Action "${action.externalId}"`)
+
+		return processedAction
 	})
 }
 
@@ -423,6 +432,7 @@ export function postProcessGlobalPieces(
 			userEditOperations: translateUserEditsFromBlueprint(orgPiece.userEditOperations, [blueprintId]),
 			userEditProperties: translateUserEditPropertiesFromBlueprint(orgPiece.userEditProperties, [blueprintId]),
 		}
+		sanitisePieceBrandingFromBlueprint(piece, blueprintId, `Piece "${piece.externalId}"`)
 
 		if (piece.pieceType !== IBlueprintPieceType.Normal) {
 			// transition pieces must not be infinite, lets enforce that
@@ -508,7 +518,8 @@ export function postProcessBucketAdLib(
 		)
 	)
 	const piece: BucketAdLib = {
-		...itemOrig,
+		// Note: Branding is not supported on Bucket AdLibs
+		...omit(itemOrig, 'branding', 'onlyValidForBranding'),
 		content: omit(itemOrig.content, 'timelineObjects'),
 		_id: id,
 		externalId: ingestInfo.payload.externalId,
@@ -562,7 +573,8 @@ export function postProcessBucketAction(
 	const processed = processAdLibActionITranslatableMessages(itemOrig, blueprintId, rank, label)
 
 	const action: BucketAdLibAction = {
-		...omit(itemOrig, 'partId'),
+		// Note: Branding is not supported on Bucket AdLibs, as they are shared between Rundowns and ShowStyles
+		...omit(itemOrig, 'partId', 'branding', 'onlyValidForBranding'),
 		_id: id,
 		externalId: ingestInfo.payload.externalId,
 		studioId: context.studioId,

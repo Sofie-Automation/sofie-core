@@ -38,6 +38,7 @@ describe('Test external message queue static methods', () => {
 			studioId: protectString(''),
 			created: 0,
 			modified: 0,
+			defaultBrandingId: null,
 			currentPartInfo: {
 				partInstanceId: protectString('part_now'),
 				rundownId: protectString('rundown_1'),
@@ -188,6 +189,7 @@ describe('Test sending messages to mocked endpoints', () => {
 			studioId: protectString(''),
 			created: 0,
 			modified: 0,
+			defaultBrandingId: null,
 			currentPartInfo: {
 				partInstanceId: protectString('part_now'),
 				rundownId: rundownId,

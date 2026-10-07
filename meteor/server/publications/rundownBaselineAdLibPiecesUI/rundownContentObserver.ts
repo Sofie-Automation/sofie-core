@@ -1,3 +1,4 @@
+import { createBrandingObservers } from '../lib/branding'
 import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
 import { logger } from '../../logging'
@@ -36,6 +37,7 @@ export class RundownContentObserver {
 					projection: rundownBaselineAdLibPieceFieldSpecifier,
 				}
 			),
+			...createBrandingObservers(args.rundownIds, cache),
 		])
 
 		return new RundownContentObserver(cache, observers)

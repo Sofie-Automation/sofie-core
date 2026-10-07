@@ -3,7 +3,7 @@ import { RundownImportVersions } from './Rundown.js'
 import { AdLibActionCommon } from './AdlibAction.js'
 import { BucketAdLibIngestInfo } from './BucketAdLibPiece.js'
 
-export interface BucketAdLibAction extends Omit<AdLibActionCommon, 'rundownId'> {
+export interface BucketAdLibAction extends Omit<AdLibActionCommon, 'rundownId' | 'branding' | 'onlyValidForBranding'> {
 	_id: BucketAdLibActionId
 	bucketId: BucketId
 

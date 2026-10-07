@@ -3,6 +3,7 @@ import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
 import { RundownPlaylists, Segments, ShowStyleBases, Studios } from '../collections'
 import { ContainerIdsToObjectWithOverridesMigrationStep } from './steps/X_X_X/ContainerIdsToObjectWithOverridesMigrationStep'
 import { PreviousPartInfoToArrayMigrationStep } from './steps/X_X_X/PreviousPartInfoToArrayMigrationStep'
+import { PlaylistBrandingSelectionMigrationStep } from './steps/X_X_X/PlaylistBrandingSelectionMigrationStep'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
@@ -151,6 +152,7 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 		},
 	},
 	new PreviousPartInfoToArrayMigrationStep(),
+	new PlaylistBrandingSelectionMigrationStep(),
 	// Add your migration here
 
 	{

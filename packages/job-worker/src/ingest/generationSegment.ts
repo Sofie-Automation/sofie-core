@@ -7,6 +7,7 @@ import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/St
 import { RawPartNote, SegmentUserContext } from '../blueprints/context/index.js'
 import { WatchedPackagesHelper } from '../blueprints/context/watchedPackages.js'
 import { postProcessAdLibActions, postProcessAdLibPieces, postProcessPieces } from '../blueprints/postProcess.js'
+import { sanitisePartBrandingFromBlueprint } from '../blueprints/postProcessBranding.js'
 import { logger } from '../logging.js'
 import { IngestModel, IngestModelReadonly, IngestReplaceSegmentType } from './model/IngestModel.js'
 import { getSegmentId, canSegmentBeUpdated } from './lib.js'
@@ -410,6 +411,7 @@ function updateModelWithGeneratedPart(
 			blueprintId,
 		]),
 	})
+	sanitisePartBrandingFromBlueprint(part, blueprintId, `Part "${part.externalId}"`)
 
 	// Update pieces
 	const processedPieces = postProcessPieces(

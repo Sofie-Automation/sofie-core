@@ -39,6 +39,10 @@ import { TriggerReloadDataResponse } from '@sofie-automation/meteor-lib/dist/api
 import { ServerRundownAPI } from '../../rundown'
 import { triggerWriteAccess } from '../../../security/securityVerify'
 import type { DDPClientConnection } from '../../../ddp-server/types'
+import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
+import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
+import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
+import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 
 function parseTimerIndex(rawTimerIndex: string): RundownTTimerIndex {
 	const timerIndex = Number(rawTimerIndex)
@@ -188,22 +192,23 @@ class PlaylistsServerAPI implements PlaylistsRestAPI {
 		triggerMode?: string | null,
 		adLibOptions?: { [key: string]: any }
 	): Promise<ClientAPI.ClientResponse<object>> {
-		const baselineAdLibPiece = RundownBaselineAdLibPieces.findOneAsync(adLibId as PieceId, {
-			projection: { _id: 1 },
-		})
-		const segmentAdLibPiece = AdLibPieces.findOneAsync(adLibId as PieceId, { projection: { _id: 1 } })
-		const bucketAdLibPiece = BucketAdLibs.findOneAsync(adLibId as BucketAdLibId, { projection: { _id: 1 } })
 		const [baselineAdLibDoc, segmentAdLibDoc, bucketAdLibDoc, adLibAction, baselineAdLibAction] = await Promise.all(
 			[
-				baselineAdLibPiece,
-				segmentAdLibPiece,
-				bucketAdLibPiece,
+				RundownBaselineAdLibPieces.findOneAsync(adLibId as PieceId, {
+					projection: { _id: 1 },
+				}) as Promise<Pick<AdLibPiece, '_id'> | undefined>,
+				AdLibPieces.findOneAsync(adLibId as PieceId, { projection: { _id: 1 } }) as Promise<
+					Pick<AdLibPiece, '_id'> | undefined
+				>,
+				BucketAdLibs.findOneAsync(adLibId as BucketAdLibId, { projection: { _id: 1 } }) as Promise<
+					Pick<BucketAdLib, '_id'> | undefined
+				>,
 				AdLibActions.findOneAsync(adLibId as AdLibActionId, {
 					projection: { _id: 1, actionId: 1, userData: 1 },
-				}),
+				}) as Promise<Pick<AdLibAction, '_id' | 'actionId' | 'userData'> | undefined>,
 				RundownBaselineAdLibActions.findOneAsync(adLibId as RundownBaselineAdLibActionId, {
 					projection: { _id: 1, actionId: 1, userData: 1 },
-				}),
+				}) as Promise<Pick<RundownBaselineAdLibAction, '_id' | 'actionId' | 'userData'> | undefined>,
 			]
 		)
 		const adLibActionDoc = adLibAction ?? baselineAdLibAction

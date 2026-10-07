@@ -19,6 +19,7 @@ import { PlayoutModel } from './model/PlayoutModel.js'
 import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel.js'
 import { PlayoutSegmentModel } from './model/PlayoutSegmentModel.js'
 import { getCurrentTime } from '../lib/index.js'
+import { filterPieceInstancesForBranding } from './branding.js'
 import { clone, flatten, getRandomId } from '@sofie-automation/corelib/dist/lib'
 import _ from 'underscore'
 import { IngestModelReadonly } from '../ingest/model/IngestModel.js'
@@ -265,7 +266,8 @@ export async function syncPlayheadInfinitesForNextPartInstance(
 		)
 		const prunedPieceInstances = processAndPrunePieceInstanceTimings(
 			showStyleBase.sourceLayers,
-			fromPartInstance.pieceInstances.map((p) => p.pieceInstance),
+			// A Piece hidden by the Branding is not playing, so it cannot be continued as an infinite
+			filterPieceInstancesForBranding(fromPartInstance),
 			partTimes,
 			undefined,
 			true
