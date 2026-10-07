@@ -25,9 +25,10 @@ import { isValidForBranding } from './branding.js'
  * as a result.
  *
  * Ordinarily only the best candidate is kept. But a Piece limited to some Brandings may be the only one
- * shown on a layer while one of those is selected, so it neither discards another nor is discarded by one —
- * only Pieces used with every Branding are reduced to a single winner. The choice must not depend on which
- * Branding is selected now, as that can change after these PieceInstances have been created.
+ * shown on a layer while one of those is selected, so it can never discard another, and is only discarded by
+ * a Piece used with every Branding which is preferred over it. The choice must not depend on which Branding
+ * is selected now, as that can change after these PieceInstances have been created.
+ * Note: the candidates are not sorted, so this must give the same result whichever order they are added in.
  */
 function addInfiniteCandidate<T>(
 	kept: T[],
@@ -35,12 +36,21 @@ function addInfiniteCandidate<T>(
 	isLimitedToBranding: (piece: T) => boolean,
 	isCandidateBetter: (best: T, candidate: T) => boolean
 ): T[] {
-	if (isLimitedToBranding(candidate)) return [...kept, candidate]
+	if (isLimitedToBranding(candidate)) {
+		for (const other of kept) {
+			// The candidate can never be shown, as an unlimited Piece is preferred over it
+			if (!isLimitedToBranding(other) && isCandidateBetter(candidate, other)) return kept
+		}
+
+		return [...kept, candidate]
+	}
 
 	const result: T[] = []
 	for (const other of kept) {
 		if (isLimitedToBranding(other)) {
-			result.push(other)
+			// A limited Piece can be shown only if it is preferred over the candidate
+			// Note: if neither is preferred, keep both and leave it to be resolved during playout
+			if (!isCandidateBetter(other, candidate)) result.push(other)
 		} else if (!isCandidateBetter(other, candidate)) {
 			// The candidate can never be shown, as the other is preferred over it
 			return kept

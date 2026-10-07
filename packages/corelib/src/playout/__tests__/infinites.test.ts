@@ -388,12 +388,30 @@ describe('Infinites', () => {
 				expect(getContinuedIds([limited], 'brandingA')).toEqual(['newInstance0_limited_p_continue'])
 			})
 
-			test('a piece limited to a Branding is not discarded by one which beats it', () => {
+			test('a piece limited to a Branding is discarded by an unlimited one which beats it', () => {
 				const limited = createOnChangePiece('limited', { start: 1000 })
 				limited.piece.onlyValidForBranding = ['brandingA']
 
+				// Otherwise both would be continued, and with both starting at the beginning of the next Part they
+				// could not be told apart
 				expect(getContinuedIds([limited, createOnChangePiece('later', { start: 2000 })], 'brandingA')).toEqual([
 					'newInstance0_later_p_continue',
+				])
+				expect(getContinuedIds([createOnChangePiece('later', { start: 2000 }), limited], 'brandingA')).toEqual([
+					'newInstance0_later_p_continue',
+				])
+			})
+
+			test('a piece limited to a Branding does not discard an unlimited one which it beats', () => {
+				const limited = createOnChangePiece('limited', { start: 2000 })
+				limited.piece.onlyValidForBranding = ['brandingA']
+
+				expect(getContinuedIds([createOnChangePiece('early', { start: 1000 }), limited], 'brandingA')).toEqual([
+					'newInstance0_early_p_continue',
+					'newInstance0_limited_p_continue',
+				])
+				expect(getContinuedIds([limited, createOnChangePiece('early', { start: 1000 })], 'brandingA')).toEqual([
+					'newInstance0_early_p_continue',
 					'newInstance0_limited_p_continue',
 				])
 			})
@@ -574,13 +592,42 @@ describe('getPieceInstancesForPart branding', () => {
 		).toEqual(['early', 'late'])
 	})
 
-	test('an infinite limited to a Branding is kept even when an unlimited one beats it', () => {
+	test('an infinite limited to a Branding is discarded when an unlimited one beats it', () => {
 		expect(
 			getKeptPieceIds([
 				createInfinitePiece('early', partIds[0], 'layer0', ['brandingA']),
 				createInfinitePiece('late', partIds[1], 'layer0'),
 			])
-		).toEqual(['early', 'late'])
+		).toEqual(['late'])
+	})
+
+	test('an infinite limited to a Branding is discarded when an unlimited one beats it, in either order', () => {
+		expect(
+			getKeptPieceIds([
+				createInfinitePiece('late', partIds[1], 'layer0'),
+				createInfinitePiece('early', partIds[0], 'layer0', ['brandingA']),
+			])
+		).toEqual(['late'])
+	})
+
+	test('an infinite limited to a Branding is kept when it starts at the same time as an unlimited one', () => {
+		// Neither is preferred, so this has to be left to be resolved during playout
+		expect(
+			getKeptPieceIds([
+				createInfinitePiece('limited', partIds[1], 'layer0', ['brandingA']),
+				createInfinitePiece('unlimited', partIds[1], 'layer0'),
+			])
+		).toEqual(['limited', 'unlimited'])
+	})
+
+	test('a later unlimited infinite discards both the limited and the unlimited ones it beats', () => {
+		expect(
+			getKeptPieceIds([
+				createInfinitePiece('early', partIds[0], 'layer0'),
+				createInfinitePiece('limited', partIds[0], 'layer0', ['brandingA']),
+				createInfinitePiece('latest', partIds[1], 'layer0'),
+			])
+		).toEqual(['latest'])
 	})
 
 	test('an unlimited infinite is kept when everything beating it is limited', () => {
