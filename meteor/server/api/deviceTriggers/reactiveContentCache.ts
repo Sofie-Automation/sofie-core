@@ -34,6 +34,7 @@ export const rundownPlaylistFieldSpecifier = literal<
 	nextPartInfo: 1,
 	studioId: 1,
 	rehearsal: 1,
+	defaultBrandingId: 1,
 	rundownIdsInOrder: 1,
 })
 
