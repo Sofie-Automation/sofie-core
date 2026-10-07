@@ -184,7 +184,7 @@ Exactly one transition is used for the boundary between two Parts. Everything co
 The first of these that applies wins:
 
 1. When there is no previous Part, no transition is used.
-2. When the playlist is in a hold, no transition is used. An additive `outTransition.duration` still delays the take.
+2. When the playlist is in a hold, no transition is used. An additive `outTransition` still applies: its `duration` delays the take, and its OutTransition pieces are played.
 3. When the previous Part has `autoNext` set and an `autoNextOutTransition`, that is used. This applies even when the take is performed manually before the autonext.
 4. When the previous Part has an `'exclusive'` outTransition, that is used.
 5. When the Part has an `inTransition`, that is used unless the previous Part has an additive outTransition with `disableNextInTransition` set. An additive `outTransition.duration` also applies.
