@@ -133,11 +133,11 @@ export function processAndPrunePieceInstanceTimings(
 		}
 	}
 
-	const candidatePieces = keepDisabledPieces ? pieces : pieces.filter((p) => !p.disabled)
-
-	// Transition pieces are timed relative to their transition, not the part, so they don't compete with other pieces
 	const normalPieces: ReadonlyDeep<PieceInstance>[] = []
-	for (const piece of candidatePieces) {
+	for (const piece of pieces) {
+		if (piece.disabled && !keepDisabledPieces) continue
+
+		// Transition pieces are timed relative to their transition, not the part, so they don't compete with other pieces
 		if (piece.piece.pieceType === IBlueprintPieceType.Normal) {
 			normalPieces.push(piece)
 		} else {
