@@ -253,7 +253,11 @@ export function produceRundownPlaylistInfoFromRundown(
 			name: playlistInfo.playlist.name,
 			timing: playlistInfo.playlist.timing,
 
-			defaultBrandingId: playlistInfo.playlist.defaultBrandingId ?? null,
+			// Note: this can't be checked against the Brandings, as the Playlist may contain Rundowns of different ShowStyles
+			defaultBrandingId:
+				typeof playlistInfo.playlist.defaultBrandingId === 'string'
+					? playlistInfo.playlist.defaultBrandingId
+					: null,
 			outOfOrderTiming: playlistInfo.playlist.outOfOrderTiming,
 			timeOfDayCountdowns: playlistInfo.playlist.timeOfDayCountdowns,
 			privateData: playlistInfo.playlist.privateData,

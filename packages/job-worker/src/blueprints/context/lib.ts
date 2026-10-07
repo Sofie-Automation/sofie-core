@@ -90,6 +90,7 @@ import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { logger } from '../../logging.js'
+import { sanitisePartBrandingFromBlueprint } from '../postProcessBranding.js'
 
 /**
  * Convert an object to have all the values of all keys (including optionals) be 'true'
@@ -496,7 +497,7 @@ export function resolveSelectedBranding(
 	showStyle: ReadonlyDeep<ProcessedShowStyleCompound>,
 	brandingId: string | null | undefined
 ): ReadonlyDeep<IBlueprintBrandingInfo> | null {
-	if (!brandingId) return null
+	if (!brandingId || !Object.hasOwn(showStyle.branding, brandingId)) return null
 
 	return showStyle.branding[brandingId] ?? null
 }
@@ -761,6 +762,7 @@ export function convertPartialBlueprintMutablePartToCore(
 		...updatePart,
 		userEditOperations: undefined,
 	}
+	sanitisePartBrandingFromBlueprint(playoutUpdatePart, blueprintId, 'PartInstance update')
 
 	if ('userEditOperations' in updatePart) {
 		playoutUpdatePart.userEditOperations = translateUserEditsFromBlueprint(updatePart.userEditOperations, [

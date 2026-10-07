@@ -33,8 +33,8 @@ export function isValidForBranding(doc: BrandableDocument<unknown>, brandingId: 
  * The document is returned unchanged (and with the same identity) when the Branding makes no changes to it,
  * so that callers can cheaply tell whether anything was affected.
  *
- * Only the properties in `brandableProperties` are applied. Blueprints are untyped JS, so the types alone do
- * not stop one naming a property which is not brandable, and the overrides are stored as authored.
+ * Only the properties in `brandableProperties` are applied. The overrides are validated when they are received
+ * from the Blueprints, but this is cheap and guards against any which were stored before that.
  */
 function applyBranding<TDoc extends BrandableDocument<TBranding>, TBranding extends object>(
 	doc: TDoc,

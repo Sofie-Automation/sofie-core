@@ -158,6 +158,34 @@ describe('Playout API', () => {
 			await expect(getSelectedBrandings()).resolves.toEqual([null, null])
 		})
 
+		test('setBranding rejects an id inherited from Object, and an invalid target', async () => {
+			context.updateShowStyleBlueprint({
+				executeAction: async (context0) => {
+					const context = context0 as ActionExecutionContext
+
+					await expect(context.setBranding('both', 'constructor')).rejects.toThrow(
+						'Branding "constructor" does not exist in the ShowStyle'
+					)
+					await expect(context.setBranding('both', 123 as any)).rejects.toThrow(
+						'Branding "123" does not exist in the ShowStyle'
+					)
+
+					const setBranding = context.setBranding('all' as any, 'branding0')
+					await expect(setBranding).rejects.toThrow('Branding target "all" is not valid')
+					await expect(setBranding).rejects.toMatchUserError(UserErrorMessage.ValidationFailed)
+				},
+			})
+
+			await handleExecuteAdlibAction(context, {
+				playlistId,
+				actionDocId: protectString<AdLibActionId>('action-id'),
+				actionId: 'some-action',
+				userData: {},
+			})
+
+			await expect(getSelectedBrandings()).resolves.toEqual([null, null])
+		})
+
 		describe('onlyValidForBranding', () => {
 			const actionDocId = protectString<AdLibActionId>('branded-action')
 

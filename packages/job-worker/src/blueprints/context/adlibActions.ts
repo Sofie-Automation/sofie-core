@@ -289,8 +289,15 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 	}
 
 	async setBranding(target: BrandingChangeTarget, brandingId: string | null): Promise<void> {
-		if (brandingId !== null && !this.showStyleCompound.branding[brandingId]) {
-			// This is a mistake in the blueprint or its config, not a fault in the server
+		// These are mistakes in the blueprint or its config, not a fault in the server
+		if (target !== 'current' && target !== 'next' && target !== 'both') {
+			const message = `Branding target "${target}" is not valid`
+			throw UserError.from(new Error(message), UserErrorMessage.ValidationFailed, { message }, 400)
+		}
+		if (
+			brandingId !== null &&
+			(typeof brandingId !== 'string' || !Object.hasOwn(this.showStyleCompound.branding, brandingId))
+		) {
 			const message = `Branding "${brandingId}" does not exist in the ShowStyle`
 			throw UserError.from(new Error(message), UserErrorMessage.ValidationFailed, { message }, 400)
 		}

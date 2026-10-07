@@ -21,6 +21,7 @@ import {
 	Time,
 } from '@sofie-automation/blueprints-integration'
 import { postProcessPieces, postProcessTimelineObjects } from '../postProcess.js'
+import { sanitisePieceBrandingFromBlueprint } from '../postProcessBranding.js'
 import {
 	IBlueprintPieceObjectsSampleKeys,
 	convertPieceInstanceToBlueprints,
@@ -172,6 +173,11 @@ export class SyncIngestUpdateToPartInstanceContext
 		if (Object.keys(trimmedPiece).length === 0) {
 			throw new Error(`Cannot update PieceInstance "${pieceInstanceId}". Some valid properties must be defined`)
 		}
+		sanitisePieceBrandingFromBlueprint(
+			trimmedPiece,
+			this.showStyleCompound.blueprintId,
+			`PieceInstance "${pieceInstanceId}"`
+		)
 
 		if (!this.#partInstance) throw new Error(`PartInstance has been removed`)
 

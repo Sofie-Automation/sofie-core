@@ -1,11 +1,13 @@
 import _ from 'underscore'
 import {
+	postProcessAdLibActions,
 	postProcessAdLibPieces,
 	postProcessPieces,
 	postProcessRundownBaselineItems,
 	postProcessStudioBaselineObjects,
 } from '../postProcess.js'
 import {
+	IBlueprintActionManifest,
 	IBlueprintAdLibPiece,
 	IBlueprintPiece,
 	PieceLifespan,
@@ -619,6 +621,36 @@ describe('Test blueprint post-process', () => {
 				// Error: Object "IJ0Ud5lJhbIllA0_kWFIVz51eL4_": "classes[0]":
 				// Error: Error in blueprint "blueprint9": Validation of timelineObjs failed: Error:  "classes[0]": Error: The string "i-am-an-invalid-class" contains characters which aren't allowed in Timeline: "-", "-", "-", "-" (is an operator)
 			}).toThrow(/error in blueprint.*contains characters/i)
+		})
+	})
+
+	describe('postProcessAdLibActions', () => {
+		test('branding is sanitised and namespaced', () => {
+			const action: IBlueprintActionManifest = {
+				externalId: 'action0',
+				actionId: 'some-action',
+				userData: {},
+				userDataManifest: {},
+				display: { label: { key: 'Label' } },
+				onlyValidForBranding: 'branding0' as any,
+				branding: {
+					branding0: { display: { label: { key: 'Branded label' }, hidden: true } as any },
+				},
+			}
+
+			const res = postProcessAdLibActions(
+				protectString('blueprint9'),
+				protectString('rundown1'),
+				protectString('part8'),
+				[action]
+			)
+
+			expect(res).toHaveLength(1)
+			expect(res[0].display.label).toEqual({ key: 'Label', namespaces: ['blueprint_blueprint9'] })
+			expect(res[0].branding).toEqual({
+				branding0: { display: { label: { key: 'Branded label', namespaces: ['blueprint_blueprint9'] } } },
+			})
+			expect('onlyValidForBranding' in res[0]).toBe(false)
 		})
 	})
 })
