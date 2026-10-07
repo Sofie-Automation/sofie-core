@@ -79,9 +79,6 @@ export class StudioDeviceTriggerManager {
 	async updateTriggers(cache: ContentCache, showStyleBaseId: ShowStyleBaseId): Promise<void> {
 		const studioId = this.studioId
 
-		// Must be before anything reads AdLibs through the TriggersContext
-		this.#resolvedAdLibs.update(cache)
-
 		const showStyleBase = cache.ShowStyleBases.findOne(showStyleBaseId)
 		const rundownPlaylist = cache.RundownPlaylists.findOne({
 			activationId: {
@@ -94,6 +91,9 @@ export class StudioDeviceTriggerManager {
 			await this.clearTriggers()
 			return
 		}
+
+		// Must be before anything reads AdLibs through the TriggersContext
+		this.#resolvedAdLibs.update(cache)
 
 		this.lastCache = cache
 		this.#lastShowStyleBaseId = showStyleBaseId
