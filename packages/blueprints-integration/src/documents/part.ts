@@ -18,7 +18,7 @@ export interface IBlueprintPartInTransition {
 
 /** Additive behaviour: delays the next part by `duration`, and plays alongside the next part's inTransition */
 export interface IBlueprintPartOutTransitionAdditive {
-	type?: 'additive'
+	type: 'additive'
 	/** How long to keep this part alive after taken out  */
 	duration: number
 	/** Don't play the next Part's inTransition, and ignore its timings */

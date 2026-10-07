@@ -49,7 +49,7 @@ export interface IBlueprintPartInTransition {
 
 /** Additive behaviour: delays the next part by `duration`, and plays alongside the next part's inTransition */
 export interface IBlueprintPartOutTransitionAdditive {
-	type?: 'additive'
+	type: 'additive'
 	/** How long to keep this part alive after taken out  */
 	duration: number
 	/** Don't play the next Part's inTransition, and ignore its timings */
@@ -129,9 +129,9 @@ The out transition is a special Piece that gets played when taking out of the Pa
 
 ##### Additive out transition
 
-An additive out transition (`type` unset, or `'additive'`) is intended to allow for some 'visual cleanup' before the take occurs.
+An additive out transition (`type: 'additive'`) is intended to allow for some 'visual cleanup' before the take occurs.
 
-In effect, when `outTransition: { duration }` is set on a Part, the take out of the Part will be delayed by the duration defined. During this time, any pieces with `pieceType: IBlueprintPieceType.OutTransition` will be added to the timeline and will run until the end of the Part. This plays alongside the inTransition of the next Part.
+In effect, when `outTransition: { type: 'additive', duration }` is set on a Part, the take out of the Part will be delayed by the duration defined. During this time, any pieces with `pieceType: IBlueprintPieceType.OutTransition` will be added to the timeline and will run until the end of the Part. This plays alongside the inTransition of the next Part.
 
 Setting `disableNextInTransition: true` on the additive out transition stops the inTransition of the next Part from being used, while keeping the `duration` behaviour.
 
@@ -234,9 +234,11 @@ autoNextOutTransition: { type: 'exclusive', blockTakeDuration: 0, partKeepaliveD
 
 Any pieces with `pieceType: IBlueprintPieceType.AutoNextOutTransition` are played when the `autoNextOutTransition` is used, in the same way as the OutTransition pieces of an `'exclusive'` outTransition. When it is used, the OutTransition pieces of the Part are not played.
 
-#### Upgrading from `autoNextOverlap` and `disableNextInTransition`
+#### Upgrading transition properties
 
-These Part properties have been removed. Existing data is converted by a migration, but blueprints need updating:
+The Part transition properties have changed. Existing data is converted by a migration, but blueprints need updating:
+
+- `outTransition: { duration }` must now be `outTransition: { type: 'additive', duration }`.
 
 - `autoNextOverlap: X` is replaced by `autoNextOutTransition: { type: 'exclusive', blockTakeDuration: 0, partKeepaliveDuration: X, nextPartContentDelayDuration: 0 }`. If the Part also has an additive `outTransition`, note that this is no longer used when autonexting.
 - `disableNextInTransition: true` is replaced by the all-zero `'exclusive'` outTransition shown above, or by `disableNextInTransition: true` on the additive `outTransition` if it has a `duration`.

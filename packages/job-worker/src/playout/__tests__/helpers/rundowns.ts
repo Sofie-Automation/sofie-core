@@ -589,7 +589,7 @@ export async function setupRundownWithOutTransition(
 	const sourceLayerIds = Object.keys(showStyle.sourceLayers)
 
 	const { rundown, segment0, part00 } = await setupRundownBase(context, playlistId, rundownId, showStyle, {
-		outTransition: { duration: 1000 },
+		outTransition: { type: 'additive', duration: 1000 },
 	})
 
 	const piece002: Piece = {
@@ -687,7 +687,7 @@ export async function setupRundownWithOutTransitionAndPreroll(
 	const sourceLayerIds = Object.keys(showStyle.sourceLayers)
 
 	const { rundown, segment0, part00 } = await setupRundownBase(context, playlistId, rundownId, showStyle, {
-		outTransition: { duration: 1000 },
+		outTransition: { type: 'additive', duration: 1000 },
 	})
 
 	const piece002: Piece = {
@@ -726,7 +726,7 @@ export async function setupRundownWithOutTransitionAndPreroll2(
 	const sourceLayerIds = Object.keys(showStyle.sourceLayers)
 
 	const { rundown, segment0, part00 } = await setupRundownBase(context, playlistId, rundownId, showStyle, {
-		outTransition: { duration: 250 },
+		outTransition: { type: 'additive', duration: 250 },
 	})
 
 	const piece002: Piece = {
@@ -765,7 +765,7 @@ export async function setupRundownWithOutTransitionAndInTransition(
 	const sourceLayerIds = Object.keys(showStyle.sourceLayers)
 
 	const { rundown, segment0, part00 } = await setupRundownBase(context, playlistId, rundownId, showStyle, {
-		outTransition: { duration: 600 },
+		outTransition: { type: 'additive', duration: 600 },
 	})
 
 	const piece002: Piece = {
@@ -829,7 +829,7 @@ export async function setupRundownWithOutTransitionEnableHold(
 ): Promise<RundownId> {
 	const { rundown, segment0 } = await setupRundownBase(context, playlistId, rundownId, showStyle, {
 		holdMode: PartHoldMode.FROM,
-		outTransition: { duration: 500 },
+		outTransition: { type: 'additive', duration: 500 },
 	})
 
 	await setupPart2(context, rundownId, showStyle, rundown, segment0, { holdMode: PartHoldMode.TO })

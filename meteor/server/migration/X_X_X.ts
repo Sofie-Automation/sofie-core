@@ -7,6 +7,7 @@ import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/St
 import {
 	convertLegacyAutoNextOverlap,
 	convertLegacyDisableNextInTransition,
+	convertLegacyOutTransitionType,
 	PartWithLegacyTransitionProps,
 } from '@sofie-automation/corelib/dist/playout/legacyTransitions'
 import { logger } from '../logging'
@@ -157,6 +158,60 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 		},
 	},
 	new PreviousPartInfoToArrayMigrationStep(),
+	{
+		id: `Parts add type to outTransition`,
+		canBeRunAutomatically: true,
+		validate: async () => {
+			const count = await Parts.countDocuments({
+				outTransition: { $exists: true },
+				'outTransition.type': { $exists: false },
+			})
+			if (count > 0) return `There are ${count} Parts with an outTransition without a type`
+			return false
+		},
+		migrate: async () => {
+			const parts = await Parts.findFetchAsync({
+				outTransition: { $exists: true },
+				'outTransition.type': { $exists: false },
+			})
+
+			for (const part of parts) {
+				const outTransition = convertLegacyOutTransitionType(part as PartWithLegacyTransitionProps)
+				if (!outTransition) continue
+
+				await Parts.mutableCollection.updateAsync(part._id, {
+					$set: { outTransition },
+				})
+			}
+		},
+	},
+	{
+		id: `PartInstances add type to part.outTransition`,
+		canBeRunAutomatically: true,
+		validate: async () => {
+			const count = await PartInstances.countDocuments({
+				'part.outTransition': { $exists: true },
+				'part.outTransition.type': { $exists: false },
+			})
+			if (count > 0) return `There are ${count} PartInstances with an outTransition without a type`
+			return false
+		},
+		migrate: async () => {
+			const partInstances = await PartInstances.findFetchAsync({
+				'part.outTransition': { $exists: true },
+				'part.outTransition.type': { $exists: false },
+			})
+
+			for (const partInstance of partInstances) {
+				const outTransition = convertLegacyOutTransitionType(partInstance.part as PartWithLegacyTransitionProps)
+				if (!outTransition) continue
+
+				await PartInstances.mutableCollection.updateAsync(partInstance._id, {
+					$set: { 'part.outTransition': outTransition },
+				})
+			}
+		},
+	},
 	{
 		id: `Parts convert autoNextOverlap to autoNextOutTransition`,
 		canBeRunAutomatically: true,

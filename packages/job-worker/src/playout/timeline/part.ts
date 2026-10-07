@@ -126,16 +126,23 @@ export function getOutTransitionPiecePlacement(
 		case IBlueprintPieceType.OutTransition:
 			if (!outTransition) return undefined
 
-			if (outTransition.type === 'exclusive') {
-				// Only play when this transition was the one used
-				if (nextPartTimings?.transitionSource !== 'outTransition') return undefined
+			switch (outTransition.type) {
+				case 'exclusive':
+					// Only play when this transition was the one used
+					if (nextPartTimings?.transitionSource !== 'outTransition') return undefined
 
-				return getExclusiveOutTransitionPiecePlacement(nextPartTimings, piece)
-			} else {
-				// The autoNextOutTransition replaces this transition
-				if (nextPartTimings?.transitionSource === 'autoNextOutTransition') return undefined
+					return getExclusiveOutTransitionPiecePlacement(nextPartTimings, piece)
+				case 'additive':
+					// The autoNextOutTransition replaces this transition
+					if (nextPartTimings?.transitionSource === 'autoNextOutTransition') return undefined
 
-				return { offsetFromPartEnd: outTransition.duration + partTimings.toPartPostroll, duration: undefined }
+					return {
+						offsetFromPartEnd: outTransition.duration + partTimings.toPartPostroll,
+						duration: undefined,
+					}
+				default:
+					assertNever(outTransition)
+					return undefined
 			}
 		case IBlueprintPieceType.AutoNextOutTransition:
 			// Only play when this transition was the one used

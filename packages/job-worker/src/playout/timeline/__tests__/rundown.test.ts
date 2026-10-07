@@ -445,7 +445,7 @@ describe('buildTimelineObjsForRundown', () => {
 					partInstance: createMockPartInstance('part0', {
 						autoNext: true,
 						expectedDuration: 5000,
-						outTransition: { duration: 1200 },
+						outTransition: { type: 'additive', duration: 1200 },
 					}),
 					pieceInstances: [createMockPieceInstance('piece0')],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
@@ -903,7 +903,7 @@ describe('buildTimelineObjsForRundown', () => {
 		it('additive OutTransition piece is anchored by the outTransition duration', () => {
 			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
 			const { partGroupId, getControlObj } = buildWithCurrentAndNext(
-				{ outTransition: { duration: 1200 } },
+				{ outTransition: { type: 'additive', duration: 1200 } },
 				[outPiece],
 				createNextPartTimings({ toPartDelay: 1200, fromPartRemaining: 1200, transitionSource: 'none' })
 			)
@@ -914,7 +914,7 @@ describe('buildTimelineObjsForRundown', () => {
 		it('additive OutTransition piece is not played when replaced by the autoNextOutTransition', () => {
 			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
 			const { getControlObj } = buildWithCurrentAndNext(
-				{ outTransition: { duration: 1200 }, autoNextOutTransition: exclusiveOutTransition },
+				{ outTransition: { type: 'additive', duration: 1200 }, autoNextOutTransition: exclusiveOutTransition },
 				[outPiece],
 				createNextPartTimings({
 					fromPartRemaining: 800,
@@ -1092,7 +1092,7 @@ describe('buildTimelineObjsForRundown', () => {
 
 		it('autonext extension uses the additive outTransition duration', () => {
 			const { objs } = buildWithCurrentAndNext(
-				{ outTransition: { duration: 1200 }, availablePostrollDuration: 5000 },
+				{ outTransition: { type: 'additive', duration: 1200 }, availablePostrollDuration: 5000 },
 				[],
 				createNextPartTimings({ toPartDelay: 1200, fromPartRemaining: 1200, transitionSource: 'none' })
 			)
@@ -1103,7 +1103,7 @@ describe('buildTimelineObjsForRundown', () => {
 		it('autonext extension ignores the additive outTransition duration when replaced by the autoNextOutTransition', () => {
 			const { objs } = buildWithCurrentAndNext(
 				{
-					outTransition: { duration: 1200 },
+					outTransition: { type: 'additive', duration: 1200 },
 					autoNextOutTransition: exclusiveOutTransition,
 					availablePostrollDuration: 5000,
 				},

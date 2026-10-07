@@ -1143,7 +1143,7 @@ describe('Resolved Pieces', () => {
 				createPartInstance({
 					autoNext: true,
 					expectedDuration: currentPartLength,
-					outTransition: { duration: 1200 },
+					outTransition: { type: 'additive', duration: 1200 },
 				}),
 				[piece001]
 			)
@@ -1200,7 +1200,7 @@ describe('Resolved Pieces', () => {
 				createPartInstance({
 					autoNext: true,
 					expectedDuration: currentPartLength,
-					outTransition: { duration: 1200 },
+					outTransition: { type: 'additive', duration: 1200 },
 					availablePostrollDuration: 5000,
 				}),
 				[piece001]
