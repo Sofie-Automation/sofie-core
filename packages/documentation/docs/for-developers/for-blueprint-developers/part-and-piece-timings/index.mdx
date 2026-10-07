@@ -179,7 +179,9 @@ Try the interactive to see how these affect the Parts.
 
 #### Which transition is used
 
-Exactly one transition is used for the boundary between two Parts. The first of these that applies wins:
+Exactly one transition is used for the boundary between two Parts. Everything comes from the transition which wins: how long the previous Part is kept alive, how long the pieces of the next Part are delayed, and how long takes out of the next Part are blocked. Nothing is merged from the other transitions. When no transition is used, takes are not blocked.
+
+The first of these that applies wins:
 
 1. When there is no previous Part, no transition is used.
 2. When the playlist is in a hold, no transition is used. An additive `outTransition.duration` still delays the take.
@@ -191,6 +193,27 @@ Exactly one transition is used for the boundary between two Parts. The first of 
 :::caution
 The `expectedDurationWithTransition` calculated for Parts which are not yet playing only considers the `inTransition` of the Part, as the previous Part is not known in advance. An `'exclusive'` outTransition or `autoNextOutTransition` on the preceding Part is not reflected until the Part is playing.
 :::
+
+#### Timing of transition pieces
+
+Transition pieces are only played when their transition is the one used, and their `enable` is not relative to the start of the Part:
+
+| Piece type              | Played when                                                                                       | `enable.start`                                                                    | `enable.duration`                         |
+| ----------------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------- |
+| `InTransition`          | the `inTransition` of its Part is used                                                            | relative to the start of the transition                                           | respected                                 |
+| `OutTransition`         | its Part has an additive `outTransition`, and the `autoNextOutTransition` of its Part is not used | ignored. Starts `outTransition.duration` (plus any postroll) before its Part ends | ignored. Runs until its Part ends         |
+| `OutTransition`         | its Part has an `'exclusive'` `outTransition`, and that is used                                   | relative to the start of the transition                                           | respected, but stopped when its Part ends |
+| `AutoNextOutTransition` | the `autoNextOutTransition` of its Part is used                                                   | relative to the start of the transition                                           | respected, but stopped when its Part ends |
+
+The start of the transition is when the next Part starts: the take, plus any offset needed for preroll or an additive `outTransition.duration`.
+
+Because they are timed differently, transition pieces do not compete with other pieces on their source layer. For example, an InTransition piece and an OutTransition piece in the same Part, on the same layer and with the same `enable.start`, are both played. A transition piece also does not stop a Normal piece on its layer.
+
+#### Keepalive and `excludeDuringPartKeepalive`
+
+The keepalive of the transition used decides how long the previous Part continues after the next Part starts. This is the `previousPartKeepaliveDuration` of an `inTransition`, or the `partKeepaliveDuration` of an `'exclusive'` outTransition or `autoNextOutTransition`. Pieces with `excludeDuringPartKeepalive` set are stopped when the keepalive begins, so they are not visible while the transition plays.
+
+An additive `outTransition.duration` does not count as keepalive. When it is the only thing extending the Part, `excludeDuringPartKeepalive` pieces keep playing until the Part ends.
 
 ### Piece postroll
 
