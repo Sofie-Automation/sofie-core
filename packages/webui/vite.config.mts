@@ -66,7 +66,7 @@ export default defineConfig(({ command }) => ({
 	resolve: {
 		mainFields: [], // the presence of this is a weird fix for react-moment
 		alias: {
-			'~bootstrap': path.resolve(__dirname, '../node_modules/bootstrap'),
+			'~bootstrap': path.resolve(__dirname, '../../node_modules/bootstrap'),
 		},
 	},
 

@@ -1,3 +1,18 @@
 {
-	"extends": "./packages/tsconfig.json"
+	"files": [],
+	"references": [
+		{ "path": "./tsconfig.test.json" },
+		{ "path": "./packages/blueprints-integration/tsconfig.json" },
+		{ "path": "./packages/server-core-integration/tsconfig.json" },
+		{ "path": "./packages/mos-gateway/tsconfig.json" },
+		{ "path": "./packages/playout-gateway/tsconfig.json" },
+		{ "path": "./packages/job-worker/tsconfig.json" },
+		{ "path": "./packages/corelib/tsconfig.json" },
+		{ "path": "./packages/shared-lib/tsconfig.json" },
+		{ "path": "./packages/openapi/tsconfig.json" },
+		{ "path": "./packages/live-status-gateway/tsconfig.json" },
+		{ "path": "./packages/meteor-lib/tsconfig.json" },
+		{ "path": "./packages/webui/tsconfig.json" },
+		{ "path": "./packages/sofie-core/tsconfig.json" }
+	]
 }

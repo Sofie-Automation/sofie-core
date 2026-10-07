@@ -14,10 +14,10 @@ Note: 'yarn start' runs install + build + dev, while 'yarn dev' just runs dev mo
 Options:
   --help, -h           Show this help message
   --ui-only            Only watch and build UI packages (skip job-worker, gateways)
-  --inspect-meteor     Run Meteor with Node.js inspector enabled
+  --inspect-server     Run the server with Node.js inspector enabled
   --verbose            Enable verbose logging
   --db=<name>          Use a named database directory (e.g., --db=demo)
-                       Creates meteor/.meteor/local/db.<name> and switches to it with a symlink
+                       Creates .dev-data/mongo/db.<name> and switches to it with a symlink
                        Original database is backed up to db.default on first use
                        Run without --db to use the currently active database
   --db-list            List all available database directories and show which is active
@@ -29,7 +29,7 @@ Examples:
   yarn dev --db=testing       # Use a separate database for testing
   yarn dev --db=demo          # Switch to demo database
   yarn dev --ui-only          # Only watch UI, skip backend packages
-  yarn dev --inspect-meteor   # Debug Meteor with inspector
+  yarn dev --inspect-server   # Debug the server with inspector
   yarn start --db=demo        # Install, build, and run with demo database
 `);
 	process.exit(0);
@@ -41,7 +41,10 @@ const dbName = dbArg ? dbArg.split('=')[1] : null;
 
 const config = {
 	uiOnly: args.indexOf("--ui-only") >= 0 || false,
-	inspectMeteor: args.indexOf("--inspect-meteor") >= 0 || false,
+	inspectServer:
+		args.indexOf("--inspect-server") >= 0 ||
+		args.indexOf("--inspect-meteor") >= 0 || // old name, kept as an alias
+		false,
 	verbose: args.indexOf("--verbose") >= 0 || false,
 	dbName: dbName,
 	dbList: args.indexOf("--db-list") >= 0 || false,

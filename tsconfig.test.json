@@ -1,0 +1,36 @@
+{
+	"extends": "@sofie-automation/code-standard-preset/ts/tsconfig.lib",
+	"include": [
+		"packages/*/src/**/__tests__/**/*",
+		"packages/*/src/**/__mocks__/**/*",
+		"packages/*/src/**/integrationTests/**/*"
+	],
+	"exclude": ["node_modules/**", "packages/webui/**", "packages/openapi/**"],
+	"compilerOptions": {
+		"baseUrl": "./",
+		// The preset maps '*' to '../node_modules/*', which from the repo root points outside the repo. Clear it so
+		// plain node resolution is used.
+		"paths": {},
+		"resolveJsonModule": true,
+		"types": ["jest", "node"],
+		"composite": true,
+		"noEmit": true,
+		"skipLibCheck": true,
+		"importHelpers": false, // To mitigate tslib errors which are meaningless
+		"module": "node20",
+		"target": "es2024",
+		"lib": ["ES2024"]
+	},
+	"references": [
+		{ "path": "./packages/blueprints-integration/tsconfig.build.json" },
+		{ "path": "./packages/server-core-integration/tsconfig.build.json" },
+		{ "path": "./packages/mos-gateway/tsconfig.build.json" },
+		{ "path": "./packages/playout-gateway/tsconfig.build.json" },
+		{ "path": "./packages/job-worker/tsconfig.build.json" },
+		{ "path": "./packages/corelib/tsconfig.build.json" },
+		{ "path": "./packages/shared-lib/tsconfig.build.json" },
+		{ "path": "./packages/meteor-lib/tsconfig.build.json" },
+		{ "path": "./packages/live-status-gateway/tsconfig.build.json" },
+		{ "path": "./packages/sofie-core/tsconfig.build.json" }
+	]
+}

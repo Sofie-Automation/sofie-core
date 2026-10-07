@@ -43,12 +43,12 @@ _Sofie&nbsp;Core_ is configured at its most basic level using environment variab
 		</tr>
 		<tr>
 			<td>
-				<code>LOG_TO_FILE</code>
+				<code>LOG_FILE</code>
 			</td>
-			<td>File path to log to file</td>
+			<td>File to write the log to, in addition to the console</td>
 			<td></td>
 			<td>
-				<code>/logs/core/</code>
+				<code>/logs/core/core.log</code>
 			</td>
 		</tr>
 		<tr>

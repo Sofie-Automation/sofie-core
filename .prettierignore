@@ -1,5 +1,20 @@
-meteor/.meteor
-**/dist/**
+package.json
+CHANGELOG*.md
+docs
+*.snap
+*.xml
 
-**/node_modules/**
+packages/*/package.json
+packages/*/CHANGELOG*.md
+packages/*/dist
+packages/*/coverage
+packages/sofie-core/.coverage
+packages/webui/public/locales
+packages/blueprints-integration/src/copy
 
+# Temporary until they have been updated
+packages/server-core-integration
+packages/mos-gateway
+
+.nx/workspace-data
+.dev-data

@@ -16,7 +16,7 @@
 	},
 	"homepage": "https://github.com/Sofie-Automation/sofie-core/blob/main/packages/corelib#readme",
 	"scripts": {
-		"lint": "run -T lint corelib",
+		"lint": "run -T lint packages/corelib",
 		"unit": "run -T jest",
 		"test": "run lint && run unit",
 		"watch": "run -T jest --watch --coverage=false",

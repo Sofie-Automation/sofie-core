@@ -66,13 +66,11 @@ jobs:
 
           yarn config set cacheFolder /home/runner/publish-docs-cache
           yarn install
-          cd packages
           yarn build:all
         env:
           CI: true
       - name: Run typecheck and linter
         run: |
-          cd packages
           yarn lint
         env:
           CI: true
@@ -109,13 +107,12 @@ jobs:
         run: |
           corepack enable
 
-          cd packages
           yarn install
 
           if [ "${{ matrix.package-name }}" = "openapi" ]; then
             yarn workspace @sofie-automation/openapi run build
           else
-            yarn build:single ${{ matrix.package-name }}/tsconfig.build.json
+            yarn build:single packages/${{ matrix.package-name }}/tsconfig.build.json
           fi
         env:
           CI: true
@@ -148,13 +145,12 @@ jobs:
           corepack enable
 
           yarn config set cacheFolder /home/runner/lint-core-cache
-          yarn
+          yarn install
         env:
           CI: true
       - name: Bump version
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          cd packages
           COMMIT_TIMESTAMP=$(git log -1 --pretty=format:%ct HEAD)
           COMMIT_DATE=$(date -d @$COMMIT_TIMESTAMP +%Y%m%d-%H%M%S)
           GIT_HASH=$(git rev-parse --short HEAD)
@@ -168,22 +164,19 @@ jobs:
           CI: true
       - name: Build
         run: |
-          cd packages
           yarn build
         env:
           CI: true
 
       - name: Build OpenAPI client library
         run: |
-          cd packages/openapi
-          yarn build
+          yarn workspace @sofie-automation/openapi build
         env:
           CI: true
       - name: Modify dependencies to use npm packages
         run: |
           node scripts/prepublish.js "${{ github.repository }}" "${{ env.NPM_PACKAGE_SCOPE }}" ${{ env.NPM_PACKAGE_PREFIX }}
 
-          cd packages
           yarn install --no-immutable
 
       - name: Upload release artifact
@@ -193,9 +186,9 @@ jobs:
           path: |
             packages/*/dist
             packages/*/package.json
-            packages/package.json
-            packages/yarn.lock
             package.json
+            yarn.lock
+            lerna.json
           retention-days: 1
           if-no-files-found: error
 
@@ -245,25 +238,20 @@ jobs:
 
           corepack enable
 
-          # make dependencies of `determine-npm-tag` available
-          yarn install --mode=skip-build
-
-          cd packages
-
           yarn install
 
           NPM_TAG=nightly
           if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
-            PACKAGE_NAME=$(node -p "require('./shared-lib/package.json').name")
+            PACKAGE_NAME=$(node -p "require('./packages/shared-lib/package.json').name")
             PUBLISHED_VERSION=$(yarn npm info --json $PACKAGE_NAME | jq -c '.version' -r)
             THIS_VERSION=$(node -p "require('./lerna.json').version")
-            NPM_TAG=$(node ../scripts/determine-npm-tag.js "$PUBLISHED_VERSION" "$THIS_VERSION")
+            NPM_TAG=$(node scripts/determine-npm-tag.js "$PUBLISHED_VERSION" "$THIS_VERSION")
           fi
 
           yarn lerna publish from-package --tag-version-prefix='' --dist-tag $NPM_TAG --yes
 
           LERNA_VERSION=$(node -p "require('./lerna.json').version")
-          NEW_VERSION=$(node -p "require('./shared-lib/package.json').version")
+          NEW_VERSION=$(node -p "require('./packages/shared-lib/package.json').version")
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "**Published:** $LERNA_VERSION as $NPM_TAG" >> $GITHUB_STEP_SUMMARY
           echo "**Version:** $NEW_VERSION" >> $GITHUB_STEP_SUMMARY

@@ -1,4 +1,4 @@
-const legally = require("../meteor/node_modules/legally");
+const legally = require("legally");
 
 // Usage: node checkLicenses.js --allowed=MIT,ISC --excludePackages=badPackageWhoDoesntSpeficyLicense
 

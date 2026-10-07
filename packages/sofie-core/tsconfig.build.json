@@ -1,0 +1,29 @@
+{
+	"extends": "@sofie-automation/code-standard-preset/ts/tsconfig.lib",
+	"include": ["src/**/*.ts"],
+	"exclude": ["node_modules/**", "**/*spec.ts", "**/*test.ts", "**/__tests__/*", "**/__mocks__/**"],
+	"compilerOptions": {
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"baseUrl": "./",
+		// The preset maps '*' to '../node_modules/*', which for a workspace is not a package store. Clear it so
+		// plain node resolution is used.
+		"paths": {},
+		"target": "es2024",
+		"lib": ["es2024"],
+		"resolveJsonModule": true,
+		"types": ["node"],
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"composite": true,
+		"module": "node20",
+		"moduleResolution": "node16"
+	},
+	"references": [
+		{ "path": "../shared-lib/tsconfig.build.json" },
+		{ "path": "../blueprints-integration/tsconfig.build.json" },
+		{ "path": "../corelib/tsconfig.build.json" },
+		{ "path": "../meteor-lib/tsconfig.build.json" },
+		{ "path": "../job-worker/tsconfig.build.json" }
+	]
+}

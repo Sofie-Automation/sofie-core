@@ -1,0 +1,19 @@
+{
+	"files": [],
+	"references": [
+		{ "path": "./tsconfig.test.json" },
+		{ "path": "./packages/blueprints-integration/tsconfig.build.json" },
+		{ "path": "./packages/server-core-integration/tsconfig.build.json" },
+		{ "path": "./packages/mos-gateway/tsconfig.build.json" },
+		{ "path": "./packages/playout-gateway/tsconfig.build.json" },
+		{ "path": "./packages/job-worker/tsconfig.build.json" },
+		{ "path": "./packages/corelib/tsconfig.build.json" },
+		{ "path": "./packages/shared-lib/tsconfig.build.json" },
+		{ "path": "./packages/live-status-gateway-api/tsconfig.build.json" },
+		// { "path": "./packages/openapi/tsconfig.build.json" },
+		{ "path": "./packages/live-status-gateway/tsconfig.build.json" },
+		{ "path": "./packages/meteor-lib/tsconfig.build.json" },
+		{ "path": "./packages/webui/tsconfig.app.json" },
+		{ "path": "./packages/sofie-core/tsconfig.build.json" }
+	]
+}
