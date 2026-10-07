@@ -44,6 +44,7 @@ import {
 	setupRundownWithInTransitionDisabled,
 	setupRundownWithOutTransition,
 	setupRundownWithOutTransitionAndPreroll,
+	setupRundownWithExclusiveOutTransitionAndInTransitionPiece,
 	setupRundownWithOutTransitionAndPreroll2,
 	setupRundownWithOutTransitionAndInTransition,
 	setupRundownWithOutTransitionEnableHold,
@@ -1022,6 +1023,33 @@ describe('Timeline', () => {
 						// outTransitionPiece is inserted
 						previousOutTransition: {
 							controlObj: { start: `#${getPartGroupId(previousPartInstance)}.end - 1000` },
+							childGroup: { preroll: 0, postroll: 0 },
+						},
+					})
+				}
+			)
+
+			testTransitionTimings(
+				'exclusive outTransition with an inTransition piece on the same layer',
+				setupRundownWithExclusiveOutTransitionAndInTransitionPiece,
+				async (_rundownId0, _timeline, currentPartInstance, previousPartInstance, checkTimings) => {
+					await checkTimings({
+						// old part is extended by 1000ms due to transition keepalive
+						previousPart: { end: `#${getPartGroupId(currentPartInstance)}.start + 1000` },
+						currentPieces: {
+							// pieces are not delayed
+							piece010: {
+								controlObj: { start: 0 },
+								childGroup: { preroll: 0, postroll: 0 },
+							},
+						},
+						currentInfinitePieces: {},
+						// outTransitionPiece is inserted, starting with the transition
+						previousOutTransition: {
+							controlObj: {
+								start: `#${getPartGroupId(previousPartInstance)}.end - 1000`,
+								duration: 1000,
+							},
 							childGroup: { preroll: 0, postroll: 0 },
 						},
 					})

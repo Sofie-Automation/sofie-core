@@ -289,6 +289,23 @@ exports[`Timeline Single-gateway mode Out transitions Basic outTransition 1`] = 
 ]
 `;
 
+exports[`Timeline Single-gateway mode Out transitions exclusive outTransition with an inTransition piece on the same layer 1`] = `
+[
+  {
+    "_id": "mockStudio0",
+    "generated": 12345,
+    "generationVersions": {
+      "blueprintId": "studioBlueprint0",
+      "blueprintVersion": "-",
+      "core": "0.0.0-test",
+      "studio": "asdf",
+    },
+    "timelineBlob": "[]",
+    "timelineHash": "randomId9009",
+  },
+]
+`;
+
 exports[`Timeline Single-gateway mode Out transitions outTransition + inTransition 1`] = `
 [
   {
