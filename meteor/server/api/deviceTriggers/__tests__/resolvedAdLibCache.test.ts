@@ -100,7 +100,7 @@ describe('ResolvedAdLibCache', () => {
 		const cache = createMockCache()
 		selectBranding(cache, 'brandingA')
 		insertAdLibPiece(cache, 'piece0', {
-			branding: { brandingA: { name: 'branded-name', tags: ['branded-tag'] } },
+			branding: { brandingA: { name: 'branded-name' } },
 		})
 		insertAdLibAction(cache, 'action0', {
 			branding: { brandingA: { display: { label: 'branded-label' } } },
@@ -111,7 +111,8 @@ describe('ResolvedAdLibCache', () => {
 
 		const piece = resolved.AdLibPieces.findOne(protectString('piece0'))
 		expect(piece?.name).toBe('branded-name')
-		expect(piece?.tags).toEqual(['branded-tag'])
+		// Properties the Branding does not name are kept
+		expect(piece?.tags).toEqual(['unbranded-tag'])
 
 		const action = resolved.AdLibActions.findOne(protectString('action0'))
 		expect(action?.display.label).toBe('branded-label')
@@ -122,13 +123,15 @@ describe('ResolvedAdLibCache', () => {
 	test('the filter chains can query the branded values, as the documents are resolved before the query', () => {
 		const cache = createMockCache()
 		selectBranding(cache, 'brandingA')
-		insertAdLibPiece(cache, 'piece0', { branding: { brandingA: { tags: ['branded-tag'] } } })
+		insertAdLibAction(cache, 'action0', {
+			branding: { brandingA: { display: { tags: ['branded-tag'] } } },
+		})
 
 		const resolved = new ResolvedAdLibCache()
 		resolved.update(cache)
 
-		expect(resolved.AdLibPieces.findFetch({ tags: { $in: ['branded-tag'] } })).toHaveLength(1)
-		expect(resolved.AdLibPieces.findFetch({ tags: { $in: ['unbranded-tag'] } })).toHaveLength(0)
+		expect(resolved.AdLibActions.findFetch({ 'display.tags': { $in: ['branded-tag'] } })).toHaveLength(1)
+		expect(resolved.AdLibActions.findFetch({ 'display.tags': { $in: ['unbranded-tag'] } })).toHaveLength(0)
 	})
 
 	test('with no Branding selected, limited AdLibs are dropped and no overrides are applied', () => {

@@ -324,18 +324,18 @@ describe('TagsService', () => {
 			})
 		})
 
-		test('the tally matches the tags as authored, as an AdLib cannot brand its currentPieceTags', () => {
+		test('the tally matches the tags as authored, as a Branding cannot change them', () => {
 			const testee = createTestee()
 			testee.observeTallyTags({ currentPieceTags: [tag0] } as IWrappedAdLib)
 			testee.updatePieceInstances(
 				createCacheWithOnAirPiece('brandingA', {
 					tags: [tag0],
-					branding: { brandingA: { tags: [tag1] } },
+					// Blueprints are untyped, so this may still be provided
+					branding: { brandingA: { tags: [tag1] } as any },
 				}),
 				showStyleBaseId
 			)
 
-			// Applying the Branding here would break the tally, as the AdLib's `currentPieceTags` cannot follow
 			expect(testee.getTallyStateFromTags({ currentPieceTags: [tag0] } as IWrappedAdLib).isActive).toBe(true)
 			expect(testee.getTallyStateFromTags({ currentPieceTags: [tag1] } as IWrappedAdLib).isActive).toBe(false)
 		})

@@ -15,8 +15,8 @@ type ResolvedRundownBaselineAdLibPiece = Pick<RundownBaselineAdLibItem, AdLibPie
 /**
  * The AdLibs of the active RundownPlaylist, resolved for the Branding it is being played with.
  *
- * The compiled filter chains match AdLibs on properties a Branding can change — `tags` and `display.label`
- * above all — so they have to run against resolved documents. Resolving into collections of their own keeps
+ * The compiled filter chains match AdLibs on properties a Branding can change — `display.label` and
+ * `display.tags` above all — so they have to run against resolved documents. Resolving into collections of their own keeps
  * the filter chains untouched: they run exactly the same queries, against documents which are already
  * correct for the Branding. Resolving lazily per query would not work, because the query is applied by the
  * collection and would match the values as authored.

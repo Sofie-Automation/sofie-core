@@ -81,14 +81,14 @@ describe('branding', () => {
 			expect(resolved?.content).toEqual({ fileName: 'a.mxf', path: '/media/a.mxf' })
 		})
 
-		it('replaces an overridden property in full', () => {
+		it('does not override the tags, as they determine the tally', () => {
 			const piece = {
 				name: 'Piece 0',
 				tags: ['a', 'b'],
-				branding: { branding0: { tags: ['c'] } },
+				branding: { branding0: { tags: ['c'] } as any },
 			}
 
-			expect(resolvePieceForBranding(piece, 'branding0')?.tags).toEqual(['c'])
+			expect(resolvePieceForBranding(piece, 'branding0')).toBe(piece)
 		})
 
 		describe('onlyValidForBranding', () => {
@@ -137,6 +137,16 @@ describe('branding', () => {
 				label: { key: 'Branded Action 0' },
 				tags: ['a'],
 			})
+		})
+
+		it('replaces an overridden property in full', () => {
+			const taggedAction = {
+				...action,
+				display: { label: { key: 'Action 0' }, tags: ['a', 'b'] },
+				branding: { branding0: { display: { tags: ['c'] } } },
+			}
+
+			expect(resolveAdLibActionForBranding(taggedAction, 'branding0')?.display.tags).toEqual(['c'])
 		})
 
 		it('returns the same object when no Branding is selected', () => {

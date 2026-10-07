@@ -144,10 +144,7 @@ export class TagsService {
 		const partStarted = partInstanceTimings?.plannedStartedPlayback
 
 		// A Piece the Branding hides is not on air, so it must contribute no tally tags.
-		//
-		// Note: filtered, but deliberately not resolved. The tally matches an AdLib's `currentPieceTags`
-		// against these Pieces' `tags`, and `currentPieceTags` is not brandable — so applying the Branding to
-		// only one side of that comparison would break the tally whenever a Branding renamed a Piece's tags.
+		// Note: there is no need to resolve the Pieces, as a Branding cannot change their `tags`
 		const playingPieceInstances = pieceInstances.filter((p) => isValidForBranding(p.piece, brandingId))
 
 		return processAndPrunePieceInstanceTimings(

@@ -68,8 +68,9 @@ const partBrandableProperties: ReadonlySet<string> = new Set<keyof IBlueprintPar
  * The properties of a Piece which a Branding may replace.
  * Note: `sourceLayerId` and `outputLayerId` are deliberately absent. Playout groups by them, so a Branding
  * moving a Piece between layers would change what it interrupts and what it is tracked alongside.
+ * `tags` are also absent, as they are matched against AdLibs to determine the tally.
  */
-const pieceBrandableProperties: ReadonlySet<string> = new Set<keyof IBlueprintPieceBranding>(['name', 'tags'])
+const pieceBrandableProperties: ReadonlySet<string> = new Set<keyof IBlueprintPieceBranding>(['name'])
 
 /** The properties of an AdLib Action's `display` which a Branding may replace */
 const actionDisplayBrandableProperties: ReadonlySet<string> = new Set<
