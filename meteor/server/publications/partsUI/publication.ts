@@ -96,7 +96,16 @@ async function setupUIPartsPublicationObservers(
 				}),
 				cache.RundownPlaylists.observeChanges({
 					added: () => triggerUpdate({ invalidateQuickLoop: true, invalidateBranding: true }),
-					changed: () => triggerUpdate({ invalidateQuickLoop: true, invalidateBranding: true }),
+					changed: (_id, fields) => {
+						// Most changes are to the selected PartInstances, which only affect the Branding
+						// Note: this must not set invalidateQuickLoop to false, as that would replace a pending true
+						triggerUpdate({
+							...('quickLoop' in fields || 'rundownIdsInOrder' in fields
+								? { invalidateQuickLoop: true }
+								: {}),
+							invalidateBranding: true,
+						})
+					},
 					removed: () => triggerUpdate({ invalidateQuickLoop: true, invalidateBranding: true }),
 				}),
 				cache.PartInstances.observeChanges({
