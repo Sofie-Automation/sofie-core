@@ -21,8 +21,10 @@ export interface IBrandingReadMethods {
 export interface IBrandingMutateMethods extends IBrandingReadMethods {
 	/**
 	 * Change the Branding selected for the current and/or next PartInstance.
-	 * A PartInstance keeps its Branding for its whole life, and each PartInstance set as next inherits the Branding of the current PartInstance,
-	 * so setting this for the 'current' will be propagated to the PartInstances which follow it.
+	 * A PartInstance is given its Branding when it is created, inheriting it from the current PartInstance (or the next, when
+	 * there is no current), and keeps it until it is changed here.
+	 * As the next PartInstance has usually been created already, changing only the 'current' does not affect it. Use 'both'
+	 * to change the Branding from now on.
 	 * Note: this does nothing for a target which has no PartInstance selected.
 	 * @param target Which of the selected PartInstances to apply this to
 	 * @param brandingId Id of the Branding to select, or `null` to select no Branding
