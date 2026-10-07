@@ -83,7 +83,7 @@ export interface PartCalculatedTimings {
 }
 
 export type CalculateTimingsPiece = Pick<Piece, 'enable' | 'prerollDuration' | 'postrollDuration' | 'pieceType'>
-export type CalculateTimingsFromPart = Pick<DBPart, 'autoNext' | 'autoNextOutTransition' | 'outTransition'>
+export type CalculateTimingsFromPart = Pick<DBPart, 'autoNextOutTransition' | 'outTransition'>
 
 export type CalculateTimingsToPart = Pick<DBPart, 'inTransition'>
 
@@ -104,9 +104,14 @@ export interface ResolvedPartTransition {
 
 /**
  * Determine which transition to use for the boundary between two Parts
+ * @param isInHold Whether the playlist is in a hold
+ * @param isAutoNext Whether the boundary is an autonext, rather than a manual take
+ * @param fromPart The Part being taken out of
+ * @param toPart The Part being taken into
  */
 export function resolvePartTransition(
 	isInHold: boolean,
+	isAutoNext: boolean,
 	fromPart: CalculateTimingsFromPart | undefined,
 	toPart: CalculateTimingsToPart
 ): ResolvedPartTransition {
@@ -124,7 +129,7 @@ export function resolvePartTransition(
 	// If in a hold, we cant do the transition
 	if (isInHold) return noTransition(true)
 
-	if (fromPart.autoNext && fromPart.autoNextOutTransition) {
+	if (isAutoNext && fromPart.autoNextOutTransition) {
 		return {
 			source: 'autoNextOutTransition',
 			keepalive: fromPart.autoNextOutTransition.partKeepaliveDuration,
@@ -165,6 +170,8 @@ export function resolvePartTransition(
  */
 export function calculatePartTimings(
 	holdState: RundownHoldState | undefined,
+	/** Whether the boundary is an autonext, rather than a manual take */
+	isAutoNext: boolean,
 	fromPart: CalculateTimingsFromPart | undefined,
 	fromPieces: CalculateTimingsPiece[] | undefined,
 	toPart: CalculateTimingsToPart,
@@ -179,7 +186,7 @@ export function calculatePartTimings(
 	const fromPartPostroll = fromPart && fromPieces ? calculatePartPostroll(fromPieces) : 0
 	const toPartPostroll = calculatePartPostroll(toPieces)
 
-	const transition = resolvePartTransition(isInHold, fromPart, toPart)
+	const transition = resolvePartTransition(isInHold, isAutoNext, fromPart, toPart)
 
 	const additiveOutDuration =
 		transition.applyAdditiveOutDuration && fromPart?.outTransition?.type === 'additive'
@@ -235,6 +242,7 @@ export function getPartTimingsOrDefaults(
 	} else {
 		return calculatePartTimings(
 			RundownHoldState.NONE,
+			false,
 			undefined,
 			undefined,
 			partInstance.part,
@@ -256,7 +264,7 @@ export function calculatePartExpectedDurationWithTransition(
 ): number | undefined {
 	if (part.expectedDuration === undefined) return undefined
 
-	const timings = calculatePartTimings(undefined, {}, [], part, pieces)
+	const timings = calculatePartTimings(undefined, false, {}, [], part, pieces)
 
 	return calculateExpectedDurationWithTransition(part.expectedDuration, timings)
 }

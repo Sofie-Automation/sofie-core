@@ -16,14 +16,15 @@ export interface IBlueprintPart {
 	/** Should this item should progress to the next automatically */
 	autoNext?: boolean
 	/**
-	 * Transition to use instead of `outTransition` when this Part has `autoNext` set.
+	 * Transition to use instead of `outTransition` when this Part is autonexted out of.
+	 * A manual take out of this Part uses `outTransition`, even if this Part has `autoNext` set.
 	 * Replaces the next Part's inTransition entirely.
 	 */
 	autoNextOutTransition?: IBlueprintPartOutTransitionExclusive
 
 	/**
 	 * Timings for the inTransition, when supported and allowed.
-	 * Ignored when the previous Part has an `'exclusive'` outTransition, or autonexts with `autoNextOutTransition`
+	 * Ignored when the previous Part has an `'exclusive'` outTransition, or is autonexted out of with an `autoNextOutTransition`
 	 */
 	inTransition?: IBlueprintPartInTransition
 
@@ -185,7 +186,7 @@ The first of these that applies wins:
 
 1. When there is no previous Part, no transition is used.
 2. When the playlist is in a hold, no transition is used. An additive `outTransition` still applies: its `duration` delays the take, and its OutTransition pieces are played.
-3. When the previous Part has `autoNext` set and an `autoNextOutTransition`, that is used. This applies even when the take is performed manually before the autonext.
+3. When the previous Part is autonexted out of and has an `autoNextOutTransition`, that is used. A manual take out of the previous Part, including one before its autonext, skips this and uses its `outTransition`.
 4. When the previous Part has an `'exclusive'` outTransition, that is used.
 5. When the Part has an `inTransition`, that is used unless the previous Part has an additive outTransition with `disableNextInTransition` set. An additive `outTransition.duration` also applies.
 6. Otherwise, no transition is used. An additive `outTransition.duration` still delays the take.
@@ -226,7 +227,7 @@ When the `postrollDuration` is set on a piece the part group will be extended sl
 Autonext is a way for a Part to be made a fixed length. After playing for its `expectedDuration`, core will automatically perform a take into the next part. This is commonly used for fullscreen videos, to exit back to a camera before the video freezes on the last frame. It is enabled by setting the `autoNext: true` on a Part, and requires `expectedDuration` to be set to a duration higher than `1000`.
 
 In other situations, it can be desirable for a Part to overlap the next one for a few seconds. This is common for Parts such as a title sequence or bumpers, where the sequence ends with an keyer effect which should reveal the next Part.
-To achieve this you can set an `autoNextOutTransition`, which is used instead of the `outTransition` when the Part autonexts. Like an `'exclusive'` outTransition, it replaces the inTransition of the next Part. For example, to make the parts overlap on the timeline by 1000ms:
+To achieve this you can set an `autoNextOutTransition`, which is used instead of the `outTransition` when the Part autonexts. If the operator takes out of the Part manually instead, the `outTransition` is used, so the two can differ. Like an `'exclusive'` outTransition, it replaces the inTransition of the next Part. For example, to make the parts overlap on the timeline by 1000ms:
 
 ```ts
 autoNextOutTransition: { type: 'exclusive', blockTakeDuration: 0, partKeepaliveDuration: 1000, nextPartContentDelayDuration: 0 }
@@ -240,7 +241,7 @@ The Part transition properties have changed. Existing data is converted by a mig
 
 - `outTransition: { duration }` must now be `outTransition: { type: 'additive', duration }`.
 
-- `autoNextOverlap: X` is replaced by `autoNextOutTransition: { type: 'exclusive', blockTakeDuration: 0, partKeepaliveDuration: X, nextPartContentDelayDuration: 0 }`. If the Part also has an additive `outTransition`, note that this is no longer used when autonexting.
+- `autoNextOverlap: X` is replaced by `autoNextOutTransition: { type: 'exclusive', blockTakeDuration: 0, partKeepaliveDuration: X, nextPartContentDelayDuration: 0 }`. Unlike `autoNextOverlap`, this is only used for an autonext: a manual take out of the Part uses its `outTransition` instead. If the Part also has an additive `outTransition`, note that this is no longer used when autonexting.
 - `disableNextInTransition: true` is replaced by the all-zero `'exclusive'` outTransition shown above, or by `disableNextInTransition: true` on the additive `outTransition` if it has a `duration`.
 
 #### Infinites
