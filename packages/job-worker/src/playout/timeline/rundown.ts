@@ -44,6 +44,8 @@ export interface RundownTimelineTimingContext {
 
 	nextPartGroup?: TimelineObjGroupPart
 	nextPartOverlap?: number
+	/** The (predicted) timings of the transition into the next PartInstance */
+	nextPartTimings?: PartCalculatedTimings
 
 	multiGatewayMode: boolean
 }
@@ -584,6 +586,7 @@ function generateNextPartInstanceObjects(
 	})
 	timingContext.nextPartGroup = nextPartGroup
 	timingContext.nextPartOverlap = nextPartInfo.calculatedTimings.fromPartRemaining
+	timingContext.nextPartTimings = nextPartInfo.calculatedTimings
 
 	const nextPieceInstances = nextPartInfo?.pieceInstances.filter(
 		(i) => !i.infinite || i.infinite.infiniteInstanceIndex === 0

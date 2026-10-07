@@ -31,9 +31,9 @@ export interface PlayoutPieceInstanceModel {
 	/**
 	 * Set the Planned started playback time
 	 * This will clear the Planned stopped playback time
-	 * @param time Planned started time
+	 * @param time Planned started time, or undefined if not known
 	 */
-	setPlannedStartedPlayback(time: Time): boolean
+	setPlannedStartedPlayback(time: Time | undefined): boolean
 	/**
 	 * Set the Planned stopped playback time
 	 * @param time Planned stopped time
