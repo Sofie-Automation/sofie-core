@@ -11,6 +11,7 @@ import { HotkeyLegendSettings } from './ShowStyle/HotkeyLegend.js'
 import { ShowStyleVariantsSettings } from './ShowStyle/VariantSettings.js'
 import { ShowStyleGenericProperties } from './ShowStyle/Generic.js'
 import { AbChannelDisplaySettings } from './ShowStyle/AbChannelDisplay.js'
+import { ShowStyleBrandingSettings } from './ShowStyle/Branding.js'
 import { Switch, Route, Redirect } from 'react-router-dom'
 import { ErrorBoundary } from '../../lib/ErrorBoundary.js'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
@@ -90,6 +91,11 @@ export default function ShowStyleBaseSettings({ match }: IProps): JSX.Element {
 		[blueprint?.showStyleConfigSchema]
 	)
 
+	const blueprintTranslationNamespaces = useMemo(
+		() => ['blueprint_' + showStyleBase?.blueprintId],
+		[showStyleBase?.blueprintId]
+	)
+
 	const layerMappings = useMemo(() => {
 		const mappings: { [studioId: string]: MappingsExt } = {}
 		for (const studio of compatibleStudios) {
@@ -121,6 +127,13 @@ export default function ShowStyleBaseSettings({ match }: IProps): JSX.Element {
 							<SourceLayerSettings showStyleBase={showStyleBase} />
 							<OutputLayerSettings showStyleBase={showStyleBase} />
 						</>
+					</Route>
+					<Route path={`${match.path}/branding`}>
+						<ShowStyleBrandingSettings
+							showStyleBase={showStyleBase}
+							layerMappings={layerMappings}
+							sourceLayers={sourceLayers}
+						/>
 					</Route>
 					<Route path={`${match.path}/action-triggers`}>
 						<TriggeredActionsEditor
@@ -162,7 +175,7 @@ export default function ShowStyleBaseSettings({ match }: IProps): JSX.Element {
 						<ShowStyleVariantsSettings
 							showStyleVariants={showStyleVariants}
 							blueprintConfigSchema={blueprintConfigSchema}
-							blueprintTranslationNamespaces={['blueprint_' + showStyleBase?.blueprintId]}
+							blueprintTranslationNamespaces={blueprintTranslationNamespaces}
 							blueprintConfigPreset={blueprintConfigPreset}
 							showStyleBase={showStyleBase}
 							layerMappings={layerMappings}

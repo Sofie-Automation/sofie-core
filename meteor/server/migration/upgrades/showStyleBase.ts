@@ -132,6 +132,7 @@ export async function runUpgradeForShowStyleBase(showStyleBaseId: ShowStyleBaseI
 	const updateSet: Record<string, any> = {
 		'sourceLayersWithOverrides.defaults': normalizeArray(result.sourceLayers, '_id'),
 		'outputLayersWithOverrides.defaults': normalizeArray(result.outputLayers, '_id'),
+		'branding.defaults': result.branding || {},
 		lastBlueprintConfig: {
 			blueprintHash: blueprint.blueprintHash,
 			blueprintId: blueprint._id,
