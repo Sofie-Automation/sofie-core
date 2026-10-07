@@ -4,9 +4,13 @@ import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mo
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PartId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartId, PartInstanceId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { PartInstances, Parts, RundownPlaylists } from '../../collections'
 import type { LiveQueryHandleSync } from '../../lib/lib'
+import { equivalentArrays } from '@sofie-automation/shared-lib/dist/lib/lib'
+import { logger } from '../../logging'
+import { ReactiveMongoObserverGroup, ReactiveMongoObserverGroupHandle } from './observerGroup'
 import type { ReadonlyDeep } from 'type-fest'
 
 /**
@@ -58,12 +62,71 @@ export function createBrandingObservers(
 			cache.RundownPlaylists.link(),
 			{ projection: playlistBrandingFieldSpecifier }
 		),
-		PartInstances.observeChanges(
-			{ rundownId: { $in: rundownIds as RundownId[] }, reset: { $ne: true } },
-			cache.PartInstances.link(),
-			{ projection: partInstanceBrandingFieldSpecifier }
-		),
+		observeSelectedPartInstancesBranding(cache),
 	]
+}
+
+/**
+ * Observe the PartInstances selected by the RundownPlaylist in the cache, which are the only ones needed to
+ * resolve the Branding.
+ * These are observed by id rather than by Rundown, as the selected PartInstances may belong to a different
+ * Rundown of the Playlist than those being published.
+ */
+export async function observeSelectedPartInstancesBranding<TPlaylist extends PlaylistBranding>(cache: {
+	RundownPlaylists: InMemoryMongoCollection<TPlaylist>
+	PartInstances: InMemoryMongoCollection<PartInstanceBranding>
+}): Promise<LiveQueryHandleSync> {
+	const getSelectedIds = (): PartInstanceId[] => {
+		const ids = new Set<PartInstanceId>()
+		for (const playlist of cache.RundownPlaylists.findFetch({})) {
+			if (playlist.currentPartInfo) ids.add(playlist.currentPartInfo.partInstanceId)
+			if (playlist.nextPartInfo) ids.add(playlist.nextPartInfo.partInstanceId)
+		}
+		return Array.from(ids)
+	}
+
+	let observedIds: PartInstanceId[] = []
+	let observerGroup: ReactiveMongoObserverGroupHandle | undefined
+
+	// Note: the RundownPlaylist is observed concurrently with this, so this must be listening before the
+	// PartInstances observer is started
+	const playlistListener = cache.RundownPlaylists.onChange(() => {
+		if (observerGroup && !equivalentArrays(getSelectedIds(), observedIds)) observerGroup.restart()
+	})
+
+	try {
+		observerGroup = await ReactiveMongoObserverGroup(async () => {
+			const ids = getSelectedIds()
+			observedIds = ids
+
+			// Note: the documents which are still selected are kept, so that the Branding stays resolvable while
+			// restarting. On a Take, the next PartInstance becomes the current one, so it is already here.
+			cache.PartInstances.remove({ _id: { $nin: ids } })
+
+			if (ids.length === 0) return []
+
+			return [
+				PartInstances.observeChanges({ _id: { $in: ids } }, cache.PartInstances.link(), {
+					projection: partInstanceBrandingFieldSpecifier,
+				}),
+			]
+		})
+	} catch (e) {
+		playlistListener.stop()
+		throw e
+	}
+
+	// The selection may have changed while the observer was starting
+	if (!equivalentArrays(getSelectedIds(), observedIds)) observerGroup.restart()
+
+	return {
+		stop: () => {
+			playlistListener.stop()
+			Promise.resolve(observerGroup?.stop()).catch((e) => {
+				logger.error(`Failed to stop the selected PartInstances observer: ${stringifyError(e)}`)
+			})
+		},
+	}
 }
 
 /**

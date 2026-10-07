@@ -9,9 +9,9 @@ import {
 	studioFieldSpecifier,
 	StudioSettingsDoc,
 } from './reactiveContentCache'
-import { PartInstances, Parts, RundownPlaylists, Segments, Studios } from '../../collections'
+import { Parts, RundownPlaylists, Segments, Studios } from '../../collections'
 import { waitForAllObserversReady } from '../lib/lib'
-import { partInstanceBrandingFieldSpecifier } from '../lib/branding'
+import { observeSelectedPartInstancesBranding } from '../lib/branding'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import type { LiveQueryHandleSync } from '../../lib/lib'
@@ -94,18 +94,7 @@ export class RundownContentObserver {
 				}
 			),
 			// Only the Branding is needed from these, to know how to resolve the Parts
-			PartInstances.observeChanges(
-				{
-					rundownId: {
-						$in: rundownIds,
-					},
-					reset: { $ne: true },
-				},
-				cache.PartInstances.link(),
-				{
-					projection: partInstanceBrandingFieldSpecifier,
-				}
-			),
+			observeSelectedPartInstancesBranding(cache),
 		])
 
 		return new RundownContentObserver(cache, observers)
