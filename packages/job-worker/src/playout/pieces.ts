@@ -9,6 +9,7 @@ import _ from 'underscore'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { ReadonlyDeep } from 'type-fest'
+import { isOutTransitionPieceType } from '@sofie-automation/corelib/dist/playout/timings'
 
 /**
  * Approximate compare Piece start times (for use in .sort())
@@ -21,9 +22,11 @@ export function comparePieceStart<T extends ReadonlyDeep<PieceInstancePiece>>(
 	b: T,
 	nowInPart: number
 ): 0 | 1 | -1 {
-	if (a.pieceType === IBlueprintPieceType.OutTransition && b.pieceType !== IBlueprintPieceType.OutTransition) {
+	const aIsOutTransition = isOutTransitionPieceType(a.pieceType)
+	const bIsOutTransition = isOutTransitionPieceType(b.pieceType)
+	if (aIsOutTransition && !bIsOutTransition) {
 		return 1
-	} else if (a.pieceType !== IBlueprintPieceType.OutTransition && b.pieceType === IBlueprintPieceType.OutTransition) {
+	} else if (!aIsOutTransition && bIsOutTransition) {
 		return -1
 	}
 

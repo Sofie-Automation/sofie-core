@@ -1,4 +1,4 @@
-import { ISourceLayer, PieceLifespan } from '@sofie-automation/blueprints-integration'
+import { IBlueprintPieceType, ISourceLayer, PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { PieceInstance, ResolvedPieceInstance } from '../dataModel/PieceInstance.js'
 import { SourceLayers } from '../dataModel/ShowStyleBase.js'
@@ -133,8 +133,20 @@ export function processAndPrunePieceInstanceTimings(
 		}
 	}
 
+	const candidatePieces = keepDisabledPieces ? pieces : pieces.filter((p) => !p.disabled)
+
+	// Transition pieces are timed relative to their transition, not the part, so they don't compete with other pieces
+	const normalPieces: ReadonlyDeep<PieceInstance>[] = []
+	for (const piece of candidatePieces) {
+		if (piece.piece.pieceType === IBlueprintPieceType.Normal) {
+			normalPieces.push(piece)
+		} else {
+			results.push({ ...piece, priority: 5 })
+		}
+	}
+
 	const piecesGroupedByExclusiveGroupOrLayer = groupByToMapFunc(
-		keepDisabledPieces ? pieces : pieces.filter((p) => !p.disabled),
+		normalPieces,
 		// At this stage, if a Piece is disabled, the `keepDisabledPieces` must be turned on. If that's the case
 		// we split out the disabled Pieces onto the sourceLayerId they actually exist on, instead of putting them
 		// onto the shared "exclusivityGroup" layer. This may cause it to not display "exactly" accurately

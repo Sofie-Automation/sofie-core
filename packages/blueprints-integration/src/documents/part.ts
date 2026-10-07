@@ -3,7 +3,10 @@ import type { NoteSeverity } from '../lib.js'
 import type { ITranslatableMessage } from '../translations.js'
 import type { IngestPartNotifyItemReady } from '@sofie-automation/shared-lib/dist/ingest/rundownStatus'
 
-/** Timings for the inTransition, when supported and allowed */
+/**
+ * Timings for the inTransition, when supported and allowed.
+ * Note: an `'exclusive'` outTransition (or `autoNextOutTransition`) on the previous Part overrides this entirely
+ */
 export interface IBlueprintPartInTransition {
 	/** Duration this transition block a take for. After this time, another take is allowed which may cut this transition off early */
 	blockTakeDuration: number
@@ -13,11 +16,31 @@ export interface IBlueprintPartInTransition {
 	partContentDelayDuration: number
 }
 
-/** Timings for the outTransition, when supported and allowed */
-export interface IBlueprintPartOutTransition {
+/** Additive behaviour: delays the next part by `duration`, and plays alongside the next part's inTransition */
+export interface IBlueprintPartOutTransitionAdditive {
+	type?: 'additive'
 	/** How long to keep this part alive after taken out  */
 	duration: number
+	/** Don't play the next Part's inTransition, and ignore its timings */
+	disableNextInTransition?: boolean
 }
+
+/**
+ * Replaces the next Part's inTransition entirely, whichever Part that turns out to be.
+ * All durations are measured from the point the next Part starts (the take, plus any offset needed for preroll).
+ */
+export interface IBlueprintPartOutTransitionExclusive {
+	type: 'exclusive'
+	/** Duration takes out of the *next* Part are blocked for. Measured from the take (plannedStartedPlayback of the next Part) */
+	blockTakeDuration: number
+	/** Duration this Part keeps playing once the transition starts. Typically until it is fully out of vision */
+	partKeepaliveDuration: number
+	/** Duration the pieces of the next Part are delayed for once the transition starts. Typically until it is in vision */
+	nextPartContentDelayDuration: number
+}
+
+/** Timings for the outTransition, when supported and allowed */
+export type IBlueprintPartOutTransition = IBlueprintPartOutTransitionAdditive | IBlueprintPartOutTransitionExclusive
 
 export enum PartHoldMode {
 	NONE = 0,
@@ -41,16 +64,22 @@ export interface IBlueprintMutatablePart<TPrivateData = unknown, TPublicData = u
 
 	/** Should this item should progress to the next automatically */
 	autoNext?: boolean
-	/** How much to overlap on when doing autonext */
-	autoNextOverlap?: number
+	/**
+	 * Transition to use instead of `outTransition` when this Part has `autoNext` set.
+	 * Replaces the next Part's inTransition entirely.
+	 */
+	autoNextOutTransition?: IBlueprintPartOutTransitionExclusive
 
-	/** Timings for the inTransition, when supported and allowed */
+	/**
+	 * Timings for the inTransition, when supported and allowed.
+	 * Ignored when the previous Part has an `'exclusive'` outTransition, or autonexts with `autoNextOutTransition`
+	 */
 	inTransition?: IBlueprintPartInTransition
 
-	/** Should we block the inTransition when starting the next Part */
-	disableNextInTransition?: boolean
-
-	/** Timings for the outTransition, when supported and allowed */
+	/**
+	 * Timings for the outTransition, when supported and allowed.
+	 * An `'exclusive'` outTransition overrides the next Part's inTransition
+	 */
 	outTransition?: IBlueprintPartOutTransition
 
 	/** Expected duration of the line, in milliseconds */

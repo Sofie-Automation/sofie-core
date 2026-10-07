@@ -44,6 +44,7 @@ import {
 	setupRundownWithInTransitionDisabled,
 	setupRundownWithOutTransition,
 	setupRundownWithOutTransitionAndPreroll,
+	setupRundownWithExclusiveOutTransitionAndInTransitionPiece,
 	setupRundownWithOutTransitionAndPreroll2,
 	setupRundownWithOutTransitionAndInTransition,
 	setupRundownWithOutTransitionEnableHold,
@@ -1029,6 +1030,33 @@ describe('Timeline', () => {
 			)
 
 			testTransitionTimings(
+				'exclusive outTransition with an inTransition piece on the same layer',
+				setupRundownWithExclusiveOutTransitionAndInTransitionPiece,
+				async (_rundownId0, _timeline, currentPartInstance, previousPartInstance, checkTimings) => {
+					await checkTimings({
+						// old part is extended by 1000ms due to transition keepalive
+						previousPart: { end: `#${getPartGroupId(currentPartInstance)}.start + 1000` },
+						currentPieces: {
+							// pieces are not delayed
+							piece010: {
+								controlObj: { start: 0 },
+								childGroup: { preroll: 0, postroll: 0 },
+							},
+						},
+						currentInfinitePieces: {},
+						// outTransitionPiece is inserted, starting with the transition
+						previousOutTransition: {
+							controlObj: {
+								start: `#${getPartGroupId(previousPartInstance)}.end - 1000`,
+								duration: 1000,
+							},
+							childGroup: { preroll: 0, postroll: 0 },
+						},
+					})
+				}
+			)
+
+			testTransitionTimings(
 				'outTransition + preroll',
 				setupRundownWithOutTransitionAndPreroll,
 				async (_rundownId0, _timeline, currentPartInstance, previousPartInstance, checkTimings) => {
@@ -1890,6 +1918,69 @@ describe('Timeline', () => {
 						previousOutTransition: undefined,
 					})
 				}
+			)
+		})
+
+		describe('Transition piece planned timings', () => {
+			async function getPieceInstanceForPiece(partInstanceId: PartInstanceId, pieceId: string) {
+				const pieceInstance = await context.directCollections.PieceInstances.findOne({
+					partInstanceId,
+					'piece._id': protectString(pieceId),
+				})
+				expect(pieceInstance).toBeTruthy()
+				return pieceInstance!
+			}
+
+			async function checkAdditiveOutTransitionAndInTransition(
+				rundownId0: RundownId,
+				currentPartInstance: DBPartInstance,
+				previousPartInstance: DBPartInstance
+			) {
+				const takeTime = currentPartInstance.timings?.plannedStartedPlayback
+				expect(takeTime).toBeTruthy()
+
+				// takeOffset = 600 (outTransition) - 250 (keepalive)
+				const inPiece = await getPieceInstanceForPiece(currentPartInstance._id, rundownId0 + '_piece011')
+				expect(inPiece.plannedStartedPlayback).toBe(takeTime! + 350)
+				expect(inPiece.plannedStoppedPlayback).toBe(takeTime! + 350 + 500)
+
+				// Starts 600ms before the previous part ends, which is 350 + 250 after the take
+				const outPiece = await getPieceInstanceForPiece(previousPartInstance._id, rundownId0 + '_piece002')
+				expect(outPiece.plannedStartedPlayback).toBe(takeTime!)
+				expect(outPiece.plannedStoppedPlayback).toBe(takeTime! + 600)
+			}
+
+			async function checkExclusiveOutTransition(
+				rundownId0: RundownId,
+				currentPartInstance: DBPartInstance,
+				previousPartInstance: DBPartInstance
+			) {
+				const takeTime = currentPartInstance.timings?.plannedStartedPlayback
+				expect(takeTime).toBeTruthy()
+
+				// Starts with the transition, and is stopped when the previous part ends
+				const outPiece = await getPieceInstanceForPiece(previousPartInstance._id, rundownId0 + '_piece002')
+				expect(outPiece.plannedStartedPlayback).toBe(takeTime!)
+				expect(outPiece.plannedStoppedPlayback).toBe(takeTime! + 1000)
+
+				// The first part was not transitioned into, so its InTransition piece did not play
+				const inPiece = await getPieceInstanceForPiece(previousPartInstance._id, rundownId0 + '_piece003')
+				expect(inPiece.plannedStartedPlayback).toBeUndefined()
+				expect(inPiece.plannedStoppedPlayback).toBeUndefined()
+			}
+
+			testTransitionTimings(
+				'additive outTransition and inTransition',
+				setupRundownWithOutTransitionAndInTransition,
+				async (rundownId0, _timeline, currentPartInstance, previousPartInstance) =>
+					checkAdditiveOutTransitionAndInTransition(rundownId0, currentPartInstance, previousPartInstance)
+			)
+
+			testTransitionTimings(
+				'exclusive outTransition',
+				setupRundownWithExclusiveOutTransitionAndInTransitionPiece,
+				async (rundownId0, _timeline, currentPartInstance, previousPartInstance) =>
+					checkExclusiveOutTransition(rundownId0, currentPartInstance, previousPartInstance)
 			)
 		})
 

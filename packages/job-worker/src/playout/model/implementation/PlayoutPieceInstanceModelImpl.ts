@@ -135,7 +135,7 @@ export class PlayoutPieceInstanceModelImpl implements PlayoutPieceInstanceModel 
 		this.compareAndSetPieceInstanceValue('userDuration', duration, true)
 	}
 
-	setPlannedStartedPlayback(time: Time): boolean {
+	setPlannedStartedPlayback(time: Time | undefined): boolean {
 		this.compareAndSetPieceInstanceValue('plannedStoppedPlayback', undefined)
 		return this.compareAndSetPieceInstanceValue('plannedStartedPlayback', time)
 	}

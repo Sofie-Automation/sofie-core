@@ -553,6 +553,14 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite continuing into ne
       "priority": 5,
     },
     "nextPartOverlap": 0,
+    "nextPartTimings": {
+      "fromPartKeepalive": 0,
+      "fromPartPostroll": 0,
+      "fromPartRemaining": 0,
+      "inTransitionStart": null,
+      "toPartDelay": 0,
+      "toPartPostroll": 0,
+    },
   },
 }
 `;
@@ -1203,6 +1211,14 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in curren
       "priority": 5,
     },
     "nextPartOverlap": 0,
+    "nextPartTimings": {
+      "fromPartKeepalive": 100,
+      "fromPartPostroll": 0,
+      "fromPartRemaining": 0,
+      "inTransitionStart": null,
+      "toPartDelay": 0,
+      "toPartPostroll": 0,
+    },
   },
 }
 `;
@@ -1390,6 +1406,14 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in curren
       "priority": 5,
     },
     "nextPartOverlap": 0,
+    "nextPartTimings": {
+      "fromPartKeepalive": 100,
+      "fromPartPostroll": 0,
+      "fromPartRemaining": 0,
+      "inTransitionStart": null,
+      "toPartDelay": 0,
+      "toPartPostroll": 0,
+    },
   },
 }
 `;
@@ -1629,6 +1653,14 @@ exports[`buildTimelineObjsForRundown next part with autonext 1`] = `
       "priority": 5,
     },
     "nextPartOverlap": 0,
+    "nextPartTimings": {
+      "fromPartKeepalive": 0,
+      "fromPartPostroll": 0,
+      "fromPartRemaining": 0,
+      "inTransitionStart": null,
+      "toPartDelay": 0,
+      "toPartPostroll": 0,
+    },
   },
 }
 `;
@@ -1781,6 +1813,14 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
       "priority": 5,
     },
     "nextPartOverlap": 900,
+    "nextPartTimings": {
+      "fromPartKeepalive": 100,
+      "fromPartPostroll": 400,
+      "fromPartRemaining": 900,
+      "inTransitionStart": 200,
+      "toPartDelay": 500,
+      "toPartPostroll": 0,
+    },
   },
 }
 `;
@@ -1968,6 +2008,14 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
       "priority": 5,
     },
     "nextPartOverlap": 900,
+    "nextPartTimings": {
+      "fromPartKeepalive": 100,
+      "fromPartPostroll": 400,
+      "fromPartRemaining": 900,
+      "inTransitionStart": 200,
+      "toPartDelay": 500,
+      "toPartPostroll": 0,
+    },
   },
 }
 `;

@@ -1,6 +1,7 @@
 import { IBlueprintPartOutTransition, IBlueprintPieceType, TSR } from '@sofie-automation/blueprints-integration'
 import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
+import { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
 	TimelineObjGroupPart,
 	OnGenerateTimelineObjExt,
@@ -44,7 +45,13 @@ export function transformPartIntoTimeline(
 	for (const pieceInstance of pieceInstances) {
 		if (pieceInstance.disabled) continue
 
-		const pieceEnable = getPieceEnableForPieceInstance(partTimings, outTransition, parentGroup, pieceInstance)
+		const pieceEnable = getPieceEnableForPieceInstance(
+			partTimings,
+			nextPartTimings,
+			outTransition,
+			parentGroup,
+			pieceInstance
+		)
 
 		// Not able to enable this piece
 		if (!pieceEnable) continue
@@ -77,9 +84,77 @@ export function transformPartIntoTimeline(
 	return timelineObjs
 }
 
+export interface OutTransitionPiecePlacement {
+	/** How long before the end of the Part the piece starts. Negative values are after the end */
+	offsetFromPartEnd: number
+	/** The duration of the piece, if it is limited */
+	duration: number | undefined
+}
+
+/**
+ * Placement for an out-transition piece of a transition which replaced the next Part's inTransition.
+ * This starts at the transition start, which is the start of the next Part (the take, plus any take offset)
+ */
+function getExclusiveOutTransitionPiecePlacement(
+	nextPartTimings: PartCalculatedTimings,
+	piece: ReadonlyDeep<Pick<PieceInstancePiece, 'enable'>>
+): OutTransitionPiecePlacement {
+	// Respect the start time of the piece, to allow for delaying it
+	const startOffset = typeof piece.enable.start === 'number' ? piece.enable.start : 0
+
+	return {
+		offsetFromPartEnd: nextPartTimings.fromPartKeepalive + nextPartTimings.fromPartPostroll - startOffset,
+		duration: piece.enable.duration,
+	}
+}
+
+/**
+ * Determine where an out-transition piece is placed, relative to the end of its Part
+ * @param partTimings Timings of the Part containing the piece
+ * @param nextPartTimings Timings of the Part being taken into
+ * @param outTransition The outTransition of the Part containing the piece
+ * @param piece The piece to place
+ * @returns The placement, or undefined if the piece is not played
+ */
+export function getOutTransitionPiecePlacement(
+	partTimings: PartCalculatedTimings,
+	nextPartTimings: PartCalculatedTimings | null | undefined,
+	outTransition: ReadonlyDeep<IBlueprintPartOutTransition> | null | undefined,
+	piece: ReadonlyDeep<Pick<PieceInstancePiece, 'pieceType' | 'enable'>>
+): OutTransitionPiecePlacement | undefined {
+	switch (piece.pieceType) {
+		case IBlueprintPieceType.OutTransition:
+			if (!outTransition) return undefined
+
+			if (outTransition.type === 'exclusive') {
+				// Only play when this transition was the one used
+				if (nextPartTimings?.transitionSource !== 'outTransition') return undefined
+
+				return getExclusiveOutTransitionPiecePlacement(nextPartTimings, piece)
+			} else {
+				// The autoNextOutTransition replaces this transition
+				if (nextPartTimings?.transitionSource === 'autoNextOutTransition') return undefined
+
+				return { offsetFromPartEnd: outTransition.duration + partTimings.toPartPostroll, duration: undefined }
+			}
+		case IBlueprintPieceType.AutoNextOutTransition:
+			// Only play when this transition was the one used
+			if (nextPartTimings?.transitionSource !== 'autoNextOutTransition') return undefined
+
+			return getExclusiveOutTransitionPiecePlacement(nextPartTimings, piece)
+		case IBlueprintPieceType.Normal:
+		case IBlueprintPieceType.InTransition:
+			return undefined
+		default:
+			assertNever(piece.pieceType)
+			return undefined
+	}
+}
+
 function getPieceEnableForPieceInstance(
 	partTimings: PartCalculatedTimings,
-	outTransition: IBlueprintPartOutTransition | null,
+	nextPartTimings: PartCalculatedTimings | null,
+	outTransition: ReadonlyDeep<IBlueprintPartOutTransition> | null,
 	parentGroup: TimelineObjGroupPart & OnGenerateTimelineObjExt,
 	pieceInstance: ReadonlyDeep<PieceInstanceWithTimings>
 ): TSR.Timeline.TimelineEnable | undefined {
@@ -95,12 +170,23 @@ function getPieceEnableForPieceInstance(
 				duration: pieceInstance.piece.enable.duration,
 			}
 		}
-		case IBlueprintPieceType.OutTransition: {
-			if (!outTransition) return undefined
+		case IBlueprintPieceType.OutTransition:
+		case IBlueprintPieceType.AutoNextOutTransition: {
+			const placement = getOutTransitionPiecePlacement(
+				partTimings,
+				nextPartTimings,
+				outTransition,
+				pieceInstance.piece
+			)
+			if (!placement) return undefined
 
 			const pieceEnable: TSR.Timeline.TimelineEnable = {
-				start: `#${parentGroup.id}.end - ${outTransition.duration + partTimings.toPartPostroll}`,
+				start:
+					placement.offsetFromPartEnd >= 0
+						? `#${parentGroup.id}.end - ${placement.offsetFromPartEnd}`
+						: `#${parentGroup.id}.end + ${-placement.offsetFromPartEnd}`,
 			}
+			if (placement.duration !== undefined) pieceEnable.duration = placement.duration
 
 			return pieceEnable
 		}

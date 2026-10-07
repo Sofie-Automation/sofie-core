@@ -1,5 +1,4 @@
 import {
-	IBlueprintPieceType,
 	TimelineObjectCoreExt,
 	TimelineObjHoldMode,
 	TimelineObjOnAirMode,
@@ -8,6 +7,33 @@ import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout
 import { ReadonlyDeep } from 'type-fest'
 import { DEFINITELY_ENDED_FUTURE_DURATION } from '../infinites.js'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
+import { isOutTransitionPieceType, PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
+import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+
+/**
+ * How much longer than its expectedDuration an autonexting Part should continue for, to allow for the transition into the next Part
+ * @param currentPart The Part being autonexted out of
+ * @param nextPartTimings The timings of the Part being autonexted into
+ */
+export function getAutoNextExpectedDurationExtension(
+	currentPart: ReadonlyDeep<Pick<DBPart, 'outTransition' | 'availablePostrollDuration'>>,
+	nextPartTimings: PartCalculatedTimings
+): number {
+	// An additive outTransition keeps the part alive, unless it has been replaced by the autoNextOutTransition
+	const additiveOutTransitionDuration =
+		currentPart.outTransition &&
+		currentPart.outTransition.type !== 'exclusive' &&
+		nextPartTimings.transitionSource !== 'autoNextOutTransition'
+			? currentPart.outTransition.duration
+			: 0
+
+	// Keepalive and outTransition extend the effective expectedDuration, but preroll must stay unchanged.
+	const requiredExtension = Math.max(0, nextPartTimings.fromPartKeepalive, additiveOutTransitionDuration)
+
+	const availablePostrollDuration = currentPart.availablePostrollDuration ?? 0
+
+	return Math.max(0, Math.min(requiredExtension, availablePostrollDuration))
+}
 
 /**
  * Check if a PieceInstance has 'definitely ended'.
@@ -21,8 +47,7 @@ export function hasPieceInstanceDefinitelyEnded(
 	nowInPart: number
 ): boolean {
 	if (nowInPart <= 0) return false
-	if (pieceInstance.piece.hasSideEffects || pieceInstance.piece.pieceType === IBlueprintPieceType.OutTransition)
-		return false
+	if (pieceInstance.piece.hasSideEffects || isOutTransitionPieceType(pieceInstance.piece.pieceType)) return false
 
 	let relativeEnd: number | undefined
 	if (typeof pieceInstance.resolvedEndCap === 'number') {
