@@ -65,14 +65,15 @@ export interface IBlueprintMutatablePart<TPrivateData = unknown, TPublicData = u
 	/** Should this item should progress to the next automatically */
 	autoNext?: boolean
 	/**
-	 * Transition to use instead of `outTransition` when this Part has `autoNext` set.
+	 * Transition to use instead of `outTransition` when this Part is autonexted out of.
+	 * A manual take out of this Part uses `outTransition`, even if this Part has `autoNext` set.
 	 * Replaces the next Part's inTransition entirely.
 	 */
 	autoNextOutTransition?: IBlueprintPartOutTransitionExclusive
 
 	/**
 	 * Timings for the inTransition, when supported and allowed.
-	 * Ignored when the previous Part has an `'exclusive'` outTransition, or autonexts with `autoNextOutTransition`
+	 * Ignored when the previous Part has an `'exclusive'` outTransition, or is autonexted out of with an `autoNextOutTransition`
 	 */
 	inTransition?: IBlueprintPartInTransition
 

@@ -282,7 +282,8 @@ export async function performTakeToNextedPart(
 		blueprint,
 		takeRundown.rundown,
 		takePartInstance,
-		currentPartInstance
+		currentPartInstance,
+		false
 	)
 
 	playoutModel.cycleSelectedPartInstances()
@@ -545,7 +546,9 @@ export function updatePartInstanceOnTake(
 	blueprint: ReadonlyDeep<WrappedShowStyleBlueprint>,
 	takeRundown: ReadonlyDeep<DBRundown>,
 	takePartInstance: PlayoutPartInstanceModel,
-	currentPartInstance: PlayoutPartInstanceModel | null
+	currentPartInstance: PlayoutPartInstanceModel | null,
+	/** Whether this is an autonext, rather than a manual take */
+	isAutoNext: boolean
 ): void {
 	// TODO - the state could change after this sampling point. This should be handled properly
 	let previousPartEndState: PartEndState | undefined = undefined
@@ -601,7 +604,12 @@ export function updatePartInstanceOnTake(
 		takePartInstance.pieceInstances.map((p) => p.pieceInstance),
 		partTimes
 	)
-	const partPlayoutTimings = playoutModel.calculatePartTimings(currentPartInstance, takePartInstance, tmpTakePieces)
+	const partPlayoutTimings = playoutModel.calculatePartTimings(
+		currentPartInstance,
+		takePartInstance,
+		tmpTakePieces,
+		isAutoNext
+	)
 
 	takePartInstance.storePlayoutTimingsAndPreviousEndState(partPlayoutTimings, previousPartEndState)
 }

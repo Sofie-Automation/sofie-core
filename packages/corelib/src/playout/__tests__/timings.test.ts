@@ -73,6 +73,7 @@ describe('Part Playout Timings', () => {
 				test('no previous part', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						false,
 						undefined,
 						undefined,
 						{},
@@ -94,15 +95,7 @@ describe('Part Playout Timings', () => {
 				})
 
 				test('with previous part', () => {
-					const timings = calculatePartTimings(
-						undefined,
-						{
-							autoNext: true,
-						},
-						[],
-						{},
-						pieceInstancesNoPartPreroll
-					)
+					const timings = calculatePartTimings(undefined, true, {}, [], {}, pieceInstancesNoPartPreroll)
 
 					expect(timings).toEqual(
 						literal<PartCalculatedTimings>({
@@ -121,9 +114,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part postroll', () => {
 					const timings = calculatePartTimings(
 						undefined,
-						{
-							autoNext: true,
-						},
+						true,
+						{},
 						pieceInstancesPostroll,
 						{},
 						pieceInstancesNoPartPreroll
@@ -146,6 +138,7 @@ describe('Part Playout Timings', () => {
 				test('with previous part outDuration', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						false,
 						{
 							outTransition: { type: 'additive', duration: 289 },
 						},
@@ -171,6 +164,7 @@ describe('Part Playout Timings', () => {
 				test('with previous part outDuration postroll', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						false,
 						{
 							outTransition: { type: 'additive', duration: 289 },
 						},
@@ -196,8 +190,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part autoNextOutTransition', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						true,
 						{
-							autoNext: true,
 							autoNextOutTransition: {
 								type: 'exclusive',
 								blockTakeDuration: 0,
@@ -227,8 +221,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part autoNextOutTransition postroll', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						true,
 						{
-							autoNext: true,
 							autoNextOutTransition: {
 								type: 'exclusive',
 								blockTakeDuration: 0,
@@ -258,8 +252,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part autoNextOutTransition and outDuration', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						true,
 						{
-							autoNext: true,
 							autoNextOutTransition: {
 								type: 'exclusive',
 								blockTakeDuration: 0,
@@ -290,8 +284,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part autoNextOutTransition and outDuration and postroll', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						true,
 						{
-							autoNext: true,
 							autoNextOutTransition: {
 								type: 'exclusive',
 								blockTakeDuration: 0,
@@ -322,8 +316,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part autoNextOutTransition and larger additive outDuration (ignored)', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						true,
 						{
-							autoNext: true,
 							autoNextOutTransition: {
 								type: 'exclusive',
 								blockTakeDuration: 0,
@@ -354,8 +348,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part autoNextOutTransition and larger additive outDuration (ignored) postroll', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						true,
 						{
-							autoNext: true,
 							autoNextOutTransition: {
 								type: 'exclusive',
 								blockTakeDuration: 0,
@@ -387,6 +381,7 @@ describe('Part Playout Timings', () => {
 				test('no previous part', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						false,
 						undefined,
 						undefined,
 						{},
@@ -408,7 +403,7 @@ describe('Part Playout Timings', () => {
 				})
 
 				test('with previous part', () => {
-					const timings = calculatePartTimings(undefined, {}, [], {}, pieceInstances500msPartPreroll)
+					const timings = calculatePartTimings(undefined, false, {}, [], {}, pieceInstances500msPartPreroll)
 
 					expect(timings).toEqual(
 						literal<PartCalculatedTimings>({
@@ -427,6 +422,7 @@ describe('Part Playout Timings', () => {
 				test('with previous part and postroll', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						false,
 						{},
 						pieceInstancesPostroll,
 						{},
@@ -450,6 +446,7 @@ describe('Part Playout Timings', () => {
 				test('with previous part outDuration', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						false,
 						{
 							outTransition: { type: 'additive', duration: 289 },
 						},
@@ -475,6 +472,7 @@ describe('Part Playout Timings', () => {
 				test('with previous part outDuration postroll', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						false,
 						{
 							outTransition: { type: 'additive', duration: 289 },
 						},
@@ -500,6 +498,7 @@ describe('Part Playout Timings', () => {
 				test('with previous part larger outDuration', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						false,
 						{
 							outTransition: { type: 'additive', duration: 823 },
 						},
@@ -525,6 +524,7 @@ describe('Part Playout Timings', () => {
 				test('with previous part larger outDuration and postroll', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						false,
 						{
 							outTransition: { type: 'additive', duration: 823 },
 						},
@@ -550,8 +550,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part autoNextOutTransition', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						true,
 						{
-							autoNext: true,
 							autoNextOutTransition: {
 								type: 'exclusive',
 								blockTakeDuration: 0,
@@ -581,8 +581,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part autoNextOutTransition postroll', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						true,
 						{
-							autoNext: true,
 							autoNextOutTransition: {
 								type: 'exclusive',
 								blockTakeDuration: 0,
@@ -612,8 +612,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part autoNextOutTransition and outDuration', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						true,
 						{
-							autoNext: true,
 							autoNextOutTransition: {
 								type: 'exclusive',
 								blockTakeDuration: 0,
@@ -644,8 +644,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part autoNextOutTransition and outDuration postroll', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						true,
 						{
-							autoNext: true,
 							autoNextOutTransition: {
 								type: 'exclusive',
 								blockTakeDuration: 0,
@@ -676,8 +676,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part autoNextOutTransition and larger additive outDuration (ignored)', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						true,
 						{
-							autoNext: true,
 							autoNextOutTransition: {
 								type: 'exclusive',
 								blockTakeDuration: 0,
@@ -708,8 +708,8 @@ describe('Part Playout Timings', () => {
 				test('with previous part autoNextOutTransition and larger additive outDuration (ignored) overlap', () => {
 					const timings = calculatePartTimings(
 						undefined,
+						true,
 						{
-							autoNext: true,
 							autoNextOutTransition: {
 								type: 'exclusive',
 								blockTakeDuration: 0,
@@ -743,6 +743,7 @@ describe('Part Playout Timings', () => {
 			test('no previous part', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					undefined,
 					undefined,
 					{
@@ -772,8 +773,8 @@ describe('Part Playout Timings', () => {
 			test('previous autoNextOutTransition', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					true,
 					{
-						autoNext: true,
 						autoNextOutTransition: {
 							type: 'exclusive',
 							blockTakeDuration: 0,
@@ -809,8 +810,8 @@ describe('Part Playout Timings', () => {
 			test('previous autoNextOutTransition postroll', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					true,
 					{
-						autoNext: true,
 						autoNextOutTransition: {
 							type: 'exclusive',
 							blockTakeDuration: 0,
@@ -846,6 +847,7 @@ describe('Part Playout Timings', () => {
 			test('previous null exclusive outTransition', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{
 						outTransition: {
 							type: 'exclusive',
@@ -882,6 +884,7 @@ describe('Part Playout Timings', () => {
 			test('previous null exclusive outTransition postroll', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{
 						outTransition: {
 							type: 'exclusive',
@@ -918,6 +921,7 @@ describe('Part Playout Timings', () => {
 			test('HOLD complete', () => {
 				const timings = calculatePartTimings(
 					RundownHoldState.COMPLETE,
+					false,
 					{},
 					[],
 					{
@@ -947,6 +951,7 @@ describe('Part Playout Timings', () => {
 			test('HOLD pending', () => {
 				const timings = calculatePartTimings(
 					RundownHoldState.PENDING,
+					false,
 					{},
 					[],
 					{
@@ -976,6 +981,7 @@ describe('Part Playout Timings', () => {
 			test('HOLD active', () => {
 				const timings = calculatePartTimings(
 					RundownHoldState.ACTIVE,
+					false,
 					{},
 					[],
 					{
@@ -1006,6 +1012,7 @@ describe('Part Playout Timings', () => {
 				test('HOLD complete', () => {
 					const timings = calculatePartTimings(
 						RundownHoldState.COMPLETE,
+						false,
 						{},
 						pieceInstancesPostroll,
 						{
@@ -1035,6 +1042,7 @@ describe('Part Playout Timings', () => {
 				test('HOLD pending', () => {
 					const timings = calculatePartTimings(
 						RundownHoldState.PENDING,
+						false,
 						{},
 						pieceInstancesPostroll,
 						{
@@ -1064,6 +1072,7 @@ describe('Part Playout Timings', () => {
 				test('HOLD active', () => {
 					const timings = calculatePartTimings(
 						RundownHoldState.ACTIVE,
+						false,
 						{},
 						pieceInstancesPostroll,
 						{
@@ -1096,6 +1105,7 @@ describe('Part Playout Timings', () => {
 			test('high preroll', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{},
 					[],
 					{
@@ -1125,6 +1135,7 @@ describe('Part Playout Timings', () => {
 			test('high preroll and postroll', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{},
 					pieceInstancesPostroll,
 					{
@@ -1154,6 +1165,7 @@ describe('Part Playout Timings', () => {
 			test('high content delay', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{},
 					[],
 					{
@@ -1183,6 +1195,7 @@ describe('Part Playout Timings', () => {
 			test('high content delay postroll', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{},
 					pieceInstancesPostroll,
 					{
@@ -1212,6 +1225,7 @@ describe('Part Playout Timings', () => {
 			test('previous outtransition', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{
 						outTransition: { type: 'additive', duration: 200 },
 					},
@@ -1243,6 +1257,7 @@ describe('Part Playout Timings', () => {
 			test('previous outtransition postroll', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{
 						outTransition: { type: 'additive', duration: 200 },
 					},
@@ -1274,6 +1289,7 @@ describe('Part Playout Timings', () => {
 			test('previous high outtransition', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{
 						outTransition: { type: 'additive', duration: 987 },
 					},
@@ -1305,6 +1321,7 @@ describe('Part Playout Timings', () => {
 			test('previous high outtransition postroll', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{
 						outTransition: { type: 'additive', duration: 987 },
 					},
@@ -1355,6 +1372,7 @@ describe('Part Playout Timings', () => {
 			test('exclusive outTransition overrides inTransition', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{ outTransition: exclusiveOutTransition },
 					[],
 					{ inTransition },
@@ -1378,6 +1396,7 @@ describe('Part Playout Timings', () => {
 			test('exclusive outTransition with preroll larger than content delay', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{ outTransition: exclusiveOutTransition },
 					pieceInstancesPostroll,
 					{ inTransition },
@@ -1401,7 +1420,8 @@ describe('Part Playout Timings', () => {
 			test('autoNextOutTransition overrides outTransition and inTransition', () => {
 				const timings = calculatePartTimings(
 					undefined,
-					{ autoNext: true, autoNextOutTransition, outTransition: exclusiveOutTransition },
+					true,
+					{ autoNextOutTransition, outTransition: exclusiveOutTransition },
 					[],
 					{ inTransition },
 					pieceInstancesNoPartPreroll
@@ -1421,10 +1441,11 @@ describe('Part Playout Timings', () => {
 				)
 			})
 
-			test('autoNextOutTransition ignored without autoNext', () => {
+			test('autoNextOutTransition ignored for a manual take', () => {
 				const timings = calculatePartTimings(
 					undefined,
-					{ autoNext: false, autoNextOutTransition },
+					false,
+					{ autoNextOutTransition },
 					[],
 					{ inTransition },
 					pieceInstancesNoPartPreroll
@@ -1444,10 +1465,35 @@ describe('Part Playout Timings', () => {
 				)
 			})
 
+			test('manual take uses the outTransition instead of the autoNextOutTransition', () => {
+				const timings = calculatePartTimings(
+					undefined,
+					false,
+					{ autoNextOutTransition, outTransition: exclusiveOutTransition },
+					[],
+					{ inTransition },
+					pieceInstancesNoPartPreroll
+				)
+
+				expect(timings).toEqual(
+					literal<PartCalculatedTimings>({
+						inTransitionStart: null,
+						toPartDelay: 300,
+						fromPartRemaining: 800,
+						fromPartPostroll: 0,
+						toPartPostroll: 0,
+						fromPartKeepalive: 800,
+						transitionSource: 'outTransition',
+						blockTakeDuration: 1200,
+					})
+				)
+			})
+
 			test('HOLD active ignores exclusive transitions, but additive duration applies', () => {
 				const timings = calculatePartTimings(
 					RundownHoldState.ACTIVE,
-					{ autoNext: true, autoNextOutTransition, outTransition: { type: 'additive', duration: 289 } },
+					true,
+					{ autoNextOutTransition, outTransition: { type: 'additive', duration: 289 } },
 					[],
 					{ inTransition },
 					pieceInstancesNoPartPreroll
@@ -1470,6 +1516,7 @@ describe('Part Playout Timings', () => {
 			test('HOLD active ignores exclusive outTransition', () => {
 				const timings = calculatePartTimings(
 					RundownHoldState.ACTIVE,
+					false,
 					{ outTransition: exclusiveOutTransition },
 					[],
 					{ inTransition },
@@ -1493,6 +1540,7 @@ describe('Part Playout Timings', () => {
 			test('additive outTransition with disableNextInTransition', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{ outTransition: { type: 'additive', duration: 0, disableNextInTransition: true } },
 					[],
 					{ inTransition },
@@ -1517,6 +1565,7 @@ describe('Part Playout Timings', () => {
 			test('additive outTransition with disableNextInTransition and larger duration', () => {
 				const timings = calculatePartTimings(
 					undefined,
+					false,
 					{ outTransition: { type: 'additive', duration: 823, disableNextInTransition: true } },
 					pieceInstancesPostroll,
 					{ inTransition },
@@ -1553,7 +1602,7 @@ describe('Part Playout Timings', () => {
 		}
 
 		test('no previous part', () => {
-			expect(resolvePartTransition(false, undefined, { inTransition })).toEqual(
+			expect(resolvePartTransition(false, false, undefined, { inTransition })).toEqual(
 				literal<ResolvedPartTransition>({
 					source: 'none',
 					keepalive: 0,
@@ -1566,7 +1615,7 @@ describe('Part Playout Timings', () => {
 		})
 
 		test('in hold', () => {
-			expect(resolvePartTransition(true, { outTransition: exclusive }, { inTransition })).toEqual(
+			expect(resolvePartTransition(true, false, { outTransition: exclusive }, { inTransition })).toEqual(
 				literal<ResolvedPartTransition>({
 					source: 'none',
 					keepalive: 0,
@@ -1580,7 +1629,12 @@ describe('Part Playout Timings', () => {
 
 		test('inTransition', () => {
 			expect(
-				resolvePartTransition(false, { outTransition: { type: 'additive', duration: 200 } }, { inTransition })
+				resolvePartTransition(
+					false,
+					false,
+					{ outTransition: { type: 'additive', duration: 200 } },
+					{ inTransition }
+				)
 			).toEqual(
 				literal<ResolvedPartTransition>({
 					source: 'inTransition',
@@ -1594,7 +1648,7 @@ describe('Part Playout Timings', () => {
 		})
 
 		test('exclusive outTransition', () => {
-			expect(resolvePartTransition(false, { outTransition: exclusive }, { inTransition })).toEqual(
+			expect(resolvePartTransition(false, false, { outTransition: exclusive }, { inTransition })).toEqual(
 				literal<ResolvedPartTransition>({
 					source: 'outTransition',
 					keepalive: 800,
@@ -1610,8 +1664,8 @@ describe('Part Playout Timings', () => {
 			expect(
 				resolvePartTransition(
 					false,
+					true,
 					{
-						autoNext: true,
 						autoNextOutTransition: exclusive,
 						outTransition: { type: 'additive', duration: 200 },
 					},
@@ -1629,9 +1683,33 @@ describe('Part Playout Timings', () => {
 			)
 		})
 
+		test('autoNextOutTransition is not used for a manual take', () => {
+			expect(
+				resolvePartTransition(
+					false,
+					false,
+					{
+						autoNextOutTransition: exclusive,
+						outTransition: { type: 'additive', duration: 200 },
+					},
+					{ inTransition }
+				)
+			).toEqual(
+				literal<ResolvedPartTransition>({
+					source: 'inTransition',
+					keepalive: 4000,
+					contentDelay: 1000,
+					blockTakeDuration: 5000,
+					playInTransitionPiece: true,
+					applyAdditiveOutDuration: true,
+				})
+			)
+		})
+
 		test('additive outTransition disableNextInTransition', () => {
 			expect(
 				resolvePartTransition(
+					false,
 					false,
 					{ outTransition: { type: 'additive', duration: 200, disableNextInTransition: true } },
 					{ inTransition }
@@ -1649,7 +1727,7 @@ describe('Part Playout Timings', () => {
 		})
 
 		test('no inTransition', () => {
-			expect(resolvePartTransition(false, {}, {})).toEqual(
+			expect(resolvePartTransition(false, false, {}, {})).toEqual(
 				literal<ResolvedPartTransition>({
 					source: 'none',
 					keepalive: 0,

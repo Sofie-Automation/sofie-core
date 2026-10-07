@@ -10,7 +10,7 @@ export enum IBlueprintPieceType {
 	 * For an `'exclusive'` outTransition, it is only used when that transition is the one used into the next Part
 	 */
 	OutTransition = 'out-transition',
-	/** ***CAUTION!*** This Piece will only be used, if the Part containing it has the autoNextOutTransition property set, and autonexts */
+	/** ***CAUTION!*** This Piece will only be used, if the Part containing it has the autoNextOutTransition property set, and is autonexted out of. Not when it is taken out of manually */
 	AutoNextOutTransition = 'autonext-out-transition',
 }
 

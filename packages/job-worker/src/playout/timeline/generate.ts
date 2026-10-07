@@ -344,11 +344,16 @@ export async function getTimelineRundown(
 			}
 
 			if (partInstancesInfo.next && nextPartInstance) {
+				// The next PartInstance will be autonexted into if the current one has a duration, otherwise it will be a manual take
+				const currentPart = partInstancesInfo.current?.partInstance.part
+				const isAutoNext = !!currentPart?.autoNext && currentPart.expectedDuration !== undefined
+
 				// the nextPartInstance doesn't have accurate cached `calculatedTimings` yet, so calculate a prediction
 				partInstancesInfo.next.calculatedTimings = playoutModel.calculatePartTimings(
 					currentPartInstance,
 					nextPartInstance,
-					partInstancesInfo.next.pieceInstances // already processed and pruned
+					partInstancesInfo.next.pieceInstances, // already processed and pruned
+					isAutoNext
 				)
 			}
 

@@ -187,7 +187,8 @@ export async function getLookeaheadObjects(
 
 		return {
 			part,
-			usesInTransition: resolvePartTransition(false, previousPart, part).playInTransitionPiece, // aproximate, but accurate enough
+			usesInTransition: resolvePartTransition(false, !!previousPart?.autoNext, previousPart, part)
+				.playInTransitionPiece, // aproximate, but accurate enough
 			pieces: sortPieceInstancesByStart(piecesByPart.get(part._id) || [], 0),
 		}
 	})

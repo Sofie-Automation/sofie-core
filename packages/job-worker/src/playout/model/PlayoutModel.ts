@@ -407,10 +407,18 @@ export interface PlayoutModel extends PlayoutModelReadonly, StudioPlayoutModelBa
 	 */
 	updateTTimer(timer: RundownTTimer): void
 
+	/**
+	 * Calculate the timings of the transition between two PartInstances
+	 * @param fromPartInstance The PartInstance being taken out of
+	 * @param toPartInstance The PartInstance being taken into
+	 * @param toPieceInstances The PieceInstances of the PartInstance being taken into
+	 * @param isAutoNext Whether the transition is an autonext, rather than a manual take
+	 */
 	calculatePartTimings(
 		fromPartInstance: PlayoutPartInstanceModel | null,
 		toPartInstance: PlayoutPartInstanceModel,
-		toPieceInstances: PieceInstanceWithTimings[]
+		toPieceInstances: PieceInstanceWithTimings[],
+		isAutoNext: boolean
 	): PartCalculatedTimings
 
 	/**

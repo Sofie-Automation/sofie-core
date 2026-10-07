@@ -18,6 +18,7 @@ import { PartAndPieceInstanceActionService } from '../../blueprints/context/serv
 import { OnTakeContext } from '../../blueprints/context/OnTakeContext.js'
 import { WatchedPackagesHelper } from '../../blueprints/context/watchedPackages.js'
 import { getCurrentTime } from '../../lib/index.js'
+import { onPartPlaybackStarted } from '../timings/partPlayback.js'
 
 jest.mock('../../blueprints/postProcess')
 import { postProcessPieces } from '../../blueprints/postProcess.js'
@@ -271,9 +272,9 @@ describe('take', () => {
 			partContentDelayDuration: 0,
 		}
 
-		/** Setup the playlist with part0 on air, and part1 taken into, with the given properties set on part0 and part1 */
-		async function setupTakenIntoSecondPart(part0Props: Partial<DBPart>, part1Props: Partial<DBPart>) {
-			const { context, rundownId, playlistId } = await setupTakenPlaylist(async (context, rundownId) => {
+		/** Setup the playlist with part0 on air and part1 next, with the given properties set on part0 and part1 */
+		async function setupPlayingFirstPart(part0Props: Partial<DBPart>, part1Props: Partial<DBPart>) {
+			return setupTakenPlaylist(async (context, rundownId) => {
 				await context.mockCollections.Parts.update(
 					{ rundownId, externalId: 'MOCK_PART_0_0' },
 					{ $set: part0Props }
@@ -283,18 +284,34 @@ describe('take', () => {
 					{ $set: part1Props }
 				)
 			})
+		}
+
+		/** Setup the playlist with part0 on air, and part1 taken into, with the given properties set on part0 and part1 */
+		async function setupTakenIntoSecondPart(part0Props: Partial<DBPart>, part1Props: Partial<DBPart>) {
+			const { context, rundownId, playlistId } = await setupPlayingFirstPart(part0Props, part1Props)
 
 			await takeNext(context, playlistId)
+			await markCurrentPartStarted(context, playlistId)
 
-			// Playback of the part has started
+			return { context, rundownId, playlistId }
+		}
+
+		async function getCurrentPartInstance(context: MockJobContext, playlistId: RundownPlaylistId) {
 			const playlist = await context.mockCollections.RundownPlaylists.findOne(playlistId)
 			const currentPartInstanceId = playlist?.currentPartInfo?.partInstanceId
 			if (!currentPartInstanceId) throw new Error('currentPartInstanceId not found')
-			await context.mockCollections.PartInstances.update(currentPartInstanceId, {
+
+			const partInstance = await context.mockCollections.PartInstances.findOne(currentPartInstanceId)
+			if (!partInstance) throw new Error('currentPartInstance not found')
+			return partInstance
+		}
+
+		/** Playback of the current part has started */
+		async function markCurrentPartStarted(context: MockJobContext, playlistId: RundownPlaylistId) {
+			const partInstance = await getCurrentPartInstance(context, playlistId)
+			await context.mockCollections.PartInstances.update(partInstance._id, {
 				$set: { 'timings.plannedStartedPlayback': getCurrentTime() },
 			})
-
-			return { context, rundownId, playlistId }
 		}
 
 		async function takeNext(context: MockJobContext, playlistId: RundownPlaylistId) {
@@ -304,6 +321,56 @@ describe('take', () => {
 				fromPartInstanceId: playlist?.currentPartInfo?.partInstanceId ?? null,
 			})
 		}
+
+		describe('autoNextOutTransition', () => {
+			const exclusive = {
+				type: 'exclusive',
+				blockTakeDuration: 0,
+				partKeepaliveDuration: 0,
+				nextPartContentDelayDuration: 0,
+			} as const
+			const part0Props: Partial<DBPart> = {
+				autoNext: true,
+				expectedDuration: 60000,
+				autoNextOutTransition: { ...exclusive, blockTakeDuration: 5000 },
+				outTransition: exclusive,
+			}
+
+			test('a manual take uses the outTransition', async () => {
+				const { context, playlistId } = await setupTakenIntoSecondPart(part0Props, { inTransition })
+
+				const partInstance = await getCurrentPartInstance(context, playlistId)
+				expect(partInstance.partPlayoutTimings?.transitionSource).toBe('outTransition')
+				expect(partInstance.partPlayoutTimings?.blockTakeDuration).toBe(0)
+
+				await expect(takeNext(context, playlistId)).resolves.toBeTruthy()
+			})
+
+			test('an autonext uses the autoNextOutTransition', async () => {
+				const { context, playlistId } = await setupPlayingFirstPart(part0Props, { inTransition })
+
+				// Playback of the next part starting is how an autonext is performed
+				const playlist = await context.mockCollections.RundownPlaylists.findOne(playlistId)
+				const nextPartInstanceId = playlist?.nextPartInfo?.partInstanceId
+				if (!nextPartInstanceId) throw new Error('nextPartInstanceId not found')
+				await runJobWithPlayoutModel(context, { playlistId }, null, async (playoutModel) =>
+					onPartPlaybackStarted(context, playoutModel, {
+						partInstanceId: nextPartInstanceId,
+						startedPlayback: getCurrentTime(),
+					})
+				)
+				await markCurrentPartStarted(context, playlistId)
+
+				const partInstance = await getCurrentPartInstance(context, playlistId)
+				expect(partInstance._id).toBe(nextPartInstanceId)
+				expect(partInstance.partPlayoutTimings?.transitionSource).toBe('autoNextOutTransition')
+				expect(partInstance.partPlayoutTimings?.blockTakeDuration).toBe(5000)
+
+				await expect(takeNext(context, playlistId)).rejects.toMatchUserError(
+					UserErrorMessage.TakeDuringTransition
+				)
+			})
+		})
 
 		test('blocked by the inTransition', async () => {
 			const { context, playlistId } = await setupTakenIntoSecondPart({}, { inTransition })
