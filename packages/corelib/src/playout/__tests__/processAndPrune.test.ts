@@ -1,5 +1,6 @@
 import { IBlueprintPieceType, PieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import clone from 'fast-clone'
+import _ from 'underscore'
 import { EmptyPieceTimelineObjectsBlob, Piece } from '../../dataModel/Piece.js'
 import { PieceInstance, PieceInstancePiece, ResolvedPieceInstance } from '../../dataModel/PieceInstance.js'
 import { literal } from '../../lib.js'
@@ -119,6 +120,42 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			},
 		])
 	})
+	test('transition pieces do not collide with each other', () => {
+		const pieceInstances = [
+			createPieceInstance('in', { start: 0, duration: 1000 }, 'one', PieceLifespan.WithinPart),
+			createPieceInstance('out', { start: 0, duration: 1000 }, 'one', PieceLifespan.WithinPart),
+			createPieceInstance('autonextOut', { start: 0, duration: 1000 }, 'one', PieceLifespan.WithinPart),
+		]
+		pieceInstances[0].piece.pieceType = IBlueprintPieceType.InTransition
+		pieceInstances[1].piece.pieceType = IBlueprintPieceType.OutTransition
+		pieceInstances[2].piece.pieceType = IBlueprintPieceType.AutoNextOutTransition
+
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
+		expect(_.sortBy(resolvedInstances, (p) => p._id)).toEqual([
+			{ _id: 'autonextOut', priority: 5, start: 0, end: undefined },
+			{ _id: 'in', priority: 5, start: 0, end: undefined },
+			{ _id: 'out', priority: 5, start: 0, end: undefined },
+		])
+	})
+
+	test('transition pieces do not collide with normal pieces', () => {
+		const pieceInstances = [
+			createPieceInstance('normal', { start: 0 }, 'one', PieceLifespan.WithinPart),
+			createPieceInstance('in', { start: 0, duration: 1000 }, 'one', PieceLifespan.WithinPart),
+			createPieceInstance('out', { start: 500, duration: 1000 }, 'one', PieceLifespan.WithinPart),
+		]
+		pieceInstances[1].piece.pieceType = IBlueprintPieceType.InTransition
+		pieceInstances[2].piece.pieceType = IBlueprintPieceType.OutTransition
+
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
+		expect(_.sortBy(resolvedInstances, (p) => p._id)).toEqual([
+			{ _id: 'in', priority: 5, start: 0, end: undefined },
+			// Not stopped by the OutTransition piece
+			{ _id: 'normal', priority: 5, start: 0, end: undefined },
+			{ _id: 'out', priority: 5, start: 500, end: undefined },
+		])
+	})
+
 	test('onEnd type override', () => {
 		const pieceInstances = [
 			createPieceInstance('zero', { start: 0 }, 'one', PieceLifespan.OutOnShowStyleEnd),
