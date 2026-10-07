@@ -5,6 +5,8 @@ import {
 	IBlueprintPartOutTransitionExclusive,
 } from '@sofie-automation/blueprints-integration'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
+import { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
+import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PartInstances, Parts } from '../../../collections'
 import { logger } from '../../../logging'
@@ -74,13 +76,28 @@ function convertPartTransitionProps(part: StoredPartTransitionProps): ConvertedP
 	}
 }
 
+const PARTS_SELECTOR: MongoQuery<DBPart> = {
+	$or: [
+		{ autoNextOverlap: { $exists: true } },
+		{ disableNextInTransition: { $exists: true } },
+		{ outTransition: { $exists: true }, 'outTransition.type': { $exists: false } },
+	],
+}
+const PART_INSTANCES_SELECTOR: MongoQuery<PartInstance> = {
+	$or: [
+		{ 'part.autoNextOverlap': { $exists: true } },
+		{ 'part.disableNextInTransition': { $exists: true } },
+		{ 'part.outTransition': { $exists: true }, 'part.outTransition.type': { $exists: false } },
+	],
+}
+
 export class PartTransitionsMigrationStep implements Omit<MigrationStepCore, 'version'> {
 	public readonly id = `Part convert outTransition, autoNextOverlap and disableNextInTransition`
 	public readonly canBeRunAutomatically = true
 
 	public async validate(): Promise<boolean | string> {
-		const partCount = await Parts.countDocuments(this.getSelector(''))
-		const partInstanceCount = await PartInstances.countDocuments(this.getSelector('part.'))
+		const partCount = await Parts.countDocuments(PARTS_SELECTOR)
+		const partInstanceCount = await PartInstances.countDocuments(PART_INSTANCES_SELECTOR)
 
 		if (partCount || partInstanceCount) {
 			return `There are ${partCount} Parts and ${partInstanceCount} PartInstances with transition properties that must be converted`
@@ -92,50 +109,42 @@ export class PartTransitionsMigrationStep implements Omit<MigrationStepCore, 've
 	public async migrate(): Promise<void> {
 		const changedIds: string[] = []
 
-		const parts = await Parts.findFetchAsync(this.getSelector(''))
+		const parts = await Parts.findFetchAsync(PARTS_SELECTOR)
 		for (const part of parts) {
 			const converted = convertPartTransitionProps(part as StoredPartTransitionProps)
 			if (converted.behaviourChanged) changedIds.push(unprotectString(part._id))
 
-			await Parts.mutableCollection.updateAsync(part._id, this.getModifier('', converted))
+			const $set = {
+				...(converted.outTransition ? { outTransition: converted.outTransition } : {}),
+				...(converted.autoNextOutTransition ? { autoNextOutTransition: converted.autoNextOutTransition } : {}),
+			}
+			await Parts.mutableCollection.updateAsync(part._id, {
+				...(Object.keys($set).length ? { $set } : {}),
+				$unset: { autoNextOverlap: 1, disableNextInTransition: 1 },
+			})
 		}
 
-		const partInstances = await PartInstances.findFetchAsync(this.getSelector('part.'))
+		const partInstances = await PartInstances.findFetchAsync(PART_INSTANCES_SELECTOR)
 		for (const partInstance of partInstances) {
 			const converted = convertPartTransitionProps(partInstance.part as StoredPartTransitionProps)
 			if (converted.behaviourChanged) changedIds.push(unprotectString(partInstance._id))
 
-			await PartInstances.mutableCollection.updateAsync(partInstance._id, this.getModifier('part.', converted))
+			const $set = {
+				...(converted.outTransition ? { 'part.outTransition': converted.outTransition } : {}),
+				...(converted.autoNextOutTransition
+					? { 'part.autoNextOutTransition': converted.autoNextOutTransition }
+					: {}),
+			}
+			await PartInstances.mutableCollection.updateAsync(partInstance._id, {
+				...(Object.keys($set).length ? { $set } : {}),
+				$unset: { 'part.autoNextOverlap': 1, 'part.disableNextInTransition': 1 },
+			})
 		}
 
 		if (changedIds.length) {
 			logger.warn(
 				`Parts and PartInstances with both autoNextOverlap and an additive outTransition will no longer use the outTransition when autonexting: ${changedIds.join(', ')}`
 			)
-		}
-	}
-
-	private getSelector(prefix: '' | 'part.'): any {
-		return {
-			$or: [
-				{ [`${prefix}autoNextOverlap`]: { $exists: true } },
-				{ [`${prefix}disableNextInTransition`]: { $exists: true } },
-				{ [`${prefix}outTransition`]: { $exists: true }, [`${prefix}outTransition.type`]: { $exists: false } },
-			],
-		}
-	}
-
-	private getModifier(prefix: '' | 'part.', converted: ConvertedPartTransitionProps): any {
-		const $set: Partial<Record<string, DBPart['outTransition'] | DBPart['autoNextOutTransition']>> = {}
-		if (converted.outTransition) $set[`${prefix}outTransition`] = converted.outTransition
-		if (converted.autoNextOutTransition) $set[`${prefix}autoNextOutTransition`] = converted.autoNextOutTransition
-
-		return {
-			...(Object.keys($set).length ? { $set } : {}),
-			$unset: {
-				[`${prefix}autoNextOverlap`]: 1,
-				[`${prefix}disableNextInTransition`]: 1,
-			},
 		}
 	}
 }

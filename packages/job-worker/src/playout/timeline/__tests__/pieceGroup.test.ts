@@ -543,6 +543,8 @@ describe('Pieces', () => {
 				{
 					toPartDelay: 100, // this is where the piece preRoll is factored in
 					fromPartKeepalive: 0,
+					transitionSource: 'none',
+					blockTakeDuration: 0,
 					fromPartPostroll: 0,
 					toPartPostroll: 0,
 					fromPartRemaining: 0,

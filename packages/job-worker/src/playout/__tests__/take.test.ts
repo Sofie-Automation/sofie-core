@@ -351,22 +351,5 @@ describe('take', () => {
 
 			await expect(takeNext(context, playlistId)).resolves.toBeTruthy()
 		})
-
-		test('fallback for timings without blockTakeDuration', async () => {
-			const { context, playlistId } = await setupTakenIntoSecondPart({}, { inTransition })
-
-			// Simulate timings which were stored before blockTakeDuration was added
-			const playlist = await context.mockCollections.RundownPlaylists.findOne(playlistId)
-			const currentPartInstanceId = playlist?.currentPartInfo?.partInstanceId
-			if (!currentPartInstanceId) throw new Error('currentPartInstanceId not found')
-			await context.mockCollections.PartInstances.update(currentPartInstanceId, {
-				$unset: { 'partPlayoutTimings.blockTakeDuration': 1, 'partPlayoutTimings.transitionSource': 1 },
-			})
-			const partInstance = await context.mockCollections.PartInstances.findOne(currentPartInstanceId)
-			expect(partInstance?.partPlayoutTimings).toBeTruthy()
-			expect(partInstance?.partPlayoutTimings?.blockTakeDuration).toBeUndefined()
-
-			await expect(takeNext(context, playlistId)).rejects.toMatchUserError(UserErrorMessage.TakeDuringTransition)
-		})
 	})
 })

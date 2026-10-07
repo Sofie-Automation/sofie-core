@@ -71,6 +71,8 @@ describe('PlayoutModelImpl', () => {
 		fromPartRemaining: 500,
 		fromPartPostroll: 0,
 		fromPartKeepalive: 0,
+		transitionSource: 'none',
+		blockTakeDuration: 0,
 	}
 
 	function makePartInstance(

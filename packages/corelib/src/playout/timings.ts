@@ -76,10 +76,10 @@ export interface PartCalculatedTimings {
 	fromPartPostroll: number
 	fromPartKeepalive: number
 
-	/** Which transition was used for the boundary into this Part. Undefined for timings persisted before this was added */
-	transitionSource?: PartTransitionSource
-	/** How long after plannedStartedPlayback takes out of this Part are blocked. Undefined for timings persisted before this was added */
-	blockTakeDuration?: number
+	/** Which transition was used for the boundary into this Part */
+	transitionSource: PartTransitionSource
+	/** How long after plannedStartedPlayback takes out of this Part are blocked */
+	blockTakeDuration: number
 }
 
 export type CalculateTimingsPiece = Pick<Piece, 'enable' | 'prerollDuration' | 'postrollDuration' | 'pieceType'>

@@ -554,12 +554,14 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite continuing into ne
     },
     "nextPartOverlap": 0,
     "nextPartTimings": {
+      "blockTakeDuration": 0,
       "fromPartKeepalive": 0,
       "fromPartPostroll": 0,
       "fromPartRemaining": 0,
       "inTransitionStart": null,
       "toPartDelay": 0,
       "toPartPostroll": 0,
+      "transitionSource": "none",
     },
   },
 }
@@ -1212,12 +1214,14 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in curren
     },
     "nextPartOverlap": 0,
     "nextPartTimings": {
+      "blockTakeDuration": 0,
       "fromPartKeepalive": 100,
       "fromPartPostroll": 0,
       "fromPartRemaining": 0,
       "inTransitionStart": null,
       "toPartDelay": 0,
       "toPartPostroll": 0,
+      "transitionSource": "autoNextOutTransition",
     },
   },
 }
@@ -1407,12 +1411,14 @@ exports[`buildTimelineObjsForRundown infinite pieces infinite stopping in curren
     },
     "nextPartOverlap": 0,
     "nextPartTimings": {
+      "blockTakeDuration": 0,
       "fromPartKeepalive": 100,
       "fromPartPostroll": 0,
       "fromPartRemaining": 0,
       "inTransitionStart": null,
       "toPartDelay": 0,
       "toPartPostroll": 0,
+      "transitionSource": "autoNextOutTransition",
     },
   },
 }
@@ -1654,12 +1660,14 @@ exports[`buildTimelineObjsForRundown next part with autonext 1`] = `
     },
     "nextPartOverlap": 0,
     "nextPartTimings": {
+      "blockTakeDuration": 0,
       "fromPartKeepalive": 0,
       "fromPartPostroll": 0,
       "fromPartRemaining": 0,
       "inTransitionStart": null,
       "toPartDelay": 0,
       "toPartPostroll": 0,
+      "transitionSource": "none",
     },
   },
 }
@@ -1814,12 +1822,14 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
     },
     "nextPartOverlap": 900,
     "nextPartTimings": {
+      "blockTakeDuration": 0,
       "fromPartKeepalive": 100,
       "fromPartPostroll": 400,
       "fromPartRemaining": 900,
       "inTransitionStart": 200,
       "toPartDelay": 500,
       "toPartPostroll": 0,
+      "transitionSource": "inTransition",
     },
   },
 }
@@ -2009,12 +2019,14 @@ exports[`buildTimelineObjsForRundown overlap and keepalive autonext into next pa
     },
     "nextPartOverlap": 900,
     "nextPartTimings": {
+      "blockTakeDuration": 0,
       "fromPartKeepalive": 100,
       "fromPartPostroll": 400,
       "fromPartRemaining": 900,
       "inTransitionStart": 200,
       "toPartDelay": 500,
       "toPartPostroll": 0,
+      "transitionSource": "inTransition",
     },
   },
 }

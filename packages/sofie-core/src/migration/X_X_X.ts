@@ -2,6 +2,7 @@ import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
 import { addMigrationSteps } from './databaseMigration'
 import { PlaylistBrandingSelectionMigrationStep } from './steps/X_X_X/PlaylistBrandingSelectionMigrationStep'
 import { PartTransitionsMigrationStep } from './steps/X_X_X/PartTransitionsMigrationStep'
+import { PartPlayoutTimingsTransitionMigrationStep } from './steps/X_X_X/PartPlayoutTimingsTransitionMigrationStep'
 import { ShowStyleBases } from '../collections'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
@@ -18,6 +19,7 @@ import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objec
 export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 	new PlaylistBrandingSelectionMigrationStep(),
 	new PartTransitionsMigrationStep(),
+	new PartPlayoutTimingsTransitionMigrationStep(),
 	// Add your migration here
 
 	{
