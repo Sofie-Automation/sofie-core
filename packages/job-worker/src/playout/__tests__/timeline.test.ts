@@ -1138,7 +1138,7 @@ describe('Timeline', () => {
 			)
 
 			// eslint-disable-next-line jest/expect-expect
-			test('outTransition is disabled during hold', async () =>
+			test('additive outTransition still plays during hold', async () =>
 				runTimelineTimings(
 					setupRundownWithOutTransitionEnableHold,
 					async (playlistId, _rundownId, parts, getPartInstances, checkTimings) => {
@@ -1150,7 +1150,7 @@ describe('Timeline', () => {
 
 						await doTakePart(context, playlistId, parts[0]._id, parts[1]._id, null)
 
-						const { currentPartInstance } = await getPartInstances()
+						const { currentPartInstance, previousPartInstance } = await getPartInstances()
 						await checkTimings({
 							previousPart: { end: `#${getPartGroupId(currentPartInstance!.partInstance)}.start + 500` }, // note: this seems odd, but the pieces are delayed to compensate
 							currentPieces: {
@@ -1160,7 +1160,13 @@ describe('Timeline', () => {
 								},
 							},
 							currentInfinitePieces: {},
-							previousOutTransition: undefined,
+							// the outTransition still delays the take, and its piece is played
+							previousOutTransition: {
+								controlObj: {
+									start: `#${getPartGroupId(previousPartInstance!.partInstance)}.end - 500`,
+								},
+								childGroup: { preroll: 0, postroll: 0 },
+							},
 						})
 					}
 				))
