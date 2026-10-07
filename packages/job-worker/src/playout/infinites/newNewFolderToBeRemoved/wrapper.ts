@@ -1,5 +1,4 @@
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { IngestModelReadonly } from '../../../ingest/model/IngestModel'
 import { JobContext } from '../../../jobs'
 import { PlayoutModel } from '../../../playout/model/PlayoutModel'
 import { ReadonlyDeep } from 'type-fest'
@@ -18,14 +17,14 @@ import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceIns
 import { MongoQuery } from '../../../db'
 import { mongoWhere } from '@sofie-automation/corelib/dist/mongo'
 import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
-import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PlayoutPartInstanceModel } from '../../model/PlayoutPartInstanceModel'
 
 export function resolvePieces(
 	context: JobContext,
 	playoutModel: PlayoutModel,
-	unsavedIngestModel: Pick<IngestModelReadonly, 'rundownId' | 'getAllPieces'> | undefined,
-	part: ReadonlyDeep<DBPart>
+	destinationPart: ReadonlyDeep<DBPart>,
+	plannedPieces: ReadonlyDeep<Piece>[]
 ) {
 	const span = context.startSpan('resolvePieces')
 
@@ -34,9 +33,9 @@ export function resolvePieces(
 	const sortedRundowns = _.sortBy(rundowns, (r) => rundownOrder.indexOf(r.rundown._id))
 
 	const playlist = new PieceResolutionPlaylist(playoutModel.playlist._id, sortedRundowns, {
-		rundownId: unprotectString(part.rundownId),
-		segmentId: unprotectString(part.segmentId),
-		partId: unprotectString(part._id),
+		rundownId: unprotectString(destinationPart.rundownId),
+		segmentId: unprotectString(destinationPart.segmentId),
+		partId: unprotectString(destinationPart._id),
 	})
 
 	const inTreePartIds = new Set(playlist.parts.map((p) => unprotectString(p.id)))
@@ -45,43 +44,41 @@ export function resolvePieces(
 			inTreePartIds.has(unprotectString(instance.partInstance.part._id)) && instance.pieceInstances.length > 0
 	)
 
-	const loadedPartIds = overlayInstances.map((instance) => unprotectString(instance.partInstance.part._id))
+	const overlayById = new Map<PieceId, PartialInfinitePiece>()
+	for (const instance of overlayInstances) {
+		for (const wrapper of instance.pieceInstances) {
+			const pieceInstance = wrapper.pieceInstance
+			if (!mongoWhere(pieceInstance.piece, lifespanQueryFragment)) continue
+			const startPartId = pieceInstance.piece.startPartId ?? instance.partInstance.part._id
+			if (!inTreePartIds.has(unprotectString(startPartId))) continue
+			overlayById.set(pieceInstance.piece._id, {
+				id: pieceInstance.piece._id,
+				lifespan: new PieceLifespan(pieceInstance.piece.lifespan),
+				enable: pieceInstance.piece.enable,
+				partId: unprotectString(startPartId),
+			})
+		}
+	}
 
-	const piecesQuery = buildPiecesQuery(playlist, loadedPartIds)
+	const added = new Set<PieceId>()
+	for (const piece of plannedPieces) {
+		if (!piece.startPartId || piece.startPartId === destinationPart._id) continue
+		if (!inTreePartIds.has(unprotectString(piece.startPartId))) continue
+		if (!mongoWhere(piece, lifespanQueryFragment)) continue
+		playlist.addPiece(
+			overlayById.get(piece._id) ?? {
+				id: piece._id,
+				lifespan: new PieceLifespan(piece.lifespan),
+				enable: piece.enable,
+				partId: unprotectString(piece.startPartId),
+			}
+		)
+		added.add(piece._id)
+	}
 
-	const ingestedPieces: PartialInfinitePiece[] = piecesQuery
-		? (unsavedIngestModel
-				?.getAllPieces()
-				// filter to infinite pieces
-				.filter((piece) => mongoWhere(piece, piecesQuery))
-				.map((piece) => ({
-					id: piece._id,
-					lifespan: new PieceLifespan(piece.lifespan),
-					enable: piece.enable,
-					// TODO: check partId validity
-					partId: unprotectString(piece.startPartId as PartId),
-				})) ?? [])
-		: []
-
-	const loadedPieces: PartialInfinitePiece[] = overlayInstances.flatMap((instance) =>
-		instance.pieceInstances
-			.map((piece) => piece.pieceInstance)
-			// filter to infinite pieces
-			.filter((instance) => mongoWhere(instance.piece, lifespanQueryFragment))
-			.map((instance) => ({
-				id: instance.piece._id,
-				lifespan: new PieceLifespan(instance.piece.lifespan),
-				enable: instance.piece.enable,
-				// TODO: check partId validity
-				partId: unprotectString(instance.piece.startPartId ?? instance.partInstanceId),
-			}))
-	)
-
-	if (ingestedPieces) {
-		ingestedPieces.forEach((piece) => {
-			const loadedPiece = loadedPieces.find((loaded) => loaded.id === piece.id)
-			playlist.addPiece(loadedPiece ?? piece)
-		})
+	for (const [id, overlay] of overlayById) {
+		if (added.has(id)) continue
+		playlist.addPiece(overlay)
 	}
 
 	playlist.live.current = toLivePartInstance(playlist, playoutModel.currentPartInstance)

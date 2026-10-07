@@ -1,6 +1,7 @@
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import {
+	PartId,
 	PartInstanceId,
 	PieceId,
 	RundownId,
@@ -9,9 +10,9 @@ import {
 import { JobContext } from '../../jobs/index.js'
 import { ReadonlyDeep } from 'type-fest'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { candidatePartIsAfterPreviewPartInstance } from '../infinites.js'
+import { candidatePartIsAfterPreviewPartInstance } from './canContinue.js'
 import { PlayoutModel } from '../model/PlayoutModel.js'
-import { IngestModelReadonly } from '../../ingest/model/IngestModel.js'
+import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
 import { InfiniteLivePiece, InfinitePartInstance, InfinitePiece, InfinitePlaylist } from './interfaces.js'
 import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 import {
@@ -22,7 +23,11 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import _ from 'underscore'
+import { getRandomId } from '@sofie-automation/corelib/dist/lib'
+import {
+	PartCurrentTimes,
+	PieceInstanceWithTimings,
+} from '@sofie-automation/corelib/dist/playout/processAndPrune'
 
 export type PieceLookupDoc = ReadonlyDeep<Piece> | ReadonlyDeep<PieceInstancePiece>
 
@@ -31,7 +36,7 @@ export function resolveInfinites(
 	playoutModel: PlayoutModel,
 	playlist: InfinitePlaylist,
 	destinationPart: ReadonlyDeep<DBPart>,
-	unsavedIngestModel?: Pick<IngestModelReadonly, 'getAllPieces'>
+	plannedPieces: ReadonlyDeep<Piece>[]
 ): InfiniteLivePiece[] {
 	const treeInfinites = findForwardScopeInfinitesInPart(playlist, destinationPart)
 	const consideredInfinites = unionTreeAndCurrent(context, playoutModel, playlist, destinationPart, treeInfinites)
@@ -42,20 +47,21 @@ export function resolveInfinites(
 		isInfiniteInPartScope(infinite, destinationPart, destShowstyleId, playlist)
 	)
 
-	const destLocals = collectDestLocalPieces(destinationPart, unsavedIngestModel, playoutModel)
+	const destLocals = collectDestLocalPieces(destinationPart, plannedPieces, playoutModel)
 	const mixed = mixDestLocals(correctlyScopedInfinites, destLocals)
+	const destRelative = projectStartsToDest(mixed, destinationPart)
 
-	return normalizeEndTimes(mixed, buildPieceLookups(unsavedIngestModel, playoutModel))
+	return normalizeEndTimes(destRelative, buildPieceLookups(plannedPieces, playoutModel))
 }
 
 function collectDestLocalPieces(
 	destinationPart: ReadonlyDeep<DBPart>,
-	unsavedIngestModel: Pick<IngestModelReadonly, 'getAllPieces'> | undefined,
+	plannedPieces: ReadonlyDeep<Piece>[],
 	playoutModel: PlayoutModel
 ): InfiniteLivePiece[] {
 	const byId = new Map<InfinitePiece['id'], InfiniteLivePiece>()
 
-	for (const piece of unsavedIngestModel?.getAllPieces() ?? []) {
+	for (const piece of plannedPieces) {
 		if (piece.startPartId !== destinationPart._id) continue
 		byId.set(piece._id, {
 			id: piece._id,
@@ -97,22 +103,40 @@ function mixDestLocals(scoped: InfiniteLivePiece[], destLocals: InfiniteLivePiec
 }
 
 export function buildPieceLookups(
-	unsavedIngestModel: Pick<IngestModelReadonly, 'getAllPieces'> | undefined,
+	plannedPieces: readonly ReadonlyDeep<Piece>[],
 	playoutModel: PlayoutModel
 ): Map<PieceId, PieceLookupDoc> {
 	const pieceById = new Map<PieceId, PieceLookupDoc>()
 
-	for (const piece of unsavedIngestModel?.getAllPieces() ?? []) {
+	for (const piece of plannedPieces) {
 		pieceById.set(piece._id, piece)
 	}
 
-	for (const partInstance of [playoutModel.currentPartInstance, playoutModel.nextPartInstance]) {
-		for (const pieceInstance of partInstance?.pieceInstances ?? []) {
+	for (const partInstance of playoutModel.loadedPartInstances) {
+		for (const pieceInstance of partInstance.pieceInstances) {
 			pieceById.set(pieceInstance.pieceInstance.piece._id, pieceInstance.pieceInstance.piece)
 		}
 	}
 
 	return pieceById
+}
+
+function projectStartsToDest(
+	pieces: InfiniteLivePiece[],
+	destinationPart: ReadonlyDeep<DBPart>
+): InfiniteLivePiece[] {
+	return pieces.map((piece) => {
+		if (piece.enable.isAbsolute) return { ...piece }
+		const startedOnDest = piece.part?.id === destinationPart._id
+		if (startedOnDest || !piece.part) return { ...piece }
+		return {
+			...piece,
+			enable: {
+				...piece.enable,
+				start: 0,
+			},
+		}
+	})
 }
 
 function findForwardScopeInfinitesInPart(
@@ -269,64 +293,143 @@ function startInPart(piece: InfiniteLivePiece): number {
 	return piece.enable.start === 'now' ? 0 : piece.enable.start
 }
 
-export function flattenForPlayout(args: {
+export function wrapForSave(args: {
 	resolved: InfiniteLivePiece[]
 	pieceById: Map<PieceId, PieceLookupDoc>
-	sourceLayers: SourceLayers
 	playlistActivationId: RundownPlaylistActivationId
 	destPartInstanceId: PartInstanceId
 	destRundownId: RundownId
+	destPartId: PartId
+	playingPartInstance: PlayoutPartInstanceModel | null
 }): PieceInstance[] {
-	const { resolved, pieceById, sourceLayers, playlistActivationId, destPartInstanceId, destRundownId } = args
+	const {
+		resolved,
+		pieceById,
+		playlistActivationId,
+		destPartInstanceId,
+		destRundownId,
+		destPartId,
+		playingPartInstance,
+	} = args
 
-	const byLayer = new Map<string, InfiniteLivePiece[]>()
+	const playingByPieceId = new Map<PieceId, ReadonlyDeep<PieceInstance>>()
+	for (const wrapper of playingPartInstance?.pieceInstances ?? []) {
+		playingByPieceId.set(wrapper.pieceInstance.piece._id, wrapper.pieceInstance)
+	}
+
+	const out: PieceInstance[] = []
 	for (const piece of resolved) {
 		const doc = pieceById.get(piece.id)
 		if (!doc) continue
-		const key = sourceLayers[doc.sourceLayerId]?.exclusiveGroup || doc.sourceLayerId
+
+		const instance = rewrapPieceToInstance(
+			omitPiecePropertiesForInstance(doc as Piece | PieceInstancePiece),
+			playlistActivationId,
+			destRundownId,
+			destPartInstanceId,
+			false
+		)
+
+		const destLocal = !piece.part || piece.part.id === destPartId || doc.startPartId === destPartId
+		const existing = playingByPieceId.get(piece.id)
+
+		if (existing?.dynamicallyInserted !== undefined) instance.dynamicallyInserted = existing.dynamicallyInserted
+		if (existing?.dynamicallyConvertedToInfinite !== undefined) {
+			instance.dynamicallyConvertedToInfinite = existing.dynamicallyConvertedToInfinite
+		}
+		if (existing?.adLibSourceId) instance.adLibSourceId = existing.adLibSourceId
+
+		if (piece.lifespan.scope !== 'part') {
+			const continued = !destLocal
+			instance.infinite = {
+				infiniteInstanceId: existing?.infinite?.infiniteInstanceId ?? getRandomId(),
+				infiniteInstanceIndex: (existing?.infinite?.infiniteInstanceIndex ?? -1) + 1,
+				infinitePieceId: instance.piece._id,
+				fromPreviousPart: continued,
+				fromPreviousPlayhead: continued && isPlayheadOrAdlibOnEnd(piece),
+			}
+
+			if (existing && (continued || existing.dynamicallyInserted !== undefined)) {
+				instance._id = protectString(`${unprotectString(instance._id)}_continue`)
+				instance.reportedStartedPlayback = existing.reportedStartedPlayback
+				instance.plannedStartedPlayback = existing.plannedStartedPlayback
+			}
+
+			if (continued) {
+				instance.piece = {
+					...instance.piece,
+					enable: {
+						...instance.piece.enable,
+						start: 0,
+					},
+				}
+			}
+		}
+
+		if (piece.resolvedEndCap !== undefined) {
+			const start = instance.piece.enable.start === 'now' ? 0 : instance.piece.enable.start
+			instance.piece = {
+				...instance.piece,
+				enable: {
+					...instance.piece.enable,
+					duration: piece.resolvedEndCap - start,
+				},
+			}
+		}
+
+		out.push(instance)
+	}
+
+	return out
+}
+
+export function flattenInstancesForTimeline(
+	sourceLayers: SourceLayers,
+	pieces: ReadonlyDeep<PieceInstance>[],
+	partTimes: PartCurrentTimes
+): PieceInstanceWithTimings[] {
+	const byLayer = new Map<string, ReadonlyDeep<PieceInstance>[]>()
+	for (const piece of pieces) {
+		if (piece.disabled) continue
+		const key = sourceLayers[piece.piece.sourceLayerId]?.exclusiveGroup || piece.piece.sourceLayerId
 		const layerPieces = byLayer.get(key) ?? []
 		layerPieces.push(piece)
 		byLayer.set(key, layerPieces)
 	}
 
-	const slices: PieceInstance[] = []
+	const out: PieceInstanceWithTimings[] = []
 	for (const layerPieces of byLayer.values()) {
-		layerPieces.sort((a, b) => startInPart(a) - startInPart(b))
-		slices.push(...flattenLayer(layerPieces, pieceById, playlistActivationId, destPartInstanceId, destRundownId))
+		layerPieces.sort((a, b) => instanceStartInPart(a, partTimes) - instanceStartInPart(b, partTimes))
+		out.push(...flattenInstanceLayer(layerPieces, partTimes))
 	}
-
-	return slices
+	return out
 }
 
-function flattenLayer(
-	layerPieces: InfiniteLivePiece[],
-	pieceById: Map<PieceId, PieceLookupDoc>,
-	playlistActivationId: RundownPlaylistActivationId,
-	destPartInstanceId: PartInstanceId,
-	destRundownId: RundownId
-): PieceInstance[] {
-	const out: PieceInstance[] = []
-	const sliceCounts = new Map<PieceId, number>()
+function flattenInstanceLayer(
+	layerPieces: ReadonlyDeep<PieceInstance>[],
+	partTimes: PartCurrentTimes
+): PieceInstanceWithTimings[] {
+	const out: PieceInstanceWithTimings[] = []
 
-	for (let pieceIndex = 0; pieceIndex < layerPieces.length; pieceIndex++) {
-		const piece = layerPieces[pieceIndex]
-		const start = startInPart(piece)
-		const end = pieceEnd(piece)
+	for (let i = 0; i < layerPieces.length; i++) {
+		const piece = layerPieces[i]
+		const start = instanceStartInPart(piece, partTimes)
+		const end = instanceEndInPart(piece, partTimes)
 		if (end <= start) continue
 
+		const lifespan = new PieceLifespan(piece.piece.lifespan)
 		let gaps: Array<{ start: number; end: number }>
-		if (piece.lifespan.persistsInShadow) {
+		if (lifespan.persistsInShadow) {
 			gaps = [{ start, end }]
-			for (let j = pieceIndex + 1; j < layerPieces.length; j++) {
-				const later = layerPieces[j]
-				const laterStart = startInPart(later)
+			for (let j = i + 1; j < layerPieces.length; j++) {
+				const laterStart = instanceStartInPart(layerPieces[j], partTimes)
 				if (laterStart <= start) continue
-				gaps = subtractGap(gaps, laterStart, pieceEnd(later))
+				gaps = subtractGap(gaps, laterStart, instanceEndInPart(layerPieces[j], partTimes))
 			}
 		} else {
 			let stopEnd = end
-			for (let j = pieceIndex + 1; j < layerPieces.length; j++) {
-				const laterStart = startInPart(layerPieces[j])
+			for (let j = i + 1; j < layerPieces.length; j++) {
+				const laterStart = instanceStartInPart(layerPieces[j], partTimes)
 				if (laterStart <= start) continue
 				stopEnd = Math.min(stopEnd, laterStart)
 				break
@@ -334,36 +437,65 @@ function flattenLayer(
 			gaps = [{ start, end: stopEnd }]
 		}
 
-		const lookup = pieceById.get(piece.id)
-		if (!lookup) continue
+		if (piece.piece.virtual) continue
 
-		for (const gap of gaps) {
-			if (gap.end <= gap.start) continue
-			const sliceCount = sliceCounts.get(piece.id) ?? 0
-			sliceCounts.set(piece.id, sliceCount + 1)
-			out.push(
-				wrapSlice(
-					lookup,
-					piece,
-					gap.start,
-					gap.end,
-					sliceCount,
-					playlistActivationId,
-					destPartInstanceId,
-					destRundownId
-				)
-			)
-		}
+		const priority = timelinePriority(lifespan)
+		gaps.forEach((gap, sliceIndex) => {
+			if (gap.end <= gap.start) return
+			out.push(wrapTimingsSlice(piece, gap, sliceIndex, priority, partTimes))
+		})
 	}
 
 	return out
 }
 
-function pieceEnd(piece: InfiniteLivePiece): number {
-	if (piece.resolvedEndCap !== undefined) return piece.resolvedEndCap
-	const start = startInPart(piece)
-	if (typeof piece.enable.duration === 'number') return start + piece.enable.duration
+function instanceStartInPart(piece: ReadonlyDeep<PieceInstance>, partTimes: PartCurrentTimes): number {
+	if (piece.piece.enable.isAbsolute) {
+		if (piece.piece.enable.start === 'now') return partTimes.nowInPart
+		return piece.piece.enable.start - partTimes.currentTime + partTimes.nowInPart
+	}
+	return piece.piece.enable.start === 'now' ? partTimes.nowInPart : piece.piece.enable.start
+}
+
+function instanceEndInPart(piece: ReadonlyDeep<PieceInstance>, partTimes: PartCurrentTimes): number {
+	if (piece.userDuration) return piece.userDuration.endRelativeToPart
+	const start = instanceStartInPart(piece, partTimes)
+	if (typeof piece.piece.enable.duration === 'number') return start + piece.piece.enable.duration
 	return Number.POSITIVE_INFINITY
+}
+
+function timelinePriority(lifespan: PieceLifespan): number {
+	if (lifespan.scope === 'showstyle' && lifespan.persistsInShadow) return 0
+	if (lifespan.scope === 'rundown' && lifespan.persistsInShadow) return 1
+	if (lifespan.scope === 'segment' && lifespan.persistsInShadow) return 2
+	return 5
+}
+
+function wrapTimingsSlice(
+	piece: ReadonlyDeep<PieceInstance>,
+	gap: { start: number; end: number },
+	sliceIndex: number,
+	priority: number,
+	partTimes: PartCurrentTimes
+): PieceInstanceWithTimings {
+	const resolvedEndCap = Number.isFinite(gap.end) ? gap.end : undefined
+	const keepIdentity = sliceIndex === 0
+	const startIsNow = piece.piece.enable.start === 'now' && gap.start === partTimes.nowInPart
+
+	return {
+		...piece,
+		_id: keepIdentity ? piece._id : protectString(`${unprotectString(piece._id)}_slice${sliceIndex}`),
+		infinite: keepIdentity ? piece.infinite : undefined,
+		priority,
+		resolvedEndCap,
+		piece: {
+			...piece.piece,
+			enable: {
+				...piece.piece.enable,
+				start: startIsNow ? 'now' : gap.start,
+			},
+		},
+	}
 }
 
 function subtractGap(
@@ -381,39 +513,4 @@ function subtractGap(
 		if (cutEnd < gap.end) next.push({ start: Math.max(cutEnd, gap.start), end: gap.end })
 	}
 	return next.filter((gap) => gap.end > gap.start)
-}
-
-function wrapSlice(
-	doc: PieceLookupDoc,
-	piece: InfiniteLivePiece,
-	sliceStart: number,
-	sliceEnd: number,
-	sliceIndex: number,
-	playlistActivationId: RundownPlaylistActivationId,
-	destPartInstanceId: PartInstanceId,
-	destRundownId: RundownId
-): PieceInstance {
-	const instance = rewrapPieceToInstance(
-		omitPiecePropertiesForInstance(doc as Piece | PieceInstancePiece),
-		playlistActivationId,
-		destRundownId,
-		destPartInstanceId,
-		true
-	)
-
-	return {
-		...instance,
-		isTemporary: true,
-		_id: protectString(`${unprotectString(instance._id)}_slice${sliceIndex}`),
-		dynamicallyInserted: piece.dynamicallyInserted ? 1 : undefined,
-		dynamicallyConvertedToInfinite: piece.dynamicallyConvertedToInfinite ? 1 : undefined,
-		piece: {
-			...instance.piece,
-			enable: {
-				...instance.piece.enable,
-				start: sliceStart,
-				duration: Number.isFinite(sliceEnd) ? sliceEnd - sliceStart : undefined,
-			},
-		},
-	}
 }
