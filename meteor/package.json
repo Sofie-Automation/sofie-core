@@ -20,7 +20,7 @@
 		"ci:lint": "yarn lint",
 		"cov-open": "open-cli coverage/lcov-report/index.html",
 		"cov": "yarn unitcov && yarn cov-open",
-		"license-validate": "node ../scripts/checkLicenses.js --allowed=\"MIT,BSD,ISC,Apache,Unlicense,CC0,LGPL,CC BY 3.0,CC BY 4.0,MPL 2.0,Python 2.0\" --excludePackages=timecode,rxjs/ajax,rxjs/fetch,rxjs/internal-compatibility,nw-pre-gyp-module-test,rxjs/operators,rxjs/testing,rxjs/webSocket,undefined,i18next-conv,@fortawesome/fontawesome-common-types,argv,indexof,custom-license,private,public-domain-module,@sofie-automation/corelib,@sofie-automation/shared-lib,@sofie-automation/job-worker",
+		"license-validate": "node ../scripts/checkLicenses.js --allowed=\"MIT,BSD,ISC,Apache,Unlicense,CC0,LGPL,CC BY 3.0,CC BY 4.0,MPL 2.0,Python 2.0\" --excludePackages=timecode,rxjs/ajax,rxjs/fetch,rxjs/internal-compatibility,nw-pre-gyp-module-test,rxjs/operators,rxjs/testing,rxjs/webSocket,undefined,i18next-conv,@fortawesome/fontawesome-common-types,argv,indexof,custom-license,private,public-domain-module,@sofie-automation/corelib,@sofie-automation/meteor-lib,@sofie-automation/shared-lib,@sofie-automation/job-worker",
 		"lint": "run lint:raw .",
 		"lint:raw": "eslint",
 		"lintfix": "run lint --fix",
