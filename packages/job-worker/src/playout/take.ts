@@ -44,7 +44,6 @@ import { convertNoteToNotification } from '../notifications/util.js'
 import { PersistentPlayoutStateStore } from '../blueprints/context/services/PersistantStateStore.js'
 
 import { TakeNextPartResult } from '@sofie-automation/corelib/dist/worker/studio'
-import { resolvePartTransition } from '@sofie-automation/corelib/dist/playout/timings'
 
 /**
  * Take the currently Next:ed Part (start playing it)
@@ -131,7 +130,6 @@ export async function performTakeToNextedPart(
 
 	const currentPartInstance = playoutModel.currentPartInstance
 	const nextPartInstance = playoutModel.nextPartInstance
-	const previousPartInstance = playoutModel.previousPartInstance
 
 	const currentOrNextPartInstance = nextPartInstance ?? currentPartInstance
 	if (!currentOrNextPartInstance) {
@@ -189,10 +187,8 @@ export async function performTakeToNextedPart(
 
 		// If there was a transition from the previous Part, then ensure that has finished before another take is permitted
 		const start = currentPartInstance.partInstance.timings?.plannedStartedPlayback
-		const blockTakeDuration = getTransitionBlockTakeDuration(
-			currentPartInstance.partInstance,
-			previousPartInstance?.partInstance
-		)
+		// Note: The timings are set when the PartInstance is taken, so will always be present here
+		const blockTakeDuration = currentPartInstance.partInstance.partPlayoutTimings?.blockTakeDuration
 		if (start && blockTakeDuration && now < start + blockTakeDuration) {
 			throw UserError.create(
 				UserErrorMessage.TakeDuringTransition,
@@ -418,21 +414,6 @@ async function applyOnTakeSideEffects(context: JobContext, playoutModel: Playout
  * @param playoutModel Model for the active Playlist
  * @param takenPartInstance PartInstance to check
  */
-/**
- * Determine how long after the take into the PartInstance, further takes are blocked by the transition into it
- */
-function getTransitionBlockTakeDuration(
-	partInstance: ReadonlyDeep<DBPartInstance>,
-	previousPartInstance: ReadonlyDeep<DBPartInstance> | undefined
-): number {
-	const blockTakeDuration = partInstance.partPlayoutTimings?.blockTakeDuration
-	if (typeof blockTakeDuration === 'number') return blockTakeDuration
-
-	// Fallback for timings calculated before blockTakeDuration was stored
-	if (!previousPartInstance) return 0
-	return resolvePartTransition(false, previousPartInstance.part, partInstance.part).blockTakeDuration
-}
-
 export function clearQueuedSegmentId(
 	playoutModel: PlayoutModel,
 	takenPartInstance: ReadonlyDeep<DBPartInstance> | undefined,

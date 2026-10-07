@@ -28,6 +28,8 @@ const DEFAULT_PART_TIMINGS: PartCalculatedTimings = Object.freeze({
 	fromPartRemaining: 0,
 	fromPartPostroll: 0,
 	fromPartKeepalive: 0,
+	transitionSource: 'none',
+	blockTakeDuration: 0,
 })
 
 function transformTimelineIntoSimplifiedForm(res: RundownTimelineResult) {
@@ -421,6 +423,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -462,6 +466,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 1200,
 						fromPartPostroll: 0,
 						fromPartKeepalive: 0,
+						transitionSource: 'none',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -499,6 +505,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 1000,
 						fromPartPostroll: 0,
 						fromPartKeepalive: 0,
+						transitionSource: 'none',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -540,6 +548,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -580,6 +590,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -621,6 +633,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -667,6 +681,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -722,6 +738,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -763,6 +781,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -827,6 +847,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -967,17 +989,6 @@ describe('buildTimelineObjsForRundown', () => {
 				{ outTransition: exclusiveOutTransition },
 				[outPiece],
 				createNextPartTimings({ transitionSource: 'none' })
-			)
-
-			expect(getControlObj(outPiece)).toBeUndefined()
-		})
-
-		it('exclusive OutTransition piece is not played for timings without a transitionSource', () => {
-			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
-			const { getControlObj } = buildWithCurrentAndNext(
-				{ outTransition: exclusiveOutTransition },
-				[outPiece],
-				createNextPartTimings({ fromPartRemaining: 800, fromPartKeepalive: 800 })
 			)
 
 			expect(getControlObj(outPiece)).toBeUndefined()
@@ -1346,6 +1357,8 @@ describe('buildTimelineObjsForRundown', () => {
 					calculatedTimings: {
 						...DEFAULT_PART_TIMINGS,
 						fromPartKeepalive: 100,
+						transitionSource: 'autoNextOutTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -1397,6 +1410,8 @@ describe('buildTimelineObjsForRundown', () => {
 					calculatedTimings: {
 						...DEFAULT_PART_TIMINGS,
 						fromPartKeepalive: 100,
+						transitionSource: 'autoNextOutTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},

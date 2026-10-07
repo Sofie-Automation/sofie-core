@@ -4,6 +4,7 @@ import { RundownPlaylists, Segments, Studios } from '../collections'
 import { ContainerIdsToObjectWithOverridesMigrationStep } from './steps/X_X_X/ContainerIdsToObjectWithOverridesMigrationStep'
 import { PreviousPartInfoToArrayMigrationStep } from './steps/X_X_X/PreviousPartInfoToArrayMigrationStep'
 import { PartTransitionsMigrationStep } from './steps/X_X_X/PartTransitionsMigrationStep'
+import { PartPlayoutTimingsTransitionMigrationStep } from './steps/X_X_X/PartPlayoutTimingsTransitionMigrationStep'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
 /*
@@ -152,5 +153,6 @@ export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 	},
 	new PreviousPartInfoToArrayMigrationStep(),
 	new PartTransitionsMigrationStep(),
+	new PartPlayoutTimingsTransitionMigrationStep(),
 	// Add your migration here
 ])
