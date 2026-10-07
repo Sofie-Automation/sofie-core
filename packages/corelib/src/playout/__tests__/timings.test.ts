@@ -147,7 +147,7 @@ describe('Part Playout Timings', () => {
 					const timings = calculatePartTimings(
 						undefined,
 						{
-							outTransition: { duration: 289 },
+							outTransition: { type: 'additive', duration: 289 },
 						},
 						[],
 						{},
@@ -172,7 +172,7 @@ describe('Part Playout Timings', () => {
 					const timings = calculatePartTimings(
 						undefined,
 						{
-							outTransition: { duration: 289 },
+							outTransition: { type: 'additive', duration: 289 },
 						},
 						pieceInstancesPostroll,
 						{},
@@ -266,7 +266,7 @@ describe('Part Playout Timings', () => {
 								partKeepaliveDuration: 452,
 								nextPartContentDelayDuration: 0,
 							},
-							outTransition: { duration: 256 },
+							outTransition: { type: 'additive', duration: 256 },
 						},
 						[],
 						{},
@@ -298,7 +298,7 @@ describe('Part Playout Timings', () => {
 								partKeepaliveDuration: 452,
 								nextPartContentDelayDuration: 0,
 							},
-							outTransition: { duration: 256 },
+							outTransition: { type: 'additive', duration: 256 },
 						},
 						pieceInstancesPostroll,
 						{},
@@ -330,7 +330,7 @@ describe('Part Playout Timings', () => {
 								partKeepaliveDuration: 452,
 								nextPartContentDelayDuration: 0,
 							},
-							outTransition: { duration: 2256 },
+							outTransition: { type: 'additive', duration: 2256 },
 						},
 						[],
 						{},
@@ -362,7 +362,7 @@ describe('Part Playout Timings', () => {
 								partKeepaliveDuration: 452,
 								nextPartContentDelayDuration: 0,
 							},
-							outTransition: { duration: 2256 },
+							outTransition: { type: 'additive', duration: 2256 },
 						},
 						pieceInstancesPostroll,
 						{},
@@ -451,7 +451,7 @@ describe('Part Playout Timings', () => {
 					const timings = calculatePartTimings(
 						undefined,
 						{
-							outTransition: { duration: 289 },
+							outTransition: { type: 'additive', duration: 289 },
 						},
 						[],
 						{},
@@ -476,7 +476,7 @@ describe('Part Playout Timings', () => {
 					const timings = calculatePartTimings(
 						undefined,
 						{
-							outTransition: { duration: 289 },
+							outTransition: { type: 'additive', duration: 289 },
 						},
 						pieceInstancesPostroll,
 						{},
@@ -501,7 +501,7 @@ describe('Part Playout Timings', () => {
 					const timings = calculatePartTimings(
 						undefined,
 						{
-							outTransition: { duration: 823 },
+							outTransition: { type: 'additive', duration: 823 },
 						},
 						[],
 						{},
@@ -526,7 +526,7 @@ describe('Part Playout Timings', () => {
 					const timings = calculatePartTimings(
 						undefined,
 						{
-							outTransition: { duration: 823 },
+							outTransition: { type: 'additive', duration: 823 },
 						},
 						pieceInstancesPostroll,
 						{},
@@ -620,7 +620,7 @@ describe('Part Playout Timings', () => {
 								partKeepaliveDuration: 452,
 								nextPartContentDelayDuration: 0,
 							},
-							outTransition: { duration: 256 },
+							outTransition: { type: 'additive', duration: 256 },
 						},
 						[],
 						{},
@@ -652,7 +652,7 @@ describe('Part Playout Timings', () => {
 								partKeepaliveDuration: 452,
 								nextPartContentDelayDuration: 0,
 							},
-							outTransition: { duration: 256 },
+							outTransition: { type: 'additive', duration: 256 },
 						},
 						pieceInstancesPostroll,
 						{},
@@ -684,7 +684,7 @@ describe('Part Playout Timings', () => {
 								partKeepaliveDuration: 452,
 								nextPartContentDelayDuration: 0,
 							},
-							outTransition: { duration: 2256 },
+							outTransition: { type: 'additive', duration: 2256 },
 						},
 						[],
 						{},
@@ -716,7 +716,7 @@ describe('Part Playout Timings', () => {
 								partKeepaliveDuration: 452,
 								nextPartContentDelayDuration: 0,
 							},
-							outTransition: { duration: 2256 },
+							outTransition: { type: 'additive', duration: 2256 },
 						},
 						pieceInstancesPostroll,
 						{},
@@ -1213,7 +1213,7 @@ describe('Part Playout Timings', () => {
 				const timings = calculatePartTimings(
 					undefined,
 					{
-						outTransition: { duration: 200 },
+						outTransition: { type: 'additive', duration: 200 },
 					},
 					[],
 					{
@@ -1244,7 +1244,7 @@ describe('Part Playout Timings', () => {
 				const timings = calculatePartTimings(
 					undefined,
 					{
-						outTransition: { duration: 200 },
+						outTransition: { type: 'additive', duration: 200 },
 					},
 					pieceInstancesPostroll,
 					{
@@ -1275,7 +1275,7 @@ describe('Part Playout Timings', () => {
 				const timings = calculatePartTimings(
 					undefined,
 					{
-						outTransition: { duration: 987 },
+						outTransition: { type: 'additive', duration: 987 },
 					},
 					[],
 					{
@@ -1306,7 +1306,7 @@ describe('Part Playout Timings', () => {
 				const timings = calculatePartTimings(
 					undefined,
 					{
-						outTransition: { duration: 987 },
+						outTransition: { type: 'additive', duration: 987 },
 					},
 					pieceInstancesPostroll,
 					{
@@ -1447,7 +1447,7 @@ describe('Part Playout Timings', () => {
 			test('HOLD active ignores exclusive transitions, but additive duration applies', () => {
 				const timings = calculatePartTimings(
 					RundownHoldState.ACTIVE,
-					{ autoNext: true, autoNextOutTransition, outTransition: { duration: 289 } },
+					{ autoNext: true, autoNextOutTransition, outTransition: { type: 'additive', duration: 289 } },
 					[],
 					{ inTransition },
 					pieceInstancesNoPartPreroll
@@ -1493,7 +1493,7 @@ describe('Part Playout Timings', () => {
 			test('additive outTransition with disableNextInTransition', () => {
 				const timings = calculatePartTimings(
 					undefined,
-					{ outTransition: { duration: 0, disableNextInTransition: true } },
+					{ outTransition: { type: 'additive', duration: 0, disableNextInTransition: true } },
 					[],
 					{ inTransition },
 					pieceInstances500msPartPreroll
@@ -1517,7 +1517,7 @@ describe('Part Playout Timings', () => {
 			test('additive outTransition with disableNextInTransition and larger duration', () => {
 				const timings = calculatePartTimings(
 					undefined,
-					{ outTransition: { duration: 823, disableNextInTransition: true } },
+					{ outTransition: { type: 'additive', duration: 823, disableNextInTransition: true } },
 					pieceInstancesPostroll,
 					{ inTransition },
 					pieceInstances500msPartPreroll
@@ -1579,7 +1579,9 @@ describe('Part Playout Timings', () => {
 		})
 
 		test('inTransition', () => {
-			expect(resolvePartTransition(false, { outTransition: { duration: 200 } }, { inTransition })).toEqual(
+			expect(
+				resolvePartTransition(false, { outTransition: { type: 'additive', duration: 200 } }, { inTransition })
+			).toEqual(
 				literal<ResolvedPartTransition>({
 					source: 'inTransition',
 					keepalive: 4000,
@@ -1608,7 +1610,11 @@ describe('Part Playout Timings', () => {
 			expect(
 				resolvePartTransition(
 					false,
-					{ autoNext: true, autoNextOutTransition: exclusive, outTransition: { duration: 200 } },
+					{
+						autoNext: true,
+						autoNextOutTransition: exclusive,
+						outTransition: { type: 'additive', duration: 200 },
+					},
 					{ inTransition }
 				)
 			).toEqual(
@@ -1627,7 +1633,7 @@ describe('Part Playout Timings', () => {
 			expect(
 				resolvePartTransition(
 					false,
-					{ outTransition: { duration: 200, disableNextInTransition: true } },
+					{ outTransition: { type: 'additive', duration: 200, disableNextInTransition: true } },
 					{ inTransition }
 				)
 			).toEqual(

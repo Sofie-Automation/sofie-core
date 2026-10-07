@@ -182,7 +182,7 @@ export function calculatePartTimings(
 	const transition = resolvePartTransition(isInHold, fromPart, toPart)
 
 	const additiveOutDuration =
-		transition.applyAdditiveOutDuration && fromPart?.outTransition && fromPart.outTransition.type !== 'exclusive'
+		transition.applyAdditiveOutDuration && fromPart?.outTransition?.type === 'additive'
 			? fromPart.outTransition.duration
 			: undefined
 

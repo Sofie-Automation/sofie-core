@@ -21,8 +21,7 @@ export function getAutoNextExpectedDurationExtension(
 ): number {
 	// An additive outTransition keeps the part alive, unless it has been replaced by the autoNextOutTransition
 	const additiveOutTransitionDuration =
-		currentPart.outTransition &&
-		currentPart.outTransition.type !== 'exclusive' &&
+		currentPart.outTransition?.type === 'additive' &&
 		nextPartTimings.transitionSource !== 'autoNextOutTransition'
 			? currentPart.outTransition.duration
 			: 0

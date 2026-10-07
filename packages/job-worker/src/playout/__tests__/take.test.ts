@@ -345,7 +345,7 @@ describe('take', () => {
 
 		test('not blocked when the additive outTransition disables the inTransition', async () => {
 			const { context, playlistId } = await setupTakenIntoSecondPart(
-				{ outTransition: { duration: 0, disableNextInTransition: true } },
+				{ outTransition: { type: 'additive', duration: 0, disableNextInTransition: true } },
 				{ inTransition }
 			)
 

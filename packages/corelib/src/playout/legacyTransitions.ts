@@ -1,8 +1,8 @@
 import type {
 	IBlueprintPartOutTransition,
+	IBlueprintPartOutTransitionAdditive,
 	IBlueprintPartOutTransitionExclusive,
 } from '@sofie-automation/blueprints-integration'
-import type { DBPart } from '../dataModel/Part.js'
 import type { ReadonlyDeep } from 'type-fest'
 
 /**
@@ -15,8 +15,27 @@ export interface LegacyPartTransitionProps {
 	disableNextInTransition?: boolean
 }
 
-export type PartWithLegacyTransitionProps = Pick<DBPart, 'autoNextOutTransition' | 'outTransition'> &
-	LegacyPartTransitionProps
+/** An outTransition as it may be stored. Before the `type` was added, it was always additive */
+export type StoredOutTransition =
+	| IBlueprintPartOutTransition
+	| Omit<IBlueprintPartOutTransitionAdditive, 'type' | 'disableNextInTransition'>
+
+export interface PartWithLegacyTransitionProps extends LegacyPartTransitionProps {
+	autoNextOutTransition?: IBlueprintPartOutTransitionExclusive
+	outTransition?: StoredOutTransition
+}
+
+/**
+ * Convert a stored outTransition without a `type` to an additive outTransition
+ * @returns The new outTransition to set, if any
+ */
+export function convertLegacyOutTransitionType(
+	part: ReadonlyDeep<PartWithLegacyTransitionProps>
+): IBlueprintPartOutTransitionAdditive | undefined {
+	if (!part.outTransition || 'type' in part.outTransition) return undefined
+
+	return { ...part.outTransition, type: 'additive' }
+}
 
 /**
  * Convert the removed `autoNextOverlap` property to an `autoNextOutTransition`
@@ -38,7 +57,8 @@ export function convertLegacyAutoNextOverlap(part: ReadonlyDeep<PartWithLegacyTr
 			nextPartContentDelayDuration: 0,
 		},
 		// Previously an additive outTransition was combined with the overlap, now the autoNextOutTransition replaces it
-		behaviourChanged: !!part.outTransition && part.outTransition.type !== 'exclusive',
+		behaviourChanged:
+			!!part.outTransition && (!('type' in part.outTransition) || part.outTransition.type === 'additive'),
 	}
 }
 
@@ -59,9 +79,10 @@ export function convertLegacyDisableNextInTransition(
 			partKeepaliveDuration: 0,
 			nextPartContentDelayDuration: 0,
 		}
-	} else if (part.outTransition.type !== 'exclusive') {
+	} else if (!('type' in part.outTransition) || part.outTransition.type === 'additive') {
 		return {
 			...part.outTransition,
+			type: 'additive',
 			disableNextInTransition: true,
 		}
 	} else {
@@ -71,14 +92,15 @@ export function convertLegacyDisableNextInTransition(
 }
 
 /**
- * Convert the removed transition properties of a Part in place, removing them from the object
+ * Convert the removed transition properties of a Part in place, removing them from the object.
+ * Also adds the `type` to an outTransition which doesn't have one
  * @returns Whether the conversion changes playout behaviour
  */
 export function convertLegacyPartTransitionPropsInPlace(part: PartWithLegacyTransitionProps): boolean {
 	const { autoNextOutTransition, behaviourChanged } = convertLegacyAutoNextOverlap(part)
 	if (autoNextOutTransition) part.autoNextOutTransition = autoNextOutTransition
 
-	const outTransition = convertLegacyDisableNextInTransition(part)
+	const outTransition = convertLegacyDisableNextInTransition(part) ?? convertLegacyOutTransitionType(part)
 	if (outTransition) part.outTransition = outTransition
 
 	delete part.autoNextOverlap

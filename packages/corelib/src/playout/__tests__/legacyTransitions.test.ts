@@ -1,6 +1,7 @@
 import {
 	convertLegacyAutoNextOverlap,
 	convertLegacyDisableNextInTransition,
+	convertLegacyOutTransitionType,
 	convertLegacyPartTransitionPropsInPlace,
 	PartWithLegacyTransitionProps,
 } from '../legacyTransitions.js'
@@ -90,7 +91,7 @@ describe('Legacy Part transitions', () => {
 					disableNextInTransition: true,
 					outTransition: { duration: 1000 },
 				})
-			).toEqual({ duration: 1000, disableNextInTransition: true })
+			).toEqual({ type: 'additive', duration: 1000, disableNextInTransition: true })
 		})
 
 		test('exclusive outTransition', () => {
@@ -98,6 +99,33 @@ describe('Legacy Part transitions', () => {
 				convertLegacyDisableNextInTransition({ disableNextInTransition: true, outTransition: exclusive })
 			).toBeUndefined()
 		})
+	})
+
+	describe('convertLegacyOutTransitionType', () => {
+		test('no outTransition', () => {
+			expect(convertLegacyOutTransitionType({})).toBeUndefined()
+		})
+
+		test('outTransition without a type', () => {
+			expect(convertLegacyOutTransitionType({ outTransition: { duration: 1000 } })).toEqual({
+				type: 'additive',
+				duration: 1000,
+			})
+		})
+
+		test('outTransition with a type', () => {
+			expect(convertLegacyOutTransitionType({ outTransition: exclusive })).toBeUndefined()
+			expect(
+				convertLegacyOutTransitionType({ outTransition: { type: 'additive', duration: 1000 } })
+			).toBeUndefined()
+		})
+	})
+
+	test('convertLegacyPartTransitionPropsInPlace adds the outTransition type', () => {
+		const part: PartWithLegacyTransitionProps = { outTransition: { duration: 1000 } }
+
+		expect(convertLegacyPartTransitionPropsInPlace(part)).toBe(false)
+		expect(part).toEqual({ outTransition: { type: 'additive', duration: 1000 } })
 	})
 
 	test('convertLegacyPartTransitionPropsInPlace', () => {
@@ -115,7 +143,7 @@ describe('Legacy Part transitions', () => {
 				partKeepaliveDuration: 500,
 				nextPartContentDelayDuration: 0,
 			},
-			outTransition: { duration: 1000, disableNextInTransition: true },
+			outTransition: { type: 'additive', duration: 1000, disableNextInTransition: true },
 		})
 	})
 })

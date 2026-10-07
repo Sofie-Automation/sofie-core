@@ -193,7 +193,7 @@ describe('Lookahead', () => {
 			[{ inTransition }, false],
 			[{ inTransition, outTransition: exclusive }, true],
 			// Previous has an exclusive outTransition
-			[{ inTransition, outTransition: { duration: 0, disableNextInTransition: true } }, false],
+			[{ inTransition, outTransition: { type: 'additive', duration: 0, disableNextInTransition: true } }, false],
 			// Previous has an additive outTransition with disableNextInTransition
 			[{ inTransition, autoNext: true, autoNextOutTransition: exclusive }, false],
 			// Previous has an autoNextOutTransition
