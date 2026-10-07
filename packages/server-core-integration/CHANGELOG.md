@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [26.9.2](https://github.com/Sofie-Automation/sofie-core/compare/v26.9.1...v26.9.2) (2026-10-07)
+
+**Note:** Version bump only for package @sofie-automation/server-core-integration
+
+
+
+
+
 ## [26.9.1](https://github.com/Sofie-Automation/sofie-core/compare/v26.9.0...v26.9.1) (2026-10-05)
 
 **Note:** Version bump only for package @sofie-automation/server-core-integration

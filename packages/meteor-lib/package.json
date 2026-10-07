@@ -1,6 +1,6 @@
 {
 	"name": "@sofie-automation/meteor-lib",
-	"version": "26.9.1",
+	"version": "26.9.2",
 	"private": true,
 	"description": "Temporary internal library for some types shared by meteor and webui",
 	"main": "dist/index.js",
@@ -37,9 +37,9 @@
 	],
 	"dependencies": {
 		"@mos-connection/helper": "^5.0.0",
-		"@sofie-automation/blueprints-integration": "26.9.1",
-		"@sofie-automation/corelib": "26.9.1",
-		"@sofie-automation/shared-lib": "26.9.1",
+		"@sofie-automation/blueprints-integration": "26.9.2",
+		"@sofie-automation/corelib": "26.9.2",
+		"@sofie-automation/shared-lib": "26.9.2",
 		"deep-extend": "0.6.0",
 		"semver": "^7.8.5",
 		"type-fest": "^4.41.0",

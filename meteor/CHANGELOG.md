@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [26.9.2](https://github.com/nrkno/sofie-nrk-core/compare/v26.9.1...v26.9.2) (2026-10-07)
 ## [26.9.1](https://github.com/nrkno/sofie-nrk-core/compare/v26.9.0...v26.9.1) (2026-10-05)
 
 ### Bug Fixes
