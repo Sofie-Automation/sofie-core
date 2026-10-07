@@ -36,7 +36,7 @@
 	"dependencies": {
 		"@koa/cors": "^5.0.0",
 		"@koa/router": "^15.7.0",
-		"@mos-connection/helper": "^5.0.0-alpha.0",
+		"@mos-connection/helper": "^5.0.0",
 		"@slack/webhook": "^7.2.0",
 		"@sofie-automation/blueprints-integration": "portal:../packages/blueprints-integration",
 		"@sofie-automation/corelib": "portal:../packages/corelib",
