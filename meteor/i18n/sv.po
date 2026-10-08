@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-08-06T05:52:15.185Z\n"
-"PO-Revision-Date: 2026-08-06T05:52:15.185Z\n"
+"POT-Creation-Date: 2026-09-22T09:41:42.684Z\n"
+"PO-Revision-Date: 2026-09-22T09:41:42.684Z\n"
 "Language: sv\n"
 
 msgid " The index of the Atem media/clip banks"
@@ -45,12 +45,12 @@ msgstr ""
 "finns på, lämna tomt som den finns globalt tillgänglig"
 
 msgid "(Optional) This could be the name of the compute"
-msgstr "(Valfritt) detta kan vara namnet på datorn"
+msgstr "(Valfritt) Detta kan vara namnet på datorn"
 
 msgid ""
 "(Optional) This could be the name of the computer on which the local folder "
 "is on"
-msgstr "(Valfritt) detta kan vara namnet på datorn som den lokala mappen ligger på"
+msgstr "(Valfritt) Detta kan vara namnet på datorn som den lokala mappen ligger på"
 
 msgid "(Unknown playlist)"
 msgstr "(Okänd spellista)"
@@ -345,7 +345,7 @@ msgid "AdLibs on this layer can be queued"
 msgstr "AdLibs på detta lager kan köas"
 
 msgid "All additional source layers must have active pieces"
-msgstr "Alla ytterligare källager måste ha aktiva innehållspunkter"
+msgstr "Alla ytterligare källager måste ha aktiva komponenter"
 
 msgid "All connections working correctly"
 msgstr "Alla anslutningar fungerar korrekt"
@@ -362,11 +362,14 @@ msgstr "Alla skärmar i en MultiViewer"
 msgid "All steps"
 msgstr "Alla steg"
 
+msgid "Allow any certificate"
+msgstr ""
+
 msgid "Allow direct playing pieces"
-msgstr "Tillåt direktspelande innehållspunkter"
+msgstr "Tillåt direktspelande komponenter"
 
 msgid "Allow disabling of Pieces"
-msgstr "Tillåt inaktivering av innehållspunkter"
+msgstr "Tillåt inaktivering av komponenter"
 
 msgid "Allow grabbing the segment timelines to scroll them"
 msgstr ""
@@ -1278,7 +1281,7 @@ msgid "Disable hints by adding this to the URL:"
 msgstr "Inaktivera tips genom att lägga till detta i URL:en:"
 
 msgid "Disable next Piece"
-msgstr "Inaktivera nästa Innehållspunkt"
+msgstr "Inaktivera nästa komponent"
 
 msgid ""
 "Disable the blur border around the Rundown view when it is not in focus and "
@@ -1298,7 +1301,10 @@ msgid "Disabled"
 msgstr "Inaktiverad"
 
 msgid "Disabling next Piece"
-msgstr "Inaktiverar nästa Innehållspunkt"
+msgstr "Inaktiverar nästa komponent"
+
+msgid "Discard"
+msgstr ""
 
 msgid "Disconnected"
 msgstr "Frånkopplad"
@@ -1327,7 +1333,7 @@ msgid "Display name of the Package Container"
 msgstr "Visningsnamn för paketbehållaren"
 
 msgid "Display piece duration for source layers"
-msgstr "Visa innehållspunktlängden för källager"
+msgstr "Visa komponentlängden för källager"
 
 msgid "Display Rank"
 msgstr "Visa rankning"
@@ -1428,7 +1434,7 @@ msgid "Edit Part Properties"
 msgstr "Redigera delegenskaper"
 
 msgid "Edit Piece Properties"
-msgstr "Redigera innehållspunktegenskaper"
+msgstr "Redigera komponentegenskaper"
 
 msgid "Edit Segment Properties"
 msgstr "Redigera segmentegenskaper"
@@ -1645,6 +1651,12 @@ msgstr ""
 msgid "Failed to restart device: \"{{deviceName}}\": {{errorMessage}}"
 msgstr "Det gick inte att starta om enheten: \"{{deviceName}}\": {{errorMessage}}"
 
+msgid "Failed to save assignment"
+msgstr ""
+
+msgid "Failed to save assignment: {{errorMessage}}"
+msgstr ""
+
 msgid "Failed to update blueprints: {{errorMessage}}"
 msgstr "Det gick inte att uppdatera blueprints: {{errorMessage}}"
 
@@ -1748,13 +1760,22 @@ msgid "Forward: {{forward}}"
 msgstr "Vidarebefordra: {{forward}}"
 
 msgid "Found no future pieces"
-msgstr "Hittade inga innehållspunkter framåt"
+msgstr "Hittade inga komponenter framåt"
 
 msgid "Frame Rate"
 msgstr "Bildfrekvens"
 
 msgid "From"
 msgstr "Från"
+
+msgid "FTP Base Path"
+msgstr ""
+
+msgid "FTP password"
+msgstr ""
+
+msgid "FTP username"
+msgstr ""
 
 msgid "Full System Snapshot"
 msgstr "Systembackup"
@@ -1869,6 +1890,12 @@ msgstr "Dölj rullningslisten"
 
 msgid "Hold"
 msgstr "HOLD"
+
+msgid "Host address"
+msgstr ""
+
+msgid "Host port"
+msgstr ""
 
 msgid "Hostname or IP address of the Atem"
 msgstr "Värdnamn eller IP-adress för Atem"
@@ -1994,7 +2021,7 @@ msgid "Include Global AdLibs"
 msgstr "Inkludera Global AdLibs"
 
 msgid "Indicate only one next piece per source layer"
-msgstr "Ange endast en nästa innehållspunkt per källager"
+msgstr "Ange endast en nästa komponent per källager"
 
 msgid "Ingest Devices"
 msgstr "Inläsningsenheter"
@@ -2123,7 +2150,7 @@ msgid "Last updated"
 msgstr "Senast uppdaterad"
 
 msgid "Layer does not allow sticky pieces!"
-msgstr "Lagret tillåter inte \"orubbliga\" innehållspunkter!"
+msgstr "Lagret tillåter inte \"orubbliga\" komponenter!"
 
 msgid "Layer ID"
 msgstr "Lager-ID"
@@ -2591,7 +2618,7 @@ msgstr ""
 "körscheman: {{names}}"
 
 msgid "Only Pieces present in rundown are sticky"
-msgstr "Endast innehållspunkter som kommer från körschemat är orubbliga"
+msgstr "Endast komponenter som kommer från körschemat är orubbliga"
 
 msgid "Open"
 msgstr "Öppna"
@@ -2626,7 +2653,7 @@ msgid ""
 msgstr ""
 
 msgid "Order 66?"
-msgstr ""
+msgstr "Beställning 66?"
 
 msgid "Original Layer"
 msgstr "Ursprungligt lager"
@@ -2760,22 +2787,22 @@ msgid ""
 msgstr ""
 
 msgid "Piece on selected source layers will have a duration label shown"
-msgstr "Innehållspunkt på valda källager kommer att visa en längd"
+msgstr "Komponent på valda källager kommer att visa en längd"
 
 msgid "Piece to take is already live!"
-msgstr "Innehållspunkten är redan live!"
+msgstr "Komponenten är redan live!"
 
 msgid "Piece to take is not directly playable!"
-msgstr "Innehållspunkten kan inte spelas direkt!"
+msgstr "Komponenten kan inte spelas direkt!"
 
 msgid "Piece to take was not found!"
-msgstr "Innehållspunkten kunde inte spelas (den hittades inte)!"
+msgstr "Komponenten kunde inte spelas (den hittades inte)!"
 
 msgid "Pieces on this layer are sticky"
-msgstr "Innehållspunkter på detta lager är orubbliga"
+msgstr "Komponenter på detta lager är orubbliga"
 
 msgid "Pieces on this layer can be cleared"
-msgstr "Innehållspunkter på detta lager kan rensas"
+msgstr "Komponenter på detta lager kan rensas"
 
 msgid "Place label below panel"
 msgstr "Placera etiketten under panelen"
@@ -3149,7 +3176,7 @@ msgid "Require All Additional Source Layers"
 msgstr "Kräv alla ytterligare källager"
 
 msgid "Require Piece on Source Layer"
-msgstr "Kräv Innehållspunkt på källskikt"
+msgstr "Kräv Komponent på källskikt"
 
 msgid "Reset"
 msgstr "Återställ"
@@ -3350,12 +3377,10 @@ msgid "Rundown filter"
 msgstr "Körschemafilter"
 
 msgid "Rundown for piece \"{{pieceLabel}}\" could not be found."
-msgstr ""
-"Det gick inte att hitta ett körschema för innehållspunkten "
-"\"{{pieceLabel}}\"."
+msgstr "Det gick inte att hitta ett körschema för komponenten \"{{pieceLabel}}\"."
 
 msgid "Rundown Global Piece Prepare Time"
-msgstr "Längd för innehållspunkter i körschemat"
+msgstr "Längd för komponenter i körschemat"
 
 msgid "Rundown is already doing a HOLD!"
 msgstr "Körschemat gör redan ett HOLD!"
@@ -3509,6 +3534,9 @@ msgstr "Server"
 msgid "Server {{id}}"
 msgstr "Server {{id}}"
 
+msgid "Server host address"
+msgstr ""
+
 msgid "Server ID"
 msgstr "Server-ID"
 
@@ -3516,6 +3544,12 @@ msgid ""
 "Server ID. For sources, this should generally be omitted (or set to 0) so "
 "clip-searches are zone-wide. If set, clip-searches are limited to that "
 "server."
+msgstr ""
+
+msgid "Server port"
+msgstr ""
+
+msgid "Server Type"
 msgstr ""
 
 msgid "Service {{service}} unavailable: {{reason}}"
@@ -3605,7 +3639,7 @@ msgid "Show part title"
 msgstr "Visa deltitel"
 
 msgid "Show Piece Icon Color"
-msgstr "Visa Innehållspunkt ikon färg"
+msgstr "Visa komponent-ikonfärg"
 
 msgid "Show Rundown Name"
 msgstr "Visa körschema-namn"
@@ -3743,7 +3777,7 @@ msgstr ""
 "visas"
 
 msgid "Specify additional layers where at least one layer must have an active piece"
-msgstr "Ange ytterligare lager där minst ett lager måste ha en aktiv innehållspunkt"
+msgstr "Ange ytterligare lager där minst ett lager måste ha en aktiv komponent"
 
 msgid "Speed control"
 msgstr "Hastighetskontroll"
@@ -3793,7 +3827,7 @@ msgid "Starting Global AdLib"
 msgstr "Startar Global AdLib"
 
 msgid "Starting Sticky Piece"
-msgstr "Startar orubblig innehållspunkt"
+msgstr "Startar orubblig komponent"
 
 msgid "State"
 msgstr "Tillstånd"
@@ -3811,7 +3845,7 @@ msgid "Status Messages:"
 msgstr "Statusmeddelanden:"
 
 msgid "Sticky Piece"
-msgstr "Orubblig innehållspunkt"
+msgstr "Orubblig komponent"
 
 msgid "Store Snapshot"
 msgstr "Ta en backup"
@@ -3946,7 +3980,7 @@ msgid "Take System Snapshot failed: {{errorMessage}}"
 msgstr "Systembackuppen misslyckades: {{errorMessage}}"
 
 msgid "Taking Piece"
-msgstr "Tar innehållspunkt"
+msgstr "Tar komponent"
 
 msgid "Technical reason: {{reason}}"
 msgstr "Teknisk orsak: {{reason}}"
@@ -3964,7 +3998,7 @@ msgid "test partInstance"
 msgstr "test partInstance"
 
 msgid "test pieceInstance"
-msgstr "test innehållspunktinstans"
+msgstr "test komponentinstans"
 
 msgid "test playlist"
 msgstr "testa spellistan"
@@ -4325,7 +4359,7 @@ msgid "Troubleshoot"
 msgstr "Felsök"
 
 msgid "TSR"
-msgstr ""
+msgstr "TSR"
 
 msgid "Type"
 msgstr "Typ"
@@ -4501,7 +4535,7 @@ msgid "Use as default"
 msgstr "Använd som standard"
 
 msgid "Use color of primary piece as background of panel"
-msgstr "Använd färgen på den primära innehållspunkten som bakgrund på panelen"
+msgstr "Använd färgen på den primära komponenten som bakgrund på panelen"
 
 msgid "Use Trigger Mode"
 msgstr "Använd triggerläge"
@@ -4565,6 +4599,9 @@ msgstr "Varningar"
 
 msgid "Warnings During Migration"
 msgstr "Varningar under migrering"
+
+msgid "What FTP protocol to use"
+msgstr ""
 
 msgid "What type of bank"
 msgstr "Vilken typ av bank"

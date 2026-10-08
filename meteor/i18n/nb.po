@@ -5,12 +5,12 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-08-05T10:52:43.643Z\n"
-"PO-Revision-Date: 2026-08-05T10:52:43.643Z\n"
+"POT-Creation-Date: 2026-09-22T09:41:42.661Z\n"
+"PO-Revision-Date: 2026-09-22T09:41:42.661Z\n"
 "Language: nb\n"
 
 msgid " The index of the Atem media/clip banks"
-msgstr ""
+msgstr "Index for Atem media/klippbank"
 
 msgid "({{time}} ago)"
 msgstr "(for {{time}} siden)"
@@ -22,15 +22,17 @@ msgid ""
 "(Comma separated list. Empty - will store snapshots of all Rundown "
 "Playlists)"
 msgstr ""
+"(kommaseparert liste. Tom - vil lagre snapshot av alle "
+"kjøreplanspillelister)"
 
 msgid "(Default)"
-msgstr ""
+msgstr "(Standard)"
 
 msgid "(in: {{time}})"
 msgstr "(om: {{time}})"
 
 msgid "(Optional) A name/identifier of the local network where the Atem is located"
-msgstr ""
+msgstr "(Valgfritt) Et navn/en identikator for det lokale nettverket Atem-en er på"
 
 msgid "(Optional) A name/identifier of the local network where the share is located"
 msgstr ""
@@ -45,12 +47,12 @@ msgstr ""
 "mappen er lokalisert, la være tom dersom den er globalt tilgjengelig"
 
 msgid "(Optional) This could be the name of the compute"
-msgstr ""
+msgstr "(Valgfritt) Dette kan være navnet på datamaskinen"
 
 msgid ""
 "(Optional) This could be the name of the computer on which the local folder "
 "is on"
-msgstr "(Valgfri) Dette kan være navnet til datamaskinen som den lokale mappen er på"
+msgstr "(Valgfri) Dette kan være navnet til datamaskinen den lokale mappen er på"
 
 msgid "(Unknown playlist)"
 msgstr "(Ukjent kjøreplanliste)"
@@ -62,30 +64,32 @@ msgid ""
 "(what happened and when, what should have happened, what could have "
 "triggered the problems, etcetera...)"
 msgstr ""
+"(hva skjedde og når skjedde det, hva skulle skjedd, hva kan ha utløst "
+"problemene, o.s.v.)"
 
 msgid "{{actionName}} failed! More information can be found in the system log."
-msgstr ""
+msgstr "{{actionName}} mislyktes. Mer informasjon kan bli funnet i systemloggen."
 
 msgid "{{currentRundownName}} - {{rundownPlaylistName}}"
 msgstr "{{currentRundownName}} - {{rundownPlaylistName}}"
 
 msgid "{{currentRundownName}} - {{rundownPlaylistName}} (Looping)"
-msgstr "{{currentRundownName}} - {{rundownPlaylistName}} (Looper)"
+msgstr "{{currentRundownName}} - {{rundownPlaylistName}} (Går i Loop)"
 
 msgid "{{days}} days, {{hours}} h {{minutes}} min {{seconds}} s ago"
 msgstr "for {{days}} dager, {{hours}} t {{minutes}} min {{seconds}} s siden"
 
 msgid "{{frames}} black frames detected in the clip"
-msgstr ""
+msgstr "{{frames}} svarte ruter oppdaget i klippet"
 
 msgid "{{frames}} black frames detected within the clip"
-msgstr ""
+msgstr "{{frames}} svarte ruter oppdaget inne i klippet"
 
 msgid "{{frames}} freeze frames detected in the clip"
-msgstr ""
+msgstr "{{frames}} fryste ruter oppdaget i videoklippet"
 
 msgid "{{frames}} freeze frames detected within the clip"
-msgstr ""
+msgstr "{{frames}} fryste ruter oppdaget inne i videoklippet"
 
 msgid "{{hours}} h {{minutes}} min {{seconds}} s ago"
 msgstr "for {{hours}} t {{minutes}} min {{seconds}} s siden"
@@ -100,18 +104,18 @@ msgid "{{nrcsName}} Connection"
 msgstr "{{nrcsName}}-tilkobling"
 
 msgid "{{prevStatements}} and {{finalStatement}}"
-msgstr ""
+msgstr "{{prevStatements}} og {{finalStatement}}"
 
 msgid "{{prevStatements}} or {{finalStatement}}"
-msgstr ""
+msgstr "{{prevStatements}} eller {{finalStatement}}"
 
 msgid ""
 "{{reason}} {{sourceLayer}} exists, but is not yet ready on the playout "
 "system"
-msgstr ""
+msgstr "{{reason}} {{sourceLayer}} finnes, men er ikke klart på playout-systemet"
 
 msgid "{{rundownPlaylistName}} (Looping)"
-msgstr "{{currentRundownName}} - {{rundownPlaylistName}} (Looper)"
+msgstr "{{rundownPlaylistName}} (Går i loop)"
 
 msgid "{{seconds}} s ago"
 msgstr "for {{seconds}} s siden"
@@ -120,39 +124,39 @@ msgid "{{showStyleVariant}} – {{showStyleBase}}"
 msgstr "{{showStyleVariant}} – {{showStyleBase}}"
 
 msgid "{{sourceLayer}} can't be found on the playout system"
-msgstr ""
+msgstr "{{sourceLayer}} ikke funnet på playout-sytemet"
 
 msgid "{{sourceLayer}} doesn't have both audio & video"
-msgstr "{{sourceLayer}} har ikke lyd og/eller bilde"
+msgstr "{{sourceLayer}} har ikke både lyd og bilde"
 
 msgid "{{sourceLayer}} has {{audioStreams}} audio streams"
 msgstr "{{sourceLayer}} har {{audioStreams}} lydstrømmer"
 
 msgid "{{sourceLayer}} has the wrong format: {{format}}"
-msgstr "{{sourceLayer}}-formatet er ikke støttet: {{format}}"
+msgstr "{{sourceLayer}} har feil format: {{format}}"
 
 msgid "{{sourceLayer}} has unsupported source: {{containerLabels}}"
-msgstr ""
+msgstr "{{sourceLayer}} har en kilde som ikke støttes: {{containerLabels}}"
 
 msgid "{{sourceLayer}} is being ingested"
-msgstr "{{sourceLayer}} blir prosessert"
+msgstr "{{sourceLayer}} blir lastet inn"
 
 msgid ""
 "{{sourceLayer}} is in a placeholder state for an unknown workflow-defined "
 "reason"
-msgstr ""
+msgstr "{{sourceLayer}} er i en midlertidig tilstand av en ukjent arbeidsflytsårsak"
 
 msgid "{{sourceLayer}} is in an unknown state: \"{{status}}\""
-msgstr ""
+msgstr "{{sourceLayer}} er i en ukjent tilstand: \"{{status}}\""
 
 msgid "{{sourceLayer}} is missing"
-msgstr ""
+msgstr "{{sourceLayer}} mangler"
 
 msgid "{{sourceLayer}} is missing a file path"
-msgstr "{{sourceLayer}} kan ikke spilles av fordi filnavnet mangler"
+msgstr "{{sourceLayer}} mangler en filsti"
 
 msgid "{{sourceLayer}} is not yet ready on the playout system"
-msgstr "{{sourceLayer}} er ennå ikke klar til å spilles ut fra avviklingsserver"
+msgstr "{{sourceLayer}} er fremdeles ikke klar til å spilles ut fra playout-systemet"
 
 msgid "{{sourceLayer}} is transferring to the playout system"
 msgstr "{{sourceLayer}} overføres til avviklingsserver"
@@ -160,22 +164,22 @@ msgstr "{{sourceLayer}} overføres til avviklingsserver"
 msgid ""
 "{{sourceLayer}} is transferring to the playout system but cannot be played "
 "yet"
-msgstr ""
+msgstr "{{sourceLayer}} overføres til playout-systemet og kan ikke spilles av ennå"
 
 msgid "{{studioName}}: Active Rundown"
-msgstr ""
+msgstr "{{studioName}}: Aktiv kjøreplan"
 
 msgid "{{studioName}}: Presenter screen"
-msgstr ""
+msgstr "{{studioName}}: Klokkeskjerm"
 
 msgid "{{studioName}}: Prompter"
-msgstr ""
+msgstr "{{studioName}}: Prompter"
 
 msgid "14 = 7 lines, 20 = 5 lines"
-msgstr ""
+msgstr "14 = 7 linjer, 20 = 5 linjer"
 
 msgid "A device must be assigned to the config to edit the settings"
-msgstr ""
+msgstr "En enhet må være tildelt konfigurasjonen for å kunne redigere innstillingene"
 
 msgid ""
 "A Full System Snapshot contains all system settings (studios, showstyles, "
@@ -185,33 +189,35 @@ msgstr ""
 "blueprints, enheter o.s.v.)"
 
 msgid "a second"
-msgstr ""
+msgstr "ett sekund"
 
 msgid ""
 "A snapshot of the current Running Order has been created for "
 "troubleshooting."
-msgstr "Et snapshot av den gjeldende kjøreplanen har blitt opprettet for feilsøking."
+msgstr ""
+"Et snapshot av den gjeldende kjøreplanen har blitt opprettet for senere "
+"feilsøking."
 
 msgid "A Studio Snapshot contains all system settings related to that studio"
 msgstr "Et studiosnapshot inneholder alle systeminnstillinger tilknyttet et studio"
 
 msgid "AB Channel Display"
-msgstr ""
+msgstr "AB-kanalvisning"
 
 msgid "AB Playout devices"
-msgstr ""
+msgstr "Enheter for AB-avspillere"
 
 msgid "AB Resolver Channel Display"
-msgstr ""
+msgstr "AB resolver-kanalvisning"
 
 msgid "Abort"
 msgstr "Avbryt"
 
 msgid "Aborting all Media Workflows"
-msgstr ""
+msgstr "Avbryter alle arbeidsflyter for media"
 
 msgid "Aborting Media Workflow"
-msgstr ""
+msgstr "Avbryter arbeidsflyt for media"
 
 msgid "Accessor ID"
 msgstr "Aksessor-id"
@@ -226,10 +232,10 @@ msgid "Action"
 msgstr "Handling"
 
 msgid "Action {{actionName}} done!"
-msgstr ""
+msgstr "Handling {{actionName}} utført!"
 
 msgid "Action {{actionName}} failed: {{error}}"
-msgstr ""
+msgstr "Handling {{actionName}} mislyktes: {{error}}"
 
 msgid "Action Buttons"
 msgstr "Handlingsknapper"
@@ -238,37 +244,37 @@ msgid "Action Triggers"
 msgstr "Handlingsutløsere"
 
 msgid "Activate \"On Air\""
-msgstr ""
+msgstr "Aktivér OnAir"
 
 msgid "Activate \"Rehearsal\""
-msgstr ""
+msgstr "Aktiver testmodus"
 
 msgid "Activate (On-Air)"
-msgstr "Aktiver (gå ON AIR)"
+msgstr "Aktivér (OnAir)"
 
 msgid "Activate (Rehearsal)"
 msgstr "Aktiver (testmodus)"
 
 msgid "Activate On Air"
-msgstr ""
+msgstr "Aktivér OnAir"
 
 msgid "Activate Rundown"
-msgstr "Aktiver kjøreplan"
+msgstr "Aktivér kjøreplan"
 
 msgid "Activating Hold"
-msgstr ""
+msgstr "Aktivér HOLD"
 
 msgid "Activating Rundown Playlist"
-msgstr ""
+msgstr "Aktivér kjøreplanliste"
 
 msgid "Active"
 msgstr "Aktiv"
 
 msgid "Active Rundown"
-msgstr ""
+msgstr "Aktiv kjøreplan"
 
 msgid "Active Rundown View"
-msgstr ""
+msgstr "Aktiv kjøreplansvisning"
 
 msgid "Ad-Lib"
 msgstr "Adlib"
@@ -293,7 +299,7 @@ msgstr ""
 "studio"
 
 msgid "Add Action Trigger"
-msgstr ""
+msgstr "Legg til handlingsutløser"
 
 msgid "Add button"
 msgstr "Legg til knapp"
@@ -308,34 +314,34 @@ msgid "AdLib"
 msgstr "Adlib"
 
 msgid "AdLib Actions are not supported in the current Rundown"
-msgstr ""
+msgstr "Adlib-handlinger støttes ikke i den aktuelle kjøreplanen"
 
 msgid "AdLib could not be found!"
-msgstr ""
+msgstr "Adlibben ble ikke funnet!"
 
 msgid "AdLib filter"
-msgstr ""
+msgstr "Adlib-filter"
 
 msgid "Adlib Rank"
 msgstr "Adlib-rang"
 
 msgid "Adlib rundowns are not supported for this ShowStyle!"
-msgstr ""
+msgstr "Adlib-kjøreplaer støttes ikke for denne showstylen!"
 
 msgid "Adlib Testing"
-msgstr ""
+msgstr "Adlib-testing"
 
 msgid "AdLib Testing"
-msgstr ""
+msgstr "Adlib-testing"
 
 msgid "AdLibs can be only placed in a currently playing part!"
-msgstr ""
+msgstr "Adlibber kan bare bli plassert i det aktive punktet!"
 
 msgid "AdLibs on this layer can be queued"
-msgstr "Adliber på dette laget kan cues"
+msgstr "Adlibber på dette laget kan cues"
 
 msgid "All additional source layers must have active pieces"
-msgstr ""
+msgstr "Alle ekstra kildelag må ha aktive elementer"
 
 msgid "All connections working correctly"
 msgstr "Alle tilkoblinger er OK"
@@ -347,52 +353,57 @@ msgid "All is well, go get a"
 msgstr "Alt er greit, gå og hent deg en"
 
 msgid "All Screens in a MultiViewer"
-msgstr ""
+msgstr "Alle skjermer i en MultiViewer"
 
 msgid "All steps"
 msgstr "Alle trinn"
 
+msgid "Allow any certificate"
+msgstr "Tillat hvilket som helst serifikat"
+
 msgid "Allow direct playing pieces"
-msgstr ""
+msgstr "Tillat direkte avspilling av elementer"
 
 msgid "Allow disabling of Pieces"
 msgstr "Tillat deaktivering av elementer"
 
 msgid "Allow grabbing the segment timelines to scroll them"
-msgstr ""
+msgstr "Tillat griping av tidslinjer for å scrolle dem"
 
 msgid "Allow grabbing the timeline"
-msgstr ""
+msgstr "Tillat å gripe tidslijen"
 
 msgid "Allow HOLD mode"
-msgstr ""
+msgstr "Tillat bruk av HOLD"
 
 msgid "Allow infinites from AdLib testing to persist"
-msgstr ""
+msgstr "Tillat uendeligheter fra Adlib-testing å bestå"
 
 msgid "Allow Read access"
 msgstr "Tillat lesing"
 
 msgid "Allow Rundowns to be reset while on-air"
-msgstr "Tillat tilbakestilling av kjøreplaner som er on-air"
+msgstr "Tillat tilbakestilling av kjøreplaner som er OnAir"
 
 msgid "Allow Write access"
 msgstr "Tillat skriving/lagring"
 
 msgid "Also Require Source Layers"
-msgstr ""
+msgstr "Krev også kildelag"
 
 msgid "Amount of entries exceeds the limt of 10 000 items."
-msgstr ""
+msgstr "Antall oppføringer overskrider grensen på 10.000 elementer."
 
 msgid "An error while performing the take, playout may be impacted"
-msgstr ""
+msgstr "En feil skjedde under TAKE, utspillingen kan ha blitt påvirket"
 
 msgid "An error while setting the next Part, playout may be impacted"
 msgstr ""
+"En feil skjedde mens neste punkt ble satt, utspillingen kan ha blitt "
+"påvirket"
 
 msgid "An internal error occured!"
-msgstr ""
+msgstr "En intern feil skjedde!"
 
 msgid "Another Rundown is Already Active!"
 msgstr "En annen kjøreplan er allerede aktiv!"
@@ -404,6 +415,8 @@ msgid ""
 "Any AB Playout devices here will only be active when this or another "
 "RouteSet that includes them is active"
 msgstr ""
+"AB-avspillerenheter her vil bare være aktive når denne eller en annen "
+"omkoblingsgruppe som inkluderer dem er aktiv"
 
 msgid "APM Enabled"
 msgstr "AMP aktivert"
@@ -418,7 +431,7 @@ msgid "Append or Replace"
 msgstr "Legg til eller erstatt"
 
 msgid "Append rows"
-msgstr ""
+msgstr "Legg til rader"
 
 msgid "Application credentials"
 msgstr "Brukernavn/passord (Application Credentials)"
@@ -427,13 +440,13 @@ msgid "Application Performance Monitoring"
 msgstr "Overvåkning av applikasjonsytelse (AMP)"
 
 msgid "Apply"
-msgstr ""
+msgstr "Bruk"
 
 msgid "Apply blueprint upgrades"
-msgstr ""
+msgstr "Bruk blueprintsoppdateringer"
 
 msgid "Apply Config"
-msgstr ""
+msgstr "Bruk konfigurasjon"
 
 msgid "Are you sure you want to activate Rehearsal Mode?"
 msgstr "Er du sikker på at du vil gå i testmodus?"
@@ -449,9 +462,11 @@ msgid ""
 "Are you sure you want to deactivate this rundown?\n"
 "(This will clear the outputs.)"
 msgstr ""
+"Er du sikker på at du vil deaktivere denne kjøreplanen?\n"
+"(Dette vil tømme utgangene)"
 
 msgid "Are you sure you want to delete output layer \"{{outputId}}\"?"
-msgstr ""
+msgstr "Er du sikker på at du vil slette utgangslaget \"{{outputId}}\"?"
 
 msgid "Are you sure you want to delete source layer \"{{sourceLayerId}}\"?"
 msgstr "Er du sikker på at du vil slette kildelaget \"{{sourceLayerId}}\"?"
@@ -493,25 +508,24 @@ msgstr ""
 "er korrekte!"
 
 msgid "Are you sure you want to import the contents of the file \"{{fileName}}\"?"
-msgstr ""
+msgstr "Er du sikker på at du vil importere innholdet fra filen \"{{fileName}}\"?"
 
 msgid "Are you sure you want to re-sync the \"{{name}}\" rundown?"
-msgstr ""
-"Er du sikker på at du vil synkronisere kjøreplanen \"{{rundownSlug}}\" med "
-"ENPS?"
+msgstr "Er du sikker på at du vil synkronisere kjøreplanen \"{{name}}\" med ENPS?"
 
 msgid ""
 "Are you sure you want to re-sync the Rundown?\n"
 "(If the currently playing Part has been changed, this can affect the output)"
 msgstr ""
-"Er du sikker på at du vil synkronisere denne kjøreplanen?\n"
-"(Dette kan påvirke gjennomføring av en pågående sending)"
+"Er du sikker på at du vil resynkronisere denne kjøreplanen?\n"
+"(Dette kan påvirke den pågående sendingen dersom det aktive punktet har "
+"blitt endret)"
 
 msgid "Are you sure you want to remove {{type}} \"{{deviceId}}\"?"
 msgstr "Er du sikker på at du vil fjerne enheten {{type}} \"{{deviceId}}\"?"
 
 msgid "Are you sure you want to remove all Variants in the table?"
-msgstr ""
+msgstr "Er du sikker på at du vil fjerne alle varianter i denne tabellen?"
 
 msgid ""
 "Are you sure you want to remove exclusivity group \"{{eGroupName}}\"?\n"
@@ -524,7 +538,7 @@ msgid "Are you sure you want to remove mapping for layer \"{{mappingId}}\"?"
 msgstr "Er du sikker på at du fil fjerne mappingen for laget \"{{mappingId}}\"?"
 
 msgid "Are you sure you want to remove the AB Player \"{{playerId}}\"?"
-msgstr ""
+msgstr "Er du sikker på at du vil fjerne AB-avspilleren \"{{playerId}}\"?"
 
 msgid ""
 "Are you sure you want to remove the device \"{{deviceName}}\" and all of "
@@ -554,7 +568,7 @@ msgid "Are you sure you want to remove the Route Set \"{{routeId}}\"?"
 msgstr "Er du sikker på at du vil fjerne omkoblingsgruppen \"{{routeId}}\"?"
 
 msgid "Are you sure you want to remove the Variant \"{{showStyleVariantId}}\"?"
-msgstr ""
+msgstr "Er du sikker på at du vil fjerne denne varianten \"{{showStyleVariantId}}\"?"
 
 msgid ""
 "Are you sure you want to replace the blueprints with the file "
@@ -565,24 +579,34 @@ msgid ""
 "Are you sure you want to reset all overrides for Packing Container "
 "\"{{id}}\"?"
 msgstr ""
+"Er du sikker på at du vil fjerne alle overstyringer for pakkekontaineren "
+"\"{{id}}\"?"
 
 msgid ""
 "Are you sure you want to reset all overrides for the mapping for layer "
 "\"{{mappingId}}\"?"
 msgstr ""
+"Er du sikker på at du fil fjerne alle overstyringer for mappingen av laget "
+"\"{{mappingId}}\"?"
 
 msgid ""
 "Are you sure you want to reset all overrides for the output layer "
 "\"{{outputLayerId}}\"?"
 msgstr ""
+"Er du sikker på at du vil nullstille alle overstyringer for utgangslaget "
+"\"{{outputLayerId}}\"?"
 
 msgid "Are you sure you want to reset all overrides for the selected row?"
 msgstr ""
+"Er du sikker på at du vil nullstille alle overstyringer for den valgte "
+"raden?"
 
 msgid ""
 "Are you sure you want to reset all overrides for the source layer "
 "\"{{sourceLayerId}}\"?"
 msgstr ""
+"Er du sikker på at du vil nullstille alle overstyringer for kildelaget "
+"\"{{sourceLayerId}}\"?"
 
 msgid ""
 "Are you sure you want to reset the database version?\n"
@@ -607,7 +631,7 @@ msgstr ""
 "\"{{fileName}}\"?"
 
 msgid "Are you sure you want to skip the fix up config step for {{name}}"
-msgstr ""
+msgstr "Er du sikker på at du vil hoppe over konfigurasjonssteget for {{name}}"
 
 msgid ""
 "Are you sure you want to update the blueprints from the file "
@@ -626,6 +650,8 @@ msgid ""
 "\"{{snapshotName}}\"?\r\n"
 "This cannot be undone!!"
 msgstr ""
+"Er du sikker på at du virkelig vil SLETTE snapshotet \"{{snapshoName}}\"?\n"
+"Dette kan IKKE angres!"
 
 msgid "Are you sure?"
 msgstr "Er du sikker?"
@@ -634,18 +660,20 @@ msgid ""
 "Are you sure? This will cause the whole Sofie system to be unresponsive "
 "several seconds!"
 msgstr ""
+"Er du sikker? Dette vil medføre at hele Sofie-systemet ikke vil respondere "
+"på flere sekunder!"
 
 msgid "Around 10 minutes ago"
-msgstr "Cirka 10 minutter siden"
+msgstr "For rundt 10 minutter siden"
 
 msgid "Assign"
 msgstr "Tilordne"
 
 msgid "Assigned Show Styles"
-msgstr ""
+msgstr "Tildelte showstyles"
 
 msgid "Assigned Studios"
-msgstr ""
+msgstr "Tildelte studio"
 
 msgid "Attached Subdevices"
 msgstr "Tilkoblede underenheter"
@@ -654,25 +682,25 @@ msgid "Audio Mixing"
 msgstr "Lydmiksing"
 
 msgid "Authorize App Access"
-msgstr ""
+msgstr "Godkjenn app-tilgang"
 
 msgid "Auto"
 msgstr "Auto"
 
 msgid "Auto-rewind segment when leaving it"
-msgstr ""
+msgstr "Sett segmentet tilbake til start når du går videre fra det"
 
 msgid "AutoNext in QuickLoop behavior"
-msgstr ""
+msgstr "AutoNext i QuickLoop-oppførsel"
 
 msgid "Available Screens for Studio {{studioId}}"
-msgstr ""
+msgstr "Tilgjengelige skjermer for studio {{studioId}}"
 
 msgid "Bad"
 msgstr "Feil"
 
 msgid "Bank Index"
-msgstr ""
+msgstr "Bankindeks"
 
 msgid "Base URL"
 msgstr "Base-url"
@@ -692,30 +720,32 @@ msgid "Blueprint"
 msgstr "Blueprint"
 
 msgid "Blueprint config has changed"
-msgstr ""
+msgstr "Blueprintkonfigurasjonen er endret"
 
 msgid "Blueprint config preset"
-msgstr ""
+msgstr "Forhåndsinnstillinger for blueprint"
 
 msgid ""
 "Blueprint config preset has been changed. From \"{{ oldValue }}\", to \"{{ "
 "newValue }}\""
 msgstr ""
+"Blueprint standardinnstilling har blitt endret, fra \"{{ oldValue }}\" til "
+"\"{{ newValue }}\""
 
 msgid "Blueprint config preset is missing"
-msgstr ""
+msgstr "Forhåndsinnstillinger for blueprint mangler"
 
 msgid "Blueprint config preset not set"
-msgstr ""
+msgstr "Forhåndsinnstillinger for blueprint er ikke satt"
 
 msgid "Blueprint Configuration"
 msgstr "Blueprintkonfigurasjon"
 
 msgid "Blueprint has a new version"
-msgstr ""
+msgstr "Blueprint har en ny versjon"
 
 msgid "Blueprint has been changed. From \"{{ oldValue }}\", to \"{{ newValue }}\""
-msgstr ""
+msgstr "Blueprint har blitt endret, fra \"{{ oldValue }}\" til \"{{ newValue }}\""
 
 msgid "Blueprint ID"
 msgstr "Blueprint-id"
@@ -724,10 +754,10 @@ msgid "Blueprint Name"
 msgstr "Blueprintnavn"
 
 msgid "Blueprint not found!"
-msgstr ""
+msgstr "Blueprint ikke funnet!"
 
 msgid "Blueprint not set"
-msgstr "Blueprint ikke valgt"
+msgstr "Blueprint ikke satt"
 
 msgid "Blueprint Type"
 msgstr "Blueprinttype"
@@ -742,10 +772,10 @@ msgid "Blueprints updated successfully."
 msgstr "Blueprints ble oppdatert."
 
 msgid "Bottom"
-msgstr ""
+msgstr "Nederst"
 
 msgid "Box color"
-msgstr ""
+msgstr "Farge for boks"
 
 msgid "BREAK"
 msgstr "PAUSE"
@@ -754,10 +784,10 @@ msgid "Break In"
 msgstr "Pause om"
 
 msgid "Bucket AdLib is not compatible with this Rundown!"
-msgstr ""
+msgstr "Bøtte-adlib er ikke kompatible med denne kjøreplanen!"
 
 msgid "Bucket not found!"
-msgstr ""
+msgstr "Bøtte ikke funnet!"
 
 msgid "Button"
 msgstr "Knapp"
@@ -766,28 +796,28 @@ msgid "Button height scale factor"
 msgstr "Høydeskala for knapp"
 
 msgid "Button mapping"
-msgstr ""
+msgstr "Mapping av knapp"
 
 msgid "Button width scale factor"
 msgstr "Breddeskala for knapp"
 
 msgid "By Parts"
-msgstr ""
+msgstr "Etter punker"
 
 msgid "By Segments"
-msgstr ""
+msgstr "Etter segmenter"
 
 msgid "Camera"
 msgstr "Kamera"
 
 msgid "Camera Screen"
-msgstr ""
+msgstr "Kameraskjerm"
 
 msgid "Can Generate Adlib Testing Rundown"
-msgstr ""
+msgstr "Kjøreplan for adlib-testing kan opprettes"
 
 msgid "Can not be used during a hold!"
-msgstr ""
+msgstr "Kan ikke brukes under HOLD!"
 
 msgid "Cancel"
 msgstr "Avbryt"
@@ -796,22 +826,22 @@ msgid "Cancel currently pressed hotkey"
 msgstr "Avbryt den trykte tasten"
 
 msgid "Cannot activate HOLD before a part has been taken!"
-msgstr ""
+msgstr "Kan ikke aktivere HOLD før et punkt har blitt tatt!"
 
 msgid "Cannot activate HOLD between the current and next parts"
-msgstr ""
+msgstr "Kan ikke aktivere HOLD mellom nåværende og neste punkt"
 
 msgid "Cannot activate HOLD once an adlib has been used"
-msgstr ""
+msgstr "Kan ikke aktivere HOLD når en adlib har blitt brukt"
 
 msgid "Cannot cancel HOLD once it has been taken"
-msgstr ""
+msgstr "Kan ikke avbryte HOLD når den har blitt tatt"
 
 msgid "Cannot connect to the {{platformName}}: {{reason}}"
-msgstr ""
+msgstr "Kan ikke koble til {{platformName}}: {{reason}}"
 
 msgid "Cannot perform take for {{duration}}ms"
-msgstr ""
+msgstr "Kan ikke gjøre en TAKE før om {{duration}} ms"
 
 msgid "Cannot play this AdLib because it is marked as Floated"
 msgstr "Kan ikke spille av adlib fordi den er markert som på vent (float)"
@@ -823,25 +853,25 @@ msgid "Cannot play this adlib because source layer is not queueable"
 msgstr "Kan ikke spille av adlib fordi den ikke kan settes i kø på kildelaget"
 
 msgid "Cannot remove the rundown \"{{name}}\" while it is on-air."
-msgstr ""
+msgstr "Kan ikke slette kjøreplanen \"{{name}}\" mens den er aktiv."
 
 msgid "Cannot take close to an AUTO"
-msgstr ""
+msgstr "Kan ikke utføre en TAKE så nær en AUTOTAKE"
 
 msgid "Cannot take during a transition"
-msgstr ""
+msgstr "Kan ikke utføre en TAKE under en transition"
 
 msgid "Cannot take unplayable AdLib"
-msgstr ""
+msgstr "Kan ikke utføre en ikke-spillbar adlib"
 
 msgid "CasparCG on device \"{{deviceName}}\" restarting..."
 msgstr "CasparCG på \"{{deviceName}}\" starter på nytt..."
 
 msgid "Center"
-msgstr ""
+msgstr "Sentrere"
 
 msgid "Change to fullscreen mode"
-msgstr "Fullskjermmodus"
+msgstr "Bytt til fullskjermmodus"
 
 msgid "Channel Name"
 msgstr "Kanalnavn"
@@ -850,6 +880,8 @@ msgid ""
 "Check layer types to select all layers of that type, or check individual "
 "layers for more specific filtering."
 msgstr ""
+"Velg lagtype for å velge alle lag av denne typen, eller velg individuelle "
+"lag for mer spesifik filtering."
 
 msgid "Check the console for troubleshooting data from device \"{{deviceName}}\"!"
 msgstr "Sjekk konsollen for feilsøkingsdata fra enheten \"{{deviceName}}\"!"
@@ -858,6 +890,8 @@ msgid ""
 "Clean up old data (eg. evaluations, user action logs) that is older than "
 "this, in milliseconds"
 msgstr ""
+"Rydd opp gammel data (som evalueringer, brukerlogg o.l.) som er eldre enn "
+"dette (i millisekund)"
 
 msgid "Cleanup"
 msgstr "Opprydding"
@@ -872,37 +906,37 @@ msgid "Clear {{layerName}}"
 msgstr "Tøm {{layerName}}"
 
 msgid "Clear filter"
-msgstr ""
+msgstr "Tøm filter"
 
 msgid "Clear queued segment"
 msgstr "Fjern cuet tittel"
 
 msgid "Clear QuickLoop"
-msgstr ""
+msgstr "Fjern QuickLoop"
 
 msgid "Clear QuickLoop End"
-msgstr ""
+msgstr "Fjern slutt for QuickLoop"
 
 msgid "Clear QuickLoop Start"
-msgstr ""
+msgstr "Fjern start for QuickLoop"
 
 msgid "Clear Source Layer"
 msgstr "Tøm kildelag"
 
 msgid "Clear value"
-msgstr ""
+msgstr "Tøm verdi"
 
 msgid "Clearing SourceLayer"
-msgstr ""
+msgstr "Tøm kildelag"
 
 msgid "Click anywhere for fullscreen"
-msgstr ""
+msgstr "Klikk hvor som helst for fullskjerm"
 
 msgid "Click on a rundown to control your studio"
 msgstr "Klikk på en kjøreplan for å kontrollere studioet ditt"
 
 msgid "Click or press Enter for fullscreen"
-msgstr ""
+msgstr "Klikk eller trykk på Enter for fullskjerm"
 
 msgid "Click to show available Package Containers"
 msgstr "Klikk for å vise tilgjengelige pakkekontainere"
@@ -914,10 +948,10 @@ msgid "Client IP"
 msgstr "Klient-ip"
 
 msgid "Clip starts with {{frames}} black frames"
-msgstr ""
+msgstr "Klippet starter med {{frames}} svarte ruter"
 
 msgid "Clip starts with {{frames}} freeze frames"
-msgstr ""
+msgstr "Klippet starter med {{frames}} fryste ruter"
 
 msgid "Clips"
 msgstr "Klipp"
@@ -926,92 +960,103 @@ msgid "Close"
 msgstr "Lukk"
 
 msgid "Close Properties Panel"
-msgstr ""
+msgstr "Lukk panel med egenskaper"
 
 msgid "Close Rundown"
-msgstr ""
+msgstr "Lukk kjøreplan"
 
 msgid "Comma-separated list of studio labels to filter by. Leave empty for all."
 msgstr ""
+"Kommaseparert liste over studioetikketter for filtering. La være tom for å "
+"velge alle."
 
 msgid "Comma-separated speeds in px/frame"
-msgstr ""
+msgstr "Kommaseparerte hastigheter i px/ruter"
 
 msgid "Compact"
-msgstr ""
+msgstr "Kompakt"
 
 msgid "Compatible Studios"
-msgstr ""
+msgstr "Kompatible studio"
 
 msgid "Completed with warnings"
-msgstr ""
+msgstr "Fullført med advarsler"
 
 msgid "Config Fix Up must be run or ignored before the configuration can be edited"
 msgstr ""
+"'Fiks konfigurasjon' må kjøres eller ignoreres før konfigurasjonen kan "
+"endres"
 
 msgid "Config for {{name}} fix failed"
-msgstr ""
+msgstr "Reparasjon av konfigurasjon for {{name}} var mislykket"
 
 msgid "Config for {{name}} fixed successfully"
-msgstr ""
+msgstr "Reparasjon for konfigurasjonen for {{name}} var vellykket"
 
 msgid "Config for {{name}} upgraded failed"
-msgstr ""
+msgstr "Oppdatering av konfigurasjon for {{name}} var mislykket"
 
 msgid "Config for {{name}} upgraded successfully"
-msgstr ""
+msgstr "Oppdatering av konfigurasjon for {{name}} var vellykket"
 
 msgid "Config has not been applied before"
-msgstr ""
+msgstr "Konfigurasjon har ikke blitt brukt tidligere"
 
 msgid "Config ID: "
-msgstr ""
+msgstr "Konfigurasjons-id:"
 
 msgid "Config looks good"
-msgstr ""
+msgstr "Konfigurasjonen ser bra ut"
 
 msgid "Config preset"
-msgstr ""
+msgstr "Forhåndsinnstillinger for konfigurasjon"
 
 msgid "Config preset is missing"
-msgstr ""
+msgstr "Forhåndsinnstillinger for konfigurasjon mangler"
 
 msgid "Config preset not set"
-msgstr ""
+msgstr "Forhåndsinnstillinger for konfigurasjon ikke satt"
 
 msgid "Config requires fixing up before it can be validated"
-msgstr ""
+msgstr "Konfigurasjon må korrigeres før den kan bli validert"
 
 msgid ""
 "Config value \"{{ name }}\" has changed. From \"{{ oldValue }}\", to \"{{ "
 "newValue }}\""
 msgstr ""
+"Konfigurasjonsverdien \"{{ name }}\" har blitt endret, fra \"{{ oldValue "
+"}}\" til \" {{ newValue }}\""
 
 msgid "Configurable Screens"
-msgstr ""
+msgstr "Konfigurerbare skjermer"
 
 msgid ""
 "Configuration for this Gateway has moved to the Studio Peripheral Device "
 "settings"
 msgstr ""
+"Konfigurasjon for denne gatewayen har blitt flyttet til innstillinger for "
+"tilkoblede enheter under studio"
 
 msgid "Configure display options"
-msgstr ""
+msgstr "Konfigurer visningsalternativer"
 
 msgid ""
 "Configure which pieces should display their assigned AB resolver channel "
 "(e.g., \"Server A\") on various screens. This helps operators identify "
 "which video server is playing each clip."
 msgstr ""
+"Konfigurér hvilke elementer som skal vise sine tildelte AB-resolverkanaler "
+"(f.eks. \"Server A\") på forskjellige skjermer. Dette hjelper operatører "
+"med å identifisere hvilken videoserver som spiller hvert klipp."
 
 msgid "Confirm"
-msgstr ""
+msgstr "Bekreft"
 
 msgid "Connect some devices to the playout gateway"
 msgstr "Koble til en eller flere enheter til playout gatewayen"
 
 msgid "Connect to {{deviceName}}"
-msgstr ""
+msgstr "Koble til {{deviceName}}"
 
 msgid "Connected"
 msgstr "Tilkoblet"
@@ -1020,25 +1065,25 @@ msgid "Connected App Containers"
 msgstr "Tilkoblede app-kontainere"
 
 msgid "Connected Expectation Managers"
-msgstr ""
+msgstr "Tilkoblet Expectation Managers"
 
 msgid "Connected to the {{platformName}}."
-msgstr ""
+msgstr "Koblet til {{platformName}}."
 
 msgid "Connected Workers"
 msgstr "Tilkoblede arbeidere"
 
 msgid "Connecting to the {{platformName}}"
-msgstr ""
+msgstr "Kobler til {{platformName}}"
 
 msgid "Container Status"
-msgstr ""
+msgstr "Status for pakkekontainer"
 
 msgid "Control mode"
-msgstr ""
+msgstr "Kontrollmodus"
 
 msgid "Control modes"
-msgstr ""
+msgstr "Kontrollmodus"
 
 msgid ""
 "Controls for exposed Route Sets will be displayed to the producer within "
@@ -1048,10 +1093,10 @@ msgstr ""
 "kjøreplansvisningen i omkoblingspanelet."
 
 msgid "Core"
-msgstr ""
+msgstr "Core"
 
 msgid "Core + Worker processing time"
-msgstr ""
+msgstr "Core + Worker prosesseringstid"
 
 msgid "Core System settings"
 msgstr "Systeminstillinger for Core"
@@ -1061,21 +1106,24 @@ msgid ""
 "was created just moments ago. If you want another snapshot, try again in a "
 "couple of seconds."
 msgstr ""
+"Kunne ikke ta et snapshot for evalueringen, siden det forrige snapshotet "
+"ble tatt nå nettopp. Hvis du vil ta et snapshot til, prøv igjen om noen "
+"sekunder."
 
 msgid "Could not get system status. Please consult system administrator."
 msgstr "Kan ikke innhente status for systemet. Kontakt systemadministrator."
 
 msgid "Could not restart core: {{err}}"
-msgstr ""
+msgstr "Kunne ikke starte Core på nytt: {{err}}"
 
 msgid "Could not restart Playout Gateway \"{{playoutDeviceName}}\"."
 msgstr "Playout-gateway \"{{playoutDeviceName}}\" kunne ikke startes på nytt."
 
 msgid "Count down to freeze-frame"
-msgstr ""
+msgstr "Nedtelling til fryst rute"
 
 msgid "Create Adlib Testing Rundown"
-msgstr ""
+msgstr "Opprett kjøreplan for adlib-testing"
 
 msgid "Create new Bucket"
 msgstr "Opprett ny bøtte"
@@ -1084,16 +1132,16 @@ msgid "Created"
 msgstr "Opprettet"
 
 msgid "Creating a new Bucket"
-msgstr ""
+msgstr "Oppretter en ny bøtte"
 
 msgid "Creating Adlib Testing Rundown"
-msgstr ""
+msgstr "Oppretter kjøreplan for adlib-testing"
 
 msgid "Creating Snapshot for debugging"
-msgstr ""
+msgstr "Tar et snapshop for senere feilsøking"
 
 msgid "Critical problems"
-msgstr ""
+msgstr "Kritiske problemer"
 
 msgid "Critical Problems"
 msgstr ""
@@ -1105,7 +1153,7 @@ msgid "Current Part"
 msgstr "Nåværende del"
 
 msgid "Current part can contain next pieces"
-msgstr ""
+msgstr "Nåværende del kan inneholde neste elementer"
 
 msgid "Current Segment"
 msgstr "Nåværende tittel"
@@ -1117,49 +1165,49 @@ msgid "Custom Hotkey Labels"
 msgstr "Egendefinerte etiketter for hurtigtaster"
 
 msgid "Database connection to {{database}} lost"
-msgstr ""
+msgstr "Mistet tilkoblingen til databasen {{database}}"
 
 msgid "Deactivate"
 msgstr "Deaktiver"
 
 msgid "Deactivate \"On Air\""
-msgstr ""
+msgstr "Deaktivér OnAir"
 
 msgid "Deactivate Rundown"
-msgstr "Deaktiver kjøreplan"
+msgstr "Deaktivér kjøreplan"
 
 msgid "Deactivate Studio"
-msgstr ""
+msgstr "Deaktivér studio"
 
 msgid "Deactivating other Rundown Playlist, and activating this one"
-msgstr ""
+msgstr "Deaktiver den aktive kjøreplanlisten, og aktiver denne i stedet"
 
 msgid "Deactivating Rundown Playlist"
-msgstr ""
+msgstr "Deaktiverer kjøreplanlisten"
 
 msgid "Debug"
-msgstr ""
+msgstr "Feilsøk"
 
 msgid "Debug mode"
-msgstr ""
+msgstr "Feilsøkingsmodus"
 
 msgid "Debug State"
-msgstr ""
+msgstr "Feilsøkingsstaus"
 
 msgid "Default"
 msgstr "Standard"
 
 msgid "Default (hide)"
-msgstr ""
+msgstr "Standard (skjul)"
 
 msgid "Default Layout"
 msgstr "Standardlayout"
 
 msgid "Default Part Display Duration"
-msgstr ""
+msgstr "Standard varighet å vise for del"
 
 msgid "Default Shelf Display Options"
-msgstr ""
+msgstr "Standard visningsvalg for skuff"
 
 msgid "Default shelf height"
 msgstr "Standard høyde for skuff"
@@ -1168,36 +1216,38 @@ msgid "Default State"
 msgstr "Standardtilstand"
 
 msgid "Default Timeline Time Scale"
-msgstr ""
+msgstr "Standard tidsskala for tidslinje"
 
 msgid ""
 "Default value used to toggle Shelf options when the 'display' URL argument "
 "is not provided"
 msgstr ""
+"Standard verdi brukt for å toggle valgmuligheter for skuff når "
+"'display-url-argument' ikke er oppgitt"
 
 msgid "Default zoom factor of the timelines in the UI"
-msgstr ""
+msgstr "Standard zoomfaktor for tidslinjen i brukergrensesnittet"
 
 msgid "Delete"
 msgstr "Slett"
 
 msgid "Delete Action Trigger"
-msgstr ""
+msgstr "Slett handlingsutløser"
 
 msgid "Delete layout?"
 msgstr "Slett layout?"
 
 msgid "Delete mapping"
-msgstr ""
+msgstr "Slett lagmapping"
 
 msgid "Delete output layer"
-msgstr ""
+msgstr "Slett utgangslag"
 
 msgid "Delete rundown?"
 msgstr "Slette kjøreplanen?"
 
 msgid "Delete source layer"
-msgstr ""
+msgstr "Slett kildelag"
 
 msgid "Delete this AdLib"
 msgstr "Slett denne adliben"
@@ -1221,7 +1271,7 @@ msgid "Delete this Studio?"
 msgstr "Slett dette studioet?"
 
 msgid "Device"
-msgstr ""
+msgstr "Enhet"
 
 msgid "Device \"{{deviceName}}\" restarting..."
 msgstr "\"{{deviceName}}\" starter på nytt..."
@@ -1233,22 +1283,22 @@ msgid "Device ID"
 msgstr "Enhets-id"
 
 msgid "Device is already attached to another studio."
-msgstr ""
+msgstr "Enheten er allerede tilkoblet til et annet studio."
 
 msgid "Device is missing configuration schema"
-msgstr ""
+msgstr "Enhet mangler i konfigurasjonsskjema"
 
 msgid "Device is of unknown type"
-msgstr ""
+msgstr "Enhet er av ukjent type"
 
 msgid "Device Name"
 msgstr "Enhetsnavn"
 
 msgid "Device not found"
-msgstr ""
+msgstr "Enhet ikke funnet"
 
 msgid "Device Triggers"
-msgstr ""
+msgstr "Enhetsutløsere"
 
 msgid "Device Type"
 msgstr "Enhetstype"
@@ -1266,22 +1316,22 @@ msgid "Diff"
 msgstr "Forskjell"
 
 msgid "Director Screen"
-msgstr ""
+msgstr "Producerskjerm"
 
 msgid "Director's Screen"
-msgstr ""
+msgstr "Producer sin skjerm"
 
 msgid "Disable"
-msgstr ""
+msgstr "Deaktivér"
 
 msgid "Disable blur border"
-msgstr ""
+msgstr "Deaktiver 'vindu ikke i fokus'-ramme"
 
 msgid "Disable Context Menu"
 msgstr "Skru av kontekstmeny"
 
 msgid "Disable follow take"
-msgstr ""
+msgstr "Deaktivér følg TAKE"
 
 msgid "Disable hints by adding this to the URL:"
 msgstr "Deaktiver hint ved å legge dette til på url-en:"
@@ -1293,9 +1343,11 @@ msgid ""
 "Disable the blur border around the Rundown view when it is not in focus and "
 "studio mode is enabled"
 msgstr ""
+"Deaktiver 'vindu ikke i fokus'-rammen rundt kjøreplanen når den er aktiv "
+"men nettleservinduet ikke har fokus"
 
 msgid "Disable the hover Inspector when hovering over the button"
-msgstr ""
+msgstr "Deaktiver inspektøren når du holder musepeker over knappen"
 
 msgid "Disable the next element"
 msgstr "Skip neste super"
@@ -1307,7 +1359,10 @@ msgid "Disabled"
 msgstr "Deaktivert"
 
 msgid "Disabling next Piece"
-msgstr ""
+msgstr "Skipper neste element"
+
+msgid "Discard"
+msgstr "Avvis"
 
 msgid "Disconnected"
 msgstr "Frakoblet"
@@ -1318,25 +1373,25 @@ msgid ""
 msgstr ""
 
 msgid "Dismiss"
-msgstr ""
+msgstr "Avvis"
 
 msgid "Dismiss all notifications"
-msgstr ""
+msgstr "Avvis alle varslinger"
 
 msgid "Display AB channel assignments on:"
-msgstr ""
+msgstr "Vis tildeling av AB-kanaler på:"
 
 msgid "Display AdLibs in a column in List View"
-msgstr ""
+msgstr "Vis adlibber i en kolonne i listevisningen"
 
 msgid "Display in a column in List View"
-msgstr ""
+msgstr "Vis som en kolonne i listevisningen"
 
 msgid "Display name of the Package Container"
 msgstr "Pakkekontainerens navn som vises i oversikten"
 
 msgid "Display piece duration for source layers"
-msgstr ""
+msgstr "Vis varighet for elementer på kildelag"
 
 msgid "Display Rank"
 msgstr "Rangering for visning"
@@ -1353,9 +1408,12 @@ msgid ""
 "\n"
 "This cannot be undone!"
 msgstr ""
+"Er du sikker på at du vil fjerne bare kjøreplanen \"{{rundownName}}\" i "
+"spillelisten {{playlistName}} fra Sofie?\n"
+"Dette kan ikke angres!"
 
 msgid "Do you really want to restore the snapshot \"{{snapshotName}}\"?"
-msgstr ""
+msgstr "Er du sikker på at du vil gjenopprette snapshotet \"{{snapshotName}}\"?"
 
 msgid "Do you want to activate this Rundown?"
 msgstr "Vil du aktivere denne kjøreplanen?"
@@ -1368,16 +1426,16 @@ msgstr ""
 "erstatte dem?"
 
 msgid "Do you want to do this?"
-msgstr ""
+msgstr "Vil du gjøre dette?"
 
 msgid "Do you want to execute {{actionName}}? This may the disrupt the output"
-msgstr ""
+msgstr "Vil du utføre {{actionName}}? Dette kan påvirke utgangen"
 
 msgid "Do you want to restart CasparCG Server \"{{device}}\"?"
-msgstr "Er du sikker på at du vil restarte CasparCG Server \"{{device}}\"?"
+msgstr "Vil du restarte CasparCG Server \"{{device}}\"?"
 
 msgid "Do you want to restart the Playout Gateway?"
-msgstr ""
+msgstr "Vil du restarte Playout-Gatewayen?"
 
 msgid "Documentation is available at"
 msgstr "Dokumentasjon er tilgjengelig på"
@@ -1386,7 +1444,7 @@ msgid "Documents to be removed:"
 msgstr "Dokumenter som fjernes:"
 
 msgid "Does NOT support HEAD requests"
-msgstr ""
+msgstr "HEAD requests støttes IKKE"
 
 msgid "Done"
 msgstr "Utført"
@@ -1401,49 +1459,49 @@ msgid "Drop Rundown here to move it out of its current Playlist"
 msgstr "Slipp kjøreplanen her for å flytte den ut av spillelisten"
 
 msgid "Dropzone URL"
-msgstr ""
+msgstr "Droppsone-url"
 
 msgid "Duplicate Action Trigger"
-msgstr ""
+msgstr "Duplisér handlingsutløser"
 
 msgid "Duration"
 msgstr "Varighet"
 
 msgid "DURATION"
-msgstr ""
+msgstr "VARIGHET"
 
 msgid "e.g., Studio A,Studio B"
-msgstr ""
+msgstr "f.eks. Studio A, Studio B"
 
 msgid "Edit"
-msgstr ""
+msgstr "Redigér"
 
 msgid "Edit Action Trigger"
-msgstr ""
+msgstr "Redigér handlingsutløser"
 
 msgid "Edit in Nora"
 msgstr "Rediger i Nora"
 
 msgid "Edit mapping"
-msgstr ""
+msgstr "Endre lagmapping"
 
 msgid "Edit Mode"
-msgstr ""
+msgstr "Redigeringsmodus"
 
 msgid "Edit output layer"
-msgstr ""
+msgstr "Redigér utgangslag"
 
 msgid "Edit Part Properties"
-msgstr ""
+msgstr "Redigér egenskaper for punkt"
 
 msgid "Edit Piece Properties"
-msgstr ""
+msgstr "Redigér egenskaper for element"
 
 msgid "Edit Segment Properties"
-msgstr ""
+msgstr "Redigér egenskaper for tittel"
 
 msgid "Edit source layer"
-msgstr ""
+msgstr "Redigér kildelag"
 
 msgid "Edit Support Panel"
 msgstr "Rediger supportpanel"
@@ -1455,7 +1513,7 @@ msgid "Empty this Bucket"
 msgstr "Tøm denne bøtten"
 
 msgid "Emptying Bucket"
-msgstr ""
+msgstr "Tømmer bøtte"
 
 msgid "Enable"
 msgstr "Aktiver"
@@ -1464,13 +1522,13 @@ msgid "Enable \"Play from Anywhere\""
 msgstr "Slå på \"Play from Anywhere\""
 
 msgid "Enable AdLib Testing, for testing AdLibs before taking the first Part"
-msgstr ""
+msgstr "Aktivér adlibtesting, for å teste adlibber før man har startet kjøreplanen"
 
 msgid "Enable automatic storage of Rundown Playlist snapshots periodically"
-msgstr ""
+msgstr "Aktivér periodiske automatiske lagringer av snapshots for kjøreplanliste"
 
 msgid "Enable Buckets"
-msgstr ""
+msgstr "Aktivér bøtter"
 
 msgid "Enable CasparCG restart job"
 msgstr "Aktiver CasparCG restartjobber"
@@ -1481,33 +1539,37 @@ msgstr ""
 "nettadressen."
 
 msgid "Enable Evaluation Form"
-msgstr ""
+msgstr "Aktivér skjemaet for evalueringar"
 
 msgid "Enable hints by adding this to the URL:"
 msgstr "Aktiver hint ved å legge dette til på url-en:"
 
 msgid "Enable QuickLoop"
-msgstr ""
+msgstr "Aktivér QuickLoop"
 
 msgid "Enable search toolbar"
 msgstr "Aktiver søkeverktøy"
 
 msgid "Enable User Editing"
-msgstr ""
+msgstr "Aktivér brukerredigering"
 
 msgid "Enabled"
 msgstr "Aktivert"
 
 msgid "Enabled on all Parts, applying QuickLoop Fallback Part Duration if needed"
 msgstr ""
+"Aktivert for alle punkter, bruker standard varighet for punkt i QuickLoop "
+"ved behov"
 
 msgid "Enabled, but skipping parts with undefined or 0 duration"
-msgstr ""
+msgstr "Aktivert, men hopper over punkter uten eller med 0 i varighet"
 
 msgid ""
 "Enables internal monitoring of blocked main thread. Logs when there is an "
 "issue, but (unverified) might cause issues in itself."
 msgstr ""
+"Aktiverer overvåkning av 'blocked main thread'. Logger når det er feil, men "
+"KAN forårsake feil selv (ikke verifisert)."
 
 msgid "End of script"
 msgstr "Slutt på manus"
@@ -1516,7 +1578,7 @@ msgid "Error"
 msgstr "Feil"
 
 msgid "Error when checking for cleaning up"
-msgstr ""
+msgstr "Feil mens det ble sett etter ting å rydde opp"
 
 msgid "Error: The ShowStyle of this Rundown was not found."
 msgstr "Feil: Kan ikke finne showstyle for denne kjøreplanen."
@@ -1525,10 +1587,10 @@ msgid "Error: The studio of this Rundown was not found."
 msgstr "Feil: Kan ikke finne studioet for denne kjøreplanen."
 
 msgid "Est. End"
-msgstr ""
+msgstr "Forv. slutt"
 
 msgid "Estimated end"
-msgstr ""
+msgstr "Forventet sluttid"
 
 msgid "Evaluations"
 msgstr "Evalueringer"
@@ -1549,17 +1611,17 @@ msgid "Execute"
 msgstr "Utfør"
 
 msgid "Execute User Operation"
-msgstr ""
+msgstr "Utfør brukeroperasjon"
 
 msgid "Executed {{actionName}} on device \"{{deviceName}}\": {{response}}"
-msgstr ""
+msgstr "Utførte {{actionName}} på enheten \"{{deviceName}}\": {{response}}"
 
 msgid "Executed {{actionName}} on device \"{{deviceName}}\"..."
-msgstr ""
+msgstr "Utførte {{actionName}} på enheten \"{{deviceName}}\"..."
 
 msgid "Executes within the currently open Rundown, requires a Client-side trigger."
 msgstr ""
-"Utføers innenfor den valgte kjøreplanen, men trenger en utløser fra "
+"Blir utført innenfor den valgte kjøreplanen, men trenger en utløser fra "
 "klienten."
 
 msgid "Execution times"
@@ -1569,7 +1631,7 @@ msgid "Exit"
 msgstr "Lukk"
 
 msgid "Expectation Manager"
-msgstr ""
+msgstr "Expectation Manager"
 
 msgid "Expected End"
 msgstr "Forventet slutt"
@@ -1581,10 +1643,10 @@ msgid "Expected Start"
 msgstr "Forventet slutt"
 
 msgid "Export"
-msgstr "Eksporter"
+msgstr "Eksportér"
 
 msgid "Export visible"
-msgstr ""
+msgstr "Eksportér synlige"
 
 msgid "Expose as user selectable layout"
 msgstr "Gjør tilgjengelig som brukervalgt layout"
@@ -1599,47 +1661,51 @@ msgid "Failed to activate"
 msgstr "Kunne ikke aktivere"
 
 msgid "Failed to add a new Show Style Variant: {{errorMessage}}"
-msgstr ""
+msgstr "Klarte ikke legge til en ny showstylevariant: {{errorMessage}}"
 
 msgid "Failed to assign AB player for {{pieceNames}}"
-msgstr ""
+msgstr "Kunne ikke tildele AB-spiller for {{pieceNames}}"
 
 msgid "Failed to assign non-critical AB player for {{pieceNames}}"
-msgstr ""
+msgstr "Kunne ikke tildele ikke-kritisk AB-spiller for {{pieceNames}}"
 
 msgid "Failed to compare config changes"
-msgstr ""
+msgstr "Klarte ikke sammenligne endringer i konfigurasjon"
 
 msgid "Failed to copy Show Style Variant: {{errorMessage}}"
-msgstr ""
+msgstr "Kopiering av showstylevariant var mislykket: {{errorMessage}}"
 
 msgid "Failed to delete Show Style Variant: {{errorMessage}}"
-msgstr ""
+msgstr "Sletting av showstylevariant var mislykket: {{errorMessage}}"
 
 msgid ""
 "Failed to execute {{actionName}} on device: \"{{deviceName}}\": "
 "{{errorMessage}}"
 msgstr ""
+"Kunne ikke utføre {{actionName}} på enheten \"{{deviceName}}\": "
+"{{errorMessage}}"
 
 msgid "Failed to execute take"
-msgstr "Kunne ikke gjennomføre Take"
+msgstr "Kunne ikke utføre TAKE"
 
 msgid "Failed to generate adlib rundown! {{message}}"
-msgstr ""
+msgstr "Kunne ikke opprette kjøreplan for adlib-testing! {{message}}"
 
 msgid "Failed to import new Show Style Variants: {{errorMessage}}"
-msgstr ""
+msgstr "Import av nye showstylevarianter var mislykket: {{errorMessage}}"
 
 msgid ""
 "Failed to import Show Style Variant {{name}}. Make sure it is not already "
 "imported."
 msgstr ""
+"Import av showstylevarianten {{name}} var mislykket. Sjekk at den ikke er "
+"importert allerede."
 
 msgid "Failed to remove all Show Style Variants: {{errorMessage}}"
-msgstr ""
+msgstr "Klarte ikke å fjerne alle showstylevarianter: {{errorMessage}}"
 
 msgid "Failed to reorderShow Style Variant: {{errorMessage}}"
-msgstr ""
+msgstr "Klarte ikke å sortere showstylevarianter: {{errorMessage}}"
 
 msgid "Failed to reset OAuth credentials: {{errorMessage}}"
 msgstr "Nullstiling av OAuth credentials feilet: {{errorMessage}}"
@@ -1649,6 +1715,12 @@ msgstr "Omstart av CasparCG på \"{{deviceName}}\" feilet: {{errorMessage}}"
 
 msgid "Failed to restart device: \"{{deviceName}}\": {{errorMessage}}"
 msgstr "Kunne ikke starte \"{{deviceName}}\" på nytt: {{errorMessage}}"
+
+msgid "Failed to save assignment"
+msgstr "Kunne ikke lagre tildeling"
+
+msgid "Failed to save assignment: {{errorMessage}}"
+msgstr "Kunne ikke lagre tildeling: {{errorMessages}}"
 
 msgid "Failed to update blueprints: {{errorMessage}}"
 msgstr "Oppdatering av blueprints feilet: {{errorMessage}}"
@@ -1663,19 +1735,19 @@ msgid "Failed to upload shelf layout: {{errorMessage}}"
 msgstr "Opplasting av layout feilet: {{errorMessage}}"
 
 msgid "Failed to validate config"
-msgstr ""
+msgstr "Kunne ikke validere konfigurasjonen"
 
 msgid "Fatal"
 msgstr "Kritisk"
 
 msgid "File path to the folder of the local folder"
-msgstr "Sti til lokale mappe"
+msgstr "Sti til lokal mappe"
 
 msgid "Filter by Output Layer"
-msgstr ""
+msgstr "Filtrér etter utgangslag"
 
 msgid "Filter by Source Layer"
-msgstr ""
+msgstr "Filtrér etter kildelag"
 
 msgid "Filter disabled"
 msgstr "Filter deaktivert"
@@ -1684,7 +1756,7 @@ msgid "Filter Disabled"
 msgstr "Filter deaktivert"
 
 msgid "Filter..."
-msgstr ""
+msgstr "Filtrér..."
 
 msgid "Filters"
 msgstr "Filtre"
@@ -1693,10 +1765,10 @@ msgid "Find Trigger..."
 msgstr "Finn utløser..."
 
 msgid "Fine scroll"
-msgstr ""
+msgstr "Fin scroll"
 
 msgid "Fix Up Config"
-msgstr ""
+msgstr "Reparér konfigurasjon"
 
 msgid "Fixed duration in Segment header"
 msgstr "Låst varighet i tittelheader"
@@ -1707,11 +1779,11 @@ msgid ""
 "(This might affect output)"
 msgstr ""
 "Feilretting krever en omstart av {{device}}. Er du sikker på at du ønsker å "
-"starte enheten på nytt?(Dette kan påvirke gjennomføring av en pågående "
+"starte enheten på nytt? (Dette kan påvirke gjennomføring av en pågående "
 "sending)"
 
 msgid "Floated Adlib"
-msgstr ""
+msgstr "Adlib satt på vent"
 
 msgid "Floated AdLib"
 msgstr "Adlib satt på vent"
@@ -1726,19 +1798,19 @@ msgid "Follow On-Air Segments History"
 msgstr ""
 
 msgid "Following"
-msgstr ""
+msgstr "Følger"
 
 msgid "Font size"
-msgstr ""
+msgstr "Fontstørrelse"
 
 msgid "for {{name}} fix skipped successfully"
-msgstr ""
+msgstr "for {{name}} ble hoppet over (vellykket)"
 
 msgid "Force"
 msgstr "Tving"
 
 msgid "Force (deactivate others)"
-msgstr "Tving (deaktiver andre)"
+msgstr "Tving (deaktivér andre)"
 
 msgid "Force Migration"
 msgstr "Tving migrering"
@@ -1750,37 +1822,46 @@ msgid "Force the Multi-gateway-mode"
 msgstr "Tving multigateway-modus"
 
 msgid "Forward"
-msgstr ""
+msgstr "Videresend"
 
 msgid "Forward: {{forward}}"
-msgstr ""
+msgstr "Videresend: {{forward}}"
 
 msgid "Found no future pieces"
-msgstr ""
+msgstr "Fant ingen fremtidige elementer"
 
 msgid "Frame Rate"
 msgstr "Framerate"
 
 msgid "From"
-msgstr ""
+msgstr "Fra"
+
+msgid "FTP Base Path"
+msgstr "FTP-basepath"
+
+msgid "FTP password"
+msgstr "FTP-passord"
+
+msgid "FTP username"
+msgstr "FTP-brukernavn"
 
 msgid "Full System Snapshot"
 msgstr "Fullt systemsnapshot"
 
 msgid "fullscreen"
-msgstr ""
+msgstr "fullskjerm"
 
 msgid "Gateway"
-msgstr ""
+msgstr "Gateway"
 
 msgid "General"
-msgstr ""
+msgstr "Generell"
 
 msgid "Generated URL"
-msgstr ""
+msgstr "Generert url"
 
 msgid "Generating restart token"
-msgstr ""
+msgstr "Genererer Restart Token"
 
 msgid "Generic Properties"
 msgstr "Generelle egenskaper"
@@ -1798,13 +1879,13 @@ msgid "Global AdLibs"
 msgstr "Globale adliber"
 
 msgid "Go to Live"
-msgstr ""
+msgstr "Gå til Live"
 
 msgid "Go to On Air line"
 msgstr "Gå til OnAir-posisjon"
 
 msgid "Go to On Air Segment"
-msgstr ""
+msgstr "Gå til tittelen som er OnAir"
 
 msgid "Good"
 msgstr "Bra"
@@ -1813,13 +1894,13 @@ msgid "Graphics"
 msgstr "Grafikk"
 
 msgid "GUI"
-msgstr "Brukergrensesnitt"
+msgstr "GUI"
 
 msgid "he default state of this Route Set"
-msgstr ""
+msgstr "Standardtilstand for denne omdirigeringen"
 
 msgid "Heading"
-msgstr ""
+msgstr "Overskrift"
 
 msgid "Height"
 msgstr "Høyde"
@@ -1828,13 +1909,13 @@ msgid "Help & Support"
 msgstr "Hjelp og brukerstøtte"
 
 msgid "Hide"
-msgstr ""
+msgstr "Skjul"
 
 msgid "Hide Countdown"
 msgstr "Skjul nedtelling"
 
 msgid "Hide default AdLib Start/Execute options"
-msgstr ""
+msgstr "Skjul standardalternativ for Adlib Start/Execute"
 
 msgid "Hide Diff"
 msgstr "Skjul forskjell"
@@ -1855,7 +1936,7 @@ msgid "Hide Label"
 msgstr "Skjul etikett"
 
 msgid "Hide over/under timer"
-msgstr ""
+msgstr "Skjul timer for over/under"
 
 msgid "Hide Panel from view"
 msgstr "Ikke vis dette panelet"
@@ -1873,19 +1954,25 @@ msgid "Hide rundown divider between rundowns in a playlist"
 msgstr "Skjul skille mellom kjøreplaner i en spilleliste"
 
 msgid "Hide scrollbar"
-msgstr ""
+msgstr "Skjul scrollbar"
 
 msgid "Hold"
-msgstr "Hold"
+msgstr "HOLD"
+
+msgid "Host address"
+msgstr "Adresse for vert"
+
+msgid "Host port"
+msgstr "Port for vert"
 
 msgid "Hostname or IP address of the Atem"
-msgstr ""
+msgstr "Vertsnavn eller ip-adresse for Atem"
 
 msgid "Hotkey"
 msgstr "Hurtigtast"
 
 msgid "How did the show go?"
-msgstr ""
+msgstr "Hvordan gikk sendingen?"
 
 msgid ""
 "How many of the transactions to monitor. Set to -1 to log nothing (max "
@@ -1899,11 +1986,15 @@ msgid ""
 "How many segments of history to show when scrolling back in time (0 = show "
 "current segment only)"
 msgstr ""
+"Hvor mange segmenter tilbake i tid som vises når man scroller bakover i tid "
+"(0 = vis kun gjeldende segment)"
 
 msgid ""
 "How much preparation time to add to global pieces on the timeline before "
 "they are played"
 msgstr ""
+"Hvor lang forberedelsestid som skal legges til et globalt element på "
+"tidslinjen før de spilles"
 
 msgid "HTML that will be shown in the Support Panel"
 msgstr "HTML-kode som vil bli vist i supportpanelet"
@@ -1921,7 +2012,7 @@ msgid "Id"
 msgstr "Id"
 
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 msgid ""
 "ID of the device (corresponds to the device ID in the peripheralDevice "
@@ -1932,15 +2023,17 @@ msgid "ID of the timeline-layer to map to some output"
 msgstr "Lag-id for tidslinjelaget som skal mappes til en utgang"
 
 msgid "Idempotency-Key is already used"
-msgstr ""
+msgstr "Idempotency-nøkkel er allerede i bruk"
 
 msgid "Idempotency-Key is missing"
-msgstr ""
+msgstr "Idempotency-nøkkel mangler"
 
 msgid ""
 "If enabled, countdowns of videos will count down to the last freeze-frame "
 "of the video instead of to the end of the video"
 msgstr ""
+"Når akitvert vil nedtelling av videoklipp telle ned til den siste fryste "
+"ruten i videoen i stedet for til slutten av videoen"
 
 msgid "If set, only one Route Set will be active per exclusivity group"
 msgstr ""
@@ -1952,36 +2045,41 @@ msgid ""
 "requests and will use GET instead. If false, HEAD requests will be sent to "
 "check availability."
 msgstr ""
+"Når aktiver antar Package Manager at en kilde ikke støtter HEAD requests, "
+"og bruker GET i stedet. Hvis inaktiv, vil HEAD requests bli sendt for å "
+"sjekke tilgjengelighet."
 
 msgid "Ignore and apply"
-msgstr ""
+msgstr "Ignorér og bruk"
 
 msgid "Ignore QuickLoop"
-msgstr ""
+msgstr "Ignorér QucikLoop"
 
 msgid "Ignoring take as playing part has changed since TAKE was requested."
 msgstr ""
+"Ignorerer TAKE siden det spillende punktet har blitt endret siden TAKE ble "
+"trykket."
 
 msgid "Ignoring TAKES that are too quick after eachother ({{duration}} ms)"
-msgstr ""
+msgstr "Ignorerer TAKES som kommer for tett på hverandre ({{duration}} ms)"
 
 msgid "Import"
-msgstr "Importer"
+msgstr "Importér"
 
 msgid "Import error: {{errorMessage}}"
-msgstr ""
+msgstr "Import feilet: {{errorMessage}}"
 
 msgid "Import file?"
-msgstr ""
+msgstr "Importér fil?"
 
 msgid "Importing an AdLib to the Bucket"
-msgstr ""
+msgstr "Importerer en adlib til bøtten"
 
 msgid "In"
-msgstr "Inn"
+msgstr "Om"
 
 msgid "IN"
-msgstr ""
+msgstr "OM"
 
 msgid "in {{days}} days, {{hours}} h {{minutes}} min {{seconds}} s"
 msgstr "om {{days}} dager, {{hours}} t {{minutes}} min {{seconds}} s"
@@ -1996,46 +2094,46 @@ msgid "in {{seconds}} s"
 msgstr "om {{seconds}} s"
 
 msgid "In rehearsal"
-msgstr ""
+msgstr "I testmodus"
 
 msgid "Include Clear Source Layer in Ad-Libs"
 msgstr "Ta med \"Tøm kildelag\" i adliber"
 
 msgid "Include Global AdLibs"
-msgstr "Inkluder globale adliber"
+msgstr "Inkludér globale adliber"
 
 msgid "Indicate only one next piece per source layer"
-msgstr ""
+msgstr "Angi bare et neste element per kildelag"
 
 msgid "Ingest Devices"
-msgstr ""
+msgstr "Innlesingsenheter"
 
 msgid "Ingest devices are needed to create rundowns"
-msgstr ""
+msgstr "Innlesingsenheter trengs for å opprette kjøreplaner"
 
 msgid "Ingest from Snapshot"
-msgstr ""
+msgstr "Les inn fra snapshot"
 
 msgid "Ingest Rundown Status"
-msgstr ""
+msgstr "Status for innlesing av kjøreplan"
 
 msgid "Ingest Rundown Statuses"
-msgstr ""
+msgstr "Status for innlesing av kjøreplan"
 
 msgid "Input Devices"
-msgstr ""
+msgstr "Input-enheter"
 
 msgid "Input devices allow you to trigger Sofie actions remotely"
-msgstr ""
+msgstr "Input-enheter lar deg utløse Sofie-kommandoer eksternt"
 
 msgid "Installation name"
 msgstr "Installasjonsnavn"
 
 msgid "Insufficient {{resource}}: {{available}} available, {{required}} required"
-msgstr ""
+msgstr "Utilstrekkelig {{resource}}: {{availble}} tilgjengelig, {{required}} trengs"
 
 msgid "Internal Error generating RundownPlaylist"
-msgstr ""
+msgstr "Intern feil under opprettelse av kjøreplanliste"
 
 msgid "Internal ID"
 msgstr "Intern-id"
@@ -2044,21 +2142,23 @@ msgid "Invalid AdLib"
 msgstr "Ugyldig adlib"
 
 msgid "Invalid blueprint: \"{{blueprintId}}\""
-msgstr ""
+msgstr "Ugyldig blueprint: \"{{blueprintId}}\""
 
 msgid ""
 "Invalid config preset for blueprint: \"{{configPresetId}}\" "
 "({{blueprintId}})"
 msgstr ""
+"Ugyldig standardinnstilling for blueprint: \"{{configPresetId}}\" "
+"({{blueprintId}})"
 
 msgid "Invert joystick"
-msgstr ""
+msgstr "Invertér joysticken"
 
 msgid "Is a Guest Input"
 msgstr "Er en gjesteinngang"
 
 msgid "Is a Live Remote Input"
-msgstr "Er en RM"
+msgstr "Er en DIR"
 
 msgid "Is collapsed by default"
 msgstr "Er minimert som standard"
@@ -2070,7 +2170,7 @@ msgid "Is hidden"
 msgstr "Er skjult"
 
 msgid "Is Immutable"
-msgstr ""
+msgstr "Kan ikke endres"
 
 msgid "Is PGM Output"
 msgstr "Er programutgang"
@@ -2079,27 +2179,31 @@ msgid "ISA URLs"
 msgstr "ISA-adresse (url)"
 
 msgid "Job Status"
-msgstr ""
+msgstr "Jobbstatus"
 
 msgid "Just now"
-msgstr "Nå"
+msgstr "Akkurat nå"
 
 msgid "Key"
-msgstr "Key"
+msgstr "Nøkkel"
 
 msgid "Key to use as the poison key (aborts hotkey actions). Leave empty to disable"
 msgstr ""
+"Tast som brukes  for å avbryter hurtigtastkommandoer. La den være tom for å "
+"deaktivere"
 
 msgid "Keyboard"
-msgstr ""
+msgstr "Tastatur"
 
 msgid ""
 "Keyboard shortcuts and Stream Deck buttons will not work while filling out "
 "the form!"
 msgstr ""
+"Tastatursnarveier og StreamDeck-taster vil ikke fungere mens evalueringen "
+"fylles inn!"
 
 msgid "Kill (debug)"
-msgstr "Kill (debug)"
+msgstr "Kill (feilsøking)"
 
 msgid "Label"
 msgstr "Etikett"
@@ -2108,7 +2212,7 @@ msgid "Label contains"
 msgstr "Etikett inneholder"
 
 msgid "Large"
-msgstr ""
+msgstr "Stor"
 
 msgid "Last"
 msgstr "Forrige"
@@ -2123,16 +2227,16 @@ msgid "Last seen"
 msgstr "Sist sett"
 
 msgid "Last Seen"
-msgstr ""
+msgstr "Sist sett"
 
 msgid "Last update"
-msgstr "Nyeste oppdatering"
+msgstr "Siste oppdatering"
 
 msgid "Last updated"
 msgstr "Sist oppdatert"
 
 msgid "Layer does not allow sticky pieces!"
-msgstr ""
+msgstr "Laget tillater ikke sticky elementer!"
 
 msgid "Layer ID"
 msgstr "Lag-id"
@@ -2144,7 +2248,7 @@ msgid "Layer Name"
 msgstr "Lagnavn"
 
 msgid "Leave Unsynced"
-msgstr "Behold ikke-synkronisert kjøreplan"
+msgstr "Behold ikke-synkronisert"
 
 msgid "Less than a minute ago"
 msgstr "Under ett minutt siden"
@@ -2153,22 +2257,22 @@ msgid "Less than five minutes ago"
 msgstr "Under fem minutter siden"
 
 msgid "Lighting"
-msgstr ""
+msgstr "Lys"
 
 msgid "Limit"
 msgstr "Grense"
 
 msgid "Live line countdown requires Source Layer"
-msgstr ""
+msgstr "Nedtelling til direkte krever et kildelag"
 
 msgid "Live Speak"
 msgstr "STK"
 
 msgid "Loading"
-msgstr ""
+msgstr "Laster inn"
 
 msgid "Loading..."
-msgstr ""
+msgstr "Laster inn..."
 
 msgid "Local"
 msgstr "Lokal"
@@ -2180,16 +2284,16 @@ msgid "Logging level"
 msgstr "Loggenivå"
 
 msgid "Logo"
-msgstr ""
+msgstr "Logotype"
 
 msgid "Lookahead Maximum Search Distance (Undefined = {{limit}})"
-msgstr ""
+msgstr "Lookahead maksimum søkelengde (standard = {{limit}})"
 
 msgid "Lookahead Mode"
 msgstr "Lookahead-modus"
 
 msgid "Lookahead Target Objects (Undefined = 1)"
-msgstr ""
+msgstr "Lookahead målobjekter (standard = 1)"
 
 msgid "Loop End"
 msgstr "Slutt for loop"
@@ -2198,7 +2302,7 @@ msgid "Loop Start"
 msgstr "Start for loop"
 
 msgid "Loops to Start"
-msgstr ""
+msgstr "Looper tilbake til start"
 
 msgid "Lower Third"
 msgstr "Super"
@@ -2207,40 +2311,40 @@ msgid "Manage Snapshots"
 msgstr "Behandle snapshots"
 
 msgid "Mapping cannot be reset as it has no default values"
-msgstr ""
+msgstr "Mapping kan ikke nullstilles da den ikke har standardverdier"
 
 msgid "Mapping Type"
-msgstr ""
+msgstr "Mappingtype"
 
 msgid "Mappings"
 msgstr "Lagmappinger"
 
 msgid "Margin (%)"
-msgstr ""
+msgstr "Marg (%)"
 
 msgid "Maximum data age"
-msgstr ""
+msgstr "Maksimum data age"
 
 msgid "Maximum register limit"
-msgstr ""
+msgstr "Maksimum register limit"
 
 msgid "Media"
 msgstr "Media"
 
 msgid "Media Preview URL"
-msgstr "Forhåndsvisnings-URL"
+msgstr "Forhåndsvisnings-url"
 
 msgid "Media Status"
-msgstr ""
+msgstr "Status for medieoverføringer"
 
 msgid "Media Type"
-msgstr ""
+msgstr "Mediatype"
 
 msgid "Memory troubleshooting"
-msgstr ""
+msgstr "Feilsøk minne"
 
 msgid "Menu"
-msgstr ""
+msgstr "Meny"
 
 msgid "Message"
 msgstr "Melding"
@@ -2249,7 +2353,7 @@ msgid "Message Queue"
 msgstr "Meldingskø"
 
 msgid "Message shown to users in the Evaluations form"
-msgstr ""
+msgstr "Beskjed som skal vises til brukere i evalueringsskjemaet"
 
 msgid "Messages"
 msgstr "Meldinger"
@@ -2258,61 +2362,61 @@ msgid "Method"
 msgstr "Metode"
 
 msgid "Method ${method}"
-msgstr ""
+msgstr "Metode ${method}"
 
 msgid "MIDI Pedal"
-msgstr ""
+msgstr "MIDI-pedal"
 
 msgid "Migrate database"
-msgstr "Migrer database"
+msgstr "Migrér database"
 
 msgid "Migrations"
 msgstr "Migrering"
 
 msgid "Mini shelf AdLib button size"
-msgstr ""
+msgstr "Størrelse for adlib-knapp i miniskuff"
 
 msgid "Mini Shelf Layout"
 msgstr "Layouter for miniskuff"
 
 msgid "Mini Shelf Layouts"
-msgstr ""
+msgstr "Layouter for miniskuff"
 
 msgid "Minimum register limit"
-msgstr ""
+msgstr "Minimum register limit"
 
 msgid "Minimum Take Span"
-msgstr ""
+msgstr "Minste tid mellom TAKES"
 
 msgid "Minor Warning"
 msgstr "Mindre advarsel (avvik)"
 
 msgid "Mirror horizontally"
-msgstr ""
+msgstr "Speile horisontalt"
 
 msgid "Mirror vertically"
-msgstr ""
+msgstr "Speile vertikalt"
 
 msgid "Mock Piece Content Status"
-msgstr ""
+msgstr "Innholdsstatus for dummyelement"
 
 msgid "Modal \"Confirm\" key"
-msgstr ""
+msgstr "Modal \"Bekreft\" tast"
 
 msgid "Mode: {{triggerMode}}"
-msgstr ""
+msgstr "Modus: {{triggerMode}}"
 
 msgid "Modify Shift register"
-msgstr ""
+msgstr "Endre skiftregister"
 
 msgid "Modifying Bucket"
-msgstr ""
+msgstr "Endre bøtte"
 
 msgid "Modifying Bucket AdLib"
-msgstr ""
+msgstr "Endre bøtteadlib"
 
 msgid "Monitor blocked thread"
-msgstr ""
+msgstr "Overvåk blokkert tråd"
 
 msgid "More documentation available at:"
 msgstr "Mer dokumentasjon er tilgjengelig på:"
@@ -2333,7 +2437,7 @@ msgid "More than a day ago"
 msgstr "Over en dag siden"
 
 msgid "Mouse"
-msgstr ""
+msgstr "Mus"
 
 msgid "Move Next"
 msgstr "Skip neste"
@@ -2357,7 +2461,7 @@ msgid "Move Segments"
 msgstr "Skip segmenter"
 
 msgid "Moving Next"
-msgstr ""
+msgstr "Skipper neste"
 
 msgid "Multi-gateway-mode delay time"
 msgstr "Delaytid for multigateway-modus"
@@ -2372,7 +2476,7 @@ msgid "Name"
 msgstr "Navn"
 
 msgid "Network address"
-msgstr ""
+msgstr "Nettverksadresse"
 
 msgid "Network Id"
 msgstr "Nettverk-id"
@@ -2411,7 +2515,7 @@ msgid "Next Segment"
 msgstr "Neste tittel"
 
 msgid "Nintendo Joy-Con"
-msgstr ""
+msgstr "Nintendo Joy-Con"
 
 msgid "No"
 msgstr "Nei"
@@ -2430,13 +2534,13 @@ msgstr ""
 "\"{{rundownPlaylistName}}\""
 
 msgid "No camera-related source layers found"
-msgstr ""
+msgstr "Ingen kamerarelaterte kildelag funnet"
 
 msgid "No changes"
-msgstr ""
+msgstr "Ingen endringer"
 
 msgid "No gateways are configured"
-msgstr ""
+msgstr "Ingen gatewayer er konfigurert"
 
 msgid "No matching Action Trigger."
 msgstr "Fikk ikke treff blant handlingsutløsere."
@@ -2445,31 +2549,33 @@ msgid "No matching Rundowns available to be used for preview"
 msgstr "Ingen passende kjøreplaner tilgjengelige for forhåndsvisning"
 
 msgid "No Media matches this filter"
-msgstr ""
+msgstr "Ingen media matcher dette filteret"
 
 msgid "No Media required by this system"
-msgstr ""
+msgstr "Ingen media kreves av dette systemet"
 
 msgid "No Media required for this Rundown"
-msgstr ""
+msgstr "Ingen media kreves for denne kjøreplanen"
 
 msgid "No migrations to apply"
-msgstr ""
+msgstr "Ingen migreringer å bruke"
 
 msgid "No name set"
 msgstr "Navn ikke definert"
 
 msgid "No Next point found, please set a part as Next before doing a TAKE."
 msgstr ""
+"Ingen neste-punkt funnet, vennligst sett et punkt som neste før du gjør et "
+"TAKE"
 
 msgid "No notifications"
-msgstr ""
+msgstr "Ingen varsler"
 
 msgid "No output channels set"
 msgstr "Ingen utgangskanal definert"
 
 msgid "No output layers available"
-msgstr ""
+msgstr "Ingen utgangslag tilgjengelige"
 
 msgid "No PGM output"
 msgstr "Ingen programutgang"
@@ -2478,10 +2584,10 @@ msgid "No problems"
 msgstr "Ingen problemer"
 
 msgid "No schema has been provided for this mapping"
-msgstr ""
+msgstr "Ingen skjema har blitt tilgjengeliggjort for denne mappingen"
 
 msgid "No source layers available"
-msgstr ""
+msgstr "Ingen kildelag tilgjengelig"
 
 msgid "No source layers set"
 msgstr "Ingen kildelag definert"
@@ -2493,7 +2599,7 @@ msgid "None"
 msgstr "Ingen"
 
 msgid "Normal scrolling"
-msgstr ""
+msgstr "Normal scrolling"
 
 msgid "Not Active"
 msgstr "Inaktiv"
@@ -2508,7 +2614,7 @@ msgid "Not Global"
 msgstr "Ikke globale"
 
 msgid "Not in rehearsal"
-msgstr ""
+msgstr "Ikke i testmodus"
 
 msgid "Not queueable"
 msgstr "Kan ikke settes i kø"
@@ -2520,25 +2626,25 @@ msgid "Note: Core needs to be restarted to apply these settings"
 msgstr "Merknad: Core må startes på nytt for å ta i bruk disse innstillingene"
 
 msgid "Notes"
-msgstr ""
+msgstr "Merknader"
 
 msgid "Nothing to cleanup!"
-msgstr ""
+msgstr "Ingenting å rense!"
 
 msgid "Nothing was found on layer!"
-msgstr ""
+msgstr "Ingenting ble funnet på laget!"
 
 msgid "Now Active Rundown"
-msgstr ""
+msgstr "Kjøreplan som er aktiv nå"
 
 msgid "NRCS Name"
-msgstr ""
+msgstr "NRCS-navn"
 
 msgid "OAuth credentials successfully reset"
-msgstr ""
+msgstr "Nullstilling av OAuth credentials var vellykket"
 
 msgid "OAuth credentials successfully uploaded."
-msgstr ""
+msgstr "Opplasting av OAuth credentials var vellykket."
 
 msgid "Off"
 msgstr "Av"
@@ -2553,13 +2659,13 @@ msgid "On"
 msgstr "På"
 
 msgid "On Air"
-msgstr "On Air"
+msgstr "OnAir"
 
 msgid "On Air At"
-msgstr "On Air klokken"
+msgstr "OnAir klokken"
 
 msgid "On Air In"
-msgstr "On Air om"
+msgstr "OnAir om"
 
 msgid "On Air Start Time"
 msgstr "Sendestart"
@@ -2574,16 +2680,18 @@ msgid ""
 "One of these source layers must have a piece for the countdown to segment "
 "on-air to be show"
 msgstr ""
-"Et av disse kildelagene må ha et element for at nedtelling til tittelen er "
-"OnAir vises"
+"Et av disse kildelagene må ha et element for at nedtelling til tittelen som "
+"er OnAir vises"
 
 msgid ""
 "One of these source layers must have an active piece for the live line "
 "countdown to be show"
 msgstr ""
+"Et av disse kildelagene må ha et aktivt element for at nedtelling til "
+"tittelen som er OnAir vises"
 
 msgid "Only custom trigger modes will be shown"
-msgstr ""
+msgstr "Bare tilpassede triggermodus vil bli vist"
 
 msgid "Only Display AdLibs from Current Segment"
 msgstr "Vis kun adliber fra gjeldende tittel"
@@ -2598,6 +2706,8 @@ msgid ""
 "Only one rundown can be active at the same time. Currently active rundowns: "
 "{{names}}"
 msgstr ""
+"Bare en kjøreplan kan være aktiv om gangen. Nåværende aktiv kjøreplan: "
+"{{names}}"
 
 msgid "Only Pieces present in rundown are sticky"
 msgstr "Kun elementer tilstede i kjøreplanen er sticky"
@@ -2606,16 +2716,16 @@ msgid "Open"
 msgstr "Åpne"
 
 msgid "Open Camera Screen"
-msgstr ""
+msgstr "Åpne kameraskjerm"
 
 msgid "Open Fullscreen"
-msgstr ""
+msgstr "Åpne fullskjerm"
 
 msgid "Open Presenter Screen"
-msgstr ""
+msgstr "Åpne klokkeskjerm"
 
 msgid "Open Prompter"
-msgstr ""
+msgstr "Åpne prompter"
 
 msgid "Open shelf by default"
 msgstr "Åpne skuff som standard"
@@ -2624,7 +2734,7 @@ msgid "Operating Mode"
 msgstr "Styringsmodus"
 
 msgid "Operation"
-msgstr ""
+msgstr "Drift"
 
 msgid "Optional description of the action"
 msgstr "Valgfri beskrivelse av handlingen"
@@ -2633,30 +2743,32 @@ msgid ""
 "Optionally restrict AB channel display to specific output layers (e.g., "
 "only PGM). Leave empty to show for all output layers."
 msgstr ""
+"Valgfri restriksjon av AB-kanalvisning til å presisere utgangslag (f.eks. "
+"bare PGM). La den være tom for å vise alle utgangslag."
 
 msgid "Order 66?"
-msgstr ""
+msgstr "Bestilling 66?"
 
 msgid "Original Layer"
 msgstr "Opprinnelig lag"
 
 msgid "Original Layer not found"
-msgstr ""
+msgstr "Det opprinnelige laget ikke funnet"
 
 msgid "Other"
-msgstr ""
+msgstr "Andre"
 
 msgid "Out"
 msgstr "Ut"
 
 msgid "OUT"
-msgstr ""
+msgstr "UT"
 
 msgid "Output channels"
-msgstr "Utgangskanal"
+msgstr "Utgangskanaler"
 
 msgid "Output Channels"
-msgstr "Utgangskanal"
+msgstr "Utgangskanaler"
 
 msgid "Output channels are required for your studio to work"
 msgstr "Utgangskanaler er nødvendige for at studioet ditt skal fungere"
@@ -2665,10 +2777,10 @@ msgid "Output Layer"
 msgstr "Utgangslag"
 
 msgid "Over"
-msgstr ""
+msgstr "Over"
 
 msgid "Overflow horizontally"
-msgstr "Horisontal overflyt"
+msgstr "Fyll ut horisontalt"
 
 msgid "Overlay Screen"
 msgstr ""
@@ -2686,19 +2798,19 @@ msgid "Package Containers to use for thumbnails"
 msgstr "Pakkekontainere som skal benyttes til miniatyrbilder"
 
 msgid "Package Manager"
-msgstr "Pakkebehandler"
+msgstr "Package Manager"
 
 msgid "Package Manager is offline"
-msgstr ""
+msgstr "Package Manager er offline"
 
 msgid "Package Manager status"
-msgstr "Status fo pakkebehandler"
+msgstr "Status for Package Manager"
 
 msgid "Package Manager: Restart Package Container"
-msgstr ""
+msgstr "Package Manager: Restart pakkekontainer"
 
 msgid "Package Manager: Restart work"
-msgstr ""
+msgstr "Package Manager: Restart jobb"
 
 msgid "Package Status"
 msgstr "Pakkestatus"
@@ -2710,16 +2822,16 @@ msgid "Parameters"
 msgstr "Parametre"
 
 msgid "Parent Config ID"
-msgstr ""
+msgstr "Overordnet enhets-id"
 
 msgid "Parent device is missing"
-msgstr ""
+msgstr "Overordnet enhet mangler"
 
 msgid "Parent Devices"
-msgstr ""
+msgstr "Overordnede enheter"
 
 msgid "part"
-msgstr "punkt"
+msgstr "del"
 
 msgid "Part"
 msgstr "Del"
@@ -2731,10 +2843,10 @@ msgid "Part Count Up"
 msgstr "Opptelling for del"
 
 msgid "Part duration is 0."
-msgstr ""
+msgstr "Varighet for del er 0."
 
 msgid "Part has issues and cannot be taken"
-msgstr ""
+msgstr "Det er et problem med delen som gjør at den ikke kan spilles av"
 
 msgid "Parts Duration"
 msgstr "Varighet for del"
@@ -2752,16 +2864,16 @@ msgid "Peripheral Device is outdated"
 msgstr "Tilkoblet enhet er utdatert"
 
 msgid "Peripheral Device not found!"
-msgstr ""
+msgstr "Enhet ikke funnet!"
 
 msgid "Peripheral Devices"
-msgstr ""
+msgstr "Tilkoblede enheter"
 
 msgid "Pick"
-msgstr "Plukk"
+msgstr "Velg"
 
 msgid "Pick last"
-msgstr "Plukk siste"
+msgstr "Velg siste"
 
 msgid ""
 "Picks the first instance of an adLib per rundown, identified by uniqueness "
@@ -2771,19 +2883,19 @@ msgstr ""
 "unik id"
 
 msgid "Piece on selected source layers will have a duration label shown"
-msgstr ""
+msgstr "Element på valgte kildelag kommer til å vise en etikett med varighet"
 
 msgid "Piece to take is already live!"
-msgstr ""
+msgstr "Element er allerede på luften!"
 
 msgid "Piece to take is not directly playable!"
-msgstr ""
+msgstr "Elementet kan ikke spilles av direkte!"
 
 msgid "Piece to take was not found!"
-msgstr ""
+msgstr "Elementet kunne ikke spilles av (det ble ikke funnet)!"
 
 msgid "Pieces on this layer are sticky"
-msgstr "Elementer i dette laget er sticky"
+msgstr "Elementer på dette laget er sticky"
 
 msgid "Pieces on this layer can be cleared"
 msgstr "Elementer på dette laget kan tømmes"
@@ -2792,13 +2904,13 @@ msgid "Place label below panel"
 msgstr "Plasser etikett under panel"
 
 msgid "Plan. Dur"
-msgstr ""
+msgstr "Planl. lengde"
 
 msgid "Plan. End"
-msgstr ""
+msgstr "Planl. slutt"
 
 msgid "Plan. Start"
-msgstr ""
+msgstr "Planl. start"
 
 msgid "Planned Duration"
 msgstr "Planlagt varighet"
@@ -2819,13 +2931,13 @@ msgid "Play-out"
 msgstr "Avspilling"
 
 msgid "Playlist"
-msgstr ""
+msgstr "Kjøreplanspilleliste"
 
 msgid "Playout Devices"
-msgstr ""
+msgstr "Playout-enheter"
 
 msgid "Playout devices are needed to control your studio hardware"
-msgstr ""
+msgstr "Playout-enheter trengs for å kunne kontrollere ditt studios hardware"
 
 msgid "Playout devices which uses this package container"
 msgstr "Playout-enheter som benytter denne pakkekontaineren"
@@ -2839,52 +2951,54 @@ msgid ""
 msgstr "Vennligst sjekk databasen tilknyttet advarslene over. Hvis nødvendig kan du"
 
 msgid "Please explain the problems you experienced"
-msgstr ""
+msgstr "Vennligst forklar problemene du opplevde"
 
 msgid "Please note: This action is irreversible!"
 msgstr "Merk: Denne handlingen kan ikke angres!"
 
 msgid "Poison Key"
-msgstr ""
+msgstr "Tast for å avbryte"
 
 msgid "Pool name"
-msgstr ""
+msgstr "Poolnavn"
 
 msgid "Pool PlayerId"
-msgstr ""
+msgstr "Poolspiller-id"
 
 msgid "Prepare Studio and Activate (Rehearsal)"
 msgstr "Forbered studio og aktiver testmodus"
 
 msgid "Preparing for broadcast"
-msgstr ""
+msgstr "Forbereder for sending"
 
 msgid "Preparing, please wait..."
-msgstr ""
+msgstr "Forbereder, vennligst vent..."
 
 msgid "Presenter Layout"
-msgstr ""
+msgstr "Layout for klokkeskjerm"
 
 msgid "Presenter screen"
-msgstr ""
+msgstr "Klokkeskjerm"
 
 msgid "Presenter Screen"
-msgstr ""
+msgstr "Klokkeskjerm"
 
 msgid "Presenter View Layouts"
-msgstr ""
+msgstr "Visningslayouter for klokkeskjerm"
 
 msgid "Preserve position of segments when unsynced relative to other segments"
 msgstr ""
+"Bevar segmenters posisjon når de ikke synkroniseres i forhold til andre "
+"segmenter"
 
 msgid "Previous"
-msgstr ""
+msgstr "Forrige"
 
 msgid "Previous work status reasons"
 msgstr "Tidligere årsaker for jobbsatus"
 
 msgid "Prioritizing Media Workflow"
-msgstr ""
+msgstr "Prioritering av arbeidsflyt for media"
 
 msgid "Priority"
 msgstr "Prioritet"
@@ -2899,26 +3013,30 @@ msgid "Prompter"
 msgstr "Prompter"
 
 msgid "Prompter Screen"
-msgstr ""
+msgstr "Prompterskjerm"
 
 msgid "Properties"
-msgstr ""
+msgstr "Egenskaper"
 
 msgid ""
 "Property \"{{ propLabel }}\" does not have a discriminant property "
 "specified for variants"
 msgstr ""
+"Egenskapen \"{{ propLabel }}\" har ikke en diskriminerende egenskap for "
+"presiserte varianter"
 
 msgid "Property \"{{ propLabel }}\" does not have oneOf variants declared"
-msgstr ""
+msgstr "Egenskapen \"{{ propLabel }}\" har ikke definert 'oneOf'-variant"
 
 msgid ""
 "Property \"{{ propLabel }}\" has a variant at index {{ index }} that is not "
 "an object and/or does not specify a discriminant"
 msgstr ""
+"Egenskapen \"{{ propLabel }}\" har en variant på indeks {{ index }} som "
+"ikke er et objekt og/eller ikke har presisert en diskriminator"
 
 msgid "Quantel FileFlow Profile name"
-msgstr "Quantel FileFlow profilnavn"
+msgstr "Profilnavn for Quantel FileFlow"
 
 msgid "Quantel FileFlow URL"
 msgstr "Quantel FileFlow-adresse (url)"
@@ -2930,10 +3048,10 @@ msgid "Quantel transformer URL"
 msgstr "Quantel Transformer-adresse (url)"
 
 msgid "Quantel Zone ID"
-msgstr ""
+msgstr "Quantel sone-id"
 
 msgid "Queue AdLib from Minishelf"
-msgstr ""
+msgstr "Cue adlib fra miniskuff"
 
 msgid "Queue all adlibs"
 msgstr "Cue alle adliber"
@@ -2948,88 +3066,88 @@ msgid "Queued Messages"
 msgstr "Meldinger i kø"
 
 msgid "Queueing next Segment"
-msgstr ""
+msgstr "Cuer neste segment"
 
 msgid "Quick Links"
-msgstr ""
+msgstr "Hurtiglenker"
 
 msgid "QuickLoop Fallback Part Duration"
-msgstr ""
+msgstr "Standard dellengde for QuickLoop"
 
 msgid "Range: Forward max"
-msgstr ""
+msgstr "Rekkevidde: Fram max"
 
 msgid "Range: Neutral max"
-msgstr ""
+msgstr "Rekkevidde: Nøytral max"
 
 msgid "Range: Neutral min"
-msgstr ""
+msgstr "Rekkevidde: Nøytral min"
 
 msgid "Range: Reverse min"
-msgstr ""
+msgstr "Rekkevidde: Revers min"
 
 msgid "Rate limit exceeded"
-msgstr ""
+msgstr "Rate limit overskredet"
 
 msgid "Re-check"
 msgstr "Sjekk på nytt"
 
 msgid "Re-sync"
-msgstr "Synkroniser med MOS"
+msgstr "Synkronisér på nytt"
 
 msgid "Re-Sync"
-msgstr "Synkroniser"
+msgstr "Synkronisér på nytt"
 
 msgid "Re-sync Rundown"
 msgstr "Synkroniser kjøreplanen med ENPS på nytt"
 
 msgid "Re-sync rundown data with {{nrcsName}}"
-msgstr "Ikke synkronisert med MOS/{{nrcsName}}"
+msgstr "Synkronisér med {{nrcsName}} på nytt"
 
 msgid "Re-Sync rundown?"
-msgstr "Synkroniser kjøreplanen med ENPS?"
+msgstr "Synkronisér kjøreplanen med ENPS på nytt?"
 
 msgid "Re-Syncing Rundown"
-msgstr ""
+msgstr "Synkroniserer kjøreplan på nytt"
 
 msgid "Re-Syncing Rundown Playlist"
-msgstr ""
+msgstr "Synkroniserer kjøreplanliste på nytt"
 
 msgid "Read marker position"
-msgstr ""
+msgstr "Lesemarkørens posisjon"
 
 msgid "Reads the ingest (NRCS) data, and pipes it through the blueprints"
-msgstr ""
+msgstr "Leser inn ENPS-dataen og sender den gjennom blueprints"
 
 msgid "Ready"
 msgstr "Klar"
 
 msgid "Reconnect now"
-msgstr ""
+msgstr "Koble til igjen nå"
 
 msgid "Reconnecting to the {{platformName}}"
-msgstr ""
+msgstr "Kobler til {{platformName}} på nytt"
 
 msgid "Refreshing debug states"
-msgstr ""
+msgstr "Oppdater feilsøkingstilstand"
 
 msgid "Register ID"
-msgstr ""
+msgstr "Register-id"
 
 msgid "Rehearsal"
 msgstr "Testmodus"
 
 msgid "Rehearsal end"
-msgstr ""
+msgstr "Testmodus slutt"
 
 msgid "Rehearsal mode is already active"
-msgstr ""
+msgstr "Testmodus er allerede aktivt"
 
 msgid "Rehearsal mode is not allowed"
-msgstr ""
+msgstr "Testmodus er ikke tillatt"
 
 msgid "Rehearsal State"
-msgstr ""
+msgstr "Tilstand for testmodus"
 
 msgid "Reload {{nrcsName}} Data"
 msgstr "Last inn {{nrcsName}}-data på nytt"
@@ -3044,37 +3162,37 @@ msgid "Reload statuses"
 msgstr "Last inn status på nytt"
 
 msgid "Reloading Rundown Playlist Data"
-msgstr ""
+msgstr "Leser inn data for kjøreplanliste"
 
 msgid "Rem. Dur"
-msgstr ""
+msgstr "Gjenv. tid"
 
 msgid "Remaining duration"
-msgstr ""
+msgstr "Gjenværende tid"
 
 msgid "Remote"
-msgstr ""
+msgstr "DIR"
 
 msgid "Remote Source"
-msgstr "RM"
+msgstr "DIR-kilde"
 
 msgid "Remote Speak"
-msgstr ""
+msgstr "DIR-STK"
 
 msgid "Remove"
 msgstr "Fjern"
 
 msgid "Remove all Show Style Variants?"
-msgstr ""
+msgstr "Fjern alle showstylevarianter?"
 
 msgid "Remove all trimming"
 msgstr "Nullstill inn- og utpunkt"
 
 msgid "Remove in-trimming"
-msgstr "Nullstill innpunkt"
+msgstr "Fjern innpunkt"
 
 msgid "Remove indexes"
-msgstr "Fjern indexer"
+msgstr "Fjern indekser"
 
 msgid "Remove old data"
 msgstr "Fjern gamle data"
@@ -3083,16 +3201,16 @@ msgid "Remove old data from database"
 msgstr "Fjern gamle data fra databasen"
 
 msgid "Remove out-trimming"
-msgstr "Nullstill utpunkt"
+msgstr "Fjern utpunkt"
 
 msgid "Remove rundown"
 msgstr "Fjern kjøreplan"
 
 msgid "Remove Snapshot"
-msgstr ""
+msgstr "Fjern snapshot"
 
 msgid "Remove this AB PLayers from this Route Set?"
-msgstr ""
+msgstr "Fjern denne AB-spilleren fra denne omdirigeringen?"
 
 msgid "Remove this device?"
 msgstr "Fjern denne enheten?"
@@ -3122,19 +3240,19 @@ msgid "Remove this Route Set?"
 msgstr "Fjern denne omkoblingsgruppen?"
 
 msgid "Remove this Show Style Variant?"
-msgstr ""
+msgstr "Fjern denne showstylevarianten?"
 
 msgid "Removing Bucket"
-msgstr ""
+msgstr "Fjerner bøtte"
 
 msgid "Removing Bucket AdLib"
-msgstr ""
+msgstr "Fjerner adlib fra bøtte"
 
 msgid "Removing Rundown"
-msgstr ""
+msgstr "Fjerner kjøreplan"
 
 msgid "Removing Rundown Playlist"
-msgstr ""
+msgstr "Fjerner kjøreplanspilleliste"
 
 msgid "Rename this AdLib"
 msgstr "Gi denne adliben nytt navn"
@@ -3143,7 +3261,7 @@ msgid "Rename this Bucket"
 msgstr "Gi bøtten nytt navn"
 
 msgid "Reording Rundowns in Playlist"
-msgstr ""
+msgstr "Endre rekkefølge på kjøreplaner i spillelisten"
 
 msgid "Replace"
 msgstr "Erstatt"
@@ -3152,91 +3270,91 @@ msgid "Replace Blueprints?"
 msgstr "Erstatte blueprints?"
 
 msgid "Replace rows"
-msgstr ""
+msgstr "Erstatt rader"
 
 msgid "Require All Additional Source Layers"
-msgstr ""
+msgstr "Krev alle ytterligere kildelag"
 
 msgid "Require Piece on Source Layer"
-msgstr ""
+msgstr "Krev element på kildelag"
 
 msgid "Reset"
-msgstr ""
+msgstr "Nullstill"
 
 msgid "Reset Action"
-msgstr ""
+msgstr "Nullstill handling"
 
 msgid "Reset All Versions"
 msgstr "Nullstill alle versjoner"
 
 msgid "Reset and Activate \"On Air\""
-msgstr ""
+msgstr "Nullstill og aktivér OnAir"
 
 msgid "Reset App Credentials"
-msgstr ""
+msgstr "Nullstill App Credentials"
 
 msgid "Reset Database Version"
 msgstr "Nullstill databaseversjon"
 
 msgid "Reset mapping to default values"
-msgstr ""
+msgstr "Nullstill mappingen til standardverdier"
 
 msgid "Reset Package Container to default values"
-msgstr ""
+msgstr "Nullstill pakkecontainer til standardverdier"
 
 msgid "Reset row to default values"
-msgstr ""
+msgstr "Nullstill raden til standardverdier"
 
 msgid "Reset Rundown"
-msgstr "Tilbakestill kjøreplanen"
+msgstr "Nullstill kjøreplanen"
 
 msgid "Reset Sort Order"
-msgstr "Tilbakestill rekkefølge"
+msgstr "Nullstill sortering"
 
 msgid "Reset source layer to default values"
-msgstr ""
+msgstr "Nullstill kildelag til standardverdier"
 
 msgid "Reset this item?"
-msgstr ""
+msgstr "Nullstill dette objektet?"
 
 msgid "Reset this mapping?"
-msgstr ""
+msgstr "Nullstill denne mappingen?"
 
 msgid "Reset this Package Container?"
-msgstr ""
+msgstr "Nullstill denne pakkecontaineren?"
 
 msgid "Reset to default"
-msgstr ""
+msgstr "Nullstill til standardverdi"
 
 msgid "Reset User Credentials"
-msgstr ""
+msgstr "Nullstill brukeropplysninger"
 
 msgid "Resetting and activating Rundown Playlist"
-msgstr ""
+msgstr "Nullstiller og aktiverer kjøreplanliste"
 
 msgid "Resetting Playlist to default order"
-msgstr ""
+msgstr "Nullstiller sorteringen av kjøreplaner i spillelisten"
 
 msgid "Resetting Rundown Playlist"
-msgstr ""
+msgstr "Nullstiller kjøreplanlisten"
 
 msgid "Resource Id"
 msgstr "Ressurs-id"
 
 msgid "Restart"
-msgstr "Restart"
+msgstr "Start på nytt"
 
 msgid "Restart {{device}}"
 msgstr "Start {{device}} på nytt"
 
 msgid "Restart All Jobs"
-msgstr ""
+msgstr "Starte alle jobber på nytt"
 
 msgid "Restart CasparCG Server"
-msgstr "Restart CasparCG"
+msgstr "Start CasparCG på nytt"
 
 msgid "Restart Container"
-msgstr ""
+msgstr "Start kontainer på nytt"
 
 msgid "Restart Device"
 msgstr "Start enheten på nytt"
@@ -3248,19 +3366,19 @@ msgid "Restart this Device?"
 msgstr "Start denne enheten på nytt?"
 
 msgid "Restart this system?"
-msgstr "Starte dette Sofie-systemet på nytt?"
+msgstr "Starte dette systemet på nytt?"
 
 msgid "Restarting Media Workflow"
-msgstr ""
+msgstr "Starter mediearbeidsflyt på nytt"
 
 msgid "Restarting Sofie Core"
-msgstr ""
+msgstr "Starter Sofie Core på nytt"
 
 msgid "Restore"
 msgstr "Gjenopprett"
 
 msgid "Restore Deleted Action"
-msgstr ""
+msgstr "Gjenopprett slettet handling"
 
 msgid "Restore from Snapshot File"
 msgstr "Gjenopprett fra snapshotfil"
@@ -3272,19 +3390,19 @@ msgid "Restore from this Snapshot file?"
 msgstr "Gjenopprette fra denne snapshotfilen?"
 
 msgid "Restore Part from NRCS"
-msgstr ""
+msgstr "Gjenopprett punkt fra ENPS"
 
 msgid "Restore Segment from NRCS"
-msgstr ""
+msgstr "Gjenopprett segment fra ENPS"
 
 msgid "Restore Snapshot"
-msgstr ""
+msgstr "Gjenopprett snapshot"
 
 msgid "Resync with NRCS"
-msgstr "Synkroniser med ENPS"
+msgstr "Synkronisér med ENPS"
 
 msgid "Retry"
-msgstr "Prøv igjen"
+msgstr "Prøv på nytt"
 
 msgid "Return to list"
 msgstr "Gå tilbake til listen"
@@ -3293,49 +3411,49 @@ msgid "Reveal in Shelf"
 msgstr "Vis i skuff"
 
 msgid "Reverse speed map"
-msgstr ""
+msgstr "Kart over revershastigheter"
 
 msgid "Reverse speed map (left trigger)"
-msgstr ""
+msgstr "Kart over revershastighet (venstre utløser)"
 
 msgid "Rewind all Segments"
-msgstr ""
+msgstr "Sett alle segmenter tilbake"
 
 msgid "Rewind segments to start"
-msgstr "Sett segmentene tilbake til start"
+msgstr "Sett alle segmenter tilbake til start"
 
 msgid "Rewind Segments to start"
 msgstr "Sett alle segmenter tilbake til start"
 
 msgid "Right hand offset"
-msgstr ""
+msgstr "Høyre offset"
 
 msgid "Role"
 msgstr "Rolle"
 
 msgid "Route Set"
-msgstr ""
+msgstr "Omdirigeringssett"
 
 msgid "Route Set ID"
-msgstr "Omkoblingsgruppe-id"
+msgstr "Omdirigeringssett-id"
 
 msgid "Route Set Name"
-msgstr "Omkoblingsgruppens navn"
+msgstr "Navn for omdirigeringssett"
 
 msgid "Route Sets"
-msgstr "Omkoblingsgrupper"
+msgstr "Omdirigeringssett"
 
 msgid "Route Type"
-msgstr ""
+msgstr "Omdirigeringstype"
 
 msgid "Routed Mappings"
-msgstr ""
+msgstr "Omdirigerte mappinger"
 
 msgid "Routes"
-msgstr "Omkoblinger"
+msgstr "Omdirigeringer"
 
 msgid "Row cannot be reset as it has no default values"
-msgstr ""
+msgstr "Raden kan ikke nullstilles fordi den ikke har noen standardverider"
 
 msgid "Run automatic migration procedure"
 msgstr "Kjør automatisk migreringsprosedyre"
@@ -3351,36 +3469,36 @@ msgid ""
 "from {{nrcsName}}. You can either leave it in Sofie and mark it as Unsynced "
 "or remove the rundown from Sofie. What do you want to do?"
 msgstr ""
-"Kjøreplan {{rundownName}} i listen {{playlistName}} mangler i data fra "
-"{{nrcsName}}. Du kan enten markere den som usynkronisert og beholde den i "
-"Sofie, eller fjerne kjøreplanen fra Sofie. Hva vil du gjøre?"
+"Kjøreplanen {{rundownName}} i listen {{playlistName}} mangler i data fra "
+"{{nrcsName}}. Du kan enten markere den som ikke-synkronisert og beholde den "
+"i Sofie, eller du kan fjerne kjøreplanen fra Sofie. Hva vil du gjøre?"
 
 msgid "Rundown & Shelf"
 msgstr "Kjøreplan & skuff"
 
 msgid "Rundown filter"
-msgstr ""
+msgstr "Filter for kjøreplan"
 
 msgid "Rundown for piece \"{{pieceLabel}}\" could not be found."
 msgstr "Finner ikke kjøreplan for \"{{pieceLabel}}\"."
 
 msgid "Rundown Global Piece Prepare Time"
-msgstr ""
+msgstr "Global forberedelsestid for elementer i kjøreplanen"
 
 msgid "Rundown is already doing a HOLD!"
-msgstr ""
+msgstr "Kjøreplanen gjør allerede en HOLD!"
 
 msgid "Rundown must be active!"
-msgstr ""
+msgstr "Kjøreplanen må være aktivert!"
 
 msgid "Rundown must be playing or have a next!"
-msgstr ""
+msgstr "Kjøreplanen må være startet eller ha et punkt satt som neste!"
 
 msgid "Rundown must be playing!"
-msgstr ""
+msgstr "Kjøreplanen må være startet!"
 
 msgid "Rundown Name"
-msgstr ""
+msgstr "Kjøreplanen sitt navn"
 
 msgid "Rundown not found"
 msgstr "Kjøreplan ikke funnet"
@@ -3389,35 +3507,39 @@ msgid ""
 "Rundown Playlist is active, please deactivate before preparing it for "
 "broadcast"
 msgstr ""
+"Kjøreplanlisten er aktiv, vennligst deaktivér den før du gjør klar til "
+"sending"
 
 msgid "Rundown Playlist is active, please deactivate it before regenerating it."
-msgstr ""
+msgstr "Kjøreplanlisten er aktiv, vennligst deaktivér den før du gjenskaper den."
 
 msgid "Rundown Playlist names to store"
-msgstr ""
+msgstr "Navn for kjøreplanliste som skal lagres"
 
 msgid "Rundown Playlist not found!"
-msgstr ""
+msgstr "Kjøreplanliste ikke funnet!"
 
 msgid "Rundown View"
-msgstr ""
+msgstr "Visning av kjøreplan"
 
 msgid "Rundown View Layouts"
-msgstr ""
+msgstr "Layouter for kjøreplanvisning"
 
 msgid ""
 "RundownPlaylist is active but not in rehearsal, please deactivate it or set "
 "in in rehearsal to be able to reset it."
 msgstr ""
+"Kjøreplanliste er aktiv, men ikke i testmodus. Vennligst deaktiver den "
+"eller sett den i testmodus for å kunne tilbakestille den."
 
 msgid "Rundowns"
 msgstr "Kjøreplaner"
 
 msgid "Runtime error occurred"
-msgstr ""
+msgstr "Runtime error inntraff"
 
 msgid "Save"
-msgstr ""
+msgstr "Lagre"
 
 msgid "Save Changes"
 msgstr "Lagre endringer"
@@ -3426,10 +3548,10 @@ msgid "Save to Bucket"
 msgstr "Lagre til bøtte"
 
 msgid "Saving AdLib to Bucket"
-msgstr ""
+msgstr "Lagre adlib i bøtte"
 
 msgid "Saving Evaluation"
-msgstr ""
+msgstr "Lagre evaluering"
 
 msgid "Scale"
 msgstr "Skala"
@@ -3444,7 +3566,7 @@ msgid "Seg. Budg."
 msgstr ""
 
 msgid "segment"
-msgstr ""
+msgstr "tittel"
 
 msgid "Segment"
 msgstr "Tittel"
@@ -3465,12 +3587,14 @@ msgid "Segment was hidden in {{nrcs}}"
 msgstr "Tittelen eksisterer ikke lenger i {{nrcs}}"
 
 msgid "Segments: {{delta}}"
-msgstr "Segmenter: {{delta}}"
+msgstr "Titler: {{delta}}"
 
 msgid ""
 "Select a presenter layout. Leave as default to use the first available "
 "layout."
 msgstr ""
+"Velg en klokkeskjermlayout. La den være 'default' for å bruke den første "
+"tilgjengelige layouten."
 
 msgid "Select Action"
 msgstr "Velg handling"
@@ -3479,17 +3603,21 @@ msgid "Select Compatible Show Styles"
 msgstr "Velg kompatibel showstyles"
 
 msgid "Select image"
-msgstr ""
+msgstr "Velg bilde"
 
 msgid ""
 "Select one or more control modes. Leave all unchecked for default (mouse + "
 "keyboard)."
 msgstr ""
+"Velg et eller flere kontrollmodus. La den stå uten valg for standard (mus + "
+"tastatur)."
 
 msgid ""
 "Select source layers to display. Leave all unchecked to show all "
 "camera-related layers."
 msgstr ""
+"Velg kildelag som skal vises. La den stå uten valg for å vise alle "
+"kamerarelaterte lag."
 
 msgid "Select visible Output Groups"
 msgstr "Velg synlig utgangsgruppe"
@@ -3501,19 +3629,22 @@ msgid "Select which playout devices are using this package container"
 msgstr "Velg hvilke playout-enheter som skal benytte denne pakkekontaineren"
 
 msgid "Send message"
-msgstr ""
+msgstr "Send evaluering"
 
 msgid "Send message and Deactivate Rundown"
-msgstr ""
+msgstr "Send evaluering og deaktivér kjøreplanen"
 
 msgid "Sent Messages"
 msgstr "Sendte meldinger"
 
 msgid "Server"
-msgstr ""
+msgstr "Server"
 
 msgid "Server {{id}}"
-msgstr ""
+msgstr "Server {{id}}"
+
+msgid "Server host address"
+msgstr "Vertsadresse for server"
 
 msgid "Server ID"
 msgstr "Server-id"
@@ -3523,42 +3654,48 @@ msgid ""
 "clip-searches are zone-wide. If set, clip-searches are limited to that "
 "server."
 msgstr ""
-"Server-ID. For kilder skal denne droppes (eller bli satt til 0) siden "
-"klippsøk skjer i heile sonen. Hvis denne er satt skjer klippsøk bare på den "
+"Server-ID. For kilder skal denne droppes (eller bli satt til 0) fordi "
+"klippsøk skjer i hele sonen. Hvis denne er satt, skjer klippsøk bare på den "
 "serveren."
 
+msgid "Server port"
+msgstr "Serverport"
+
+msgid "Server Type"
+msgstr "Servertype"
+
 msgid "Service {{service}} unavailable: {{reason}}"
-msgstr ""
+msgstr "Tjenesten {{service}} er ikke tilgjengelig: {{reason}}"
 
 msgid "Set"
-msgstr ""
+msgstr "Sett"
 
 msgid "Set as QuickLoop End"
-msgstr ""
+msgstr "Sett som slutt for QuickLoop"
 
 msgid "Set as QuickLoop Start"
-msgstr ""
+msgstr "Sett som start for QuickLoop"
 
 msgid "Set In & Out points"
-msgstr ""
+msgstr "Sett inn- og utpunkter"
 
 msgid "Set part as <strong>Next</strong>"
-msgstr ""
+msgstr "Sett del som <strong>neste</strong>"
 
 msgid "Set segment as <strong>Next</strong>"
-msgstr "Sett tittel som <strong>Neste</strong>: Starter på neste Take"
+msgstr "Sett tittel som <strong>neste</strong> (starter på neste TAKE)"
 
 msgid "Setting as QuickLoop End"
-msgstr ""
+msgstr "Setter som slutt for QuickLoop"
 
 msgid "Setting as QuickLoop Start"
-msgstr ""
+msgstr "Setter som start for QuickLoop"
 
 msgid "Setting Next"
-msgstr ""
+msgstr "Setter neste"
 
 msgid "Setting Next Segment"
-msgstr ""
+msgstr "Setter neste tittel"
 
 msgid "Settings"
 msgstr "Innstillinger"
@@ -3567,13 +3704,13 @@ msgid "Shelf"
 msgstr "Skuff"
 
 msgid "Shelf Layout"
-msgstr "Layouter for skuffen"
+msgstr "Layouter for skuff"
 
 msgid "Shelf layout uploaded successfully."
 msgstr "Opplastingen av layout for skuff var vellykket."
 
 msgid "Shelf Layouts"
-msgstr ""
+msgstr "Layouter for skuff"
 
 msgid "Shortcuts"
 msgstr "Hurtigtaster"
@@ -3582,6 +3719,8 @@ msgid ""
 "Should a segment in the Rundown view automatically rewind after it stops "
 "being live"
 msgstr ""
+"Skal en tittel i kjøreplanvisningen automatisk settes tilbake til start "
+"etter at den er tatt av luften"
 
 msgid "Show \"Remove snapshots\"-buttons"
 msgstr "Vis \"Fjern snapshots\"-knappene"
@@ -3590,7 +3729,7 @@ msgid "Show All"
 msgstr "Vis alle"
 
 msgid "Show config changes"
-msgstr ""
+msgstr "Vis endringer i konfigurasjon"
 
 msgid "Show End"
 msgstr "Sendeslutt"
@@ -3599,10 +3738,10 @@ msgid "Show entire On Air Segment"
 msgstr "Vis hele tittelen som er OnAir"
 
 msgid "Show Hotkeys"
-msgstr "Vise hurtigtaster"
+msgstr "Vis hurtigtaster"
 
 msgid "Show Inspector"
-msgstr ""
+msgstr "Vis inspektørvinduet"
 
 msgid "Show issue"
 msgstr "Vis problem"
@@ -3611,10 +3750,10 @@ msgid "Show panel as a timeline"
 msgstr "Vis panel som en tidslinje"
 
 msgid "Show part title"
-msgstr "Vis delens tittel"
+msgstr "Vis delen sin tittel"
 
 msgid "Show Piece Icon Color"
-msgstr ""
+msgstr "Vis ikonfarge for element"
 
 msgid "Show Rundown Name"
 msgstr "Vis kjøreplannavn"
@@ -3626,84 +3765,86 @@ msgid "Show Style"
 msgstr "Showstyle"
 
 msgid "Show Style Base Name"
-msgstr "Showstylenavn"
+msgstr "Basenavn for showstyle"
 
 msgid "Show style not set"
 msgstr "Showstyle ikke satt"
 
 msgid "Show Style Variants"
-msgstr ""
+msgstr "Showstylevarianter"
 
 msgid "Show Styles"
-msgstr "Showstyle"
+msgstr "Showstyler"
 
 msgid "Show thumbnails next to list items"
 msgstr "Vis miniatyrbilder ved siden av listeelementer"
 
 msgid "ShowStyleBase not found!"
-msgstr ""
+msgstr "Showstylebase ikke funnet"
 
 msgid "Shuttle Keyboard (Contour ShuttleXpress / X-keys)"
-msgstr ""
+msgstr "Shuttle-tastatur (Contour ShuttleXpress / X-keys)"
 
 msgid "Shuttle WebHID (Contour ShuttleXpress via browser)"
-msgstr ""
+msgstr "Shuttle WebJHID (Contour ShuttleXpress via nettleser)"
 
 msgid "Skip Fix Up Step"
-msgstr ""
+msgstr "Hopp over reparasjonssteg"
 
 msgid "Slack Webhook URLs"
 msgstr "Slack Webhook-adresser (url)"
 
 msgid "Smooth scrolling"
-msgstr ""
+msgstr "Myk scrolling"
 
 msgid "Snapshot remove failed: {{errorMessage}}"
-msgstr ""
+msgstr "Fjerning av snapshot feilet: {{errorMessage}}"
 
 msgid "Snapshot restore failed: {{errorMessage}}"
 msgstr "Gjenoppretting fra snapshot feilet: {{errorMessage}}"
 
 msgid "Snapshot restored!"
-msgstr ""
+msgstr "Snapshotet er gjenopprettet!"
 
 msgid "Sofie"
-msgstr ""
+msgstr "Sofie"
 
 msgid "Sofie Automation"
 msgstr "Sofie"
 
 msgid "Sofie Automation Server"
-msgstr ""
+msgstr "Sofie-server"
 
 msgid "Sofie Automation Server Core"
-msgstr ""
+msgstr "Core for Sofie-server"
 
 msgid "Sofie Automation Server Core will restart in {{time}}s..."
-msgstr "Sofie Core restartes om {{time}}s..."
+msgstr "Sofie Core starter på nytt om {{time}}s..."
 
 msgid "Sofie Automation Server Core: {{name}}"
-msgstr "Sofie:"
+msgstr "Sofie: {{name}}"
 
 msgid "Sofie logo to be displayed in the header. Requires a page refresh."
-msgstr ""
+msgstr "Sofie-logo som skal vises i header. Krever at siden lastes på nytt."
 
 msgid "some invalid reason"
-msgstr ""
+msgstr "av en ugyldig grunn"
 
 msgid "some message"
-msgstr ""
+msgstr "en melding"
 
 msgid "some reason"
-msgstr ""
+msgstr "av en grunn"
 
 msgid "something changed"
-msgstr ""
+msgstr "noe ble endret"
 
 msgid ""
 "Something went wrong when creating the snapshot. Please contact the system "
 "administrator if the problem persists."
 msgstr ""
+"Noe gikk galt da snapshotet skulle opprettes. Vennligst kontakt "
+"systemadministrator hvis problemet vedvarer."
 
 msgid "Something went wrong, and it affected the output"
 msgstr "Noe gikk galt, og det påvirket sendingen"
@@ -3723,7 +3864,7 @@ msgid "Source Layer"
 msgstr "Kildelag"
 
 msgid "Source layer cannot be reset as it has no default values"
-msgstr ""
+msgstr "Kildelaget kan ikke nullstilles fordi det ikke har noen standardverdier"
 
 msgid "Source Layer Type"
 msgstr "Kildelagstyper"
@@ -3741,31 +3882,33 @@ msgid "Source Type"
 msgstr "Kildetype"
 
 msgid "Source/Output Layers"
-msgstr ""
+msgstr "Kilde-/utgangslag"
 
 msgid "Sources"
-msgstr ""
+msgstr "Kilder"
 
 msgid "Space separated list of style class names to use when displaying the action"
 msgstr ""
+"Mellomromseparert liste over stilklassenavn som skal brukes når handlingen "
+"vises"
 
 msgid "Specify additional layers where at least one layer must have an active piece"
-msgstr ""
+msgstr "Angi ytterligere lag hvor minst ett lag må ha et aktivt element"
 
 msgid "Speed control"
-msgstr ""
+msgstr "Kontroll for hastighet"
 
 msgid "Speed map"
-msgstr ""
+msgstr "Kart over hastigheter"
 
 msgid "Speed map (forward, right trigger)"
-msgstr ""
+msgstr "Kart over hastigheter (fremover, høyre utløser)"
 
 msgid "Split Screen"
 msgstr "Splitt"
 
 msgid "Splits"
-msgstr ""
+msgstr "Splitter"
 
 msgid "Standalone Shelf"
 msgstr "Frittstående skuff"
@@ -3774,7 +3917,7 @@ msgid "Start Here!"
 msgstr "Start her!"
 
 msgid "Start In"
-msgstr ""
+msgstr "Start om"
 
 msgid "Start this AdLib"
 msgstr "Slett denne adliben"
@@ -3791,22 +3934,22 @@ msgid "Started"
 msgstr "Startet"
 
 msgid "Starting AdLib"
-msgstr ""
+msgstr "Starter adlib"
 
 msgid "Starting Bucket AdLib"
-msgstr ""
+msgstr "Starter bøtte-adlib"
 
 msgid "Starting Global AdLib"
-msgstr ""
+msgstr "Starter global adlib"
 
 msgid "Starting Sticky Piece"
-msgstr ""
+msgstr "Starter \"sticky\" element"
 
 msgid "State"
 msgstr "Tilstand"
 
 msgid "State \"{{state}}\""
-msgstr ""
+msgstr "Tilstand \"{{state}}\""
 
 msgid "Statistics"
 msgstr "Statistikk"
@@ -3830,16 +3973,16 @@ msgid "Studio Baseline needs update: "
 msgstr "Studio baseline må oppdateres: "
 
 msgid "Studio Labels"
-msgstr ""
+msgstr "Studioetiketter"
 
 msgid "Studio Name"
 msgstr "Studionavn"
 
 msgid "Studio not found!"
-msgstr ""
+msgstr "Studio ikke funnet!"
 
 msgid "Studio Screen Graphics"
-msgstr ""
+msgstr "Studioskjermgrafikk"
 
 msgid "Studio Settings"
 msgstr "Studioinnstillinger"
@@ -3851,19 +3994,19 @@ msgid "Studios"
 msgstr "Studio"
 
 msgid "Style class names"
-msgstr ""
+msgstr "Stilklassenavn"
 
 msgid "Subtract"
-msgstr ""
+msgstr "Trekk ifra"
 
 msgid "Successfully restored snapshot"
 msgstr "Gjenoppretting fra snapshot var vellykket"
 
 msgid "Successfully stored snapshot"
-msgstr "Gjenoppretting fra snapshot var vellykket"
+msgstr "Lagring av snapshot var vellykket"
 
 msgid "Support Panel"
-msgstr ""
+msgstr "Supportpanel"
 
 msgid "Supported Audio Formats"
 msgstr "Støttede lydformater"
@@ -3872,31 +4015,31 @@ msgid "Supported Media Formats"
 msgstr "Støttede medieformater"
 
 msgid "Switch Route Set"
-msgstr ""
+msgstr "Bytt omdirigeringssett"
 
 msgid "Switch Segment View Mode"
-msgstr ""
+msgstr "Bytt segmentvisning"
 
 msgid "Switch to List View"
-msgstr ""
+msgstr "Bytt til listevisning"
 
 msgid "Switch to Storyboard View"
-msgstr ""
+msgstr "Bytt til kortvisning"
 
 msgid "Switch to Timeline View"
-msgstr ""
+msgstr "Bytt til tidslinjevisning"
 
 msgid "Switchboard"
 msgstr "Sentralbord"
 
 msgid "Switchboard Panel"
-msgstr ""
+msgstr "Sentralbord"
 
 msgid "Switching operating mode to {{mode}}"
-msgstr "Bytt til {{mode}}"
+msgstr "Endrer styringsmodus til {{mode}}"
 
 msgid "Switching routing"
-msgstr ""
+msgstr "Bytt omdirigering"
 
 msgid "System"
 msgstr "System"
@@ -3905,7 +4048,7 @@ msgid "System has issues which need to be resolved"
 msgstr "Systemet har problemer som må fikses"
 
 msgid "System must have exactly one studio"
-msgstr ""
+msgstr "Systemet må ha nøyaktig ett studio"
 
 msgid "System Status"
 msgstr "Systemstatus"
@@ -3917,13 +4060,13 @@ msgid "System-wide Notification Message"
 msgstr "Lokal systemmelding"
 
 msgid "Table is not allowed to have `properties` defined"
-msgstr ""
+msgstr "Tabellen kan ikke ha 'properties' definert"
 
 msgid "Table is only allowed the wildcard `patternProperties`"
-msgstr ""
+msgstr "Tabell har kun tillatt med jokertegnet (\"wildcard\") `patternProperties`"
 
 msgid "Tables are not supported here"
-msgstr ""
+msgstr "Tabeller støttes ikke her"
 
 msgid "Tag"
 msgstr "Tag"
@@ -3932,7 +4075,7 @@ msgid "Tags must contain"
 msgstr "Tagger må inneholde"
 
 msgid "Take"
-msgstr "Take"
+msgstr "TAKE"
 
 msgid "Take a Full System Snapshot"
 msgstr "Lagre et fullt systemsnapshot"
@@ -3944,40 +4087,40 @@ msgid "Take a Snapshot for studio \"{{studioName}}\" only"
 msgstr "Lagre et studiosnapshot utelukkende for \"{{studioName}}\""
 
 msgid "Take and Download Memory Heap Snapshot"
-msgstr ""
+msgstr "Lagre og last ned Memory Heap snapshot"
 
 msgid "Take System Snapshot"
-msgstr ""
+msgstr "Lagre et systemsnapshot"
 
 msgid "Take System Snapshot failed: {{errorMessage}}"
-msgstr ""
+msgstr "Lagring av systemsnapshot feilet: {{errorMessage}}"
 
 msgid "Taking Piece"
-msgstr ""
+msgstr "Tar element"
 
 msgid "Technical reason: {{reason}}"
 msgstr "Teknisk årsak: {{reason}}"
 
 msgid "test"
-msgstr ""
+msgstr "test"
 
 msgid "Test ERROR message"
-msgstr ""
+msgstr "Test ERROR-melding"
 
 msgid "Test Info message"
-msgstr ""
+msgstr "Test infomelding"
 
 msgid "test partInstance"
-msgstr ""
+msgstr "test partInstance"
 
 msgid "test pieceInstance"
-msgstr ""
+msgstr "test pieceInstance"
 
 msgid "test playlist"
-msgstr ""
+msgstr "test spilleliste"
 
 msgid "test rundown"
-msgstr ""
+msgstr "test kjøreplan"
 
 msgid "Test test"
 msgstr "Test test"
@@ -3986,7 +4129,7 @@ msgid "Test Tools"
 msgstr "Testverktøy"
 
 msgid "test2"
-msgstr ""
+msgstr "test2"
 
 msgid "Text"
 msgstr "Tekst"
@@ -4001,14 +4144,15 @@ msgid ""
 "The config UI is now driven by manifests fed by the device. This device "
 "needs updating to provide the configManifest to be configurable"
 msgstr ""
-"Brukergrensesnittet for konfigurasjon drives nå av manifester matet fra "
-"enhetene. Denne enheten må oppdateres for å gjøre configManifest "
-"konfigurerbart"
+"Konfigurasjon-GUI drives nå av manifester matet fra enhetene. Denne enheten "
+"må oppdateres for å gjøre configManifest konfigurerbart"
 
 msgid ""
 "The fallback duration (in milliseconds) to use to render parts when no "
 "duration is provided"
 msgstr ""
+"Standard varighet (i ms) som skal brukes for å rendre deler når varighet "
+"ikke er oppgitt"
 
 msgid "The following parts no longer exist in {{nrcs}}: {{partNames}}"
 msgstr "De følgende delene eksisterer ikke lenger i {{nrcs}}: {{partNames}}"
@@ -4020,8 +4164,8 @@ msgid ""
 "The migration consists of several phases, you will get more options after "
 "you've this migration"
 msgstr ""
-"Migreringen består av flere faser, du vil få flere valg etter at du har "
-"kjørt denne migreringen"
+"Migreringen har flere faser, du vil få flere valg etter at du har kjørt "
+"denne migreringen"
 
 msgid "The migration was completed successfully!"
 msgstr "Migreringen var vellykket!"
@@ -4056,12 +4200,14 @@ msgid ""
 "The Rundown was attempted to be moved out of the Playlist when it was on "
 "Air. Move it back and try again later."
 msgstr ""
+"Kjøreplanen ble forsøkt flyttet ut av spillelisten mens den var på sending. "
+"Flytt den tilbake og prøv igjen senere."
 
 msgid ""
 "The rundown you are trying to execute a take on is inactive, would you like "
 "to activate this rundown?"
 msgstr ""
-"Du prøve å gjøre en Take i en inaktiv kjøreplan. Vil du aktivere denne "
+"Du prøve å gjøre en TAKE i en inaktiv kjøreplan. Vil du aktivere denne "
 "kjøreplanen?"
 
 msgid ""
@@ -4070,6 +4216,9 @@ msgid ""
 "\n"
 "Are you sure you want to activate this one anyway?"
 msgstr ""
+"Kjøreplanen \"{{rundownName}}\" må deaktiveres for å kunne aktivere denne.\n"
+"\n"
+"Er du sikker på at du vil aktivere denne likevel?"
 
 msgid ""
 "The segment duration in the segment header always displays the planned "
@@ -4079,10 +4228,10 @@ msgstr ""
 "varigheten i stedet for å telle ned"
 
 msgid "The selected part cannot be played"
-msgstr ""
+msgstr "Den valgte delen kan ikke spilles av"
 
 msgid "The selected part does not exist"
-msgstr ""
+msgstr "Den valgte delen finnes ikke"
 
 msgid ""
 "The system configuration has been changed since importing this rundown. It "
@@ -4095,16 +4244,16 @@ msgid "The type of device to use for the output"
 msgstr "Enhetstype som skal brukes for utgangen"
 
 msgid "The type of mapping to use"
-msgstr ""
+msgstr "Hvilken mappingtyppe som skal brukes"
 
 msgid "The way this Route Set should behave towards the user"
 msgstr "Måten denne omkoblingsgruppen skal oppføre seg på overfor brukeren"
 
 msgid "Then, run the migrations script:"
-msgstr "Kjør så migreringsprosedyren:"
+msgstr "Kjør deretter migreringsprosedyren:"
 
 msgid "There are no AB Playout devices set up yet"
-msgstr ""
+msgstr "Det er ingen AB-avspillingsenehete r som er konfigurert ennå"
 
 msgid "There are no Accessors set up."
 msgstr "Ingen aksessorer er satt opp."
@@ -4135,7 +4284,7 @@ msgid "There are no rundowns ingested into Sofie."
 msgstr "Det er ikke sendt kjøreplaner til Sofie."
 
 msgid "There are no sub-devices for this gateway"
-msgstr ""
+msgstr "Det er ingen underenheter for denne gatewayen"
 
 msgid "There is an unknown problem with the part."
 msgstr "Det er et ukjent problem med denne delen."
@@ -4163,7 +4312,7 @@ msgid "This affects how much is logged to the console on the server"
 msgstr "Dette påvirker hvor mye som blir logget til serverkonsollen"
 
 msgid "This blueprint has not provided a valid config schema"
-msgstr ""
+msgstr "Dette blueprintet inneholder ikke et gyldig konfigurasjonsskjema"
 
 msgid "This Blueprint is not being used by any Show Style"
 msgstr "Dette blueprintet er ikke i bruk av noen showstyles"
@@ -4172,38 +4321,44 @@ msgid "This Blueprint is not compatible with any Studio"
 msgstr "Dette blueprintet er ikke kompatibel med noe studio"
 
 msgid "This clip ends with black frames after {{seconds}} seconds"
-msgstr ""
+msgstr "Dette klippet slutter med svarte ruter etter {{seconds}} sekunder"
 
 msgid "This clip ends with freeze frames after {{seconds}} seconds"
-msgstr ""
+msgstr "Dette klippet slutter med fryste ruter etter {{seconds}} sekunder"
 
 msgid "This could leave the configuration in a broken state"
-msgstr ""
+msgstr "Dette kan resultere i at konfigurasjonen ikke virker"
 
 msgid "This enables or disables buckets in the UI - enabled is the default behavior"
 msgstr ""
+"Dette aktiver eller deaktiverer bøtter i GUI-en - standardinnstillingen er "
+"at det er aktivert"
 
 msgid ""
 "This enables or disables the evaluationform in the UI - enabled is the "
 "default behavior"
 msgstr ""
+"Dette aktiverer eller deaktiverer evalueringsskjemaet i GUI-en - "
+"standardinnstillingen er at det er aktivert"
 
 msgid "This feature enables the use of the Properties Panel and the Edit Mode"
-msgstr ""
+msgstr "Denne funksjonen muliggjør bruk av egenskapspanel og redigeringsmodus"
 
 msgid "This has only been tested for the iNews gateway"
-msgstr ""
+msgstr "Dette har bare blitt testet for iNews gatewayen"
 
 msgid "This is not in it's normal setting"
-msgstr "Endret fra standardoppsett"
+msgstr "Denne innstillingen har blitt endret fra standardverdien"
 
 msgid ""
 "This migration consists of {{stepCount}} steps ({{ignoredStepCount}} steps "
 "are ignored)."
 msgstr ""
+"Dette migreringssteget har {{stepCount}} steg ({{ignoredStepCount}} steg er "
+"ignorert)."
 
 msgid "This must be assigned to a device to be able to edit the settings"
-msgstr ""
+msgstr "Dette må være tildelt til en enhet for at man kan redigere innstillingene"
 
 msgid "This name will be shown in the title bar of the window"
 msgstr "Dette navnet vil vises i tittellinjen for vinduet"
@@ -4215,6 +4370,8 @@ msgid ""
 "This requires the blueprints to implement the "
 "`generateAdlibTestingIngestRundown` method"
 msgstr ""
+"Dette krever at bluerprintene benytter "
+"'generateAdlibTestingIngestRundown'-metoden"
 
 msgid "This rundown has been unpublished from Sofie."
 msgstr "Denne kjøreplanen er ikke lenger tilgjengelig i Sofie."
@@ -4238,25 +4395,25 @@ msgid "This studio doesn't exist."
 msgstr "Dette studioet finnes ikke."
 
 msgid "This will remove {{indexCount}} old indexes, do you want to continue?"
-msgstr "Dette vil fjerne {{indexCount}} gamle indexer. Vil du fortsette?"
+msgstr "Dette vil fjerne {{indexCount}} gamle indekser. Vil du fortsette?"
 
 msgid "Time from platform user event to Action received by Core"
-msgstr ""
+msgstr "Tid fra bruker-event til handlingen er mottatt av Core"
 
 msgid "Time since rehearsal end"
-msgstr ""
+msgstr "Tid siden slutten av testmodus"
 
 msgid "Time to planned start"
-msgstr ""
+msgstr "Gjenstående tid til planlagt start"
 
 msgid "Time to rehearsal end"
-msgstr ""
+msgstr "Gjenstående tid til slutten av testmodus"
 
 msgid "Timeline"
 msgstr "Tidslinje"
 
 msgid "Timeline Datastore"
-msgstr ""
+msgstr "Datalager for tidslinje"
 
 msgid "Times"
 msgstr "Tider"
@@ -4265,7 +4422,7 @@ msgid "Timestamp"
 msgstr "Tidsstempel"
 
 msgid "To inspect the memory heap snapshot, use Chrome DevTools"
-msgstr ""
+msgstr "For å inspisere memory heap-snapshotet, bruk Chrome DevTools"
 
 msgid "Today"
 msgstr "I dag"
@@ -4277,13 +4434,13 @@ msgid "Toggle AdLibs on single mouse click"
 msgstr "Veksle mellom adliber med enkelt museklikk"
 
 msgid "Toggle Shelf"
-msgstr "Skuff"
+msgstr "Åpne/lukk skuff"
 
 msgid "Toggle Support Panel"
-msgstr ""
+msgstr "Åpne/lukk supportpanel"
 
 msgid "Toggled Label"
-msgstr ""
+msgstr "Vekslet etikett"
 
 msgid "Tomorrow"
 msgstr "I morgen"
@@ -4292,19 +4449,19 @@ msgid "Tools"
 msgstr "Verktøy"
 
 msgid "Top"
-msgstr ""
+msgstr "Øverst"
 
 msgid "Transition"
 msgstr "Effekt"
 
 msgid "Treat as Main content"
-msgstr ""
+msgstr "Behandle som hovedinnhold"
 
 msgid "Trigger dead zone"
-msgstr ""
+msgstr "Utløs dødsone"
 
 msgid "Trigger Mode"
-msgstr ""
+msgstr "Triggermodus"
 
 msgid "Triggered Actions failed to upload: {{errorMessage}}"
 msgstr "Opplasting av handlingsutløsere feilet: {{errorMessage}}"
@@ -4316,7 +4473,7 @@ msgid "Trim \"{{name}}\""
 msgstr "Trim \"{{name}}\""
 
 msgid "Trimmed successfully."
-msgstr ""
+msgstr "Endringen av inn-/utpunkt var vellykket."
 
 msgid "Trimming this clip has failed due to an error: {{error}}."
 msgstr "Endring av inn-/utpunkt for dette klippet feilet: {{error}}."
@@ -4341,7 +4498,7 @@ msgid "Troubleshoot"
 msgstr "Feilsøk"
 
 msgid "TSR"
-msgstr ""
+msgstr "TSR"
 
 msgid "Type"
 msgstr "Type"
@@ -4350,16 +4507,16 @@ msgid "Unable to check the system configuration for changes"
 msgstr "Kan ikke kontrollere endringer i systemoppsettet"
 
 msgid "Unable to upgrade"
-msgstr ""
+msgstr "Det gikk ikke å oppgradere"
 
 msgid "Unassign"
 msgstr "Fjern tilordning"
 
 msgid "Unconfigured"
-msgstr ""
+msgstr "Ikke-konfigurert"
 
 msgid "Under"
-msgstr ""
+msgstr "Under"
 
 msgid "Undo"
 msgstr "Angre"
@@ -4368,13 +4525,13 @@ msgid "Undo Disable the next element"
 msgstr "Unskip neste super"
 
 msgid "Undo Hold"
-msgstr "Angre hold"
+msgstr "Angre HOLD"
 
 msgid "Unknown"
 msgstr "Ukjent"
 
 msgid "Unknown action"
-msgstr ""
+msgstr "Ukjent handling"
 
 msgid "Unknown error"
 msgstr "Ukjent feil"
@@ -4398,52 +4555,52 @@ msgid "Unnamed variant"
 msgstr "Variant uten navn"
 
 msgid "Unsupported array type \"{{ type }}\""
-msgstr ""
+msgstr "Array-type \"{{ type }}\" som ikke støttes"
 
 msgid "Unsupported field type \"{{ type }}\""
-msgstr ""
+msgstr "Felttype \"{{ type }}\" som ikke støttes"
 
 msgid "Unsyncing Rundown"
-msgstr ""
+msgstr "Avsynkroniserer kjøreplan"
 
 msgid "Until"
-msgstr ""
+msgstr "Til"
 
 msgid "Until end of rundown"
 msgstr "Til slutten av kjøreplanen"
 
 msgid "Until End of Rundown"
-msgstr ""
+msgstr "Til slutten av kjøreplanen"
 
 msgid "Until end of segment"
-msgstr "Til slutten av segment"
+msgstr "Til slutten av segmentet"
 
 msgid "Until End of Segment"
-msgstr ""
+msgstr "Til slutten av segmentet"
 
 msgid "Until end of showstyle"
 msgstr "Til slutten av showstyle"
 
 msgid "Until End of Showstyle"
-msgstr ""
+msgstr "Til slutten av showstyle"
 
 msgid "Until next rundown"
 msgstr "Til neste kjøreplan"
 
 msgid "Until Next Rundown"
-msgstr ""
+msgstr "Til neste kjøreplan"
 
 msgid "Until next segment"
 msgstr "Til neste segment"
 
 msgid "Until Next Segment"
-msgstr ""
+msgstr "Til neste segment"
 
 msgid "Until next take"
-msgstr "Til neste Take"
+msgstr "Til neste TAKE"
 
 msgid "Until Next Take"
-msgstr ""
+msgstr "Til neste TAKE"
 
 msgid "Update"
 msgstr "Oppdater"
@@ -4455,16 +4612,16 @@ msgid "Updated"
 msgstr "Oppdatert"
 
 msgid "Upgrade config for {{name}}"
-msgstr ""
+msgstr "Oppdatere konfigurasjon for {{name}}"
 
 msgid "Upgrade Database"
 msgstr "Oppgrader databasen"
 
 msgid "Upgrade required"
-msgstr ""
+msgstr "Oppdatering trengs"
 
 msgid "Upgrade Status"
-msgstr ""
+msgstr "Status for oppgradering"
 
 msgid "Upload"
 msgstr "Last opp"
@@ -4473,12 +4630,15 @@ msgid "Upload a new blueprint"
 msgstr "Last opp et nytt blueprint"
 
 msgid "Upload a snapshot file"
-msgstr ""
+msgstr "Last opp en snapshotfil"
 
 msgid ""
 "Upload a snapshot file (restores additional info not directly related to a "
 "Playlist / Rundown, such as Packages, PackageWorkStatuses etc"
 msgstr ""
+"Last opp en snapshotfil (gjennoppretter tilleggsinformasjon som ikke er "
+"direkte relatert til en spilleliste/kjøreplan, slik som pakker, pakkestatus "
+"osv.)"
 
 msgid "Upload Blueprints"
 msgstr "Last opp blueprints"
@@ -4490,7 +4650,7 @@ msgid "Upload Snapshot"
 msgstr "Last opp snapshot"
 
 msgid "Upload Snapshot (for debugging)"
-msgstr ""
+msgstr "Last opp snapshot (for feilsøking)"
 
 msgid "Upload stored Action Triggers"
 msgstr "Last opp lagrede handlingsutløsere"
@@ -4502,10 +4662,10 @@ msgid "URL to the Quantel FileFlow Manager"
 msgstr "Adresse til Quantel FileFlow Manager"
 
 msgid "URL to the Quantel Gateway"
-msgstr "Start Quantel Gateway på nytt"
+msgstr "Adresse til Quantel Gatewayen"
 
 msgid "URL to the Quantel HTTP transformer"
-msgstr "Adresse til Quantel HTTP transformer"
+msgstr "Adresse til Quantel HTTP transformeren"
 
 msgid "URLs to the ISAs, in order of importance (comma separated)"
 msgstr "Adresser (url-er) for ISA-ene (kommaseparert i prioritert rekkefølge)"
@@ -4514,13 +4674,13 @@ msgid "Use {{nrcsName}} order"
 msgstr "Bruk rekkefølge fra {{nrcsName}}"
 
 msgid "Use as default"
-msgstr ""
+msgstr "Bruk som standard"
 
 msgid "Use color of primary piece as background of panel"
-msgstr ""
+msgstr "Bruk fargen fra det primære elementet som bakgrunn for panelet"
 
 msgid "Use Trigger Mode"
-msgstr ""
+msgstr "Bruk triggermodus"
 
 msgid "User Activity Log"
 msgstr "Aktivitetslogg"
@@ -4535,19 +4695,19 @@ msgid "User Name"
 msgstr "Brukernavn"
 
 msgid "Username for authentication"
-msgstr ""
+msgstr "Brukernavn for autentisering"
 
 msgid "Validate and Apply Config"
-msgstr ""
+msgstr "Validér og bruk konfigurasjon"
 
 msgid "Validation failed! {{message}}"
-msgstr ""
+msgstr "Validering feilet! {{message}}"
 
 msgid "Value"
 msgstr "Verdi"
 
 msgid "Value between 0 and 1"
-msgstr ""
+msgstr "Verdi mellom 0 og 1"
 
 msgid "Variants"
 msgstr "Varianter"
@@ -4568,7 +4728,7 @@ msgid "View Layout"
 msgstr "Vis layout"
 
 msgid "Waiting for action: {{actionName}}..."
-msgstr ""
+msgstr "Venter på handling: {{actionName}}..."
 
 msgid "Waiting for gateway to generate URL..."
 msgstr "Venter på at gateway genererer URL..."
@@ -4582,34 +4742,44 @@ msgstr "Advarsler"
 msgid "Warnings During Migration"
 msgstr "Advarsler under migrering"
 
+msgid "What FTP protocol to use"
+msgstr "Hvilken FTP-protokoll som brukes"
+
 msgid "What type of bank"
-msgstr ""
+msgstr "Hvilken banktype"
 
 msgid "When"
-msgstr ""
+msgstr "Når"
 
 msgid "When disabled, any HOLD operations will be silently ignored"
-msgstr ""
+msgstr "Når deaktivert vil enhver HOLD bli ignorert uten varsel"
 
 msgid ""
 "When enabled, double clicking on certain pieces in the GUI will play them "
 "as adlibs"
 msgstr ""
+"Når aktivert vil dobbeltklikking på enkelte elementer i GUI-en spille dem "
+"av som adlibber."
 
 msgid ""
 "When enabled, this will override the piece content statuses to have no "
 "errors or warnings and display a mock preview. This should only be used for "
 "development!"
 msgstr ""
+"Når aktivert vil statusen for element ikke vise feil eller advarsler, og "
+"heller vise en dummyforhåndsvisning. Dette bør kun brukes i testmiljøer!"
 
 msgid "When set, resources are considered immutable, ie they will not change"
-msgstr ""
+msgstr "Når definert vil ressursene anses som uforanderlige, ergo vil de ikke endres"
 
 msgid ""
 "Which keyboard key is used as \"Confirm\" in modal dialogs etc. Use "
 "\"Enter\" to exclude the Numpad Enter key (eg. when it is dedicated for "
 "playout)"
 msgstr ""
+"Hvilken tastaturtast brukes for å bekrefte i dialogbokser osv. Bruk "
+"\"Enter\" for å utelukke NumpadEnter-tasten (når denne er dedikert til "
+"utspilling)"
 
 msgid "Width"
 msgstr "Bredde"
@@ -4627,7 +4797,7 @@ msgid "Work-in-progress"
 msgstr "Pågående jobber"
 
 msgid "Worker"
-msgstr ""
+msgstr "Arbeider"
 
 msgid "WorkForce"
 msgstr "Arbeiderstyrke"
@@ -4636,7 +4806,7 @@ msgid "X"
 msgstr "X"
 
 msgid "Xbox Controller"
-msgstr ""
+msgstr "Xbox-kontroller"
 
 msgid "Y"
 msgstr "Y"
@@ -4645,7 +4815,7 @@ msgid "Yes"
 msgstr "Ja"
 
 msgid "Yes, Take and Download Memory Heap Snapshot"
-msgstr ""
+msgstr "Ja, ta og last ned et Memory Heap Snapshot"
 
 msgid "Yesterday"
 msgstr "I går"
@@ -4654,12 +4824,14 @@ msgid ""
 "You are in rehearsal mode, the broadcast starts in less than 1 minute. Do "
 "you want to go into On-Air mode?"
 msgstr ""
+"Du er i testmodus. Sendingen starter om mindre enn 1 minutt. Vil du bytte "
+"til OnAir?"
 
 msgid "You need to run migrations to set the system up for operation."
 msgstr "Du må kjøre migrering for å klargjøre systemet for bruk."
 
 msgid "Your machine is offline and cannot connect to the {{platformName}}."
-msgstr ""
+msgstr "Din maskin er offline og kan ikke koble til {{platformName}}."
 
 msgid "Your name"
 msgstr "Ditt navn"
@@ -4671,28 +4843,28 @@ msgid "Zoom In"
 msgstr "Zoom inn"
 
 msgid "Zoom Out"
-msgstr "Zoom Ut"
+msgstr "Zoom ut"
 
 msgctxt "one"
 msgid "{{count}} items"
-msgstr ""
+msgstr "{{count}} elementer"
 
 msgctxt "one"
 msgid "There are {{count}} documents that can be removed, do you want to continue?"
-msgstr ""
+msgstr "Det finnes {{count}} dokumenter som kan fjernes, vil du fortsette?"
 
 msgctxt "one"
 msgid "This layer is now rerouted by an active Route Set: {{routeSets}}"
-msgstr ""
+msgstr "Dette laget er nå omdirigert av et aktivt omdirigeringssett: {{routeSets}}"
 
 msgctxt "other"
 msgid "{{count}} items"
-msgstr ""
+msgstr "{{count}} elementer"
 
 msgctxt "other"
 msgid "There are {{count}} documents that can be removed, do you want to continue?"
-msgstr ""
+msgstr "Det finnes {{count}} dokumenter som kan fjernes, vil du fortsette?"
 
 msgctxt "other"
 msgid "This layer is now rerouted by an active Route Set: {{routeSets}}"
-msgstr ""
+msgstr "Dette laget er nå omdirigert av et aktivt omdirigeringssett: {{routeSets}}"

@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-08-05T10:52:43.653Z\n"
-"PO-Revision-Date: 2026-08-05T10:52:43.653Z\n"
+"POT-Creation-Date: 2026-09-22T09:41:42.645Z\n"
+"PO-Revision-Date: 2026-09-22T09:41:42.645Z\n"
 "Language: en\n"
 
 msgid " The index of the Atem media/clip banks"
@@ -340,6 +340,9 @@ msgid "All Screens in a MultiViewer"
 msgstr ""
 
 msgid "All steps"
+msgstr ""
+
+msgid "Allow any certificate"
 msgstr ""
 
 msgid "Allow direct playing pieces"
@@ -1272,6 +1275,9 @@ msgstr ""
 msgid "Disabling next Piece"
 msgstr ""
 
+msgid "Discard"
+msgstr ""
+
 msgid "Disconnected"
 msgstr ""
 
@@ -1607,6 +1613,12 @@ msgstr ""
 msgid "Failed to restart device: \"{{deviceName}}\": {{errorMessage}}"
 msgstr ""
 
+msgid "Failed to save assignment"
+msgstr ""
+
+msgid "Failed to save assignment: {{errorMessage}}"
+msgstr ""
+
 msgid "Failed to update blueprints: {{errorMessage}}"
 msgstr ""
 
@@ -1716,6 +1728,15 @@ msgid "Frame Rate"
 msgstr ""
 
 msgid "From"
+msgstr ""
+
+msgid "FTP Base Path"
+msgstr ""
+
+msgid "FTP password"
+msgstr ""
+
+msgid "FTP username"
 msgstr ""
 
 msgid "Full System Snapshot"
@@ -1830,6 +1851,12 @@ msgid "Hide scrollbar"
 msgstr ""
 
 msgid "Hold"
+msgstr ""
+
+msgid "Host address"
+msgstr ""
+
+msgid "Host port"
 msgstr ""
 
 msgid "Hostname or IP address of the Atem"
@@ -3455,6 +3482,9 @@ msgstr ""
 msgid "Server {{id}}"
 msgstr ""
 
+msgid "Server host address"
+msgstr ""
+
 msgid "Server ID"
 msgstr ""
 
@@ -3462,6 +3492,12 @@ msgid ""
 "Server ID. For sources, this should generally be omitted (or set to 0) so "
 "clip-searches are zone-wide. If set, clip-searches are limited to that "
 "server."
+msgstr ""
+
+msgid "Server port"
+msgstr ""
+
+msgid "Server Type"
 msgstr ""
 
 msgid "Service {{service}} unavailable: {{reason}}"
@@ -4493,6 +4529,9 @@ msgid "Warnings"
 msgstr ""
 
 msgid "Warnings During Migration"
+msgstr ""
+
+msgid "What FTP protocol to use"
 msgstr ""
 
 msgid "What type of bank"
