@@ -130,30 +130,33 @@ async function setupPeripheralDevicePublicationObservers(
 	args: ReadonlyDeep<PeripheralDeviceForDeviceArgs>,
 	triggerUpdate: TriggerUpdate<PeripheralDeviceForDeviceUpdateProps>
 ): Promise<SetupObserversResult> {
-	const studioObserver = await ReactiveMongoObserverGroup(async () => {
-		const peripheralDeviceCompact = (await PeripheralDevices.findOneAsync(args.deviceId, {
-			projection: { studioAndConfigId: 1 },
-		})) as Pick<PeripheralDevice, 'studioAndConfigId'> | undefined
+	const studioObserver = await ReactiveMongoObserverGroup(
+		`PeripheralDevicePublication.studio: ${args.deviceId}`,
+		async () => {
+			const peripheralDeviceCompact = (await PeripheralDevices.findOneAsync(args.deviceId, {
+				projection: { studioAndConfigId: 1 },
+			})) as Pick<PeripheralDevice, 'studioAndConfigId'> | undefined
 
-		if (peripheralDeviceCompact?.studioAndConfigId?.studioId) {
-			return [
-				Studios.observeChanges(
-					peripheralDeviceCompact.studioAndConfigId.studioId,
-					{
-						added: () => triggerUpdate({ invalidatePublication: true }),
-						changed: () => triggerUpdate({ invalidatePublication: true }),
-						removed: () => triggerUpdate({ invalidatePublication: true }),
-					},
-					{
-						projection: studioFieldsSpecifier,
-					}
-				),
-			]
-		} else {
-			// Nothing to observe
-			return []
+			if (peripheralDeviceCompact?.studioAndConfigId?.studioId) {
+				return [
+					Studios.observeChanges(
+						peripheralDeviceCompact.studioAndConfigId.studioId,
+						{
+							added: () => triggerUpdate({ invalidatePublication: true }),
+							changed: () => triggerUpdate({ invalidatePublication: true }),
+							removed: () => triggerUpdate({ invalidatePublication: true }),
+						},
+						{
+							projection: studioFieldsSpecifier,
+						}
+					),
+				]
+			} else {
+				// Nothing to observe
+				return []
+			}
 		}
-	})
+	)
 
 	// Set up observers:
 	return [

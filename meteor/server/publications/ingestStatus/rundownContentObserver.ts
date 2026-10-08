@@ -36,33 +36,36 @@ export class RundownContentObserver {
 
 		const observer = new RundownContentObserver(cache)
 
-		observer.#playlistIdObserver = await ReactiveMongoObserverGroup(async () => {
-			// Clear already cached data
-			cache.Playlists.remove({})
+		observer.#playlistIdObserver = await ReactiveMongoObserverGroup(
+			`ingestStatus/RundownContentObserver.playlistIds: ${rundownIds.join(',')}`,
+			async () => {
+				// Clear already cached data
+				cache.Playlists.remove({})
 
-			return [
-				RundownPlaylists.observe(
-					{
-						// We can use the `this.#playlistIds` here, as this is restarted every time that property changes
-						_id: { $in: observer.#playlistIds },
-					},
-					{
-						added: (doc) => {
-							cache.Playlists.replace(doc)
+				return [
+					RundownPlaylists.observe(
+						{
+							// We can use the `this.#playlistIds` here, as this is restarted every time that property changes
+							_id: { $in: observer.#playlistIds },
 						},
-						changed: (doc) => {
-							cache.Playlists.replace(doc)
+						{
+							added: (doc) => {
+								cache.Playlists.replace(doc)
+							},
+							changed: (doc) => {
+								cache.Playlists.replace(doc)
+							},
+							removed: (doc) => {
+								cache.Playlists.remove(doc._id)
+							},
 						},
-						removed: (doc) => {
-							cache.Playlists.remove(doc._id)
-						},
-					},
-					{
-						projection: playlistFieldSpecifier,
-					}
-				),
-			]
-		})
+						{
+							projection: playlistFieldSpecifier,
+						}
+					),
+				]
+			}
+		)
 
 		observer.#observers = await waitForAllObserversReady([
 			Rundowns.observeChanges(
