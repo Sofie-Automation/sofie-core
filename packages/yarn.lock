@@ -7272,6 +7272,7 @@ __metadata:
     lottie-react: "npm:^2.4.1"
     moment: "npm:^2.30.1"
     motion: "npm:^12.38.0"
+    ograf-form: "npm:^1.0.0"
     query-string: "npm:^6.14.1"
     rc-tooltip: "npm:^6.4.0"
     react: "npm:^18.3.1"
@@ -22868,6 +22869,13 @@ asn1@evs-broadcast/node-asn1:
   version: 1.1.2
   resolution: "obuf@npm:1.1.2"
   checksum: 10/53ff4ab3a13cc33ba6c856cf281f2965c0aec9720967af450e8fd06cfd50aceeefc791986a16bcefa14e7898b3ca9acdfcf15b9d9a1b9c7e1366581a8ad6e65e
+  languageName: node
+  linkType: hard
+
+"ograf-form@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "ograf-form@npm:1.0.0"
+  checksum: 10/b74b03dc47c6cc328a65cfa2ab0d98379b239c00d5a4369d4c6b3e24b3c4d3f8c63c2fc79e5791074851da3159d46109c815daf72746d38f378087a1e43d4a65
   languageName: node
   linkType: hard
 
