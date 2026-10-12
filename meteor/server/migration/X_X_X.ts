@@ -1,5 +1,7 @@
 import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
 import { addMigrationSteps } from './databaseMigration'
+import { PartTransitionsMigrationStep } from './steps/X_X_X/PartTransitionsMigrationStep'
+import { PartPlayoutTimingsTransitionMigrationStep } from './steps/X_X_X/PartPlayoutTimingsTransitionMigrationStep'
 
 /*
  * **************************************************************************************
@@ -12,5 +14,7 @@ import { addMigrationSteps } from './databaseMigration'
  */
 
 export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
+	new PartTransitionsMigrationStep(),
+	new PartPlayoutTimingsTransitionMigrationStep(),
 	// Add your migration here
 ])

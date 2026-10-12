@@ -1143,7 +1143,7 @@ describe('Resolved Pieces', () => {
 				createPartInstance({
 					autoNext: true,
 					expectedDuration: currentPartLength,
-					outTransition: { duration: 1200 },
+					outTransition: { type: 'additive', duration: 1200 },
 				}),
 				[piece001]
 			)
@@ -1179,6 +1179,66 @@ describe('Resolved Pieces', () => {
 				{
 					_id: piece010._id,
 					resolvedStart: currentPartTimes.partStartTime! + currentPartLength - 1200,
+					resolvedDuration: undefined,
+				},
+			] satisfies StrippedResult)
+		})
+
+		test('nextPart autoNextOutTransition replaces the additive outTransition extension', async () => {
+			const sourceLayerId = Object.keys(sourceLayers)[0]
+			expect(sourceLayerId).toBeTruthy()
+
+			const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
+			const piece010 = createPieceInstance(sourceLayerId, { start: 0 })
+
+			const now = 990000
+			const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+			const currentPartLength = 13000
+
+			const currentPartInfo = createPartInstanceInfo(
+				currentPartTimes,
+				createPartInstance({
+					autoNext: true,
+					expectedDuration: currentPartLength,
+					outTransition: { type: 'additive', duration: 1200 },
+					availablePostrollDuration: 5000,
+				}),
+				[piece001]
+			)
+
+			const nextPartInfo = createPartInstanceInfo(
+				createPartCurrentTimes(now, currentPartTimes.partStartTime! + currentPartLength),
+				createPartInstance(),
+				[piece010]
+			)
+			nextPartInfo.calculatedTimings = {
+				...nextPartInfo.calculatedTimings,
+				fromPartRemaining: 300,
+				fromPartKeepalive: 300,
+				fromPartPostroll: 0,
+				transitionSource: 'autoNextOutTransition',
+			}
+
+			const simpleResolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
+				context,
+				{
+					previous: [],
+					current: currentPartInfo,
+					next: nextPartInfo,
+				},
+				now
+			)
+
+			// Extended by the keepalive of the autoNextOutTransition, not the additive outTransition duration
+			expect(stripResult(simpleResolvedPieces)).toEqual([
+				{
+					_id: piece001._id,
+					resolvedStart: currentPartTimes.partStartTime!,
+					resolvedDuration: currentPartLength + 300,
+				},
+				{
+					_id: piece010._id,
+					resolvedStart: currentPartTimes.partStartTime! + currentPartLength,
 					resolvedDuration: undefined,
 				},
 			] satisfies StrippedResult)

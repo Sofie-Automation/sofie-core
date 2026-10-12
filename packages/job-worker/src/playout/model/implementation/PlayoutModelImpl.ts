@@ -412,10 +412,12 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 	calculatePartTimings(
 		fromPartInstance: PlayoutPartInstanceModel | null,
 		toPartInstance: PlayoutPartInstanceModel,
-		toPieceInstances: PieceInstanceWithTimings[]
+		toPieceInstances: PieceInstanceWithTimings[],
+		isAutoNext: boolean
 	): PartCalculatedTimings {
 		return calculatePartTimings(
 			this.playlist.holdState,
+			isAutoNext,
 			fromPartInstance?.getPartInstanceWithQuickLoopOverrides()?.part,
 			fromPartInstance?.pieceInstances.map((p) => p.pieceInstance.piece) ?? [],
 			toPartInstance?.getPartInstanceWithQuickLoopOverrides()?.part,

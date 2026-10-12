@@ -1,7 +1,7 @@
-import { Time } from '@sofie-automation/blueprints-integration'
+import { IBlueprintPartOutTransition, IBlueprintPieceType, Time } from '@sofie-automation/blueprints-integration'
 import { PieceInstanceInfiniteId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { TimelineObjRundown } from '@sofie-automation/corelib/dist/dataModel/Timeline'
-import { normalizeArray } from '@sofie-automation/corelib/dist/lib'
+import { assertNever, normalizeArray } from '@sofie-automation/corelib/dist/lib'
 import { PieceTimelineMetadata } from './pieceGroup.js'
 import { logger } from '../../logging.js'
 import { PlayoutModel } from '../model/PlayoutModel.js'
@@ -9,6 +9,9 @@ import { RundownTimelineTimingContext, getInfinitePartGroupId } from './rundown.
 import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
 import { PlayoutPieceInstanceModel } from '../model/PlayoutPieceInstanceModel.js'
 import { getPieceControlObjectId } from '@sofie-automation/corelib/dist/playout/ids'
+import { isOutTransitionPieceType, PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
+import { getOutTransitionPiecePlacement } from './part.js'
+import { ReadonlyDeep } from 'type-fest'
 
 /**
  * We want it to be possible to generate a timeline without it containing any `start: 'now'`.
@@ -50,7 +53,13 @@ export function deNowifyMultiGatewayTimeline(
 		timelineObjsMap
 	)
 
-	updatePlannedTimingsForPieceInstances(playoutModel, currentPartInstance, partGroupTimings, timelineObjsMap)
+	updatePlannedTimingsForPieceInstances(
+		playoutModel,
+		currentPartInstance,
+		partGroupTimings,
+		timingContext,
+		timelineObjsMap
+	)
 
 	// Because updatePlannedTimingsForPieceInstances changes start times of infinites, we can now run deNowifyInfinites()
 	deNowifyInfinites(targetNowTime, objectsNotDeNowified, timelineObjsMap)
@@ -63,6 +72,7 @@ export function deNowifyMultiGatewayTimeline(
 }
 
 interface PartGroupTimings {
+	previousEndTime: number | undefined
 	currentStartTime: number
 	currentEndTime: number | undefined
 	nextStartTime: number | undefined
@@ -92,8 +102,9 @@ function updatePartInstancePlannedTimes(
 	}
 
 	// Also mark the previous as ended
+	let previousPartEndTime: number | undefined
 	if (previousPartInstance) {
-		const previousPartEndTime = currentPartGroupStartTime + (timingContext.previousPartOverlap ?? 0)
+		previousPartEndTime = currentPartGroupStartTime + (timingContext.previousPartOverlap ?? 0)
 		previousPartInstance.setPlannedStoppedPlayback(previousPartEndTime)
 	}
 
@@ -117,6 +128,7 @@ function updatePartInstancePlannedTimes(
 	}
 
 	return {
+		previousEndTime: previousPartEndTime,
 		currentStartTime: currentPartGroupStartTime,
 		currentEndTime: currentPartGroupEndTime,
 		nextStartTime: nextPartGroupStartTime,
@@ -238,6 +250,7 @@ function updatePlannedTimingsForPieceInstances(
 	playoutModel: PlayoutModel,
 	currentPartInstance: PlayoutPartInstanceModel,
 	partGroupTimings: PartGroupTimings,
+	timingContext: RundownTimelineTimingContext,
 	timelineObjsMap: Record<string, TimelineObjRundown>
 ) {
 	const existingInfiniteTimings = new Map<PieceInstanceInfiniteId, Time>()
@@ -253,6 +266,15 @@ function updatePlannedTimingsForPieceInstances(
 					plannedStartedPlayback
 				)
 			}
+
+			// The out transition pieces can only be timed once the PartInstance has been taken out of
+			if (isOutTransitionPieceType(pieceInstance.pieceInstance.piece.pieceType)) {
+				setPlannedTimingsOnOutTransitionPiece(pieceInstance, partGroupTimings.previousEndTime, {
+					partTimings: previousPartInstance.partInstance.partPlayoutTimings,
+					nextPartTimings: currentPartInstance.partInstance.partPlayoutTimings,
+					outTransition: previousPartInstance.partInstance.part.outTransition,
+				})
+			}
 		}
 	}
 
@@ -261,7 +283,12 @@ function updatePlannedTimingsForPieceInstances(
 		setPlannedTimingsOnPieceInstance(
 			pieceInstance,
 			partGroupTimings.currentStartTime,
-			partGroupTimings.currentEndTime
+			partGroupTimings.currentEndTime,
+			{
+				partTimings: currentPartInstance.partInstance.partPlayoutTimings,
+				nextPartTimings: timingContext.nextPartTimings,
+				outTransition: currentPartInstance.partInstance.part.outTransition,
+			}
 		)
 		preserveOrTrackInfiniteTimings(existingInfiniteTimings, timelineObjsMap, pieceInstance)
 	}
@@ -270,16 +297,30 @@ function updatePlannedTimingsForPieceInstances(
 	if (nextPartInstance && partGroupTimings.nextStartTime) {
 		const nextPartGroupStartTime0 = partGroupTimings.nextStartTime
 		for (const pieceInstance of nextPartInstance.pieceInstances) {
-			setPlannedTimingsOnPieceInstance(pieceInstance, nextPartGroupStartTime0, undefined)
+			setPlannedTimingsOnPieceInstance(pieceInstance, nextPartGroupStartTime0, undefined, {
+				partTimings: timingContext.nextPartTimings,
+				nextPartTimings: undefined,
+				outTransition: nextPartInstance.partInstance.part.outTransition,
+			})
 			preserveOrTrackInfiniteTimings(existingInfiniteTimings, timelineObjsMap, pieceInstance)
 		}
 	}
 }
 
+interface PartTransitionTimingsInfo {
+	/** Timings of the transition into the PartInstance */
+	partTimings: PartCalculatedTimings | undefined
+	/** Timings of the transition out of the PartInstance */
+	nextPartTimings: PartCalculatedTimings | undefined
+	/** The outTransition of the PartInstance */
+	outTransition: ReadonlyDeep<IBlueprintPartOutTransition> | undefined
+}
+
 function setPlannedTimingsOnPieceInstance(
 	pieceInstance: PlayoutPieceInstanceModel,
 	partPlannedStart: Time,
-	partPlannedEnd: Time | undefined
+	partPlannedEnd: Time | undefined,
+	transitionInfo: PartTransitionTimingsInfo
 ): void {
 	if (
 		pieceInstance.pieceInstance.infinite &&
@@ -288,6 +329,21 @@ function setPlannedTimingsOnPieceInstance(
 	) {
 		// If not the start of an infinite chain, then the plannedStartedPlayback flows differently
 		return
+	}
+
+	switch (pieceInstance.pieceInstance.piece.pieceType) {
+		case IBlueprintPieceType.InTransition:
+			setPlannedTimingsOnInTransitionPiece(pieceInstance, partPlannedStart, partPlannedEnd, transitionInfo)
+			return
+		case IBlueprintPieceType.OutTransition:
+		case IBlueprintPieceType.AutoNextOutTransition:
+			setPlannedTimingsOnOutTransitionPiece(pieceInstance, partPlannedEnd, transitionInfo)
+			return
+		case IBlueprintPieceType.Normal:
+			break
+		default:
+			assertNever(pieceInstance.pieceInstance.piece.pieceType)
+			break
 	}
 
 	if (typeof pieceInstance.pieceInstance.piece.enable.start === 'number') {
@@ -312,6 +368,63 @@ function setPlannedTimingsOnPieceInstance(
 
 		pieceInstance.setPlannedStoppedPlayback(plannedEnd)
 	}
+}
+
+/**
+ * InTransition pieces are timed relative to the start of the inTransition
+ */
+function setPlannedTimingsOnInTransitionPiece(
+	pieceInstance: PlayoutPieceInstanceModel,
+	partPlannedStart: Time,
+	partPlannedEnd: Time | undefined,
+	transitionInfo: PartTransitionTimingsInfo
+): void {
+	const inTransitionStart = transitionInfo.partTimings?.inTransitionStart
+	if (typeof inTransitionStart !== 'number') {
+		// The inTransition is not being played
+		pieceInstance.setPlannedStartedPlayback(undefined)
+		return
+	}
+
+	const piece = pieceInstance.pieceInstance.piece
+	const startOffset = typeof piece.enable.start === 'number' ? piece.enable.start : 0
+
+	const plannedStart = partPlannedStart + inTransitionStart + startOffset
+	pieceInstance.setPlannedStartedPlayback(plannedStart)
+	pieceInstance.setPlannedStoppedPlayback(
+		piece.enable.duration !== undefined ? plannedStart + piece.enable.duration : partPlannedEnd
+	)
+}
+
+/**
+ * Out transition pieces are timed relative to the end of the PartInstance, so can only be timed once that is known
+ */
+function setPlannedTimingsOnOutTransitionPiece(
+	pieceInstance: PlayoutPieceInstanceModel,
+	partPlannedEnd: Time | undefined,
+	transitionInfo: PartTransitionTimingsInfo
+): void {
+	const placement =
+		partPlannedEnd !== undefined && transitionInfo.partTimings
+			? getOutTransitionPiecePlacement(
+					transitionInfo.partTimings,
+					transitionInfo.nextPartTimings,
+					transitionInfo.outTransition,
+					pieceInstance.pieceInstance.piece
+				)
+			: undefined
+	if (partPlannedEnd === undefined || !placement) {
+		// Not known yet, or not being played
+		pieceInstance.setPlannedStartedPlayback(undefined)
+		return
+	}
+
+	const plannedStart = partPlannedEnd - placement.offsetFromPartEnd
+	pieceInstance.setPlannedStartedPlayback(plannedStart)
+	pieceInstance.setPlannedStoppedPlayback(
+		// The piece is stopped by the end of the PartInstance
+		placement.duration !== undefined ? Math.min(plannedStart + placement.duration, partPlannedEnd) : partPlannedEnd
+	)
 }
 
 function preserveOrTrackInfiniteTimings(
