@@ -1258,7 +1258,7 @@ describe('Test blueprint api context', () => {
 						outputLayerId: 'o1',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
 						content: {
 							timelineObjects: [],
 						},
@@ -1308,7 +1308,7 @@ describe('Test blueprint api context', () => {
 									outputLayerId: 'o1',
 									externalId: '-',
 									enable: { start: 0 },
-									lifespan: PieceLifespan.OutOnRundownEnd,
+									lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
 									content: {
 										timelineObjects: [],
 									},
@@ -1349,7 +1349,7 @@ describe('Test blueprint api context', () => {
 									outputLayerId: 'o1',
 									externalId: '-',
 									enable: { start: 0 },
-									lifespan: PieceLifespan.OutOnRundownEnd,
+									lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
 									content: {
 										timelineObjects: [],
 									},
@@ -1395,7 +1395,7 @@ describe('Test blueprint api context', () => {
 									outputLayerId: 'o1',
 									externalId: '-',
 									enable: { start: 0 },
-									lifespan: PieceLifespan.OutOnRundownEnd,
+									lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
 									content: {
 										timelineObjects: [],
 									},
@@ -1428,7 +1428,7 @@ describe('Test blueprint api context', () => {
 					outputLayerId: 'o1',
 					externalId: '-',
 					enable: { start: 0 },
-					lifespan: PieceLifespan.OutOnRundownEnd,
+					lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
 					content: {
 						timelineObjects: [],
 					},
@@ -1497,7 +1497,7 @@ describe('Test blueprint api context', () => {
 						outputLayerId: 'o1',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
 						content: {
 							timelineObjects: [],
 						},
@@ -1551,7 +1551,7 @@ describe('Test blueprint api context', () => {
 						outputLayerId: 'o1',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
 						content: {
 							timelineObjects: [],
 						},
@@ -1608,7 +1608,7 @@ describe('Test blueprint api context', () => {
 						outputLayerId: 'o1',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
 						content: {
 							timelineObjects: [],
 						},
@@ -1665,7 +1665,7 @@ describe('Test blueprint api context', () => {
 								outputLayerId: 'o1',
 								externalId: '-',
 								enable: { start: 0 },
-								lifespan: PieceLifespan.OutOnRundownEnd,
+								lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
 								content: {
 									timelineObjects: [],
 								},
@@ -1713,7 +1713,7 @@ describe('Test blueprint api context', () => {
 								outputLayerId: 'o1',
 								externalId: '-',
 								enable: { start: 0 },
-								lifespan: PieceLifespan.OutOnRundownEnd,
+								lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
 								content: {
 									timelineObjects: [],
 								},
