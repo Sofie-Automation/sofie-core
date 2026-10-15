@@ -1,4 +1,3 @@
-import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import {
 	PeripheralDeviceCategory,
@@ -22,6 +21,7 @@ import { getCurrentTime } from '../../lib/index.js'
 jest.mock('../../blueprints/postProcess')
 import { postProcessPieces } from '../../blueprints/postProcess.js'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { LegacyPieceLifespan } from '@sofie-automation/blueprints-integration'
 const { postProcessPieces: postProcessPiecesOrig } = jest.requireActual('../../blueprints/postProcess')
 ;(postProcessPieces as jest.Mock).mockImplementation(postProcessPiecesOrig)
 
@@ -85,7 +85,7 @@ describe('take', () => {
 						outputLayerId: 'o0',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.WithinPart,
+						lifespan: LegacyPieceLifespan.WithinPart,
 						content: {
 							timelineObjects: [],
 						},
@@ -151,7 +151,7 @@ describe('take', () => {
 						outputLayerId: 'o0',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.WithinPart,
+						lifespan: LegacyPieceLifespan.WithinPart,
 						content: {
 							timelineObjects: [],
 						},
@@ -223,7 +223,7 @@ describe('take', () => {
 					outputLayerId: 'o0',
 					externalId: '-',
 					enable: { start: 0 },
-					lifespan: PieceLifespan.WithinPart,
+					lifespan: LegacyPieceLifespan.WithinPart,
 					content: {
 						timelineObjects: [],
 					},
