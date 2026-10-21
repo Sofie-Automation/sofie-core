@@ -130,16 +130,7 @@ export function buildTimelineObjsForRundown(
 
 	const [currentInfinitePieces, currentNormalItems] = _.partition(
 		partInstancesInfo.current.pieceInstances,
-		(l) =>
-			!!(
-				l.infinite &&
-				(!PieceLifespan.from(l.piece.lifespan).equals({
-					scope: 'part',
-					presence: 'forward-scope',
-					inShadow: 'stop',
-				}) ||
-					l.infinite.fromHold)
-			)
+		(l) => !!(l.infinite && (PieceLifespan.from(l.piece.lifespan).isInfinite || l.infinite.fromHold))
 	)
 
 	// Find all the infinites in each of the selected parts

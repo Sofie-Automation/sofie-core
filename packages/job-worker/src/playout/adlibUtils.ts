@@ -467,46 +467,32 @@ export function innerStopPieces(
 		if (pieceInstance.plannedStoppedPlayback && pieceInstance.plannedStoppedPlayback <= stopAt) continue
 
 		const lifespan = PieceLifespan.from(pieceInstance.piece.lifespan)
-		switch (`${lifespan.scope}:${lifespan.presence}:${lifespan.inShadow}`) {
-			case 'part:forward-scope:stop':
-			case 'segment:follow-playhead:stop':
-			case 'rundown:follow-playhead:stop': {
-				logger.info(`Blueprint action: Cropping PieceInstance "${pieceInstance._id}" to ${stopAt}`)
+		if (!lifespan.isInfinite || lifespan.tracksPlayhead) {
+			// The PieceInstance is what continues into later parts, so cropping it is enough
+			logger.info(`Blueprint action: Cropping PieceInstance "${pieceInstance._id}" to ${stopAt}`)
 
-				const pieceInstanceModel = playoutModel.findPieceInstance(pieceInstance._id)
-				if (pieceInstanceModel) {
-					pieceInstanceModel.pieceInstance.setDuration({
-						endRelativeToPart: relativeStopAt,
-					})
-
-					stoppedInstances.push(pieceInstance._id)
-				} else {
-					logger.warn(
-						`Blueprint action: Failed to crop PieceInstance "${pieceInstance._id}", it was not found`
-					)
-				}
-
-				break
-			}
-			case 'segment:forward-scope:persist':
-			case 'rundown:forward-scope:persist':
-			case 'showstyle:forward-scope:persist': {
-				logger.info(
-					`Blueprint action: Cropping PieceInstance "${pieceInstance._id}" to ${stopAt} with a virtual`
-				)
-
-				currentPartInstance.insertVirtualPiece(
-					relativeStopAt,
-					lifespan.definition(),
-					pieceInstance.piece.sourceLayerId,
-					pieceInstance.piece.outputLayerId
-				)
+			const pieceInstanceModel = playoutModel.findPieceInstance(pieceInstance._id)
+			if (pieceInstanceModel) {
+				pieceInstanceModel.pieceInstance.setDuration({
+					endRelativeToPart: relativeStopAt,
+				})
 
 				stoppedInstances.push(pieceInstance._id)
-				break
+			} else {
+				logger.warn(`Blueprint action: Failed to crop PieceInstance "${pieceInstance._id}", it was not found`)
 			}
-			default:
-				break
+		} else {
+			// Static infinites are recreated from the planned Piece in later parts, so a virtual is needed to stop them
+			logger.info(`Blueprint action: Cropping PieceInstance "${pieceInstance._id}" to ${stopAt} with a virtual`)
+
+			currentPartInstance.insertVirtualPiece(
+				relativeStopAt,
+				lifespan.definition(),
+				pieceInstance.piece.sourceLayerId,
+				pieceInstance.piece.outputLayerId
+			)
+
+			stoppedInstances.push(pieceInstance._id)
 		}
 	}
 

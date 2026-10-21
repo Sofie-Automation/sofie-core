@@ -129,15 +129,7 @@ export function convertAdLibToGenericPiece(
 		pieceType: IBlueprintPieceType.Normal,
 		enable: {
 			start: isBeingQueued ? 0 : 'now',
-			duration:
-				!isBeingQueued &&
-				new PieceLifespan({
-					scope: 'part',
-					presence: 'forward-scope',
-					inShadow: 'stop',
-				}).equals(adLibPiece.lifespan)
-					? duration
-					: undefined,
+			duration: !isBeingQueued && !PieceLifespan.from(adLibPiece.lifespan).isInfinite ? duration : undefined,
 		},
 	}
 }
@@ -147,13 +139,7 @@ export function convertAdLibToGenericPiece(
  * @param pieceInstance PieceInstance to setup
  */
 export function setupPieceInstanceInfiniteProperties(pieceInstance: PieceInstance): void {
-	if (
-		!new PieceLifespan({
-			scope: 'part',
-			presence: 'forward-scope',
-			inShadow: 'stop',
-		}).equals(pieceInstance.piece.lifespan)
-	) {
+	if (PieceLifespan.from(pieceInstance.piece.lifespan).isInfinite) {
 		// Set it up as an infinite
 		pieceInstance.infinite = {
 			infiniteInstanceId: getRandomId(),

@@ -807,6 +807,66 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			}
 		})
 	})
+
+	test('keeps pieces of every lifespan combination', () => {
+		const scopes = ['part', 'segment', 'rundown', 'showstyle', 'playlist'] as const
+		const presences = ['forward-scope', 'follow-playhead'] as const
+		const inShadows = ['stop', 'persist'] as const
+
+		const pieceInstances: PieceInstance[] = []
+		const expected: ReturnType<typeof runAndTidyResult> = []
+		for (const scope of scopes) {
+			for (const presence of presences) {
+				for (const inShadow of inShadows) {
+					const id = `${scope}:${presence}:${inShadow}`
+					pieceInstances.push(createPieceInstance(id, { start: 0 }, id, { scope, presence, inShadow }))
+					expected.push({
+						_id: protectString(id),
+						start: 0,
+						end: undefined,
+						priority:
+							inShadow === 'persist'
+								? { part: 3, segment: 2, rundown: 1, showstyle: 0, playlist: -1 }[scope]
+								: 5,
+					})
+				}
+			}
+		}
+
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
+		expect(resolvedInstances).toEqual(expected)
+	})
+
+	test('part scoped persisting piece covers a broader one without stopping it', () => {
+		const pieceInstances = [
+			createPieceInstance('rundown', { start: 0 }, 'one', {
+				scope: 'rundown',
+				presence: 'forward-scope',
+				inShadow: 'persist',
+			}),
+			createPieceInstance('part', { start: 1000, duration: 2000 }, 'one', {
+				scope: 'part',
+				presence: 'forward-scope',
+				inShadow: 'persist',
+			}),
+		]
+
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
+		expect(resolvedInstances).toEqual([
+			{
+				_id: 'rundown',
+				priority: 1,
+				start: 0,
+				end: undefined,
+			},
+			{
+				_id: 'part',
+				priority: 3,
+				start: 1000,
+				end: undefined,
+			},
+		])
+	})
 })
 
 describe('resolvePrunedPieceInstances', () => {

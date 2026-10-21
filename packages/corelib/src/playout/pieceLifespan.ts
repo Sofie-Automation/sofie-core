@@ -112,6 +112,16 @@ export class PieceLifespan implements IPieceLifespan {
 		return this.inShadow === 'persist'
 	}
 
+	/**
+	 * The timeline priority of the piece, relative to other pieces on the same layer.
+	 * Pieces that persist in shadow are stacked by scope (broader scope = lower priority), so that a narrower one can
+	 * temporarily cover a broader one. Every other piece shares the highest priority.
+	 */
+	get stackingPriority(): number {
+		if (!this.persistsInShadow) return 5
+		return 3 - SCOPE_HIERARCHY[this.scope]
+	}
+
 	/** Checks if this piece's scope is equal to or broader than another scope */
 	inScope(requiredScope: PieceLifespanScope): boolean {
 		return SCOPE_HIERARCHY[this.scope] >= SCOPE_HIERARCHY[requiredScope]

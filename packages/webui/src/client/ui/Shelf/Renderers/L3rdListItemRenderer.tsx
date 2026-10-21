@@ -2,11 +2,12 @@ import { useState, useRef, useEffect, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import ClassNames from 'classnames'
 import type { ILayerItemRendererProps } from './ItemRendererFactory.js'
-import { type NoraContent, LegacyPieceLifespan } from '@sofie-automation/blueprints-integration'
+import type { NoraContent } from '@sofie-automation/blueprints-integration'
 import { getElementDocumentOffset, type OffsetPosition } from '../../../utils/positions.js'
 import { getElementWidth } from '../../../utils/dimensions.js'
 import { StyledTimecode } from '../../../lib/StyledTimecode.js'
 import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
+import { getPieceLifespanText } from '../../../lib/ui/pieceLifespanText.js'
 import type { AdLibPieceUi } from '../../../lib/shelf.js'
 import { ActionAdLibHotkeyPreview } from '../../../lib/triggers/ActionAdLibHotkeyPreview.js'
 import {
@@ -30,30 +31,9 @@ export const L3rdListItemRenderer: React.FunctionComponent<ILayerItemRendererPro
 	const itemAsPieceUi = props.adLibListItem as AdLibPieceUi
 
 	if (noraContent) {
-		switch (PieceLifespan.from(props.adLibListItem.lifespan).legacyLifespan) {
-			case LegacyPieceLifespan.WithinPart:
-				sourceDuration = t('Until next take')
-				if (itemAsPieceUi.expectedDuration) {
-					sourceDuration = itemAsPieceUi.expectedDuration!
-				}
-				break
-			case LegacyPieceLifespan.OutOnSegmentChange:
-				sourceDuration = t('Until next segment')
-				break
-			case LegacyPieceLifespan.OutOnSegmentEnd:
-				sourceDuration = t('Until end of segment')
-				break
-			case LegacyPieceLifespan.OutOnRundownChange:
-				sourceDuration = t('Until next rundown')
-				break
-			case LegacyPieceLifespan.OutOnRundownEnd:
-				sourceDuration = t('Until end of rundown')
-				break
-			case LegacyPieceLifespan.OutOnShowStyleEnd:
-				sourceDuration = t('Until end of showstyle')
-				break
-			default:
-				break
+		sourceDuration = getPieceLifespanText(t, props.adLibListItem.lifespan)
+		if (!PieceLifespan.from(props.adLibListItem.lifespan).isInfinite && itemAsPieceUi.expectedDuration) {
+			sourceDuration = itemAsPieceUi.expectedDuration
 		}
 	}
 

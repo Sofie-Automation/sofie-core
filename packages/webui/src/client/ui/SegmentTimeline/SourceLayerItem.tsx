@@ -2,11 +2,11 @@ import type * as React from 'react'
 import type { ISourceLayerUi, IOutputLayerUi, PartUi } from './SegmentTimelineContainer.js'
 import {
 	SourceLayerType,
-	LegacyPieceLifespan,
 	IBlueprintPieceType,
 	UserEditingType,
 	DefaultUserOperationsTypes,
 } from '@sofie-automation/blueprints-integration'
+import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 import { RundownUtils } from '../../lib/rundown.js'
 import { DefaultLayerItemRenderer } from './Renderers/DefaultLayerItemRenderer.js'
 import { MicSourceRenderer } from './Renderers/MicSourceRenderer.js'
@@ -370,7 +370,7 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 		}
 
 		if (
-			(innerPiece.lifespan !== LegacyPieceLifespan.WithinPart ||
+			(PieceLifespan.from(innerPiece.lifespan).isInfinite ||
 				(innerPiece.enable.start !== undefined &&
 					innerPiece.enable.duration === undefined &&
 					piece.instance.userDuration === undefined)) &&
@@ -564,7 +564,7 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 
 		const inPoint = piece.renderedInPoint || 0
 		const duration =
-			innerPiece.lifespan !== LegacyPieceLifespan.WithinPart || piece.renderedDuration === 0
+			PieceLifespan.from(innerPiece.lifespan).isInfinite || piece.renderedDuration === 0
 				? partDuration - inPoint
 				: Math.min(piece.renderedDuration || 0, partDuration - inPoint)
 		const outPoint = inPoint + duration

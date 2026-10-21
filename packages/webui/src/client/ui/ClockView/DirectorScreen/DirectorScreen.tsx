@@ -18,7 +18,7 @@ import { PieceIconContainer } from '../ClockViewPieceIcons/ClockViewPieceIcon.js
 import { PieceNameContainer } from '../ClockViewPieceIcons/ClockViewPieceName.js'
 import { Timediff } from '../Timediff.js'
 import { RundownUtils } from '../../../lib/rundown.js'
-import { LegacyPieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-integration'
+import { SourceLayerType } from '@sofie-automation/blueprints-integration'
 import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PieceFreezeContainer } from '../ClockViewPieceIcons/ClockViewFreezeCount.js'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
@@ -294,12 +294,8 @@ const getDirectorScreenReactive = (props: DirectorScreenProps): DirectorScreenTr
 					$exists: true,
 				},
 				'infinite.fromPreviousPart': false,
-				'piece.lifespan': {
-					$in: [
-						LegacyPieceLifespan.OutOnRundownEnd,
-						LegacyPieceLifespan.OutOnRundownChange,
-						LegacyPieceLifespan.OutOnShowStyleEnd,
-					],
+				'piece.lifespan.scope': {
+					$in: ['rundown', 'showstyle', 'playlist'],
 				},
 				reset: {
 					$ne: true,

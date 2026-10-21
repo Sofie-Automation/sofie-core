@@ -1,4 +1,5 @@
-import { LegacyPieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-integration'
+import { SourceLayerType } from '@sofie-automation/blueprints-integration'
+import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 import { useMemo } from 'react'
 import { findPieceExtendedToShowFromOrderedResolvedInstances } from '../PieceIcons/utils.js'
 import { LinePartMainPiece } from './LinePartMainPiece/LinePartMainPiece.js'
@@ -64,7 +65,7 @@ function findTimelineGraphics(pieces: PieceExtended[]) {
 			if (
 				piece.sourceLayer?.type === SourceLayerType.LOWER_THIRD &&
 				(showHiddenSourceLayers || !piece.sourceLayer?.isHidden) &&
-				((piece.instance.piece.lifespan === LegacyPieceLifespan.WithinPart && piece.instance.piece.enable.duration) ||
+				((!PieceLifespan.from(piece.instance.piece.lifespan).isInfinite && piece.instance.piece.enable.duration) ||
 					!piece.sourceLayer?.onListViewColumn)
 			) {
 				return true

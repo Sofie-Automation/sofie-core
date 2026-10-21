@@ -9,7 +9,8 @@ import { ScriptPreview } from './Previews/ScriptPreview.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import type { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import type { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
-import { LegacyPieceLifespan } from '@sofie-automation/blueprints-integration'
+import type { PieceLifespanInfo } from '@sofie-automation/blueprints-integration'
+import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 import { LayerInfoPreview } from './Previews/LayerInfoPreview.js'
 import type { PreviewContentUI } from './PreviewPopUpContext.js'
 
@@ -96,7 +97,7 @@ export function PreviewPopUpContent({ content, time }: PreviewPopUpContentProps)
 
 function getDurationText(
 	t: TFunction,
-	lifespan: LegacyPieceLifespan,
+	lifespan: PieceLifespanInfo,
 	timeAsRendered?: { in?: number | null; dur?: number | null },
 	enable?: ReadonlyObjectDeep<PieceInstancePiece>['enable']
 ): string {
@@ -109,21 +110,34 @@ function getDurationText(
 	}
 }
 
-function getLifeSpanText(t: TFunction, lifespan: LegacyPieceLifespan): string {
-	switch (lifespan) {
-		case LegacyPieceLifespan.WithinPart:
-			return t('Until Next Take')
-		case LegacyPieceLifespan.OutOnSegmentChange:
-			return t('Until Next Segment')
-		case LegacyPieceLifespan.OutOnSegmentEnd:
-			return t('Until End of Segment')
-		case LegacyPieceLifespan.OutOnRundownChange:
-			return t('Until Next Rundown')
-		case LegacyPieceLifespan.OutOnRundownEnd:
-			return t('Until End of Rundown')
-		case LegacyPieceLifespan.OutOnShowStyleEnd:
-			return t('Until End of Showstyle')
-		default:
-			return ''
+function getLifeSpanText(t: TFunction, lifespanInfo: PieceLifespanInfo): string {
+	const lifespan = PieceLifespan.from(lifespanInfo)
+
+	if (lifespan.tracksPlayhead) {
+		switch (lifespan.scope) {
+			case 'part':
+				return t('Until Next Take')
+			case 'segment':
+				return t('Until Next Segment')
+			case 'rundown':
+				return t('Until Next Rundown')
+			case 'showstyle':
+				return t('Until Next Showstyle')
+			case 'playlist':
+				return t('Until End of Playlist')
+		}
+	} else {
+		switch (lifespan.scope) {
+			case 'part':
+				return t('Until Next Take')
+			case 'segment':
+				return t('Until End of Segment')
+			case 'rundown':
+				return t('Until End of Rundown')
+			case 'showstyle':
+				return t('Until End of Showstyle')
+			case 'playlist':
+				return t('Until End of Playlist')
+		}
 	}
 }

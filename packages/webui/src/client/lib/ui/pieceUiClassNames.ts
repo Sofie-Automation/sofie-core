@@ -33,17 +33,9 @@ export function pieceUiClassNames(
 				? uiState.leftAnchoredWidth > 0 && uiState.leftAnchoredWidth + uiState.rightAnchoredWidth > elementWidth
 				: undefined,
 
-		'super-infinite':
-			!innerPiece.enable.isAbsolute &&
-			!lifespan.equals({ scope: 'part', presence: 'forward-scope', inShadow: 'stop' }) &&
-			!lifespan.equals({ scope: 'segment', presence: 'follow-playhead', inShadow: 'stop' }) &&
-			!lifespan.equals({ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' }),
+		'super-infinite': !innerPiece.enable.isAbsolute && lifespan.inScope('rundown'),
 		'infinite-starts':
-			!innerPiece.enable.isAbsolute &&
-			!lifespan.equals({ scope: 'part', presence: 'forward-scope', inShadow: 'stop' }) &&
-			!lifespan.equals({ scope: 'segment', presence: 'follow-playhead', inShadow: 'stop' }) &&
-			!lifespan.equals({ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' }) &&
-			innerPiece.startPartId === partId,
+			!innerPiece.enable.isAbsolute && lifespan.inScope('rundown') && innerPiece.startPartId === partId,
 
 		'not-in-vision': innerPiece.notInVision,
 

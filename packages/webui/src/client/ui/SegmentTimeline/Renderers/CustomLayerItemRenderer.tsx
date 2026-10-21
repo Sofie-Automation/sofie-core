@@ -5,7 +5,8 @@ import type { ISourceLayerUi, IOutputLayerUi, PartUi } from '../SegmentTimelineC
 import { RundownUtils } from '../../../lib/rundown.js'
 import { faCut } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { LegacyPieceLifespan, UserEditingType, type VTContent } from '@sofie-automation/blueprints-integration'
+import { UserEditingType, type VTContent } from '@sofie-automation/blueprints-integration'
+import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 import type { OffsetPosition } from '../../../utils/positions.js'
 import { LoopingPieceIcon } from '../../../lib/ui/icons/looping.js'
 import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
@@ -238,8 +239,10 @@ export class CustomLayerItemRenderer<IProps extends ICustomLayerItemProps, IStat
 		const uiPiece = this.props.piece
 		const innerPiece = uiPiece.instance.piece
 
-		return (innerPiece.lifespan === LegacyPieceLifespan.OutOnRundownEnd ||
-			innerPiece.lifespan === LegacyPieceLifespan.OutOnShowStyleEnd) &&
+		const lifespan = PieceLifespan.from(innerPiece.lifespan)
+
+		return lifespan.isStatic &&
+			lifespan.inScope('rundown') &&
 			!uiPiece.instance.userDuration &&
 			uiPiece.renderedDuration === null ? (
 			<div className="segment-timeline__piece__label label-icon label-infinite-icon">

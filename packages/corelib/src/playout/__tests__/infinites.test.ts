@@ -7,7 +7,12 @@ import { PieceInstance, PieceInstancePiece } from '../../dataModel/PieceInstance
 import { Rundown, DBRundown } from '../../dataModel/Rundown.js'
 import { literal } from '../../lib.js'
 import { protectString } from '../../protectedString.js'
-import { getPlayheadTrackingInfinitesForPart } from '../infinites.js'
+import {
+	buildPastInfinitePiecesForThisPartQuery,
+	getPlayheadTrackingInfinitesForPart,
+	isPiecePotentiallyActiveInPart,
+} from '../infinites.js'
+import { mongoWhere } from '../../mongo.js'
 import { DBSegment, SegmentOrphanedReason } from '../../dataModel/Segment.js'
 import { IPieceLifespan } from '@sofie-automation/shared-lib/dist/core/model/Rundown'
 
@@ -353,6 +358,94 @@ describe('Infinites', () => {
 				)
 				expect(continuedInstances).toHaveLength(1)
 			})
+		})
+	})
+
+	describe('lifespans without a legacy preset', () => {
+		const part = {
+			_id: protectString('part2'),
+			segmentId: protectString('segment1'),
+			rundownId: protectString('rundown2'),
+		} as DBPart
+		const rundown = { _id: protectString('rundown2'), showStyleBaseId: protectString('showstyle') } as Pick<
+			DBRundown,
+			'_id' | 'showStyleBaseId'
+		>
+
+		function createPiece(
+			lifespan: IPieceLifespan,
+			startRundownId: string,
+			startSegmentId: string,
+			startPartId: string
+		) {
+			return literal<Piece>({
+				_id: protectString(`piece_${startPartId}`),
+				startRundownId: protectString(startRundownId),
+				startSegmentId: protectString(startSegmentId),
+				startPartId: protectString(startPartId),
+				externalId: '',
+				name: '',
+				enable: { start: 0 },
+				lifespan,
+				sourceLayerId: 'one',
+				outputLayerId: '',
+				invalid: false,
+				content: {},
+				timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+				pieceType: IBlueprintPieceType.Normal,
+			})
+		}
+
+		function isActive(piece: Piece): boolean {
+			return isPiecePotentiallyActiveInPart(
+				undefined,
+				new Set([protectString<PartId>('part1')]),
+				new Set(),
+				[protectString<RundownId>('rundown1')],
+				new Map(),
+				rundown,
+				part,
+				piece
+			)
+		}
+
+		test('segment scoped piece that stops in shadow continues within its segment', () => {
+			const piece = createPiece(
+				{ scope: 'segment', presence: 'forward-scope', inShadow: 'stop' },
+				'rundown2',
+				'segment1',
+				'part1'
+			)
+			expect(isActive(piece)).toBe(true)
+
+			const query = buildPastInfinitePiecesForThisPartQuery(part, [protectString('part1')], [], [])
+			expect(query && mongoWhere(piece, query)).toBe(true)
+		})
+
+		test('part scoped piece that persists in shadow does not leave its part', () => {
+			const piece = createPiece(
+				{ scope: 'part', presence: 'forward-scope', inShadow: 'persist' },
+				'rundown2',
+				'segment1',
+				'part1'
+			)
+			expect(isActive(piece)).toBe(false)
+
+			const query = buildPastInfinitePiecesForThisPartQuery(part, [protectString('part1')], [], [])
+			expect(query && mongoWhere(piece, query)).toBe(false)
+		})
+
+		test('playlist scoped piece continues from a previous rundown', () => {
+			const piece = createPiece(
+				{ scope: 'playlist', presence: 'forward-scope', inShadow: 'persist' },
+				'rundown1',
+				'segment0',
+				'part0'
+			)
+			expect(isActive(piece)).toBe(true)
+
+			const query = buildPastInfinitePiecesForThisPartQuery(part, [], [], [protectString('rundown1')])
+			expect(query && mongoWhere(piece, query)).toBe(true)
 		})
 	})
 })

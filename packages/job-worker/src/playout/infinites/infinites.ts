@@ -24,10 +24,7 @@ import {
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
-import {
-	PartCurrentTimes,
-	PieceInstanceWithTimings,
-} from '@sofie-automation/corelib/dist/playout/processAndPrune'
+import { PartCurrentTimes, PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 
 export type PieceLookupDoc = ReadonlyDeep<Piece> | ReadonlyDeep<PieceInstancePiece>
 
@@ -121,10 +118,7 @@ export function buildPieceLookups(
 	return pieceById
 }
 
-function projectStartsToDest(
-	pieces: InfiniteLivePiece[],
-	destinationPart: ReadonlyDeep<DBPart>
-): InfiniteLivePiece[] {
+function projectStartsToDest(pieces: InfiniteLivePiece[], destinationPart: ReadonlyDeep<DBPart>): InfiniteLivePiece[] {
 	return pieces.map((piece) => {
 		if (piece.enable.isAbsolute) return { ...piece }
 		const startedOnDest = piece.part?.id === destinationPart._id
@@ -439,7 +433,7 @@ function flattenInstanceLayer(
 
 		if (piece.piece.virtual) continue
 
-		const priority = timelinePriority(lifespan)
+		const priority = lifespan.stackingPriority
 		gaps.forEach((gap, sliceIndex) => {
 			if (gap.end <= gap.start) return
 			out.push(wrapTimingsSlice(piece, gap, sliceIndex, priority, partTimes))
@@ -462,13 +456,6 @@ function instanceEndInPart(piece: ReadonlyDeep<PieceInstance>, partTimes: PartCu
 	const start = instanceStartInPart(piece, partTimes)
 	if (typeof piece.piece.enable.duration === 'number') return start + piece.piece.enable.duration
 	return Number.POSITIVE_INFINITY
-}
-
-function timelinePriority(lifespan: PieceLifespan): number {
-	if (lifespan.scope === 'showstyle' && lifespan.persistsInShadow) return 0
-	if (lifespan.scope === 'rundown' && lifespan.persistsInShadow) return 1
-	if (lifespan.scope === 'segment' && lifespan.persistsInShadow) return 2
-	return 5
 }
 
 function wrapTimingsSlice(

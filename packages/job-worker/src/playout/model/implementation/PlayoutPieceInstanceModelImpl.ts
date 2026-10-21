@@ -164,11 +164,7 @@ export class PlayoutPieceInstanceModelImpl implements PlayoutPieceInstanceModel 
 		)
 		if (
 			props.lifespan !== undefined &&
-			!PieceLifespan.from(props.lifespan).equals({
-				scope: 'part',
-				presence: 'forward-scope',
-				inShadow: 'stop',
-			}) &&
+			PieceLifespan.from(props.lifespan).isInfinite &&
 			!this.PieceInstanceImpl.infinite
 		) {
 			setupPieceInstanceInfiniteProperties(this.PieceInstanceImpl)

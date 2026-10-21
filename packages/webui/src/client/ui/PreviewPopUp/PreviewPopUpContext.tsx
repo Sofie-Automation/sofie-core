@@ -6,7 +6,7 @@ import { PreviewPopUpContent } from './PreviewPopUpContent.js'
 import {
 	JSONBlobParse,
 	type NoraPayload,
-	LegacyPieceLifespan,
+	type PieceLifespanInfo,
 	type PreviewContent,
 	PreviewType,
 	type ScriptContent,
@@ -23,7 +23,6 @@ import type { ITranslatableMessage } from '@sofie-automation/corelib/dist/Transl
 import _ from 'underscore'
 import type { IAdLibListItem } from '../Shelf/AdLibListItem.js'
 import type { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 import { createPrivateApiPath } from '../../url.js'
 import {
 	getPieceScrubDurationMs,
@@ -110,7 +109,7 @@ export function convertSourceLayerItemToPreview(
 							type: 'timing',
 							timeAsRendered,
 							enable: 'enable' in item ? item.enable : undefined,
-							lifespan: PieceLifespan.from(item.lifespan).legacyLifespan ?? LegacyPieceLifespan.WithinPart,
+							lifespan: item.lifespan,
 						})
 					}
 					break
@@ -278,7 +277,7 @@ export function convertSourceLayerItemToPreview(
 					type: 'timing',
 					timeAsRendered,
 					enable: 'enable' in item ? item.enable : undefined,
-					lifespan: PieceLifespan.from(item.lifespan).legacyLifespan ?? LegacyPieceLifespan.WithinPart,
+					lifespan: item.lifespan,
 				},
 			],
 			options: {},
@@ -353,7 +352,7 @@ export type PreviewContentUI =
 			type: 'timing'
 			timeAsRendered?: { in?: number | null; dur?: number | null }
 			enable?: ReadonlyObjectDeep<PieceInstancePiece>['enable']
-			lifespan: LegacyPieceLifespan
+			lifespan: PieceLifespanInfo
 	  }
 
 export interface IPreviewPopUpSession {

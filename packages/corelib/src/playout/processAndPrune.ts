@@ -7,6 +7,7 @@ import { PieceLifespan } from './pieceLifespan.js'
 import _ from 'underscore'
 import { isCandidateBetterToBeContinued, isCandidateMoreImportant } from './infinites.js'
 import { ReadonlyDeep } from 'type-fest'
+import { PieceLifespanScope } from '@sofie-automation/shared-lib/dist/core/model/Rundown'
 
 /**
  * Get the `enable: { start: ?? }` for the new piece in terms that can be used as an `end` for another object
@@ -54,21 +55,16 @@ function isClear(piece?: ReadonlyDeep<PieceInstance>): boolean {
 
 function isCappedByAVirtual(
 	activePieces: PieceInstanceOnInfiniteLayers,
-	key: keyof PieceInstanceOnInfiniteLayers,
+	key: InfiniteLayerKey,
 	newPiece: ReadonlyDeep<PieceInstance>
 ): boolean {
-	if (
-		(key === 'onRundownEnd' || key === 'onShowStyleEnd') &&
-		activePieces.onSegmentEnd &&
-		isCandidateMoreImportant(newPiece, activePieces.onSegmentEnd)
-	)
-		return true
-	if (
-		key === 'onShowStyleEnd' &&
-		activePieces.onRundownEnd &&
-		isCandidateMoreImportant(newPiece, activePieces.onRundownEnd)
-	)
-		return true
+	if (key === 'other') return false
+
+	// A persisting piece is hidden while a narrower persisting piece (such as a virtual) is covering it
+	for (const narrowerKey of PERSISTING_LAYER_KEYS.slice(0, PERSISTING_LAYER_KEYS.indexOf(key))) {
+		const narrowerPiece = activePieces[narrowerKey]
+		if (narrowerPiece && isCandidateMoreImportant(newPiece, narrowerPiece)) return true
+	}
 	return false
 }
 
@@ -163,33 +159,9 @@ export function processAndPrunePieceInstanceTimings(
 			// Apply the updates
 			// Note: order is important, the higher layers must be done first
 			updateWithNewPieces(results, partTimes, activePieces, newPieces, newPiecesStart, includeVirtual, 'other')
-			updateWithNewPieces(
-				results,
-				partTimes,
-				activePieces,
-				newPieces,
-				newPiecesStart,
-				includeVirtual,
-				'onSegmentEnd'
-			)
-			updateWithNewPieces(
-				results,
-				partTimes,
-				activePieces,
-				newPieces,
-				newPiecesStart,
-				includeVirtual,
-				'onRundownEnd'
-			)
-			updateWithNewPieces(
-				results,
-				partTimes,
-				activePieces,
-				newPieces,
-				newPiecesStart,
-				includeVirtual,
-				'onShowStyleEnd'
-			)
+			for (const key of PERSISTING_LAYER_KEYS) {
+				updateWithNewPieces(results, partTimes, activePieces, newPieces, newPiecesStart, includeVirtual, key)
+			}
 		}
 	}
 
@@ -203,7 +175,7 @@ function updateWithNewPieces(
 	newPieces: PieceInstanceOnInfiniteLayers,
 	newPiecesStart: number | 'now',
 	includeVirtual: boolean | undefined,
-	key: keyof PieceInstanceOnInfiniteLayers
+	key: InfiniteLayerKey
 ): void {
 	const newPiece = newPieces[key]
 	if (newPiece) {
@@ -224,9 +196,10 @@ function updateWithNewPieces(
 			results.push(newPiece)
 
 			if (
-				key === 'onSegmentEnd' ||
-				(key === 'onRundownEnd' && !activePieces.onSegmentEnd) ||
-				(key === 'onShowStyleEnd' && !activePieces.onSegmentEnd && !activePieces.onRundownEnd)
+				key !== 'other' &&
+				PERSISTING_LAYER_KEYS.slice(0, PERSISTING_LAYER_KEYS.indexOf(key)).every(
+					(narrowerKey) => !activePieces[narrowerKey]
+				)
 			) {
 				// when start === 0, we are likely to have multiple infinite continuations. Only stop the 'other' if it should not be considered for being on air
 				if (
@@ -246,12 +219,17 @@ function updateWithNewPieces(
 	}
 }
 
-interface PieceInstanceOnInfiniteLayers {
-	onShowStyleEnd?: PieceInstanceWithTimings
-	onRundownEnd?: PieceInstanceWithTimings
-	onSegmentEnd?: PieceInstanceWithTimings
-	other?: PieceInstanceWithTimings
-}
+/**
+ * Pieces that persist in shadow are tracked per scope, so that each scope can be stacked on top of the broader ones.
+ * Every other piece is tracked as 'other', where a newer piece always replaces the previous one.
+ */
+type InfiniteLayerKey = PieceLifespanScope | 'other'
+
+/** The scopes of persisting pieces, ordered from the narrowest to the broadest */
+const PERSISTING_LAYER_KEYS: readonly PieceLifespanScope[] = ['part', 'segment', 'rundown', 'showstyle', 'playlist']
+
+type PieceInstanceOnInfiniteLayers = Partial<Record<InfiniteLayerKey, PieceInstanceWithTimings>>
+
 function findPieceInstancesOnInfiniteLayers(pieces: ReadonlyDeep<PieceInstance[]>): PieceInstanceOnInfiniteLayers {
 	if (pieces.length === 0) {
 		return {}
@@ -261,43 +239,14 @@ function findPieceInstancesOnInfiniteLayers(pieces: ReadonlyDeep<PieceInstance[]
 
 	for (const piece of pieces) {
 		const lifespan = PieceLifespan.from(piece.piece.lifespan)
-		switch (`${lifespan.scope}:${lifespan.presence}:${lifespan.inShadow}`) {
-			case 'showstyle:forward-scope:persist':
-				if (!res.onShowStyleEnd || isCandidateBetterToBeContinued(res.onShowStyleEnd, piece)) {
-					res.onShowStyleEnd = {
-						...piece,
-						priority: 0,
-					}
-				}
-				break
-			case 'rundown:forward-scope:persist':
-				if (!res.onRundownEnd || isCandidateBetterToBeContinued(res.onRundownEnd, piece)) {
-					res.onRundownEnd = {
-						...piece,
-						priority: 1,
-					}
-				}
-				break
-			case 'segment:forward-scope:persist':
-				if (!res.onSegmentEnd || isCandidateBetterToBeContinued(res.onSegmentEnd, piece)) {
-					res.onSegmentEnd = {
-						...piece,
-						priority: 2,
-					}
-				}
-				break
-			case 'rundown:follow-playhead:stop':
-			case 'segment:follow-playhead:stop':
-			case 'part:forward-scope:stop':
-				if (!res.other || isCandidateBetterToBeContinued(res.other, piece)) {
-					res.other = {
-						...piece,
-						priority: 5,
-					}
-				}
-				break
-			default:
-				break
+		const key: InfiniteLayerKey = lifespan.persistsInShadow ? lifespan.scope : 'other'
+
+		const existing = res[key]
+		if (!existing || isCandidateBetterToBeContinued(existing, piece)) {
+			res[key] = {
+				...piece,
+				priority: lifespan.stackingPriority,
+			}
 		}
 	}
 
