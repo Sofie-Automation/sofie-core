@@ -20,11 +20,11 @@ import { logger } from '../../logging.js'
 import { getCurrentTime, getSystemVersion } from '../../lib/index.js'
 import { getResolvedPiecesForPartInstancesOnTimeline } from '../resolvedPieces.js'
 import {
+	processAndPrunePieceInstanceTimings,
 	PieceInstanceWithTimings,
 	createPartCurrentTimes,
 	PartCurrentTimes,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { flattenInstancesForTimeline } from '../infinites/infinites.js'
 import { StudioPlayoutModel, StudioPlayoutModelBase } from '../../studio/model/StudioPlayoutModel.js'
 import { getLookeaheadObjects } from '../lookahead/index.js'
 import { StudioBaselineContext, OnTimelineGenerateContext } from '../../blueprints/context/index.js'
@@ -272,7 +272,7 @@ function getPartInstanceTimelineInfo(
 	const partInstanceWithOverrides = partInstance.getPartInstanceWithQuickLoopOverrides()
 	return {
 		partInstance: partInstanceWithOverrides,
-		pieceInstances: flattenInstancesForTimeline(sourceLayers, rawPieceInstances, partTimes),
+		pieceInstances: processAndPrunePieceInstanceTimings(sourceLayers, rawPieceInstances, partTimes),
 		partTimes,
 		// Approximate `calculatedTimings`, for the partInstances which already have it cached
 		calculatedTimings: getPartTimingsOrDefaults(partInstanceWithOverrides, rawPieceInstances),

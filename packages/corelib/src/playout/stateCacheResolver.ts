@@ -6,14 +6,14 @@ import {
 	IOutputLayer,
 	ISourceLayer,
 } from '@sofie-automation/blueprints-integration'
-import { SegmentId, RundownId, PartId, PieceId, RundownPlaylistActivationId } from '../dataModel/Ids.js'
+import { PartId, PieceId, RundownPlaylistActivationId } from '../dataModel/Ids.js'
 import { DBPart, PartExtended } from '../dataModel/Part.js'
 import { Piece, PieceExtended } from '../dataModel/Piece.js'
 import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
 import { DBRundownPlaylist, QuickLoopMarkerType } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
 import { DBSegment, SegmentExtended, SegmentOrphanedReason } from '../dataModel/Segment.js'
 import { literal, groupByToMap, Complete } from '../lib.js'
-import { FindOptions, mongoWhereFilter } from '../mongo.js'
+import { FindOptions, MongoQuery, mongoWhereFilter } from '../mongo.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import {
 	createPartCurrentTimes,
@@ -23,8 +23,11 @@ import {
 import { calculatePartInstanceExpectedDurationWithTransition } from './timings.js'
 import {
 	buildPastInfinitePiecesForThisPartQuery,
+	buildPastPiecesOnLayersForThisPartQuery,
 	buildPiecesStartingInThisPartQuery,
 	getPieceInstancesForPart,
+	PartPosition,
+	PieceInstancesForPartParams,
 } from './infinites.js'
 import {
 	DBShowStyleBase,
@@ -581,41 +584,41 @@ export function getSegmentsWithPartInstances({
 
 function fetchPiecesThatMayBeActiveForPart(
 	part: DBPart,
-	partsToReceiveOnSegmentEndFromSet: Set<PartId>,
-	segmentsToReceiveOnRundownEndFromSet: Set<SegmentId>,
-	rundownsToReceiveOnShowStyleEndFrom: RundownId[],
+	position: PartPosition,
 	piecesFind: PiecesFind,
 	/** Map of Pieces on Parts, passed through for performance */
 	allPiecesCache?: Map<PartId | null, Piece[]>
 ): Piece[] {
-	let piecesStartingInPart: Piece[]
-	const allPieces = allPiecesCache?.get(part._id)
-	const selector = buildPiecesStartingInThisPartQuery(part)
-	if (allPieces) {
+	const allPieces = allPiecesCache ? Array.from(allPiecesCache.values()).flat() : undefined
+	const findPieces = (selector: MongoQuery<Piece>): Piece[] =>
 		// Fast-path: if we already have the pieces, we can use them directly:
-		piecesStartingInPart = mongoWhereFilter(allPieces, selector)
-	} else {
-		piecesStartingInPart = piecesFind(selector)
-	}
+		allPieces ? mongoWhereFilter(allPieces, selector) : piecesFind(selector)
 
-	const partsToReceiveOnSegmentEndFrom = Array.from(partsToReceiveOnSegmentEndFromSet.values())
-	const segmentsToReceiveOnRundownEndFrom = Array.from(segmentsToReceiveOnRundownEndFromSet.values())
+	const piecesStartingInPart = allPiecesCache?.get(part._id) ?? findPieces(buildPiecesStartingInThisPartQuery(part))
+
+	const partIdsBefore = Array.from(position.partIdsBefore)
+	const segmentIdsBefore = Array.from(position.segmentIdsBefore)
+	const rundownIdsBefore = [...position.rundownIdsBefore]
 
 	const infinitePieceQuery = buildPastInfinitePiecesForThisPartQuery(
 		part,
-		partsToReceiveOnSegmentEndFrom,
-		segmentsToReceiveOnRundownEndFrom,
-		rundownsToReceiveOnShowStyleEndFrom
+		partIdsBefore,
+		segmentIdsBefore,
+		rundownIdsBefore
 	)
-	let infinitePieces: Piece[]
-	if (allPieces) {
-		// Fast-path: if we already have the pieces, we can use them directly:
-		infinitePieces = infinitePieceQuery ? mongoWhereFilter(allPieces, infinitePieceQuery) : []
-	} else {
-		infinitePieces = infinitePieceQuery ? piecesFind(infinitePieceQuery) : []
-	}
+	const infinitePieces = infinitePieceQuery ? findPieces(infinitePieceQuery) : []
 
-	return piecesStartingInPart.concat(infinitePieces) // replace spread with concat, as 3x is faster (https://stackoverflow.com/questions/48865710/spread-operator-vs-array-concat)
+	// Any piece on the same layer as one of those infinites may stop it
+	const layerPieceQuery = buildPastPiecesOnLayersForThisPartQuery(
+		part,
+		partIdsBefore,
+		segmentIdsBefore,
+		rundownIdsBefore,
+		_.uniq(infinitePieces.map((p) => p.sourceLayerId))
+	)
+	const layerPieces = layerPieceQuery ? findPieces(layerPieceQuery) : []
+
+	return piecesStartingInPart.concat(layerPieces.length > 0 ? layerPieces : infinitePieces)
 }
 
 const SIMULATION_INVALIDATION = 3000
@@ -650,33 +653,39 @@ export function getPieceInstancesForPartInstance({
 		rundownsToReceiveOnShowStyleEndFrom = []
 	}
 
-	if (partInstance.isTemporary) {
-		return getPieceInstancesForPart(
-			playlistActivationId || protectString(''),
-			currentPartInstance,
-			currentSegment,
-			currentPartInstancePieceInstances,
+	const getPieceInstancesForPartParams = (isTemporary: boolean): PieceInstancesForPartParams => {
+		const position: PartPosition = {
+			partIdsBefore: partsToReceiveOnSegmentEndFromSet,
+			segmentIdsBefore: segmentsToReceiveOnRundownEndFromSet,
+			rundownIdsBefore: rundownsToReceiveOnShowStyleEndFrom,
+			rundownShowStyles: rundownsToShowStyles,
+			orderedPartIds: orderedAllParts,
+		}
+
+		return {
+			playlistActivationId: playlistActivationId || protectString(''),
 			rundown,
 			segment,
-			partInstance.part,
-			partsToReceiveOnSegmentEndFromSet,
-			segmentsToReceiveOnRundownEndFromSet,
-			rundownsToReceiveOnShowStyleEndFrom,
-			rundownsToShowStyles,
-			fetchPiecesThatMayBeActiveForPart(
-				partInstance.part,
-				partsToReceiveOnSegmentEndFromSet,
-				segmentsToReceiveOnRundownEndFromSet,
-				rundownsToReceiveOnShowStyleEndFrom,
-				piecesFind,
-				allPiecesCache
-			),
-			orderedAllParts,
-			partInstance._id,
-			nextPartIsAfterCurrentPart,
-			partInstance.isTemporary,
-			allowTestingAdlibsToPersist
-		)
+			part: partInstance.part,
+			position,
+			pieces: fetchPiecesThatMayBeActiveForPart(partInstance.part, position, piecesFind, allPiecesCache),
+			playing:
+				currentPartInstance && currentSegment
+					? {
+							partInstance: currentPartInstance,
+							segment: currentSegment,
+							pieceInstances: currentPartInstancePieceInstances ?? [],
+							isBeforeTarget: nextPartIsAfterCurrentPart,
+						}
+					: undefined,
+			newInstanceId: partInstance._id,
+			isTemporary,
+			allowTestingAdlibsToPersist,
+		}
+	}
+
+	if (partInstance.isTemporary) {
+		return getPieceInstancesForPart(getPieceInstancesForPartParams(true))
 	} else {
 		const results =
 			// Check if the PartInstance we're currently looking for PieceInstances for is already the current one.
@@ -699,32 +708,7 @@ export function getPieceInstancesForPartInstance({
 			// make sure to invalidate the current computation after SIMULATION_INVALIDATION has passed
 			invalidateAfter(SIMULATION_INVALIDATION)
 
-			return getPieceInstancesForPart(
-				playlistActivationId || protectString(''),
-				currentPartInstance,
-				currentSegment,
-				currentPartInstancePieceInstances,
-				rundown,
-				segment,
-				partInstance.part,
-				partsToReceiveOnSegmentEndFromSet,
-				segmentsToReceiveOnRundownEndFromSet,
-				rundownsToReceiveOnShowStyleEndFrom,
-				rundownsToShowStyles,
-				fetchPiecesThatMayBeActiveForPart(
-					partInstance.part,
-					partsToReceiveOnSegmentEndFromSet,
-					segmentsToReceiveOnRundownEndFromSet,
-					rundownsToReceiveOnShowStyleEndFrom,
-					piecesFind,
-					allPiecesCache
-				),
-				orderedAllParts,
-				partInstance._id,
-				nextPartIsAfterCurrentPart,
-				true,
-				allowTestingAdlibsToPersist
-			)
+			return getPieceInstancesForPart(getPieceInstancesForPartParams(true))
 		} else {
 			// otherwise, return results as they are
 			return results

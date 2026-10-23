@@ -137,12 +137,12 @@ export interface PlayoutPartInstanceModel {
 	removePieceInstance(id: PieceInstanceId): boolean
 
 	/**
-	 * Replace the infinite PieceInstances inherited from the previous playhead
+	 * Replace the infinite PieceInstances continued from previous Parts
 	 * These PieceInstances are not supposed to be modified directly, as they are 'extensions'.
 	 * This allows them to be replaced without embedding the infinite logic inside the model
-	 * @param pieceInstances New infinite pieces from previous playhead
+	 * @param pieceInstances New infinite pieces continued from previous Parts
 	 */
-	replaceInfinitesFromPreviousPlayhead(pieceInstances: PieceInstance[]): void
+	replaceContinuedInfinites(pieceInstances: PieceInstance[]): void
 
 	/**
 	 * Merge a PieceInstance with a new version, or insert as a new PieceInstance.
