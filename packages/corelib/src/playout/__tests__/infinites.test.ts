@@ -132,7 +132,8 @@ function getParams(
 	targetPartId: string,
 	pieces: Piece[],
 	playing?: PlayingPartInstance,
-	segment?: Pick<DBSegment, '_id' | 'orphaned'>
+	segment?: Pick<DBSegment, '_id' | 'orphaned'>,
+	isTemporary = false
 ): PieceInstancesForPartParams {
 	const target = parts.get(targetPartId)
 	if (!target) throw new Error(`Unknown part ${targetPartId}`)
@@ -169,7 +170,7 @@ function getParams(
 		pieces,
 		playing,
 		newInstanceId: protectString('newInstance'),
-		isTemporary: false,
+		isTemporary,
 		allowTestingAdlibsToPersist: false,
 	}
 }
@@ -254,11 +255,11 @@ describe('Infinites', () => {
 			expect(getContinuedPieceIds(getParams('part6', [showstyle, playlist]))).toEqual(['playlist'])
 		})
 
-		test('an infinite following the playhead is only predicted from the plan when nothing is playing', () => {
+		test('an infinite following the playhead is not continued from the plan without a playhead', () => {
 			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentPlayhead)
 
-			expect(getContinuedPieceIds(getParams('part1', [infinite]))).toEqual(['infinite'])
-			expect(getContinuedPieceIds(getParams('part1', [infinite], createPlaying('part0', [])))).toEqual([])
+			expect(getContinuedPieceIds(getParams('part1', [infinite]))).toEqual([])
+			expect(getContinuedPieceIds(getParams('part1', [infinite], undefined, undefined, true))).toEqual([])
 		})
 
 		test('pieces after the part are ignored', () => {
@@ -368,6 +369,31 @@ describe('Infinites', () => {
 
 			expect(getContinuedPieceIds(getParams('part2', [], playing(true)))).toEqual(['adlib'])
 			expect(getContinuedPieceIds(getParams('part0', [], playing(false)))).toEqual([])
+		})
+
+		test('pieces planned between the playing part and the part are replayed after the playing part', () => {
+			const playhead = createPiece('playhead', 'part0', 0, 'layer', rundownPlayhead)
+			const later = createPiece('later', 'part1', 0, 'layer', partOnly)
+			const playing = createPlaying('part0', [createPieceInstance(playhead)])
+
+			expect(getContinuedPieceIds(getParams('part2', [later], playing, undefined, true))).toEqual([])
+		})
+
+		test('an adlib in the playing part does not stop an infinite planned after it', () => {
+			const adlib = createPiece('adlib', 'part0', 0, 'layer', partOnly)
+			const infinite = createPiece('infinite', 'part1', 0, 'layer', segmentStop)
+			const playing = createPlaying('part0', [createPieceInstance(adlib, { dynamicallyInserted: 1 })])
+
+			expect(getContinuedPieceIds(getParams('part2', [infinite], playing, undefined, true))).toEqual(['infinite'])
+		})
+
+		test('an infinite following the playhead planned after the playing part is predicted further ahead', () => {
+			const playhead = createPiece('playhead', 'part1', 0, 'layer', rundownPlayhead)
+			const playing = createPlaying('part0', [])
+
+			expect(getContinuedPieceIds(getParams('part3', [playhead], playing, undefined, true))).toEqual(['playhead'])
+			// When creating the next PartInstance, the Parts in between are skipped
+			expect(getContinuedPieceIds(getParams('part3', [playhead], playing))).toEqual([])
 		})
 
 		describe('AdlibTesting', () => {

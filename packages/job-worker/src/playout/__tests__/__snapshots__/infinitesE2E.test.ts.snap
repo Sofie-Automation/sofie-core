@@ -1,0 +1,77 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Infinites through playout rundown scoped infinites from the first part 1`] = `
+[
+  {
+    "current": null,
+    "next": {
+      "part": "0_0",
+      "pieces": [
+        "000",
+        "001",
+        "FollowStop",
+        "ForwardPersist",
+        "ForwardStop",
+      ],
+    },
+  },
+  {
+    "current": {
+      "part": "0_0",
+      "pieces": [
+        "000",
+        "001",
+        "FollowStop",
+        "ForwardPersist",
+        "ForwardStop",
+      ],
+    },
+    "next": {
+      "part": "0_1",
+      "pieces": [
+        "010",
+        "FollowStop",
+        "ForwardPersist",
+        "ForwardStop",
+      ],
+    },
+  },
+  {
+    "current": {
+      "part": "0_1",
+      "pieces": [
+        "010",
+        "FollowStop",
+        "ForwardPersist",
+        "ForwardStop",
+      ],
+    },
+    "next": {
+      "part": "1_0",
+      "pieces": [
+        "FollowStop",
+        "ForwardPersist",
+        "ForwardStop",
+      ],
+    },
+  },
+  {
+    "current": {
+      "part": "1_0",
+      "pieces": [
+        "FollowStop",
+        "ForwardPersist",
+        "ForwardStop",
+      ],
+    },
+    "next": {
+      "part": "1_1",
+      "pieces": [
+        "FollowStop",
+        "ForwardPersist",
+        "ForwardStop",
+      ],
+    },
+  },
+]
+`;

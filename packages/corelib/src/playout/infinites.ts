@@ -70,6 +70,10 @@ export interface PieceInstancesForPartParams {
 	playing: PlayingPartInstance | undefined
 	/** Id of the PartInstance being created */
 	newInstanceId: PartInstanceId
+	/**
+	 * Whether this predicts a PartInstance further ahead, rather than creating the next one.
+	 * The playhead is then expected to travel through every planned Part between the playing one and this one.
+	 */
 	isTemporary: boolean
 	allowTestingAdlibsToPersist: boolean
 }
@@ -199,8 +203,6 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 	planned: ReadonlyDeep<Piece>[]
 	live: ReadonlyDeep<PieceInstance>[]
 } {
-	const { playing } = params
-
 	const layers = new Map<string, ActiveInfinites>()
 	const getLayer = (sourceLayerId: string): ActiveInfinites => {
 		let layer = layers.get(sourceLayerId)
@@ -211,19 +213,7 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 		return layer
 	}
 
-	// Replay the planned Pieces before the Part
-	for (const piece of getPlannedPiecesBeforePartInOrder(params)) {
-		const layer = getLayer(piece.sourceLayerId)
-		const lifespan = PieceLifespan.from(piece.lifespan)
-
-		layer.planned = stopShadowedInfinites(layer.planned, (p) => p.lifespan, lifespan)
-
-		// Without a playhead, assume it will travel through the planned Parts
-		if (lifespan.isInfinite && (lifespan.isStatic || !playing)) layer.planned.push(piece)
-	}
-
-	// Replay the playing PartInstance on top
-	if (playing && !crossesAdlibTestingBoundary(params, playing)) {
+	const replayPlayingPartInstance = (playing: PlayingPartInstance, isOnPath: boolean) => {
 		for (const instance of getPieceInstancesInOrder(playing.pieceInstances)) {
 			const layer = getLayer(instance.piece.sourceLayerId)
 			const lifespan = PieceLifespan.from(instance.piece.lifespan)
@@ -243,8 +233,8 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 			layer.live = stopShadowedInfinites(layer.live, (p) => p.piece.lifespan, lifespan)
 
 			const isAdlib = instance.dynamicallyInserted !== undefined
-			// The planned Pieces of the playing Part were replayed above, but an adlib changes the plan
-			if (playing.isBeforeTarget && isAdlib) {
+			// The planned Pieces of the playing Part are replayed with the plan, but an adlib changes the plan
+			if (isOnPath && isAdlib) {
 				layer.planned = stopShadowedInfinites(layer.planned, (p) => p.lifespan, lifespan)
 			}
 
@@ -257,6 +247,36 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 				layer.live.push(instance)
 			}
 		}
+	}
+
+	const playing = params.playing && !crossesAdlibTestingBoundary(params, params.playing) ? params.playing : undefined
+	// The playing PartInstance is replayed where it is in the playlist, or after everything if it is elsewhere
+	const playingPartIndex = playing ? getPlayingPartIndex(params, playing) : undefined
+	let hasReplayedPlaying = false
+
+	// Replay the planned Pieces before the Part
+	for (const { piece, partIndex } of getPlannedPiecesBeforePartInOrder(params)) {
+		if (playing && !hasReplayedPlaying && playingPartIndex !== undefined && partIndex > playingPartIndex) {
+			replayPlayingPartInstance(playing, true)
+			hasReplayedPlaying = true
+		}
+
+		const layer = getLayer(piece.sourceLayerId)
+		const lifespan = PieceLifespan.from(piece.lifespan)
+
+		layer.planned = stopShadowedInfinites(layer.planned, (p) => p.lifespan, lifespan)
+		if (hasReplayedPlaying) {
+			layer.live = stopShadowedInfinites(layer.live, (p) => p.piece.lifespan, lifespan)
+		}
+
+		// When predicting further ahead, the playhead travels through the planned Parts after the playing one.
+		// Before the playhead, what follows it is in the playing PartInstance, and without one there is nothing to follow
+		const playheadTravelsThrough = hasReplayedPlaying && params.isTemporary
+		if (lifespan.isInfinite && (lifespan.isStatic || playheadTravelsThrough)) layer.planned.push(piece)
+	}
+
+	if (playing && !hasReplayedPlaying) {
+		replayPlayingPartInstance(playing, playingPartIndex !== undefined)
 	}
 
 	const allLayers = Array.from(layers.values())
@@ -283,12 +303,31 @@ function stopShadowedInfinites<T>(
 	})
 }
 
-function getPlannedPiecesBeforePartInOrder(params: PieceInstancesForPartParams): ReadonlyDeep<Piece>[] {
-	const { part, position } = params
-
+function getPartIndices(params: PieceInstancesForPartParams): Map<PartId, number> {
 	const partIndices = new Map<PartId, number>()
-	position.orderedPartIds.forEach((id, index) => partIndices.set(id, index))
-	const getPartIndex = (piece: ReadonlyDeep<Piece>) => (piece.startPartId && partIndices.get(piece.startPartId)) ?? -1
+	params.position.orderedPartIds.forEach((id, index) => partIndices.set(id, index))
+	return partIndices
+}
+
+/** Where the playing PartInstance is in the planned Parts before the Part, if it is one of them */
+function getPlayingPartIndex(params: PieceInstancesForPartParams, playing: PlayingPartInstance): number | undefined {
+	const { position } = params
+	const { partInstance } = playing
+
+	const isBeforePart =
+		position.partIdsBefore.has(partInstance.part._id) ||
+		position.segmentIdsBefore.has(partInstance.segmentId) ||
+		position.rundownIdsBefore.includes(partInstance.rundownId)
+	if (!isBeforePart) return undefined
+
+	return getPartIndices(params).get(partInstance.part._id)
+}
+
+function getPlannedPiecesBeforePartInOrder(
+	params: PieceInstancesForPartParams
+): Array<{ piece: ReadonlyDeep<Piece>; partIndex: number }> {
+	const { part, position } = params
+	const partIndices = getPartIndices(params)
 
 	const piecesBefore = params.pieces.filter(
 		(p) =>
@@ -300,9 +339,9 @@ function getPlannedPiecesBeforePartInOrder(params: PieceInstancesForPartParams):
 				position.rundownIdsBefore.includes(p.startRundownId))
 	)
 
-	return piecesBefore.sort(
-		(a, b) => getPartIndex(a) - getPartIndex(b) || compareStarts(a.enable.start, b.enable.start)
-	)
+	return piecesBefore
+		.map((piece) => ({ piece, partIndex: (piece.startPartId && partIndices.get(piece.startPartId)) ?? -1 }))
+		.sort((a, b) => a.partIndex - b.partIndex || compareStarts(a.piece.enable.start, b.piece.enable.start))
 }
 
 function getPieceInstancesInOrder(pieceInstances: ReadonlyDeep<PieceInstance[]>): ReadonlyDeep<PieceInstance>[] {
