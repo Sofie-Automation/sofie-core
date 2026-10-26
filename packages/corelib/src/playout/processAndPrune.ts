@@ -152,15 +152,15 @@ export function processAndPrunePieceInstanceTimings(
 		)
 
 		// Step through time
-		const activePieces: PieceInstanceOnInfiniteLayers = {}
+		const layerState: InfiniteLayerState = { activePieces: {}, shadowedPieces: new Map() }
 		for (const [newPiecesStart, pieces] of piecesByStart) {
 			const newPieces = findPieceInstancesOnInfiniteLayers(pieces)
 
 			// Apply the updates
 			// Note: order is important, the higher layers must be done first
-			updateWithNewPieces(results, partTimes, activePieces, newPieces, newPiecesStart, includeVirtual, 'other')
+			updateWithNewPieces(results, partTimes, layerState, newPieces, newPiecesStart, includeVirtual, 'other')
 			for (const key of PERSISTING_LAYER_KEYS) {
-				updateWithNewPieces(results, partTimes, activePieces, newPieces, newPiecesStart, includeVirtual, key)
+				updateWithNewPieces(results, partTimes, layerState, newPieces, newPiecesStart, includeVirtual, key)
 			}
 		}
 	}
@@ -171,7 +171,7 @@ export function processAndPrunePieceInstanceTimings(
 function updateWithNewPieces(
 	results: PieceInstanceWithTimings[],
 	partTimes: PartCurrentTimes,
-	activePieces: PieceInstanceOnInfiniteLayers,
+	{ activePieces, shadowedPieces }: InfiniteLayerState,
 	newPieces: PieceInstanceOnInfiniteLayers,
 	newPiecesStart: number | 'now',
 	includeVirtual: boolean | undefined,
@@ -180,8 +180,16 @@ function updateWithNewPieces(
 	const newPiece = newPieces[key]
 	if (newPiece) {
 		const activePiece = activePieces[key]
-		if (activePiece) {
-			activePiece.resolvedEndCap = getPieceStartTimeAsReference(newPiecesStart, partTimes, activePiece)
+		const shadowed = shadowedPieces.get(key) ?? []
+		if (activePiece && key !== 'other' && !isOpenEnded(newPiece)) {
+			// A piece persisting in shadow resumes when the one covering it ends
+			shadowed.push(activePiece)
+			shadowedPieces.set(key, shadowed)
+		} else {
+			for (const piece of _.compact([activePiece, ...shadowed])) {
+				piece.resolvedEndCap = getPieceStartTimeAsReference(newPiecesStart, partTimes, piece)
+			}
+			shadowedPieces.delete(key)
 		}
 		// track the new piece
 		activePieces[key] = newPiece
@@ -229,6 +237,18 @@ type InfiniteLayerKey = PieceLifespanScope | 'other'
 const PERSISTING_LAYER_KEYS: readonly PieceLifespanScope[] = ['part', 'segment', 'rundown', 'showstyle', 'playlist']
 
 type PieceInstanceOnInfiniteLayers = Partial<Record<InfiniteLayerKey, PieceInstanceWithTimings>>
+
+interface InfiniteLayerState {
+	/** The newest piece in each group */
+	activePieces: PieceInstanceOnInfiniteLayers
+	/** Older pieces persisting in shadow of a newer one in their group, which will resume when it ends */
+	shadowedPieces: Map<InfiniteLayerKey, PieceInstanceWithTimings[]>
+}
+
+/** Whether a piece will stay on air until something stops it */
+function isOpenEnded(piece: ReadonlyDeep<PieceInstance>): boolean {
+	return !piece.userDuration && typeof piece.piece.enable.duration !== 'number'
+}
 
 function findPieceInstancesOnInfiniteLayers(pieces: ReadonlyDeep<PieceInstance[]>): PieceInstanceOnInfiniteLayers {
 	if (pieces.length === 0) {

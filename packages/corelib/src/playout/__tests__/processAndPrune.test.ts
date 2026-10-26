@@ -120,13 +120,14 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			}),
 		]
 
+		// 'one' persists in shadow of 'two', and resumes when it ends
 		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
 			{
 				_id: 'one',
 				priority: 1,
 				start: 0,
-				end: 1000,
+				end: undefined,
 			},
 			{
 				_id: 'two',
@@ -806,6 +807,53 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				])
 			}
 		})
+	})
+
+	test('nested pieces persisting in shadow resume when the one covering them ends', () => {
+		const partPersist = { scope: 'part', presence: 'forward-scope', inShadow: 'persist' } as const
+		const pieceInstances = [
+			createPieceInstance(
+				'incoming',
+				{ start: 0 },
+				'one',
+				{ scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
+				false,
+				{
+					infiniteInstanceId: protectString('incoming_inf'),
+					infiniteInstanceIndex: 1,
+					infinitePieceId: protectString('incoming_p'),
+					fromPreviousPart: true,
+				}
+			),
+			createPieceInstance('a', { start: 1000, duration: 5000 }, 'one', partPersist),
+			createPieceInstance('b', { start: 2000, duration: 3000 }, 'one', partPersist),
+			createPieceInstance('c', { start: 3000, duration: 1000 }, 'one', partPersist),
+		]
+
+		// Nothing is cut short, the timeline shows the newest piece still on air at any point
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
+		expect(resolvedInstances).toEqual([
+			{ _id: 'incoming', priority: 1, start: 0, end: undefined },
+			{ _id: 'a', priority: 3, start: 1000, end: undefined },
+			{ _id: 'b', priority: 3, start: 2000, end: undefined },
+			{ _id: 'c', priority: 3, start: 3000, end: undefined },
+		])
+	})
+
+	test('an open ended piece persisting in shadow stops the ones of its scope it covers', () => {
+		const partPersist = { scope: 'part', presence: 'forward-scope', inShadow: 'persist' } as const
+		const pieceInstances = [
+			createPieceInstance('a', { start: 1000, duration: 5000 }, 'one', partPersist),
+			createPieceInstance('b', { start: 2000, duration: 1000 }, 'one', partPersist),
+			createPieceInstance('c', { start: 4000 }, 'one', partPersist),
+		]
+
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
+		expect(resolvedInstances).toEqual([
+			{ _id: 'a', priority: 3, start: 1000, end: 4000 },
+			{ _id: 'b', priority: 3, start: 2000, end: 4000 },
+			{ _id: 'c', priority: 3, start: 4000, end: undefined },
+		])
 	})
 
 	test('keeps pieces of every lifespan combination', () => {
