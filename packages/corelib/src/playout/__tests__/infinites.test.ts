@@ -265,20 +265,14 @@ describe('Infinites', () => {
 			expect(getContinuedPieceIds(getParams('part6', [showstyle, playlist]))).toEqual(['playlist'])
 		})
 
-		test('without a playhead, an infinite following it is only predicted, as not in vision', () => {
+		test('an infinite following the playhead is not continued from the plan, only forward scoped ones are', () => {
 			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentPlayhead)
 			const forward = createPiece('forward', 'part0', 0, 'other', segmentPersist)
 
-			const predicted = getContinuedInfinitesForPart(
-				getParams('part1', [infinite, forward], undefined, undefined, true)
-			)
-			expect(predicted.map((p) => [String(p.piece._id), !!p.piece.notInVision])).toEqual([
-				['forward', false],
-				['infinite', true],
+			expect(getContinuedPieceIds(getParams('part1', [infinite, forward]))).toEqual(['forward'])
+			expect(getContinuedPieceIds(getParams('part1', [infinite, forward], undefined, undefined, true))).toEqual([
+				'forward',
 			])
-
-			// Playout never creates a PartInstance from such a prediction
-			expect(getContinuedPieceIds(getParams('part1', [infinite]))).toEqual([])
 		})
 
 		test('pieces after the part are ignored', () => {
@@ -406,13 +400,38 @@ describe('Infinites', () => {
 			expect(getContinuedPieceIds(getParams('part2', [infinite], playing, undefined, true))).toEqual(['infinite'])
 		})
 
-		test('an infinite following the playhead planned after the playing part is predicted further ahead', () => {
+		test('an infinite following the playhead planned after the playing part is not predicted further ahead', () => {
 			const playhead = createPiece('playhead', 'part1', 0, 'layer', rundownPlayhead)
 			const playing = createPlaying('part0', [])
 
-			expect(getContinuedPieceIds(getParams('part3', [playhead], playing, undefined, true))).toEqual(['playhead'])
-			// When creating the next PartInstance, the Parts in between are skipped
+			expect(getContinuedPieceIds(getParams('part3', [playhead], playing, undefined, true))).toEqual([])
 			expect(getContinuedPieceIds(getParams('part3', [playhead], playing))).toEqual([])
+		})
+
+		test('a skipped part does not affect an infinite following the playhead', () => {
+			const playheadLifespan: IPieceLifespan = {
+				scope: 'segment',
+				presence: 'follow-playhead',
+				inShadow: 'persist',
+			}
+			const playhead = createPiece('playhead', 'part0', 0, 'layer', playheadLifespan)
+			const playing = createPlaying('part0', [createPieceInstance(playhead)])
+
+			const occludingPart = createPiece('occludingPart', 'part1', 0, 'layer', partOnly)
+			expect(getContinuedPieceIds(getParams('part2', [occludingPart], playing))).toEqual(['playhead'])
+
+			const occludingScope = createPiece('occludingScope', 'part1', 0, 'layer', playheadLifespan)
+			expect(getContinuedPieceIds(getParams('part2', [occludingScope], playing))).toEqual(['playhead'])
+
+			const occludingStop = createPiece('occludingStop', 'part1', 0, 'layer', segmentStop)
+			const playingStop = createPlaying('part0', [
+				createPieceInstance(createPiece('playheadStop', 'part0', 0, 'layer', segmentPlayhead)),
+			])
+			// A forward scoped infinite is part of the plan, so it continues even though its part was skipped
+			expect(getContinuedPieceIds(getParams('part2', [occludingStop], playingStop))).toEqual([
+				'playheadStop',
+				'occludingStop',
+			])
 		})
 
 		describe('AdlibTesting', () => {

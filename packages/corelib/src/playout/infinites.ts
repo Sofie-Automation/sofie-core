@@ -72,7 +72,8 @@ export interface PieceInstancesForPartParams {
 	newInstanceId: PartInstanceId
 	/**
 	 * Whether this predicts a PartInstance further ahead, rather than creating the next one.
-	 * The playhead is then expected to travel through every planned Part between the playing one and this one.
+	 * The playhead is then expected to travel through every planned Part between the playing one and this one, so
+	 * their pieces can cover the infinites following it.
 	 */
 	isTemporary: boolean
 	allowTestingAdlibsToPersist: boolean
@@ -188,18 +189,8 @@ export function getContinuedInfinitesForPart(params: PieceInstancesForPartParams
 
 	return [
 		...live.map((p) => wrapLivePieceInstance(params, p)),
-		...plannedByPriority.map((p) => markIfWaitingForPlayhead(params, wrapPlannedPiece(params, p))),
+		...plannedByPriority.map((p) => wrapPlannedPiece(params, p)),
 	]
-}
-
-/**
- * Without a playhead, an infinite following it is only a prediction of what will happen once playing starts.
- * Show it as not in vision, as it is ready to play but not affecting the output.
- */
-function markIfWaitingForPlayhead(params: PieceInstancesForPartParams, instance: PieceInstance): PieceInstance {
-	if (params.playing || !PieceLifespan.from(instance.piece.lifespan).tracksPlayhead) return instance
-
-	return { ...instance, piece: { ...instance.piece, notInVision: true } }
 }
 
 interface ActiveInfinites {
@@ -275,16 +266,19 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 		const layer = getLayer(piece.sourceLayerId)
 		const lifespan = PieceLifespan.from(piece.lifespan)
 
+		// When predicting, the playhead will travel through the planned Parts after the playing one. Otherwise the Parts
+		// between it and this one are skipped
+		const playheadTravelsThrough = params.isTemporary && hasReplayedPlaying
+
 		const isOpenEnded = typeof piece.enable.duration !== 'number'
 		layer.planned = stopShadowedInfinites(layer.planned, (p) => p.lifespan, lifespan, isOpenEnded)
-		if (hasReplayedPlaying) {
+		if (hasReplayedPlaying && playheadTravelsThrough) {
 			layer.live = stopShadowedInfinites(layer.live, (p) => p.piece.lifespan, lifespan, isOpenEnded)
 		}
 
-		// When predicting, the playhead will travel through the planned Parts after the playing one, or through all of
-		// them when nothing is playing yet. Otherwise what follows the playhead is in the playing PartInstance
-		const playheadTravelsThrough = params.isTemporary && (hasReplayedPlaying || !playing)
-		if (lifespan.isInfinite && (lifespan.isStatic || playheadTravelsThrough)) layer.planned.push(piece)
+		// Only forward scoped infinites continue from the plan. One following the playhead becomes an infinite once the
+		// playhead has passed it, and then continues from the playing PartInstance
+		if (lifespan.isInfinite && lifespan.isStatic) layer.planned.push(piece)
 	}
 
 	if (playing && !hasReplayedPlaying) {
