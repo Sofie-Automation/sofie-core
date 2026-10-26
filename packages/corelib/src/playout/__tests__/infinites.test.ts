@@ -255,11 +255,20 @@ describe('Infinites', () => {
 			expect(getContinuedPieceIds(getParams('part6', [showstyle, playlist]))).toEqual(['playlist'])
 		})
 
-		test('an infinite following the playhead is not continued from the plan without a playhead', () => {
+		test('without a playhead, an infinite following it is only predicted, as not in vision', () => {
 			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentPlayhead)
+			const forward = createPiece('forward', 'part0', 0, 'other', segmentPersist)
 
+			const predicted = getContinuedInfinitesForPart(
+				getParams('part1', [infinite, forward], undefined, undefined, true)
+			)
+			expect(predicted.map((p) => [String(p.piece._id), !!p.piece.notInVision])).toEqual([
+				['forward', false],
+				['infinite', true],
+			])
+
+			// Playout never creates a PartInstance from such a prediction
 			expect(getContinuedPieceIds(getParams('part1', [infinite]))).toEqual([])
-			expect(getContinuedPieceIds(getParams('part1', [infinite], undefined, undefined, true))).toEqual([])
 		})
 
 		test('pieces after the part are ignored', () => {
