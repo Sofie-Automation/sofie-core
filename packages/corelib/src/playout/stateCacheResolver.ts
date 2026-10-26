@@ -21,6 +21,7 @@ import {
 	resolvePrunedPieceInstance,
 } from './processAndPrune.js'
 import { calculatePartInstanceExpectedDurationWithTransition } from './timings.js'
+import { PieceLifespan } from './pieceLifespan.js'
 import {
 	buildPastInfinitePiecesForThisPartQuery,
 	buildPastPiecesOnLayersForThisPartQuery,
@@ -442,14 +443,48 @@ export function getResolvedSegment({
 							previousItem.renderedDuration !== undefined &&
 							currentItem.renderedDuration !== undefined
 						) {
-							// if previousItem is infinite, currentItem caps it within the current part
-							if (previousItem.instance.infinite) {
+							const previousPersistsInShadow = PieceLifespan.from(
+								previousItem.instance.piece.lifespan
+							).persistsInShadow
+							const previousEnd =
+								previousItem.renderedDuration === null
+									? null
+									: previousItem.renderedInPoint + previousItem.renderedDuration
+
+							// if previousItem is infinite and stops in shadow, currentItem caps it within the current part
+							if (previousItem.instance.infinite && !previousPersistsInShadow) {
 								;(previousItem.instance.piece as PieceInstancePiece).lifespan = {
 									scope: 'part',
 									presence: 'forward-scope',
 									inShadow: 'stop',
 								}
 								delete (previousItem.instance as PieceInstance).infinite
+							}
+
+							// if previousItem persists in shadow, it resumes once currentItem ends
+							if (previousPersistsInShadow && currentItem.renderedDuration !== null) {
+								const resumeAt = currentItem.renderedInPoint + currentItem.renderedDuration
+								if (previousEnd === null || previousEnd > resumeAt) {
+									const resumedItem: PieceExtended = {
+										...previousItem,
+										instance: {
+											...previousItem.instance,
+											_id: protectString(`${previousItem.instance._id}_resumed_${resumeAt}`),
+										},
+										renderedInPoint: resumeAt,
+										renderedDuration: previousEnd === null ? null : previousEnd - resumeAt,
+										cropped: false,
+										maxLabelWidth: undefined,
+										hasOriginInPreceedingPart: true,
+									}
+
+									const insertAt = sortedItems.findIndex(
+										(item, index) => index > i && (item.renderedInPoint ?? 0) > resumeAt
+									)
+									sortedItems.splice(insertAt === -1 ? sortedItems.length : insertAt, 0, resumedItem)
+									part.pieces.push(resumedItem)
+									resumedItem.sourceLayer?.pieces?.push(resumedItem)
+								}
 							}
 
 							if (

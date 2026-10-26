@@ -564,7 +564,7 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 
 		const inPoint = piece.renderedInPoint || 0
 		const duration =
-			PieceLifespan.from(innerPiece.lifespan).isInfinite || piece.renderedDuration === 0
+			(PieceLifespan.from(innerPiece.lifespan).isInfinite && !piece.cropped) || piece.renderedDuration === 0
 				? partDuration - inPoint
 				: Math.min(piece.renderedDuration || 0, partDuration - inPoint)
 		const outPoint = inPoint + duration
