@@ -253,6 +253,23 @@ describe('Infinites', () => {
 			).toEqual(['legacy'])
 		})
 
+		test('a shadow ends the infinites which stop in shadow, and the persisting ones continue under it', () => {
+			const stop = createPiece('stop', 'part0', 0, 'layer', segmentStop)
+			const persist = createPiece('persist', 'part0', 0, 'layer', rundownPersist)
+			const shadow = {
+				...createPiece('shadow', 'part1', 0, 'layer', segmentPersist),
+				virtual: true,
+				virtualMode: 'shadow' as const,
+			}
+
+			// The shadow continues for its own scope, the persisting infinite is still there under it
+			expect(getContinuedPieceIds(getParams('part2', [stop, persist, shadow])).sort()).toEqual([
+				'persist',
+				'shadow',
+			])
+			expect(getContinuedPieceIds(getParams('part3', [stop, persist, shadow]))).toEqual(['persist'])
+		})
+
 		test('infinites which persist in shadow with different scopes are stacked, broadest first', () => {
 			const segment = createPiece('segment', 'part0', 0, 'layer', segmentPersist)
 			const rundown = createPiece('rundown', 'part1', 0, 'layer', rundownPersist)

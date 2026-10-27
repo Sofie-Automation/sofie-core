@@ -172,7 +172,13 @@ describe('Infinites through playout', () => {
 		})
 	}
 
-	async function insertOnAir(playlistId: RundownPlaylistId, name: string, lifespan: IPieceLifespan, layer: string) {
+	async function insertOnAir(
+		playlistId: RundownPlaylistId,
+		name: string,
+		lifespan: IPieceLifespan,
+		layer: string,
+		extra?: Partial<IBlueprintPiece>
+	) {
 		context.updateShowStyleBlueprint({
 			executeAction: async (actionContext) => {
 				await actionContext.insertPiece('current', {
@@ -183,6 +189,7 @@ describe('Infinites through playout', () => {
 					sourceLayerId: layer,
 					outputLayerId: Object.keys(context.studio.mappings)[0] ?? '',
 					content: { timelineObjects: [] },
+					...extra,
 				} as IBlueprintPiece)
 			},
 		})
@@ -266,5 +273,45 @@ describe('Infinites through playout', () => {
 		expect((await getNamesOnAir(playlistId)).next).toEqual({ part: '1_0', pieces: [] })
 		await take(playlistId)
 		expect((await getNamesOnAir(playlistId)).current).toEqual({ part: '1_0', pieces: [] })
+	})
+
+	test('an adlib shadow ends stop infinites on its layer, and persisting ones continue', async () => {
+		const { playlistId, rundownId } = await setupDefaultRundownPlaylist(context)
+		const rd = String(rundownId)
+		await addPiece(rd, 'Stop', '1_0', { scope: 'segment', presence: 'forward-scope', inShadow: 'stop' }, 'layerS')
+		await addPiece(
+			rd,
+			'Persist',
+			'1_0',
+			{ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+			'layerP'
+		)
+
+		await handleActivateRundownPlaylist(context, { playlistId, rehearsal: false })
+		await handleSetNextPart(context, { playlistId, nextPartId: protectString(`${rd}_part1_0`) })
+		await take(playlistId)
+		await take(playlistId)
+
+		for (const layer of ['layerS', 'layerP']) {
+			await insertOnAir(
+				playlistId,
+				`Shadow ${layer}`,
+				{ scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+				layer,
+				{ enable: { start: 'now', duration: 1000 }, virtualMode: 'shadow' }
+			)
+		}
+
+		const shadows = (await context.mockCollections.PieceInstances.findFetch()).filter((p) =>
+			p.piece.name.startsWith('T:Shadow')
+		)
+		expect(shadows.map((p) => [p.piece.virtual, p.piece.virtualMode])).toEqual([
+			[true, 'shadow'],
+			[true, 'shadow'],
+		])
+
+		expect((await getNamesOnAir(playlistId)).next).toEqual({ part: '1_2', pieces: ['T:Persist'] })
+		await take(playlistId)
+		expect((await getNamesOnAir(playlistId)).current).toEqual({ part: '1_2', pieces: ['T:Persist'] })
 	})
 })

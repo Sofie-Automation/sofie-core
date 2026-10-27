@@ -154,3 +154,11 @@ export class PieceLifespan implements IPieceLifespan {
 		return JSON.stringify(this.definition())
 	}
 }
+
+/** Whether a piece is a virtual shadow, which only obstructs its layer while active. See `IBlueprintPiece.virtualMode` */
+export function isShadowPiece(piece: {
+	readonly virtual?: boolean
+	readonly virtualMode?: 'clear' | 'shadow'
+}): boolean {
+	return !!piece.virtual && piece.virtualMode === 'shadow'
+}

@@ -18,7 +18,7 @@ import { protectString } from '../protectedString.js'
 import _ from 'underscore'
 import { MongoQuery } from '../mongo.js'
 import { DBSegment, SegmentOrphanedReason } from '../dataModel/Segment.js'
-import { PieceLifespan } from './pieceLifespan.js'
+import { isShadowPiece, PieceLifespan } from './pieceLifespan.js'
 
 /*
  * Infinites
@@ -218,8 +218,11 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 		for (const instance of getPieceInstancesInOrder(playing.pieceInstances)) {
 			const layer = getLayer(instance.piece.sourceLayerId)
 			const lifespan = PieceLifespan.from(instance.piece.lifespan)
-			const isStopped = !!instance.plannedStoppedPlayback || !!instance.userDuration
+			// A persisting piece also stops playing while it is hidden in shadow, so only a user stop ends it for good
+			const isStopped =
+				!!instance.userDuration || (!!instance.plannedStoppedPlayback && !lifespan.persistsInShadow)
 			const isOpenEnded = !instance.userDuration && typeof instance.piece.enable.duration !== 'number'
+			const isShadow = isShadowPiece(instance.piece)
 			const isAdlib = instance.dynamicallyInserted !== undefined
 			const isUnplanned = isAdlib || instance.dynamicallyConvertedToInfinite !== undefined
 			// Infinites following the playhead always continue from here. Adlibbed ones only when moving forwards,
@@ -240,11 +243,11 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 				continue
 			}
 
-			layer.live = stopShadowedInfinites(layer.live, (p) => p.piece.lifespan, lifespan, isOpenEnded)
+			layer.live = stopShadowedInfinites(layer.live, (p) => p.piece.lifespan, lifespan, isOpenEnded, isShadow)
 
 			// The planned Pieces of the playing Part are replayed with the plan, but an adlib changes the plan
 			if (isOnPath && isAdlib) {
-				layer.planned = stopShadowedInfinites(layer.planned, (p) => p.lifespan, lifespan, isOpenEnded)
+				layer.planned = stopShadowedInfinites(layer.planned, (p) => p.lifespan, lifespan, isOpenEnded, isShadow)
 			}
 
 			if (continuesFromHere) layer.live.push(instance)
@@ -271,9 +274,10 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 		const playheadTravelsThrough = params.isTemporary && hasReplayedPlaying
 
 		const isOpenEnded = typeof piece.enable.duration !== 'number'
-		layer.planned = stopShadowedInfinites(layer.planned, (p) => p.lifespan, lifespan, isOpenEnded)
+		const isShadow = isShadowPiece(piece)
+		layer.planned = stopShadowedInfinites(layer.planned, (p) => p.lifespan, lifespan, isOpenEnded, isShadow)
 		if (hasReplayedPlaying && playheadTravelsThrough) {
-			layer.live = stopShadowedInfinites(layer.live, (p) => p.piece.lifespan, lifespan, isOpenEnded)
+			layer.live = stopShadowedInfinites(layer.live, (p) => p.piece.lifespan, lifespan, isOpenEnded, isShadow)
 		}
 
 		// Only forward scoped infinites continue from the plan. One following the playhead becomes an infinite once the
@@ -306,11 +310,14 @@ function stopShadowedInfinites<T>(
 	active: T[],
 	getLifespan: (entry: T) => ReadonlyDeep<Piece['lifespan']>,
 	newLifespan: PieceLifespan,
-	newIsOpenEnded: boolean
+	newIsOpenEnded: boolean,
+	newIsShadow: boolean
 ): T[] {
 	return active.filter((entry) => {
 		const lifespan = PieceLifespan.from(getLifespan(entry))
 		if (!lifespan.persistsInShadow) return false
+		// A shadow only obstructs the persisting ones, they keep being continued under it
+		if (newIsShadow) return true
 
 		const isSameScope = newLifespan.persistsInShadow && newLifespan.scope === lifespan.scope
 		return !isSameScope || (!newIsOpenEnded && !lifespan.isEndedByNewerOfSameScope)

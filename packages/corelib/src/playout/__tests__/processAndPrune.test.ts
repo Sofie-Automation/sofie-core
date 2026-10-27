@@ -217,6 +217,101 @@ describe('processAndPrunePieceInstanceTimings', () => {
 		])
 	})
 
+	describe('shadow pieces', () => {
+		const continuation = (id: string, lifespan: IPieceLifespan) =>
+			createPieceInstance(id, { start: 0 }, 'one', lifespan, false, {
+				infiniteInstanceId: protectString(`${id}_inf`),
+				infiniteInstanceIndex: 1,
+				infinitePieceId: protectString(`${id}_p`),
+				fromPreviousPart: true,
+			})
+		const shadow = (enable: Piece['enable']): PieceInstance => {
+			const instance = createPieceInstance('shadow', enable, 'one', {
+				scope: 'part',
+				presence: 'forward-scope',
+				inShadow: 'stop',
+			})
+			return { ...instance, piece: { ...instance.piece, virtual: true, virtualMode: 'shadow' } }
+		}
+		const rundownPersist: IPieceLifespan = { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' }
+
+		test('a persisting piece is cut by a shadow, and resumes after it', () => {
+			const resolvedInstances = runAndTidyResult(
+				[continuation('incoming', rundownPersist), shadow({ start: 2000, duration: 3000 })],
+				createPartCurrentTimes(500, 0)
+			)
+			expect(resolvedInstances).toEqual([
+				{ _id: 'incoming', priority: 1, start: 0, end: 2000 },
+				{ _id: 'incoming_after_shadow', priority: 1, start: 5000, end: undefined },
+			])
+		})
+
+		test('a piece which stops in shadow ends under a shadow', () => {
+			const resolvedInstances = runAndTidyResult(
+				[
+					continuation('incoming', { scope: 'segment', presence: 'forward-scope', inShadow: 'stop' }),
+					shadow({ start: 2000, duration: 3000 }),
+				],
+				createPartCurrentTimes(500, 0)
+			)
+			expect(resolvedInstances).toEqual([{ _id: 'incoming', priority: 5, start: 0, end: 2000 }])
+		})
+
+		test('a legacy-persist piece is hidden for the rest of the part', () => {
+			const resolvedInstances = runAndTidyResult(
+				[
+					continuation('incoming', { ...rundownPersist, inShadow: 'legacy-persist' }),
+					shadow({ start: 2000, duration: 3000 }),
+				],
+				createPartCurrentTimes(500, 0)
+			)
+			expect(resolvedInstances).toEqual([{ _id: 'incoming', priority: 1, start: 0, end: 2000 }])
+		})
+
+		test('a piece starting during a shadow is on top of it', () => {
+			const resolvedInstances = runAndTidyResult(
+				[
+					continuation('incoming', rundownPersist),
+					shadow({ start: 2000, duration: 3000 }),
+					createPieceInstance('later', { start: 3000, duration: 1000 }, 'one', {
+						scope: 'part',
+						presence: 'forward-scope',
+						inShadow: 'persist',
+					}),
+				],
+				createPartCurrentTimes(500, 0)
+			)
+			expect(resolvedInstances).toEqual([
+				{ _id: 'incoming', priority: 1, start: 0, end: 2000 },
+				{ _id: 'incoming_after_shadow', priority: 1, start: 5000, end: undefined },
+				{ _id: 'later', priority: 3, start: 3000, end: undefined },
+			])
+		})
+
+		test('an open ended shadow hides the layer for the rest of the part', () => {
+			const resolvedInstances = runAndTidyResult(
+				[continuation('incoming', rundownPersist), shadow({ start: 2000 })],
+				createPartCurrentTimes(500, 0)
+			)
+			expect(resolvedInstances).toEqual([{ _id: 'incoming', priority: 1, start: 0, end: 2000 }])
+		})
+
+		test('a piece ending the shadowed one during the shadow means it does not resume', () => {
+			const resolvedInstances = runAndTidyResult(
+				[
+					continuation('incoming', rundownPersist),
+					shadow({ start: 2000, duration: 3000 }),
+					createPieceInstance('replacement', { start: 3000 }, 'one', rundownPersist),
+				],
+				createPartCurrentTimes(500, 0)
+			)
+			expect(resolvedInstances).toEqual([
+				{ _id: 'incoming', priority: 1, start: 0, end: 2000 },
+				{ _id: 'replacement', priority: 1, start: 3000, end: undefined },
+			])
+		})
+	})
+
 	test('basic collision with legacy-persist', () => {
 		const legacyPersist = { scope: 'rundown', presence: 'forward-scope', inShadow: 'legacy-persist' } as const
 		const pieceInstances = [

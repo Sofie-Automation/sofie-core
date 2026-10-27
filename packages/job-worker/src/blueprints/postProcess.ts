@@ -124,6 +124,10 @@ export function postProcessPieces(
 			userEditProperties: translateUserEditPropertiesFromBlueprint(orgPiece.userEditProperties, [blueprintId]),
 		}
 
+		if (piece.virtualMode === 'shadow') {
+			// a shadow only obstructs its layer, it can't have any contents
+			piece.virtual = true
+		}
 		if (piece.pieceType !== IBlueprintPieceType.Normal) {
 			// transition pieces must not be infinite, lets enforce that
 			piece.lifespan = { scope: 'part', presence: 'forward-scope', inShadow: 'stop' }
