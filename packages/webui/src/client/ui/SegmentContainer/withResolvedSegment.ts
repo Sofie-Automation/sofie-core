@@ -145,12 +145,8 @@ export function withResolvedSegment<T extends IResolvedSegmentProps, IState = {}
 					$exists: true,
 				},
 				'infinite.fromPreviousPart': false,
-				'piece.lifespan': {
-					$in: [
-						{ scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
-						{ scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' },
-						{ scope: 'showstyle', presence: 'forward-scope', inShadow: 'persist' },
-					],
+				'piece.lifespan.scope': {
+					$in: ['rundown', 'showstyle', 'playlist'],
 				},
 				reset: {
 					$ne: true,

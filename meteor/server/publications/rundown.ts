@@ -304,20 +304,12 @@ export function registerRundownPublications(registry: PublicationRegistry): void
 					{
 						startRundownId: thisRundownId,
 						startSegmentId: { $in: segmentsIdsBefore },
-						lifespan: {
-							$in: [
-								{ scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
-								{ scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' },
-								{ scope: 'showstyle', presence: 'forward-scope', inShadow: 'persist' },
-							],
-						},
+						'lifespan.scope': { $in: ['rundown', 'showstyle', 'playlist'] },
 					},
 					// Previous rundown
 					{
 						startRundownId: { $in: rundownIdsBefore },
-						lifespan: {
-							$in: [{ scope: 'showstyle', presence: 'forward-scope', inShadow: 'persist' }],
-						},
+						'lifespan.scope': { $in: ['showstyle', 'playlist'] },
 					},
 				],
 			}

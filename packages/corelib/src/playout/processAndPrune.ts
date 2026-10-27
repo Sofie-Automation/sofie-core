@@ -179,18 +179,18 @@ function updateWithNewPieces(
 ): void {
 	const newPiece = newPieces[key]
 	if (newPiece) {
-		const activePiece = activePieces[key]
-		const shadowed = shadowedPieces.get(key) ?? []
-		if (activePiece && key !== 'other' && !isOpenEnded(newPiece)) {
-			// A piece persisting in shadow resumes when the one covering it ends
-			shadowed.push(activePiece)
-			shadowedPieces.set(key, shadowed)
-		} else {
-			for (const piece of _.compact([activePiece, ...shadowed])) {
+		const coveredPieces = _.compact([...(shadowedPieces.get(key) ?? []), activePieces[key]])
+		const stillShadowed: PieceInstanceWithTimings[] = []
+		for (const piece of coveredPieces) {
+			if (key !== 'other' && isResumedAfter(piece, newPiece)) {
+				// A piece persisting in shadow resumes when the one covering it ends
+				stillShadowed.push(piece)
+			} else {
 				piece.resolvedEndCap = getPieceStartTimeAsReference(newPiecesStart, partTimes, piece)
 			}
-			shadowedPieces.delete(key)
 		}
+		shadowedPieces.set(key, stillShadowed)
+
 		// track the new piece
 		activePieces[key] = newPiece
 
@@ -248,6 +248,11 @@ interface InfiniteLayerState {
 /** Whether a piece will stay on air until something stops it */
 function isOpenEnded(piece: ReadonlyDeep<PieceInstance>): boolean {
 	return !piece.userDuration && typeof piece.piece.enable.duration !== 'number'
+}
+
+/** Whether a piece persisting in shadow resumes after a newer piece of its scope, or is ended by it */
+function isResumedAfter(piece: ReadonlyDeep<PieceInstance>, newPiece: ReadonlyDeep<PieceInstance>): boolean {
+	return !isOpenEnded(newPiece) && !PieceLifespan.from(piece.piece.lifespan).isEndedByNewerOfSameScope
 }
 
 function findPieceInstancesOnInfiniteLayers(pieces: ReadonlyDeep<PieceInstance[]>): PieceInstanceOnInfiniteLayers {

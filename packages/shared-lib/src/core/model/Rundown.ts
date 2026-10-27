@@ -22,7 +22,17 @@ export type PieceLifespanScope = 'part' | 'segment' | 'rundown' | 'showstyle' | 
 
 export type PieceLifespanPresence = 'follow-playhead' | 'forward-scope'
 
-export type PieceLifespanInShadow = 'persist' | 'stop'
+/**
+ * How a piece behaves while a newer piece covers it on its source layer:
+ * - `stop`: it ends, and does not come back
+ * - `persist`: it is hidden, and resumes once the pieces covering it end
+ * - `legacy-persist`: as `persist`, except that a newer piece of the same scope ends it for good, as the legacy
+ *   `OutOnSegmentEnd`, `OutOnRundownEnd` and `OutOnShowStyleEnd` presets do
+ *
+ * Note: `legacy-persist` is deprecated, it only exists to keep the behaviour of the legacy presets and will be removed.
+ * Use `persist`, and end an infinite with a newer one of the same or a broader scope instead
+ */
+export type PieceLifespanInShadow = 'persist' | 'stop' | 'legacy-persist'
 
 export interface IPieceLifespan {
 	/** The structural hierarchy boundary past which this piece naturally expires */

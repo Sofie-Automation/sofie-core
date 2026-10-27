@@ -56,11 +56,11 @@ export class PieceLifespan implements IPieceLifespan {
 			case LegacyPieceLifespan.OutOnRundownChange:
 				return { scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' }
 			case LegacyPieceLifespan.OutOnSegmentEnd:
-				return { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' }
+				return { scope: 'segment', presence: 'forward-scope', inShadow: 'legacy-persist' }
 			case LegacyPieceLifespan.OutOnRundownEnd:
-				return { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' }
+				return { scope: 'rundown', presence: 'forward-scope', inShadow: 'legacy-persist' }
 			case LegacyPieceLifespan.OutOnShowStyleEnd:
-				return { scope: 'showstyle', presence: 'forward-scope', inShadow: 'persist' }
+				return { scope: 'showstyle', presence: 'forward-scope', inShadow: 'legacy-persist' }
 			default:
 				throw new Error(`Unknown legacy piece lifespan preset: ${String(preset)}`)
 		}
@@ -77,10 +77,13 @@ export class PieceLifespan implements IPieceLifespan {
 			case 'rundown:follow-playhead:stop':
 				return LegacyPieceLifespan.OutOnRundownChange
 			case 'segment:forward-scope:persist':
+			case 'segment:forward-scope:legacy-persist':
 				return LegacyPieceLifespan.OutOnSegmentEnd
 			case 'rundown:forward-scope:persist':
+			case 'rundown:forward-scope:legacy-persist':
 				return LegacyPieceLifespan.OutOnRundownEnd
 			case 'showstyle:forward-scope:persist':
+			case 'showstyle:forward-scope:legacy-persist':
 				return LegacyPieceLifespan.OutOnShowStyleEnd
 			default:
 				return undefined
@@ -109,7 +112,12 @@ export class PieceLifespan implements IPieceLifespan {
 
 	/** Returns true if the piece enters a shadow state and pauses on conflict */
 	get persistsInShadow(): boolean {
-		return this.inShadow === 'persist'
+		return this.inShadow === 'persist' || this.inShadow === 'legacy-persist'
+	}
+
+	/** Returns true if a newer piece of the same scope ends the piece for good, instead of only covering it */
+	get isEndedByNewerOfSameScope(): boolean {
+		return this.inShadow === 'legacy-persist'
 	}
 
 	/**

@@ -223,6 +223,21 @@ describe('Infinites', () => {
 			expect(getContinuedPieceIds(getParams('part2', [first, second]))).toEqual(['first', 'second'])
 		})
 
+		test('a legacy-persist infinite is replaced by a later one of the same scope, even with an end', () => {
+			const legacyPersist: IPieceLifespan = {
+				scope: 'segment',
+				presence: 'forward-scope',
+				inShadow: 'legacy-persist',
+			}
+			const first = createPiece('first', 'part0', 0, 'layer', legacyPersist)
+			const second = {
+				...createPiece('second', 'part1', 0, 'layer', legacyPersist),
+				enable: { start: 0, duration: 1000 },
+			}
+
+			expect(getContinuedPieceIds(getParams('part2', [first, second]))).toEqual(['second'])
+		})
+
 		test('infinites which persist in shadow with different scopes are stacked, broadest first', () => {
 			const segment = createPiece('segment', 'part0', 0, 'layer', segmentPersist)
 			const rundown = createPiece('rundown', 'part1', 0, 'layer', rundownPersist)

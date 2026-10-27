@@ -463,7 +463,7 @@ describe('Test blueprint post-process', () => {
 			expect(processedPiece.lifespan).toEqual({
 				scope: 'segment',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				inShadow: 'legacy-persist',
 			})
 		})
 

@@ -443,16 +443,17 @@ export function getResolvedSegment({
 							previousItem.renderedDuration !== undefined &&
 							currentItem.renderedDuration !== undefined
 						) {
-							const previousPersistsInShadow = PieceLifespan.from(
-								previousItem.instance.piece.lifespan
-							).persistsInShadow
+							const previousLifespan = PieceLifespan.from(previousItem.instance.piece.lifespan)
+							// legacy-persist infinites are shown ending at the next piece, as they used to be
+							const previousResumes =
+								previousLifespan.persistsInShadow && !previousLifespan.isEndedByNewerOfSameScope
 							const previousEnd =
 								previousItem.renderedDuration === null
 									? null
 									: previousItem.renderedInPoint + previousItem.renderedDuration
 
-							// if previousItem is infinite and stops in shadow, currentItem caps it within the current part
-							if (previousItem.instance.infinite && !previousPersistsInShadow) {
+							// if previousItem is infinite and doesn't resume, currentItem caps it within the current part
+							if (previousItem.instance.infinite && !previousResumes) {
 								;(previousItem.instance.piece as PieceInstancePiece).lifespan = {
 									scope: 'part',
 									presence: 'forward-scope',
@@ -462,7 +463,7 @@ export function getResolvedSegment({
 							}
 
 							// if previousItem persists in shadow, it resumes once currentItem ends
-							if (previousPersistsInShadow && currentItem.renderedDuration !== null) {
+							if (previousResumes && currentItem.renderedDuration !== null) {
 								const resumeAt = currentItem.renderedInPoint + currentItem.renderedDuration
 								if (previousEnd === null || previousEnd > resumeAt) {
 									const resumedItem: PieceExtended = {

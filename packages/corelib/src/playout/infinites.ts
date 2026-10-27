@@ -297,8 +297,8 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 }
 
 /**
- * A new piece on a layer stops the infinites that stop in shadow. When it persists in shadow without an end, it also
- * replaces the one of its own scope, otherwise that one resumes once the new piece ends.
+ * A new piece on a layer stops the infinites that stop in shadow. When it persists in shadow, it also ends the ones of
+ * its own scope if it has no end, or if they are `legacy-persist`. Otherwise they resume once the new piece ends.
  */
 function stopShadowedInfinites<T>(
 	active: T[],
@@ -306,11 +306,12 @@ function stopShadowedInfinites<T>(
 	newLifespan: PieceLifespan,
 	newIsOpenEnded: boolean
 ): T[] {
-	const replacesScope = newLifespan.persistsInShadow && newIsOpenEnded
 	return active.filter((entry) => {
 		const lifespan = PieceLifespan.from(getLifespan(entry))
 		if (!lifespan.persistsInShadow) return false
-		return !replacesScope || newLifespan.scope !== lifespan.scope
+
+		const isSameScope = newLifespan.persistsInShadow && newLifespan.scope === lifespan.scope
+		return !isSameScope || (!newIsOpenEnded && !lifespan.isEndedByNewerOfSameScope)
 	})
 }
 

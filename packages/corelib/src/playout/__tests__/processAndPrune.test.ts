@@ -137,6 +137,20 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			},
 		])
 	})
+	test('basic collision with legacy-persist', () => {
+		const legacyPersist = { scope: 'rundown', presence: 'forward-scope', inShadow: 'legacy-persist' } as const
+		const pieceInstances = [
+			createPieceInstance('one', { start: 0 }, 'one', legacyPersist),
+			createPieceInstance('two', { start: 1000, duration: 5000 }, 'one', legacyPersist),
+		]
+
+		// A newer piece of the same scope ends a legacy-persist one for good, even when it has an end itself
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
+		expect(resolvedInstances).toEqual([
+			{ _id: 'one', priority: 1, start: 0, end: 1000 },
+			{ _id: 'two', priority: 1, start: 1000, end: undefined },
+		])
+	})
 	test('onEnd type override', () => {
 		const pieceInstances = [
 			createPieceInstance('zero', { start: 0 }, 'one', {
