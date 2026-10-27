@@ -220,7 +220,8 @@ describe('Infinites', () => {
 				enable: { start: 0, duration: 1000 },
 			}
 
-			expect(getContinuedPieceIds(getParams('part2', [first, second]))).toEqual(['first', 'second'])
+			// The second one ends with its duration, so only the first one continues
+			expect(getContinuedPieceIds(getParams('part2', [first, second]))).toEqual(['first'])
 		})
 
 		test('a legacy-persist infinite is replaced by a later one of the same scope, even with an end', () => {
@@ -236,6 +237,20 @@ describe('Infinites', () => {
 			}
 
 			expect(getContinuedPieceIds(getParams('part2', [first, second]))).toEqual(['second'])
+		})
+
+		test('a planned infinite with a duration does not continue, except a legacy preset', () => {
+			const timed = (id: string, lifespan: IPieceLifespan) => ({
+				...createPiece(id, 'part0', 0, id, lifespan),
+				enable: { start: 0, duration: 1000 },
+			})
+			const legacyPersist: IPieceLifespan = { ...segmentPersist, inShadow: 'legacy-persist' }
+
+			expect(
+				getContinuedPieceIds(
+					getParams('part1', [timed('persist', segmentPersist), timed('legacy', legacyPersist)])
+				)
+			).toEqual(['legacy'])
 		})
 
 		test('infinites which persist in shadow with different scopes are stacked, broadest first', () => {

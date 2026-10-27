@@ -14,6 +14,8 @@ import {
 import { IPieceLifespan } from '@sofie-automation/shared-lib/dist/core/model/Rundown'
 
 describe('processAndPrunePieceInstanceTimings', () => {
+	const partOnlyLifespan = { scope: 'part', presence: 'forward-scope', inShadow: 'stop' } as const
+
 	function createPieceInstance(
 		id: string,
 		enable: Piece['enable'],
@@ -137,6 +139,84 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			},
 		])
 	})
+	test('a legacy-persist piece covered by another piece does not come back within the part', () => {
+		const pieceInstances = [
+			createPieceInstance(
+				'incoming',
+				{ start: 0 },
+				'one',
+				{ scope: 'rundown', presence: 'forward-scope', inShadow: 'legacy-persist' },
+				false,
+				{
+					infiniteInstanceId: protectString('incoming_inf'),
+					infiniteInstanceIndex: 1,
+					infinitePieceId: protectString('incoming_p'),
+					fromPreviousPart: true,
+				}
+			),
+			createPieceInstance('occluder', { start: 2000, duration: 1000 }, 'one', {
+				scope: 'part',
+				presence: 'forward-scope',
+				inShadow: 'stop',
+			}),
+		]
+
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
+		expect(resolvedInstances).toEqual([
+			{ _id: 'incoming', priority: 1, start: 0, end: 2000 },
+			{ _id: 'occluder', priority: 5, start: 2000, end: undefined },
+		])
+	})
+
+	test('a legacy-persist piece is hidden for the rest of the part under nested pieces', () => {
+		const pieceInstances = [
+			createPieceInstance(
+				'incoming',
+				{ start: 0 },
+				'one',
+				{ scope: 'rundown', presence: 'forward-scope', inShadow: 'legacy-persist' },
+				false,
+				{
+					infiniteInstanceId: protectString('incoming_inf'),
+					infiniteInstanceIndex: 1,
+					infinitePieceId: protectString('incoming_p'),
+					fromPreviousPart: true,
+				}
+			),
+			createPieceInstance('A', { start: 1000, duration: 5000 }, 'one', partOnlyLifespan),
+			createPieceInstance('B', { start: 2000, duration: 3000 }, 'one', partOnlyLifespan),
+			createPieceInstance('C', { start: 3000, duration: 1000 }, 'one', partOnlyLifespan),
+		]
+
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
+		expect(resolvedInstances).toEqual([
+			{ _id: 'incoming', priority: 1, start: 0, end: 1000 },
+			{ _id: 'A', priority: 5, start: 1000, end: 2000 },
+			{ _id: 'B', priority: 5, start: 2000, end: 3000 },
+			{ _id: 'C', priority: 5, start: 3000, end: undefined },
+		])
+	})
+
+	test('a continued persist piece resumes after a timed piece of its scope starting with it', () => {
+		const segmentPersist = { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' } as const
+		const pieceInstances = [
+			createPieceInstance('first', { start: 0 }, 'one', segmentPersist, false, {
+				infiniteInstanceId: protectString('first_inf'),
+				infiniteInstanceIndex: 1,
+				infinitePieceId: protectString('first_p'),
+				fromPreviousPart: true,
+			}),
+			createPieceInstance('second', { start: 0, duration: 3000 }, 'one', segmentPersist),
+		]
+
+		// 'first' sits just below 'second', and is visible again once 'second' ends
+		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
+		expect(resolvedInstances).toEqual([
+			{ _id: 'first', priority: 1.5, start: 0, end: undefined },
+			{ _id: 'second', priority: 2, start: 0, end: undefined },
+		])
+	})
+
 	test('basic collision with legacy-persist', () => {
 		const legacyPersist = { scope: 'rundown', presence: 'forward-scope', inShadow: 'legacy-persist' } as const
 		const pieceInstances = [

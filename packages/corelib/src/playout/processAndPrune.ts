@@ -162,6 +162,7 @@ export function processAndPrunePieceInstanceTimings(
 			for (const key of PERSISTING_LAYER_KEYS) {
 				updateWithNewPieces(results, partTimes, layerState, newPieces, newPiecesStart, includeVirtual, key)
 			}
+			if (newPieces.best.other) hideLegacyPersistingPieces(partTimes, layerState, newPiecesStart)
 		}
 	}
 
@@ -172,12 +173,12 @@ function updateWithNewPieces(
 	results: PieceInstanceWithTimings[],
 	partTimes: PartCurrentTimes,
 	{ activePieces, shadowedPieces }: InfiniteLayerState,
-	newPieces: PieceInstanceOnInfiniteLayers,
+	newPieces: PieceInstancesStartingTogether,
 	newPiecesStart: number | 'now',
 	includeVirtual: boolean | undefined,
 	key: InfiniteLayerKey
 ): void {
-	const newPiece = newPieces[key]
+	const newPiece = newPieces.best[key]
 	if (newPiece) {
 		const coveredPieces = _.compact([...(shadowedPieces.get(key) ?? []), activePieces[key]])
 		const stillShadowed: PieceInstanceWithTimings[] = []
@@ -187,6 +188,16 @@ function updateWithNewPieces(
 				stillShadowed.push(piece)
 			} else {
 				piece.resolvedEndCap = getPieceStartTimeAsReference(newPiecesStart, partTimes, piece)
+			}
+		}
+
+		// Pieces starting together with the new one are covered by it, only the ones resuming after it are kept
+		for (const piece of newPieces.others.get(key) ?? []) {
+			if (key !== 'other' && !isClear(piece) && isResumedAfter(piece, newPiece)) {
+				// Below the new piece, which has the same priority and start
+				piece.priority -= 0.5
+				stillShadowed.push(piece)
+				results.push(piece)
 			}
 		}
 		shadowedPieces.set(key, stillShadowed)
@@ -245,6 +256,40 @@ interface InfiniteLayerState {
 	shadowedPieces: Map<InfiniteLayerKey, PieceInstanceWithTimings[]>
 }
 
+/**
+ * A piece which doesn't persist in shadow hides the legacy-persist pieces it covers for the rest of the Part, as the
+ * legacy onEnd presets used to. They come back in the next Part.
+ * Continuations from a previous Part are covered by a piece starting at the same time too.
+ */
+function hideLegacyPersistingPieces(
+	partTimes: PartCurrentTimes,
+	{ activePieces, shadowedPieces }: InfiniteLayerState,
+	newPiecesStart: number | 'now'
+): void {
+	const startTime = newPiecesStart === 'now' ? partTimes.nowInPart : newPiecesStart
+	const isHidden = (piece: PieceInstanceWithTimings) =>
+		PieceLifespan.from(piece.piece.lifespan).isEndedByNewerOfSameScope &&
+		(!!piece.infinite?.fromPreviousPart || getPieceStartTimeWithinPartAsNumber(piece, partTimes) < startTime)
+
+	for (const key of PERSISTING_LAYER_KEYS) {
+		const activePiece = activePieces[key]
+		const shadowed = shadowedPieces.get(key) ?? []
+		for (const piece of _.compact([activePiece, ...shadowed])) {
+			if (isHidden(piece)) piece.resolvedEndCap = getPieceStartTimeAsReference(newPiecesStart, partTimes, piece)
+		}
+		if (activePiece && isHidden(activePiece)) activePieces[key] = undefined
+		shadowedPieces.set(
+			key,
+			shadowed.filter((piece) => !isHidden(piece))
+		)
+	}
+}
+
+function getPieceStartTimeWithinPartAsNumber(piece: ReadonlyDeep<PieceInstance>, partTimes: PartCurrentTimes): number {
+	const start = getPieceStartTimeWithinPart(piece, partTimes)
+	return start === 'now' ? partTimes.nowInPart : start
+}
+
 /** Whether a piece will stay on air until something stops it */
 function isOpenEnded(piece: ReadonlyDeep<PieceInstance>): boolean {
 	return !piece.userDuration && typeof piece.piece.enable.duration !== 'number'
@@ -255,27 +300,34 @@ function isResumedAfter(piece: ReadonlyDeep<PieceInstance>, newPiece: ReadonlyDe
 	return !isOpenEnded(newPiece) && !PieceLifespan.from(piece.piece.lifespan).isEndedByNewerOfSameScope
 }
 
-function findPieceInstancesOnInfiniteLayers(pieces: ReadonlyDeep<PieceInstance[]>): PieceInstanceOnInfiniteLayers {
-	if (pieces.length === 0) {
-		return {}
-	}
+interface PieceInstancesStartingTogether {
+	/** The most important new piece in each group */
+	best: PieceInstanceOnInfiniteLayers
+	/** The other new pieces in each group */
+	others: Map<InfiniteLayerKey, PieceInstanceWithTimings[]>
+}
 
-	const res: PieceInstanceOnInfiniteLayers = {}
+function findPieceInstancesOnInfiniteLayers(pieces: ReadonlyDeep<PieceInstance[]>): PieceInstancesStartingTogether {
+	const best: PieceInstanceOnInfiniteLayers = {}
+	const others = new Map<InfiniteLayerKey, PieceInstanceWithTimings[]>()
 
 	for (const piece of pieces) {
 		const lifespan = PieceLifespan.from(piece.piece.lifespan)
 		const key: InfiniteLayerKey = lifespan.persistsInShadow ? lifespan.scope : 'other'
+		const candidate: PieceInstanceWithTimings = { ...piece, priority: lifespan.stackingPriority }
 
-		const existing = res[key]
+		const existing = best[key]
+		const othersInGroup = others.get(key) ?? []
 		if (!existing || isCandidateBetterToBeContinued(existing, piece)) {
-			res[key] = {
-				...piece,
-				priority: lifespan.stackingPriority,
-			}
+			best[key] = candidate
+			if (existing) othersInGroup.push(existing)
+		} else {
+			othersInGroup.push(candidate)
 		}
+		others.set(key, othersInGroup)
 	}
 
-	return res
+	return { best, others }
 }
 
 /**

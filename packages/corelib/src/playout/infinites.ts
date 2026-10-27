@@ -220,13 +220,21 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 			const lifespan = PieceLifespan.from(instance.piece.lifespan)
 			const isStopped = !!instance.plannedStoppedPlayback || !!instance.userDuration
 			const isOpenEnded = !instance.userDuration && typeof instance.piece.enable.duration !== 'number'
+			const isAdlib = instance.dynamicallyInserted !== undefined
+			const isUnplanned = isAdlib || instance.dynamicallyConvertedToInfinite !== undefined
+			// Infinites following the playhead always continue from here. Adlibbed ones only when moving forwards,
+			// the planned ones continue from the plan instead
+			const continuesFromHere =
+				!isStopped &&
+				lifespan.isInfinite &&
+				(lifespan.tracksPlayhead || (playing.isBeforeTarget && isUnplanned))
 
 			if (instance.infinite?.fromPreviousPart) {
 				// A continuation doesn't start anything new on the layer, but it may have been stopped
 				if (isStopped) {
 					layer.planned = layer.planned.filter((p) => p._id !== instance.piece._id)
 					layer.live = layer.live.filter((p) => p.piece._id !== instance.piece._id)
-				} else if (instance.infinite.fromPreviousPlayhead) {
+				} else if (continuesFromHere) {
 					layer.live.push(instance)
 				}
 				continue
@@ -234,20 +242,12 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 
 			layer.live = stopShadowedInfinites(layer.live, (p) => p.piece.lifespan, lifespan, isOpenEnded)
 
-			const isAdlib = instance.dynamicallyInserted !== undefined
 			// The planned Pieces of the playing Part are replayed with the plan, but an adlib changes the plan
 			if (isOnPath && isAdlib) {
 				layer.planned = stopShadowedInfinites(layer.planned, (p) => p.lifespan, lifespan, isOpenEnded)
 			}
 
-			const isUnplanned = isAdlib || instance.dynamicallyConvertedToInfinite !== undefined
-			if (
-				!isStopped &&
-				lifespan.isInfinite &&
-				(lifespan.tracksPlayhead || (playing.isBeforeTarget && isUnplanned))
-			) {
-				layer.live.push(instance)
-			}
+			if (continuesFromHere) layer.live.push(instance)
 		}
 	}
 
@@ -277,8 +277,10 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 		}
 
 		// Only forward scoped infinites continue from the plan. One following the playhead becomes an infinite once the
-		// playhead has passed it, and then continues from the playing PartInstance
-		if (lifespan.isInfinite && lifespan.isStatic) layer.planned.push(piece)
+		// playhead has passed it, and then continues from the playing PartInstance.
+		// One with a duration ends there, except the legacy presets, which used to continue regardless
+		const continues = isOpenEnded || lifespan.isEndedByNewerOfSameScope
+		if (lifespan.isInfinite && lifespan.isStatic && continues) layer.planned.push(piece)
 	}
 
 	if (playing && !hasReplayedPlaying) {
