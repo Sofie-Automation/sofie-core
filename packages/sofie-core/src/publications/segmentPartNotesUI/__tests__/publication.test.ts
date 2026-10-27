@@ -1,4 +1,11 @@
-import { RundownId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	PartId,
+	PartInstanceId,
+	PeripheralDeviceId,
+	RundownId,
+	RundownPlaylistId,
+	SegmentId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { UISegmentPartNote } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
 import { CustomPublishCollection } from '../../../lib/customPublication'
@@ -77,7 +84,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 			playlistId: playlistId,
 			source: {
 				type: 'nrcs',
-				peripheralDeviceId: protectString('device0'),
+				peripheralDeviceId: protectString<PeripheralDeviceId>('device0'),
 				nrcsName: 'NRCS+ 2000',
 			},
 		})
@@ -327,7 +334,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 	describe('generateNotesForSegment calls', () => {
 		const newCache = createAndPopulateMockCache()
 		newCache.Parts.insert({
-			_id: protectString('part0'),
+			_id: protectString<PartId>('part0'),
 			_rank: 1,
 			segmentId: segmentId0,
 			rundownId: rundownId,
@@ -337,7 +344,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 			invalidReason: undefined,
 		})
 		newCache.Parts.insert({
-			_id: protectString('part1'),
+			_id: protectString<PartId>('part1'),
 			_rank: 2,
 			segmentId: segmentId0,
 			rundownId: rundownId,
@@ -347,7 +354,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 			invalidReason: undefined,
 		})
 		newCache.Parts.insert({
-			_id: protectString('part2'),
+			_id: protectString<PartId>('part2'),
 			_rank: 1,
 			segmentId: segmentId1,
 			rundownId: rundownId,
@@ -357,7 +364,7 @@ describe('manipulateUISegmentPartNotesPublicationData', () => {
 			invalidReason: undefined,
 		})
 		newCache.PartInstances.insert({
-			_id: protectString('instance0'),
+			_id: protectString<PartInstanceId>('instance0'),
 			segmentId: segmentId0,
 			rundownId: rundownId,
 			orphaned: 'deleted',

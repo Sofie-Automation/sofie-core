@@ -21,7 +21,13 @@ import { updateTimeline } from '../timeline/generate.js'
 import { getSelectedPartInstances, getSortedPartsForRundown } from './lib.js'
 import { PieceLifespan, IBlueprintPieceType, Time } from '@sofie-automation/blueprints-integration'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
-import { RundownPlaylistId, RundownId, PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	RundownPlaylistId,
+	RundownId,
+	PartId,
+	PartInstanceId,
+	PieceInstanceId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	TimelineEnableExt,
 	TimelineComplete,
@@ -362,10 +368,10 @@ async function doOnPlayoutPlaybackChanged(
 								type: PlayoutChangedType.PIECE_PLAYBACK_STARTED,
 								data: {
 									partInstanceId: timings.partId,
-									pieceInstanceId: protectString(pieceInstanceId),
+									pieceInstanceId: protectString<PieceInstanceId>(pieceInstanceId),
 									time: timings.baseTime + offset,
 								},
-								objId: getPieceControlObjectId(protectString(pieceInstanceId)),
+								objId: getPieceControlObjectId(protectString<PieceInstanceId>(pieceInstanceId)),
 							}
 						: undefined
 			),
@@ -388,7 +394,12 @@ async function doAutoPlayoutPlaybackChangedForPart(
 		baseTime: takeTime,
 		partId: partInstanceId,
 		includePart: true,
-		pieceOffsets: Object.fromEntries(pieceInstances.map((piece) => [piece._id, piece.piece.enable.start])),
+		pieceOffsets: Object.fromEntries(
+			pieceInstances.map((piece) => [
+				piece._id,
+				piece.piece.enable.start === 'now' ? 0 : piece.piece.enable.start,
+			])
+		),
 	})
 }
 
@@ -670,7 +681,7 @@ describe('Timeline', () => {
 		) {
 			const rundownId0: RundownId = getRandomId()
 			const playlistId0 = await context.mockCollections.RundownPlaylists.insertOne(
-				defaultRundownPlaylist(protectString('playlist_' + rundownId0), context.studioId)
+				defaultRundownPlaylist(protectString<RundownPlaylistId>('playlist_' + rundownId0), context.studioId)
 			)
 
 			const rundownId = await customRundownFactory(context, playlistId0, rundownId0, showStyle)
@@ -1772,7 +1783,7 @@ describe('Timeline', () => {
 
 			const rundownId0: RundownId = getRandomId()
 			const playlistId0 = await context.mockCollections.RundownPlaylists.insertOne(
-				defaultRundownPlaylist(protectString('playlist_' + rundownId0), context.studioId)
+				defaultRundownPlaylist(protectString<RundownPlaylistId>('playlist_' + rundownId0), context.studioId)
 			)
 
 			const rundownId = await customRundownFactory(context, playlistId0, rundownId0, showStyle)

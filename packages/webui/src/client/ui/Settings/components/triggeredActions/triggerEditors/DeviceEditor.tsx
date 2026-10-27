@@ -10,6 +10,7 @@ import { useSubscriptionIfEnabled, useTracker } from '../../../../../lib/ReactMe
 import { DeviceTriggersPreviews } from '../../../../Collections.js'
 import { DeviceTrigger } from './DeviceTrigger.js'
 import Form from 'react-bootstrap/esm/Form'
+import type { StudioId } from '@sofie-automation/corelib/src/dataModel/Ids.js'
 
 interface IProps {
 	trigger: IBlueprintDeviceTrigger
@@ -34,7 +35,11 @@ export const DeviceEditor = function DeviceEditor({ trigger, modified, readonly,
 	)
 	const studio = useTracker(() => Studios.findOne(), [], undefined)
 
-	useSubscriptionIfEnabled(MeteorPubSub.deviceTriggersPreview, studio !== undefined, studio?._id ?? protectString(''))
+	useSubscriptionIfEnabled(
+		MeteorPubSub.deviceTriggersPreview,
+		studio !== undefined,
+		studio?._id ?? protectString<StudioId>('')
+	)
 
 	return (
 		<>

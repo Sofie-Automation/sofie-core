@@ -10,7 +10,13 @@ import { defaultPartInstance, defaultPiece, defaultPieceInstance } from '../../.
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import type { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type {
+	PartInstanceId,
+	PieceInstanceId,
+	RundownPlaylistActivationId,
+	RundownPlaylistId,
+	SegmentPlayoutId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstances, Pieces, RundownPlaylists } from '../../collections/index.js'
 import { MongoMock } from '../../../__mocks__/mongo.js'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil.js'
@@ -246,7 +252,7 @@ describe('client/lib/rundown', () => {
 			const sourceLayerIds = Object.keys(showStyleBase.sourceLayers)
 			const outputLayerIds = Object.keys(showStyleBase.outputLayers)
 
-			const playlistActivationId = protectString('mock_activation_0')
+			const playlistActivationId = protectString<RundownPlaylistActivationId>('mock_activation_0')
 			mockRundownPlaylistsCollection.update(unprotectString(playlistId), {
 				$set: {
 					activationId: playlistActivationId,
@@ -292,10 +298,10 @@ describe('client/lib/rundown', () => {
 			}
 			mockPiecesCollection.insert(followingPiece)
 
-			const segmentPlayoutId = protectString('mock_segment_playout_0')
+			const segmentPlayoutId = protectString<SegmentPlayoutId>('mock_segment_playout_0')
 			const mockCurrentPartInstance: PartInstance = {
 				...defaultPartInstance(
-					protectString(rundownId + '_partInstance_0'),
+					protectString<PartInstanceId>(rundownId + '_partInstance_0'),
 					playlistActivationId,
 					segmentPlayoutId,
 					firstPart
@@ -306,7 +312,7 @@ describe('client/lib/rundown', () => {
 
 			const infinitePieceInstance: PieceInstance = {
 				...defaultPieceInstance(
-					protectString('instance_' + infinitePiece._id),
+					protectString<PieceInstanceId>('instance_' + infinitePiece._id),
 					playlistActivationId,
 					rundown._id,
 					mockCurrentPartInstance._id,
@@ -321,7 +327,7 @@ describe('client/lib/rundown', () => {
 
 			const followingPieceInstance: PieceInstance = {
 				...defaultPieceInstance(
-					protectString('instance_' + followingPiece._id),
+					protectString<PieceInstanceId>('instance_' + followingPiece._id),
 					playlistActivationId,
 					rundown._id,
 					mockCurrentPartInstance._id,

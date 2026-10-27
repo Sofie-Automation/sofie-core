@@ -7,7 +7,10 @@ import {
 	RundownId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
-import { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
+import {
+	UIPieceContentStatus,
+	UIPieceContentStatusId,
+} from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { CustomPublishCollection } from '../../../lib/customPublication'
@@ -107,7 +110,7 @@ export async function regenerateForPieceIds(
 				pieceDoc,
 				pieceDoc.sourceLayerId,
 				{
-					_id: protectString(`piece_${pieceId}`),
+					_id: protectString<UIPieceContentStatusId>(`piece_${pieceId}`),
 
 					partId: pieceDoc.startPartId ?? undefined,
 					rundownId: pieceDoc.startRundownId,
@@ -194,7 +197,7 @@ export async function regenerateForPieceInstanceIds(
 				)
 
 				const res: UIPieceContentStatus = {
-					_id: protectString(`piece_${pieceId}`),
+					_id: protectString<UIPieceContentStatusId>(`piece_${pieceId}`),
 
 					partId: pieceDoc.piece.startPartId ?? undefined,
 					rundownId: pieceDoc.rundownId,
@@ -259,7 +262,7 @@ export async function regenerateForAdLibPieceIds(
 				pieceDoc,
 				pieceDoc.sourceLayerId,
 				{
-					_id: protectString(`adlib_${pieceId}`),
+					_id: protectString<UIPieceContentStatusId>(`adlib_${pieceId}`),
 
 					partId: pieceDoc.partId,
 					rundownId: pieceDoc.rundownId,
@@ -308,7 +311,7 @@ export async function regenerateForAdLibActionIds(
 			deletedPieceIds.add(pieceId)
 		} else {
 			const fakedPiece = literal<PieceContentStatusPiece>({
-				_id: protectString(`${actionDoc._id}`),
+				_id: protectString<PieceId>(`${actionDoc._id}`),
 				content: 'content' in actionDoc.display ? actionDoc.display.content : {},
 				name:
 					typeof actionDoc.display.label === 'string' ? actionDoc.display.label : actionDoc.display.label.key,
@@ -324,7 +327,7 @@ export async function regenerateForAdLibActionIds(
 				fakedPiece,
 				sourceLayerId,
 				{
-					_id: protectString(`action_${pieceId}`),
+					_id: protectString<UIPieceContentStatusId>(`action_${pieceId}`),
 
 					partId: actionDoc.partId,
 					rundownId: actionDoc.rundownId,
@@ -392,7 +395,7 @@ export async function regenerateForBaselineAdLibPieceIds(
 				dependenciesState.set(pieceId, dependencies)
 
 				collection.replace({
-					_id: protectString(`baseline_adlib_${pieceId}`),
+					_id: protectString<UIPieceContentStatusId>(`baseline_adlib_${pieceId}`),
 
 					partId: undefined,
 					segmentId: undefined,
@@ -444,7 +447,7 @@ export async function regenerateForBaselineAdLibActionIds(
 			deletedPieceIds.add(pieceId)
 		} else {
 			const fakedPiece = literal<PieceContentStatusPiece>({
-				_id: protectString(`${actionDoc._id}`),
+				_id: protectString<PieceId>(`${actionDoc._id}`),
 				content: 'content' in actionDoc.display ? actionDoc.display.content : {},
 				name:
 					typeof actionDoc.display.label === 'string' ? actionDoc.display.label : actionDoc.display.label.key,
@@ -473,7 +476,7 @@ export async function regenerateForBaselineAdLibActionIds(
 				dependenciesState.set(pieceId, dependencies)
 
 				collection.replace({
-					_id: protectString(`baseline_adlib_${pieceId}`),
+					_id: protectString<UIPieceContentStatusId>(`baseline_adlib_${pieceId}`),
 
 					partId: undefined,
 					segmentId: undefined,

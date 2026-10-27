@@ -409,7 +409,7 @@ export abstract class WorkerParentBase {
 		const db = this.#mongoClient.db(this.#mongoDbName)
 		const collection = db.collection<WorkerThreadStatus>(CollectionName.WorkerThreads)
 
-		const workerThreadId: WorkerThreadId = protectString(`${this.#workerId}_${this.#queueName}`)
+		const workerThreadId = protectString<WorkerThreadId>(`${this.#workerId}_${this.#queueName}`)
 
 		const status: WorkerThreadStatus = {
 			_id: workerThreadId,

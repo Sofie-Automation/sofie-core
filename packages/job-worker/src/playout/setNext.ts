@@ -328,7 +328,7 @@ async function preparePartInstanceForPartBeingNexted(
 	const rundown = playoutModel.getRundown(nextPart.rundownId)
 	if (!rundown) throw new Error(`Could not find rundown ${nextPart.rundownId}`)
 
-	const partInstanceId = protectString('') // Replaced inside playoutModel.createInstanceForPart
+	const partInstanceId = protectString<PartInstanceId>('') // Replaced inside playoutModel.createInstanceForPart
 
 	const possiblePieces = await fetchPiecesThatMayBeActiveForPart(context, playoutModel, unsavedIngestModel, nextPart)
 	const newPieceInstances = getPieceInstancesForPart(

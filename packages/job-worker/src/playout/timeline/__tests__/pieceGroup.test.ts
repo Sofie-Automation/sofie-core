@@ -11,7 +11,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { TSR } from '@sofie-automation/blueprints-integration'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartInstanceId, PieceInstanceId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PlayoutChangedType } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 
 type PieceInstanceParam = Parameters<typeof createPieceGroupAndCap>[1]
@@ -30,9 +30,9 @@ describe('Pieces', () => {
 		const playlistId: RundownPlaylistId = getRandomId()
 
 		const simplePieceInstance = literal<PieceInstanceParam>({
-			_id: protectString('randomId9000'),
+			_id: protectString<PieceInstanceId>('randomId9000'),
 			rundownId: getRandomId(),
-			partInstanceId: protectString('randomId9002'),
+			partInstanceId: protectString<PartInstanceId>('randomId9002'),
 			piece: createFakePiece({ start: 10 }, 'some-layer'),
 			infinite: undefined,
 			resolvedEndCap: undefined,
@@ -54,12 +54,12 @@ describe('Pieces', () => {
 			isGroup: true,
 			layer: '',
 			metaData: {
-				pieceInstanceGroupId: protectString('randomId9000'),
+				pieceInstanceGroupId: protectString<PieceInstanceId>('randomId9000'),
 				isPieceTimeline: true,
 			},
 			objectType: TimelineObjType.RUNDOWN,
 			pieceInstanceId: 'randomId9000',
-			partInstanceId: protectString('randomId9002'),
+			partInstanceId: protectString<PartInstanceId>('randomId9002'),
 			priority: 0,
 		})
 		const simplePieceControl = literal<TimelineObjPieceAbstract & OnGenerateTimelineObjExt<PieceTimelineMetadata>>({
@@ -69,8 +69,8 @@ describe('Pieces', () => {
 				callBack: PlayoutChangedType.PIECE_PLAYBACK_STARTED,
 				callBackData: {
 					rundownPlaylistId: playlistId,
-					partInstanceId: protectString('randomId9002'),
-					pieceInstanceId: protectString('randomId9000'),
+					partInstanceId: protectString<PartInstanceId>('randomId9002'),
+					pieceInstanceId: protectString<PieceInstanceId>('randomId9000'),
 					dynamicallyInserted: false,
 				},
 				callBackStopped: PlayoutChangedType.PIECE_PLAYBACK_STOPPED,
@@ -85,11 +85,11 @@ describe('Pieces', () => {
 			layer: 'some-layer',
 			metaData: {
 				isPieceTimeline: true,
-				triggerPieceInstanceId: protectString('randomId9000'),
+				triggerPieceInstanceId: protectString<PieceInstanceId>('randomId9000'),
 			},
 			objectType: TimelineObjType.RUNDOWN,
 			pieceInstanceId: 'randomId9000',
-			partInstanceId: protectString('randomId9002'),
+			partInstanceId: protectString<PartInstanceId>('randomId9002'),
 			priority: 123,
 			classes: [],
 		})

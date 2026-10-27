@@ -1,10 +1,11 @@
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import type { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { isRundownDragObject, isRundownPlaylistUiAction, RundownPlaylistUiActionTypes } from '../DragAndDropTypes.js'
 
 describe('ui/RundownList/DragAndDropTypes', () => {
 	describe('isRundownDragObject', () => {
 		it('should return true for object with valid id', () => {
-			const valid = { id: protectString('somethingsomething') }
+			const valid = { id: protectString<RundownId>('somethingsomething') }
 
 			expect(isRundownDragObject(valid)).toBe(true)
 		})
@@ -31,8 +32,8 @@ describe('ui/RundownList/DragAndDropTypes', () => {
 		it('should return true for valid object with playlist id', () => {
 			const valid = {
 				type: RundownPlaylistUiActionTypes.HANDLE_RUNDOWN_DROP,
-				rundownId: protectString('_Zdde0124650o12378459'),
-				targetPlaylistId: protectString('rwjosietr34785585'),
+				rundownId: protectString<RundownId>('_Zdde0124650o12378459'),
+				targetPlaylistId: protectString<RundownPlaylistId>('rwjosietr34785585'),
 			}
 
 			expect(isRundownPlaylistUiAction(valid)).toBe(true)
@@ -41,7 +42,7 @@ describe('ui/RundownList/DragAndDropTypes', () => {
 		it('should return true for valid object without playlist id', () => {
 			const valid = {
 				type: RundownPlaylistUiActionTypes.HANDLE_RUNDOWN_DROP,
-				rundownId: protectString('_Zdde0124650o12378459'),
+				rundownId: protectString<RundownId>('_Zdde0124650o12378459'),
 			}
 
 			expect(isRundownPlaylistUiAction(valid)).toBe(true)
@@ -49,7 +50,7 @@ describe('ui/RundownList/DragAndDropTypes', () => {
 
 		it('should return false for object with missing type', () => {
 			const invalid = {
-				rundownId: protectString('_Zdde0124650o12378459'),
+				rundownId: protectString<RundownId>('_Zdde0124650o12378459'),
 			}
 
 			expect(isRundownPlaylistUiAction(invalid)).toBe(false)
@@ -58,7 +59,7 @@ describe('ui/RundownList/DragAndDropTypes', () => {
 		it('should return false for object with invalid type', () => {
 			const invalid = {
 				type: 'this is not from the correct enum',
-				rundownId: protectString('_Zdde0124650o12378459'),
+				rundownId: protectString<RundownId>('_Zdde0124650o12378459'),
 			}
 
 			expect(isRundownPlaylistUiAction(invalid)).toBe(false)
@@ -86,7 +87,7 @@ describe('ui/RundownList/DragAndDropTypes', () => {
 		it('should return false for object with invalid targetPlaylistId', () => {
 			const invalid = {
 				type: RundownPlaylistUiActionTypes.NOOP,
-				rundownId: protectString('_Zdde0124650o12378459'),
+				rundownId: protectString<RundownId>('_Zdde0124650o12378459'),
 				targetPlaylistId: 47,
 			}
 

@@ -12,6 +12,7 @@ import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/Ru
 import { handleActivateRundownPlaylist } from '../activePlaylistJobs.js'
 import { handleTakeNextPart } from '../take.js'
 import { QueuePartTarget } from '@sofie-automation/blueprints-integration'
+import { PartId, RundownPlaylistActivationId } from '@sofie-automation/corelib/src/dataModel/Ids.js'
 
 describe('adlibUtils', () => {
 	async function setupActivatedPlaylist(rundownId: RundownId, playlistId: RundownPlaylistId) {
@@ -19,7 +20,7 @@ describe('adlibUtils', () => {
 
 		await context.mockCollections.RundownPlaylists.insertOne({
 			...defaultRundownPlaylist(playlistId, context.studioId),
-			activationId: getRandomId(),
+			activationId: getRandomId<RundownPlaylistActivationId>(),
 		})
 
 		const showStyleCompound = await setupMockShowStyleCompound(context)
@@ -29,7 +30,7 @@ describe('adlibUtils', () => {
 	}
 
 	test('resolveQueuedAdlibInsertTarget inserts after current part by default', async () => {
-		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const playlistId: RundownPlaylistId = protectString<RundownPlaylistId>('playlist0')
 		const rundownId: RundownId = getRandomId()
 		const context = await setupActivatedPlaylist(rundownId, playlistId)
 
@@ -49,7 +50,7 @@ describe('adlibUtils', () => {
 	})
 
 	test('resolveQueuedAdlibInsertTarget inserts before explicit part id', async () => {
-		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const playlistId: RundownPlaylistId = protectString<RundownPlaylistId>('playlist0')
 		const rundownId: RundownId = getRandomId()
 		const context = await setupActivatedPlaylist(rundownId, playlistId)
 
@@ -83,7 +84,7 @@ describe('adlibUtils', () => {
 	})
 
 	test('resolveQueuedAdlibInsertTarget inserts before explicit part instance id', async () => {
-		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const playlistId: RundownPlaylistId = protectString<RundownPlaylistId>('playlist0')
 		const rundownId: RundownId = getRandomId()
 		const context = await setupActivatedPlaylist(rundownId, playlistId)
 
@@ -124,7 +125,7 @@ describe('adlibUtils', () => {
 	})
 
 	test('resolveQueuedAdlibInsertTarget inserts before first part in segment', async () => {
-		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const playlistId: RundownPlaylistId = protectString<RundownPlaylistId>('playlist0')
 		const rundownId: RundownId = getRandomId()
 		const context = await setupActivatedPlaylist(rundownId, playlistId)
 
@@ -150,7 +151,7 @@ describe('adlibUtils', () => {
 	})
 
 	test('resolveQueuedAdlibInsertTarget throws when insert before target is in orphaned segment', async () => {
-		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const playlistId: RundownPlaylistId = protectString<RundownPlaylistId>('playlist0')
 		const rundownId: RundownId = getRandomId()
 		const context = await setupActivatedPlaylist(rundownId, playlistId)
 
@@ -182,7 +183,7 @@ describe('adlibUtils', () => {
 	})
 
 	test('resolveQueuedAdlibInsertTarget inserts after explicit part id', async () => {
-		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const playlistId: RundownPlaylistId = protectString<RundownPlaylistId>('playlist0')
 		const rundownId: RundownId = getRandomId()
 		const context = await setupActivatedPlaylist(rundownId, playlistId)
 
@@ -219,7 +220,7 @@ describe('adlibUtils', () => {
 	})
 
 	test('resolveQueuedAdlibInsertTarget inserts after explicit part instance id', async () => {
-		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const playlistId: RundownPlaylistId = protectString<RundownPlaylistId>('playlist0')
 		const rundownId: RundownId = getRandomId()
 		const context = await setupActivatedPlaylist(rundownId, playlistId)
 
@@ -268,7 +269,7 @@ describe('adlibUtils', () => {
 	})
 
 	test('resolveQueuedAdlibInsertTarget inserts after last part in segment', async () => {
-		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const playlistId: RundownPlaylistId = protectString<RundownPlaylistId>('playlist0')
 		const rundownId: RundownId = getRandomId()
 		const context = await setupActivatedPlaylist(rundownId, playlistId)
 
@@ -294,7 +295,7 @@ describe('adlibUtils', () => {
 	})
 
 	test('resolveQueuedAdlibInsertTarget throws when insert after target is in orphaned segment', async () => {
-		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const playlistId: RundownPlaylistId = protectString<RundownPlaylistId>('playlist0')
 		const rundownId: RundownId = getRandomId()
 		const context = await setupActivatedPlaylist(rundownId, playlistId)
 
@@ -329,7 +330,7 @@ describe('adlibUtils', () => {
 	describe('insertQueuedPartWithPieces quick loop', () => {
 		async function setupPlayingPlaylist() {
 			const context = setupDefaultJobEnvironment()
-			const playlistId: RundownPlaylistId = protectString('playlist0')
+			const playlistId: RundownPlaylistId = protectString<RundownPlaylistId>('playlist0')
 			const rundownId: RundownId = getRandomId()
 
 			await context.mockCollections.RundownPlaylists.insertOne({
@@ -348,7 +349,7 @@ describe('adlibUtils', () => {
 		function queuedPart(target?: QueuePartTarget) {
 			return {
 				part: {
-					_id: getRandomId(),
+					_id: getRandomId<PartId>(),
 					externalId: 'queued_adlib',
 					title: 'Queued adlib',
 					expectedDurationWithTransition: undefined,
@@ -480,7 +481,9 @@ describe('adlibUtils', () => {
 					context,
 					playoutModel,
 					currentPartInstance,
-					queuedPart({ targetPartId: unprotectString(targetPart._id) }),
+					queuedPart({
+						targetPartId: unprotectString<PartId>(targetPart._id),
+					}),
 					undefined
 				)
 

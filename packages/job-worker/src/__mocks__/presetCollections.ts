@@ -4,6 +4,8 @@ import {
 	RundownId,
 	BlueprintId,
 	ShowStyleBaseId,
+	PartId,
+	PeripheralDeviceId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { EmptyPieceTimelineObjectsBlob, Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
@@ -70,7 +72,7 @@ export async function setupMockShowStyleBase(
 	const dbI = (await context.mockCollections.ShowStyleBases.findFetch()).length
 
 	const defaultShowStyleBase: DBShowStyleBase = {
-		_id: protectString('mockShowStyleBase' + dbI),
+		_id: protectString<ShowStyleBaseId>('mockShowStyleBase' + dbI),
 		name: 'mockShowStyleBase',
 		outputLayersWithOverrides: wrapDefaultObject(
 			normalizeArray(
@@ -168,7 +170,7 @@ export async function setupDefaultRundownPlaylist(
 	if (!showStyleCompound) throw new Error('No ShowStyle compound exists in the database yet')
 
 	const playlistId = await context.mockCollections.RundownPlaylists.insertOne(
-		defaultRundownPlaylist(protectString('playlist_' + rundownId), context.studioId)
+		defaultRundownPlaylist(protectString<RundownPlaylistId>('playlist_' + rundownId), context.studioId)
 	)
 	await setupDefaultRundown(context, showStyleCompound, playlistId, rundownId)
 
@@ -226,7 +228,7 @@ export async function setupDefaultRundown(
 	})
 
 	const part00: DBPart = {
-		_id: protectString(rundownId + '_part0_0'),
+		_id: protectString<PartId>(rundownId + '_part0_0'),
 		segmentId: segment0Id,
 		rundownId: rundownId,
 		_rank: 0,
@@ -294,7 +296,7 @@ export async function setupDefaultRundown(
 	await context.mockCollections.AdLibPieces.insertOne(adLibPiece000)
 
 	const part01: DBPart = {
-		_id: protectString(rundownId + '_part0_1'),
+		_id: protectString<PartId>(rundownId + '_part0_1'),
 		segmentId: segment0Id,
 		rundownId: rundownId,
 		_rank: 1,
@@ -333,7 +335,7 @@ export async function setupDefaultRundown(
 	})
 
 	const part10: DBPart = {
-		_id: protectString(rundownId + '_part1_0'),
+		_id: protectString<PartId>(rundownId + '_part1_0'),
 		segmentId: segment1Id,
 		rundownId: rundownId,
 		_rank: 0,
@@ -344,7 +346,7 @@ export async function setupDefaultRundown(
 	await context.mockCollections.Parts.insertOne(part10)
 
 	const part11: DBPart = {
-		_id: protectString(rundownId + '_part1_1'),
+		_id: protectString<PartId>(rundownId + '_part1_1'),
 		segmentId: segment1Id,
 		rundownId: rundownId,
 		_rank: 1,
@@ -355,7 +357,7 @@ export async function setupDefaultRundown(
 	await context.mockCollections.Parts.insertOne(part11)
 
 	const part12: DBPart = {
-		_id: protectString(rundownId + '_part1_2'),
+		_id: protectString<PartId>(rundownId + '_part1_2'),
 		segmentId: segment1Id,
 		rundownId: rundownId,
 		_rank: 2,
@@ -415,7 +417,7 @@ export async function setupMockPeripheralDevice(
 	const dbI = (await context.mockCollections.PeripheralDevices.findFetch()).length
 
 	const defaultDevice: PeripheralDevice = {
-		_id: protectString('mockDevice' + dbI),
+		_id: protectString<PeripheralDeviceId>('mockDevice' + dbI),
 		name: 'mockDevice',
 		deviceName: 'Mock Gateway',
 		studioAndConfigId: {

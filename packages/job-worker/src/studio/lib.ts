@@ -13,7 +13,7 @@ export async function getActiveRundownPlaylistsInStudioFromDb(
 			studioId: studioId,
 			activationId: { $exists: true },
 			_id: {
-				$ne: excludeRundownPlaylistId || protectString(''),
+				$ne: excludeRundownPlaylistId || protectString<RundownPlaylistId>(''),
 			},
 		},
 		{

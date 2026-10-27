@@ -58,7 +58,7 @@ export namespace MediaScannerIntegration {
 		if (!studioId)
 			throw new SofieError(400, 'updateMediaObject: Device "' + peripheralDevice._id + '" has no studio')
 
-		const _id: MediaObjId = protectString(collectionId + '_' + objId)
+		const _id = protectString<MediaObjId>(collectionId + '_' + objId)
 		if (doc === null) {
 			await MediaObjects.removeAsync(_id)
 		} else if (doc) {

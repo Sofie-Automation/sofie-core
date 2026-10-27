@@ -3,6 +3,13 @@ import {
 	DBNotificationTarget,
 	DBNotificationTargetType,
 } from '@sofie-automation/corelib/dist/dataModel/Notifications'
+import {
+	NotificationId,
+	PartInstanceId,
+	PieceInstanceId,
+	RundownId,
+	RundownPlaylistId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { NotificationsModelHelper } from '../NotificationsModelHelper.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -28,7 +35,7 @@ describe('NotificationsModelHelper', () => {
 			id: 'id0',
 			message: generateTranslation('test'),
 			severity: NoteSeverity.INFO,
-			relatedTo: { type: 'rundown', rundownId: protectString('rundown0') },
+			relatedTo: { type: 'rundown', rundownId: protectString<RundownId>('rundown0') },
 		}
 
 		/** The document which `notification` is persisted as */
@@ -42,7 +49,7 @@ describe('NotificationsModelHelper', () => {
 				relatedTo: {
 					type: DBNotificationTargetType.RUNDOWN,
 					studioId: context.studioId,
-					rundownId: protectString('rundown0'),
+					rundownId: protectString<RundownId>('rundown0'),
 				},
 				created: 1,
 				modified: 2,
@@ -222,7 +229,7 @@ describe('NotificationsModelHelper', () => {
 			const context = setupDefaultJobEnvironment()
 			const notificationsCollection = context.mockCollections.Notifications
 
-			const helper = new NotificationsModelHelper(context, 'test', protectString('playlist0'))
+			const helper = new NotificationsModelHelper(context, 'test', protectString<RundownPlaylistId>('playlist0'))
 
 			helper.setNotification('my-category', {
 				id: 'id0',
@@ -286,7 +293,7 @@ describe('NotificationsModelHelper', () => {
 				relatedTo: {
 					type: DBNotificationTargetType.PLAYLIST,
 					studioId: context.studioId,
-					playlistId: protectString('test'),
+					playlistId: protectString<RundownPlaylistId>('test'),
 				},
 				created: 1,
 				modified: 2,
@@ -330,7 +337,7 @@ describe('NotificationsModelHelper', () => {
 			const context = setupDefaultJobEnvironment()
 			const notificationsCollection = context.mockCollections.Notifications
 
-			const helper = new NotificationsModelHelper(context, 'test', protectString('playlist0'))
+			const helper = new NotificationsModelHelper(context, 'test', protectString<RundownPlaylistId>('playlist0'))
 
 			helper.setNotification('my-category', {
 				id: 'abc',
@@ -407,9 +414,9 @@ describe('NotificationsModelHelper', () => {
 			it(`loading existing: ${runGetAllNotifications}`, async () => {
 				const context = setupDefaultJobEnvironment()
 				const notificationsCollection = context.mockCollections.Notifications
-				const playlistId = protectString('playlist0')
+				const playlistId = protectString<RundownPlaylistId>('playlist0')
 
-				const expectedNotificationId = protectString('b8ynzcdIk5RXEAkIHXShWJ26FTQ_') // Taken from a previous run
+				const expectedNotificationId = protectString<NotificationId>('b8ynzcdIk5RXEAkIHXShWJ26FTQ_') // Taken from a previous run
 
 				await notificationsCollection.insertOne({
 					_id: expectedNotificationId,
@@ -480,7 +487,7 @@ describe('NotificationsModelHelper', () => {
 			const context = setupDefaultJobEnvironment()
 			const notificationsCollection = context.mockCollections.Notifications
 
-			const playlistId = protectString('playlist0')
+			const playlistId = protectString<RundownPlaylistId>('playlist0')
 
 			const helper = new NotificationsModelHelper(context, 'test', playlistId)
 
@@ -493,7 +500,9 @@ describe('NotificationsModelHelper', () => {
 
 			await helper.saveAllToDatabase()
 
-			const doc = await notificationsCollection.findOne(protectString('b8ynzcdIk5RXEAkIHXShWJ26FTQ_'))
+			const doc = await notificationsCollection.findOne(
+				protectString<NotificationId>('b8ynzcdIk5RXEAkIHXShWJ26FTQ_')
+			)
 			expect(doc).toBeTruthy()
 			expect(doc?.relatedTo).toEqual({
 				type: DBNotificationTargetType.PLAYLIST,
@@ -521,7 +530,7 @@ describe('NotificationsModelHelper', () => {
 			const context = setupDefaultJobEnvironment()
 			const notificationsCollection = context.mockCollections.Notifications
 
-			const rundownId = protectString('rundown0')
+			const rundownId = protectString<RundownId>('rundown0')
 
 			const helper = new NotificationsModelHelper(context, 'test', null)
 
@@ -534,7 +543,9 @@ describe('NotificationsModelHelper', () => {
 
 			await helper.saveAllToDatabase()
 
-			const doc = await notificationsCollection.findOne(protectString('b8ynzcdIk5RXEAkIHXShWJ26FTQ_'))
+			const doc = await notificationsCollection.findOne(
+				protectString<NotificationId>('b8ynzcdIk5RXEAkIHXShWJ26FTQ_')
+			)
 			expect(doc).toBeTruthy()
 			expect(doc?.relatedTo).toEqual({
 				type: DBNotificationTargetType.RUNDOWN,
@@ -547,8 +558,8 @@ describe('NotificationsModelHelper', () => {
 			const context = setupDefaultJobEnvironment()
 			const notificationsCollection = context.mockCollections.Notifications
 
-			const rundownId = protectString('rundown0')
-			const partInstanceId = protectString('partInstance0')
+			const rundownId = protectString<RundownId>('rundown0')
+			const partInstanceId = protectString<PartInstanceId>('partInstance0')
 
 			const helper = new NotificationsModelHelper(context, 'test', null)
 
@@ -565,7 +576,9 @@ describe('NotificationsModelHelper', () => {
 
 			await helper.saveAllToDatabase()
 
-			const doc = await notificationsCollection.findOne(protectString('b8ynzcdIk5RXEAkIHXShWJ26FTQ_'))
+			const doc = await notificationsCollection.findOne(
+				protectString<NotificationId>('b8ynzcdIk5RXEAkIHXShWJ26FTQ_')
+			)
 			expect(doc).toBeTruthy()
 			expect(doc?.relatedTo).toEqual({
 				type: DBNotificationTargetType.PARTINSTANCE,
@@ -579,9 +592,9 @@ describe('NotificationsModelHelper', () => {
 			const context = setupDefaultJobEnvironment()
 			const notificationsCollection = context.mockCollections.Notifications
 
-			const rundownId = protectString('rundown0')
-			const partInstanceId = protectString('partInstance0')
-			const pieceInstanceId = protectString('pieceInstance0')
+			const rundownId = protectString<RundownId>('rundown0')
+			const partInstanceId = protectString<PartInstanceId>('partInstance0')
+			const pieceInstanceId = protectString<PieceInstanceId>('pieceInstance0')
 
 			const helper = new NotificationsModelHelper(context, 'test', null)
 
@@ -599,7 +612,9 @@ describe('NotificationsModelHelper', () => {
 
 			await helper.saveAllToDatabase()
 
-			const doc = await notificationsCollection.findOne(protectString('b8ynzcdIk5RXEAkIHXShWJ26FTQ_'))
+			const doc = await notificationsCollection.findOne(
+				protectString<NotificationId>('b8ynzcdIk5RXEAkIHXShWJ26FTQ_')
+			)
 			expect(doc).toBeTruthy()
 			expect(doc?.relatedTo).toEqual({
 				type: DBNotificationTargetType.PIECEINSTANCE,
@@ -620,7 +635,7 @@ describe('NotificationsModelHelper', () => {
 				relatedTo: {
 					type: DBNotificationTargetType.PLAYLIST,
 					studioId: context.studioId,
-					playlistId: protectString('playlist0'),
+					playlistId: protectString<RundownPlaylistId>('playlist0'),
 				},
 				created: 1,
 				modified: 2,
@@ -634,7 +649,7 @@ describe('NotificationsModelHelper', () => {
 				relatedTo: {
 					type: DBNotificationTargetType.RUNDOWN,
 					studioId: context.studioId,
-					rundownId: protectString('rundown0'),
+					rundownId: protectString<RundownId>('rundown0'),
 				},
 				created: 1,
 				modified: 2,
@@ -648,8 +663,8 @@ describe('NotificationsModelHelper', () => {
 				relatedTo: {
 					type: DBNotificationTargetType.PARTINSTANCE,
 					studioId: context.studioId,
-					rundownId: protectString('rundown0'),
-					partInstanceId: protectString('partInstance0'),
+					rundownId: protectString<RundownId>('rundown0'),
+					partInstanceId: protectString<PartInstanceId>('partInstance0'),
 				},
 				created: 1,
 				modified: 2,
@@ -663,9 +678,9 @@ describe('NotificationsModelHelper', () => {
 				relatedTo: {
 					type: DBNotificationTargetType.PIECEINSTANCE,
 					studioId: context.studioId,
-					rundownId: protectString('rundown0'),
-					partInstanceId: protectString('partInstance0'),
-					pieceInstanceId: protectString('pieceInstance0'),
+					rundownId: protectString<RundownId>('rundown0'),
+					partInstanceId: protectString<PartInstanceId>('partInstance0'),
+					pieceInstanceId: protectString<PieceInstanceId>('pieceInstance0'),
 				},
 				created: 1,
 				modified: 2,
@@ -689,24 +704,24 @@ describe('NotificationsModelHelper', () => {
 					id: 'test-rundown',
 					relatedTo: {
 						type: 'rundown',
-						rundownId: protectString('rundown0'),
+						rundownId: protectString<RundownId>('rundown0'),
 					},
 				},
 				{
 					id: 'test-partInstance',
 					relatedTo: {
 						type: 'partInstance',
-						rundownId: protectString('rundown0'),
-						partInstanceId: protectString('partInstance0'),
+						rundownId: protectString<RundownId>('rundown0'),
+						partInstanceId: protectString<PartInstanceId>('partInstance0'),
 					},
 				},
 				{
 					id: 'test-pieceInstance',
 					relatedTo: {
 						type: 'pieceInstance',
-						rundownId: protectString('rundown0'),
-						partInstanceId: protectString('partInstance0'),
-						pieceInstanceId: protectString('pieceInstance0'),
+						rundownId: protectString<RundownId>('rundown0'),
+						partInstanceId: protectString<PartInstanceId>('partInstance0'),
+						pieceInstanceId: protectString<PieceInstanceId>('pieceInstance0'),
 					},
 				},
 			] satisfies Partial<INotificationWithTarget>[])
@@ -717,7 +732,7 @@ describe('NotificationsModelHelper', () => {
 		const context = setupDefaultJobEnvironment()
 		const notificationsCollection = context.mockCollections.Notifications
 
-		const helper = new NotificationsModelHelper(context, 'test', protectString('playlist0'))
+		const helper = new NotificationsModelHelper(context, 'test', protectString<RundownPlaylistId>('playlist0'))
 
 		helper.setNotification('my-category', {
 			id: 'abc',
@@ -786,7 +801,7 @@ describe('NotificationsModelHelper', () => {
 		const context = setupDefaultJobEnvironment()
 		const notificationsCollection = context.mockCollections.Notifications
 
-		const helper = new NotificationsModelHelper(context, 'test', protectString('playlist0'))
+		const helper = new NotificationsModelHelper(context, 'test', protectString<RundownPlaylistId>('playlist0'))
 
 		helper.clearAllNotifications('my-category')
 		helper.setNotification('my-category', {

@@ -19,6 +19,7 @@ import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
+import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 const PERMISSIONS_FOR_MANAGE_SHOWSTYLES: Array<keyof UserPermissions> = ['configure']
 
@@ -80,9 +81,9 @@ export async function insertShowStyleBase(context: MethodContext): Promise<ShowS
 
 export async function insertShowStyleBaseInner(): Promise<ShowStyleBaseId> {
 	const showStyleBase: DBShowStyleBase = {
-		_id: getRandomId(),
+		_id: getRandomId<ShowStyleBaseId>(),
 		name: 'New Show Style',
-		blueprintId: protectString(''),
+		blueprintId: protectString<BlueprintId>(''),
 		outputLayersWithOverrides: wrapDefaultObject({}),
 		sourceLayersWithOverrides: wrapDefaultObject({}),
 		blueprintConfigWithOverrides: wrapDefaultObject({}),
@@ -131,7 +132,7 @@ async function insertShowStyleVariantInner(
 	const rank = highestRank + 1
 
 	const showStyleVariant: DBShowStyleVariant = {
-		_id: getRandomId(),
+		_id: getRandomId<ShowStyleVariantId>(),
 		name: name || 'New Variant',
 		blueprintConfigWithOverrides: wrapDefaultObject({}),
 		_rundownVersionHash: '',
@@ -159,7 +160,7 @@ export async function importShowStyleVariantAsNew(
 
 	const newShowStyleVariant: DBShowStyleVariant = {
 		...showStyleVariant,
-		_id: getRandomId(),
+		_id: getRandomId<ShowStyleVariantId>(),
 	}
 
 	return ShowStyleVariants.insertAsync(newShowStyleVariant)

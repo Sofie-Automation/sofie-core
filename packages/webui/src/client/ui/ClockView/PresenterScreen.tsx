@@ -219,7 +219,7 @@ export const getPresenterScreenReactive = (
 	let nextShowStyleBaseId: ShowStyleBaseId | undefined = undefined
 
 	const params = queryStringParse(location.search)
-	const presenterLayoutId = protectString((params['presenterLayout'] as string) || '')
+	const presenterLayoutId = protectString<RundownLayoutId>((params['presenterLayout'] as string) || '')
 	const margin = (() => {
 		// Support both `margin` (PrompterView) and `margins` / `m` (legacy/typos in URLs)
 		const raw = (params['margin'] ?? params['margins'] ?? params['m']) as string

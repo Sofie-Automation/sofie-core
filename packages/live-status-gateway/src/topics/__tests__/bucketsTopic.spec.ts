@@ -15,6 +15,7 @@ import { BucketAdLib, BucketAdLibIngestInfo } from '@sofie-automation/corelib/di
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { BucketsEvent } from '@sofie-automation/live-status-gateway-api'
+import { RundownPlaylistActivationId, ShowStyleBaseId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 describe('BucketsTopic', () => {
 	it('notifies subscribers', async () => {
@@ -23,7 +24,7 @@ describe('BucketsTopic', () => {
 		const mockSubscriber = makeMockSubscriber()
 
 		const playlist = makeTestPlaylist()
-		playlist.activationId = protectString('somethingRandom')
+		playlist.activationId = protectString<RundownPlaylistActivationId>('somethingRandom')
 		handlers.playlistHandler.notify(playlist)
 
 		const parts = makeTestParts()
@@ -87,10 +88,10 @@ function makeTestAdLibActions(): BucketAdLibAction[] {
 			_id: protectString('ACTION_0'),
 			actionId: 'ACTION_0',
 			bucketId: protectString('BUCKET_0'),
-			studioId: protectString('STUDIO_0'),
+			studioId: protectString<StudioId>('STUDIO_0'),
 			importVersions: {} as RundownImportVersions,
 			ingestInfo: {} as BucketAdLibIngestInfo,
-			showStyleBaseId: protectString('SHOWSTYLE_0'),
+			showStyleBaseId: protectString<ShowStyleBaseId>('SHOWSTYLE_0'),
 			showStyleVariantId: null,
 			display: {
 				content: {},
@@ -112,10 +113,10 @@ function makeTestAdLibs(): BucketAdLib[] {
 		{
 			_id: protectString('ADLIB_0'),
 			bucketId: protectString('BUCKET_0'),
-			studioId: protectString('STUDIO_0'),
+			studioId: protectString<StudioId>('STUDIO_0'),
 			importVersions: {} as RundownImportVersions,
 			ingestInfo: {} as BucketAdLibIngestInfo,
-			showStyleBaseId: protectString('SHOWSTYLE_0'),
+			showStyleBaseId: protectString<ShowStyleBaseId>('SHOWSTYLE_0'),
 			showStyleVariantId: null,
 			externalId: 'BUCKET_ADLIB_0',
 			_rank: 0,
@@ -135,7 +136,7 @@ function makeTestBuckets(): Bucket[] {
 	return [
 		{
 			_id: protectString('BUCKET_0'),
-			studioId: protectString('STUDIO_0'),
+			studioId: protectString<StudioId>('STUDIO_0'),
 			_rank: 0,
 			name: 'A Bucket',
 			buttonHeightScale: 1,

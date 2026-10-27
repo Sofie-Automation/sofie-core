@@ -108,11 +108,11 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 
 	// Preparations: ------------------------------------------------------------------------------
 
-	const removeByQuery = async <DBInterface extends { _id: ID }, ID extends ProtectedString<any>>(
+	const removeByQuery = async <DBInterface extends { _id: ProtectedString<any> }>(
 		// collectionName: string,
 		collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>,
 		query: MongoQuery<DBInterface>
-	): Promise<ID[]> => {
+	): Promise<DBInterface['_id'][]> => {
 		const collectionName = getCollectionKey(collection)
 
 		const ids = (await collection.findFetchAsync(query, { projection: { _id: 1 } })).map((doc) => doc._id)
@@ -161,12 +161,9 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	const removedRundownPlaylists = new Set<RundownPlaylistId>()
 	const removedBuckets = new Set<BucketId>()
 	{
-		const ownedByStudioId = async <
-			DBInterface extends { _id: ID; studioId: StudioId },
-			ID extends ProtectedString<any>,
-		>(
+		const ownedByStudioId = async <DBInterface extends { _id: ProtectedString<any>; studioId: StudioId }>(
 			collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>
-		): Promise<ID[]> => {
+		): Promise<DBInterface['_id'][]> => {
 			return await removeByQuery(collection.mutableCollection as AsyncOnlyMongoCollection<any>, {
 				studioId: { $nin: studioIds },
 			})
@@ -220,11 +217,10 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 
 	{
 		const ownedByRundownPlaylistId = async <
-			DBInterface extends { _id: ID; playlistId: RundownPlaylistId },
-			ID extends ProtectedString<any>,
+			DBInterface extends { _id: ProtectedString<any>; playlistId: RundownPlaylistId },
 		>(
 			collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>
-		): Promise<ID[]> => {
+		): Promise<DBInterface['_id'][]> => {
 			return await removeByQuery(collection.mutableCollection as AsyncOnlyMongoCollection<any>, {
 				playlistId: { $nin: playlistIds },
 			})
@@ -236,12 +232,9 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	const rundownIds = await getAllIdsInCollection(Rundowns, removedRundowns)
 	const removedParts = new Set<PartId>()
 	{
-		const ownedByRundownId = async <
-			DBInterface extends { _id: ID; rundownId: RundownId },
-			ID extends ProtectedString<any>,
-		>(
+		const ownedByRundownId = async <DBInterface extends { _id: ProtectedString<any>; rundownId: RundownId }>(
 			collection: AsyncOnlyReadOnlyMongoCollection<DBInterface>
-		): Promise<ID[]> => {
+		): Promise<DBInterface['_id'][]> => {
 			return await removeByQuery(collection.mutableCollection as AsyncOnlyMongoCollection<any>, {
 				rundownId: { $nin: rundownIds },
 			})

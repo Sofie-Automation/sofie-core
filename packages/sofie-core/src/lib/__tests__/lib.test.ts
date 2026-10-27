@@ -8,6 +8,7 @@ import {
 	serializeTimelineBlob,
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { StudioId, TimelineHash } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Timeline } from '../../collections'
 import { SaveIntoDbHooks, saveIntoDb, sumChanges, anythingChanged } from '../database'
 
@@ -37,8 +38,8 @@ describe('server/lib', () => {
 			},
 		]
 		await Timeline.mutableCollection.insertAsync({
-			_id: protectString('myStudio'),
-			timelineHash: protectString('abc'),
+			_id: protectString<StudioId>('myStudio'),
+			timelineHash: protectString<TimelineHash>('abc'),
 			generated: 1234,
 			timelineBlob: serializeTimelineBlob(mystudioObjs),
 			generationVersions: {} as any,
@@ -58,8 +59,8 @@ describe('server/lib', () => {
 			},
 		]
 		await Timeline.mutableCollection.insertAsync({
-			_id: protectString('myStudio2'),
-			timelineHash: protectString('abc'),
+			_id: protectString<StudioId>('myStudio2'),
+			timelineHash: protectString<TimelineHash>('abc'),
 			generated: 1234,
 			timelineBlob: serializeTimelineBlob(mystudio2Objs),
 			generationVersions: {} as any,
@@ -88,11 +89,11 @@ describe('server/lib', () => {
 		const changes = await saveIntoDb(
 			Timeline.mutableCollection,
 			{
-				_id: protectString('myStudio'),
+				_id: protectString<StudioId>('myStudio'),
 			},
 			[
 				{
-					_id: protectString('myStudio'),
+					_id: protectString<StudioId>('myStudio'),
 					timelineBlob: JSON.stringify([
 						{
 							id: 'abc',
@@ -101,7 +102,7 @@ describe('server/lib', () => {
 							},
 							layer: 'L2', // changed property
 							content: { deviceType: TSR.DeviceType.ABSTRACT },
-							studioId: protectString('myStudio'),
+							studioId: protectString<StudioId>('myStudio'),
 						},
 						{
 							// insert object
@@ -121,10 +122,10 @@ describe('server/lib', () => {
 
 		expect(
 			await Timeline.countDocuments({
-				_id: protectString('myStudio'),
+				_id: protectString<StudioId>('myStudio'),
 			})
 		).toEqual(1)
-		const abc = (await Timeline.findOneAsync(protectString('myStudio'))) as TimelineComplete
+		const abc = (await Timeline.findOneAsync(protectString<StudioId>('myStudio'))) as TimelineComplete
 		expect(abc).toBeTruthy()
 		const timeline = deserializeTimelineBlob(abc.timelineBlob)
 		expect(timeline).toHaveLength(2)
@@ -133,7 +134,7 @@ describe('server/lib', () => {
 
 		expect(
 			await Timeline.countDocuments({
-				_id: protectString('myStudio2'),
+				_id: protectString<StudioId>('myStudio2'),
 			})
 		).toEqual(1)
 

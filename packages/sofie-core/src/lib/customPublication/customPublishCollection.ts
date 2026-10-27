@@ -81,7 +81,7 @@ export class CustomPublishCollection<TDoc extends { _id: ProtectedString<any> }>
 		if (existing) {
 			throw new Error(`Error in cache insert to "${this.#name}": _id "${doc._id}" already exists`)
 		}
-		if (!doc._id) doc._id = getRandomId()
+		if (!doc._id) doc._id = getRandomId<TDoc['_id']>()
 		const newDoc = clone(doc)
 
 		// ensure no properties are 'undefined'

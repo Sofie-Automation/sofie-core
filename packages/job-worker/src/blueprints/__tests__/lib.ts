@@ -3,6 +3,7 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
+import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 export function generateFakeBlueprint(
 	id: string,
@@ -27,7 +28,7 @@ export function generateFakeBlueprint(
 })`
 
 	return literal<Blueprint>({
-		_id: protectString(id),
+		_id: protectString<BlueprintId>(id),
 		name: 'Fake blueprint',
 		code: `({default: (${codeFcnString})()})`,
 		hasCode: true,

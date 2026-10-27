@@ -13,6 +13,7 @@ import { PeripheralDevices } from '../collections'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
 import type { PublicationRegistry } from '../publicationRegistry'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
+import { DeviceTriggerPreviewId } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 
 /** IDEA: This could potentially be a Capped Collection, thus enabling scaling Core horizontally:
  *  https://www.mongodb.com/docs/manual/core/capped-collections/ */
@@ -48,7 +49,7 @@ export async function insertInputDeviceTriggerIntoPreview(
 
 	const lastTriggersStudio = prepareTriggerBufferForStudio(studioId)
 	lastTriggersStudio.triggers.push({
-		_id: getRandomId(),
+		_id: getRandomId<DeviceTriggerPreviewId>(),
 		peripheralDeviceId: deviceId,
 		triggerDeviceId,
 		triggerId,

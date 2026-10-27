@@ -1,10 +1,13 @@
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import {
+	AdLibActionId,
 	PartInstanceId,
+	PieceId,
 	RundownId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
+	RundownBaselineAdLibActionId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { ContentCache } from '../reactiveContentCache'
@@ -109,12 +112,12 @@ describe('ResolvedAdLibCache', () => {
 		const resolved = new ResolvedAdLibCache()
 		resolved.update(cache)
 
-		const piece = resolved.AdLibPieces.findOne(protectString('piece0'))
+		const piece = resolved.AdLibPieces.findOne(protectString<PieceId>('piece0'))
 		expect(piece?.name).toBe('branded-name')
 		// Properties the Branding does not name are kept
 		expect(piece?.tags).toEqual(['unbranded-tag'])
 
-		const action = resolved.AdLibActions.findOne(protectString('action0'))
+		const action = resolved.AdLibActions.findOne(protectString<AdLibActionId>('action0'))
 		expect(action?.display.label).toBe('branded-label')
 		// Properties the Branding does not name are kept
 		expect(action?.display.tags).toEqual(['unbranded-tag'])
@@ -144,7 +147,7 @@ describe('ResolvedAdLibCache', () => {
 		resolved.update(cache)
 
 		expect(resolved.AdLibPieces.findFetch({}).map((p) => String(p._id))).toEqual(['piece0'])
-		expect(resolved.AdLibPieces.findOne(protectString('piece0'))?.name).toBe('unbranded-name')
+		expect(resolved.AdLibPieces.findOne(protectString<PieceId>('piece0'))?.name).toBe('unbranded-name')
 	})
 
 	test('the Branding falls back to the one chosen during ingest', () => {
@@ -194,9 +197,10 @@ describe('ResolvedAdLibCache', () => {
 		const resolved = new ResolvedAdLibCache()
 		resolved.update(cache)
 
-		expect(resolved.RundownBaselineAdLibPieces.findFetch({})).toHaveLength(0)
-		expect(resolved.RundownBaselineAdLibActions.findOne(protectString('baselineActionA'))?.display.label).toBe(
-			'branded-label'
-		)
+		expect(resolved.RundownBaselineAdLibPieces.findFetch()).toHaveLength(0)
+		expect(
+			resolved.RundownBaselineAdLibActions.findOne(protectString<RundownBaselineAdLibActionId>('baselineActionA'))
+				?.display.label
+		).toBe('branded-label')
 	})
 })

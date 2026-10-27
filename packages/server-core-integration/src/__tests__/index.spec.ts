@@ -1,4 +1,5 @@
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString.js'
+import type { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids.js'
 import { StatusCode } from '@sofie-automation/shared-lib/dist/lib/status.js'
 import {
 	PeripheralDeviceCategory,
@@ -15,7 +16,7 @@ process.on('unhandledRejection', (reason) => {
 
 const orgSetTimeout = setTimeout
 
-const defaultDeviceId = protectString('JestTest')
+const defaultDeviceId = protectString<PeripheralDeviceId>('JestTest')
 
 describe('coreConnection', () => {
 	const coreHost = '127.0.0.1'
@@ -411,7 +412,7 @@ describe('coreConnection', () => {
 		expect(coreParent.connected).toEqual(true)
 
 		const coreChild = await coreParent.createChild({
-			deviceId: protectString('JestTestChild'),
+			deviceId: protectString<PeripheralDeviceId>('JestTestChild'),
 			deviceSubType: PERIPHERAL_SUBTYPE_PROCESS,
 			deviceName: 'Jest test framework child',
 		})
@@ -482,7 +483,7 @@ describe('coreConnection', () => {
 
 		// Set child connection:
 		const coreChild0 = await coreParent.createChild({
-			deviceId: protectString('JestTestChild'),
+			deviceId: protectString<PeripheralDeviceId>('JestTestChild'),
 			deviceSubType: PERIPHERAL_SUBTYPE_PROCESS,
 			deviceName: 'Jest test framework child',
 		})
@@ -506,7 +507,7 @@ describe('coreConnection', () => {
 
 		// Create a new child connection:
 		const coreChild2 = await coreParent.createChild({
-			deviceId: protectString('JestTestChild'),
+			deviceId: protectString<PeripheralDeviceId>('JestTestChild'),
 			deviceSubType: PERIPHERAL_SUBTYPE_PROCESS,
 			deviceName: 'Jest test framework child',
 		})
@@ -543,7 +544,7 @@ describe('coreConnection', () => {
 
 		// Set child connection:
 		const coreChild = await coreParent.createChild({
-			deviceId: protectString('JestTestChild'),
+			deviceId: protectString<PeripheralDeviceId>('JestTestChild'),
 			deviceSubType: PERIPHERAL_SUBTYPE_PROCESS,
 			deviceName: 'Jest test framework child',
 		})

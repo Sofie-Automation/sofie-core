@@ -14,6 +14,7 @@ import {
 	stringifyError,
 	ParametersOfFunctionOrNever,
 	KubernetesRestarter,
+	PeripheralDeviceId,
 } from '@sofie-automation/server-core-integration'
 import { DeviceConfig } from './connector.js'
 import { Logger } from 'winston'
@@ -162,7 +163,7 @@ export class CoreHandler implements ICoreHandler {
 		}
 
 		const options: CoreOptions = {
-			deviceId: protectString(this._deviceOptions.deviceId + 'LiveStatusGateway'),
+			deviceId: protectString<PeripheralDeviceId>(this._deviceOptions.deviceId + 'LiveStatusGateway'),
 			deviceToken: this._deviceOptions.deviceToken,
 
 			deviceCategory: PeripheralDeviceCategory.LIVE_STATUS,

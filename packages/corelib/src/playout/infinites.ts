@@ -3,6 +3,8 @@ import { DBPart } from '../dataModel/Part.js'
 import {
 	PartId,
 	PartInstanceId,
+	PieceInstanceId,
+	PieceInstanceInfiniteId,
 	RundownId,
 	RundownPlaylistActivationId,
 	SegmentId,
@@ -372,7 +374,7 @@ export function getPlayheadTrackingInfinitesForPart(
 }
 
 function markPieceInstanceAsContinuation(previousInstance: ReadonlyDeep<PieceInstance>, instance: PieceInstance) {
-	instance._id = protectString(`${instance._id}_continue`)
+	instance._id = protectString<PieceInstanceId>(`${instance._id}_continue`)
 	instance.dynamicallyInserted = previousInstance.dynamicallyInserted
 	instance.dynamicallyConvertedToInfinite = previousInstance.dynamicallyConvertedToInfinite
 	instance.adLibSourceId = previousInstance.adLibSourceId
@@ -601,7 +603,8 @@ export function getPieceInstancesForPart(
 				? playingPieceInstancesMap.get(instance.piece._id)
 				: undefined
 			instance.infinite = {
-				infiniteInstanceId: existingPiece?.infinite?.infiniteInstanceId ?? getRandomId(),
+				infiniteInstanceId:
+					existingPiece?.infinite?.infiniteInstanceId ?? getRandomId<PieceInstanceInfiniteId>(),
 				infiniteInstanceIndex: (existingPiece?.infinite?.infiniteInstanceIndex ?? -1) + 1,
 				infinitePieceId: instance.piece._id,
 				fromPreviousPart: false, // Set below

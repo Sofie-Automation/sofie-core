@@ -61,10 +61,14 @@ import {
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import {
 	BlueprintId,
+	PartId,
+	PeripheralDeviceId,
 	RundownId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
 	ShowStyleVariantId,
+	StudioId,
+	TriggeredActionId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	AdLibPieces,
@@ -114,7 +118,7 @@ export async function setupMockPeripheralDevice(
 	doc = doc || {}
 
 	const defaultDevice: PeripheralDevice = {
-		_id: protectString('mockDevice' + dbI++),
+		_id: protectString<PeripheralDeviceId>('mockDevice' + dbI++),
 		name: 'mockDevice',
 		studioAndConfigId: studio ? { studioId: studio._id, configId: 'test' } : undefined,
 
@@ -194,7 +198,7 @@ export async function setupMockTriggeredActions(
 	const mocks: DBTriggeredActions[] = []
 	for (let i = 0; i < num; i++) {
 		const mock: DBTriggeredActions = {
-			_id: protectString(`mockTriggeredAction_${showStyleBaseId ?? 'core'}` + i),
+			_id: protectString<TriggeredActionId>(`mockTriggeredAction_${showStyleBaseId ?? 'core'}` + i),
 			_rank: i * 1000,
 			showStyleBaseId,
 			blueprintUniqueId: null,
@@ -232,7 +236,7 @@ export async function setupMockStudio(doc?: Partial<DBStudio>): Promise<DBStudio
 	doc = doc || {}
 
 	const studio: DBStudio = {
-		...defaultStudio(protectString('mockStudio' + dbI++)),
+		...defaultStudio(protectString<StudioId>('mockStudio' + dbI++)),
 		name: 'mockStudio',
 		_rundownVersionHash: 'asdf',
 		...doc,
@@ -247,7 +251,7 @@ export async function setupMockShowStyleBase(
 	doc = doc || {}
 
 	const defaultShowStyleBase: DBShowStyleBase = {
-		_id: protectString('mockShowStyleBase' + dbI++),
+		_id: protectString<ShowStyleBaseId>('mockShowStyleBase' + dbI++),
 		name: 'mockShowStyleBase',
 		outputLayersWithOverrides: wrapDefaultObject(
 			normalizeArray(
@@ -653,7 +657,10 @@ export async function setupDefaultRundownPlaylist(
 ): Promise<{ rundownId: RundownId; playlistId: RundownPlaylistId }> {
 	const rundownId: RundownId = rundownId0 || getRandomId()
 
-	const playlist: DBRundownPlaylist = defaultRundownPlaylist(protectString('playlist_' + rundownId), env.studio._id)
+	const playlist: DBRundownPlaylist = defaultRundownPlaylist(
+		protectString<RundownPlaylistId>('playlist_' + rundownId),
+		env.studio._id
+	)
 
 	const playlistId = await RundownPlaylists.mutableCollection.insertAsync(playlist)
 
@@ -726,7 +733,7 @@ export async function setupDefaultRundown(
 	/* tslint:disable:ter-indent*/
 	//
 	const part00: DBPart = {
-		_id: protectString(rundownId + '_part0_0'),
+		_id: protectString<PartId>(rundownId + '_part0_0'),
 		segmentId: segment0._id,
 		rundownId: rundown._id,
 		_rank: 0,
@@ -794,7 +801,7 @@ export async function setupDefaultRundown(
 	await AdLibPieces.mutableCollection.insertAsync(adLibPiece000)
 
 	const part01: DBPart = {
-		_id: protectString(rundownId + '_part0_1'),
+		_id: protectString<PartId>(rundownId + '_part0_1'),
 		segmentId: segment0._id,
 		rundownId: segment0.rundownId,
 		_rank: 1,
@@ -834,7 +841,7 @@ export async function setupDefaultRundown(
 	await Segments.mutableCollection.insertAsync(segment1)
 
 	const part10: DBPart = {
-		_id: protectString(rundownId + '_part1_0'),
+		_id: protectString<PartId>(rundownId + '_part1_0'),
 		segmentId: segment1._id,
 		rundownId: segment1.rundownId,
 		_rank: 0,
@@ -845,7 +852,7 @@ export async function setupDefaultRundown(
 	await Parts.mutableCollection.insertAsync(part10)
 
 	const part11: DBPart = {
-		_id: protectString(rundownId + '_part1_1'),
+		_id: protectString<PartId>(rundownId + '_part1_1'),
 		segmentId: segment1._id,
 		rundownId: segment1.rundownId,
 		_rank: 1,
@@ -856,7 +863,7 @@ export async function setupDefaultRundown(
 	await Parts.mutableCollection.insertAsync(part11)
 
 	const part12: DBPart = {
-		_id: protectString(rundownId + '_part1_2'),
+		_id: protectString<PartId>(rundownId + '_part1_2'),
 		segmentId: segment1._id,
 		rundownId: segment1.rundownId,
 		_rank: 2,

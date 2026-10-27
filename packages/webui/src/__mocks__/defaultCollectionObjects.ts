@@ -72,7 +72,7 @@ export function defaultRundown(
 
 		playlistId: playlistId,
 
-		_id: protectString(`rundown_${studioId}_${externalId}`),
+		_id: protectString<RundownId>(`rundown_${studioId}_${externalId}`),
 		externalId: externalId,
 		name: 'Default Rundown',
 

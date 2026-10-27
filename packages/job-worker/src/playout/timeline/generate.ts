@@ -104,7 +104,11 @@ export async function getStudioTimeline(
 				timelineObjects: [],
 			}
 		}
-		baselineObjects = postProcessStudioBaselineObjects(studio.blueprintId, studioBaseline.timelineObjects)
+		baselineObjects = postProcessStudioBaselineObjects(
+			studio.blueprintId,
+			studio._id,
+			studioBaseline.timelineObjects
+		)
 	}
 
 	const versions = generateTimelineVersions(

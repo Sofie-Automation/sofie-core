@@ -12,6 +12,7 @@ import { SegmentTimelinePartClass } from '../Parts/SegmentTimelinePart.js'
 import { getPartInstanceTimingId } from '../../../lib/rundownTiming.js'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
+import type { PartInstanceId } from '@sofie-automation/corelib/src/dataModel/Ids.js'
 
 interface ISegmentTimelineSmallPartFlagProps {
 	parts: [PartUi, number, number][]
@@ -122,7 +123,7 @@ export const SegmentTimelineSmallPartFlag = ({
 		if (partInstanceId) {
 			RundownViewEventBus.emit(RundownViewEvents.GO_TO_PART_INSTANCE, {
 				segmentId: segment._id,
-				partInstanceId: protectString(partInstanceId),
+				partInstanceId: protectString<PartInstanceId>(partInstanceId),
 				zoomInToFit: true,
 				context: e,
 			})

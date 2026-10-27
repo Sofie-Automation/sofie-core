@@ -1,5 +1,5 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { MongoBulkWriteOperation } from '@sofie-automation/corelib/dist/mongo'
+import { MongoBulkWriteOperation, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { LazyInitialise } from '../../../lib/lazy.js'
 import { DocumentChanges, getDocumentChanges } from './utils.js'
 
@@ -112,7 +112,7 @@ export class DocumentChangeTracker<TDoc extends { _id: ProtectedString<any> }> {
 		for (const doc of this.#documentsToSave) {
 			ops.push({
 				replaceOne: {
-					filter: { _id: doc[0] },
+					filter: { _id: doc[0] } as MongoQuery<TDoc>,
 					replacement: doc[1],
 					upsert: true,
 				},

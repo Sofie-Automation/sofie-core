@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import { ProtectedString } from './protectedString.js'
+import { isProtectedString, ProtectedString } from './protectedString.js'
 import * as objectPath from 'object-path'
 import type {
 	Condition,
@@ -556,10 +556,12 @@ function projectFieldIntoDoc(source: any, target: any, path: string): void {
 }
 
 export function mongoModify<TDoc extends { _id: ProtectedString<any> }>(
-	selector: MongoQuery<TDoc>,
+	selector: MongoQuery<TDoc> | TDoc['_id'],
 	doc: TDoc,
 	modifier: MongoModifier<TDoc>
 ): TDoc {
+	if (isProtectedString(selector)) selector = { _id: selector } as MongoQuery<TDoc>
+
 	for (const [key, value] of Object.entries<any>(modifier)) {
 		if (key === '$set') {
 			_.each(value, (value: any, key: string) => {

@@ -135,6 +135,6 @@ export function deserializePieceTimelineObjectsBlob(
 	}
 }
 export function serializePieceTimelineObjectsBlob(timeline: TimelineObjectCoreExt<any>[]): PieceTimelineObjectsBlob {
-	return protectString(JSON.stringify(timeline))
+	return protectString<PieceTimelineObjectsBlob>(JSON.stringify(timeline))
 }
 export const EmptyPieceTimelineObjectsBlob = serializePieceTimelineObjectsBlob([])

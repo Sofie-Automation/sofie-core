@@ -2,12 +2,19 @@ import { calculateSegmentTiming } from '../segmentTiming.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import {
+	PartId,
+	PartInstanceId,
+	RundownId,
+	RundownPlaylistActivationId,
+	SegmentId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 function makeTestPart(id: string, expectedDuration: number): Partial<DBPart> {
 	return {
-		_id: protectString(`part_${id}`),
-		segmentId: protectString('segment_1'),
-		rundownId: protectString('rundown_1'),
+		_id: protectString<PartId>(`part_${id}`),
+		segmentId: protectString<SegmentId>('segment_1'),
+		rundownId: protectString<RundownId>('rundown_1'),
 		untimed: false,
 		expectedDurationWithTransition: expectedDuration,
 	}
@@ -15,11 +22,11 @@ function makeTestPart(id: string, expectedDuration: number): Partial<DBPart> {
 
 function makeTestPartInstance(id: string, partId: string, expectedDuration: number): Partial<DBPartInstance> {
 	return {
-		_id: protectString(`partInstance_${id}`),
+		_id: protectString<PartInstanceId>(`partInstance_${id}`),
 		part: makeTestPart(partId, expectedDuration) as DBPart,
-		rundownId: protectString('rundown_1'),
-		segmentId: protectString('segment_1'),
-		playlistActivationId: protectString('activation_1'),
+		rundownId: protectString<RundownId>('rundown_1'),
+		segmentId: protectString<SegmentId>('segment_1'),
+		playlistActivationId: protectString<RundownPlaylistActivationId>('activation_1'),
 	}
 }
 

@@ -3,7 +3,7 @@ import { getDebugStates, getSystemStatus } from './systemStatus'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MethodContextAPI } from '../api/methodContext'
 import { profiler } from '../api/profiler'
-import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PrometheusHTTPContentType, getPrometheusMetricsString } from '@sofie-automation/corelib/dist/prometheus'
 import { collectWorkerPrometheusMetrics } from '../worker/worker'
 import Koa from 'koa'
@@ -42,7 +42,7 @@ healthRouter.get('/', async (ctx) => {
 
 healthRouter.get('/:studioId', async (ctx) => {
 	const transaction = profiler.startTransaction('health', apmNamespace)
-	const status = await getSystemStatus(ctx, protectString(ctx.params.studioId))
+	const status = await getSystemStatus(ctx, protectString<StudioId>(ctx.params.studioId))
 	health(status, ctx)
 	transaction?.end()
 })

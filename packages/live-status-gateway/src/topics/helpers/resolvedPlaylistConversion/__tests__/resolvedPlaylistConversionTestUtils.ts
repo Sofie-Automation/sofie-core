@@ -1,11 +1,19 @@
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import {
+	PartId,
+	PartInstanceId,
+	PieceInstanceId,
+	RundownId,
+	RundownPlaylistId,
+	ShowStyleBaseId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PlaylistTimingType } from '@sofie-automation/blueprints-integration'
 import { ShowStyleBaseExt } from '../../../../collections/showStyleBaseHandler.js'
 import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 
 export function makeTestShowStyleBaseExt(): ShowStyleBaseExt {
 	return {
-		_id: protectString('showStyleBase0'),
+		_id: protectString<ShowStyleBaseId>('showStyleBase0'),
 		sourceLayerNamesById: new Map([
 			['sl1', 'Source Layer 1'],
 			['sl2', 'Source Layer 2'],
@@ -19,12 +27,12 @@ export function makeTestShowStyleBaseExt(): ShowStyleBaseExt {
 
 export function makePlaylist(overrides: Partial<any> = {}): any {
 	return {
-		_id: protectString('playlist0'),
+		_id: protectString<RundownPlaylistId>('playlist0'),
 		externalId: 'ext_playlist_0',
 		activationId: undefined,
 		rehearsal: false,
 		name: 'Playlist 0',
-		rundownIdsInOrder: [protectString('rundown0'), protectString('rundown1')],
+		rundownIdsInOrder: [protectString<RundownId>('rundown0'), protectString<RundownId>('rundown1')],
 		quickLoop: null,
 		defaultBrandingId: null,
 		currentPartInfo: null,
@@ -39,8 +47,8 @@ export function makePlaylist(overrides: Partial<any> = {}): any {
 
 export function makeRundown(id: string, rank = 0): any {
 	return {
-		_id: protectString(id),
-		showStyleBaseId: protectString('showStyleBase0'),
+		_id: protectString<RundownId>(id),
+		showStyleBaseId: protectString<ShowStyleBaseId>('showStyleBase0'),
 		showStyleVariantId: protectString('showStyleVariant0'),
 		externalId: `ext_${id}`,
 		name: `Rundown ${id}`,
@@ -56,18 +64,18 @@ export function makeSegment(id: string, rundownId: string, rank: number): any {
 		identifier: `ident_${id}`,
 		name: `Segment ${id}`,
 		_rank: rank,
-		rundownId: protectString(rundownId),
+		rundownId: protectString<RundownId>(rundownId),
 		segmentTiming: { budgetDuration: 3000 },
 	}
 }
 
 export function makePart(id: string, rundownId: string, segmentId: string, rank: number): any {
 	return {
-		_id: protectString(id),
+		_id: protectString<PartId>(id),
 		externalId: `ext_${id}`,
 		title: `Part ${id}`,
 		_rank: rank,
-		rundownId: protectString(rundownId),
+		rundownId: protectString<RundownId>(rundownId),
 		segmentId: protectString(segmentId),
 		autoNext: true,
 	}
@@ -75,11 +83,11 @@ export function makePart(id: string, rundownId: string, segmentId: string, rank:
 
 export function makePartInstance(id: string, partId: string, segmentId: string, rundownId: string): any {
 	return {
-		_id: protectString(id),
-		rundownId: protectString(rundownId),
+		_id: protectString<PartInstanceId>(id),
+		rundownId: protectString<RundownId>(rundownId),
 		segmentId: protectString(segmentId),
 		part: {
-			_id: protectString(partId),
+			_id: protectString<PartId>(partId),
 			externalId: `ext_${partId}`,
 			title: `Part ${partId}`,
 			_rank: 1,
@@ -98,7 +106,7 @@ export function makePartInstance(id: string, partId: string, segmentId: string, 
 
 export function makePieceInstance(id: string): any {
 	return {
-		_id: protectString(id),
+		_id: protectString<PieceInstanceId>(id),
 		priority: 9,
 		dynamicallyInserted: true,
 		resolvedEndCap: 1500,
@@ -130,6 +138,6 @@ export function makeQuickLoop(): any {
 		locked: false,
 		running: true,
 		start: { type: QuickLoopMarkerType.PLAYLIST },
-		end: { type: QuickLoopMarkerType.RUNDOWN, id: protectString('rundown0') },
+		end: { type: QuickLoopMarkerType.RUNDOWN, id: protectString<RundownId>('rundown0') },
 	}
 }

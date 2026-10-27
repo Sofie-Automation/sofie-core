@@ -7,7 +7,15 @@ import {
 	IOutputLayer,
 	ISourceLayer,
 } from '@sofie-automation/blueprints-integration'
-import { SegmentId, RundownId, PartId, PieceId, RundownPlaylistActivationId } from '../dataModel/Ids.js'
+import {
+	SegmentId,
+	RundownId,
+	PartId,
+	PieceId,
+	RundownPlaylistActivationId,
+	PartInstanceId,
+	SegmentPlayoutId,
+} from '../dataModel/Ids.js'
 import { DBPart, PartExtended } from '../dataModel/Part.js'
 import { Piece, PieceExtended } from '../dataModel/Piece.js'
 import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
@@ -534,7 +542,7 @@ export function getSegmentsWithPartInstances({
 		options?.parts
 	)
 	const rawPartInstances = getActivePartInstances(playlist, queries?.partInstances, options?.partInstances)
-	const playlistActivationId = playlist.activationId ?? protectString('')
+	const playlistActivationId = playlist.activationId ?? protectString<RundownPlaylistActivationId>('')
 
 	const partsBySegment = groupByToMap(rawParts, 'segmentId')
 	const partInstancesBySegment = groupByToMap(rawPartInstances, 'segmentId')
@@ -649,7 +657,7 @@ export function getPieceInstancesForPartInstance({
 
 	if (partInstance.isTemporary) {
 		return getPieceInstancesForPart(
-			playlistActivationId || protectString(''),
+			playlistActivationId || protectString<RundownPlaylistActivationId>(''),
 			currentPartInstance,
 			currentSegment,
 			currentPartInstancePieceInstances,
@@ -697,7 +705,7 @@ export function getPieceInstancesForPartInstance({
 			invalidateAfter(SIMULATION_INVALIDATION)
 
 			return getPieceInstancesForPart(
-				playlistActivationId || protectString(''),
+				playlistActivationId || protectString<RundownPlaylistActivationId>(''),
 				currentPartInstance,
 				currentSegment,
 				currentPartInstancePieceInstances,
@@ -782,11 +790,11 @@ export function wrapPartToTemporaryInstance(
 ): PartInstance {
 	return {
 		isTemporary: true,
-		_id: protectString(`${part._id}_tmp_instance`),
+		_id: protectString<PartInstanceId>(`${part._id}_tmp_instance`),
 		rundownId: part.rundownId,
 		segmentId: part.segmentId,
 		playlistActivationId,
-		segmentPlayoutId: protectString(''), // Only needed when stored in the db, and filled in nearer the time
+		segmentPlayoutId: protectString<SegmentPlayoutId>(''), // Only needed when stored in the db, and filled in nearer the time
 		brandingId: null, // Only known once the PartInstance is created
 		takeCount: -1,
 		rehearsal: false,

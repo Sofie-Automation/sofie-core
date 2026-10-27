@@ -116,7 +116,7 @@ export class PlayoutPieceInstanceModelImpl implements PlayoutPieceInstanceModel 
 	}
 
 	prepareForHold(): PieceInstanceInfiniteId {
-		const infiniteInstanceId: PieceInstanceInfiniteId = getRandomId()
+		const infiniteInstanceId = getRandomId<PieceInstanceInfiniteId>()
 		this.setPieceInstanceValue('infinite', {
 			infiniteInstanceId: infiniteInstanceId,
 			infiniteInstanceIndex: 0,

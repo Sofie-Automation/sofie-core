@@ -1,4 +1,5 @@
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { PartId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getResolvedSegment } from '@sofie-automation/corelib/dist/playout/stateCacheResolver'
 import { toResolvedSegmentStatus } from '../segments/toResolvedSegmentStatus.js'
 import {
@@ -31,7 +32,7 @@ describe('toResolvedSegmentStatus', () => {
 			},
 			parts: [
 				{
-					partId: protectString('part0'),
+					partId: protectString<PartId>('part0'),
 					instance: makePartInstance('pi0', 'part0', 'segment0', 'rundown0'),
 					pieces: [{ instance: makePieceInstance('piece0') }],
 				},
@@ -70,7 +71,7 @@ describe('toResolvedSegmentStatus', () => {
 		const showStyleBaseExtA = makeTestShowStyleBaseExt()
 		const showStyleBaseExtB = {
 			...makeTestShowStyleBaseExt(),
-			_id: protectString('showStyleBaseB'),
+			_id: protectString<ShowStyleBaseId>('showStyleBaseB'),
 			sourceLayerNamesById: new Map([['sourceLayerX', 'SourceLayerX_fromShowStyleB']]),
 			outputLayerNamesById: new Map([['outputLayerX', 'OutputLayerX_fromShowStyleB']]),
 		}

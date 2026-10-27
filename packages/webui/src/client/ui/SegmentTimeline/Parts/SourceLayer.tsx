@@ -79,7 +79,7 @@ export function useMouseContext(props: ISourceLayerPropsBase): {
 		onMouseDown: (e: React.MouseEvent<HTMLElement>) => {
 			const id = (e.target as HTMLElement)?.dataset?.objId
 			if (id) {
-				setPieceInstanceId(protectString(id))
+				setPieceInstanceId(protectString<PieceInstanceId>(id))
 			} else {
 				setPieceInstanceId(undefined)
 			}

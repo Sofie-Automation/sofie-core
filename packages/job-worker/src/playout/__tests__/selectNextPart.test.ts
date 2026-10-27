@@ -1,4 +1,4 @@
-import { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -42,9 +42,9 @@ describe('selectNextPart', () => {
 	let context: MockJobContext
 	let defaultPlaylist: Parameters<typeof selectNextPart>[1]
 
-	const segment1: SegmentId = protectString('segment1')
-	const segment2: SegmentId = protectString('segment2')
-	const segment3: SegmentId = protectString('segment3')
+	const segment1: SegmentId = protectString<SegmentId>('segment1')
+	const segment2: SegmentId = protectString<SegmentId>('segment2')
+	const segment3: SegmentId = protectString<SegmentId>('segment3')
 
 	let defaultParts: MockPart[]
 	let defaultSegments: MockSegment[]
@@ -252,11 +252,11 @@ describe('selectNextPart', () => {
 				running: true,
 				start: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[2]._id),
+					id: protectString<PartId>(defaultParts[2]._id),
 				},
 				end: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[5]._id),
+					id: protectString<PartId>(defaultParts[5]._id),
 				},
 			}
 			const nextPart = selectNextPart2(previousPartInstance, null)
@@ -271,11 +271,11 @@ describe('selectNextPart', () => {
 				running: true,
 				start: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[4]._id),
+					id: protectString<PartId>(defaultParts[4]._id),
 				},
 				end: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[5]._id),
+					id: protectString<PartId>(defaultParts[5]._id),
 				},
 			}
 			const nextPart = selectNextPart2(previousPartInstance, null)
@@ -290,11 +290,11 @@ describe('selectNextPart', () => {
 				running: true,
 				start: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[5]._id),
+					id: protectString<PartId>(defaultParts[5]._id),
 				},
 				end: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[5]._id),
+					id: protectString<PartId>(defaultParts[5]._id),
 				},
 			}
 			const nextPart = selectNextPart2(previousPartInstance, null)
@@ -312,7 +312,7 @@ describe('selectNextPart', () => {
 				},
 				end: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[5]._id),
+					id: protectString<PartId>(defaultParts[5]._id),
 				},
 			}
 			const nextPart = selectNextPart2(previousPartInstance, null)
@@ -331,7 +331,7 @@ describe('selectNextPart', () => {
 				running: true,
 				start: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[2]._id),
+					id: protectString<PartId>(defaultParts[2]._id),
 				},
 				end: {
 					type: QuickLoopMarkerType.PLAYLIST,
@@ -369,11 +369,11 @@ describe('selectNextPart', () => {
 				running: true,
 				start: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[2]._id),
+					id: protectString<PartId>(defaultParts[2]._id),
 				},
 				end: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[5]._id),
+					id: protectString<PartId>(defaultParts[5]._id),
 				},
 			}
 			const nextPart = selectNextPart2(previousPartInstance, null)
@@ -388,11 +388,11 @@ describe('selectNextPart', () => {
 				running: true,
 				start: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[4]._id),
+					id: protectString<PartId>(defaultParts[4]._id),
 				},
 				end: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[6]._id),
+					id: protectString<PartId>(defaultParts[6]._id),
 				},
 			}
 			defaultParts[5].playable = false
@@ -408,11 +408,11 @@ describe('selectNextPart', () => {
 				running: true,
 				start: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[4]._id),
+					id: protectString<PartId>(defaultParts[4]._id),
 				},
 				end: {
 					type: QuickLoopMarkerType.PART,
-					id: protectString(defaultParts[6]._id),
+					id: protectString<PartId>(defaultParts[6]._id),
 				},
 			}
 			defaultParts[5].expectedDuration = undefined

@@ -124,10 +124,10 @@ export abstract class JobWorkerBase {
 }
 
 /** Get the ids of the studios to run for */
-async function getStudioIdsToRun(db: MongoDb): Promise<Array<StudioId>> {
+async function getStudioIdsToRun(db: MongoDb): Promise<StudioId[]> {
 	if (process.env.STUDIO_IDS) {
 		// either run for a dedicated list of studios
-		const ids = protectStringArray(process.env.STUDIO_IDS.split(','))
+		const ids = protectStringArray<StudioId>(process.env.STUDIO_IDS.split(','))
 		logger.info(`Running for specified studios: ${JSON.stringify(ids)}`)
 		return ids
 	} else {

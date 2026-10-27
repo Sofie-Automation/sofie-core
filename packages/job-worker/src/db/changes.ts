@@ -3,6 +3,7 @@ import { ICollection, MongoBulkWriteOperation, MongoQuery } from './collections.
 import _ from 'underscore'
 import { deleteAllUndefinedProperties, normalizeArrayToMap } from '@sofie-automation/corelib/dist/lib'
 import { JobContext } from '../jobs/index.js'
+import { Filter } from 'mongodb'
 
 /**
  * Object describe a collection write event
@@ -131,7 +132,7 @@ async function savePreparedChanges<TDoc extends { _id: ProtectedString<any> }>(
 			replaceOne: {
 				filter: {
 					_id: oUpdate._id,
-				},
+				} as Filter<TDoc>,
 				replacement: oUpdate,
 			},
 		})
@@ -145,7 +146,7 @@ async function savePreparedChanges<TDoc extends { _id: ProtectedString<any> }>(
 			replaceOne: {
 				filter: {
 					_id: oInsert._id,
-				},
+				} as Filter<TDoc>,
 				replacement: oInsert,
 				upsert: true,
 			},

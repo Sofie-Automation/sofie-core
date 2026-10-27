@@ -102,7 +102,7 @@ export namespace BucketsAPI {
 		}
 
 		const newBucket = literal<Bucket>({
-			_id: getRandomId(),
+			_id: getRandomId<BucketId>(),
 			_rank: rank,
 			name: name,
 			studioId: studio._id,
@@ -125,12 +125,12 @@ export namespace BucketsAPI {
 		if (!oldAction) throw new SofieError(404, `BucketAdLibAction "${adLibActionId}" not found`)
 
 		if (actionProps.bucketId && actionProps.bucketId !== oldAction.bucketId) {
-			const moveIntoBucket = await Buckets.countDocuments(actionProps.bucketId)
+			const moveIntoBucket = await Buckets.countDocuments({ _id: actionProps.bucketId })
 			if (moveIntoBucket === 0) throw new SofieError(404, `Could not find bucket: "${actionProps.bucketId}"`)
 		}
 
 		if (actionProps.studioId && actionProps.studioId !== oldAction.studioId) {
-			const newStudioCount = await Studios.countDocuments(actionProps.studioId)
+			const newStudioCount = await Studios.countDocuments({ _id: actionProps.studioId })
 			if (newStudioCount === 0) throw new SofieError(404, `Could not find studio: "${actionProps.studioId}"`)
 		}
 
@@ -164,7 +164,7 @@ export namespace BucketsAPI {
 
 			adLibAction = {
 				...action,
-				_id: getRandomId(),
+				_id: getRandomId<BucketAdLibActionId>(),
 				bucketId: targetBucket._id,
 			}
 		} else {
@@ -186,7 +186,7 @@ export namespace BucketsAPI {
 					AdLibAction,
 					'partId' | 'rundownId' | 'branding' | 'onlyValidForBranding'
 				>),
-				_id: getRandomId(),
+				_id: getRandomId<BucketAdLibActionId>(),
 				externalId: getRandomString(), // This needs to be something unique, so that the regenerate logic doesn't get it mixed up with something else
 				bucketId: targetBucket._id,
 				studioId: targetBucket.studioId,
@@ -215,12 +215,12 @@ export namespace BucketsAPI {
 		if (!oldAdLib) throw new SofieError(404, `BucketAdLib "${adLibId}" not found`)
 
 		if (adlibProps.bucketId && adlibProps.bucketId !== oldAdLib.bucketId) {
-			const moveIntoBucket = await Buckets.countDocuments(adlibProps.bucketId)
+			const moveIntoBucket = await Buckets.countDocuments({ _id: adlibProps.bucketId })
 			if (moveIntoBucket === 0) throw new SofieError(404, `Could not find bucket: "${adlibProps.bucketId}"`)
 		}
 
 		if (adlibProps.studioId && adlibProps.studioId !== oldAdLib.studioId) {
-			const newStudioCount = await Studios.countDocuments(adlibProps.studioId)
+			const newStudioCount = await Studios.countDocuments({ _id: adlibProps.studioId })
 			if (newStudioCount === 0) throw new SofieError(404, `Could not find studio: "${adlibProps.studioId}"`)
 		}
 

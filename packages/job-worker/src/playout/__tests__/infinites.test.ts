@@ -9,6 +9,7 @@ import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { runJobWithPlayoutModel } from '../lock.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { wrapPartToTemporaryInstance } from '@sofie-automation/corelib/dist/playout/stateCacheResolver'
+import { PartId, RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 describe('canContinueAdlibOnEndInfinites', () => {
 	let context: MockJobContext
@@ -30,7 +31,7 @@ describe('canContinueAdlibOnEndInfinites', () => {
 		// Mark playlist as active
 		await context.mockCollections.RundownPlaylists.update(defaultSetup.playlistId, {
 			$set: {
-				activationId: getRandomId(),
+				activationId: getRandomId<RundownPlaylistActivationId>(),
 			},
 		})
 
@@ -157,7 +158,7 @@ describe('canContinueAdlibOnEndInfinites', () => {
 			}
 			// Orphaned because it has no presence in the ordered list
 			candidatePart._rank = candidatePart._rank + 0.1
-			candidatePart._id = protectString(candidatePart._id + '2')
+			candidatePart._id = protectString<PartId>(candidatePart._id + '2')
 
 			// After first
 			expect(

@@ -1,4 +1,4 @@
-import { PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PieceId, PieceInstanceInfiniteId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PieceLifespan, IBlueprintPieceType } from '@sofie-automation/blueprints-integration/dist'
@@ -90,10 +90,10 @@ export function convertPieceToAdLibPiece(context: JobContext, piece: PieceInstan
 	const span = context.startSpan('convertPieceToAdLibPiece')
 	const newAdLibPiece = literal<AdLibPiece>({
 		...piece,
-		_id: getRandomId(),
+		_id: getRandomId<PieceId>(),
 		_rank: 0,
 		expectedDuration: piece.enable.duration,
-		rundownId: protectString(''),
+		rundownId: protectString<RundownId>(''),
 	})
 
 	if (span) span.end()
@@ -120,7 +120,7 @@ export function convertAdLibToGenericPiece(
 		duration = adLibPiece['enable'].duration
 	}
 
-	const newPieceId: PieceId = getRandomId()
+	const newPieceId = getRandomId<PieceId>()
 	return {
 		...(_.omit(adLibPiece, '_rank', 'expectedDuration', 'partId', 'rundownId') as PieceInstancePiece), // TODO - this could be typed stronger
 		_id: newPieceId,
@@ -141,7 +141,7 @@ export function setupPieceInstanceInfiniteProperties(pieceInstance: PieceInstanc
 	if (pieceInstance.piece.lifespan !== PieceLifespan.WithinPart) {
 		// Set it up as an infinite
 		pieceInstance.infinite = {
-			infiniteInstanceId: getRandomId(),
+			infiniteInstanceId: getRandomId<PieceInstanceInfiniteId>(),
 			infiniteInstanceIndex: 0,
 			infinitePieceId: pieceInstance.piece._id,
 			fromPreviousPart: false,

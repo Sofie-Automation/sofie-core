@@ -157,7 +157,7 @@ export class CoreHandler implements ICoreHandler {
 		}
 
 		const options: CoreOptions = {
-			deviceId: protectString(this._deviceOptions.deviceId + 'PlayoutCoreParent'),
+			deviceId: protectString<PeripheralDeviceId>(this._deviceOptions.deviceId + 'PlayoutCoreParent'),
 			deviceToken: this._deviceOptions.deviceToken,
 
 			deviceCategory: PeripheralDeviceAPI.PeripheralDeviceCategory.PLAYOUT,
@@ -439,7 +439,7 @@ export class CoreTSRDeviceHandler {
 		const deviceName = `${deviceId} (${this._device.deviceName})`
 
 		this.core = await this._coreParentHandler.core.createChild({
-			deviceId: protectString(this._coreParentHandler.core.deviceId + 'Playout' + deviceId),
+			deviceId: protectString<PeripheralDeviceId>(this._coreParentHandler.core.deviceId + 'Playout' + deviceId),
 
 			deviceName,
 

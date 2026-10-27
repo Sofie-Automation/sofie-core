@@ -1,5 +1,5 @@
 import { IBlueprintPieceType, PieceLifespan, PartHoldMode } from '@sofie-automation/blueprints-integration'
-import { RundownPlaylistId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { RundownPlaylistId, RundownId, PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { EmptyPieceTimelineObjectsBlob, Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -63,7 +63,7 @@ export async function setupRundownBase(
 	/* tslint:disable:ter-indent*/
 	//
 	const part00: DBPart = {
-		_id: protectString(rundownId + '_part0_0'),
+		_id: protectString<PartId>(rundownId + '_part0_0'),
 		segmentId: segment0._id,
 		rundownId: rundown._id,
 		_rank: 0,
@@ -133,7 +133,7 @@ export async function setupPart2(
 	const sourceLayerIds = Object.keys(showStyle.sourceLayers)
 
 	const part01: DBPart = {
-		_id: protectString(rundownId + '_part0_1'),
+		_id: protectString<PartId>(rundownId + '_part0_1'),
 		segmentId: segment0._id,
 		rundownId: segment0.rundownId,
 		_rank: 1,

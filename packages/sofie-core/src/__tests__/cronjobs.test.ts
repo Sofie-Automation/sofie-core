@@ -78,6 +78,10 @@ import { PeripheralDeviceAPIMethods } from '@sofie-automation/server-core-integr
 import { ServerPeripheralDeviceAPIClass } from '../api/peripheralDevice'
 import { getMethodContext } from '../__mocks__/helpers/methods'
 import { startCronjobs } from '../cronjobs'
+import { PartInstanceId } from '@sofie-automation/corelib/src/dataModel/Ids'
+import { RundownPlaylistActivationId } from '@sofie-automation/corelib/src/dataModel/Ids'
+import { SegmentPlayoutId } from '@sofie-automation/corelib/src/dataModel/Ids'
+import { PieceInstanceId } from '@sofie-automation/corelib/src/dataModel/Ids'
 
 describe('cronjobs', () => {
 	let env: DefaultEnvironment
@@ -214,7 +218,7 @@ describe('cronjobs', () => {
 				},
 				modified: new Date(2000, 0, 1, 0, 0, 0).getTime(),
 				// this one is attached to rundown0
-				rundownId: getRandomId(),
+				rundownId: getRandomId<RundownId>(),
 				type: NrcsIngestCacheType.RUNDOWN,
 			})
 			// Attached NrcsIngestDataCache object 1
@@ -259,7 +263,7 @@ describe('cronjobs', () => {
 				},
 				modified: new Date(2000, 0, 1, 0, 0, 0).getTime(),
 				// this one is attached to rundown0
-				rundownId: getRandomId(),
+				rundownId: getRandomId<RundownId>(),
 				type: SofieIngestCacheType.RUNDOWN,
 			})
 			// Attached SofieIngestDataCache object 1
@@ -322,7 +326,7 @@ describe('cronjobs', () => {
 			await Parts.mutableCollection.insertAsync(part1)
 
 			const partInstance0: PartInstance = {
-				_id: protectString(`${part0._id}_${getRandomId()}`),
+				_id: protectString<PartInstanceId>(`${part0._id}_${getRandomId<PartInstanceId>()}`),
 				rundownId: part0.rundownId,
 				segmentId: part0.segmentId,
 				takeCount: 1,
@@ -334,13 +338,13 @@ describe('cronjobs', () => {
 				timings: {
 					plannedStoppedPlayback: lib.getCurrentTime() - 1000 * 3600 * 24 * 51,
 				},
-				playlistActivationId: protectString(''),
-				segmentPlayoutId: protectString(''),
+				playlistActivationId: protectString<RundownPlaylistActivationId>(''),
+				segmentPlayoutId: protectString<SegmentPlayoutId>(''),
 			}
 			await PartInstances.mutableCollection.insertAsync(partInstance0)
 
 			const partInstance1: PartInstance = {
-				_id: protectString(`${part0._id}_${getRandomId()}`),
+				_id: protectString<PartInstanceId>(`${part0._id}_${getRandomId<PartInstanceId>()}`),
 				rundownId: part0.rundownId,
 				segmentId: part0.segmentId,
 				takeCount: 1,
@@ -348,13 +352,13 @@ describe('cronjobs', () => {
 				rehearsal: false,
 				isTemporary: false,
 				part: part0,
-				playlistActivationId: protectString(''),
-				segmentPlayoutId: protectString(''),
+				playlistActivationId: protectString<RundownPlaylistActivationId>(''),
+				segmentPlayoutId: protectString<SegmentPlayoutId>(''),
 			}
 			await PartInstances.mutableCollection.insertAsync(partInstance1)
 
 			const partInstance2: PartInstance = {
-				_id: protectString(`${part0._id}_${getRandomId()}`),
+				_id: protectString<PartInstanceId>(`${part0._id}_${getRandomId<PartInstanceId>()}`),
 				rundownId: part1.rundownId,
 				segmentId: part1.segmentId,
 				takeCount: 1,
@@ -366,13 +370,13 @@ describe('cronjobs', () => {
 				timings: {
 					plannedStoppedPlayback: lib.getCurrentTime() - 1000 * 3600 * 24 * 51,
 				},
-				playlistActivationId: protectString(''),
-				segmentPlayoutId: protectString(''),
+				playlistActivationId: protectString<RundownPlaylistActivationId>(''),
+				segmentPlayoutId: protectString<SegmentPlayoutId>(''),
 			}
 			await PartInstances.mutableCollection.insertAsync(partInstance2)
 
 			const pieceInstance0: PieceInstance = {
-				_id: protectString(`${partInstance0._id}_piece0`),
+				_id: protectString<PieceInstanceId>(`${partInstance0._id}_piece0`),
 				rundownId: partInstance0.part.rundownId,
 				partInstanceId: partInstance0._id,
 				piece: {
@@ -389,10 +393,10 @@ describe('cronjobs', () => {
 					invalid: false,
 					pieceType: IBlueprintPieceType.Normal,
 				},
-				playlistActivationId: protectString(''),
+				playlistActivationId: protectString<RundownPlaylistActivationId>(''),
 			}
 			const pieceInstance1: PieceInstance = {
-				_id: protectString(`${partInstance2._id}_piece0`),
+				_id: protectString<PieceInstanceId>(`${partInstance2._id}_piece0`),
 				rundownId: partInstance2.part.rundownId,
 				partInstanceId: partInstance2._id,
 				piece: {
@@ -409,7 +413,7 @@ describe('cronjobs', () => {
 					invalid: false,
 					pieceType: IBlueprintPieceType.Normal,
 				},
-				playlistActivationId: protectString(''),
+				playlistActivationId: protectString<RundownPlaylistActivationId>(''),
 			}
 			await PieceInstances.mutableCollection.insertAsync(pieceInstance0)
 			await PieceInstances.mutableCollection.insertAsync(pieceInstance1)
@@ -629,7 +633,7 @@ describe('cronjobs', () => {
 				timing: {
 					type: PlaylistTimingType.None,
 				},
-				activationId: protectString(''),
+				activationId: protectString<RundownPlaylistActivationId>(''),
 				tTimers: [
 					{ index: 1, label: '', mode: null, state: null },
 					{ index: 2, label: '', mode: null, state: null },

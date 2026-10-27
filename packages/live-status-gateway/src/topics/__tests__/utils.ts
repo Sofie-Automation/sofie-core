@@ -7,6 +7,7 @@ import { Logger } from 'winston'
 import { WebSocket } from 'ws'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { CollectionHandlers } from '../../liveStatusServer.js'
+import { PartId, RundownId, RundownPlaylistId, SegmentId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 const RUNDOWN_1_ID = 'RUNDOWN_1'
 const RUNDOWN_2_ID = 'RUNDOWN_2'
@@ -22,7 +23,7 @@ export function makeMockSubscriber(): MockProxy<WebSocket> {
 
 export function makeTestPlaylist(id?: string): DBRundownPlaylist {
 	return {
-		_id: protectString(id ?? 'PLAYLIST_1'),
+		_id: protectString<RundownPlaylistId>(id ?? 'PLAYLIST_1'),
 		created: 1695799420147,
 		externalId: 'NCS_PLAYLIST_1',
 		defaultBrandingId: null,
@@ -31,8 +32,8 @@ export function makeTestPlaylist(id?: string): DBRundownPlaylist {
 		name: 'My Playlist',
 		nextPartInfo: null,
 		previousPartsInfo: [],
-		rundownIdsInOrder: [protectString(RUNDOWN_1_ID), protectString(RUNDOWN_2_ID)],
-		studioId: protectString('STUDIO_1'),
+		rundownIdsInOrder: [protectString<RundownId>(RUNDOWN_1_ID), protectString<RundownId>(RUNDOWN_2_ID)],
+		studioId: protectString<StudioId>('STUDIO_1'),
 		timing: { type: PlaylistTimingType.None },
 		publicData: { a: 'b' },
 		tTimers: [] as any,
@@ -49,10 +50,10 @@ export function makeTestShowStyleBase(): Pick<ShowStyleBaseExt, 'sourceLayerName
 export function makeTestParts(): DBPart[] {
 	return [
 		{
-			_id: protectString('part0'),
+			_id: protectString<PartId>('part0'),
 			_rank: 0,
-			rundownId: protectString(RUNDOWN_1_ID),
-			segmentId: protectString('segment0'),
+			rundownId: protectString<RundownId>(RUNDOWN_1_ID),
+			segmentId: protectString<SegmentId>('segment0'),
 			notes: [],
 			externalId: 'NCS_PART_0',
 			expectedDurationWithTransition: 1000,

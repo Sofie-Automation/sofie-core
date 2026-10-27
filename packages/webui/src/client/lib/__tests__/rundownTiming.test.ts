@@ -10,7 +10,13 @@ import { literal } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { RundownTimingCalculator, type RundownTimingContext, findPartInstancesInQuickLoop } from '../rundownTiming.js'
 import { PlaylistTimingType, type SegmentTimingInfo } from '@sofie-automation/blueprints-integration'
-import type { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type {
+	PartId,
+	RundownId,
+	RundownPlaylistId,
+	SegmentId,
+	StudioId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 import { wrapPartToTemporaryInstance } from '@sofie-automation/corelib/src/playout/stateCacheResolver'
 
@@ -19,9 +25,9 @@ const DEFAULT_NONZERO_DURATION = 4000
 
 function makeMockPlaylist(): DBRundownPlaylist {
 	return literal<DBRundownPlaylist>({
-		_id: protectString('mock-playlist'),
+		_id: protectString<RundownPlaylistId>('mock-playlist'),
 		externalId: 'mock-playlist',
-		studioId: protectString('studio0'),
+		studioId: protectString<StudioId>('studio0'),
 		name: 'Mock Playlist',
 		created: 0,
 		modified: 0,
@@ -50,12 +56,12 @@ function makeMockPart(
 	durations: Pick<DBPart, 'displayDuration' | 'displayDurationGroup' | 'expectedDuration'>
 ): DBPart {
 	return literal<DBPart>({
-		_id: protectString(id),
+		_id: protectString<PartId>(id),
 		externalId: id,
 		title: '',
 		segmentId: protectString(segmentId),
 		_rank: rank,
-		rundownId: protectString(rundownId),
+		rundownId: protectString<RundownId>(rundownId),
 		...durations,
 		expectedDurationWithTransition: durations.expectedDuration,
 	})
@@ -67,7 +73,7 @@ function makeMockSegment(id: string, rank: number, rundownId: string, timing?: S
 		name: 'mock-segment',
 		externalId: id,
 		_rank: rank,
-		rundownId: protectString(rundownId),
+		rundownId: protectString<RundownId>(rundownId),
 		segmentTiming: timing,
 	})
 }
@@ -578,7 +584,7 @@ describe('rundown Timing Calculator', () => {
 					asDisplayedPlaylistDuration: 7000,
 					asPlayedPlaylistDuration: 7000,
 					currentPartWillAutoNext: false,
-					currentSegmentId: protectString(segmentId1),
+					currentSegmentId: protectString<SegmentId>(segmentId1),
 					currentTime: 3500,
 					rundownExpectedDurations: {
 						[rundownId1]: 7000,
@@ -726,7 +732,7 @@ describe('rundown Timing Calculator', () => {
 					asDisplayedPlaylistDuration: 11000,
 					asPlayedPlaylistDuration: 11000,
 					currentPartWillAutoNext: false,
-					currentSegmentId: protectString(segmentId1),
+					currentSegmentId: protectString<SegmentId>(segmentId1),
 					currentTime: 10000,
 					rundownExpectedDurations: {
 						[rundownId1]: 7000,

@@ -43,7 +43,7 @@ export function useDebugStatesForPlayoutDevice(device: PeripheralDevice): Readon
 					.then((res) => {
 						const states: Map<PeripheralDeviceId, object> = new Map()
 						for (const [key, state] of Object.entries<any>(res)) {
-							states.set(protectString(key), state)
+							states.set(protectString<PeripheralDeviceId>(key), state)
 						}
 						setDebugStates(states)
 					})

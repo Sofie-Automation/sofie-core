@@ -6,6 +6,7 @@ import {
 import { setupDefaultJobEnvironment } from '../../../__mocks__/context.js'
 import { buildTimelineObjsForRundown, RundownTimelineResult, RundownTimelineTimingContext } from '../rundown.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { PartInstanceId, PieceInstanceId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { SelectedPartInstancesTimelineInfo, SelectedPartInstanceTimelineInfo } from '../generate.js'
 import { PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
@@ -91,7 +92,7 @@ describe('buildTimelineObjsForRundown', () => {
 			}
 		}
 		return {
-			_id: protectString('mockPlaylist'),
+			_id: protectString<RundownPlaylistId>('mockPlaylist'),
 			nextPartInfo: convertSelectedPartInstance(selectedPartInfos.next),
 			currentPartInfo: convertSelectedPartInstance(selectedPartInfos.current),
 			previousPartsInfo: selectedPartInfos.previous
@@ -107,7 +108,7 @@ describe('buildTimelineObjsForRundown', () => {
 		partInstanceProps?: Partial<DBPartInstance>
 	): DBPartInstance {
 		return {
-			_id: protectString(id),
+			_id: protectString<PartInstanceId>(id),
 			part: {
 				...partProps,
 			} as Partial<DBPart> as any,
@@ -120,7 +121,7 @@ describe('buildTimelineObjsForRundown', () => {
 		pieceInstanceProps?: Partial<PieceInstance>
 	): PieceInstanceWithTimings {
 		return {
-			_id: protectString(id),
+			_id: protectString<PieceInstanceId>(id),
 
 			piece: {
 				enable: { start: 0 },
@@ -163,7 +164,7 @@ describe('buildTimelineObjsForRundown', () => {
 		if (!piece.infinite) throw new Error('Not an infinite piece!')
 		return {
 			...piece,
-			_id: protectString(piece._id + 'b'),
+			_id: protectString<PieceInstanceId>(piece._id + 'b'),
 			infinite: {
 				...piece.infinite,
 				fromPreviousPart: true,

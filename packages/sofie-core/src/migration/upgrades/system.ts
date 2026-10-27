@@ -9,7 +9,7 @@ import {
 import { evalBlueprint } from '../../api/blueprints/cache'
 import { CoreSystemApplyConfigContext } from './context'
 import { updateTriggeredActionsForShowStyleBaseId } from './lib'
-import { CoreSystemId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { CoreSystemId, BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DEFAULT_CORE_TRIGGERS } from './defaultSystemActionTriggers'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
@@ -46,7 +46,7 @@ export async function runUpgradeForCoreSystem(coreSystemId: CoreSystemId): Promi
 			'settingsWithOverrides.defaults': coreSystemSettings,
 			lastBlueprintConfig: {
 				blueprintHash: blueprint?.blueprintHash ?? 'default',
-				blueprintId: blueprint?._id ?? protectString('default'),
+				blueprintId: blueprint?._id ?? protectString<BlueprintId>('default'),
 				blueprintConfigPresetId: undefined,
 				config: {},
 			},

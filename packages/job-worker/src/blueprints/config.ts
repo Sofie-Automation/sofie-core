@@ -54,7 +54,7 @@ async function retrieveBlueprintConfigRef(
 	const m = reference.match(/\$\{([^.}]+)\.([^.}]+)\.([^}]+)\}/)
 	if (m) {
 		if (m[1] === 'studio' && _.isString(m[2]) && _.isString(m[3])) {
-			const studioId: StudioId = protectString(m[2])
+			const studioId = protectString<StudioId>(m[2])
 			if (studioId === context.studioId) {
 				const configId = m[3]
 				const studioConfig = context.getStudioBlueprintConfig()

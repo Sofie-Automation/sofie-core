@@ -17,10 +17,11 @@ import { type JSONBlob, JSONBlobParse } from '@sofie-automation/shared-lib/dist/
 import { StudioBlueprintConfigurationSettings } from './Studio/BlueprintConfiguration/index.js'
 import type { SubdeviceManifest } from '@sofie-automation/corelib/dist/deviceConfig'
 import type { JSONSchema } from '@sofie-automation/blueprints-integration'
+import type { StudioId } from '@sofie-automation/corelib/src/dataModel/Ids.js'
 
 export default function StudioSettings(): JSX.Element {
 	const match = useRouteMatch<{ studioId: string }>()
-	const studioId = protectString(match.params.studioId)
+	const studioId = protectString<StudioId>(match.params.studioId)
 
 	const studio = useTracker(() => Studios.findOne(studioId), [studioId])
 

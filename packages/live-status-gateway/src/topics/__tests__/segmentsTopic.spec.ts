@@ -4,6 +4,7 @@ import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { makeMockHandlers, makeMockLogger, makeMockSubscriber, makeTestPlaylist } from './utils.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { SegmentsEvent } from '@sofie-automation/live-status-gateway-api'
+import { PartId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 const RUNDOWN_1_ID = 'RUNDOWN_1'
 const RUNDOWN_2_ID = 'RUNDOWN_2'
@@ -15,7 +16,7 @@ function makeTestSegment(id: string, rank: number, rundownId: string, segmentPro
 		externalId: `NCS_SEGMENT_${id}`,
 		name: `Segment ${id}`,
 		_rank: rank,
-		rundownId: protectString(rundownId),
+		rundownId: protectString<RundownId>(rundownId),
 		...segmentProps,
 	}
 }
@@ -28,11 +29,11 @@ function makeTestPart(
 	partProps?: Partial<DBPart>
 ): DBPart {
 	return {
-		_id: protectString(id),
+		_id: protectString<PartId>(id),
 		externalId: `NCS_PART_${id}`,
 		title: `Part ${id}`,
 		_rank: rank,
-		rundownId: protectString(rundownId),
+		rundownId: protectString<RundownId>(rundownId),
 		segmentId: protectString(segmentId),
 		expectedDurationWithTransition: undefined,
 		...partProps,
@@ -180,7 +181,10 @@ describe('SegmentsTopic', () => {
 		mockSubscriber.send.mockClear()
 
 		const testPlaylist2 = makeTestPlaylist()
-		testPlaylist2.rundownIdsInOrder = [protectString(RUNDOWN_2_ID), protectString(RUNDOWN_1_ID)]
+		testPlaylist2.rundownIdsInOrder = [
+			protectString<RundownId>(RUNDOWN_2_ID),
+			protectString<RundownId>(RUNDOWN_1_ID),
+		]
 		handlers.playlistHandler.notify(testPlaylist2)
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
@@ -394,7 +398,10 @@ describe('SegmentsTopic', () => {
 		mockSubscriber.send.mockClear()
 
 		const testPlaylist2 = makeTestPlaylist()
-		testPlaylist2.rundownIdsInOrder = [protectString(RUNDOWN_2_ID), protectString(RUNDOWN_1_ID)]
+		testPlaylist2.rundownIdsInOrder = [
+			protectString<RundownId>(RUNDOWN_2_ID),
+			protectString<RundownId>(RUNDOWN_1_ID),
+		]
 		handlers.playlistHandler.notify(testPlaylist2)
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 

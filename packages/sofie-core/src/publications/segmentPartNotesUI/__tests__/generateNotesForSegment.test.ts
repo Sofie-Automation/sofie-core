@@ -1,12 +1,18 @@
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
-import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	PartId,
+	PartInstanceId,
+	RundownId,
+	RundownPlaylistId,
+	SegmentId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PartNote, SegmentNote } from '@sofie-automation/corelib/dist/dataModel/Notes'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { clone, getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { UISegmentPartNote } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
+import { UISegmentPartNoteId, UISegmentPartNote } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { generateTranslation } from '@sofie-automation/corelib/dist/lib'
 import { generateNotesForSegment } from '../generateNotesForSegment'
@@ -17,9 +23,9 @@ describe('generateNotesForSegment', () => {
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 		const nrcsName = 'some nrcs'
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [],
 			orphaned: undefined,
@@ -33,9 +39,9 @@ describe('generateNotesForSegment', () => {
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 		const nrcsName = 'some nrcs'
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [],
 			orphaned: SegmentOrphanedReason.DELETED,
@@ -45,7 +51,7 @@ describe('generateNotesForSegment', () => {
 		expect(notes).toEqual(
 			literal<UISegmentPartNote[]>([
 				{
-					_id: protectString('segment0_segment_orphaned'),
+					_id: protectString<UISegmentPartNoteId>('segment0_segment_orphaned'),
 					note: {
 						message: generateTranslation('Segment no longer exists in {{nrcs}}', { nrcs: nrcsName }),
 						origin: {
@@ -68,9 +74,9 @@ describe('generateNotesForSegment', () => {
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 		const nrcsName = 'some nrcs'
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [],
 			orphaned: SegmentOrphanedReason.HIDDEN,
@@ -80,7 +86,7 @@ describe('generateNotesForSegment', () => {
 		expect(notes).toEqual(
 			literal<UISegmentPartNote[]>([
 				{
-					_id: protectString('segment0_segment_orphaned'),
+					_id: protectString<UISegmentPartNoteId>('segment0_segment_orphaned'),
 					note: {
 						message: generateTranslation('Segment was hidden in {{nrcs}}', { nrcs: nrcsName }),
 						origin: {
@@ -119,9 +125,9 @@ describe('generateNotesForSegment', () => {
 		})
 
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [
 				// Clone to avoid mutation issues
@@ -135,7 +141,7 @@ describe('generateNotesForSegment', () => {
 		expect(notes).toEqual(
 			literal<UISegmentPartNote[]>([
 				{
-					_id: protectString('segment0_segment_0'),
+					_id: protectString<UISegmentPartNoteId>('segment0_segment_0'),
 					note: {
 						...note1,
 						origin: {
@@ -150,7 +156,7 @@ describe('generateNotesForSegment', () => {
 					segmentId: segment._id,
 				},
 				{
-					_id: protectString('segment0_segment_1'),
+					_id: protectString<UISegmentPartNoteId>('segment0_segment_1'),
 					note: {
 						...note2,
 						origin: {
@@ -173,9 +179,9 @@ describe('generateNotesForSegment', () => {
 		const nrcsName = 'some nrcs'
 
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [],
 			orphaned: undefined,
@@ -238,7 +244,7 @@ describe('generateNotesForSegment', () => {
 		expect(notes).toEqual(
 			literal<UISegmentPartNote[]>([
 				{
-					_id: protectString('segment0_partinstances_deleted'),
+					_id: protectString<UISegmentPartNoteId>('segment0_partinstances_deleted'),
 					note: {
 						type: NoteSeverity.WARNING,
 						message: generateTranslation('The following parts no longer exist in {{nrcs}}: {{partNames}}', {
@@ -265,9 +271,9 @@ describe('generateNotesForSegment', () => {
 		const nrcsName = 'some nrcs'
 
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [],
 			orphaned: SegmentOrphanedReason.DELETED,
@@ -296,9 +302,9 @@ describe('generateNotesForSegment', () => {
 		const nrcsName = 'some nrcs'
 
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [],
 			orphaned: undefined,
@@ -326,9 +332,9 @@ describe('generateNotesForSegment', () => {
 		const nrcsName = 'some nrcs'
 
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [],
 			orphaned: undefined,
@@ -356,16 +362,16 @@ describe('generateNotesForSegment', () => {
 		const nrcsName = 'some nrcs'
 
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [],
 			orphaned: undefined,
 		}
 
 		const part0: Pick<DBPart, PartFields> = {
-			_id: protectString('part0'),
+			_id: protectString<PartId>('part0'),
 			_rank: 6,
 			segmentId: segment._id,
 			rundownId: segment.rundownId,
@@ -382,7 +388,7 @@ describe('generateNotesForSegment', () => {
 		expect(notes).toEqual(
 			literal<UISegmentPartNote[]>([
 				{
-					_id: protectString('segment0_part_part0_invalid'),
+					_id: protectString<UISegmentPartNoteId>('segment0_part_part0_invalid'),
 					note: {
 						type: NoteSeverity.INFO,
 						message: generateTranslation('some reason'),
@@ -408,9 +414,9 @@ describe('generateNotesForSegment', () => {
 		const nrcsName = 'some nrcs'
 
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [],
 			orphaned: undefined,
@@ -432,7 +438,7 @@ describe('generateNotesForSegment', () => {
 		})
 
 		const part0: Pick<DBPart, PartFields> = {
-			_id: protectString('part0'),
+			_id: protectString<PartId>('part0'),
 			_rank: 6,
 			segmentId: segment._id,
 			rundownId: segment.rundownId,
@@ -450,7 +456,7 @@ describe('generateNotesForSegment', () => {
 		expect(notes).toEqual(
 			literal<UISegmentPartNote[]>([
 				{
-					_id: protectString('segment0_part_part0_0'),
+					_id: protectString<UISegmentPartNoteId>('segment0_part_part0_0'),
 					note: {
 						...note1,
 						rank: segment._rank,
@@ -467,7 +473,7 @@ describe('generateNotesForSegment', () => {
 					segmentId: segment._id,
 				},
 				{
-					_id: protectString('segment0_part_part0_1'),
+					_id: protectString<UISegmentPartNoteId>('segment0_part_part0_1'),
 					note: {
 						...note2,
 						rank: segment._rank,
@@ -492,16 +498,16 @@ describe('generateNotesForSegment', () => {
 		const nrcsName = 'some nrcs'
 
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [],
 			orphaned: undefined,
 		}
 
 		const partInstance0: Pick<DBPartInstance, PartInstanceFields> = {
-			_id: protectString('instance0'),
+			_id: protectString<PartInstanceId>('instance0'),
 			segmentId: segment._id,
 			rundownId: segment.rundownId,
 			orphaned: undefined,
@@ -511,7 +517,7 @@ describe('generateNotesForSegment', () => {
 				severity: NoteSeverity.ERROR,
 			},
 			part: {
-				_id: protectString('part0'),
+				_id: protectString<PartId>('part0'),
 				title: 'Test Part',
 			} as any,
 		}
@@ -520,7 +526,7 @@ describe('generateNotesForSegment', () => {
 		expect(notes).toEqual(
 			literal<UISegmentPartNote[]>([
 				{
-					_id: protectString('segment0_partinstance_instance0_invalid_runtime'),
+					_id: protectString<UISegmentPartNoteId>('segment0_partinstance_instance0_invalid_runtime'),
 					note: {
 						type: NoteSeverity.ERROR,
 						message: partInstance0.invalidReason!.message,
@@ -546,16 +552,16 @@ describe('generateNotesForSegment', () => {
 		const nrcsName = 'some nrcs'
 
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [],
 			orphaned: undefined,
 		}
 
 		const partInstance0: Pick<DBPartInstance, PartInstanceFields> = {
-			_id: protectString('instance0'),
+			_id: protectString<PartInstanceId>('instance0'),
 			segmentId: segment._id,
 			rundownId: segment.rundownId,
 			orphaned: undefined,
@@ -565,7 +571,7 @@ describe('generateNotesForSegment', () => {
 				severity: NoteSeverity.ERROR,
 			},
 			part: {
-				_id: protectString('part0'),
+				_id: protectString<PartId>('part0'),
 				title: 'Test Part',
 			} as any,
 		}
@@ -579,23 +585,23 @@ describe('generateNotesForSegment', () => {
 		const nrcsName = 'some nrcs'
 
 		const segment: Pick<DBSegment, SegmentFields> = {
-			_id: protectString('segment0'),
+			_id: protectString<SegmentId>('segment0'),
 			_rank: 1,
-			rundownId: protectString('rundown0'),
+			rundownId: protectString<RundownId>('rundown0'),
 			name: 'A segment',
 			notes: [],
 			orphaned: undefined,
 		}
 
 		const partInstance0: Pick<DBPartInstance, PartInstanceFields> = {
-			_id: protectString('instance0'),
+			_id: protectString<PartInstanceId>('instance0'),
 			segmentId: segment._id,
 			rundownId: segment.rundownId,
 			orphaned: undefined,
 			reset: false,
 			invalidReason: undefined,
 			part: {
-				_id: protectString('part0'),
+				_id: protectString<PartId>('part0'),
 				title: 'Test Part',
 			} as any,
 		}

@@ -40,6 +40,7 @@ import { catchError, firstIfArray, isRunningInPWA } from '../lib/lib.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { useUserPermissions, UserPermissionsContext } from './UserPermissions.js'
 import { relativeToSiteRootUrl, ROOT_URL_PATH_PREFIX } from '../url.js'
+import type { RundownPlaylistId, StudioId } from '@sofie-automation/corelib/src/dataModel/Ids.js'
 
 const NullComponent = () => null
 
@@ -180,7 +181,7 @@ export const App: React.FC = function App() {
 								exact
 								render={(props) => (
 									<RundownView
-										playlistId={protectString(decodeURIComponent(props.match.params.playlistId))}
+										playlistId={protectString<RundownPlaylistId>(decodeURIComponent(props.match.params.playlistId))}
 										onlyShelf={true}
 									/>
 								)}
@@ -188,26 +189,30 @@ export const App: React.FC = function App() {
 							<Route
 								path="/rundown/:playlistId"
 								render={(props) => (
-									<RundownView playlistId={protectString(decodeURIComponent(props.match.params.playlistId))} />
+									<RundownView
+										playlistId={protectString<RundownPlaylistId>(decodeURIComponent(props.match.params.playlistId))}
+									/>
 								)}
 							/>
 							<Route
 								path="/activeRundown/:studioId"
 								render={(props) => (
-									<ActiveRundownView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
+									<ActiveRundownView
+										studioId={protectString<StudioId>(decodeURIComponent(props.match.params.studioId))}
+									/>
 								)}
 							/>
 							<Route
 								path="/prompter/:studioId"
 								render={(props) => (
-									<PrompterView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
+									<PrompterView studioId={protectString<StudioId>(decodeURIComponent(props.match.params.studioId))} />
 								)}
 							/>
 							{/* We switch to the general ClockView component, and allow it to do the switch between various types of countdowns */}
 							<Route
 								path="/countdowns/:studioId"
 								render={(props) => (
-									<ClockView studioId={protectString(decodeURIComponent(props.match.params.studioId))} />
+									<ClockView studioId={protectString<StudioId>(decodeURIComponent(props.match.params.studioId))} />
 								)}
 							/>
 							<Route path="/status" render={() => <Status />} />

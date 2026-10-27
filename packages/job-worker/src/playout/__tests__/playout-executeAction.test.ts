@@ -1,4 +1,9 @@
-import { RundownPlaylistId, AdLibActionId, BucketAdLibActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	RundownPlaylistId,
+	AdLibActionId,
+	BucketAdLibActionId,
+	PartId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type {
 	DBRundownPlaylist,
 	SelectedPartInstance,
@@ -57,7 +62,7 @@ describe('Playout API', () => {
 		})
 
 		test('throws errors', async () => {
-			const actionDocId: AdLibActionId = protectString('action-id')
+			const actionDocId = protectString<AdLibActionId>('action-id')
 			const actionId = 'some-action'
 			const userData = { blobby: true }
 
@@ -202,7 +207,7 @@ describe('Playout API', () => {
 				await context.mockCollections.AdLibActions.insertOne({
 					_id: actionDocId,
 					rundownId: currentPartInfo.rundownId,
-					partId: protectString('part0'),
+					partId: protectString<PartId>('part0'),
 					externalId: 'branded-action',
 					actionId: 'some-action',
 					userData: {},
@@ -321,7 +326,7 @@ describe('Playout API', () => {
 				},
 			})
 
-			const actionDocId: AdLibActionId = protectString('action-id')
+			const actionDocId = protectString<AdLibActionId>('action-id')
 			const actionId = 'some-action'
 			const userData = { blobby: true }
 			await handleExecuteAdlibAction(context, {
@@ -348,7 +353,7 @@ describe('Playout API', () => {
 				},
 			})
 
-			const actionDocId: AdLibActionId = protectString('action-id')
+			const actionDocId = protectString<AdLibActionId>('action-id')
 			const actionId = 'some-action'
 			const userData = { blobby: true }
 			await handleExecuteAdlibAction(context, {
@@ -375,7 +380,7 @@ describe('Playout API', () => {
 				},
 			})
 
-			const actionDocId: AdLibActionId = protectString('action-id')
+			const actionDocId = protectString<AdLibActionId>('action-id')
 			const actionId = 'some-action'
 			const userData = { blobby: true }
 			await handleExecuteAdlibAction(context, {
@@ -398,7 +403,7 @@ describe('Playout API', () => {
 				},
 			})
 
-			const actionDocId: AdLibActionId = protectString('action-id')
+			const actionDocId = protectString<AdLibActionId>('action-id')
 			const actionId = 'some-action'
 			const userData = { blobby: true }
 			await handleExecuteAdlibAction(context, {
@@ -420,7 +425,7 @@ describe('Playout API', () => {
 				},
 			})
 
-			const actionDocId: AdLibActionId = protectString('action-id')
+			const actionDocId = protectString<AdLibActionId>('action-id')
 			const actionId = 'some-action'
 			const userData = { blobby: true }
 			await handleExecuteAdlibAction(context, {

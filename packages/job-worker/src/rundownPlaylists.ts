@@ -121,7 +121,7 @@ export async function handleRegenerateRundownPlaylist(
  * When we've received an externalId for a playlist, that can directly be used to reference a playlistId
  */
 export function getPlaylistIdFromExternalId(studioId: StudioId, playlistExternalId: string): RundownPlaylistId {
-	return protectString(getHash(`${studioId}_${playlistExternalId}`))
+	return protectString<RundownPlaylistId>(getHash(`${studioId}_${playlistExternalId}`))
 }
 
 /**

@@ -11,6 +11,7 @@ import { Evaluations, RundownPlaylists } from '../collections'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { VerifiedRundownPlaylistForUserAction } from '../security/check'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
+import { EvaluationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 export async function saveEvaluation(
 	_playlist: VerifiedRundownPlaylistForUserAction,
@@ -18,7 +19,7 @@ export async function saveEvaluation(
 ): Promise<void> {
 	await Evaluations.insertAsync({
 		...evaluation,
-		_id: getRandomId(),
+		_id: getRandomId<EvaluationId>(),
 		userId: null,
 		timestamp: getCurrentTime(),
 	})

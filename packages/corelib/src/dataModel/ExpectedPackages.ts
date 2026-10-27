@@ -168,7 +168,7 @@ export function getExpectedPackageId(
 		listenToPackageInfoUpdates: false, // Not relevant for the hash
 	} satisfies ReadonlyDeep<ExpectedPackage.Base>)
 
-	return protectString(`${parentId}_${getHash(objHash)}`)
+	return protectString<ExpectedPackageId>(`${parentId}_${getHash(objHash)}`)
 }
 
 /**

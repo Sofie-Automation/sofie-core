@@ -1,4 +1,5 @@
 import { protectString } from '@sofie-automation/server-core-integration'
+import type { RundownId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 import {
 	IngestPartPlaybackStatus,
 	IngestRundownActiveStatus,
@@ -15,7 +16,7 @@ describe('diffStatuses', () => {
 		onlySendPlay: false,
 	}
 	const singlePartRundown: IngestRundownStatus = {
-		_id: protectString('rundown0'),
+		_id: protectString<RundownId>('rundown0'),
 		externalId: 'external0',
 		active: IngestRundownActiveStatus.ACTIVE,
 		segments: [

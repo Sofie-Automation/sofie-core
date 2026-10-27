@@ -85,7 +85,7 @@ export async function handleBlueprintUpgradeForStudio(context: JobContext, _data
 				await context.directCollections.PeripheralDevices.update(
 					{
 						studioAndConfigId: { studioId: context.studioId, configId: configId },
-						_id: { $ne: existingPeripheralDeviceId ?? protectString('') },
+						_id: { $ne: existingPeripheralDeviceId ?? protectString<PeripheralDeviceId>('') },
 					},
 					{
 						$unset: {
@@ -222,7 +222,7 @@ function translateMappings(rawMappings: BlueprintMappings): MappingsExt {
 	for (const [id, mapping] of Object.entries<BlueprintMapping>(rawMappings)) {
 		mappings[id] = {
 			...mapping,
-			deviceId: protectString(mapping.deviceId),
+			deviceId: protectString<PeripheralDeviceId>(mapping.deviceId),
 		}
 	}
 

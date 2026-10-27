@@ -42,7 +42,9 @@ import type {
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type {
 	MountedAdLibTrigger,
+	MountedAdLibTriggerId,
 	MountedGenericTrigger,
+	MountedGenericTriggerId,
 	MountedHotkeyMixin,
 } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 import { isHotkeyTrigger } from '@sofie-automation/meteor-lib/dist/triggers/triggerTypeSelectors'
@@ -442,7 +444,7 @@ export const TriggersHandler: React.FC<IProps> = function TriggersHandler(
 				const triggers = Object.values<SomeBlueprintTrigger>(pair.triggers).filter(
 					(trigger) => trigger.type === TriggerType.hotkey
 				)
-				const genericTriggerId = protectString(`${pair._id}`)
+				const genericTriggerId = protectString<MountedGenericTriggerId>(`${pair._id}`)
 				const keys = triggers.filter(isHotkeyTrigger).map((trigger) => trigger.keys)
 				const finalKeys = keys.map((key) => getFinalKey(key))
 				const adLibOnly = Object.values<SomeAction>(pair.actions).every(
@@ -477,7 +479,7 @@ export const TriggersHandler: React.FC<IProps> = function TriggersHandler(
 					}
 
 					previewAdLibs.forEach((adLib) => {
-						const triggerId = protectString(pair._id + '_' + adLib._id + '_' + adLib.type)
+						const triggerId = protectString<MountedAdLibTriggerId>(pair._id + '_' + adLib._id + '_' + adLib.type)
 						MountedAdLibTriggers.upsert(triggerId, {
 							$set: {
 								_id: triggerId,

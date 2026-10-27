@@ -6,7 +6,6 @@ import { ModalDialog, type SomeEvent } from '../../lib/ModalDialog.js'
 import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
-import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { type Rundown, getRundownNrcsName } from '@sofie-automation/corelib/dist/dataModel/Rundown'
@@ -92,7 +91,7 @@ export function ClipTrimDialog({
 									{ nrcsName: getRundownNrcsName(rundown) }
 								)}
 							</>,
-							protectString('ClipTrimDialog')
+							'ClipTrimDialog'
 						)
 					)
 				} else if (ClientAPI.isClientResponseError(err) || err) {
@@ -106,7 +105,7 @@ export function ClipTrimDialog({
 									error: err.message || err.error || err,
 								})}
 							</>,
-							protectString('ClipTrimDialog')
+							'ClipTrimDialog'
 						)
 					)
 				} else {
@@ -118,7 +117,7 @@ export function ClipTrimDialog({
 								<strong>{selectedPiece.name}</strong>:&ensp;
 								{t('Trimmed successfully.')}
 							</>,
-							protectString('ClipTrimDialog')
+							'ClipTrimDialog'
 						)
 					)
 				}
@@ -138,7 +137,7 @@ export function ClipTrimDialog({
 							{ nrcsName: getRundownNrcsName(rundown) }
 						)}
 					</>,
-					protectString('ClipTrimDialog')
+					'ClipTrimDialog'
 				)
 			)
 		}, 5 * 1000)

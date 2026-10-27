@@ -1,4 +1,5 @@
 import { ABResolverConfiguration, TSR } from '@sofie-automation/blueprints-integration'
+import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { literal } from '@sofie-automation/corelib/dist/lib'
@@ -76,7 +77,7 @@ describe('applyMediaPlayersAssignments', () => {
 			},
 		}
 		const pieceInstanceId = 'piece0'
-		const partInstanceId = protectString('part0')
+		const partInstanceId = protectString<PartInstanceId>('part0')
 
 		mockGetObjectSessionId.mockImplementation(
 			(obj, session) => `${obj.pieceInstanceId}_${session.poolName}_${session.sessionName}`

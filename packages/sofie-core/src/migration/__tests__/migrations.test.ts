@@ -5,6 +5,7 @@ import { clearMigrationSteps, addMigrationSteps, prepareMigration, PreparedMigra
 import { CURRENT_SYSTEM_VERSION } from '../currentSystemVersion'
 import { RunMigrationResult, GetMigrationStatusResult } from '@sofie-automation/meteor-lib/dist/api/migration'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { BlueprintId, ShowStyleBaseId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MigrationStepCore } from '@sofie-automation/meteor-lib/dist/migrations'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { MigrationAPIMethods } from '@sofie-automation/meteor-lib/dist/api/migration'
@@ -82,12 +83,12 @@ describe('Migrations', () => {
 				id: 'myCoreMockStep2',
 				canBeRunAutomatically: true,
 				validate: async () => {
-					if (!(await Studios.findOneAsync(protectString('studioMock2')))) return 'No Studio found'
+					if (!(await Studios.findOneAsync(protectString<StudioId>('studioMock2')))) return 'No Studio found'
 					return false
 				},
 				migrate: async () => {
 					await setupMockStudio({
-						_id: protectString('studioMock2'),
+						_id: protectString<StudioId>('studioMock2'),
 					})
 				},
 			},
@@ -97,12 +98,12 @@ describe('Migrations', () => {
 				id: 'myCoreMockStep3',
 				canBeRunAutomatically: true,
 				validate: async () => {
-					if (!(await Studios.findOneAsync(protectString('studioMock3')))) return 'No Studio found'
+					if (!(await Studios.findOneAsync(protectString<StudioId>('studioMock3')))) return 'No Studio found'
 					return false
 				},
 				migrate: async () => {
 					await setupMockStudio({
-						_id: protectString('studioMock3'),
+						_id: protectString<StudioId>('studioMock3'),
 					})
 				},
 			},
@@ -112,12 +113,12 @@ describe('Migrations', () => {
 				id: 'myCoreMockStep1',
 				canBeRunAutomatically: true,
 				validate: async () => {
-					if (!(await Studios.findOneAsync(protectString('studioMock1')))) return 'No Studio found'
+					if (!(await Studios.findOneAsync(protectString<StudioId>('studioMock1')))) return 'No Studio found'
 					return false
 				},
 				migrate: async () => {
 					await setupMockStudio({
-						_id: protectString('studioMock1'),
+						_id: protectString<StudioId>('studioMock1'),
 					})
 				},
 			},
@@ -140,7 +141,7 @@ describe('Migrations', () => {
 		expect(studio).toBeTruthy()
 
 		await ShowStyleBases.insertAsync({
-			_id: protectString('showStyle0'),
+			_id: protectString<ShowStyleBaseId>('showStyle0'),
 			name: '',
 			blueprintId: protectString('showStyle0'),
 			outputLayersWithOverrides: wrapDefaultObject({}),
@@ -156,7 +157,7 @@ describe('Migrations', () => {
 		await ShowStyleVariants.insertAsync({
 			_id: protectString('variant0'),
 			name: '',
-			showStyleBaseId: protectString('showStyle0'),
+			showStyleBaseId: protectString<ShowStyleBaseId>('showStyle0'),
 			blueprintConfigWithOverrides: wrapDefaultObject({}),
 			_rundownVersionHash: '',
 			_rank: 0,
@@ -164,7 +165,7 @@ describe('Migrations', () => {
 
 		await Studios.updateAsync(studio._id, {
 			$set: {
-				blueprintId: protectString('studio0'),
+				blueprintId: protectString<BlueprintId>('studio0'),
 			},
 		})
 

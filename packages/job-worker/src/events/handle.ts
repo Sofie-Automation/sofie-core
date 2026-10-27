@@ -125,7 +125,7 @@ export async function queueExternalMessages(
 				// Save the output into the message queue, for later processing:
 				if (message._id) {
 					// Overwrite an existing message
-					const messageId: ExternalMessageQueueObjId = protectString(message._id)
+					const messageId = protectString<ExternalMessageQueueObjId>(message._id)
 
 					const existingMessage = await collection.findOne(messageId)
 					if (!existingMessage) throw new Error(`ExternalMessage ${message._id} not found!`)
@@ -151,7 +151,7 @@ export async function queueExternalMessages(
 				} else {
 					const now = getCurrentTime()
 					let message2: ExternalMessageQueueObj = {
-						_id: getRandomId(),
+						_id: getRandomId<ExternalMessageQueueObjId>(),
 
 						...omit(message, '_id'),
 

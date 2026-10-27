@@ -272,7 +272,7 @@ export namespace PrompterAPI {
 						if (piecesIncluded.indexOf(piece._id) >= 0) {
 							// piece already included in prompter script - mark it as a continuation
 							partData.pieces.push({
-								id: protectString(`${partData.id}_${piece._id}_continuation`),
+								id: protectString<PieceId>(`${partData.id}_${piece._id}_continuation`),
 								text: content.fullScript,
 								formattedText: content.fullScriptFormatted,
 								continuationOf: piece._id,
@@ -293,7 +293,7 @@ export namespace PrompterAPI {
 				if (partData.pieces.length === 0) {
 					// insert an empty line
 					partData.pieces.push({
-						id: protectString(`part_${partData.id}_empty`),
+						id: protectString<PieceId>(`part_${partData.id}_empty`),
 						text: '',
 						formattedText: '',
 					})

@@ -1,13 +1,14 @@
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { PartId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 
 describe('PlayoutSegmentModelImpl', () => {
 	function createBasicDBSegment(): DBSegment {
 		return {
 			_id: protectString('abc'),
-			rundownId: protectString('rd0'),
+			rundownId: protectString<RundownId>('rd0'),
 			externalId: 'ext1',
 			_rank: 1,
 			name: 'test segment',
@@ -29,16 +30,16 @@ describe('PlayoutSegmentModelImpl', () => {
 			expect(model.getPartIds()).toEqual([])
 		})
 		it('with parts', async () => {
-			const fakePart: DBPart = { _id: protectString('part0'), _rank: 1 } as any
-			const fakePart2: DBPart = { _id: protectString('part1'), _rank: 2 } as any
+			const fakePart: DBPart = { _id: protectString<PartId>('part0'), _rank: 1 } as any
+			const fakePart2: DBPart = { _id: protectString<PartId>('part1'), _rank: 2 } as any
 			const segment = createBasicDBSegment()
 			const model = new PlayoutSegmentModelImpl(segment, [fakePart, fakePart2])
 
 			expect(model.getPartIds()).toEqual([fakePart._id, fakePart2._id])
 		})
 		it('with parts ensuring order', async () => {
-			const fakePart: DBPart = { _id: protectString('part0'), _rank: 5 } as any
-			const fakePart2: DBPart = { _id: protectString('part1'), _rank: 2 } as any
+			const fakePart: DBPart = { _id: protectString<PartId>('part0'), _rank: 5 } as any
+			const fakePart2: DBPart = { _id: protectString<PartId>('part1'), _rank: 2 } as any
 			const segment = createBasicDBSegment()
 			const model = new PlayoutSegmentModelImpl(segment, [fakePart, fakePart2])
 
@@ -51,35 +52,35 @@ describe('PlayoutSegmentModelImpl', () => {
 			const segment = createBasicDBSegment()
 			const model = new PlayoutSegmentModelImpl(segment, [])
 
-			expect(model.getPart(protectString('missing'))).toBeUndefined()
+			expect(model.getPart(protectString<PartId>('missing'))).toBeUndefined()
 		})
 		it('with other parts', async () => {
-			const fakePart: DBPart = { _id: protectString('part0'), _rank: 1 } as any
-			const fakePart2: DBPart = { _id: protectString('part1'), _rank: 2 } as any
+			const fakePart: DBPart = { _id: protectString<PartId>('part0'), _rank: 1 } as any
+			const fakePart2: DBPart = { _id: protectString<PartId>('part1'), _rank: 2 } as any
 			const segment = createBasicDBSegment()
 			const model = new PlayoutSegmentModelImpl(segment, [fakePart, fakePart2])
 
-			expect(model.getPart(protectString('missing'))).toBeUndefined()
+			expect(model.getPart(protectString<PartId>('missing'))).toBeUndefined()
 		})
 		it('with found part', async () => {
-			const fakePart: DBPart = { _id: protectString('part0'), _rank: 1 } as any
-			const fakePart2: DBPart = { _id: protectString('part1'), _rank: 2 } as any
+			const fakePart: DBPart = { _id: protectString<PartId>('part0'), _rank: 1 } as any
+			const fakePart2: DBPart = { _id: protectString<PartId>('part1'), _rank: 2 } as any
 			const segment = createBasicDBSegment()
 			const model = new PlayoutSegmentModelImpl(segment, [fakePart, fakePart2])
 
 			expect(model.getPart(fakePart._id)).toBe(fakePart)
 		})
 		it('matches by _id even when another part has that id as externalId and a lower rank', async () => {
-			const byId: DBPart = { _id: protectString('part0'), _rank: 5, externalId: 'other' } as any
-			const byExternalId: DBPart = { _id: protectString('part1'), _rank: 1, externalId: 'part0' } as any
+			const byId: DBPart = { _id: protectString<PartId>('part0'), _rank: 5, externalId: 'other' } as any
+			const byExternalId: DBPart = { _id: protectString<PartId>('part1'), _rank: 1, externalId: 'part0' } as any
 			const segment = createBasicDBSegment()
 			const model = new PlayoutSegmentModelImpl(segment, [byId, byExternalId])
 
 			expect(model.getPart(byId._id)).toBe(byId)
-			expect(model.getPart(protectString('part0'))).toBe(byId)
+			expect(model.getPart(protectString<PartId>('part0'))).toBe(byId)
 		})
 		it('does not match by externalId', async () => {
-			const fakePart: DBPart = { _id: protectString('part0'), _rank: 1, externalId: 'ext-part' } as any
+			const fakePart: DBPart = { _id: protectString<PartId>('part0'), _rank: 1, externalId: 'ext-part' } as any
 			const segment = createBasicDBSegment()
 			const model = new PlayoutSegmentModelImpl(segment, [fakePart])
 

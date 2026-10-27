@@ -6,7 +6,7 @@ import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { assertNever } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { UISegmentPartNote } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
+import { UISegmentPartNote, UISegmentPartNoteId } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { generateTranslation } from '@sofie-automation/corelib/dist/lib'
 import { SegmentFields, PartFields, PartInstanceFields } from './reactiveContentCache'
@@ -24,7 +24,7 @@ export function generateNotesForSegment(
 		notes.push(
 			...segment.notes.map((note, i) =>
 				literal<UISegmentPartNote>({
-					_id: protectString(`${segment._id}_segment_${i}`),
+					_id: protectString<UISegmentPartNoteId>(`${segment._id}_segment_${i}`),
 					playlistId,
 					rundownId: segment.rundownId,
 					segmentId: segment._id,
@@ -65,7 +65,7 @@ export function generateNotesForSegment(
 		}
 		if (message) {
 			notes.push({
-				_id: protectString(`${segment._id}_segment_orphaned`),
+				_id: protectString<UISegmentPartNoteId>(`${segment._id}_segment_orphaned`),
 				playlistId,
 				rundownId: segment.rundownId,
 				segmentId: segment._id,
@@ -85,7 +85,7 @@ export function generateNotesForSegment(
 		const deletedPartInstances = partInstances.filter((p) => p.orphaned === 'deleted' && !p.reset)
 		if (deletedPartInstances.length > 0) {
 			notes.push({
-				_id: protectString(`${segment._id}_partinstances_deleted`),
+				_id: protectString<UISegmentPartNoteId>(`${segment._id}_partinstances_deleted`),
 				playlistId,
 				rundownId: segment.rundownId,
 				segmentId: segment._id,
@@ -116,7 +116,7 @@ export function generateNotesForSegment(
 
 		if (part.invalidReason) {
 			notes.push({
-				_id: protectString(`${segment._id}_part_${part._id}_invalid`),
+				_id: protectString<UISegmentPartNoteId>(`${segment._id}_part_${part._id}_invalid`),
 				playlistId,
 				rundownId: segment.rundownId,
 				segmentId: segment._id,
@@ -136,7 +136,7 @@ export function generateNotesForSegment(
 			notes.push(
 				...part.notes.map((n, i) =>
 					literal<UISegmentPartNote>({
-						_id: protectString(`${segment._id}_part_${part._id}_${i}`),
+						_id: protectString<UISegmentPartNoteId>(`${segment._id}_part_${part._id}_${i}`),
 						playlistId,
 						rundownId: segment.rundownId,
 						segmentId: segment._id,
@@ -162,7 +162,7 @@ export function generateNotesForSegment(
 		if (partInstance.reset || !partInstance.invalidReason) continue
 
 		notes.push({
-			_id: protectString(`${segment._id}_partinstance_${partInstance._id}_invalid_runtime`),
+			_id: protectString<UISegmentPartNoteId>(`${segment._id}_partinstance_${partInstance._id}_invalid_runtime`),
 			playlistId,
 			rundownId: partInstance.rundownId,
 			segmentId: segment._id,

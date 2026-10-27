@@ -144,12 +144,12 @@ export namespace MongoMock {
 			modifier: MongoModifier<T>,
 			options?: UpsertOptions
 		): { numberAffected: number | undefined; insertedId: T['_id'] | undefined } {
-			const id = _.isString(query) ? query : query._id
+			const id = protectString<T['_id']>(typeof query === 'string' ? query : query._id)
 
 			const docs = this.find(id)._fetchRaw()
 
 			if (docs.length) {
-				const count = this.update(docs[0]._id, modifier, options)
+				const count = this.update({ _id: docs[0]._id } as MongoQuery<T>, modifier, options)
 				return { insertedId: undefined, numberAffected: count }
 			} else {
 				const doc = mongoModify<T>(query, { _id: id } as any, modifier)

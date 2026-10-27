@@ -77,6 +77,7 @@ import type {
 	AdLibActionId,
 	BucketId,
 	PieceId,
+	RundownId,
 	ShowStyleBaseId,
 	ShowStyleVariantId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -218,7 +219,7 @@ export function actionToAdLibPieceUi(
 	}
 
 	return literal<BucketAdLibActionUi>({
-		_id: protectString(`${action._id}`),
+		_id: protectString<PieceId>(`${action._id}`),
 		name:
 			typeof action.display.label === 'string'
 				? action.display.label
@@ -226,7 +227,7 @@ export function actionToAdLibPieceUi(
 		isAction: true,
 		expectedDuration: 0,
 		externalId: action.externalId || unprotectString(action._id),
-		rundownId: protectString(''), // value doesn't matter
+		rundownId: protectString<RundownId>(''), // value doesn't matter
 		bucketId: action.bucketId,
 		showStyleBaseId: action.showStyleBaseId,
 		showStyleVariantId: action.showStyleVariantId,

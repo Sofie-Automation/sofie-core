@@ -12,9 +12,12 @@ import {
 import { PlayoutPartInstanceModelImpl } from '../PlayoutPartInstanceModelImpl.js'
 import {
 	PartInstanceId,
+	PieceId,
 	PieceInstanceId,
 	RundownId,
 	RundownPlaylistId,
+	ShowStyleBaseId,
+	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { mock } from 'jest-mock-extended'
@@ -25,9 +28,9 @@ import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
 describe('SavePlayoutModel', () => {
 	function createRundownModel(segments?: DBSegment[]): PlayoutRundownModelImpl {
 		const rundown: DBRundown = {
-			_id: protectString('rd0'),
-			studioId: protectString('studio0'),
-			showStyleBaseId: protectString('ssb0'),
+			_id: protectString<RundownId>('rd0'),
+			studioId: protectString<StudioId>('studio0'),
+			showStyleBaseId: protectString<ShowStyleBaseId>('ssb0'),
 			showStyleVariantId: protectString('ssv0'),
 			created: 0,
 			modified: 0,
@@ -35,7 +38,7 @@ describe('SavePlayoutModel', () => {
 			name: `my rundown`,
 			importVersions: null as any,
 			timing: null as any,
-			playlistId: protectString('playlist0'),
+			playlistId: protectString<RundownPlaylistId>('playlist0'),
 			source: {
 				type: 'http',
 			},
@@ -144,8 +147,8 @@ describe('SavePlayoutModel', () => {
 			const context = setupDefaultJobEnvironment()
 
 			const partInstances = new Map<PartInstanceId, PlayoutPartInstanceModelImpl | null>()
-			partInstances.set(protectString('id0'), null)
-			partInstances.set(protectString('id1'), null)
+			partInstances.set(protectString<PartInstanceId>('id0'), null)
+			partInstances.set(protectString<PartInstanceId>('id1'), null)
 
 			await Promise.all(writePartInstancesAndPieceInstances(context, partInstances))
 
@@ -212,7 +215,7 @@ describe('SavePlayoutModel', () => {
 			expect(partInstanceModel.removePieceInstance(pieceInstance._id)).toBeTruthy()
 
 			const partInstances = new Map<PartInstanceId, PlayoutPartInstanceModelImpl | null>()
-			partInstances.set(protectString('id0'), partInstanceModel)
+			partInstances.set(protectString<PartInstanceId>('id0'), partInstanceModel)
 
 			await Promise.all(writePartInstancesAndPieceInstances(context, partInstances))
 
@@ -257,7 +260,7 @@ describe('SavePlayoutModel', () => {
 			expect(partInstanceModel.partInstance.blockTakeUntil).toEqual(10000)
 
 			const partInstances = new Map<PartInstanceId, PlayoutPartInstanceModelImpl | null>()
-			partInstances.set(protectString('id0'), partInstanceModel)
+			partInstances.set(protectString<PartInstanceId>('id0'), partInstanceModel)
 
 			await Promise.all(writePartInstancesAndPieceInstances(context, partInstances))
 
@@ -293,12 +296,12 @@ describe('SavePlayoutModel', () => {
 			expect(
 				partInstanceModel.mergeOrInsertPieceInstance({
 					...pieceInstance,
-					adLibSourceId: protectString('adlib0'),
+					adLibSourceId: protectString<PieceId>('adlib0'),
 				})
 			).toBeTruthy()
 
 			const partInstances = new Map<PartInstanceId, PlayoutPartInstanceModelImpl | null>()
-			partInstances.set(protectString('id0'), partInstanceModel)
+			partInstances.set(protectString<PartInstanceId>('id0'), partInstanceModel)
 
 			await Promise.all(writePartInstancesAndPieceInstances(context, partInstances))
 
@@ -337,15 +340,15 @@ describe('SavePlayoutModel', () => {
 			expect(
 				partInstanceModel.mergeOrInsertPieceInstance({
 					...pieceInstance,
-					adLibSourceId: protectString('adlib0'),
+					adLibSourceId: protectString<PieceId>('adlib0'),
 				})
 			).toBeTruthy()
 			expect(partInstanceModel.removePieceInstance(pieceInstance2._id)).toBeTruthy()
 			partInstanceModel.blockTakeUntil(10000)
 
 			const partInstances = new Map<PartInstanceId, PlayoutPartInstanceModelImpl | null>()
-			partInstances.set(protectString('id0'), partInstanceModel)
-			partInstances.set(protectString('id1'), null)
+			partInstances.set(protectString<PartInstanceId>('id0'), partInstanceModel)
+			partInstances.set(protectString<PartInstanceId>('id1'), null)
 
 			await Promise.all(writePartInstancesAndPieceInstances(context, partInstances))
 

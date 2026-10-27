@@ -1,14 +1,15 @@
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { PartId, PartInstanceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getCurrentSegmentParts } from '../segmentParts.js'
 
 function makePart(id: string, title: string): DBPart {
 	return {
-		_id: protectString(id),
+		_id: protectString<PartId>(id),
 		_rank: 0,
-		rundownId: protectString('rundown_1'),
-		segmentId: protectString('segment_1'),
+		rundownId: protectString<RundownId>('rundown_1'),
+		segmentId: protectString<SegmentId>('segment_1'),
 		notes: [],
 		externalId: id,
 		expectedDuration: 1000,
@@ -25,7 +26,7 @@ describe('segmentParts - getCurrentSegmentParts', () => {
 		const result = getCurrentSegmentParts(
 			[
 				{
-					_id: protectString('partInstance_1'),
+					_id: protectString<PartInstanceId>('partInstance_1'),
 					part: adlibPart,
 					orphaned: 'adlib-part',
 				} as DBPartInstance,

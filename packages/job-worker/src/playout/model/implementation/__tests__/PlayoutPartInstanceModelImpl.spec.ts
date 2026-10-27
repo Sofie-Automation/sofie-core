@@ -1,4 +1,14 @@
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import {
+	PartId,
+	PartInstanceId,
+	PieceId,
+	PieceInstanceId,
+	PieceInstanceInfiniteId,
+	RundownId,
+	RundownPlaylistActivationId,
+	SegmentPlayoutId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
 import { PlayoutPartInstanceModelImpl } from '../PlayoutPartInstanceModelImpl.js'
@@ -9,10 +19,10 @@ describe('PlayoutPartInstanceModelImpl', () => {
 	function createBasicDBPartInstance(): DBPartInstance {
 		return {
 			_id: getRandomId(),
-			rundownId: protectString(''),
+			rundownId: protectString<RundownId>(''),
 			segmentId: protectString(''),
-			playlistActivationId: protectString(''),
-			segmentPlayoutId: protectString(''),
+			playlistActivationId: protectString<RundownPlaylistActivationId>(''),
+			segmentPlayoutId: protectString<SegmentPlayoutId>(''),
 			rehearsal: false,
 
 			takeCount: 0,
@@ -21,7 +31,7 @@ describe('PlayoutPartInstanceModelImpl', () => {
 			part: {
 				_id: getRandomId(),
 				_rank: 0,
-				rundownId: protectString(''),
+				rundownId: protectString<RundownId>(''),
 				segmentId: protectString(''),
 				externalId: '',
 				title: '',
@@ -33,14 +43,14 @@ describe('PlayoutPartInstanceModelImpl', () => {
 
 	function createPieceInstanceAsInfinite(id: string, fromPreviousPlayhead: boolean): PieceInstance {
 		return literal<PieceInstance>({
-			_id: protectString(id),
-			rundownId: protectString(''),
-			partInstanceId: protectString(''),
-			playlistActivationId: protectString('active'),
+			_id: protectString<PieceInstanceId>(id),
+			rundownId: protectString<RundownId>(''),
+			partInstanceId: protectString<PartInstanceId>(''),
+			playlistActivationId: protectString<RundownPlaylistActivationId>('active'),
 			piece: literal<PieceInstancePiece>({
 				_id: protectString(`${id}_p`),
 				externalId: '',
-				startPartId: protectString(''),
+				startPartId: protectString<PartId>(''),
 				enable: { start: 0 },
 				name: '',
 				lifespan: PieceLifespan.OutOnRundownChange,
@@ -52,9 +62,9 @@ describe('PlayoutPartInstanceModelImpl', () => {
 				pieceType: IBlueprintPieceType.Normal,
 			}),
 			infinite: {
-				infiniteInstanceId: protectString(`${id}_inf`),
+				infiniteInstanceId: protectString<PieceInstanceInfiniteId>(`${id}_inf`),
 				infiniteInstanceIndex: 0,
-				infinitePieceId: protectString(`${id}_p`),
+				infinitePieceId: protectString<PieceId>(`${id}_p`),
 				fromPreviousPart: false,
 				fromPreviousPlayhead,
 			},

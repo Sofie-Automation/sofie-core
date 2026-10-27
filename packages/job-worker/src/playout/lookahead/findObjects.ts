@@ -179,7 +179,8 @@ export function findLookaheadObjectsForPart(
 						objectType: TimelineObjType.RUNDOWN,
 						pieceInstanceId: getBestPieceInstanceId(piece),
 						infinitePieceInstanceId: piece.infinite?.infiniteInstanceId,
-						partInstanceId: partInstanceId ?? protectString(unprotectString(partInfo.part._id)),
+						partInstanceId:
+							partInstanceId ?? protectString<PartInstanceId>(unprotectString(partInfo.part._id)),
 						content: patchedContent,
 					})
 				)

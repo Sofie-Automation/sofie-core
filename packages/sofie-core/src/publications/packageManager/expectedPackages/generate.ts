@@ -123,7 +123,7 @@ function generateExpectedPackageForDevice(
 	const packageSideEffect = getSideEffect(expectedPackage.package, packageContainerSettings)
 
 	return {
-		_id: protectString(`${expectedPackage._id}_${deviceId}`),
+		_id: protectString<PackageManagerExpectedPackageId>(`${expectedPackage._id}_${deviceId}`),
 		expectedPackage: {
 			...expectedPackage.package,
 			_id: expectedPackage._id,

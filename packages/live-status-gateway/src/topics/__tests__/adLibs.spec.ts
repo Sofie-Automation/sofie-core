@@ -12,14 +12,15 @@ import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler.js'
 import { AdLibAction } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { AdLibsEvent } from '@sofie-automation/live-status-gateway-api'
+import { PartId, RundownId, RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 function makeTestAdLibActions(): AdLibAction[] {
 	return [
 		{
 			_id: protectString('ACTION_0'),
 			actionId: 'ACTION_0',
-			partId: protectString('part0'),
-			rundownId: protectString('RUNDOWN_0'),
+			partId: protectString<PartId>('part0'),
+			rundownId: protectString<RundownId>('RUNDOWN_0'),
 			display: {
 				content: {},
 				label: { key: 'An Action' },
@@ -40,7 +41,7 @@ function makeTestGlobalAdLibActions(): RundownBaselineAdLibAction[] {
 		{
 			_id: protectString('GLOBAL_ACTION_0'),
 			actionId: 'GLOBAL_ACTION_0',
-			rundownId: protectString('RUNDOWN_0'),
+			rundownId: protectString<RundownId>('RUNDOWN_0'),
 			display: {
 				content: {},
 				label: { key: 'A Global Action' },
@@ -63,7 +64,7 @@ describe('AdLibsTopic', () => {
 		const mockSubscriber = makeMockSubscriber()
 
 		const playlist = makeTestPlaylist()
-		playlist.activationId = protectString('somethingRandom')
+		playlist.activationId = protectString<RundownPlaylistActivationId>('somethingRandom')
 		handlers.playlistHandler.notify(playlist)
 
 		const parts = makeTestParts()

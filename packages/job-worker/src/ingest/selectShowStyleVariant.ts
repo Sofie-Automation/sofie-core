@@ -94,7 +94,7 @@ async function selectShowStyleVariantWithBlueprints(
 
 	let showStyleId: ShowStyleBaseId | null = null
 	try {
-		showStyleId = protectString(
+		showStyleId = protectString<ShowStyleBaseId>(
 			studioBlueprint.blueprint.getShowStyleId(
 				blueprintContext,
 				showStyleBases.map(convertShowStyleBaseToBlueprints),
@@ -126,7 +126,7 @@ async function selectShowStyleVariantWithBlueprints(
 
 	let variantId: ShowStyleVariantId | null = null
 	try {
-		variantId = protectString(
+		variantId = protectString<ShowStyleVariantId>(
 			showStyleBlueprint.blueprint.getShowStyleVariantId(
 				blueprintContext,
 				showStyleVariants.map(convertShowStyleVariantToBlueprints),

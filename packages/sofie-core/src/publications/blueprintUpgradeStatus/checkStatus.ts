@@ -173,7 +173,7 @@ export function checkSystemUpgradeStatus(
 	} else {
 		// No blueprint assigned
 
-		const defaultId = protectString('default')
+		const defaultId = protectString<BlueprintId>('default')
 
 		// Some basic property checks
 		if (!doc.lastBlueprintConfig) {

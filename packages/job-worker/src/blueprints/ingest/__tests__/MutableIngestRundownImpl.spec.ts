@@ -3,7 +3,7 @@ import { MutableIngestRundownChanges, MutableIngestRundownImpl } from '../Mutabl
 import { SofieIngestRundownDataCacheGenerator } from '../../../ingest/sofieIngestCache.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { getSegmentId } from '../../../ingest/lib.js'
-import { SofieIngestDataCacheObjId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { RundownId, SofieIngestDataCacheObjId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { MutableIngestSegmentImpl } from '../MutableIngestSegmentImpl.js'
 import { IngestRundown, IngestSegment, SofieIngestSegment } from '@sofie-automation/blueprints-integration'
 import { SofieIngestRundownWithSource } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
@@ -89,7 +89,7 @@ describe('MutableIngestRundownImpl', () => {
 		}
 	}
 
-	const ingestObjectGenerator = new SofieIngestRundownDataCacheGenerator(protectString('rundownId'))
+	const ingestObjectGenerator = new SofieIngestRundownDataCacheGenerator(protectString<RundownId>('rundownId'))
 
 	function createNoChangesObject(ingestRundown: SofieIngestRundownWithSource): MutableIngestRundownChanges {
 		const allCacheObjectIds: SofieIngestDataCacheObjId[] = []

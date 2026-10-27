@@ -1,6 +1,15 @@
 import { IBlueprintPieceType, PieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import clone from 'fast-clone'
 import { EmptyPieceTimelineObjectsBlob, Piece } from '../../dataModel/Piece.js'
+import {
+	PartId,
+	PartInstanceId,
+	PieceId,
+	PieceInstanceId,
+	PieceInstanceInfiniteId,
+	RundownId,
+	RundownPlaylistActivationId,
+} from '../../dataModel/Ids.js'
 import { PieceInstance, PieceInstancePiece, ResolvedPieceInstance } from '../../dataModel/PieceInstance.js'
 import { literal } from '../../lib.js'
 import { protectString } from '../../protectedString.js'
@@ -22,14 +31,14 @@ describe('processAndPrunePieceInstanceTimings', () => {
 		infinite?: PieceInstance['infinite']
 	): PieceInstance {
 		return literal<PieceInstance>({
-			_id: protectString(id),
-			rundownId: protectString(''),
-			partInstanceId: protectString(''),
-			playlistActivationId: protectString('active'),
+			_id: protectString<PieceInstanceId>(id),
+			rundownId: protectString<RundownId>(''),
+			partInstanceId: protectString<PartInstanceId>(''),
+			playlistActivationId: protectString<RundownPlaylistActivationId>('active'),
 			piece: literal<PieceInstancePiece>({
-				_id: protectString(`${id}_p`),
+				_id: protectString<PieceId>(`${id}_p`),
 				externalId: '',
-				startPartId: protectString(''),
+				startPartId: protectString<PartId>(''),
 				enable: enable,
 				name: '',
 				lifespan: lifespan,
@@ -356,15 +365,15 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('one', { start: 0 }, 'one', PieceLifespan.OutOnSegmentChange, 6000, {
 				fromPreviousPart: true,
 				fromPreviousPlayhead: true,
-				infiniteInstanceId: protectString('one_a'),
+				infiniteInstanceId: protectString<PieceInstanceInfiniteId>('one_a'),
 				infiniteInstanceIndex: 0,
-				infinitePieceId: protectString('one_b'),
+				infinitePieceId: protectString<PieceId>('one_b'),
 			}),
 			createPieceInstance('two', { start: 0 }, 'one', PieceLifespan.OutOnSegmentEnd, false, {
 				fromPreviousPart: true,
-				infiniteInstanceId: protectString('two_a'),
+				infiniteInstanceId: protectString<PieceInstanceInfiniteId>('two_a'),
 				infiniteInstanceIndex: 0,
-				infinitePieceId: protectString('two_b'),
+				infinitePieceId: protectString<PieceId>('two_b'),
 			}),
 		]
 
@@ -389,15 +398,15 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('one', { start: 0 }, 'one', PieceLifespan.OutOnSegmentChange, 6000, {
 				fromPreviousPart: true,
 				fromPreviousPlayhead: true,
-				infiniteInstanceId: protectString('one_a'),
+				infiniteInstanceId: protectString<PieceInstanceInfiniteId>('one_a'),
 				infiniteInstanceIndex: 0,
-				infinitePieceId: protectString('one_b'),
+				infinitePieceId: protectString<PieceId>('one_b'),
 			}),
 			createPieceInstance('two', { start: 0 }, 'one', PieceLifespan.OutOnSegmentEnd, false, {
 				fromPreviousPart: false,
-				infiniteInstanceId: protectString('two_a'),
+				infiniteInstanceId: protectString<PieceInstanceInfiniteId>('two_a'),
 				infiniteInstanceIndex: 0,
-				infinitePieceId: protectString('two_b'),
+				infinitePieceId: protectString<PieceId>('two_b'),
 			}),
 		]
 
@@ -416,15 +425,15 @@ describe('processAndPrunePieceInstanceTimings', () => {
 		const pieceInstances = [
 			createPieceInstance('a', { start: 0 }, 'one', PieceLifespan.OutOnSegmentEnd, false, {
 				fromPreviousPart: true,
-				infiniteInstanceId: protectString('a_a'),
+				infiniteInstanceId: protectString<PieceInstanceInfiniteId>('a_a'),
 				infiniteInstanceIndex: 1,
-				infinitePieceId: protectString('a_b'),
+				infinitePieceId: protectString<PieceId>('a_b'),
 			}),
 			createPieceInstance('b', { start: 0 }, 'one', PieceLifespan.OutOnSegmentEnd, false, {
 				fromPreviousPart: true,
-				infiniteInstanceId: protectString('b_a'),
+				infiniteInstanceId: protectString<PieceInstanceInfiniteId>('b_a'),
 				infiniteInstanceIndex: 2,
-				infinitePieceId: protectString('b_b'),
+				infinitePieceId: protectString<PieceId>('b_b'),
 			}),
 		]
 
@@ -445,15 +454,15 @@ describe('processAndPrunePieceInstanceTimings', () => {
 		const pieceInstances = [
 			createPieceInstance('one', { start: 0 }, 'one', PieceLifespan.OutOnRundownEnd, false, {
 				fromPreviousPart: true,
-				infiniteInstanceId: protectString('one_a'),
+				infiniteInstanceId: protectString<PieceInstanceInfiniteId>('one_a'),
 				infiniteInstanceIndex: 0,
-				infinitePieceId: protectString('one_b'),
+				infinitePieceId: protectString<PieceId>('one_b'),
 			}),
 			createPieceInstance('two', { start: 0 }, 'one', PieceLifespan.OutOnSegmentEnd, false, {
 				fromPreviousPart: false,
-				infiniteInstanceId: protectString('two_a'),
+				infiniteInstanceId: protectString<PieceInstanceInfiniteId>('two_a'),
 				infiniteInstanceIndex: 0,
-				infinitePieceId: protectString('two_b'),
+				infinitePieceId: protectString<PieceId>('two_b'),
 			}),
 		]
 
@@ -470,15 +479,15 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('one', { start: 0 }, 'one', PieceLifespan.OutOnSegmentChange, false, {
 				fromPreviousPart: true,
 				fromPreviousPlayhead: true,
-				infiniteInstanceId: protectString('one_a'),
+				infiniteInstanceId: protectString<PieceInstanceInfiniteId>('one_a'),
 				infiniteInstanceIndex: 1,
-				infinitePieceId: protectString('one_b'),
+				infinitePieceId: protectString<PieceId>('one_b'),
 			}),
 			createPieceInstance('two', { start: 0 }, 'one', PieceLifespan.OutOnSegmentEnd, false, {
 				fromPreviousPart: false,
-				infiniteInstanceId: protectString('two_a'),
+				infiniteInstanceId: protectString<PieceInstanceInfiniteId>('two_a'),
 				infiniteInstanceIndex: 0,
-				infinitePieceId: protectString('two_b'),
+				infinitePieceId: protectString<PieceId>('two_b'),
 			}),
 		]
 
@@ -603,14 +612,14 @@ describe('resolvePrunedPieceInstances', () => {
 		userDuration?: PieceInstance['userDuration']
 	): PieceInstanceWithTimings {
 		return literal<PieceInstanceWithTimings>({
-			_id: protectString(''),
-			rundownId: protectString(''),
-			partInstanceId: protectString(''),
-			playlistActivationId: protectString('active'),
+			_id: protectString<PieceInstanceId>(''),
+			rundownId: protectString<RundownId>(''),
+			partInstanceId: protectString<PartInstanceId>(''),
+			playlistActivationId: protectString<RundownPlaylistActivationId>('active'),
 			piece: literal<PieceInstancePiece>({
-				_id: protectString(''),
+				_id: protectString<PieceId>(''),
 				externalId: '',
-				startPartId: protectString(''),
+				startPartId: protectString<PartId>(''),
 				enable: enable,
 				name: '',
 				lifespan: PieceLifespan.WithinPart,

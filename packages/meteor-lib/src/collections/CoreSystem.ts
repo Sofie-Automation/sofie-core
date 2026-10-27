@@ -5,7 +5,7 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ObjectWithOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
 
-export const SYSTEM_ID: CoreSystemId = protectString('core')
+export const SYSTEM_ID = protectString<CoreSystemId>('core')
 
 /**
  * Criticality level for service messages. Specification of criticality in server

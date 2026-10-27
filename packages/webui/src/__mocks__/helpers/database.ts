@@ -28,10 +28,13 @@ import {
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import type {
 	BlueprintId,
+	PartId,
+	PeripheralDeviceId,
 	RundownId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
 	ShowStyleVariantId,
+	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	AdLibPieces,
@@ -105,7 +108,7 @@ export async function setupMockCore(doc?: Partial<ICoreSystem>): Promise<ICoreSy
 // 	const mocks: DBTriggeredActions[] = []
 // 	for (let i = 0; i < num; i++) {
 // 		const mock: DBTriggeredActions = {
-// 			_id: protectString(`mockTriggeredAction_${showStyleBaseId ?? 'core'}` + i),
+// 			_id: protectString<TriggeredActionId>(`mockTriggeredAction_${showStyleBaseId ?? 'core'}` + i),
 // 			_rank: i * 1000,
 // 			showStyleBaseId,
 // 			blueprintUniqueId: null,
@@ -143,7 +146,7 @@ export async function setupMockStudio(doc?: Partial<DBStudio>): Promise<DBStudio
 	doc = doc || {}
 
 	const studio: DBStudio = {
-		...defaultStudio(protectString('mockStudio' + dbI++)),
+		...defaultStudio(protectString<StudioId>('mockStudio' + dbI++)),
 		name: 'mockStudio',
 		_rundownVersionHash: 'asdf',
 		...doc,
@@ -158,7 +161,7 @@ export async function setupMockShowStyleBase(
 	doc = doc || {}
 
 	const defaultShowStyleBase: DBShowStyleBase = {
-		_id: protectString('mockShowStyleBase' + dbI++),
+		_id: protectString<ShowStyleBaseId>('mockShowStyleBase' + dbI++),
 		name: 'mockShowStyleBase',
 		outputLayersWithOverrides: wrapDefaultObject(
 			normalizeArray(
@@ -265,7 +268,7 @@ export async function setupDefaultStudioEnvironment(): Promise<DefaultEnvironmen
 	const showStyleVariant = await setupMockShowStyleVariant(showStyleBase._id, { _id: showStyleVariantId })
 
 	const studio = await setupMockStudio({
-		blueprintId: protectString('blueprint0'),
+		blueprintId: protectString<BlueprintId>('blueprint0'),
 		supportedShowStyleBase: [showStyleBaseId],
 	})
 
@@ -287,9 +290,12 @@ export async function setupDefaultRundownPlaylist(
 ): Promise<{ rundownId: RundownId; playlistId: RundownPlaylistId }> {
 	const rundownId: RundownId = rundownId0 || getRandomId()
 
-	const playlist: DBRundownPlaylist = defaultRundownPlaylist(protectString('playlist_' + rundownId), env.studio._id)
+	const playlist: DBRundownPlaylist = defaultRundownPlaylist(
+		protectString<RundownPlaylistId>('playlist_' + rundownId),
+		env.studio._id
+	)
 
-	const playlistId: RundownPlaylistId = protectString(
+	const playlistId: RundownPlaylistId = protectString<RundownPlaylistId>(
 		MongoMock.getInnerMockCollection(RundownPlaylists).insert(playlist)
 	)
 
@@ -339,7 +345,7 @@ export async function setupDefaultRundown(
 
 		source: {
 			type: 'nrcs',
-			peripheralDeviceId: protectString('ingest0'),
+			peripheralDeviceId: protectString<PeripheralDeviceId>('ingest0'),
 			nrcsName: 'mock',
 		},
 	}
@@ -362,7 +368,7 @@ export async function setupDefaultRundown(
 	/* tslint:disable:ter-indent*/
 	//
 	const part00: DBPart = {
-		_id: protectString(rundownId + '_part0_0'),
+		_id: protectString<PartId>(rundownId + '_part0_0'),
 		segmentId: segment0._id,
 		rundownId: rundown._id,
 		_rank: 0,
@@ -430,7 +436,7 @@ export async function setupDefaultRundown(
 	MongoMock.getInnerMockCollection(AdLibPieces).insert(adLibPiece000)
 
 	const part01: DBPart = {
-		_id: protectString(rundownId + '_part0_1'),
+		_id: protectString<PartId>(rundownId + '_part0_1'),
 		segmentId: segment0._id,
 		rundownId: segment0.rundownId,
 		_rank: 1,
@@ -470,7 +476,7 @@ export async function setupDefaultRundown(
 	MongoMock.getInnerMockCollection(Segments).insert(segment1)
 
 	const part10: DBPart = {
-		_id: protectString(rundownId + '_part1_0'),
+		_id: protectString<PartId>(rundownId + '_part1_0'),
 		segmentId: segment1._id,
 		rundownId: segment1.rundownId,
 		_rank: 0,
@@ -481,7 +487,7 @@ export async function setupDefaultRundown(
 	MongoMock.getInnerMockCollection(UIParts).insert(part10)
 
 	const part11: DBPart = {
-		_id: protectString(rundownId + '_part1_1'),
+		_id: protectString<PartId>(rundownId + '_part1_1'),
 		segmentId: segment1._id,
 		rundownId: segment1.rundownId,
 		_rank: 1,
@@ -492,7 +498,7 @@ export async function setupDefaultRundown(
 	MongoMock.getInnerMockCollection(UIParts).insert(part11)
 
 	const part12: DBPart = {
-		_id: protectString(rundownId + '_part1_2'),
+		_id: protectString<PartId>(rundownId + '_part1_2'),
 		segmentId: segment1._id,
 		rundownId: segment1.rundownId,
 		_rank: 2,
