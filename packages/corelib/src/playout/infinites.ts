@@ -215,13 +215,19 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 	}
 
 	const replayPlayingPartInstance = (playing: PlayingPartInstance, isOnPath: boolean) => {
-		for (const instance of getPieceInstancesInOrder(playing.pieceInstances)) {
+		const layersWithShadow = new Set(
+			playing.pieceInstances.filter((p) => isShadowPiece(p.piece)).map((p) => p.piece.sourceLayerId)
+		)
+
+		for (const { instance, start } of getPieceInstancesInOrder(playing)) {
 			const layer = getLayer(instance.piece.sourceLayerId)
 			const lifespan = PieceLifespan.from(instance.piece.lifespan)
-			// A persisting piece also stops playing while it is hidden in shadow, so only a user stop ends it for good
-			const isStopped =
-				!!instance.userDuration || (!!instance.plannedStoppedPlayback && !lifespan.persistsInShadow)
 			const isOpenEnded = !instance.userDuration && typeof instance.piece.enable.duration !== 'number'
+			// A piece also stops playing while it is hidden in shadow, by a newer piece of a narrower scope or by a
+			// shadow, so only a user stop ends it for good. Newer pieces ending it are replayed below
+			const mayBeHidden =
+				lifespan.persistsInShadow || (isOpenEnded && layersWithShadow.has(instance.piece.sourceLayerId))
+			const isStopped = !!instance.userDuration || (!!instance.plannedStoppedPlayback && !mayBeHidden)
 			const isShadow = isShadowPiece(instance.piece)
 			const isAdlib = instance.dynamicallyInserted !== undefined
 			const isUnplanned = isAdlib || instance.dynamicallyConvertedToInfinite !== undefined
@@ -246,8 +252,20 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 			layer.live = stopLiveInfinites(layer.live, lifespan, isOpenEnded, isShadow, !isUnplanned)
 
 			// The planned Pieces of the playing Part are replayed with the plan, but an adlib changes the plan
+			// Only the ones started before it though, the later planned pieces of this Part are newer
 			if (isOnPath && isAdlib) {
-				layer.planned = stopShadowedInfinites(layer.planned, (p) => p.lifespan, lifespan, isOpenEnded, isShadow)
+				const isLaterInPart = (p: ReadonlyDeep<Piece>) =>
+					p.startPartId === playing.partInstance.part._id && compareStarts(p.enable.start, start) > 0
+				layer.planned = [
+					...stopShadowedInfinites(
+						layer.planned.filter((p) => !isLaterInPart(p)),
+						(p) => p.lifespan,
+						lifespan,
+						isOpenEnded,
+						isShadow
+					),
+					...layer.planned.filter(isLaterInPart),
+				]
 			}
 
 			if (continuesFromHere) layer.live.push(instance)
@@ -305,6 +323,7 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 /**
  * A new piece on a layer stops the infinites that stop in shadow. When it persists in shadow, it also ends the ones of
  * its own scope if it has no end, or if they are `legacy-persist`. Otherwise they resume once the new piece ends.
+ * A shadow ends none of them.
  */
 function stopShadowedInfinites<T>(
 	active: T[],
@@ -313,11 +332,12 @@ function stopShadowedInfinites<T>(
 	newIsOpenEnded: boolean,
 	newIsShadow: boolean
 ): T[] {
+	// A shadow only obstructs the layer, every infinite keeps being continued under it
+	if (newIsShadow) return active
+
 	return active.filter((entry) => {
 		const lifespan = PieceLifespan.from(getLifespan(entry))
 		if (!lifespan.persistsInShadow) return false
-		// A shadow only obstructs the persisting ones, they keep being continued under it
-		if (newIsShadow) return true
 
 		const isSameScope = newLifespan.persistsInShadow && newLifespan.scope === lifespan.scope
 		return !isSameScope || (!newIsOpenEnded && !lifespan.isEndedByNewerOfSameScope)
@@ -388,15 +408,32 @@ function getPlannedPiecesBeforePartInOrder(
 		.sort((a, b) => a.partIndex - b.partIndex || compareStarts(a.piece.enable.start, b.piece.enable.start))
 }
 
-function getPieceInstancesInOrder(pieceInstances: ReadonlyDeep<PieceInstance[]>): ReadonlyDeep<PieceInstance>[] {
-	return [...pieceInstances].sort(
-		(a, b) =>
-			compareStarts(a.piece.enable.start, b.piece.enable.start) ||
-			// Continuations were on the layer before anything starting at the same time
-			(b.infinite?.fromPreviousPart ? 1 : 0) - (a.infinite?.fromPreviousPart ? 1 : 0) ||
-			// Adlibs starting 'now' are ordered by when they were inserted
-			(a.dynamicallyInserted ?? 0) - (b.dynamicallyInserted ?? 0)
-	)
+function getPieceInstancesInOrder(
+	playing: PlayingPartInstance
+): Array<{ instance: ReadonlyDeep<PieceInstance>; start: number | 'now' }> {
+	const timings = playing.partInstance.timings
+	const partStartedAt = timings?.plannedStartedPlayback ?? timings?.reportedStartedPlayback
+
+	// A piece starting 'now' is placed at when it was actually started, if that is known
+	const getStart = (instance: ReadonlyDeep<PieceInstance>): number | 'now' => {
+		if (instance.piece.enable.start !== 'now') return instance.piece.enable.start
+
+		const startedAt =
+			instance.plannedStartedPlayback ?? instance.reportedStartedPlayback ?? instance.dynamicallyInserted
+		if (startedAt === undefined || partStartedAt === undefined) return 'now'
+		return Math.max(0, startedAt - partStartedAt)
+	}
+
+	return [...playing.pieceInstances]
+		.sort(
+			(a, b) =>
+				compareStarts(getStart(a), getStart(b)) ||
+				// Continuations were on the layer before anything starting at the same time
+				(b.infinite?.fromPreviousPart ? 1 : 0) - (a.infinite?.fromPreviousPart ? 1 : 0) ||
+				// Adlibs starting 'now' are ordered by when they were inserted
+				(a.dynamicallyInserted ?? 0) - (b.dynamicallyInserted ?? 0)
+		)
+		.map((instance) => ({ instance, start: getStart(instance) }))
 }
 
 /** Order piece starts, with 'now' being after any planned time */

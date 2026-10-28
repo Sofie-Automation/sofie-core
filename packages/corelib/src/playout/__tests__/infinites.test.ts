@@ -253,21 +253,24 @@ describe('Infinites', () => {
 			).toEqual(['legacy'])
 		})
 
-		test('a shadow ends the infinites which stop in shadow, and the persisting ones continue under it', () => {
-			const stop = createPiece('stop', 'part0', 0, 'layer', segmentStop)
-			const persist = createPiece('persist', 'part0', 0, 'layer', rundownPersist)
-			const shadow = {
-				...createPiece('shadow', 'part1', 0, 'layer', segmentPersist),
+		test('a shadow ends no infinite, they all continue under it', () => {
+			const stop = createPiece('stop', 'part0', 0, 'layerA', segmentStop)
+			const persist = createPiece('persist', 'part0', 0, 'layerB', rundownPersist)
+			const shadow = (layer: string) => ({
+				...createPiece(`shadow_${layer}`, 'part1', 0, layer, segmentPersist),
 				virtual: true,
 				virtualMode: 'shadow' as const,
-			}
+			})
+			const pieces = [stop, persist, shadow('layerA'), shadow('layerB')]
 
-			// The shadow continues for its own scope, the persisting infinite is still there under it
-			expect(getContinuedPieceIds(getParams('part2', [stop, persist, shadow])).sort()).toEqual([
+			// The shadows continue for their own scope, the infinites are still there under them
+			expect(getContinuedPieceIds(getParams('part2', pieces)).sort()).toEqual([
 				'persist',
-				'shadow',
+				'shadow_layerA',
+				'shadow_layerB',
+				'stop',
 			])
-			expect(getContinuedPieceIds(getParams('part3', [stop, persist, shadow]))).toEqual(['persist'])
+			expect(getContinuedPieceIds(getParams('part3', pieces))).toEqual(['persist'])
 		})
 
 		test('infinites which persist in shadow with different scopes are stacked, broadest first', () => {
@@ -399,6 +402,24 @@ describe('Infinites', () => {
 			expect(getContinuedPieceIds(getParams('part2', [infinite], withAdlib))).toEqual([])
 		})
 
+		test('an infinite which stopped playing while hidden by a shadow is still continued', () => {
+			const playhead = createPiece('playhead', 'part0', 0, 'layer', segmentPlayhead)
+			const shadow = {
+				...createPiece('shadow', 'part0', 2000, 'layer', partOnly),
+				enable: { start: 2000, duration: 3000 },
+				virtual: true,
+				virtualMode: 'shadow' as const,
+			}
+			// Playout reports the piece as stopped when the shadow cuts it, and the slice resuming after it is not it
+			const stoppedPlayhead = createPieceInstance(playhead, { plannedStoppedPlayback: 2000 })
+
+			const withShadow = createPlaying('part0', [stoppedPlayhead, createPieceInstance(shadow)])
+			expect(getContinuedPieceIds(getParams('part1', [], withShadow))).toEqual(['playhead'])
+
+			const withoutShadow = createPlaying('part0', [stoppedPlayhead])
+			expect(getContinuedPieceIds(getParams('part1', [], withoutShadow))).toEqual([])
+		})
+
 		test('a planned infinite which was stopped in the playing part is not continued', () => {
 			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentPersist)
 
@@ -505,6 +526,29 @@ describe('Infinites', () => {
 			])
 
 			expect(getContinuedPieceIds(getParams('part2', [], playing))).toEqual(['legacy'])
+		})
+
+		test('an adlib is ordered by when it was taken against the planned pieces of its part', () => {
+			const planned = createPiece('planned', 'part1', 5000, 'layer', segmentPersist)
+			const adlib = createPiece('adlib', 'part1', 0, 'layer', segmentPersist)
+			const playing = (takenAt: number) => {
+				const instance = createPlaying('part1', [
+					createPieceInstance(planned),
+					createPieceInstance(adlib, {
+						dynamicallyInserted: 100000 + takenAt,
+						piece: { enable: { start: 'now' } },
+					}),
+				])
+				return {
+					...instance,
+					partInstance: { ...instance.partInstance, timings: { plannedStartedPlayback: 100000 } },
+				}
+			}
+
+			// Taken at 3s: the planned piece at 5s is newer, of the same scope and has no end, so it ends the adlib
+			expect(getContinuedPieceIds(getParams('part2', [planned], playing(3000)))).toEqual(['planned'])
+			// Taken at 7s: the adlib is newer, and replaces the planned piece
+			expect(getContinuedPieceIds(getParams('part2', [planned], playing(7000)))).toEqual(['adlib'])
 		})
 
 		describe('AdlibTesting', () => {

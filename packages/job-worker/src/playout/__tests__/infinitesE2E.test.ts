@@ -277,7 +277,7 @@ describe('Infinites through playout', () => {
 		expect((await getNamesOnAir(playlistId)).current).toEqual({ part: '1_0', pieces: [] })
 	})
 
-	test('an adlib shadow ends stop infinites on its layer, and persisting ones continue', async () => {
+	test('an adlib shadow ends no infinite on its layer', async () => {
 		const { playlistId, rundownId } = await setupDefaultRundownPlaylist(context)
 		const rd = String(rundownId)
 		await addPiece(rd, 'Stop', '1_0', { scope: 'segment', presence: 'forward-scope', inShadow: 'stop' }, 'layerS')
@@ -312,9 +312,9 @@ describe('Infinites through playout', () => {
 			[true, 'shadow'],
 		])
 
-		expect((await getNamesOnAir(playlistId)).next).toEqual({ part: '1_2', pieces: ['T:Persist'] })
+		expect((await getNamesOnAir(playlistId)).next).toEqual({ part: '1_2', pieces: ['T:Persist', 'T:Stop'] })
 		await take(playlistId)
-		expect((await getNamesOnAir(playlistId)).current).toEqual({ part: '1_2', pieces: ['T:Persist'] })
+		expect((await getNamesOnAir(playlistId)).current).toEqual({ part: '1_2', pieces: ['T:Persist', 'T:Stop'] })
 	})
 
 	test.each([
