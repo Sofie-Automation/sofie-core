@@ -170,6 +170,18 @@ export function processAndPrunePieceInstanceTimings(
 			}
 			if (newPieces.best.other) hideLegacyPersistingPieces(partTimes, layerState, newPiecesStart, orderTime)
 
+			// A clear virtual has no content to cover the pieces it doesn't end, so it obstructs them as a shadow does
+			for (const key of ['other', ...PERSISTING_LAYER_KEYS] as const) {
+				const newPiece = newPieces.best[key]
+				if (newPiece && isClear(newPiece) && layerState.activePieces[key] === newPiece) {
+					const keysUnder =
+						key === 'other'
+							? PERSISTING_LAYER_KEYS
+							: PERSISTING_LAYER_KEYS.slice(PERSISTING_LAYER_KEYS.indexOf(key))
+					applyShadow(results, partTimes, layerState, newPiece, newPiecesStart, orderTime, keysUnder, true)
+				}
+			}
+
 			for (const shadow of shadows) {
 				applyShadow(results, partTimes, layerState, shadow, newPiecesStart, orderTime)
 				if (includeVirtual)
@@ -308,6 +320,8 @@ function hideLegacyPersistingPieces(
  * It ends nothing: the pieces under it are cut at the start of the shadow, and a slice of them resumes once it ends,
  * unless they are legacy-persist, which stay hidden for the rest of the Part.
  * Continuations from a previous Part are obstructed by a shadow starting at the same time too.
+ * @param keys The groups of pieces under the shadow
+ * @param keepLegacy Leave the legacy-persist pieces to the timeline, which covers them by priority as it used to
  */
 function applyShadow(
 	results: PieceInstanceWithTimings[],
@@ -315,10 +329,14 @@ function applyShadow(
 	{ activePieces, shadowedPieces }: InfiniteLayerState,
 	shadow: ReadonlyDeep<PieceInstance>,
 	shadowStart: number | 'now',
-	startTime: number
+	startTime: number,
+	keys: readonly InfiniteLayerKey[] = ['other', ...PERSISTING_LAYER_KEYS],
+	keepLegacy = false
 ): void {
 	const shadowEnd = getPieceEndTimeWithinPart(shadow, partTimes)
 	const isUnder = (piece: PieceInstanceWithTimings) => {
+		if (piece === shadow) return false
+		if (keepLegacy && PieceLifespan.from(piece.piece.lifespan).isEndedByNewerOfSameScope) return false
 		if (!piece.infinite?.fromPreviousPart) return getPieceOrderTime(piece, partTimes) < startTime
 
 		// When both were continued, the one whose chain started first is underneath
@@ -357,10 +375,7 @@ function applyShadow(
 		return slice
 	}
 
-	const otherPiece = activePieces.other
-	if (otherPiece && isUnder(otherPiece)) activePieces.other = sliceAfterShadow(otherPiece)
-
-	for (const key of PERSISTING_LAYER_KEYS) {
+	for (const key of keys) {
 		const activePiece = activePieces[key]
 		if (activePiece && isUnder(activePiece)) activePieces[key] = sliceAfterShadow(activePiece)
 

@@ -353,6 +353,28 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			])
 		})
 
+		test('a clear virtual which does not end a persisting piece obstructs it while active, as a shadow', () => {
+			const clear = createPieceInstance('clear', { start: 2000, duration: 3000 }, 'one', partOnlyLifespan, true)
+			const segmentPersist: IPieceLifespan = { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' }
+			const legacyPersist: IPieceLifespan = { ...rundownPersist, inShadow: 'legacy-persist' }
+
+			expect(
+				runAndTidyResult([continuation('incoming', segmentPersist), clear], createPartCurrentTimes(500, 0))
+			).toEqual([
+				{ _id: 'incoming', priority: 2, start: 0, end: 2000 },
+				{ _id: 'clear', priority: 5, start: 2000, end: undefined },
+				{ _id: 'incoming_after_clear', priority: 2, start: 5000, end: undefined },
+			])
+
+			// A legacy-persist piece is hidden for the rest of the Part, as it was
+			expect(
+				runAndTidyResult([continuation('incoming', legacyPersist), clear], createPartCurrentTimes(500, 0))
+			).toEqual([
+				{ _id: 'incoming', priority: 1, start: 0, end: 2000 },
+				{ _id: 'clear', priority: 5, start: 2000, end: undefined },
+			])
+		})
+
 		test('a piece starting during the shadow ends a piece which stops in shadow under it', () => {
 			const resolvedInstances = runAndTidyResult(
 				[
@@ -503,7 +525,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				_id: 'zero',
 				priority: 0,
 				start: 0,
-				end: 6000,
+				end: 3000,
 			},
 			{
 				_id: 'one',
@@ -565,7 +587,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				_id: 'zero',
 				priority: 0,
 				start: 0,
-				end: 6000,
+				end: 3000,
 			},
 			{
 				_id: 'one',
@@ -583,7 +605,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				_id: 'three',
 				priority: 1,
 				start: 3000,
-				end: undefined,
+				end: 5000,
 			},
 			{
 				_id: 'four',
