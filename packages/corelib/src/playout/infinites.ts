@@ -243,7 +243,7 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 				continue
 			}
 
-			layer.live = stopShadowedInfinites(layer.live, (p) => p.piece.lifespan, lifespan, isOpenEnded, isShadow)
+			layer.live = stopLiveInfinites(layer.live, lifespan, isOpenEnded, isShadow, !isUnplanned)
 
 			// The planned Pieces of the playing Part are replayed with the plan, but an adlib changes the plan
 			if (isOnPath && isAdlib) {
@@ -277,7 +277,7 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 		const isShadow = isShadowPiece(piece)
 		layer.planned = stopShadowedInfinites(layer.planned, (p) => p.lifespan, lifespan, isOpenEnded, isShadow)
 		if (hasReplayedPlaying && playheadTravelsThrough) {
-			layer.live = stopShadowedInfinites(layer.live, (p) => p.piece.lifespan, lifespan, isOpenEnded, isShadow)
+			layer.live = stopLiveInfinites(layer.live, lifespan, isOpenEnded, isShadow, true)
 		}
 
 		// Only forward scoped infinites continue from the plan. One following the playhead becomes an infinite once the
@@ -322,6 +322,29 @@ function stopShadowedInfinites<T>(
 		const isSameScope = newLifespan.persistsInShadow && newLifespan.scope === lifespan.scope
 		return !isSameScope || (!newIsOpenEnded && !lifespan.isEndedByNewerOfSameScope)
 	})
+}
+
+/**
+ * Stop the infinites continuing from the playing PartInstance, as `stopShadowedInfinites` does.
+ * As before, planned pieces never end an adlibbed legacy-persist infinite: it is only covered in the Part where they
+ * start, and continues after it
+ */
+function stopLiveInfinites(
+	live: ReadonlyDeep<PieceInstance>[],
+	newLifespan: PieceLifespan,
+	newIsOpenEnded: boolean,
+	newIsShadow: boolean,
+	newIsPlanned: boolean
+): ReadonlyDeep<PieceInstance>[] {
+	const remaining = stopShadowedInfinites(live, (p) => p.piece.lifespan, newLifespan, newIsOpenEnded, newIsShadow)
+	if (!newIsPlanned) return remaining
+
+	return live.filter(
+		(p) =>
+			remaining.includes(p) ||
+			(PieceLifespan.from(p.piece.lifespan).isEndedByNewerOfSameScope &&
+				(p.dynamicallyInserted !== undefined || p.dynamicallyConvertedToInfinite !== undefined))
+	)
 }
 
 function getPartIndices(params: PieceInstancesForPartParams): Map<PartId, number> {

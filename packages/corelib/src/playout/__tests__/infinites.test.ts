@@ -481,6 +481,32 @@ describe('Infinites', () => {
 			])
 		})
 
+		test('a planned piece does not end an adlibbed legacy-persist infinite, as it did not before', () => {
+			const continuedAdlib = (id: string, lifespan: IPieceLifespan) =>
+				createPieceInstance(createPiece(id, 'part0', 0, id, lifespan), {
+					dynamicallyInserted: 1,
+					infinite: {
+						infiniteInstanceId: protectString(`${id}_chain`),
+						infiniteInstanceIndex: 1,
+						infinitePieceId: protectString(id),
+						fromPreviousPart: true,
+						fromPreviousPlayhead: true,
+					},
+				})
+			const virtualEnder = (id: string, lifespan: IPieceLifespan) =>
+				createPieceInstance({ ...createPiece(`${id}_end`, 'part1', 0, id, lifespan), virtual: true })
+
+			const legacyPersist: IPieceLifespan = { ...rundownPersist, inShadow: 'legacy-persist' }
+			const playing = createPlaying('part1', [
+				continuedAdlib('legacy', legacyPersist),
+				virtualEnder('legacy', legacyPersist),
+				continuedAdlib('persist', rundownPersist),
+				virtualEnder('persist', rundownPersist),
+			])
+
+			expect(getContinuedPieceIds(getParams('part2', [], playing))).toEqual(['legacy'])
+		})
+
 		describe('AdlibTesting', () => {
 			const adlib = createPiece('adlib', 'part0', 0, 'layer', rundownPersist)
 			const pieceInstances = [createPieceInstance(adlib, { dynamicallyInserted: 1 })]

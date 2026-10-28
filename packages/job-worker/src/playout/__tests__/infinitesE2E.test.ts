@@ -145,7 +145,8 @@ describe('Infinites through playout', () => {
 		name: string,
 		partId: string | null,
 		lifespan: IPieceLifespan,
-		layer: string
+		layer: string,
+		extra?: Record<string, unknown>
 	) {
 		await context.mockCollections.Pieces.insertOne({
 			...defaultPiece(
@@ -160,6 +161,7 @@ describe('Infinites through playout', () => {
 			lifespan,
 			sourceLayerId: layer,
 			outputLayerId: Object.keys(context.studio.mappings)[0] ?? '',
+			...extra,
 		} as any)
 	}
 
@@ -314,4 +316,31 @@ describe('Infinites through playout', () => {
 		await take(playlistId)
 		expect((await getNamesOnAir(playlistId)).current).toEqual({ part: '1_2', pieces: ['T:Persist'] })
 	})
+
+	test.each([
+		['legacy-persist', true],
+		['persist', false],
+	] as const)(
+		'a planned virtual over an adlibbed %s infinite: it continues after the virtual = %s',
+		async (inShadow, continuesAfter) => {
+			const { playlistId, rundownId } = await setupDefaultRundownPlaylist(context)
+			const rd = String(rundownId)
+			const lifespan: IPieceLifespan = { scope: 'rundown', presence: 'forward-scope', inShadow }
+			await addPiece(rd, 'End', '1_1', lifespan, 'layerA', { virtual: true })
+
+			await handleActivateRundownPlaylist(context, { playlistId, rehearsal: false })
+			await handleSetNextPart(context, { playlistId, nextPartId: protectString(`${rd}_part1_0`) })
+			await take(playlistId)
+			await insertOnAir(playlistId, 'Adlib', lifespan, 'layerA')
+
+			// The virtual covers it in its own part
+			await take(playlistId)
+			expect((await getNamesOnAir(playlistId)).current?.part).toEqual('1_1')
+
+			expect((await getNamesOnAir(playlistId)).next).toEqual({
+				part: '1_2',
+				pieces: continuesAfter ? ['T:Adlib'] : [],
+			})
+		}
+	)
 })
