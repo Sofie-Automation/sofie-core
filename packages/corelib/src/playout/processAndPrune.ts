@@ -168,7 +168,6 @@ export function processAndPrunePieceInstanceTimings(
 			for (const key of PERSISTING_LAYER_KEYS) {
 				updateWithNewPieces(results, partTimes, layerState, newPieces, newPiecesStart, includeVirtual, key)
 			}
-			if (newPieces.best.other) hideLegacyPersistingPieces(partTimes, layerState, newPiecesStart, orderTime)
 
 			// A clear virtual has no content to cover the pieces it doesn't end, so it obstructs them as a shadow does
 			for (const key of ['other', ...PERSISTING_LAYER_KEYS] as const) {
@@ -287,38 +286,8 @@ interface InfiniteLayerState {
 }
 
 /**
- * A piece which doesn't persist in shadow hides the legacy-persist pieces it covers for the rest of the Part, as the
- * legacy onEnd presets used to. They come back in the next Part.
- * Continuations from a previous Part are covered by a piece starting at the same time too.
- */
-function hideLegacyPersistingPieces(
-	partTimes: PartCurrentTimes,
-	{ activePieces, shadowedPieces }: InfiniteLayerState,
-	newPiecesStart: number | 'now',
-	startTime: number
-): void {
-	const isHidden = (piece: PieceInstanceWithTimings) =>
-		PieceLifespan.from(piece.piece.lifespan).isEndedByNewerOfSameScope &&
-		(!!piece.infinite?.fromPreviousPart || getPieceOrderTime(piece, partTimes) < startTime)
-
-	for (const key of PERSISTING_LAYER_KEYS) {
-		const activePiece = activePieces[key]
-		const shadowed = shadowedPieces.get(key) ?? []
-		for (const piece of _.compact([activePiece, ...shadowed])) {
-			if (isHidden(piece)) piece.resolvedEndCap = getPieceStartTimeAsReference(newPiecesStart, partTimes, piece)
-		}
-		if (activePiece && isHidden(activePiece)) activePieces[key] = undefined
-		shadowedPieces.set(
-			key,
-			shadowed.filter((piece) => !isHidden(piece))
-		)
-	}
-}
-
-/**
  * A shadow obstructs the pieces already on its layer while it is active. Pieces starting after it are on top of it.
- * It ends nothing: the pieces under it are cut at the start of the shadow, and a slice of them resumes once it ends,
- * unless they are legacy-persist, which stay hidden for the rest of the Part.
+ * It ends nothing: the pieces under it are cut at the start of the shadow, and a slice of them resumes once it ends.
  * Continuations from a previous Part are obstructed by a shadow starting at the same time too.
  * @param keys The groups of pieces under the shadow
  * @param keepLegacy Leave the legacy-persist pieces to the timeline, which covers them by priority as it used to
@@ -349,8 +318,7 @@ function applyShadow(
 
 	const sliceAfterShadow = (piece: PieceInstanceWithTimings): PieceInstanceWithTimings | undefined => {
 		piece.resolvedEndCap = getPieceStartTimeAsReference(shadowStart, partTimes, piece)
-		if (shadowEnd === undefined || PieceLifespan.from(piece.piece.lifespan).isEndedByNewerOfSameScope)
-			return undefined
+		if (shadowEnd === undefined) return undefined
 
 		const pieceEnd = getPieceEndTimeWithinPart(piece, partTimes)
 		if (pieceEnd !== undefined && pieceEnd <= shadowEnd) return undefined

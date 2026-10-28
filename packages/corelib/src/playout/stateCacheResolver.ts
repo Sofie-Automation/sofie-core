@@ -396,118 +396,18 @@ export function getResolvedSegment({
 							: item.instance.piece.outputLayerId + '_' + item.instance.piece.sourceLayerId
 					})
 				)
-				// check if the Pieces should be cropped (as should be the case if an item on a layer is placed after
-				// an infinite Piece) and limit the width of the labels so that they dont go under or over the next Piece.
-				for (let i = 0; i < itemsByLayer.length; i++) {
-					// const layerId = itemsByLayer[i][0]
-					const layerItems = itemsByLayer[i][1]
-					// sort on rendered in-point and then on priority
-					const sortedItems = layerItems.sort(
-						(a, b) =>
-							(a.renderedInPoint || 0) - (b.renderedInPoint || 0) ||
-							a.instance.priority - b.instance.priority ||
-							(a.sourceLayer?._rank || 0) - (b.sourceLayer?._rank || 0)
-					)
-					for (let i = 0; i < sortedItems.length; i++) {
-						const currentItem = sortedItems[i]
-						const previousItem = sortedItems[i - 1] as PieceExtended | undefined
-
-						// This block, along with a some of the adjacent code has been removed at the request of
-						// Jesper Stærkær making all infinite pieces that do not start in a given Part lose their
-						// labels. I'm keeping it here, in case someone realizes this was a horrible mistake,
-						// and we can skip all of the head-scratching. -- Jan Starzak, 2021/10/14
-						//
-						// const possibleBuddyPiece = lastPartPiecesBySourceLayer[layerId]
-						// if (
-						// 	possibleBuddyPiece &&
-						// 	possibleBuddyPiece.instance.piece.lifespan !== { scope: 'part', presence: 'forward-scope', inShadow: 'stop' } &&
-						// 	currentItem.instance.infinite &&
-						// 	possibleBuddyPiece.instance.infinite &&
-						// 	(possibleBuddyPiece.instance.infinite.infiniteInstanceId ===
-						// 		currentItem.instance.infinite.infiniteInstanceId ||
-						// 		possibleBuddyPiece.instance.infinite.infinitePieceId ===
-						// 			currentItem.instance.infinite.infinitePieceId)
-						// ) {
-						// 	currentItem.hasOriginInPreceedingPart = true
-						// }
-						if (currentItem.instance.piece.startPartId !== part.instance.part._id) {
-							currentItem.hasOriginInPreceedingPart = true
+				for (const [, layerItems] of itemsByLayer) {
+					for (const item of layerItems) {
+						// Infinite pieces that do not start in this Part don't show their labels, at the request of
+						// Jesper Stærkær -- Jan Starzak, 2021/10/14
+						if (item.instance.piece.startPartId !== part.instance.part._id) {
+							item.hasOriginInPreceedingPart = true
 						}
+					}
 
-						if (
-							previousItem !== undefined && // on i === 0, previousItem will be undefined
-							previousItem.renderedInPoint !== null &&
-							currentItem.renderedInPoint !== null &&
-							previousItem.renderedInPoint !== undefined &&
-							currentItem.renderedInPoint !== undefined &&
-							previousItem.renderedDuration !== undefined &&
-							currentItem.renderedDuration !== undefined
-						) {
-							const previousLifespan = PieceLifespan.from(previousItem.instance.piece.lifespan)
-							// legacy-persist infinites are shown ending at the next piece, as they used to be
-							const previousResumes =
-								previousLifespan.persistsInShadow && !previousLifespan.isEndedByNewerOfSameScope
-							const previousEnd =
-								previousItem.renderedDuration === null
-									? null
-									: previousItem.renderedInPoint + previousItem.renderedDuration
-
-							// if previousItem is infinite and doesn't resume, currentItem caps it within the current part
-							if (previousItem.instance.infinite && !previousResumes) {
-								;(previousItem.instance.piece as PieceInstancePiece).lifespan = {
-									scope: 'part',
-									presence: 'forward-scope',
-									inShadow: 'stop',
-								}
-								delete (previousItem.instance as PieceInstance).infinite
-							}
-
-							// if previousItem persists in shadow, it resumes once currentItem ends
-							if (previousResumes && currentItem.renderedDuration !== null) {
-								const resumeAt = currentItem.renderedInPoint + currentItem.renderedDuration
-								if (previousEnd === null || previousEnd > resumeAt) {
-									const resumedItem: PieceExtended = {
-										...previousItem,
-										instance: {
-											...previousItem.instance,
-											_id: protectString(`${previousItem.instance._id}_resumed_${resumeAt}`),
-										},
-										renderedInPoint: resumeAt,
-										renderedDuration: previousEnd === null ? null : previousEnd - resumeAt,
-										cropped: false,
-										maxLabelWidth: undefined,
-										hasOriginInPreceedingPart: true,
-									}
-
-									const insertAt = sortedItems.findIndex(
-										(item, index) => index > i && (item.renderedInPoint ?? 0) > resumeAt
-									)
-									sortedItems.splice(insertAt === -1 ? sortedItems.length : insertAt, 0, resumedItem)
-									part.pieces.push(resumedItem)
-									resumedItem.sourceLayer?.pieces?.push(resumedItem)
-								}
-							}
-
-							if (
-								// previousItem spans beyond the currentItem renderedInPoint
-								(previousItem.renderedDuration !== null &&
-									previousItem.renderedInPoint + previousItem.renderedDuration >
-										currentItem.renderedInPoint) ||
-								// previousItem is infinite
-								previousItem.renderedDuration === null
-							) {
-								previousItem.renderedDuration =
-									currentItem.renderedInPoint - previousItem.renderedInPoint
-								previousItem.cropped = true
-							}
-
-							previousItem.maxLabelWidth = currentItem.renderedInPoint - previousItem.renderedInPoint
-						}
-
-						if (currentItem.renderedDuration === null && i === sortedItems.length - 1) {
-							// only if this is the very last piece on this layer
-							// thisLastPartPiecesBySourceLayer[layerId] = currentItem
-						}
+					for (const resumedItem of resolveVisiblePiecesOnLayer(layerItems)) {
+						part.pieces.push(resumedItem)
+						resumedItem.sourceLayer?.pieces?.push(resumedItem)
 					}
 				}
 			}
@@ -538,6 +438,103 @@ export function getResolvedSegment({
 	}
 
 	// get the part immediately after the last segment
+}
+
+/**
+ * Crop the pieces on a layer to what playout shows. As the timeline resolves it, at any time the piece with the highest
+ * priority is visible, or the latest started one when they are equal. A piece covered for a while comes back once the
+ * pieces covering it end, as an extra item.
+ * @returns The extra items of the pieces coming back
+ */
+function resolveVisiblePiecesOnLayer(items: PieceExtended[]): PieceExtended[] {
+	const timedItems = items.filter(
+		(item): item is PieceExtended & { renderedInPoint: number } =>
+			typeof item.renderedInPoint === 'number' && item.renderedDuration !== undefined
+	)
+	const getEnd = (item: PieceExtended & { renderedInPoint: number }) =>
+		item.renderedDuration === null ? Infinity : item.renderedInPoint + item.renderedDuration
+
+	// Step through every point where the visible piece may change
+	const points = _.uniq(timedItems.flatMap((item) => [item.renderedInPoint, getEnd(item)]))
+		.filter((point) => Number.isFinite(point))
+		.sort((a, b) => a - b)
+	const visibleSpans = new Map<PieceExtended, Array<{ start: number; end: number }>>()
+	points.forEach((start, index) => {
+		const end = points[index + 1] ?? Infinity
+		const visible = timedItems
+			.filter((item) => item.renderedInPoint <= start && getEnd(item) > start)
+			.reduce<
+				(PieceExtended & { renderedInPoint: number }) | undefined
+			>((best, item) => (!best || item.instance.priority > best.instance.priority || (item.instance.priority === best.instance.priority && item.renderedInPoint >= best.renderedInPoint) ? item : best), undefined)
+		if (!visible) return
+
+		const spans = visibleSpans.get(visible) ?? []
+		const lastSpan = spans[spans.length - 1]
+		if (lastSpan && lastSpan.end === start) lastSpan.end = end
+		else spans.push({ start, end })
+		visibleSpans.set(visible, spans)
+	})
+
+	const renderedItems: PieceExtended[] = []
+	const resumedItems: PieceExtended[] = []
+	for (const item of timedItems) {
+		const end = getEnd(item)
+		const spans = visibleSpans.get(item) ?? []
+		const lastSpan = spans[spans.length - 1]
+		const lifespan = PieceLifespan.from(item.instance.piece.lifespan)
+
+		// An infinite which doesn't persist in shadow and stops being visible within this Part was ended here
+		if (item.instance.infinite && !lifespan.persistsInShadow && (!lastSpan || lastSpan.end !== Infinity)) {
+			;(item.instance.piece as PieceInstancePiece).lifespan = {
+				scope: 'part',
+				presence: 'forward-scope',
+				inShadow: 'stop',
+			}
+			delete (item.instance as PieceInstance).infinite
+		}
+
+		const [firstSpan, ...laterSpans] = spans
+		if (!firstSpan) {
+			item.renderedDuration = 0
+			item.cropped = true
+			continue
+		}
+
+		const toDuration = (span: { start: number; end: number }) =>
+			span.end === Infinity ? null : span.end - span.start
+		item.renderedInPoint = firstSpan.start
+		item.renderedDuration = toDuration(firstSpan)
+		if (firstSpan.end < end) item.cropped = true
+		renderedItems.push(item)
+
+		for (const span of laterSpans) {
+			const resumedItem: PieceExtended = {
+				...item,
+				instance: {
+					...item.instance,
+					_id: protectString(`${item.instance._id}_resumed_${span.start}`),
+				},
+				renderedInPoint: span.start,
+				renderedDuration: toDuration(span),
+				cropped: span.end < end,
+				maxLabelWidth: undefined,
+				hasOriginInPreceedingPart: true,
+			}
+			renderedItems.push(resumedItem)
+			resumedItems.push(resumedItem)
+		}
+	}
+
+	// Limit the labels so that they don't go under the next item
+	const byStart = _.sortBy(renderedItems, (item) => item.renderedInPoint ?? 0)
+	byStart.forEach((item, index) => {
+		const next = byStart
+			.slice(index + 1)
+			.find((other) => (other.renderedInPoint ?? 0) > (item.renderedInPoint ?? 0))
+		if (next) item.maxLabelWidth = (next.renderedInPoint ?? 0) - (item.renderedInPoint ?? 0)
+	})
+
+	return resumedItems
 }
 
 export function isAdlibActionContent(

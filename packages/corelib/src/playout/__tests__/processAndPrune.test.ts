@@ -139,7 +139,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			},
 		])
 	})
-	test('a legacy-persist piece covered by another piece does not come back within the part', () => {
+	test('a legacy-persist piece covered by another piece comes back once it ends, as on the timeline', () => {
 		const pieceInstances = [
 			createPieceInstance(
 				'incoming',
@@ -163,12 +163,13 @@ describe('processAndPrunePieceInstanceTimings', () => {
 
 		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
-			{ _id: 'incoming', priority: 1, start: 0, end: 2000 },
+			// Not capped: the occluder covers it by priority on the timeline, and it comes back once that ends
+			{ _id: 'incoming', priority: 1, start: 0, end: undefined },
 			{ _id: 'occluder', priority: 5, start: 2000, end: undefined },
 		])
 	})
 
-	test('a legacy-persist piece is hidden for the rest of the part under nested pieces', () => {
+	test('a legacy-persist piece comes back once the nested pieces covering it end', () => {
 		const pieceInstances = [
 			createPieceInstance(
 				'incoming',
@@ -190,7 +191,8 @@ describe('processAndPrunePieceInstanceTimings', () => {
 
 		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
-			{ _id: 'incoming', priority: 1, start: 0, end: 1000 },
+			// Each newer part-only piece ends the previous one, so the incoming piece is back after C, at 4s
+			{ _id: 'incoming', priority: 1, start: 0, end: undefined },
 			{ _id: 'A', priority: 5, start: 1000, end: 2000 },
 			{ _id: 'B', priority: 5, start: 2000, end: 3000 },
 			{ _id: 'C', priority: 5, start: 3000, end: undefined },
@@ -299,7 +301,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			])
 		})
 
-		test('a legacy-persist piece is hidden for the rest of the part', () => {
+		test('a legacy-persist piece is cut by a shadow, and resumes after it', () => {
 			const resolvedInstances = runAndTidyResult(
 				[
 					continuation('incoming', { ...rundownPersist, inShadow: 'legacy-persist' }),
@@ -307,7 +309,10 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				],
 				createPartCurrentTimes(500, 0)
 			)
-			expect(resolvedInstances).toEqual([{ _id: 'incoming', priority: 1, start: 0, end: 2000 }])
+			expect(resolvedInstances).toEqual([
+				{ _id: 'incoming', priority: 1, start: 0, end: 2000 },
+				{ _id: 'incoming_after_shadow', priority: 1, start: 5000, end: undefined },
+			])
 		})
 
 		test('a piece starting during a shadow is on top of it', () => {
@@ -366,11 +371,11 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				{ _id: 'incoming_after_clear', priority: 2, start: 5000, end: undefined },
 			])
 
-			// A legacy-persist piece is hidden for the rest of the Part, as it was
+			// A legacy-persist piece is left to the timeline, which covers it by priority as it always did
 			expect(
 				runAndTidyResult([continuation('incoming', legacyPersist), clear], createPartCurrentTimes(500, 0))
 			).toEqual([
-				{ _id: 'incoming', priority: 1, start: 0, end: 2000 },
+				{ _id: 'incoming', priority: 1, start: 0, end: undefined },
 				{ _id: 'clear', priority: 5, start: 2000, end: undefined },
 			])
 		})

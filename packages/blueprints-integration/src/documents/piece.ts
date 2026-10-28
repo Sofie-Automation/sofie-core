@@ -30,8 +30,7 @@ export interface IBlueprintPiece<TPrivateData = unknown, TPublicData = unknown> 
 	 * - `clear` (default): acts like any piece starting on the layer, but without content. What it ends is gone,
 	 *   following the usual lifespan rules
 	 * - `shadow`: obstructs the layer while active, without ending anything. The pieces under it are hidden and
-	 *   come back once it ends, except `legacy-persist` ones, which stay hidden for the rest of the part. Pieces
-	 *   starting after it are on top of it. A shadow piece is always virtual
+	 *   come back once it ends. Pieces starting after it are on top of it. A shadow piece is always virtual
 	 */
 	virtualMode?: VirtualPieceMode
 
