@@ -37,6 +37,7 @@ import {
 import { BlueprintId, BucketId, RundownPlaylistActivationId, SegmentId, ShowStyleVariantId } from './dataModel/Ids.js'
 import { PackageInfoDB } from './dataModel/PackageInfos.js'
 import { UIPieceContentStatus } from './dataModel/PieceContentStatus.js'
+import { TimingStateDoc } from './dataModel/TimingState.js'
 import { Bucket } from './dataModel/Bucket.js'
 import { DBNotificationObj } from './dataModel/Notifications.js'
 
@@ -203,6 +204,15 @@ export enum CorelibPubSub {
 	 * If the id is null, nothing will be returned.
 	 */
 	uiPartInstances = 'uiPartInstances',
+
+	/**
+	 * Fetch the timing state of everything within the given RundownPlaylist: server-computed timing
+	 * values expressed as TimerStates (unix-timestamp based), which consumers evaluate locally
+	 * against the clock. Documents are a discriminated union keyed on `type`, with one document per
+	 * "area": the playlist, each segment and each part. Part documents are keyed by PartId.
+	 * If the id is null, nothing will be returned
+	 */
+	playlistTimingState = 'playlistTimingState',
 }
 
 /**
@@ -340,6 +350,10 @@ export interface CorelibPubSubTypes {
 	[CorelibPubSub.uiPartInstances]: (
 		playlistActivationId: RundownPlaylistActivationId | null
 	) => CustomCollectionName.UIPartInstances
+
+	[CorelibPubSub.playlistTimingState]: (
+		rundownPlaylistId: RundownPlaylistId | null
+	) => CustomCollectionName.PlaylistTimingState
 }
 
 export type CorelibPubSubCollections = {
@@ -383,4 +397,5 @@ export type CorelibPubSubCustomCollections = {
 	[CustomCollectionName.UIAdLibActions]: AdLibAction
 	[CustomCollectionName.UIRundownBaselineAdLibActions]: RundownBaselineAdLibAction
 	[CustomCollectionName.UIRundownBaselineAdLibPieces]: RundownBaselineAdLibItem
+	[CustomCollectionName.PlaylistTimingState]: TimingStateDoc
 }

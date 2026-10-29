@@ -1,63 +1,93 @@
-import { SegmentTimingInfo } from '@sofie-automation/blueprints-integration'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { SegmentCountdownType, SegmentTiming } from '@sofie-automation/live-status-gateway-api'
-import { CountdownType } from '@sofie-automation/blueprints-integration'
-import { assertNever } from '@sofie-automation/corelib/dist/lib'
-import { unprotectString } from '@sofie-automation/server-core-integration'
-import * as _ from 'underscore'
+import type { PartTimingStateDoc, SegmentTimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/TimingState'
+import { timerStateToDuration } from '@sofie-automation/corelib/dist/dataModel/TimerState'
+import { CountdownType, type SegmentTimingInfo } from '@sofie-automation/blueprints-integration'
+import {
+	SegmentCountdownType,
+	type CurrentSegmentTiming,
+	type SegmentTiming,
+} from '@sofie-automation/live-status-gateway-api'
+import { projectedZeroTime } from './timerState.js'
 
-export interface CurrentSegmentTiming extends SegmentTiming {
-	projectedEndTime: number
-}
-
-export function calculateCurrentSegmentTiming(
-	segmentTimingInfo: SegmentTimingInfo | undefined,
-	currentPartInstance: DBPartInstance,
-	firstInstanceInSegmentPlayout: DBPartInstance | undefined,
-	segmentPartInstances: DBPartInstance[],
-	segmentParts: DBPart[]
-): CurrentSegmentTiming {
-	const segmentTiming = calculateSegmentTiming(segmentTimingInfo, segmentPartInstances, segmentParts)
-	const playedDurations = segmentPartInstances.reduce((sum, partInstance) => {
-		return (partInstance.timings?.duration ?? 0) + sum
-	}, 0)
-	const currentPartInstanceStart =
-		currentPartInstance.timings?.reportedStartedPlayback ??
-		currentPartInstance.timings?.plannedStartedPlayback ??
-		Date.now()
-	const leftToPlay = segmentTiming.expectedDurationMs - playedDurations
-	const projectedEndTime = leftToPlay + currentPartInstanceStart
-	const projectedBudgetEndTime =
-		(firstInstanceInSegmentPlayout?.timings?.reportedStartedPlayback ??
-			firstInstanceInSegmentPlayout?.timings?.plannedStartedPlayback ??
-			Date.now()) + (segmentTiming.budgetDurationMs ?? 0)
-	return {
-		...segmentTiming,
-		projectedEndTime: segmentTiming.budgetDurationMs != null ? projectedBudgetEndTime : projectedEndTime,
-	}
-}
-
+/**
+ * A Segment's timing, taken from the `playlistTimingState` publication.
+ *
+ * Sofie resolves these itself: the gateway forwards the timers and evaluates only the values the public
+ * schema declares as plain numbers, so `remaining` and `playedOut` are the ones the Sofie UI shows.
+ * `expectedDurationMs` is the sum of the Parts' resolved expected durations. It is not quite the planned
+ * segment length the Sofie UI uses: that is the budget where there is one, and otherwise adds up each
+ * Part's own expected duration with its transition, so the two differ for a Part without one of its
+ * own, such as one in a display-duration group.
+ */
 export function calculateSegmentTiming(
 	segmentTimingInfo: SegmentTimingInfo | undefined,
-	segmentPartInstances: DBPartInstance[],
-	segmentParts: DBPart[]
+	timing: SegmentTimingStateDoc | undefined,
+	partTimings: PartTimingStateDoc[] | undefined
 ): SegmentTiming {
-	// This might be a premature optimization, at least when the number of partInstances is reasonable.
-	// Should we consider a separate path dependent on the length of the array?
-	const partInstancesByPartId: Record<string, DBPartInstance> = _.indexBy(segmentPartInstances, (partInstance) =>
-		unprotectString(partInstance.part._id)
-	)
 	return {
+		// Summed from the Parts rather than taken from the Segment's published `plannedDuration`:
+		// for a Segment with a budget duration that is the budget, whereas this field has always
+		// meant the length of the content, with the budget reported separately below.
+		expectedDurationMs: sumExpectedDurations(partTimings),
 		budgetDurationMs: segmentTimingInfo?.budgetDuration,
-		expectedDurationMs: segmentParts.reduce<number>((sum, part): number => {
-			part = partInstancesByPartId[unprotectString(part._id)]?.part ?? part
-			return part.expectedDurationWithTransition != null && !part.untimed
-				? sum + part.expectedDurationWithTransition
-				: sum
-		}, 0),
 		countdownType: translateSegmentCountdownType(segmentTimingInfo?.countdownType),
+		playedOut: timing?.playedOut,
+		remaining: timing?.remaining,
 	}
+}
+
+/**
+ * As {@link calculateSegmentTiming}, plus when the Segment is now projected to end.
+ *
+ * `projectedEndTime` is the zero time of the remaining-time timer, read as {@link projectedZeroTime}
+ * does. Note that it is a plain number in the public schema, so while the Segment is not counting down
+ * it is only accurate at the moment it was sent; `remaining` is the value to use for anything that has
+ * to stay accurate.
+ */
+export function calculateCurrentSegmentTiming(
+	segmentTimingInfo: SegmentTimingInfo | undefined,
+	timing: SegmentTimingStateDoc | undefined,
+	partTimings: PartTimingStateDoc[] | undefined,
+	now: number
+): CurrentSegmentTiming {
+	const segmentTiming = calculateSegmentTiming(segmentTimingInfo, timing, partTimings)
+
+	return {
+		...segmentTiming,
+		projectedEndTime: timing?.remaining ? projectedZeroTime(timing.remaining, now) : now,
+	}
+}
+
+/**
+ * The length of a Segment's content: the sum of its Parts' expected durations as Sofie resolves
+ * them - with transitions, and through display-duration groups.
+ *
+ * Only the Parts that count towards the Segment's expected duration are added up, see
+ * {@link countsTowardsSegmentExpectedDuration}.
+ */
+function sumExpectedDurations(partTimings: PartTimingStateDoc[] | undefined): number {
+	if (!partTimings) return 0
+
+	const countedParts = partTimings.filter(countsTowardsSegmentExpectedDuration)
+
+	return countedParts.reduce(
+		// a constant state, so any instant reads the same value
+		(sum, part) => sum + (part.expectedDuration ? timerStateToDuration(part.expectedDuration, 0) : 0),
+		0
+	)
+}
+
+/**
+ * Whether a Part's expected duration counts towards its Segment's, as in Sofie's own segment totals.
+ * Every Part is published with its own expected duration, but two kinds do not count:
+ * - an untimed Part
+ * - an orphaned Part, which is either created by an adlib or no longer in the rundown, and so is not
+ *   part of the Segment as planned
+ */
+function countsTowardsSegmentExpectedDuration(part: PartTimingStateDoc): boolean {
+	const isTimed = !part.untimed
+	const isPlanned = !part.orphaned
+
+	return isTimed && isPlanned
 }
 
 function translateSegmentCountdownType(type: CountdownType | undefined): SegmentCountdownType | undefined {
@@ -69,8 +99,6 @@ function translateSegmentCountdownType(type: CountdownType | undefined): Segment
 		case CountdownType.SEGMENT_BUDGET_DURATION:
 			return SegmentCountdownType.SEGMENT_BUDGET_DURATION
 		default:
-			assertNever(type)
-			// Cast and return the value anyway, so that the application works
-			return type as any as SegmentCountdownType
+			return undefined
 	}
 }

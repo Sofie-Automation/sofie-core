@@ -1,0 +1,943 @@
+Timing inputs written by playout, on the reference rundown.
+
+Recorded from real playout jobs by timingInputs.test.ts, next to this file. Do not edit it by hand: to rewrite
+it from what playout writes today, run that test with UPDATE_TIMING_TRACE=1 set, and review the diff.
+
+There is one trace per script, after a line with "=== " and the name of the script. Each block of a trace is
+one job: the clock time it ran at (UTC) and what it did, then, two spaces in, what it changed. A PartInstance
+takes two lines: what it is, then its timings. Generated ids are labelled in order of appearance: activation#1,
+A1#2 (the second PartInstance of part A1), A#1 (the first time segment A plays).
+
+=== activating in rehearsal sets the first part as next
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate in rehearsal
+  activation  activation#1
+  rehearsal   yes
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+
+=== going on air during a rehearsal keeps the start and the selected parts, and drops parts played before
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:58:00 activate in rehearsal
+  activation  activation#1
+  rehearsal   yes
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:58:00
+11:58:30 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:58:00  take 11:58:30  playOffset 0:00
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 11:58:30
+11:58:30 gateway reports A1#1 started
+  started     11:58:30
+  segments    A#1 11:58:30
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:58:00  take 11:58:30  playOffset 0:00  plannedStart 11:58:30  reportedStart 11:58:30
+11:58:41 take
+  previous    A1#1
+  current     A2#1
+  next        A3#1
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 11:58:30  take 11:58:41  playOffset 0:00
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 11:58:41
+11:58:41 gateway reports A2#1 started and A1#1 stopped
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:58:00  take 11:58:30  playOffset 0:00  plannedStart 11:58:30  reportedStart 11:58:30  plannedStop 11:58:41  reportedStop 11:58:41  duration 0:11
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 11:58:30  take 11:58:41  playOffset 0:00  plannedStart 11:58:41  reportedStart 11:58:41
+11:58:57 take
+  previous    A2#1
+  current     A3#1
+  next        B1#1
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 11:58:41  take 11:58:57  playOffset 0:00
+  B1#1        part B1  playout B#1  takeCount 3
+              setAsNext 11:58:57
+11:58:57 gateway reports A3#1 started and A2#1 stopped
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 11:58:30  take 11:58:41  playOffset 0:00  plannedStart 11:58:41  reportedStart 11:58:41  plannedStop 11:58:57  reportedStop 11:58:57  duration 0:16
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 11:58:41  take 11:58:57  playOffset 0:00  plannedStart 11:58:57  reportedStart 11:58:57
+11:59:30 activate on air
+  activation  activation#2
+  rehearsal   no
+  A1#1        gone (other activation)
+12:00:05 take
+  previous    A3#1
+  current     B1#1
+  next        B2#1
+  B1#1        part B1  playout B#1  takeCount 3  taken
+              setAsNext 11:58:57  take 12:00:05  playOffset 0:00
+  B2#1        part B2  playout B#1  takeCount 4
+              setAsNext 12:00:05
+12:00:05 gateway reports B1#1 started and A3#1 stopped
+  segments    A#1 11:58:30  B#1 12:00:05
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 11:58:41  take 11:58:57  playOffset 0:00  plannedStart 11:58:57  reportedStart 11:58:57  plannedStop 12:00:05  reportedStop 12:00:05  duration 1:08
+  B1#1        part B1  playout B#1  takeCount 3  taken
+              setAsNext 11:58:57  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05
+
+=== the first takes of a show, with no gateway
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  started     12:00:05
+  segments    A#1 12:00:05
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:17 take
+  previous    A1#1
+  current     A2#1
+  next        A3#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05  plannedStop 12:00:17  reportedStop 12:00:17  duration 0:12
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00  plannedStart 12:00:17  reportedStart 12:00:17
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:17
+12:00:30 take
+  previous    A2#1
+  current     A3#1
+  next        B1#1
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00  plannedStart 12:00:17  reportedStart 12:00:17  plannedStop 12:00:30  reportedStop 12:00:30  duration 0:13
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 12:00:17  take 12:00:30  playOffset 0:00  plannedStart 12:00:30  reportedStart 12:00:30
+  B1#1        part B1  playout B#1  takeCount 3
+              setAsNext 12:00:30
+
+=== the first takes of a show, with a gateway that confirms each start at once
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:05 gateway reports A1#1 started
+  started     12:00:05
+  segments    A#1 12:00:05
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05
+12:00:17 take
+  previous    A1#1
+  current     A2#1
+  next        A3#1
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:17
+12:00:17 gateway reports A2#1 started and A1#1 stopped
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05  plannedStop 12:00:17  reportedStop 12:00:17  duration 0:12
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00  plannedStart 12:00:17  reportedStart 12:00:17
+12:00:30 take
+  previous    A2#1
+  current     A3#1
+  next        B1#1
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 12:00:17  take 12:00:30  playOffset 0:00
+  B1#1        part B1  playout B#1  takeCount 3
+              setAsNext 12:00:30
+12:00:30 gateway reports A3#1 started and A2#1 stopped
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00  plannedStart 12:00:17  reportedStart 12:00:17  plannedStop 12:00:30  reportedStop 12:00:30  duration 0:13
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 12:00:17  take 12:00:30  playOffset 0:00  plannedStart 12:00:30  reportedStart 12:00:30
+
+=== the first takes of a show, with a gateway that confirms each start after 200 ms
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:05.200 gateway reports A1#1 started
+  started     12:00:05.200
+  segments    A#1 12:00:05.200
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.200  reportedStart 12:00:05.200
+12:00:17 take
+  previous    A1#1
+  current     A2#1
+  next        A3#1
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:17
+12:00:17.200 gateway reports A2#1 started and A1#1 stopped
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.200  reportedStart 12:00:05.200  plannedStop 12:00:17.200  reportedStop 12:00:17.200  duration 0:12
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00  plannedStart 12:00:17.200  reportedStart 12:00:17.200
+12:00:30 take
+  previous    A2#1
+  current     A3#1
+  next        B1#1
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 12:00:17  take 12:00:30  playOffset 0:00
+  B1#1        part B1  playout B#1  takeCount 3
+              setAsNext 12:00:30
+12:00:30.200 gateway reports A3#1 started and A2#1 stopped
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00  plannedStart 12:00:17.200  reportedStart 12:00:17.200  plannedStop 12:00:30.200  reportedStop 12:00:30.200  duration 0:13
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 12:00:17  take 12:00:30  playOffset 0:00  plannedStart 12:00:30.200  reportedStart 12:00:30.200
+
+=== the first takes of a show, with a gateway that never confirms a start
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:17 take
+  previous    A1#1
+  current     A2#1
+  next        A3#1
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:17
+12:00:30 take
+  previous    A2#1, A1#1
+  current     A3#1
+  next        B1#1
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 12:00:17  take 12:00:30  playOffset 0:00
+  B1#1        part B1  playout B#1  takeCount 3
+              setAsNext 12:00:30
+
+=== the first takes of a show, in multi-gateway mode
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:05.030 gateway reports A1#1 started
+  started     12:00:05.030
+  segments    A#1 12:00:05.030
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030  reportedStart 12:00:05.030
+12:00:17 take
+  previous    A1#1
+  current     A2#1
+  next        A3#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030  reportedStart 12:00:05.030  plannedStop 12:00:17.030  duration 0:12
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00  plannedStart 12:00:17.030
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:17
+12:00:17 gateway reports A1#1 stopped
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030  reportedStart 12:00:05.030  plannedStop 12:00:17.030  reportedStop 12:00:17  duration 0:11.970
+12:00:17.030 gateway reports A2#1 started
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00  plannedStart 12:00:17.030  reportedStart 12:00:17.030
+12:00:30 take
+  previous    A2#1
+  current     A3#1
+  next        B1#1
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00  plannedStart 12:00:17.030  reportedStart 12:00:17.030  plannedStop 12:00:30.030  duration 0:13
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 12:00:17  take 12:00:30  playOffset 0:00  plannedStart 12:00:30.030
+  B1#1        part B1  playout B#1  takeCount 3
+              setAsNext 12:00:30
+12:00:30 gateway reports A2#1 stopped
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00  plannedStart 12:00:17.030  reportedStart 12:00:17.030  plannedStop 12:00:30.030  reportedStop 12:00:30  duration 0:12.970
+12:00:30.030 gateway reports A3#1 started
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 12:00:17  take 12:00:30  playOffset 0:00  plannedStart 12:00:30.030  reportedStart 12:00:30.030
+
+=== set next forward, skipping a segment
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  started     12:00:05
+  segments    A#1 12:00:05
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:09 set next C1
+  next        C1#1  manual
+  C1#1        part C1  playout C#1  takeCount 1
+              setAsNext 12:00:09
+  A2#1        gone (deleted)
+12:00:15 take
+  segments    A#1 12:00:05  C#1 12:00:15
+  previous    A1#1
+  current     C1#1  manual
+  next        C2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05  plannedStop 12:00:15  reportedStop 12:00:15  duration 0:10
+  C1#1        part C1  playout C#1  takeCount 1  taken
+              setAsNext 12:00:09  take 12:00:15  playOffset 0:00  plannedStart 12:00:15  reportedStart 12:00:15
+  C2#1        part C2  playout C#1  takeCount 2
+              setAsNext 12:00:15
+12:00:22 take
+  previous    C1#1  manual
+  current     C2#1
+  next        C3#1
+  C1#1        part C1  playout C#1  takeCount 1  taken
+              setAsNext 12:00:09  take 12:00:15  playOffset 0:00  plannedStart 12:00:15  reportedStart 12:00:15  plannedStop 12:00:22  reportedStop 12:00:22  duration 0:07
+  C2#1        part C2  playout C#1  takeCount 2  taken
+              setAsNext 12:00:15  take 12:00:22  playOffset 0:00  plannedStart 12:00:22  reportedStart 12:00:22
+  C3#1        part C3  playout C#1  takeCount 3
+              setAsNext 12:00:22
+
+=== set next back to an earlier part of the on-air segment
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  started     12:00:05
+  segments    A#1 12:00:05
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:17 take
+  previous    A1#1
+  current     A2#1
+  next        A3#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05  plannedStop 12:00:17  reportedStop 12:00:17  duration 0:12
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00  plannedStart 12:00:17  reportedStart 12:00:17
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:17
+12:00:20 set next A1
+  next        A1#2  manual
+  A1#2        part A1  playout A#1  takeCount 2
+              setAsNext 12:00:20
+  A1#1        gone (reset)
+  A3#1        gone (deleted)
+12:00:23 take
+  previous    A2#1
+  current     A1#2  manual
+  next        A2#2
+  A1#2        part A1  playout A#1  takeCount 2  taken
+              setAsNext 12:00:20  take 12:00:23  playOffset 0:00  plannedStart 12:00:23  reportedStart 12:00:23
+  A2#2        part A2  playout A#1  takeCount 3
+              setAsNext 12:00:23
+  A2#1        gone (reset)
+
+=== set next back into a segment that playout has not loaded
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  started     12:00:05
+  segments    A#1 12:00:05
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:09 set next B1
+  next        B1#1  manual
+  B1#1        part B1  playout B#1  takeCount 1
+              setAsNext 12:00:09
+  A2#1        gone (deleted)
+12:00:15 take
+  segments    A#1 12:00:05  B#1 12:00:15
+  previous    A1#1
+  current     B1#1  manual
+  next        B2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05  plannedStop 12:00:15  reportedStop 12:00:15  duration 0:10
+  B1#1        part B1  playout B#1  takeCount 1  taken
+              setAsNext 12:00:09  take 12:00:15  playOffset 0:00  plannedStart 12:00:15  reportedStart 12:00:15
+  B2#1        part B2  playout B#1  takeCount 2
+              setAsNext 12:00:15
+12:00:36 take
+  previous    B1#1  manual
+  current     B2#1
+  next        C1#1
+  B1#1        part B1  playout B#1  takeCount 1  taken
+              setAsNext 12:00:09  take 12:00:15  playOffset 0:00  plannedStart 12:00:15  reportedStart 12:00:15  plannedStop 12:00:36  reportedStop 12:00:36  duration 0:21
+  B2#1        part B2  playout B#1  takeCount 2  taken
+              setAsNext 12:00:15  take 12:00:36  playOffset 0:00  plannedStart 12:00:36  reportedStart 12:00:36
+  C1#1        part C1  playout C#1  takeCount 3
+              setAsNext 12:00:36
+12:00:40 set next A2
+  next        A2#2  manual
+  A2#2        part A2  playout A#2  takeCount 3
+              setAsNext 12:00:40
+  C1#1        gone (deleted)
+12:00:44 take
+  segments    A#2 12:00:44  B#1 12:00:15
+  previous    B2#1
+  current     A2#2  manual
+  next        A3#1
+  A2#2        part A2  playout A#2  takeCount 3  taken
+              setAsNext 12:00:40  take 12:00:44  playOffset 0:00  plannedStart 12:00:44  reportedStart 12:00:44
+  A3#1        part A3  playout A#2  takeCount 4
+              setAsNext 12:00:44
+  B2#1        part B2  playout B#1  takeCount 2  taken
+              setAsNext 12:00:15  take 12:00:36  playOffset 0:00  plannedStart 12:00:36  reportedStart 12:00:36  plannedStop 12:00:44  reportedStop 12:00:44  duration 0:08
+12:00:51 take
+  previous    A2#2  manual
+  current     A3#1
+  next        B1#2
+  A2#2        part A2  playout A#2  takeCount 3  taken
+              setAsNext 12:00:40  take 12:00:44  playOffset 0:00  plannedStart 12:00:44  reportedStart 12:00:44  plannedStop 12:00:51  reportedStop 12:00:51  duration 0:07
+  A3#1        part A3  playout A#2  takeCount 4  taken
+              setAsNext 12:00:44  take 12:00:51  playOffset 0:00  plannedStart 12:00:51  reportedStart 12:00:51
+  B1#2        part B1  playout B#2  takeCount 5
+              setAsNext 12:00:51
+  B1#1        gone (reset)
+  B2#1        gone (reset)
+
+=== playing a part from a point inside it, with no gateway
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  started     12:00:05
+  segments    A#1 12:00:05
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:09 set next A2 from 0:05
+  next        A2#1  manual
+  next offset 0:05
+12:00:12 take
+  previous    A1#1
+  current     A2#1  manual
+  next        A3#1
+  next offset none
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05  plannedStop 12:00:12  reportedStop 12:00:12  duration 0:07
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:12  playOffset 0:05  plannedStart 12:00:12  reportedStart 12:00:12
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:12
+
+=== playing a part from a point inside it, with a gateway that confirms each start at once
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:05 gateway reports A1#1 started
+  started     12:00:05
+  segments    A#1 12:00:05
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05
+12:00:09 set next A2 from 0:05
+  next        A2#1  manual
+  next offset 0:05
+12:00:12 take
+  previous    A1#1
+  current     A2#1  manual
+  next        A3#1
+  next offset none
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:12  playOffset 0:05  plannedStart 12:00:07
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:12
+12:00:12 gateway reports A2#1 started and A1#1 stopped
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05  plannedStop 12:00:12  reportedStop 12:00:12  duration 0:07
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:12  playOffset 0:05  plannedStart 12:00:07  reportedStart 12:00:07
+
+=== playing a part from a point inside it, with a gateway that confirms each start after 200 ms
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:05.200 gateway reports A1#1 started
+  started     12:00:05.200
+  segments    A#1 12:00:05.200
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.200  reportedStart 12:00:05.200
+12:00:09 set next A2 from 0:05
+  next        A2#1  manual
+  next offset 0:05
+12:00:12 take
+  previous    A1#1
+  current     A2#1  manual
+  next        A3#1
+  next offset none
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:12  playOffset 0:05  plannedStart 12:00:07
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:12
+12:00:12.200 gateway reports A2#1 started and A1#1 stopped
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.200  reportedStart 12:00:05.200  plannedStop 12:00:12.200  reportedStop 12:00:12.200  duration 0:07
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:12  playOffset 0:05  plannedStart 12:00:07  reportedStart 12:00:07
+
+=== playing a part from a point inside it, with a gateway that never confirms a start
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:09 set next A2 from 0:05
+  next        A2#1  manual
+  next offset 0:05
+12:00:12 take
+  previous    A1#1
+  current     A2#1  manual
+  next        A3#1
+  next offset none
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:12  playOffset 0:05  plannedStart 12:00:07
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:12
+
+=== playing a part from a point inside it, in multi-gateway mode
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:05.030 gateway reports A1#1 started
+  started     12:00:05.030
+  segments    A#1 12:00:05.030
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030  reportedStart 12:00:05.030
+12:00:09 set next A2 from 0:05
+  next        A2#1  manual
+  next offset 0:05
+12:00:12 take
+  previous    A1#1
+  current     A2#1  manual
+  next        A3#1
+  next offset none
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030  reportedStart 12:00:05.030  plannedStop 12:00:07  duration 0:01.970
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:12  playOffset 0:05  plannedStart 12:00:07
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:12
+12:00:12 gateway reports A2#1 started and A1#1 stopped
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030  reportedStart 12:00:05.030  plannedStop 12:00:07  reportedStop 12:00:12  duration 0:06.970
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:12  playOffset 0:05  plannedStart 12:00:07  reportedStart 12:00:07
+
+=== auto-next from A1, with a gateway that confirms each start at once
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:05 gateway reports A1#1 started
+  started     12:00:05
+  segments    A#1 12:00:05
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05
+12:00:15 auto-next: gateway reports A2#1 started and A1#1 stopped
+  previous    A1#1
+  current     A2#1
+  next        A3#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05  plannedStop 12:00:15  reportedStop 12:00:15  duration 0:10
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  plannedStart 12:00:15  reportedStart 12:00:15
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:15
+12:00:27 take
+  previous    A2#1
+  current     A3#1
+  next        B1#1
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 12:00:15  take 12:00:27  playOffset 0:00
+  B1#1        part B1  playout B#1  takeCount 3
+              setAsNext 12:00:27
+12:00:27 gateway reports A3#1 started and A2#1 stopped
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  plannedStart 12:00:15  reportedStart 12:00:15  plannedStop 12:00:27  reportedStop 12:00:27  duration 0:12
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 12:00:15  take 12:00:27  playOffset 0:00  plannedStart 12:00:27  reportedStart 12:00:27
+
+=== auto-next from A1 in multi-gateway mode, where the start of A2 is scheduled at the take of A1
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05  plannedStart 12:00:15.030
+12:00:05.030 gateway reports A1#1 started
+  started     12:00:05.030
+  segments    A#1 12:00:05.030
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030  reportedStart 12:00:05.030
+12:00:15.030 auto-next: gateway reports A2#1 started and A1#1 stopped
+  previous    A1#1
+  current     A2#1
+  next        A3#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030  reportedStart 12:00:05.030  plannedStop 12:00:15.030  reportedStop 12:00:15.030  duration 0:10
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  plannedStart 12:00:15.030  reportedStart 12:00:15.030
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:15.030
+12:00:27 take
+  previous    A2#1
+  current     A3#1
+  next        B1#1
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  plannedStart 12:00:15.030  reportedStart 12:00:15.030  plannedStop 12:00:27.030  duration 0:12
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 12:00:15.030  take 12:00:27  playOffset 0:00  plannedStart 12:00:27.030
+  B1#1        part B1  playout B#1  takeCount 3
+              setAsNext 12:00:27
+12:00:27 gateway reports A2#1 stopped
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  plannedStart 12:00:15.030  reportedStart 12:00:15.030  plannedStop 12:00:27.030  reportedStop 12:00:27  duration 0:11.970
+12:00:27.030 gateway reports A3#1 started
+  A3#1        part A3  playout A#1  takeCount 2  taken
+              setAsNext 12:00:15.030  take 12:00:27  playOffset 0:00  plannedStart 12:00:27.030  reportedStart 12:00:27.030
+
+=== auto-next from A1 in multi-gateway mode, where a part set as next while A1 is on air is scheduled to start when A1 ends
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05  plannedStart 12:00:15.030
+12:00:05.030 gateway reports A1#1 started
+  started     12:00:05.030
+  segments    A#1 12:00:05.030
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030  reportedStart 12:00:05.030
+12:00:09 set next C1
+  next        C1#1  manual
+  C1#1        part C1  playout C#1  takeCount 1
+              setAsNext 12:00:09  plannedStart 12:00:15.030
+  A2#1        gone (deleted)
+12:00:15.030 auto-next: gateway reports C1#1 started and A1#1 stopped
+  segments    A#1 12:00:05.030  C#1 12:00:15.030
+  previous    A1#1
+  current     C1#1  manual
+  next        C2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05.030  reportedStart 12:00:05.030  plannedStop 12:00:15.030  reportedStop 12:00:15.030  duration 0:10
+  C1#1        part C1  playout C#1  takeCount 1  taken
+              setAsNext 12:00:09  plannedStart 12:00:15.030  reportedStart 12:00:15.030
+  C2#1        part C2  playout C#1  takeCount 2
+              setAsNext 12:00:15.030
+
+=== a hold from B1 to B2, started, completed by the second take, and cleared by the third
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+11:59:10 set next B1
+  next        B1#1  manual
+  B1#1        part B1  playout B#1  takeCount 0
+              setAsNext 11:59:10
+  A1#1        gone (deleted)
+12:00:05 take
+  current     B1#1  manual
+  next        B2#1
+  B1#1        part B1  playout B#1  takeCount 0  taken
+              setAsNext 11:59:10  take 12:00:05  playOffset 0:00
+  B2#1        part B2  playout B#1  takeCount 1
+              setAsNext 12:00:05
+12:00:05 gateway reports B1#1 started
+  started     12:00:05
+  segments    B#1 12:00:05
+  B1#1        part B1  playout B#1  takeCount 0  taken
+              setAsNext 11:59:10  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05
+12:00:20 start a hold
+  hold        pending
+12:00:25 take
+  previous    B1#1  manual
+  current     B2#1
+  next        C1#1
+  hold        active
+  B2#1        part B2  playout B#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:25  playOffset 0:00
+  C1#1        part C1  playout C#1  takeCount 2
+              setAsNext 12:00:25
+12:00:25 gateway reports B2#1 started and B1#1 stopped
+  B1#1        part B1  playout B#1  takeCount 0  taken
+              setAsNext 11:59:10  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05  plannedStop 12:00:25  reportedStop 12:00:25  duration 0:20
+  B2#1        part B2  playout B#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:25  playOffset 0:00  plannedStart 12:00:25  reportedStart 12:00:25
+12:00:40 take
+  hold        complete
+12:01:00 take
+  previous    B2#1
+  current     C1#1
+  next        C2#1
+  hold        none
+  C1#1        part C1  playout C#1  takeCount 2  taken
+              setAsNext 12:00:25  take 12:01:00  playOffset 0:00
+  C2#1        part C2  playout C#1  takeCount 3
+              setAsNext 12:01:00
+12:01:00 gateway reports C1#1 started and B2#1 stopped
+  segments    B#1 12:00:05  C#1 12:01:00
+  B2#1        part B2  playout B#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:25  playOffset 0:00  plannedStart 12:00:25  reportedStart 12:00:25  plannedStop 12:01:00  reportedStop 12:01:00  duration 0:35
+  C1#1        part C1  playout C#1  takeCount 2  taken
+              setAsNext 12:00:25  take 12:01:00  playOffset 0:00  plannedStart 12:01:00  reportedStart 12:01:00
+
+=== a hold from B1 to B2, started and cancelled
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+11:59:10 set next B1
+  next        B1#1  manual
+  B1#1        part B1  playout B#1  takeCount 0
+              setAsNext 11:59:10
+  A1#1        gone (deleted)
+12:00:05 take
+  current     B1#1  manual
+  next        B2#1
+  B1#1        part B1  playout B#1  takeCount 0  taken
+              setAsNext 11:59:10  take 12:00:05  playOffset 0:00
+  B2#1        part B2  playout B#1  takeCount 1
+              setAsNext 12:00:05
+12:00:05 gateway reports B1#1 started
+  started     12:00:05
+  segments    B#1 12:00:05
+  B1#1        part B1  playout B#1  takeCount 0  taken
+              setAsNext 11:59:10  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05
+12:00:20 start a hold
+  hold        pending
+12:00:22 cancel the hold
+  hold        none
+
+=== deactivated during the show, reset, and activated again
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:59:00 activate on air
+  activation  activation#1
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:59:00
+12:00:05 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 12:00:05
+12:00:05 gateway reports A1#1 started
+  started     12:00:05
+  segments    A#1 12:00:05
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05
+12:00:17 take
+  previous    A1#1
+  current     A2#1
+  next        A3#1
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00
+  A3#1        part A3  playout A#1  takeCount 2
+              setAsNext 12:00:17
+12:00:17 gateway reports A2#1 started and A1#1 stopped
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:59:00  take 12:00:05  playOffset 0:00  plannedStart 12:00:05  reportedStart 12:00:05  plannedStop 12:00:17  reportedStop 12:00:17  duration 0:12
+  A2#1        part A2  playout A#1  takeCount 1  taken
+              setAsNext 12:00:05  take 12:00:17  playOffset 0:00  plannedStart 12:00:17  reportedStart 12:00:17
+12:00:31 deactivate
+  activation  none
+  previous    none
+  current     none
+  next        none
+  A1#1        gone (inactive)
+  A2#1        gone (inactive)
+  A3#1        gone (deleted)
+12:01:00 reset
+  started     none
+  segments    none
+12:02:00 reset and activate on air
+  activation  activation#2
+  next        A1#2
+  A1#2        part A1  playout A#2  takeCount 0
+              setAsNext 12:02:00
+
+=== reset during a rehearsal, then on air
+before any job
+  timing      forward-time  start 12:00:00  duration 2:30
+11:58:00 activate in rehearsal
+  activation  activation#1
+  rehearsal   yes
+  next        A1#1
+  A1#1        part A1  playout A#1  takeCount 0
+              setAsNext 11:58:00
+11:58:30 take
+  current     A1#1
+  next        A2#1
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:58:00  take 11:58:30  playOffset 0:00
+  A2#1        part A2  playout A#1  takeCount 1
+              setAsNext 11:58:30
+11:58:30 gateway reports A1#1 started
+  started     11:58:30
+  segments    A#1 11:58:30
+  A1#1        part A1  playout A#1  takeCount 0  taken
+              setAsNext 11:58:00  take 11:58:30  playOffset 0:00  plannedStart 11:58:30  reportedStart 11:58:30
+11:59:00 reset
+  activation  activation#2
+  started     none
+  segments    none
+  current     none
+  next        A1#2
+  A1#2        part A1  playout A#2  takeCount 0
+              setAsNext 11:59:00
+  A1#1        gone (deleted)
+  A2#1        gone (deleted)
+11:59:30 activate on air
+  activation  activation#3
+  rehearsal   no
+  next        A1#3
+  A1#3        part A1  playout A#3  takeCount 0
+              setAsNext 11:59:30
+  A1#2        gone (deleted)

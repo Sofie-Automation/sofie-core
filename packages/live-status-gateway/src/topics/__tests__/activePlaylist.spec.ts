@@ -5,6 +5,8 @@ import {
 	makeMockSubscriber,
 	makeTestPlaylist,
 	makeTestShowStyleBase,
+	makeTestTimingStates,
+	constantMs,
 } from './utils.js'
 import { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler.js'
 import { SelectedPartInstances } from '../../collections/partInstancesHandler.js'
@@ -79,6 +81,95 @@ describe('ActivePlaylistTopic', () => {
 		)
 	})
 
+	it('forwards the playlist timers of the active playlist unevaluated', async () => {
+		const handlers = makeMockHandlers()
+		const topic = new ActivePlaylistTopic(makeMockLogger(), handlers)
+		const mockSubscriber = makeMockSubscriber()
+
+		const playlist = makeTestPlaylist()
+		playlist.activationId = protectString('somethingRandom')
+		handlers.playlistHandler.notify(playlist)
+		handlers.showStyleBaseHandler.notify(makeTestShowStyleBase() as ShowStyleBaseExt)
+		handlers.partInstancesHandler.notify(makeEmptyTestPartInstances())
+
+		const remainingDuration = { paused: false, zeroTime: 1600000180000, pauseTime: 1600000070000 } as const
+		const estimatedEnd = { paused: false, zeroTime: 1600000200000, pauseTime: 1600000070000 } as const
+		const overUnder = { paused: true, duration: -12000, resumesAt: 1600000070000 } as const
+		handlers.playlistTimingStatesHandler.notify(
+			makeTestTimingStates({
+				playlist: { playlistId: playlist._id, remainingDuration, estimatedEnd, overUnder },
+			})
+		)
+
+		topic.addSubscriber(mockSubscriber)
+
+		// eslint-disable-next-line @typescript-eslint/unbound-method
+		expect(mockSubscriber.send).toHaveBeenCalledTimes(1)
+		const status = JSON.parse(mockSubscriber.send.mock.calls[0][0] as string) as ActivePlaylistEvent
+		expect(status.timing).toEqual({
+			timingMode: ActivePlaylistTimingMode.NONE,
+			remainingDuration,
+			estimatedEnd,
+			timeInHand: overUnder,
+		})
+	})
+
+	it("does not report another playlist's timers as the active playlist's", async () => {
+		const handlers = makeMockHandlers()
+		const topic = new ActivePlaylistTopic(makeMockLogger(), handlers)
+		const mockSubscriber = makeMockSubscriber()
+
+		const playlist = makeTestPlaylist()
+		playlist.activationId = protectString('somethingRandom')
+		handlers.playlistHandler.notify(playlist)
+		handlers.showStyleBaseHandler.notify(makeTestShowStyleBase() as ShowStyleBaseExt)
+		handlers.partInstancesHandler.notify(makeEmptyTestPartInstances())
+
+		// still held from before a switch of playlist, until the new subscription delivers
+		handlers.playlistTimingStatesHandler.notify(
+			makeTestTimingStates({
+				playlist: {
+					playlistId: protectString('PREVIOUS_PLAYLIST'),
+					remainingDuration: constantMs(60000),
+					overUnder: constantMs(5000),
+				},
+			})
+		)
+
+		topic.addSubscriber(mockSubscriber)
+
+		const status = JSON.parse(mockSubscriber.send.mock.calls[0][0] as string) as ActivePlaylistEvent
+		expect(status.timing).toEqual({
+			timingMode: ActivePlaylistTimingMode.NONE,
+			remainingDuration: null,
+			estimatedEnd: null,
+			timeInHand: null,
+		})
+	})
+
+	it('sends the playlist timers as null when no playlist is active', async () => {
+		const handlers = makeMockHandlers()
+		const topic = new ActivePlaylistTopic(makeMockLogger(), handlers)
+		const mockSubscriber = makeMockSubscriber()
+
+		const inactivePlaylist = makeTestPlaylist()
+		handlers.playlistHandler.notify(inactivePlaylist)
+		handlers.partInstancesHandler.notify(makeEmptyTestPartInstances())
+
+		topic.addSubscriber(mockSubscriber)
+
+		// eslint-disable-next-line @typescript-eslint/unbound-method
+		expect(mockSubscriber.send).toHaveBeenCalledTimes(1)
+		const status = JSON.parse(mockSubscriber.send.mock.calls[0][0] as string) as ActivePlaylistEvent
+		expect(status.id).toBeNull()
+		expect(status.timing).toEqual({
+			timingMode: ActivePlaylistTimingMode.NONE,
+			remainingDuration: null,
+			estimatedEnd: null,
+			timeInHand: null,
+		})
+	})
+
 	it('provides segment and part', async () => {
 		const handlers = makeMockHandlers()
 		const topic = new ActivePlaylistTopic(makeMockLogger(), handlers)
@@ -126,6 +217,23 @@ describe('ActivePlaylistTopic', () => {
 		handlers.partInstancesHandler.notify(testPartInstances as SelectedPartInstances)
 
 		handlers.partsHandler.notify([part1] as DBPart[])
+
+		// Sofie resolves the durations and publishes them; the gateway does no timing arithmetic
+		handlers.playlistTimingStatesHandler.notify(
+			makeTestTimingStates({
+				playlist: {
+					playlistId: playlist._id,
+					remainingOnCurrentPart: { paused: true, duration: 10000, resumesAt: 1600000060000 },
+				},
+				segments: {
+					SEGMENT_1: {
+						plannedDuration: constantMs(10000),
+						remaining: { paused: true, duration: 10000, resumesAt: 1600000060000 },
+						parts: { PART_1: { expectedDuration: constantMs(10000) } },
+					},
+				},
+			})
+		)
 
 		handlers.segmentHandler.notify({
 			_id: segment1id,
@@ -312,6 +420,23 @@ describe('ActivePlaylistTopic', () => {
 
 		handlers.partsHandler.notify([part1] as DBPart[])
 
+		// Sofie resolves the durations and publishes them; the gateway does no timing arithmetic
+		handlers.playlistTimingStatesHandler.notify(
+			makeTestTimingStates({
+				playlist: {
+					playlistId: playlist._id,
+					remainingOnCurrentPart: { paused: true, duration: 10000, resumesAt: 1600000060000 },
+				},
+				segments: {
+					SEGMENT_1: {
+						plannedDuration: constantMs(12300),
+						remaining: { paused: true, duration: 12300, resumesAt: 1600000060000 },
+						parts: { PART_1: { expectedDuration: constantMs(10000) } },
+					},
+				},
+			})
+		)
+
 		handlers.segmentHandler.notify({
 			_id: segment1id,
 			segmentTiming: { budgetDuration: 12300, countdownType: CountdownType.SEGMENT_BUDGET_DURATION },
@@ -369,6 +494,163 @@ describe('ActivePlaylistTopic', () => {
 		expect(JSON.parse(mockSubscriber.send.mock.calls[0][0] as string)).toMatchObject(
 			JSON.parse(JSON.stringify(expectedStatus))
 		)
+	})
+
+	it("does not take the current part's projected end from another playlist's timing", async () => {
+		const handlers = makeMockHandlers()
+		const topic = new ActivePlaylistTopic(makeMockLogger(), handlers)
+		const mockSubscriber = makeMockSubscriber()
+
+		const currentPartInstanceId = 'CURRENT_PART_INSTANCE_ID'
+		const startTime = 1600000060000
+
+		const playlist = makeTestPlaylist()
+		playlist.activationId = protectString('somethingRandom')
+		playlist.currentPartInfo = {
+			consumesQueuedSegmentId: false,
+			manuallySelected: false,
+			partInstanceId: protectString(currentPartInstanceId),
+			rundownId: playlist.rundownIdsInOrder[0],
+		}
+		handlers.playlistHandler.notify(playlist)
+		handlers.showStyleBaseHandler.notify(makeTestShowStyleBase() as ShowStyleBaseExt)
+
+		const segment1id = protectString('SEGMENT_1')
+		const part1: Partial<DBPart> = {
+			_id: protectString('PART_1'),
+			title: 'Test Part',
+			segmentId: segment1id,
+			expectedDurationWithTransition: 10000,
+			expectedDuration: 10000,
+		}
+		const currentPartInstance = {
+			_id: currentPartInstanceId,
+			part: part1,
+			timings: { plannedStartedPlayback: startTime },
+			segmentId: segment1id,
+		}
+		const testPartInstances: PartialDeep<SelectedPartInstances> = {
+			current: currentPartInstance,
+			firstInSegmentPlayout: currentPartInstance,
+			inCurrentSegment: [
+				literal<PartialDeep<DBPartInstance>>({
+					_id: protectString(currentPartInstanceId),
+					part: part1,
+					timings: { plannedStartedPlayback: startTime },
+				}),
+			] as DBPartInstance[],
+		}
+		handlers.partInstancesHandler.notify(testPartInstances as SelectedPartInstances)
+		handlers.partsHandler.notify([part1] as DBPart[])
+		handlers.segmentHandler.notify({ _id: segment1id } as DBSegment)
+
+		// still held from before a switch of playlist, until the new subscription delivers
+		const previousPlaylistPartEnd = 1600000095000
+		handlers.playlistTimingStatesHandler.notify(
+			makeTestTimingStates({
+				playlist: {
+					playlistId: protectString('PREVIOUS_PLAYLIST'),
+					currentPartInstanceId: protectString('PREVIOUS_PART_INSTANCE_ID'),
+					remainingOnCurrentPart: { paused: false, zeroTime: previousPlaylistPartEnd },
+				},
+			})
+		)
+
+		topic.addSubscriber(mockSubscriber)
+
+		const status = JSON.parse(mockSubscriber.send.mock.calls[0][0] as string) as ActivePlaylistEvent
+		// Nothing is published for this playlist yet, so the part has only its own start to go by
+		const expectedDurationMs = 0
+		expect(status.currentPart?.timing).toEqual({
+			startTime,
+			expectedDurationMs,
+			projectedEndTime: startTime + expectedDurationMs,
+		})
+	})
+
+	describe('between the take of a part and its start', () => {
+		// In multi-gateway mode Sofie schedules the start of a taken part a moment after the take
+		const plannedStart = 1600000060000
+		const messageSentAt = plannedStart - 1000
+
+		beforeEach(() => {
+			jest.useFakeTimers({ now: messageSentAt })
+		})
+		afterEach(() => {
+			jest.useRealTimers()
+		})
+
+		it('projects the end of the part from its planned start', async () => {
+			const handlers = makeMockHandlers()
+			const topic = new ActivePlaylistTopic(makeMockLogger(), handlers)
+			const mockSubscriber = makeMockSubscriber()
+
+			const currentPartInstanceId = 'CURRENT_PART_INSTANCE_ID'
+
+			const playlist = makeTestPlaylist()
+			playlist.activationId = protectString('somethingRandom')
+			playlist.currentPartInfo = {
+				consumesQueuedSegmentId: false,
+				manuallySelected: false,
+				partInstanceId: protectString(currentPartInstanceId),
+				rundownId: playlist.rundownIdsInOrder[0],
+			}
+			handlers.playlistHandler.notify(playlist)
+			handlers.showStyleBaseHandler.notify(makeTestShowStyleBase() as ShowStyleBaseExt)
+
+			const segment1id = protectString('SEGMENT_1')
+			const part1: Partial<DBPart> = {
+				_id: protectString('PART_1'),
+				title: 'Test Part',
+				segmentId: segment1id,
+				expectedDurationWithTransition: 10000,
+				expectedDuration: 10000,
+			}
+			const currentPartInstance = {
+				_id: currentPartInstanceId,
+				part: part1,
+				timings: { plannedStartedPlayback: plannedStart },
+				segmentId: segment1id,
+			}
+			const testPartInstances: PartialDeep<SelectedPartInstances> = {
+				current: currentPartInstance,
+				firstInSegmentPlayout: currentPartInstance,
+				inCurrentSegment: [
+					literal<PartialDeep<DBPartInstance>>({
+						_id: protectString(currentPartInstanceId),
+						part: part1,
+						timings: { plannedStartedPlayback: plannedStart },
+					}),
+				] as DBPartInstance[],
+			}
+			handlers.partInstancesHandler.notify(testPartInstances as SelectedPartInstances)
+			handlers.partsHandler.notify([part1] as DBPart[])
+			handlers.segmentHandler.notify({ _id: segment1id } as DBSegment)
+
+			// The On Air countdown holds at the part's length until the planned start, and counts down from then
+			const expectedDurationMs = 10000
+			handlers.playlistTimingStatesHandler.notify(
+				makeTestTimingStates({
+					playlist: {
+						playlistId: playlist._id,
+						currentPartInstanceId: protectString(currentPartInstanceId),
+						remainingOnCurrentPart: { paused: true, duration: expectedDurationMs, resumesAt: plannedStart },
+					},
+					segments: {
+						SEGMENT_1: { parts: { PART_1: { expectedDuration: constantMs(expectedDurationMs) } } },
+					},
+				})
+			)
+
+			topic.addSubscriber(mockSubscriber)
+
+			const status = JSON.parse(mockSubscriber.send.mock.calls[0][0] as string) as ActivePlaylistEvent
+			expect(status.currentPart?.timing).toEqual({
+				startTime: plannedStart,
+				expectedDurationMs,
+				projectedEndTime: plannedStart + expectedDurationMs,
+			})
+		})
 	})
 
 	it('maps a configured t-timer', async () => {

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import ClassNames from 'classnames'
-import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownTiming/withTiming.js'
+import { useRundownPlaylistId } from '../../RundownPlaylistContext.js'
+import { TimerValueMode, usePlaylistTimingValue } from '../RundownTiming/usePlaylistTimingValue.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { SpeechSynthesiser } from '../../../lib/speechSynthesis.js'
 import type { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -78,7 +79,24 @@ function vibrate(displayTime: number) {
 }
 
 function usePartRemaining(props: IPartRemainingProps) {
-	const timingDurations = useTiming(TimingTickResolution.Synced, TimingDataResolution.Synced)
+	const playlistId = useRundownPlaylistId()
+	// The published state and this component's prop can disagree for a moment after a take. The
+	// hook never returns a state that is about a different part: for that moment it returns what
+	// the server publishes for the part just taken
+	const forThisPart = { forPartInstanceId: props.currentPartInstanceId }
+	const remainingOnPart = usePlaylistTimingValue(
+		playlistId,
+		'remainingOnCurrentPart',
+		TimerValueMode.Duration,
+		forThisPart
+	)
+	const remainingBudget = usePlaylistTimingValue(
+		playlistId,
+		'remainingBudgetOnCurrentSegment',
+		TimerValueMode.Duration,
+		forThisPart
+	)
+
 	const prevPartInstanceId = useRef<PartInstanceId | null>(null)
 	const prevDisplayTime = useRef<number | undefined>(undefined)
 
@@ -88,10 +106,9 @@ function usePartRemaining(props: IPartRemainingProps) {
 			prevPartInstanceId.current = props.currentPartInstanceId
 		}
 
-		if (!timingDurations?.currentTime) return
-		if (timingDurations.currentPartInstanceId !== props.currentPartInstanceId) return
+		if (remainingOnPart === null) return
 
-		let displayTime = (timingDurations.remainingTimeOnCurrentPart || 0) * -1
+		let displayTime = remainingOnPart * -1
 
 		if (displayTime !== 0) {
 			displayTime += SPEAK_ADVANCE
@@ -109,28 +126,14 @@ function usePartRemaining(props: IPartRemainingProps) {
 
 			prevDisplayTime.current = displayTime
 		}
-	}, [
-		props.currentPartInstanceId,
-		timingDurations?.currentTime,
-		timingDurations?.currentPartInstanceId,
-		timingDurations?.remainingTimeOnCurrentPart,
-		props.speaking,
-		props.vibrating,
-	])
+	}, [props.currentPartInstanceId, remainingOnPart, props.speaking, props.vibrating])
 
-	if (!timingDurations?.currentTime) return null
-	if (timingDurations.currentPartInstanceId !== props.currentPartInstanceId) return null
+	// The segment budget is only published for a segment that uses one, which is how the
+	// "Seg. Budg." display hides itself
+	const displayTimecode = props.preferSegmentTime ? remainingBudget : remainingOnPart
+	if (displayTimecode === null) return null
 
-	let displayTimecode = timingDurations.remainingTimeOnCurrentPart
-	if (props.preferSegmentTime) {
-		if (timingDurations.remainingBudgetOnCurrentSegment === undefined) return null
-		displayTimecode = timingDurations.remainingBudgetOnCurrentSegment
-	}
-
-	if (displayTimecode === undefined) return null
-	displayTimecode *= -1
-
-	return { displayTimecode }
+	return { displayTimecode: displayTimecode * -1 }
 }
 
 /**

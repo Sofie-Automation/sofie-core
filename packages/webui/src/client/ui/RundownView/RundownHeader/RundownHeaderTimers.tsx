@@ -1,9 +1,8 @@
 import type { RundownTTimer } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
-import { useTiming } from '../RundownTiming/withTiming'
+import { useTimingNow } from '../RundownTiming/usePlaylistTimingValue.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 import { calculateTTimerDiff, calculateTTimerOverUnder } from '../../../lib/tTimerUtils'
 import classNames from 'classnames'
-import { getCurrentTime } from '../../../lib/systemTime'
 import { Countdown } from './Countdown'
 import { OverUnderChip } from '../../../lib/Components/OverUnderChip'
 
@@ -12,8 +11,7 @@ interface IProps {
 }
 
 export const RundownHeaderTimers: React.FC<IProps> = ({ tTimers }) => {
-	const timing = useTiming()
-	const now = timing.currentTime ?? getCurrentTime()
+	const now = useTimingNow()
 
 	const activeTimers = tTimers.filter((t) => t.mode).slice(0, 2)
 	if (activeTimers.length == 0) return null

@@ -2,7 +2,8 @@ $defs:
   timerStatePaused:
     type: object
     title: TimerStatePaused
-    description: Timer state when paused (frozen at a specific duration)
+    description: >-
+      Timer state when paused: it holds at `duration`, until `resumesAt` if `resumesAt` is set
     properties:
       paused:
         type: boolean
@@ -11,13 +12,27 @@ $defs:
       duration:
         type: integer
         description: >-
-          Frozen duration value in milliseconds.
-          For countdown timers, this is remaining time.
-          For free-run timers, this is elapsed time.
+          The duration value in milliseconds at which the timer holds. For countdown timers, this is the
+          remaining time. For free-run timers, this is the elapsed time. If `resumesAt` is set, this is
+          the value until that moment. After that moment, the value counts down from here, as the value
+          of a running timer does.
       pauseTime:
         description: >-
-          Optional timestamp when the timer should pause.
-          Typically null when already paused.
+          Not applicable while the timer is paused, because a paused timer has already stopped. Always
+          null when present.
+        # TODO: this should be `type: 'null'`, which is what is actually produced and is what
+        # consumers should rely on. It is widened here only because the type generator (modelina)
+        # renders a null-only property as `any`, which is worse for consumers of the generated
+        # types than a slightly loose schema. Tighten once the generator can express it.
+        oneOf:
+          - type: integer
+          - type: 'null'
+      resumesAt:
+        description: >-
+          Optional timestamp at which the timer starts to run, if this time is known in advance, for
+          example a scheduled start. After this timestamp, the timer runs, and its current value is
+          `duration - (now - resumesAt)`. If it is null or absent, the timer holds until Sofie publishes
+          a new state.
         oneOf:
           - type: integer
           - type: 'null'

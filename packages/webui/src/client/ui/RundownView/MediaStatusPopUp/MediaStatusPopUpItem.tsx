@@ -2,8 +2,8 @@ import { useCallback, type JSX } from 'react'
 import type { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownTiming/withTiming.js'
+import { TimingTickResolution } from '../RundownTiming/RundownTiming.js'
+import { TimerValueMode, usePartCountdownValue } from '../RundownTiming/usePlaylistTimingValue.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 import classNames from 'classnames'
 import { MediaStatusIndicator } from '../../MediaStatus/MediaStatusIndicator.js'
@@ -13,6 +13,7 @@ import { logger } from '../../../lib/logging.js'
 interface IMediaStatusPopUpItemProps {
 	partId: PartId | undefined
 	segmentId: SegmentId | undefined
+	/** Retained for callers; the timing now comes from the Part's published document */
 	partInstanceId: PartInstanceId | undefined
 	status: PieceStatusCode
 	isWorkingOn: boolean
@@ -31,7 +32,6 @@ interface IMediaStatusPopUpItemProps {
 
 export function MediaStatusPopUpItem({
 	partId,
-	partInstanceId,
 	segmentId,
 	status,
 	isWorkingOn,
@@ -47,10 +47,10 @@ export function MediaStatusPopUpItem({
 	isNext,
 	followOnAirSegmentsHistory,
 }: IMediaStatusPopUpItemProps): JSX.Element {
-	const timingDurations = useTiming(TimingTickResolution.Low, TimingDataResolution.Synced)
-
-	const timingId = unprotectString(partInstanceId ?? partId)
-	const thisPartCountdown = timingId ? timingDurations.partCountdown?.[timingId] : undefined
+	const thisPartCountdown =
+		usePartCountdownValue(partId, TimerValueMode.Duration, {
+			tickResolution: TimingTickResolution.Low,
+		}) ?? undefined
 
 	const sourceLayerClassName =
 		sourceLayerType !== undefined ? RundownUtils.getSourceLayerClassName(sourceLayerType) : undefined

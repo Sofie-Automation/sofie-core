@@ -1,11 +1,7 @@
 import React, { useMemo } from 'react'
 import _ from 'underscore'
 import { SegmentTimeline, type SegmentTimelineClass } from './SegmentTimeline.js'
-import {
-	computeSegmentDisplayDuration,
-	RundownTiming,
-	type TimingEvent,
-} from '../RundownView/RundownTiming/RundownTiming.js'
+import { RundownTiming, type TimingEvent } from '../RundownView/RundownTiming/RundownTiming.js'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
 import { SpeechSynthesiser } from '../../lib/speechSynthesis.js'
 import { getElementWidth } from '../../utils/dimensions.js'
@@ -17,7 +13,6 @@ import RundownViewEventBus, {
 	type GoToPartEvent,
 	type GoToPartInstanceEvent,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { SegmentTimelinePartClass } from './Parts/SegmentTimelinePart.js'
 import {
 	type PartUi,
 	withResolvedSegment,
@@ -25,7 +20,8 @@ import {
 	type ITrackedResolvedSegmentProps,
 	type IOutputLayerUi,
 } from '../SegmentContainer/withResolvedSegment.js'
-import { computeSegmentDuration, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
+import { useSegmentPartTimings } from '../RundownView/RundownTiming/usePlaylistTimingValue.js'
+import { SegmentTimelinePartClass, type SegmentPartTimings } from './Parts/SegmentTimelinePart.js'
 import { DEFAULT_DISPLAY_DURATION, DEFAULT_TIME_SCALE } from '@sofie-automation/shared-lib/dist/core/constants'
 import { RundownViewShelf } from '../RundownView/RundownViewShelf.js'
 import type { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -41,11 +37,32 @@ import {
 	TIMELINE_RIGHT_PADDING,
 } from './Constants.js'
 import { UIPartInstances, UIParts } from '../Collections.js'
-import { RundownTimingProviderContext } from '../RundownView/RundownTiming/withTiming.js'
 import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 
 // Kept for backwards compatibility
 export type { SegmentUi, PartUi, ISourceLayerUi, IOutputLayerUi } from '../SegmentContainer/withResolvedSegment.js'
+
+export function computeSegmentDisplayDuration(segmentPartTimings: SegmentPartTimings, parts: PartUi[]): number {
+	return parts.reduce(
+		(memo, part) => memo + SegmentTimelinePartClass.getPartDisplayDuration(part, segmentPartTimings),
+		0
+	)
+}
+
+/**
+ * The segment's length: the sum of its parts' published display durations, falling back to the
+ * Studio default for any part the publication has not described yet.
+ */
+export function computeSegmentDuration(
+	segmentPartTimings: SegmentPartTimings,
+	parts: PartUi[],
+	defaultDuration: number
+): number {
+	return parts.reduce(
+		(memo, part) => memo + (segmentPartTimings.get(part.instance.part._id)?.displayDuration || defaultDuration),
+		0
+	)
+}
 
 interface IState {
 	scrollLeft: number
@@ -69,6 +86,11 @@ interface IState {
 
 interface IProps extends IResolvedSegmentProps {
 	id: string
+}
+
+/** The published timings of this segment's parts, supplied by the outer function component */
+interface IWithSegmentPartTimings {
+	segmentPartTimings: SegmentPartTimings
 }
 
 export function SegmentTimelineContainer(props: Readonly<IProps>): JSX.Element {
@@ -140,14 +162,16 @@ export function SegmentTimelineContainer(props: Readonly<IProps>): JSX.Element {
 	// past infinites subscription
 	useSubscription(CorelibPubSub.uiPiecesInfiniteStartingBefore, props.rundownId, sortedSegmentIds, sortedRundownIds)
 
-	return <SegmentTimelineContainerContent {...props} />
+	const segmentPartTimings = useSegmentPartTimings(props.segmentId)
+
+	return <SegmentTimelineContainerContent {...props} segmentPartTimings={segmentPartTimings} />
 }
 
 const SegmentTimelineContainerContent = withResolvedSegment(
-	class SegmentTimelineContainerContent extends React.Component<IProps & ITrackedResolvedSegmentProps, IState> {
-		static contextType = RundownTimingProviderContext
-		declare context: React.ContextType<typeof RundownTimingProviderContext>
-
+	class SegmentTimelineContainerContent extends React.Component<
+		IProps & IWithSegmentPartTimings & ITrackedResolvedSegmentProps,
+		IState
+	> {
 		isVisible: boolean
 		visibilityChangeTimeout: NodeJS.Timeout | undefined
 		initialShowEntireSegmentTimeout: NodeJS.Timeout | undefined
@@ -159,7 +183,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 		nextPartOffset = 0
 		isUnmounted = false
 
-		constructor(props: IProps & ITrackedResolvedSegmentProps) {
+		constructor(props: IProps & IWithSegmentPartTimings & ITrackedResolvedSegmentProps) {
 			super(props)
 
 			this.state = {
@@ -187,7 +211,10 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 			this.isVisible = false
 		}
 
-		shouldComponentUpdate(nextProps: IProps & ITrackedResolvedSegmentProps, nextState: IState) {
+		shouldComponentUpdate(
+			nextProps: IProps & IWithSegmentPartTimings & ITrackedResolvedSegmentProps,
+			nextState: IState
+		) {
 			return !_.isMatch(this.props, nextProps) || !_.isMatch(this.state, nextState)
 		}
 
@@ -276,22 +303,18 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 				this.stopLive()
 			}
 
-			const currentNextPartInstanceTimingId = currentNextPart
-				? getPartInstanceTimingId(currentNextPart?.instance)
-				: undefined
-			const firstPartInstanceTimingId = this.props.parts[0]
-				? getPartInstanceTimingId(this.props.parts[0].instance)
-				: undefined
+			const currentNextPartInstanceTimingId = currentNextPart?.instance.part._id
+			const firstPartInstanceTimingId = this.props.parts[0]?.instance.part._id
 
 			// Setting the correct scroll position on parts when setting is next
 			const nextPartDisplayStartsAt =
 				(currentNextPartInstanceTimingId &&
-					this.context.durations?.partDisplayStartsAt?.[currentNextPartInstanceTimingId]) ||
+					this.props.segmentPartTimings.get(currentNextPartInstanceTimingId)?.displayStartsAt) ||
 				0
 			const partOffset =
 				nextPartDisplayStartsAt -
 				(firstPartInstanceTimingId
-					? (this.context.durations?.partDisplayStartsAt?.[firstPartInstanceTimingId] ?? 0)
+					? (this.props.segmentPartTimings.get(firstPartInstanceTimingId)?.displayStartsAt ?? 0)
 					: 0)
 			const nextPartIdOrOffsetHasChanged =
 				currentNextPart &&
@@ -439,7 +462,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 					Math.min(
 						scrollLeft,
 						(computeSegmentDuration(
-							this.context.durations,
+							this.props.segmentPartTimings,
 							this.props.parts,
 							this.props.studio.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION
 						) || 1) -
@@ -475,7 +498,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 
 				if (zoomInToFit) {
 					// display dur in ms
-					const displayDur = SegmentTimelinePartClass.getPartDisplayDuration(part, this.context?.durations) || 1
+					const displayDur = SegmentTimelinePartClass.getPartDisplayDuration(part, this.props.segmentPartTimings) || 1
 					// is the padding is larger than the width of the resulting size?
 					const tooSmallTimeline = timelineWidth < TIMELINE_RIGHT_PADDING * 3
 					// width in px, pad on both sides
@@ -541,8 +564,8 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 					const currentLivePartInstance = state.currentLivePart.instance
 
 					const partOffset =
-						(this.context.durations?.partDisplayStartsAt?.[getPartInstanceTimingId(currentLivePartInstance)] || 0) -
-						(this.context.durations?.partDisplayStartsAt?.[getPartInstanceTimingId(this.props.parts[0]?.instance)] || 0)
+						(this.props.segmentPartTimings.get(currentLivePartInstance.part._id)?.displayStartsAt || 0) -
+						(this.props.segmentPartTimings.get(this.props.parts[0]?.instance.part._id)?.displayStartsAt || 0)
 
 					let isExpectedToPlay = !!currentLivePartInstance.timings?.plannedStartedPlayback
 					const lastTake = currentLivePartInstance.timings?.take
@@ -648,7 +671,7 @@ const SegmentTimelineContainerContent = withResolvedSegment(
 			}
 
 			const segmentDisplayDuration: number =
-				computeSegmentDisplayDuration(this.context.durations, this.props.parts) || 1
+				computeSegmentDisplayDuration(this.props.segmentPartTimings, this.props.parts) || 1
 			const livePosition = this.state.isLiveSegment ? this.state.livePosition : 0
 
 			let newScale = calculatedTimelineDivWidth / (segmentDisplayDuration - livePosition)

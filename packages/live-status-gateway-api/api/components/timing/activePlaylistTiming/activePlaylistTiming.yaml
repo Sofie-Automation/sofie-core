@@ -18,6 +18,62 @@ $defs:
       expectedEnd:
         description: Unix timestamp of when the playlist is expected to end (milliseconds) Required when the timingMode is set to back-time.
         type: number
+      remainingDuration:
+        description: >-
+          The time that remains to play in the playlist, as a timer that the client evaluates against
+          its own clock. It is the remaining duration in Sofie's rundown header. It holds before the
+          show starts. It counts down while the on-air part, or the budget of the on-air segment, is
+          within its planned length. It holds again when the on-air part or the budget overruns.
+
+          A take in a multi-gateway studio schedules the start of its part a moment ahead, and this wait
+          also counts. A take with a time offset plans that start in the past. In both cases, it counts
+          down from the take. This is also true for the first take. It also counts down before the show
+          starts while an untimed opening part plays in a segment with a budget. This is because the
+          budget runs from the start of the segment.
+
+          In the `duration` timing mode with a planned duration, it is the planned duration instead. It
+          then counts down from the start of playback, and it becomes negative when the show overruns.
+          Null when no playlist is active, and until Sofie has published the timing for the active
+          playlist.
+        oneOf:
+          - type: 'null'
+          - $ref: '../../tTimers/timerState.yaml#/$defs/timerState'
+      estimatedEnd:
+        description: >-
+          The time at which the playlist is now expected to end, as a timer. Read its zero time for the
+          timestamp. It is the estimated end in Sofie's rundown header. It is different from
+          `expectedEnd`, because it includes the time that has played. It moves later in real time while
+          the on-air part overruns.
+
+          Before the show starts, it is the planned start plus `remainingDuration`. When the planned
+          start has passed, or when there is no planned start, it moves with the clock. Sometimes
+          `remainingDuration` counts down before the show starts. This occurs from the first take in a
+          multi-gateway studio or with a time offset. It also occurs while an untimed opening part plays
+          in a segment with a budget. In these cases, the estimated end is now plus `remainingDuration`,
+          which holds, as after the show has started.
+
+          In the `duration` timing mode with a planned duration, it is the start of playback plus the
+          planned duration, and it does not move. Before playback, it is the same sum from the planned
+          start, if there is a planned start. Null when no playlist is active, and until Sofie has
+          published the timing for the active playlist.
+        oneOf:
+          - type: 'null'
+          - $ref: '../../tTimers/timerState.yaml#/$defs/timerState'
+      timeInHand:
+        description: >-
+          The time in hand of the playlist, as a timer. A positive value means ahead of schedule, and a
+          negative value means behind schedule. The over/under on Sofie's screens is the same value with
+          the opposite sign. Thus 10 s over on the screens is a time in hand of -10 s.
+
+          It holds while the show is on schedule. It decreases while the show moves its end later, for
+          example while the on-air part overruns. Sometimes Sofie knows in advance when the time in hand
+          will start to decrease. Then Sofie sends it as a paused timer, with `resumesAt` set to that
+          moment. Null for a playlist with the `none` timing mode, no planned duration and no playback
+          yet. Also null when no playlist is active, and until Sofie has published the timing for the
+          active playlist.
+        oneOf:
+          - type: 'null'
+          - $ref: '../../tTimers/timerState.yaml#/$defs/timerState'
     required: [timingMode]
     additionalProperties: false
     examples:

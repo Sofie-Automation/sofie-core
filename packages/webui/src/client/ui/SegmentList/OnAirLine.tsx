@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownView/RundownTiming/withTiming.js'
+import { TimingTickResolution } from '../RundownView/RundownTiming/RundownTiming.js'
+import { useTimingNow } from '../RundownView/RundownTiming/usePlaylistTimingValue.js'
 import { SIMULATED_PLAYBACK_HARD_MARGIN } from '../SegmentTimeline/Constants.js'
 import { useTranslation } from 'react-i18next'
 import { getAllowSpeaking, getAllowVibrating } from '../../lib/localStorage.js'
@@ -29,14 +30,12 @@ export function OnAirLine({
 	endsInFreeze,
 	mainSourceEnd,
 }: IProps): JSX.Element {
-	const timingDurations = useTiming(TimingTickResolution.High, TimingDataResolution.High, 'currentTime')
+	const now = useTimingNow(TimingTickResolution.High)
 
 	const [livePosition, setLivePosition] = useState(0)
 	const { t } = useTranslation()
 
 	useEffect(() => {
-		if (!timingDurations || !timingDurations.currentTime) return
-
 		const lastTake = partInstance.timings?.take
 		const lastStartedPlayback =
 			partInstance.timings?.reportedStartedPlayback ?? partInstance.timings?.plannedStartedPlayback
@@ -49,17 +48,15 @@ export function OnAirLine({
 					: undefined
 
 		let isExpectedToPlay = !!lastStartedPlayback
-		if (lastTake && lastTake + SIMULATED_PLAYBACK_HARD_MARGIN > timingDurations.currentTime) {
+		if (lastTake && lastTake + SIMULATED_PLAYBACK_HARD_MARGIN > now) {
 			isExpectedToPlay = true
 		}
 
 		const newLivePosition =
-			isExpectedToPlay && virtualStartedPlayback
-				? timingDurations.currentTime - virtualStartedPlayback + lastTakeOffset
-				: lastTakeOffset
+			isExpectedToPlay && virtualStartedPlayback ? now - virtualStartedPlayback + lastTakeOffset : lastTakeOffset
 
 		setLivePosition(newLivePosition)
-	}, [timingDurations.currentTime])
+	}, [now])
 
 	const style = useMemo<React.CSSProperties>(
 		() => ({

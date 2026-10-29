@@ -8,7 +8,7 @@ import { Shelf } from '../Shelf/Shelf'
 import { UserPermissionsContext } from '../UserPermissions'
 import { RundownSorensenContext } from './RundownSorensenContext'
 import { RundownTimingProvider } from './RundownTiming/RundownTimingProvider'
-import { DEFAULT_DISPLAY_DURATION } from '@sofie-automation/shared-lib/dist/core/constants'
+import { RundownPlaylistProvider } from '../RundownPlaylistContext'
 import type { RundownLayoutShelfBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
@@ -33,35 +33,34 @@ export function RundownDetachedShelf({
 	const userPermissions = useContext(UserPermissionsContext)
 
 	return (
-		<RundownTimingProvider
-			playlist={playlist}
-			defaultDuration={studio.settings.defaultDisplayDuration ?? DEFAULT_DISPLAY_DURATION}
-		>
-			<PreviewPopUpContextProvider>
+		<RundownPlaylistProvider playlistId={playlist?._id}>
+			<RundownTimingProvider playlist={playlist}>
+				<PreviewPopUpContextProvider>
+					<ErrorBoundary>
+						<Shelf
+							isExpanded={true}
+							playlist={playlist}
+							showStyleBase={showStyleBase}
+							showStyleVariant={showStyleVariant}
+							rundownLayout={shelfLayout}
+							studio={studio}
+							fullViewport={true}
+							enableUserEdits={false}
+							onEditProps={() => void 0}
+						/>
+					</ErrorBoundary>
+				</PreviewPopUpContextProvider>
 				<ErrorBoundary>
-					<Shelf
-						isExpanded={true}
-						playlist={playlist}
-						showStyleBase={showStyleBase}
-						showStyleVariant={showStyleVariant}
-						rundownLayout={shelfLayout}
-						studio={studio}
-						fullViewport={true}
-						enableUserEdits={false}
-						onEditProps={() => void 0}
-					/>
+					{userPermissions.studio && currentRundown && (
+						<RundownSorensenContext
+							studio={studio}
+							playlist={playlist}
+							currentRundown={currentRundown}
+							showStyleBase={showStyleBase}
+						/>
+					)}
 				</ErrorBoundary>
-			</PreviewPopUpContextProvider>
-			<ErrorBoundary>
-				{userPermissions.studio && currentRundown && (
-					<RundownSorensenContext
-						studio={studio}
-						playlist={playlist}
-						currentRundown={currentRundown}
-						showStyleBase={showStyleBase}
-					/>
-				)}
-			</ErrorBoundary>
-		</RundownTimingProvider>
+			</RundownTimingProvider>
+		</RundownPlaylistProvider>
 	)
 }

@@ -3,7 +3,18 @@ import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protected
 import { ResolvedPlaylistConversionContext } from '../context/conversionContext.js'
 import type { PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
 import type { PartInvalidReason as CorePartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PartInvalidReason, ResolvedPart, ResolvedPartState } from '@sofie-automation/live-status-gateway-api'
+import {
+	PartInvalidReason,
+	PartRundownTiming,
+	ResolvedPart,
+	ResolvedPartState,
+} from '@sofie-automation/live-status-gateway-api'
+import type { PartTimingStateDoc, PlaylistTimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/TimingState'
+import {
+	offsetTimerState,
+	type TimerState,
+	timerStateToDuration,
+} from '@sofie-automation/corelib/dist/dataModel/TimerState'
 import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { toNotificationSeverity } from '../../notification/toNotificationStatus.js'
 
@@ -23,6 +34,10 @@ export function toResolvedPartStatus(ctx: ResolvedPlaylistConversionContext, par
 	) {
 		state = ResolvedPartState.NEXT
 	}
+
+	const partId = part.partId ?? basePart._id
+	const partTiming = partId ? ctx.timingStates?.parts.get(partId) : undefined
+	const rundownTiming = toPartRundownTiming(partTiming, ctx.timingStates?.playlist)
 
 	const timings = instance?.timings ?? {}
 	const createdByAdLib = instance?.orphaned === 'adlib-part'
@@ -50,6 +65,7 @@ export function toResolvedPartStatus(ctx: ResolvedPlaylistConversionContext, par
 			setAsNext: timings.setAsNext ?? 0,
 			take: timings.take ?? 0,
 		},
+		rundownTiming,
 		pieces: part.pieces?.map((piece) => toResolvedPieceStatus(piece)) ?? [],
 	}
 }
@@ -62,4 +78,47 @@ function toApiPartInvalidReason(invalidReason: CorePartInvalidReason): PartInval
 		severity: invalidReason.severity ? toNotificationSeverity(invalidReason.severity) : undefined,
 		color: invalidReason.color,
 	}
+}
+
+/**
+ * A Part's rundown timing, as Sofie resolved and published it.
+ *
+ * The timers are forwarded rather than evaluated: the client reads them against its own clock, so
+ * the gateway sends on playout events instead of on a tick. The durations are constant states, so
+ * evaluating them to plain numbers costs nothing and matches the plain-number fields around them.
+ */
+function toPartRundownTiming(
+	timing: PartTimingStateDoc | undefined,
+	playlistTiming: PlaylistTimingStateDoc | undefined
+): PartRundownTiming {
+	return {
+		// constant states, so any instant reads the same value
+		expectedDurationMs: timing?.expectedDuration ? timerStateToDuration(timing.expectedDuration, 0) : 0,
+		displayDurationMs: timing?.displayDuration ? timerStateToDuration(timing.displayDuration, 0) : 0,
+		isInQuickLoop: timing?.isInQuickLoop ?? false,
+		countsTowardsTiming: timing?.countsTowardsTiming ?? false,
+		countdown: toPartCountdown(timing, playlistTiming),
+		played: timing?.played,
+		duration: timing?.duration,
+		liveDisplayDuration: timing?.liveDisplayDuration,
+	}
+}
+
+/**
+ * The countdown until the Part goes on air: the playlist's base for the Part countdowns, shifted by the Part's offset.
+ * Undefined when the Part has no offset, as it will probably not be played out if the rundown is played in order, and
+ * when the playlist's timing is not that of the Part's playlist: after a switch of playlist, the previous playlist's
+ * document can still be held until the new subscription delivers.
+ */
+function toPartCountdown(
+	timing: PartTimingStateDoc | undefined,
+	playlistTiming: PlaylistTimingStateDoc | undefined
+): TimerState | undefined {
+	const countdownOffset = timing?.countdownOffset
+	if (!timing || countdownOffset === undefined || !playlistTiming) return undefined
+
+	const isOfThePartsPlaylist = playlistTiming.playlistId === timing.playlistId
+	if (!isOfThePartsPlaylist) return undefined
+
+	return offsetTimerState(playlistTiming.partCountdownBase, countdownOffset)
 }

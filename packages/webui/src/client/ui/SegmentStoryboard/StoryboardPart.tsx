@@ -19,8 +19,7 @@ import { PartDisplayDuration } from '../RundownView/RundownTiming/PartDuration.j
 import { InvalidPartCover } from '../SegmentTimeline/Parts/InvalidPartCover.js'
 import { SegmentEnd } from '../../lib/ui/icons/segment.js'
 import { AutoNextStatus } from '../RundownView/RundownTiming/AutoNextStatus.js'
-import { type RundownTimingContext, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
-import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownView/RundownTiming/withTiming.js'
+import { usePartTimingField } from '../RundownView/RundownTiming/usePlaylistTimingValue.js'
 import { LoopingIcon } from '../../lib/ui/icons/looping.js'
 import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 import { getEffectiveInvalidReason, isPartInstanceInvalid } from '../../lib/partInstanceUtil.js'
@@ -76,17 +75,6 @@ export function StoryboardPart({
 	const [highlight, setHighlight] = useState(false)
 	const willBeAutoNextedInto = isNextPart ? currentPartWillAutonext : part.willProbablyAutoNext
 
-	const timingDurations = useTiming(
-		TimingTickResolution.Synced,
-		TimingDataResolution.High,
-		(durations: RundownTimingContext) => {
-			durations = durations || {}
-
-			const timingId = getPartInstanceTimingId(part.instance)
-			return [(durations.partsInQuickLoop || {})[timingId]]
-		}
-	)
-
 	const getPartContext = useCallback(() => {
 		const partElement = document.querySelector('#' + SegmentTimelinePartElementId + part.instance._id)
 		const partDocumentOffset = getElementDocumentOffset(partElement)
@@ -131,7 +119,7 @@ export function StoryboardPart({
 	const effectiveInvalidReason = getEffectiveInvalidReason(part.instance)
 	const isInvalid = isPartInstanceInvalid(part.instance)
 	const isFloated = part.instance.part.floated
-	const isInsideQuickLoop = timingDurations.partsInQuickLoop?.[getPartInstanceTimingId(part.instance)] ?? false
+	const isInsideQuickLoop = usePartTimingField(part.instance.part._id, 'isInQuickLoop') ?? false
 	const isOutsideActiveQuickLoop = !isInsideQuickLoop && isPlaylistLooping && !isEntirePlaylistLooping && !isNextPart
 
 	return (

@@ -107,6 +107,7 @@ export function CameraScreen({ playlist, studioId }: Readonly<IProps>): JSX.Elem
 
 	const studioReady = useSubscription(MeteorPubSub.uiStudio, studioId)
 	useSubscriptionIfEnabled(CorelibPubSub.uiPartInstances, !!playlist?.activationId, playlist?.activationId ?? null)
+	useSubscriptionIfEnabled(CorelibPubSub.playlistTimingState, !!playlist, playlist?._id ?? null)
 
 	useSubscriptionIfEnabled(CorelibPubSub.uiParts, !!playlist, playlist?._id ?? null)
 
@@ -236,7 +237,7 @@ export function CameraScreen({ playlist, studioId }: Readonly<IProps>): JSX.Elem
 		<StudioContext.Provider value={studio}>
 			<RundownToShowStyleContext.Provider value={rundownToShowStyle}>
 				<PieceFilter.Provider value={pieceFilterFunction}>
-					<OrderedPartsProvider>
+					<OrderedPartsProvider playlistId={playlist?._id}>
 						<ActivePartInstancesContext.Provider value={partInstanceContext}>
 							<AreaZoom.Provider value={0.01}>
 								<CanvasSizeContext.Provider value={canvasWidth}>

@@ -1,10 +1,8 @@
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { useTranslation } from 'react-i18next'
 import { Countdown } from './Countdown'
-import { useTiming } from '../RundownTiming/withTiming'
+import { TimerValueMode, usePlaylistTimingValue } from '../RundownTiming/usePlaylistTimingValue.js'
 import { RundownUtils } from '../../../lib/rundown.js'
-import { getCurrentTime } from '../../../lib/systemTime'
 
 export function RundownHeaderPlannedStart({
 	playlist,
@@ -14,32 +12,27 @@ export function RundownHeaderPlannedStart({
 	simplified?: boolean
 }): JSX.Element | null {
 	const { t } = useTranslation()
-	const timingDurations = useTiming()
-	const expectedStart = PlaylistTiming.getExpectedStart(playlist.timing)
+	const expectedStart = usePlaylistTimingValue(playlist._id, 'plannedStart', TimerValueMode.Timestamp)
+	const untilStart = usePlaylistTimingValue(playlist._id, 'plannedStart', TimerValueMode.Duration)
+	const startedPlayback = usePlaylistTimingValue(playlist._id, 'startedPlayback', TimerValueMode.Timestamp)
 
-	const now = timingDurations.currentTime ?? getCurrentTime()
-	const startsIn = now - (expectedStart ?? 0)
-	const startedPlayback = playlist.activationId ? playlist.startedPlayback : undefined
+	// The countdown is displayed as time-since-planned-start, so it is negative until we get there
+	const startsIn = -(untilStart ?? 0)
+	const hasStarted = startsIn >= 0
+	// a countdown: the time left rounds up, and the time since the planned start rounds down, as a stopwatch does
+	const startsInText = hasStarted
+		? `+${RundownUtils.formatDiffToTimecodeElapsed(startsIn)}`
+		: RundownUtils.formatDiffToTimecode(-startsIn, false, false, true, false, true, '')
 
 	return (
 		<div className="rundown-header__show-timers-endtimes">
-			{!simplified && expectedStart !== undefined && (
+			{!simplified && expectedStart !== null && (
 				<Countdown label={t('Plan. Start')} time={expectedStart} className="rundown-header__show-timers-countdown" />
 			)}
-			{startedPlayback !== undefined && <Countdown label={t('Started')} time={startedPlayback} />}
-			{startedPlayback === undefined && expectedStart !== undefined && (
+			{startedPlayback !== null && <Countdown label={t('Started')} time={startedPlayback} />}
+			{startedPlayback === null && expectedStart !== null && (
 				<Countdown label={t('Start In')} className="rundown-header__show-timers-countdown" ms={startsIn}>
-					{`${startsIn > -1000 ? '+' : ''}${RundownUtils.formatDiffToTimecode(
-						-startsIn,
-						false,
-						false,
-						true,
-						true,
-						true,
-						'',
-						true,
-						true
-					)}`}
+					{startsInText}
 				</Countdown>
 			)}
 		</div>

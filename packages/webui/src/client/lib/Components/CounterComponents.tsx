@@ -26,7 +26,8 @@ export const PlannedEndComponent = (props: OverUnderProps): JSX.Element => {
 }
 
 export const TimeToFromPlannedEndComponent = (props: OverUnderProps): JSX.Element => {
-	const isOver = props.value > -100
+	// over from the planned end on, not 0.1 s before it
+	const isOver = props.value >= 0
 	return (
 		<Countdown
 			className={isOver ? 'counter-component__time-since-planned-end' : 'counter-component__time-to-planned-end'}
@@ -37,7 +38,7 @@ export const TimeToFromPlannedEndComponent = (props: OverUnderProps): JSX.Elemen
 				false,
 				false, // disable hardcoded showHours
 				true,
-				true,
+				false, // no smart floor: the time left rounds up, also in its last 0.1 s
 				true, // useSmartHours automatically shows hours if > 0
 				'',
 				true,

@@ -3,7 +3,7 @@ import { SourceLayerType, type VTContent } from '@sofie-automation/blueprints-in
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { findPieceInstanceToShow } from './utils.js'
 import { Timediff } from '../ClockView/Timediff.js'
-import { getCurrentTime } from '../../lib/systemTime.js'
+import { useClockValue } from '../RundownView/RundownTiming/usePlaylistTimingValue.js'
 import type {
 	PartInstanceId,
 	RundownId,
@@ -54,7 +54,8 @@ export function PieceCountdownContainer(props: Readonly<IPropsHeader>): JSX.Elem
 	const seek = (piece?.content as VTContent)?.seek || 0
 	const postrollDuration = (piece?.content as VTContent)?.postrollDuration || 0
 	const pieceEnable = typeof piece?.enable.start !== 'number' ? 0 : piece?.enable.start
-	if (
+	// the moment the clip freezes, when there is a clip to count down to
+	const freezeTime =
 		props.partStartedPlayback &&
 		sourceLayer &&
 		piece &&
@@ -63,18 +64,18 @@ export function PieceCountdownContainer(props: Readonly<IPropsHeader>): JSX.Elem
 		((props.partAutoNext && pieceEnable + (sourceDuration - seek) < (props.partExpectedDuration || 0)) ||
 			(!props.partAutoNext &&
 				Math.abs(pieceEnable + (sourceDuration - seek) - (props.partExpectedDuration || 0)) > 500))
-	) {
-		const freezeCountdown =
-			props.partStartedPlayback + pieceEnable + (sourceDuration - seek) + postrollDuration - getCurrentTime()
+			? props.partStartedPlayback + pieceEnable + (sourceDuration - seek) + postrollDuration
+			: null
+	// drawn again at the moment the countdown's own second changes
+	const freezeCountdown = useClockValue(freezeTime === null ? undefined : (now) => freezeTime - now)
 
-		if (freezeCountdown > 0) {
-			return (
-				<>
-					<Timediff time={freezeCountdown} />
-					<img className="freeze-icon" src="/icons/freeze-presenter-screen.svg" />
-				</>
-			)
-		}
+	if (freezeCountdown !== null && freezeCountdown > 0) {
+		return (
+			<>
+				<Timediff time={freezeCountdown} />
+				<img className="freeze-icon" src="/icons/freeze-presenter-screen.svg" />
+			</>
+		)
 	}
 	return null
 }

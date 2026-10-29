@@ -1,3 +1,16 @@
 timingMode: 'forward-time'
+startedPlayback: 1728895750727
 expectedStart: 1728895750727
 expectedDurationMs: 180000
+remainingDuration:
+  paused: false
+  zeroTime: 1728895942727
+  pauseTime: 1728895800727
+estimatedEnd:
+  paused: false
+  zeroTime: 1728895942727
+  pauseTime: 1728895800727
+timeInHand:
+  paused: true
+  duration: -12000
+  resumesAt: 1728895800727

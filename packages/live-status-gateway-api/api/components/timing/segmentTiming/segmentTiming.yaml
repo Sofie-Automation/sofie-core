@@ -6,14 +6,58 @@ $defs:
     title: SegmentTiming
     properties:
       expectedDurationMs:
-        description: Expected duration of the segment (milliseconds)
+        description: >-
+          Expected duration of the content of the segment (milliseconds). It is the sum of the expected
+          durations of its parts as Sofie resolves them, as for `currentPart.timing.expectedDurationMs`.
+          Each duration includes its transition and the effect of display-duration groups. The sum does
+          not include untimed parts, parts that an adlib created, and parts that were removed from the
+          rundown.
+
+          It can change during the show, for example in a display-duration group. There, the share of a
+          part without a length of its own depends on how long the parts before it ran. The value does
+          not include a budget. The gateway sends the budget separately, in `budgetDurationMs`. It is 0
+          until Sofie has published the timing for the playlist. This can occur in the first message
+          after the activation of a playlist, and a later message has the value.
         type: number
       budgetDurationMs:
         description: Budget duration of the segment (milliseconds)
         type: number
       countdownType:
-        description: 'Countdown type within the segment. Default: `part_expected_duration`'
+        description: >-
+          Countdown type within the segment. Absent when the segment does not set one. Then Sofie uses
+          `part_expected_duration`. Also absent when Sofie sends a countdown type that this version of
+          the API does not know.
         $ref: '../segmentCountdownType.yaml'
+      playedOut:
+        description: >-
+          The time that the segment has played, as a timer that the client evaluates against its own
+          clock. It is the sum of the played times of the parts, without the untimed parts. It counts
+          up, so the duration that you read is *negative*, and the elapsed time is its negation. The
+          duration that you read from a timer can hold or decrease, but it cannot increase.
+
+          It runs while the on-air part of the segment plays, and it holds for all other segments. For a
+          segment that counts down its budget (`countdownType` `segment_budget_duration`), it is always
+          0. Absent until Sofie has published the timing for the playlist.
+        oneOf:
+          - type: 'null'
+          - $ref: '../../tTimers/timerState.yaml#/$defs/timerState'
+      remaining:
+        description: >-
+          The time that remains of the segment, as a timer: the remaining time in Sofie's segment
+          header. It is the budget duration of the segment, or the sum of the expected durations set on
+          the parts that `expectedDurationMs` counts. Each of these expected durations includes its
+          transition. Sofie subtracts the time that has played (`playedOut`) from this value. A part
+          with a retake counts two times.
+
+          It runs while the on-air part of the segment plays, and it holds for all other segments. For a
+          segment that counts down its budget (`countdownType` `segment_budget_duration`), it holds at
+          the full budget, except while the segment is on air. Then it counts down from the start of the
+          segment, after the playout gateway has reported that start. On the last segment of the
+          playlist, it holds at the full budget, also while the segment is on air. It becomes negative
+          when the segment overruns. Absent until Sofie has published the timing for the playlist.
+        oneOf:
+          - type: 'null'
+          - $ref: '../../tTimers/timerState.yaml#/$defs/timerState'
     required: [expectedDurationMs]
     examples:
       - ref: './segmentTiming-example.yaml'

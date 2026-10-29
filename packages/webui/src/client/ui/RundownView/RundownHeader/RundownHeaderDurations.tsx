@@ -1,10 +1,8 @@
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { useTranslation } from 'react-i18next'
 import { Countdown } from './Countdown'
-import { useTiming } from '../RundownTiming/withTiming'
+import { TimerValueMode, usePlaylistTimingValue } from '../RundownTiming/usePlaylistTimingValue.js'
 import { RundownUtils } from '../../../lib/rundown.js'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { getCurrentTime } from '../../../lib/systemTime'
 
 export function RundownHeaderDurations({
 	playlist,
@@ -14,22 +12,12 @@ export function RundownHeaderDurations({
 	readonly simplified?: boolean
 }): JSX.Element | null {
 	const { t } = useTranslation()
-	const timingDurations = useTiming()
+	const expectedDuration = usePlaylistTimingValue(playlist._id, 'plannedDuration', TimerValueMode.Duration)
+	const estDuration = usePlaylistTimingValue(playlist._id, 'remainingDuration', TimerValueMode.Duration)
 
-	const expectedDuration = PlaylistTiming.getExpectedDuration(playlist.timing)
+	if (expectedDuration === null && estDuration === null) return null
 
-	const startedPlayback = playlist.activationId ? playlist.startedPlayback : undefined
-
-	const estDuration = PlaylistTiming.getRemainingDuration(
-		playlist.timing,
-		timingDurations.currentTime ?? getCurrentTime(),
-		timingDurations.remainingPlaylistDuration,
-		startedPlayback
-	)
-
-	if (expectedDuration == undefined && estDuration == undefined) return null
-
-	const clampedEstDuration = estDuration !== undefined ? Math.max(0, estDuration) : undefined
+	const clampedEstDuration = estDuration !== null ? Math.max(0, estDuration) : null
 
 	return (
 		<div className="rundown-header__show-timers-endtimes">
@@ -38,9 +26,10 @@ export function RundownHeaderDurations({
 					{RundownUtils.formatDiffToTimecode(expectedDuration, false, true, true, true, true, undefined, true, true)}
 				</Countdown>
 			) : null}
-			{clampedEstDuration !== undefined ? (
+			{clampedEstDuration !== null ? (
 				<Countdown label={t('Rem. Dur')} className="rundown-header__show-timers-countdown" ms={clampedEstDuration}>
-					{RundownUtils.formatDiffToTimecode(-clampedEstDuration, false, true, true, true, true, '', true, true)}
+					{/* the time left rounds up, also in its last 0.1 s */}
+					{RundownUtils.formatDiffToTimecode(-clampedEstDuration, false, true, true, false, true, '', true, true)}
 				</Countdown>
 			) : null}
 		</div>

@@ -1,15 +1,19 @@
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import classNames from 'classnames'
 import { useContext } from 'react'
 import { AreaZoom } from './index.js'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getAllowSpeaking, getAllowVibrating } from '../../../lib/localStorage.js'
-import { getPartInstanceTimingValue } from '../../../lib/rundownTiming.js'
 import { AutoNextStatus } from '../../RundownView/RundownTiming/AutoNextStatus.js'
 import { CurrentPartOrSegmentRemaining } from '../../RundownView/RundownHeader/CurrentPartOrSegmentRemaining.js'
 import { PartCountdown } from '../../RundownView/RundownTiming/PartCountdown.js'
 import { PartDisplayDuration } from '../../RundownView/RundownTiming/PartDuration.js'
-import { TimingDataResolution, TimingTickResolution, useTiming } from '../../RundownView/RundownTiming/withTiming.js'
+import { TimingTickResolution } from '../../RundownView/RundownTiming/RundownTiming.js'
+import {
+	TimerValueMode,
+	usePartCountdownValue,
+	usePartTimingValue,
+	usePlaylistTimingValue,
+} from '../../RundownView/RundownTiming/usePlaylistTimingValue.js'
 import type { PartUi } from '../../SegmentContainer/withResolvedSegment.js'
 import { Piece } from './Piece.js'
 import type { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
@@ -25,19 +29,24 @@ interface IProps {
 export function Part({ playlist, part, piece, isLive, isNext }: IProps): JSX.Element | null {
 	const areaZoom = useContext(AreaZoom)
 
-	const timingDurations = useTiming(TimingTickResolution.High, TimingDataResolution.High)
+	const highResolution = { tickResolution: TimingTickResolution.High }
+	const countdown = usePartCountdownValue(part.partId, TimerValueMode.Duration, highResolution)
+	const played = usePartTimingValue(part.partId, 'played', TimerValueMode.CountUp, highResolution)
+	// the live display duration, which grows past the planned one while the part overruns
+	const displayDuration = usePartTimingValue(part.partId, 'liveDisplayDuration', TimerValueMode.CountUp, highResolution)
+	const remainingOnCurrentPart = usePlaylistTimingValue(
+		playlist._id,
+		'remainingOnCurrentPart',
+		TimerValueMode.Duration,
+		{ ...highResolution, forPartInstanceId: part.instance._id }
+	)
 
-	let left =
-		(timingDurations.partCountdown?.[unprotectString(part.partId)] ?? 0) -
-		(getPartInstanceTimingValue(timingDurations.partPlayed, part.instance) || 0)
-	let width: number | null = getPartInstanceTimingValue(timingDurations.partDisplayDurations, part.instance) ?? null
+	let left = (countdown ?? 0) - (played ?? 0)
+	let width: number | null = displayDuration
 
 	if (isLive) {
 		left = 0
-		width =
-			timingDurations.remainingTimeOnCurrentPart !== undefined
-				? Math.max(0, timingDurations.remainingTimeOnCurrentPart)
-				: null
+		width = remainingOnCurrentPart !== null ? Math.max(0, remainingOnCurrentPart) : null
 	}
 
 	if (!part.instance.part.expectedDuration && !part.instance.part.displayDurationGroup) {

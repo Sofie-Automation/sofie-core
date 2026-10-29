@@ -2,7 +2,7 @@ asyncapi: '2.6.0'
 id: 'sofie:live-status-gateway:server'
 info:
   title: Sofie Live Status Service
-  version: '2.0.1'
+  version: '3.0.0'
   description: This service provides subscriptions for status updates from Sofie
   license:
     name: MIT License

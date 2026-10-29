@@ -13,41 +13,38 @@
 
 import type { PartId, PartInstanceId, SegmentId, SegmentPlayoutId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
+import {
+	type TimerState,
+	offsetTimerState,
+	timerStateToDuration,
+	timerStateToZeroTime,
+} from '@sofie-automation/corelib/dist/dataModel/TimerState'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import type { DBPart, PartExtended } from '@sofie-automation/corelib/dist/dataModel/Part'
+import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import {
 	type DBRundownPlaylist,
 	QuickLoopMarkerType,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { objectFromEntries } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { getCurrentTime } from './systemTime.js'
 import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
-import { RundownUtils } from './rundown.js'
-import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance'
+import type { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import {
 	isLoopRunning,
 	isLoopDefined,
 	isEntirePlaylistLooping,
-} from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
+} from '@sofie-automation/corelib/dist/playout/stateCacheResolver'
 
-// Minimum duration that a part can be assigned. Used by gap parts to allow them to "compress" to indicate time running out.
-const MINIMAL_NONZERO_DURATION = 1
+import { type CalculateTimingsPartInstance, PartDurationResolver } from './resolvePartTimings'
 
-type CalculateTimingsPartInstance = Pick<
-	PartInstance,
-	'_id' | 'isTemporary' | 'segmentId' | 'segmentPlayoutId' | 'orphaned' | 'timings' | 'part'
->
+export type { CalculateTimingsPartInstance }
 
 export type TimingId = string
 
 /**
- * This is a class for calculating timings in a Rundown playlist used by RundownTimingProvider.
- *
- * @export
- * @class RundownTimingCalculator
+ * Calculates the timing of a Rundown playlist for the playlistTimingState publication.
+ * The publication creates a new instance for every calculation.
  */
 export class RundownTimingCalculator {
 	private linearParts: Array<[PartId, number | null]> = []
@@ -56,8 +53,8 @@ export class RundownTimingCalculator {
 	private nextSegmentId: SegmentId | undefined = undefined
 
 	// look at the comments on RundownTimingContext to understand what these do
-	// Note, that these objects are created when an instance is created and are reused for the lifetime
-	// of the component. This is to avoid GC running all the time on discarded objects.
+	// Note, that these objects are created when an instance is created and are reused by every call
+	// to `updateDurations` on that instance.
 	// Only the RundownTimingContext object is unique for a call to `updateDurations`.
 	private partDurations: Record<TimingId, number> = {}
 	private partExpectedDurations: Record<TimingId, number> = {}
@@ -66,7 +63,7 @@ export class RundownTimingCalculator {
 	private partDisplayStartsAt: Record<TimingId, number> = {}
 	private partDisplayDurations: Record<TimingId, number> = {}
 	private partDisplayDurationsNoPlayback: Record<TimingId, number> = {}
-	private displayDurationGroups: Record<string, number> = {}
+	private partDurationsNoPlayback: Record<TimingId, number> = {}
 	private segmentAsPlayedDurations: Record<string, number> = {}
 
 	/**
@@ -103,19 +100,51 @@ export class RundownTimingCalculator {
 		// the "wait" for a part is defined as its asPlayedDuration or its displayDuration or its expectedDuration
 		const waitPerPart: Record<string, number> = {}
 		let waitAccumulator = 0
-		let currentRemaining = 0
+		/**
+		 * The countdown until the Next part goes on air, as a state. Every part's countdown is this
+		 * plus that part's static wait, so this is the only time-varying term in all of them.
+		 */
+		let currentRemainingState: TimerState = { paused: true, duration: 0 }
 		let startsAtAccumulator = 0
 		let displayStartsAtAccumulator = 0
 		let segmentDisplayDuration = 0
 		let segmentBudgetDurationLeft = 0
 		let remainingBudgetOnCurrentSegment: undefined | number
+		let remainingBudgetOnCurrentSegmentState: undefined | TimerState
+
+		/**
+		 * The single time-varying term of the playlist aggregates: the on-air part (or the on-air
+		 * budgeted segment) counting down to the moment it overruns its expected duration, freezing
+		 * at zero. The numeric aggregates below are evaluations of this state, and the published
+		 * TimerStates are composed from it — there is deliberately no other formula involving `now`
+		 * in the playlist aggregates.
+		 */
+		let liveCountdown: (TimerState & { paused: false; pauseTime: number }) | undefined
+		/** The planned start of the on-air part, while its own countdown is `liveCountdown` */
+		let onAirPartPlannedStart: number | undefined
+		/**
+		 * The take of the on-air part, while it waits for its start: between the take and the playout gateway's report
+		 * of the start, with one playout gateway. The part starts at or after it.
+		 */
+		let onAirPartTakenAt: number | undefined
+		/** The start and the planned end of the part that started last, other than the on-air part */
+		let lastStartedPartBeforeTheOnAirPart: { start: number; plannedEnd: number } | undefined
+
+		/** Keyed by partId, matching `partCountdown`. Rebuilt each run, so it never goes stale */
+		const partCountdownOffsets: Record<TimingId, number | null> = {}
+		/** What every part's countdown is a shift of; set below once the waits are known */
+		let partCountdownBase: TimerState = { paused: true, duration: 0 }
+		/** Rebuilt each run, so it never goes stale */
+		const partCountsTowardsTiming: Record<TimingId, boolean> = {}
 
 		const rundownExpectedDurations: Record<string, number> = {}
 		const rundownAsPlayedDurations: Record<string, number> = {}
 
 		let liveSegmentIds: { segmentId: SegmentId; segmentPlayoutId: SegmentPlayoutId } | undefined
 
-		Object.keys(this.displayDurationGroups).forEach((key) => delete this.displayDurationGroups[key])
+		// The display-duration group pools only live for the length of one pass over the playout order
+		const partDurationResolver = new PartDurationResolver()
+
 		Object.keys(this.segmentAsPlayedDurations).forEach((key) => delete this.segmentAsPlayedDurations[key])
 		this.untimedSegments.clear()
 		this.linearParts.length = 0
@@ -155,14 +184,20 @@ export class RundownTimingCalculator {
 						if (liveSegment?.segmentTiming?.countdownType === CountdownType.SEGMENT_BUDGET_DURATION) {
 							const budgetDuration = liveSegment.segmentTiming.budgetDuration ?? 0
 							if (budgetDuration > 0) {
-								remainingBudgetOnCurrentSegment =
-									(playlist.segmentsStartedPlayback?.[
+								// The countdown runs from when the segment started; with no known start
+								// there is nothing to count from, so it simply reads as the full budget
+								const segmentStartedPlayback =
+									playlist.segmentsStartedPlayback?.[
 										unprotectString(liveSegmentIds.segmentPlayoutId)
-									] ??
-										lastStartedPlayback ??
-										now) +
-									budgetDuration -
+									] ?? lastStartedPlayback
+								remainingBudgetOnCurrentSegmentState =
+									segmentStartedPlayback !== undefined
+										? { paused: false, zeroTime: segmentStartedPlayback + budgetDuration }
+										: { paused: true, duration: budgetDuration }
+								remainingBudgetOnCurrentSegment = timerStateToDuration(
+									remainingBudgetOnCurrentSegmentState,
 									now
+								)
 							}
 						}
 					}
@@ -198,6 +233,8 @@ export class RundownTimingCalculator {
 					(itIndex >= currentAIndex && currentAIndex >= 0) ||
 					(itIndex >= nextAIndex && nextAIndex >= 0 && currentAIndex === -1)
 
+				partCountsTowardsTiming[partInstanceOrPartId] = partCounts
+
 				const partIsUntimed = partInstance.part.untimed || false
 
 				// untimed segment algorithm: we have considered all segments as candidates to untimed segments, and now we remove the ones that aren't (the ones that contain a timed part)
@@ -212,117 +249,55 @@ export class RundownTimingCalculator {
 					totalRundownDuration += calculatePartInstanceExpectedDurationWithTransition(partInstance) || 0
 				}
 
-				const playOffset = partInstance.timings?.playOffset || 0
-
-				let partDuration = 0
-				let partExpectedDuration = 0
-				let partDisplayDuration = 0
-				let partDisplayDurationNoPlayback = 0
-
-				let displayDurationFromGroup = 0
-
-				partExpectedDuration =
-					calculatePartInstanceExpectedDurationWithTransition(partInstance) ||
-					partInstance.timings?.duration ||
-					0
-
-				// Display Duration groups are groups of two or more Parts, where some of them have an
-				// expectedDuration and some have 0.
-				// Then, some of them will have a displayDuration. The expectedDurations are pooled together, the parts with
-				// display durations will take up that much time in the Rundown. The left-over time from the display duration group
-				// will be used by Parts without expectedDurations.
-				let memberOfDisplayDurationGroup = false
-				// using a separate displayDurationGroup processing flag simplifies implementation
+				const resolved = partDurationResolver.resolve(
+					partInstance,
+					partInstances[itIndex + 1],
+					now,
+					lastStartedPlayback,
+					defaultDuration
+				)
+				const { memberOfDisplayDurationGroup, displayDurationFromGroup } = resolved
+				const partExpectedDuration = resolved.expectedDuration
+				const partDuration = resolved.duration
+				const isTheOnAirPart = playlist.currentPartInfo?.partInstanceId === partInstance._id
 				if (
-					partInstance.part.displayDurationGroup &&
-					// either this is not the first element of the displayDurationGroup
-					(this.displayDurationGroups[partInstance.part.displayDurationGroup] !== undefined ||
-						// or there is a following member of this displayDurationGroup
-						(partInstances[itIndex + 1] &&
-							partInstances[itIndex + 1].part.displayDurationGroup ===
-								partInstance.part.displayDurationGroup)) &&
-					!partInstance.part.floated &&
-					!partIsUntimed
+					lastStartedPlayback !== undefined &&
+					!isTheOnAirPart &&
+					(lastStartedPartBeforeTheOnAirPart === undefined ||
+						lastStartedPlayback > lastStartedPartBeforeTheOnAirPart.start)
 				) {
-					this.displayDurationGroups[partInstance.part.displayDurationGroup] =
-						(this.displayDurationGroups[partInstance.part.displayDurationGroup] || 0) +
-						(calculatePartInstanceExpectedDurationWithTransition(partInstance) || 0)
-					displayDurationFromGroup =
-						partInstance.part.displayDuration ||
-						Math.max(
-							0,
-							this.displayDurationGroups[partInstance.part.displayDurationGroup],
-							partInstance.part.gap ? MINIMAL_NONZERO_DURATION : defaultDuration
-						)
-					partExpectedDuration =
-						partExpectedDuration || this.displayDurationGroups[partInstance.part.displayDurationGroup] || 0
-					memberOfDisplayDurationGroup = true
+					lastStartedPartBeforeTheOnAirPart = {
+						start: lastStartedPlayback,
+						plannedEnd: lastStartedPlayback + partExpectedDuration,
+					}
 				}
+				const partDisplayDurationNoPlayback = resolved.displayDurationNoPlayback
+				let partDisplayDuration = resolved.displayDuration
+				this.partPlayed[partInstanceOrPartId] = resolved.played
 
-				// This is where we actually calculate all the various variants of duration of a part
 				if (lastStartedPlayback && !partInstance.timings?.duration) {
-					// if duration isn't available, check if `plannedStoppedPlayback` has already been set and use the difference
-					// between startedPlayback and plannedStoppedPlayback as the duration
-					const duration =
-						partInstance.timings?.duration ||
-						(partInstance.timings?.plannedStoppedPlayback
-							? lastStartedPlayback - partInstance.timings?.plannedStoppedPlayback
-							: undefined)
-					partDuration =
-						Math.max(
-							duration || calculatePartInstanceExpectedDurationWithTransition(partInstance) || 0,
-							now - lastStartedPlayback
-						) - playOffset
-					// because displayDurationGroups have no actual timing on them, we need to have a copy of the
-					// partDisplayDuration, but calculated as if it's not playing, so that the countdown can be
-					// calculated
-					partDisplayDurationNoPlayback =
-						duration ||
-						(memberOfDisplayDurationGroup
-							? displayDurationFromGroup
-							: calculatePartInstanceExpectedDurationWithTransition(partInstance)) ||
-						defaultDuration
-					partDisplayDuration = Math.max(partDisplayDurationNoPlayback, now - lastStartedPlayback)
-					this.partPlayed[partInstanceOrPartId] = now - lastStartedPlayback
+					const duration = resolved.recordedDuration
 					const segmentStartedPlayback =
 						playlist.segmentsStartedPlayback?.[unprotectString(partInstance.segmentPlayoutId)] ??
 						lastStartedPlayback
 
 					// NOTE: displayDurationGroups are ignored here, when using budgetDuration
+					// Both branches count down to a fixed moment and then hold at zero, which is the
+					// `pauseTime === zeroTime` shape - the old `Math.max(0, …)` clamp expressed as a state
 					if (segmentUsesBudget) {
-						currentRemaining = Math.max(
-							0,
-							segmentBudget - segmentDisplayDuration - (now - segmentStartedPlayback)
-						)
+						const budgetEndTime = segmentStartedPlayback + segmentBudget - segmentDisplayDuration
+						currentRemainingState = { paused: false, zeroTime: budgetEndTime, pauseTime: budgetEndTime }
 						segmentBudgetDurationLeft = 0
 					} else {
-						currentRemaining = Math.max(
-							0,
+						const partEndTime =
+							lastStartedPlayback +
 							(duration ||
 								(memberOfDisplayDurationGroup
 									? displayDurationFromGroup
 									: calculatePartInstanceExpectedDurationWithTransition(partInstance)) ||
-								0) -
-								(now - lastStartedPlayback)
-						)
+								0)
+						currentRemainingState = { paused: false, zeroTime: partEndTime, pauseTime: partEndTime }
 					}
-				} else {
-					partDuration =
-						(partInstance.timings?.duration ||
-							calculatePartInstanceExpectedDurationWithTransition(partInstance) ||
-							0) - playOffset
-					partDisplayDurationNoPlayback = Math.max(
-						0,
-						(partInstance.timings?.duration && partInstance.timings?.duration + playOffset) ||
-							displayDurationFromGroup ||
-							ensureMinimumDefaultDurationIfNotAuto(
-								partInstance,
-								calculatePartInstanceExpectedDurationWithTransition(partInstance),
-								defaultDuration
-							)
-					)
-					partDisplayDuration = partDisplayDurationNoPlayback
-					this.partPlayed[partInstanceOrPartId] = (partInstance.timings?.duration || 0) - playOffset
 				}
 
 				// asPlayed is the actual duration so far and expected durations in unplayed lines.
@@ -335,7 +310,18 @@ export class RundownTimingCalculator {
 						let valToAddToAsPlayedDuration = 0
 
 						if (lastStartedPlayback && !partInstance.timings?.duration) {
-							valToAddToAsPlayedDuration = Math.max(partExpectedDuration, now - lastStartedPlayback)
+							// as-played = the part's expected duration, plus however far past its
+							// expected end it has overrun (i.e. max(expectedDuration, elapsed)),
+							// expressed through the part's expected-end countdown state so that the
+							// same state drives both this and the remaining-duration term
+							const expectedEndTime = lastStartedPlayback + partExpectedDuration
+							const partCountdown: TimerState = {
+								paused: false,
+								zeroTime: expectedEndTime,
+								pauseTime: expectedEndTime,
+							}
+							valToAddToAsPlayedDuration =
+								partExpectedDuration + (timerStateToZeroTime(partCountdown, now) - expectedEndTime)
 						} else if (partInstance.timings?.duration) {
 							valToAddToAsPlayedDuration = partInstance.timings.duration
 						} else if (partCounts) {
@@ -391,7 +377,16 @@ export class RundownTimingCalculator {
 
 				// the part is the current part but has not yet started playback
 				if (playlist.currentPartInfo?.partInstanceId === partInstance._id && !lastStartedPlayback) {
-					currentRemaining = partDisplayDuration
+					// Nothing is ticking yet, so this holds at the part's full length. Where the start is
+					// already known but still in the future - the window after a take in a multi-gateway
+					// studio - `resumesAt` carries it, so the countdowns are right the moment it passes
+					// rather than only once this has been recomputed and republished.
+					const plannedStartedPlayback = partInstance.timings?.plannedStartedPlayback
+					currentRemainingState = {
+						paused: true,
+						duration: partDisplayDuration,
+						resumesAt: plannedStartedPlayback ?? null,
+					}
 				}
 
 				// Handle invalid parts by overriding the values to preset values for Invalid parts
@@ -400,17 +395,12 @@ export class RundownTimingCalculator {
 					this.partPlayed[partInstanceOrPartId] = 0
 				}
 
-				if (
-					memberOfDisplayDurationGroup &&
-					partInstance.part.displayDurationGroup &&
-					!partInstance.part.floated &&
-					!partInstance.part.invalid &&
-					!partIsUntimed &&
-					(partInstance.timings?.duration || partInstance.timings?.plannedStoppedPlayback || partCounts)
-				) {
-					this.displayDurationGroups[partInstance.part.displayDurationGroup] =
-						this.displayDurationGroups[partInstance.part.displayDurationGroup] - partDisplayDuration
-				}
+				partDurationResolver.takeFromDisplayDurationGroup(
+					partInstance,
+					resolved,
+					partDisplayDuration,
+					partCounts
+				)
 
 				this.partExpectedDurations[partInstanceOrPartId] = partExpectedDuration
 				this.partStartsAt[partInstanceOrPartId] = startsAtAccumulator
@@ -418,6 +408,7 @@ export class RundownTimingCalculator {
 				this.partDurations[partInstanceOrPartId] = partDuration
 				this.partDisplayDurations[partInstanceOrPartId] = partDisplayDuration
 				this.partDisplayDurationsNoPlayback[partInstanceOrPartId] = partDisplayDurationNoPlayback
+				this.partDurationsNoPlayback[partInstanceOrPartId] = resolved.durationNoPlayback
 				startsAtAccumulator += this.partDurations[partInstanceOrPartId]
 				displayStartsAtAccumulator += this.partDisplayDurations[partInstanceOrPartId]
 
@@ -451,7 +442,36 @@ export class RundownTimingCalculator {
 				// if false (default), past unplayed parts will not count towards remaining time
 				// If SegmentUsesBudget, these values are set when iterating over all Segments, see below.
 				if (!segmentUsesBudget) {
-					if (
+					// note: this deliberately uses the planned start rather than `lastStartedPlayback`,
+					// so that it also covers a part that has been taken but has not started yet.
+					// Multi-gateway studios schedule the start a little into the future, so for a
+					// moment after every take the on-air part has a planned start that has not been
+					// reached. Anchoring on that start keeps the playlist's projected end fixed
+					// across the window, rather than letting it push along with the clock.
+					const plannedStartedPlayback = partInstance.timings?.plannedStartedPlayback
+					const isOnAir =
+						playlist.currentPartInfo?.partInstanceId === partInstance._id &&
+						plannedStartedPlayback !== undefined &&
+						!partInstance.timings?.duration &&
+						!partIsUntimed
+					const isWaitingForItsStart =
+						playlist.currentPartInfo?.partInstanceId === partInstance._id &&
+						plannedStartedPlayback === undefined &&
+						partInstance.timings?.reportedStartedPlayback === undefined &&
+						partInstance.timings?.take !== undefined
+					if (isWaitingForItsStart) onAirPartTakenAt = partInstance.timings?.take
+
+					if (isOnAir) {
+						// The on-air part's remaining time: a countdown to its expected end, freezing
+						// at zero once it overruns. This is the state that makes the aggregates
+						// time-varying; the numeric value is its evaluation at `now`. Before the
+						// planned start this evaluates to more than the part's duration, by the
+						// amount of the wait - which is what keeps the projected end fixed.
+						const expectedEndTime = plannedStartedPlayback + partExpectedDuration
+						liveCountdown = { paused: false, zeroTime: expectedEndTime, pauseTime: expectedEndTime }
+						onAirPartPlannedStart = plannedStartedPlayback
+						remainingRundownDuration += timerStateToDuration(liveCountdown, now)
+					} else if (
 						typeof lastStartedPlayback !== 'number' &&
 						!partInstance.part.floated &&
 						partCounts &&
@@ -462,15 +482,6 @@ export class RundownTimingCalculator {
 						// add any duration to the "remaining" time pool
 						remainingRundownDuration +=
 							calculatePartInstanceExpectedDurationWithTransition(partInstance) || 0
-						// item is onAir right now, and it's is currently shorter than expectedDuration
-					} else if (
-						lastStartedPlayback &&
-						!partInstance.timings?.duration &&
-						playlist.currentPartInfo?.partInstanceId === partInstance._id &&
-						lastStartedPlayback + partExpectedDuration > now &&
-						!partIsUntimed
-					) {
-						remainingRundownDuration += Math.max(0, partExpectedDuration - (now - lastStartedPlayback))
 					}
 				}
 
@@ -485,6 +496,11 @@ export class RundownTimingCalculator {
 
 			// This is where the waitAccumulator-generated data in the linearSegLines is used to calculate the countdowns.
 			// at this point the "waitAccumulator" should be the total sum of all the "waits" in the rundown
+			//
+			// NOTE: this loop works in *offsets from the Next part's countdown* - i.e. it is the
+			// arithmetic below with `currentRemaining` taken to be zero. Each part's actual countdown is
+			// its offset plus `currentRemainingState`, applied in the pass that follows, so that the one
+			// live term appears exactly once and every countdown is a shift of the same state.
 			let localAccum = 0
 			let timeTillEndLoop: undefined | number = undefined
 			for (let i = 0; i < this.linearParts.length; i++) {
@@ -498,14 +514,14 @@ export class RundownTimingCalculator {
 				} else if (i === nextAIndex) {
 					// this is a calculation for the next line, which is basically how much there is left of the current line
 					localAccum = this.linearParts[i][1] || 0 // if there is no current line, rebase following lines to the next line
-					this.linearParts[i][1] = currentRemaining
+					this.linearParts[i][1] = 0
 				} else {
 					// these are lines after next line
 					// we take whatever value this line has, subtract the value as set on the Next Part
 					// (note that the Next Part value will be using currentRemaining as the countdown)
 					// and add the currentRemaining countdown, since we are currentRemaining + diff between next and
 					// this away from this line.
-					this.linearParts[i][1] = (this.linearParts[i][1] || 0) - localAccum + currentRemaining
+					this.linearParts[i][1] = (this.linearParts[i][1] || 0) - localAccum
 
 					if (!partsInQuickLoop[unprotectString(this.linearParts[i][0])] && !entirePlaylistIsLooping) {
 						timeTillEndLoop = timeTillEndLoop ?? this.linearParts[i][1] ?? undefined
@@ -518,7 +534,7 @@ export class RundownTimingCalculator {
 				// we track the sum of all the "waits" that happen in the loop
 				let waitInLoop = 0
 				// if timeTillEndLoop was undefined then we can assume the end of the loop is the last line in the rundown
-				timeTillEndLoop = timeTillEndLoop ?? waitAccumulator - localAccum + currentRemaining
+				timeTillEndLoop = timeTillEndLoop ?? waitAccumulator - localAccum
 				for (let i = 0; i < nextAIndex; i++) {
 					if (!partsInQuickLoop[unprotectString(this.linearParts[i][0])] && !entirePlaylistIsLooping) continue
 
@@ -528,6 +544,30 @@ export class RundownTimingCalculator {
 					// add the wait from this part to the waitInLoop (the lookup here should still work by the definition of a "wait")
 					waitInLoop += waitPerPart[unprotectString(this.linearParts[i][0])] ?? 0
 				}
+			}
+
+			// Each part's countdown is published as one base timer shifted by an offset of the part's own, and
+			// every changed offset is a part document sent to every subscriber. The offsets above count from the
+			// start of the Next part (of the first part when nothing is next), so a take, which moves Next, would
+			// change all of them. So the base is the live term moved to the end of the last part's wait, and each
+			// offset counts back from there. A part's offset is then made of the waits from that part on, which
+			// for a part at or after Next have not been played, so a take, a playback confirmation or the clock
+			// mostly changes the base alone. Each countdown is the same either way: the live state, shifted by the
+			// same total.
+			const waitsFromNextToTheEnd = waitAccumulator - localAccum
+			partCountdownBase = offsetTimerState(currentRemainingState, waitsFromNextToTheEnd)
+
+			// Give each part its offset from the base, and take the numbers back out of the countdowns the two
+			// give, as a consumer composes them, so that the numbers and the published values can never disagree
+			for (const linearPart of this.linearParts) {
+				const partId = unprotectString(linearPart[0])
+				const offsetFromNext = linearPart[1]
+				const hasCountdown = offsetFromNext !== null
+				const countdownOffset = hasCountdown ? offsetFromNext - waitsFromNextToTheEnd : null
+				partCountdownOffsets[partId] = countdownOffset
+
+				const countdown = countdownOffset === null ? null : offsetTimerState(partCountdownBase, countdownOffset)
+				linearPart[1] = countdown && timerStateToDuration(countdown, now)
 			}
 
 			// For the sake of Segment Budget Durations, we need to now iterate over all Segments
@@ -551,14 +591,23 @@ export class RundownTimingCalculator {
 				if (liveSegmentIds && segment._id === liveSegmentIds.segmentId) {
 					const startedPlayback =
 						playlist.segmentsStartedPlayback?.[unprotectString(liveSegmentIds.segmentPlayoutId)]
-					valToAddToRundownRemainingDuration = Math.max(
-						0,
-						segmentBudgetDuration - (startedPlayback ? now - startedPlayback : 0)
-					)
-					valToAddToRundownAsPlayedDuration = Math.max(
-						startedPlayback ? now - startedPlayback : 0,
-						segmentBudgetDuration
-					)
+					if (startedPlayback !== undefined) {
+						// The on-air segment's remaining budget: a countdown to the end of the
+						// budget, freezing at zero once it overruns — the same shape as the on-air
+						// part countdown above, and the single source of the aggregates'
+						// time-dependence when the live segment uses a budget.
+						const budgetEndTime = startedPlayback + segmentBudgetDuration
+						liveCountdown = { paused: false, zeroTime: budgetEndTime, pauseTime: budgetEndTime }
+						// remaining = max(0, budget - elapsed)
+						valToAddToRundownRemainingDuration = timerStateToDuration(liveCountdown, now)
+						// as-played = budget, plus however far past the budget it has overrun
+						// (i.e. max(elapsed, budget))
+						valToAddToRundownAsPlayedDuration =
+							segmentBudgetDuration + (timerStateToZeroTime(liveCountdown, now) - budgetEndTime)
+					} else {
+						valToAddToRundownRemainingDuration = segmentBudgetDuration
+						valToAddToRundownAsPlayedDuration = segmentBudgetDuration
+					}
 				} else if (!playlist.activationId || (nextSegmentIndex >= 0 && itIndex >= nextSegmentIndex)) {
 					valToAddToRundownAsPlayedDuration = segmentBudgetDuration
 					valToAddToRundownRemainingDuration = segmentBudgetDuration
@@ -574,6 +623,7 @@ export class RundownTimingCalculator {
 		}
 
 		let remainingTimeOnCurrentPart: number | undefined = undefined
+		let remainingTimeOnCurrentPartState: TimerState | undefined = undefined
 		let currentPartWillAutoNext = false
 		let currentSegmentId: SegmentId | null | undefined
 		if (currentAIndex >= 0) {
@@ -595,35 +645,66 @@ export class RundownTimingCalculator {
 					onAirPartDuration
 			}
 
-			remainingTimeOnCurrentPart =
+			// The part holds at its full duration until it starts, then counts down from there.
+			// A scheduled start expresses that directly: before it the state reads as the whole
+			// duration, after it as `start + duration - now`. (That is the same as the previous
+			// `Math.min(start, now) + duration - now`, which is how a start in the future - every
+			// multi-gateway take - was handled.)
+			remainingTimeOnCurrentPartState =
 				typeof lastStartedPlayback === 'number'
-					? Math.min(lastStartedPlayback, now) + onAirPartDuration - now
-					: onAirPartDuration
+					? { paused: true, duration: onAirPartDuration, resumesAt: lastStartedPlayback }
+					: { paused: true, duration: onAirPartDuration }
+			remainingTimeOnCurrentPart = timerStateToDuration(remainingTimeOnCurrentPartState, now)
 
 			currentPartWillAutoNext = !!(currentLivePart.autoNext && currentLivePart.expectedDuration)
 
 			currentSegmentId = currentLivePart.segmentId
 		}
 
+		// Compose the remaining-duration TimerState from the accumulated constant terms and the
+		// live countdown. The numeric remainingPlaylistDuration above is (by construction of the
+		// accumulation) this state's evaluation at `now`.
+		const remainingPlaylistDurationState: TimerState =
+			liveCountdown && now < liveCountdown.pauseTime
+				? { paused: false, zeroTime: now + remainingRundownDuration, pauseTime: liveCountdown.pauseTime }
+				: { paused: true, duration: remainingRundownDuration }
+
 		return literal<RundownTimingContext>({
 			currentPartInstanceId: playlist ? (playlist.currentPartInfo?.partInstanceId ?? null) : undefined,
 			currentSegmentId: currentSegmentId,
 			totalPlaylistDuration: totalRundownDuration,
 			remainingPlaylistDuration: remainingRundownDuration,
+			remainingPlaylistDurationState,
+			livePushTime: liveCountdown?.pauseTime,
 			asDisplayedPlaylistDuration: asDisplayedRundownDuration,
 			asPlayedPlaylistDuration: asPlayedRundownDuration,
 			rundownExpectedDurations,
 			rundownAsPlayedDurations,
 			partCountdown: objectFromEntries(this.linearParts),
+			partCountdownBase,
+			partCountdownOffsets,
+			partCountsTowardsTiming,
 			partDurations: this.partDurations,
 			partPlayed: this.partPlayed,
 			partStartsAt: this.partStartsAt,
 			partDisplayStartsAt: this.partDisplayStartsAt,
 			partExpectedDurations: this.partExpectedDurations,
 			partDisplayDurations: this.partDisplayDurations,
+			partDisplayDurationsNoPlayback: this.partDisplayDurationsNoPlayback,
+			partDurationsNoPlayback: this.partDurationsNoPlayback,
 			currentTime: now,
 			remainingTimeOnCurrentPart,
+			remainingTimeOnCurrentPartState,
+			onAirPartPlannedStart,
+			onAirPartTakenAt,
+			previousPartPlannedEnd:
+				onAirPartTakenAt !== undefined &&
+				lastStartedPartBeforeTheOnAirPart !== undefined &&
+				lastStartedPartBeforeTheOnAirPart.start <= onAirPartTakenAt
+					? lastStartedPartBeforeTheOnAirPart.plannedEnd
+					: undefined,
 			remainingBudgetOnCurrentSegment,
+			remainingBudgetOnCurrentSegmentState,
 			currentPartWillAutoNext,
 			isLowResolution,
 			partsInQuickLoop,
@@ -640,6 +721,21 @@ export interface RundownTimingContext {
 	totalPlaylistDuration?: number
 	/** This is the content remaining to be played in the playlist (based on the expectedDurations).  */
 	remainingPlaylistDuration?: number
+	/**
+	 * The remaining content duration as a TimerState (read via `timerStateToDuration`): counts down
+	 * 1:1 while the on-air part (or segment budget) is playing, freezing once it overruns.
+	 * `remainingPlaylistDuration` is this state's evaluation at `currentTime`.
+	 * Read via `timerStateToZeroTime` (when playback has started, or while it counts down) it yields
+	 * the estimated end.
+	 */
+	remainingPlaylistDurationState?: TimerState
+	/**
+	 * The moment the on-air part (or the on-air segment's budget) overruns its expected duration —
+	 * the single piecewise breakpoint of the playlist aggregates: remaining freezes and as-played /
+	 * estimated-end start pushing 1:1 with time from this point. Undefined when nothing on air is
+	 * driving the aggregates.
+	 */
+	livePushTime?: number
 	/** This is the total duration of the playlist: as planned for the unplayed (skipped & future) content, and as-run for the played-out. */
 	asDisplayedPlaylistDuration?: number
 	/** This is the complete duration of the playlist: as planned for the unplayed content, and as-run for the played-out, but ignoring unplayed/unplayable parts in order */
@@ -650,6 +746,23 @@ export interface RundownTimingContext {
 	rundownAsPlayedDurations?: Record<string, number>
 	/** this is the countdown to each of the parts relative to the current on air part. This always uses PartId's as the index */
 	partCountdown?: Record<string, number | null>
+	/**
+	 * The timer every part's countdown is a shift of: a part's countdown is
+	 * `offsetTimerState(partCountdownBase, partCountdownOffsets[partId])`. It has no meaning of its own: it is
+	 * the live term of the countdowns, moved to the end of the last part's wait.
+	 */
+	partCountdownBase: TimerState
+	/**
+	 * How far each part's countdown is from `partCountdownBase`, in ms: for a part at or after Next, minus the
+	 * waits from the part's start to the end of the last part's wait. Also keyed by PartId; `null` means "will
+	 * probably not be played out, if played in order", as in `partCountdown`.
+	 */
+	partCountdownOffsets?: Record<string, number | null>
+	/**
+	 * Whether each part contributes to the playlist and rundown totals - false for parts that will be
+	 * skipped if the rundown is played in order, unless the playlist allows out-of-order timing.
+	 */
+	partCountsTowardsTiming?: Record<string, boolean>
 	/** The calculated durations of each of the Parts: as-planned/as-run depending on state. */
 	partDurations?: Record<string, number>
 	/** Whether a Part (or Part Instance) is within the QuickLoop */
@@ -664,6 +777,14 @@ export interface RundownTimingContext {
 	 * (such as minimal display width for an Part, etc.).
 	 */
 	partDisplayDurations?: Record<string, number>
+	/** Same as partDisplayDurations, but calculated as if the part were not playing - so it does not
+	 * grow while the on-air part overruns. This is the static part of the display duration.
+	 */
+	partDisplayDurationsNoPlayback?: Record<string, number>
+	/** Same as partDurations, but calculated as if the part were not playing - so it does not grow
+	 * while the on-air part overruns. This is the static part of the duration.
+	 */
+	partDurationsNoPlayback?: Record<string, number>
 	/** As-played durations of each part. Will be 0, if not yet played.
 	 * Will be counted from start to now if currently playing.
 	 */
@@ -674,45 +795,43 @@ export interface RundownTimingContext {
 	partExpectedDurations?: Record<string, number>
 	/** Remaining time on current part */
 	remainingTimeOnCurrentPart?: number
+	/**
+	 * Remaining time on the current part as a TimerState (read via `timerStateToDuration`).
+	 * `remainingTimeOnCurrentPart` is this state's evaluation at `currentTime`.
+	 */
+	remainingTimeOnCurrentPartState?: TimerState
+	/**
+	 * When the on-air part starts, or started, playing as planned (its `plannedStartedPlayback`), while its
+	 * own countdown drives the remaining duration: a timed part, outside a segment budget, still playing.
+	 * Undefined otherwise, such as while an untimed part, or a part in a segment with a budget, is on air.
+	 * A take in a multi-gateway studio sets it a little ahead, so just after a take it lies in the future.
+	 */
+	onAirPartPlannedStart?: number
+	/**
+	 * When the on-air part was taken, while it waits for the playout gateway's report of its start (with one playout
+	 * gateway; in a multi-gateway studio the take plans the start instead, see `onAirPartPlannedStart`). The part starts
+	 * at or after its take. Undefined once the start is known, and while no part is on air.
+	 */
+	onAirPartTakenAt?: number
+	/**
+	 * While the on-air part waits for its start (see `onAirPartTakenAt`): the planned end of the part that was on air
+	 * before the take, its start plus its expected duration. Before the take, the playlist's estimated end counted that
+	 * part to this end. Undefined otherwise.
+	 */
+	previousPartPlannedEnd?: number
 	/** Remaining budget on current segment, if its countdownType === CountdownType.SEGMENT_BUDGET_DURATION, undefined otherwise */
 	remainingBudgetOnCurrentSegment?: number | undefined
+	/**
+	 * Remaining budget on the current segment as a TimerState (read via `timerStateToDuration`).
+	 * `remainingBudgetOnCurrentSegment` is this state's evaluation at `currentTime`.
+	 */
+	remainingBudgetOnCurrentSegmentState?: TimerState
 	/** Current part will autoNext */
 	currentPartWillAutoNext?: boolean
 	/** Current time of this calculation */
 	currentTime?: number
 	/** Was this time context calculated during a high-resolution tick */
 	isLowResolution: boolean
-}
-
-/**
- * Computes the actual (as-played fallbacking to expected) duration of a segment, consisting of given parts
- * @export
- * @param  {RundownTimingContext} timingDurations The timing durations calculated for the Rundown
- * @param  {Array<string>} partIds The IDs of parts that are members of the segment
- * @return number
- */
-/**
- * @param displayDuration When provided, parts with no duration of their own fall back to this duration
- * (the Studio's configured `defaultDisplayDuration`). Omit to not apply any fallback (renders as 0).
- */
-export function computeSegmentDuration(
-	timingDurations: RundownTimingContext,
-	parts: PartExtended[],
-	displayDuration?: number
-): number {
-	const partDisplayDurations = timingDurations?.partDisplayDurations
-
-	if (!partDisplayDurations) return RundownUtils.getSegmentDuration(parts, displayDuration)
-
-	return parts.reduce((memo, partExtended) => {
-		// total += durations.partDurations ? durations.partDurations[item._id] : (item.duration || item.renderedDuration || 1)
-		const partInstanceTimingId = getPartInstanceTimingId(partExtended.instance)
-		const duration = Math.max(
-			partExtended.instance.timings?.duration || partExtended.renderedDuration || 0,
-			partDisplayDurations?.[partInstanceTimingId] || (displayDuration ?? 0)
-		)
-		return memo + duration
-	}, 0)
 }
 
 export function getPartInstanceTimingId(
@@ -733,79 +852,6 @@ export function getPartInstanceTimingValue(
 		return values[unprotectString(partInstance.part._id)] ?? null
 	}
 	return values[unprotectString(partInstance._id)] ?? values[unprotectString(partInstance.part._id)] ?? null
-}
-
-export function getPlaylistTimingDiff(
-	playlist: Pick<DBRundownPlaylist, 'timing' | 'startedPlayback' | 'activationId'>,
-	timingContext: RundownTimingContext
-): number | undefined {
-	const { timing, startedPlayback, activationId } = playlist
-	const active = !!activationId
-	const currentTime = timingContext.currentTime || getCurrentTime()
-	let frontAnchor: number = currentTime
-	let backAnchor: number = currentTime
-	if (PlaylistTiming.isPlaylistTimingForwardTime(timing)) {
-		backAnchor =
-			timing.expectedEnd ??
-			(startedPlayback ?? Math.max(timing.expectedStart, currentTime)) +
-				(timing.expectedDuration ?? timingContext.totalPlaylistDuration ?? 0)
-		frontAnchor = Math.max(currentTime, playlist.startedPlayback ?? Math.max(timing.expectedStart, currentTime))
-	} else if (PlaylistTiming.isPlaylistTimingBackTime(timing)) {
-		backAnchor = timing.expectedEnd
-	}
-
-	let diff = 0
-	if (PlaylistTiming.isPlaylistTimingNone(timing)) {
-		diff =
-			(timingContext.asPlayedPlaylistDuration || 0) -
-			(timing.expectedDuration ?? timingContext.totalPlaylistDuration ?? 0)
-	} else if (PlaylistTiming.isPlaylistDurationTimed(timing)) {
-		diff =
-			(timingContext.asPlayedPlaylistDuration || 0) -
-			(timing.expectedDuration ?? timingContext.totalPlaylistDuration ?? 0)
-	} else {
-		diff = frontAnchor + (timingContext.remainingPlaylistDuration || 0) - backAnchor
-	}
-
-	// handle special cases
-
-	// the rundown has been played out and now has been deactivated
-	if (!active && startedPlayback) {
-		if (PlaylistTiming.isPlaylistTimingForwardTime(timing)) {
-			// we want to know how heavy/light we were compared to the original plan
-			diff =
-				(timingContext.asPlayedPlaylistDuration || 0) -
-				(timing.expectedDuration ?? timingContext.totalPlaylistDuration ?? 0)
-
-			if (timing.expectedEnd) {
-				diff = startedPlayback + (timingContext.asPlayedPlaylistDuration || 0) - timing.expectedEnd
-			}
-		} else if (PlaylistTiming.isPlaylistTimingNone(timing)) {
-			//  we want to know how heavy/light we were compared to the original plan
-			diff =
-				(timingContext.asPlayedPlaylistDuration || 0) -
-				(timing.expectedDuration ?? timingContext.totalPlaylistDuration ?? 0)
-		} else if (PlaylistTiming.isPlaylistDurationTimed(timing)) {
-			//  we want to know how heavy/light we were compared to the original plan
-			diff =
-				(timingContext.asPlayedPlaylistDuration || 0) -
-				(timing.expectedDuration ?? timingContext.totalPlaylistDuration ?? 0)
-		}
-	}
-
-	return diff
-}
-
-function ensureMinimumDefaultDurationIfNotAuto(
-	partInstance: CalculateTimingsPartInstance,
-	incomingDuration: number | undefined,
-	defaultDuration: number
-): number {
-	if (incomingDuration === undefined || !Number.isFinite(incomingDuration)) return defaultDuration
-
-	if (partInstance.part.autoNext) return incomingDuration
-
-	return Math.max(incomingDuration, defaultDuration)
 }
 
 export type MinimalPartInstance = Pick<

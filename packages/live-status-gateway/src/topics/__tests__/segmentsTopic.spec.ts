@@ -1,7 +1,14 @@
 import { SegmentsTopic } from '../segmentsTopic.js'
 import { protectString, unprotectString } from '@sofie-automation/server-core-integration'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { makeMockHandlers, makeMockLogger, makeMockSubscriber, makeTestPlaylist } from './utils.js'
+import {
+	constantMs,
+	makeMockHandlers,
+	makeMockLogger,
+	makeMockSubscriber,
+	makeTestPlaylist,
+	makeTestTimingStates,
+} from './utils.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { SegmentsEvent } from '@sofie-automation/live-status-gateway-api'
 
@@ -316,29 +323,16 @@ describe('SegmentsTopic', () => {
 			makeTestSegment(segment_1_1_id, 1, RUNDOWN_1_ID),
 		])
 		mockSubscriber.send.mockClear()
-		handlers.partsHandler.notify([
-			makeTestPart('1_2_1', 1, RUNDOWN_1_ID, segment_1_2_id, {
-				expectedDurationWithTransition: 10000,
-			}),
-			makeTestPart('2_2_1', 1, RUNDOWN_1_ID, segment_2_2_id, {
-				expectedDurationWithTransition: 40000,
-			}),
-			makeTestPart('1_2_2', 2, RUNDOWN_1_ID, segment_1_2_id, {
-				expectedDurationWithTransition: 5000,
-			}),
-			makeTestPart('1_1_2', 2, RUNDOWN_1_ID, segment_1_1_id, {
-				expectedDurationWithTransition: 1000,
-			}),
-			makeTestPart('1_1_1', 1, RUNDOWN_1_ID, segment_1_1_id, {
-				expectedDurationWithTransition: 3000,
-			}),
-			makeTestPart('2_2_2', 2, RUNDOWN_1_ID, segment_2_2_id, {
-				expectedDurationWithTransition: 11000,
-			}),
-			makeTestPart('1_1_2', 2, RUNDOWN_1_ID, segment_1_1_id, {
-				expectedDurationWithTransition: 1000,
-			}),
-		])
+		// Sofie resolves the durations and publishes them; the gateway no longer sums parts itself
+		handlers.playlistTimingStatesHandler.notify(
+			makeTestTimingStates({
+				segments: {
+					[segment_1_1_id]: { parts: { '1_1_1': { expectedDuration: constantMs(5000) } } },
+					[segment_1_2_id]: { parts: { '1_2_1': { expectedDuration: constantMs(15000) } } },
+					[segment_2_2_id]: { parts: { '2_2_1': { expectedDuration: constantMs(51000) } } },
+				},
+			})
+		)
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
 		const expectedStatus: SegmentsEvent = {
@@ -371,6 +365,99 @@ describe('SegmentsTopic', () => {
 					rundownId: RUNDOWN_2_ID,
 					name: 'Segment 2_2',
 					timing: { expectedDurationMs: 51000 },
+					publicData: undefined,
+				},
+			],
+		}
+		expect(mockSubscriber.send.mock.calls).toEqual([[JSON.stringify(expectedStatus)]])
+	})
+
+	it('leaves untimed parts out of expectedDuration', async () => {
+		const handlers = makeMockHandlers()
+		const topic = new SegmentsTopic(makeMockLogger(), handlers)
+		const mockSubscriber = makeMockSubscriber()
+
+		const testPlaylist = makeTestPlaylist()
+		handlers.playlistHandler.notify(testPlaylist)
+
+		topic.addSubscriber(mockSubscriber)
+		mockSubscriber.send.mockClear()
+
+		const segment_1_1_id = '1_1'
+		handlers.segmentsHandler.notify([makeTestSegment(segment_1_1_id, 1, RUNDOWN_1_ID)])
+		mockSubscriber.send.mockClear()
+		// an untimed part is published with its own expected duration, like any other part
+		handlers.playlistTimingStatesHandler.notify(
+			makeTestTimingStates({
+				segments: {
+					[segment_1_1_id]: {
+						parts: {
+							'1_1_1': { expectedDuration: constantMs(5000), untimed: false },
+							'1_1_2': { expectedDuration: constantMs(20000), untimed: true },
+							'1_1_3': { expectedDuration: constantMs(3000), untimed: false },
+						},
+					},
+				},
+			})
+		)
+		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
+
+		const expectedStatus: SegmentsEvent = {
+			event: 'segments',
+			rundownPlaylistId: unprotectString(testPlaylist._id),
+			segments: [
+				{
+					id: '1_1',
+					rundownId: RUNDOWN_1_ID,
+					name: 'Segment 1_1',
+					timing: { expectedDurationMs: 8000 },
+					publicData: undefined,
+				},
+			],
+		}
+		expect(mockSubscriber.send.mock.calls).toEqual([[JSON.stringify(expectedStatus)]])
+	})
+
+	it('leaves adlibbed and deleted parts out of expectedDuration', async () => {
+		const handlers = makeMockHandlers()
+		const topic = new SegmentsTopic(makeMockLogger(), handlers)
+		const mockSubscriber = makeMockSubscriber()
+
+		const testPlaylist = makeTestPlaylist()
+		handlers.playlistHandler.notify(testPlaylist)
+
+		topic.addSubscriber(mockSubscriber)
+		mockSubscriber.send.mockClear()
+
+		const segment_1_1_id = '1_1'
+		handlers.segmentsHandler.notify([makeTestSegment(segment_1_1_id, 1, RUNDOWN_1_ID)])
+		mockSubscriber.send.mockClear()
+		// a part created by an adlib is published with its own expected duration, like any other part,
+		// and is orphaned because there is no Part for it in the rundown
+		handlers.playlistTimingStatesHandler.notify(
+			makeTestTimingStates({
+				segments: {
+					[segment_1_1_id]: {
+						parts: {
+							'1_1_1': { expectedDuration: constantMs(5000), untimed: false, orphaned: false },
+							adlibbed_part: { expectedDuration: constantMs(20000), untimed: false, orphaned: true },
+							'1_1_2': { expectedDuration: constantMs(3000), untimed: false, orphaned: false },
+						},
+					},
+				},
+			})
+		)
+		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
+
+		const expectedStatus: SegmentsEvent = {
+			event: 'segments',
+			rundownPlaylistId: unprotectString(testPlaylist._id),
+			segments: [
+				{
+					id: '1_1',
+					rundownId: RUNDOWN_1_ID,
+					name: 'Segment 1_1',
+					timing: { expectedDurationMs: 8000 },
 					publicData: undefined,
 				},
 			],

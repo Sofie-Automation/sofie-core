@@ -5,9 +5,8 @@ import { WebSocketTopicBase, WebSocketTopic } from '../wsHandler.js'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { groupByToMap } from '@sofie-automation/corelib/dist/lib'
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import _ from 'underscore'
 import { calculateSegmentTiming } from './helpers/segmentTiming.js'
+import type { PlaylistTimingStates } from '../collections/playlistTimingStatesHandler.js'
 import { SegmentsEvent } from '@sofie-automation/live-status-gateway-api'
 import { CollectionHandlers } from '../liveStatusServer.js'
 import { PickKeys } from '@sofie-automation/shared-lib/dist/lib/types'
@@ -20,15 +19,15 @@ type Playlist = PickKeys<DBRundownPlaylist, typeof PLAYLIST_KEYS>
 export class SegmentsTopic extends WebSocketTopicBase implements WebSocketTopic {
 	private _activePlaylist: Playlist | undefined
 	private _segments: DBSegment[] = []
-	private _partsBySegment: Record<string, DBPart[]> = {}
 	private _orderedSegments: DBSegment[] = []
+	private _timingStates: PlaylistTimingStates | undefined
 
 	constructor(logger: Logger, handlers: CollectionHandlers) {
 		super(SegmentsTopic.name, logger, THROTTLE_PERIOD_MS)
 
 		handlers.playlistHandler.subscribe(this.onPlaylistUpdate, PLAYLIST_KEYS)
 		handlers.segmentsHandler.subscribe(this.onSegmentsUpdate)
-		handlers.partsHandler.subscribe(this.onPartsUpdate)
+		handlers.playlistTimingStatesHandler.subscribe(this.onTimingStatesUpdate)
 	}
 
 	sendStatus(subscribers: Iterable<WebSocket>): void {
@@ -41,7 +40,11 @@ export class SegmentsTopic extends WebSocketTopicBase implements WebSocketTopic 
 					id: segmentId,
 					rundownId: unprotectString(segment.rundownId),
 					name: segment.name,
-					timing: calculateSegmentTiming(segment.segmentTiming, [], this._partsBySegment[segmentId] ?? []), // TODO: this might be inaccurate for the current/next segment, where partInstances might have some changes from adlib actions etc.
+					timing: calculateSegmentTiming(
+						segment.segmentTiming,
+						this._timingStates?.segments.get(segment._id),
+						this._timingStates?.partsBySegment.get(segment._id)
+					),
 					identifier: segment.identifier,
 					publicData: segment.publicData,
 				}
@@ -49,6 +52,12 @@ export class SegmentsTopic extends WebSocketTopicBase implements WebSocketTopic 
 		}
 
 		this.sendMessage(subscribers, segmentsStatus)
+	}
+
+	private onTimingStatesUpdate = (timingStates: PlaylistTimingStates | undefined): void => {
+		this.logUpdateReceived('playlistTimingStates')
+		this._timingStates = timingStates
+		this.updateAndSendStatusToAll()
 	}
 
 	private onPlaylistUpdate = (rundownPlaylist: Playlist | undefined): void => {
@@ -63,12 +72,6 @@ export class SegmentsTopic extends WebSocketTopicBase implements WebSocketTopic 
 	private onSegmentsUpdate = (segments: DBSegment[] | undefined): void => {
 		this.logUpdateReceived('segments')
 		this._segments = segments ?? []
-		this.updateAndSendStatusToAll()
-	}
-
-	private onPartsUpdate = (parts: DBPart[] | undefined): void => {
-		this.logUpdateReceived('parts')
-		this._partsBySegment = _.groupBy(parts ?? [], 'segmentId')
 		this.updateAndSendStatusToAll()
 	}
 

@@ -1,3 +1,9 @@
 expectedDurationMs: 15000
 budgetDurationMs: 20000
 countdownType: segment_budget_duration
+playedOut:
+  paused: true
+  duration: 0
+remaining:
+  paused: false
+  zeroTime: 1728895760727

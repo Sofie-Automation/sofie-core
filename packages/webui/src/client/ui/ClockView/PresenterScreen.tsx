@@ -3,7 +3,7 @@ import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment
 import type { PartUi } from '../SegmentTimeline/SegmentTimelineContainer.js'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
+import { TimerValueMode, usePlaylistTimingValue } from '../RundownView/RundownTiming/usePlaylistTimingValue.js'
 import {
 	useSubscription,
 	useSubscriptions,
@@ -11,7 +11,6 @@ import {
 	useTracker,
 } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { protectString, unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import { getCurrentTime } from '../../lib/systemTime.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { PieceIconContainer } from '../PieceIcons/PieceIcon.js'
 import { PieceNameContainer } from '../PieceIcons/PieceName.js'
@@ -20,7 +19,6 @@ import { RundownUtils } from '../../lib/rundown.js'
 import { CountdownType, PieceLifespan } from '@sofie-automation/blueprints-integration'
 import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PieceCountdownContainer } from '../PieceIcons/PieceCountdown.js'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import type { DashboardLayout, RundownLayoutBase } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import type {
 	RundownId,
@@ -35,7 +33,6 @@ import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { ShelfDashboardLayout } from '../Shelf/ShelfDashboardLayout.js'
 import { parse as queryStringParse } from 'query-string'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
-import type { RundownTimingContext } from '../../lib/rundownTiming.js'
 import { UIShowStyleBases, UIStudios } from '../Collections.js'
 import {
 	PieceInstances,
@@ -331,8 +328,6 @@ export function PresenterScreen({ playlistId, studioId }: PresenterScreenProps):
 		[studioId, playlistId]
 	)
 
-	const timing = useTiming()
-
 	let selectedPresenterLayout: RundownLayoutBase | undefined = undefined
 
 	if (presenterScreenProps?.rundownLayouts) {
@@ -399,7 +394,6 @@ export function PresenterScreen({ playlistId, studioId }: PresenterScreenProps):
 				fontSize={presenterScreenProps?.fontSize}
 				studio={presenterScreenProps?.studio}
 				studioId={studioId}
-				timingDurations={timing}
 			/>
 		)
 	}
@@ -426,6 +420,7 @@ export function usePresenterScreenSubscriptions(props: PresenterScreenProps): vo
 	useSubscriptionIfEnabled(CorelibPubSub.segments, rundownIds.length > 0, rundownIds, {})
 	useSubscriptionIfEnabled(CorelibPubSub.uiParts, !!playlist, playlist?._id ?? null)
 	useSubscriptionIfEnabled(CorelibPubSub.uiPartInstances, !!playlist?.activationId, playlist?.activationId ?? null)
+	useSubscriptionIfEnabled(CorelibPubSub.playlistTimingState, !!playlist, props.playlistId)
 	useSubscriptionIfEnabled(CorelibPubSub.uiPieces, rundownIds.length > 0, rundownIds, null)
 	useSubscriptions(
 		MeteorPubSub.uiShowStyleBase,
@@ -496,7 +491,7 @@ function PresenterScreenContentDashboardLayout({
 	return null
 }
 
-function PresenterScreenContentDefaultLayout({
+export function PresenterScreenContentDefaultLayout({
 	playlist,
 	segments,
 	currentShowStyleBaseId,
@@ -504,16 +499,34 @@ function PresenterScreenContentDefaultLayout({
 	playlistId,
 	currentPartInstance,
 	currentSegment,
-	timingDurations,
+
 	nextPartInstance,
 	nextSegment,
 	rundownIds,
-}: Readonly<PresenterScreenProps & PresenterScreenTrackedProps & { timingDurations: RundownTimingContext }>) {
-	if (playlist && playlistId && segments) {
-		const currentPartOrSegmentCountdown =
-			timingDurations.remainingBudgetOnCurrentSegment ?? timingDurations.remainingTimeOnCurrentPart ?? 0
+}: Readonly<PresenterScreenProps & PresenterScreenTrackedProps>): JSX.Element | null {
+	// Only the countdown of the part shown here, as on the Director screen: for a moment after a
+	// take the published state can still describe the previous part, and the hook then returns what
+	// the server publishes for the part just taken instead
+	const forThisPart = { forPartInstanceId: currentPartInstance?.instance._id ?? null }
+	// The segment budget takes precedence when the on-air segment has one
+	const remainingBudget = usePlaylistTimingValue(
+		playlistId,
+		'remainingBudgetOnCurrentSegment',
+		TimerValueMode.Duration,
+		forThisPart
+	)
+	const remainingOnPart = usePlaylistTimingValue(
+		playlistId,
+		'remainingOnCurrentPart',
+		TimerValueMode.Duration,
+		forThisPart
+	)
+	const expectedStart = usePlaylistTimingValue(playlistId, 'plannedStart', TimerValueMode.Timestamp)
+	// the time until the planned start, drawn again at the moment its own second changes
+	const untilPlannedStart = usePlaylistTimingValue(playlistId, 'plannedStart', TimerValueMode.Duration)
 
-		const expectedStart = PlaylistTiming.getExpectedStart(playlist.timing)
+	if (playlist && playlistId && segments) {
+		const currentPartOrSegmentCountdown = remainingBudget ?? remainingOnPart
 
 		return (
 			<div className="presenter-screen">
@@ -566,12 +579,13 @@ function PresenterScreenContentDefaultLayout({
 								)}
 							</div>
 							<div className="presenter-screen__part__part-countdown">
-								<Timediff time={currentPartOrSegmentCountdown} />
+								{/* empty rather than 00:00 while there is no countdown for this part */}
+								{currentPartOrSegmentCountdown !== null && <Timediff time={currentPartOrSegmentCountdown} />}
 							</div>
 						</>
-					) : expectedStart ? (
+					) : expectedStart && untilPlannedStart !== null ? (
 						<div className="presenter-screen__rundown-countdown">
-							<Timediff time={expectedStart - getCurrentTime()} />
+							<Timediff time={untilPlannedStart} />
 						</div>
 					) : null}
 				</div>

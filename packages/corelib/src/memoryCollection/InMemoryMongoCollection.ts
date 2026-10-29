@@ -333,7 +333,7 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 	 * `changed` merges the field delta (clearing fields whose value became `undefined`), `removed` deletes.
 	 * `cb`, if given, runs after each write.
 	 */
-	link(cb?: () => void): ObserveChangesCallbacks<TDoc> {
+	link(cb?: () => void): Required<ObserveChangesCallbacks<TDoc>> {
 		return {
 			added: (id, fields) => {
 				this.replace({ ...fields, _id: id } as TDoc)

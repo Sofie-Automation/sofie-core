@@ -14,6 +14,7 @@ import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import type { PartInstancesInPlaylist } from '../collections/partInstancesInPlaylistHandler.js'
 import { ShowStyleBaseExt } from '../collections/showStyleBaseHandler.js'
 import { ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PlaylistTimingStates } from '../collections/playlistTimingStatesHandler.js'
 
 const THROTTLE_PERIOD_MS = 100
 
@@ -48,6 +49,7 @@ export class ResolvedPlaylistTopic extends WebSocketTopicBase implements WebSock
 	private _rundowns: DBRundown[] = []
 	private _segments: DBSegment[] = []
 	private _parts: DBPart[] = []
+	private _timingStates: PlaylistTimingStates | undefined
 	private _partInstancesInPlaylist: DBPartInstance[] = []
 	private _showStyleBaseExt: ShowStyleBaseExt | undefined
 	private _showStyleBaseExtsById: ReadonlyMap<ShowStyleBaseId, ShowStyleBaseExt> = new Map()
@@ -63,6 +65,7 @@ export class ResolvedPlaylistTopic extends WebSocketTopicBase implements WebSock
 		handlers.showStyleBasesHandler.subscribe(this.onShowStyleBasesUpdate)
 		handlers.segmentsHandler.subscribe(this.onSegmentsUpdate)
 		handlers.partsHandler.subscribe(this.onPartsUpdate)
+		handlers.playlistTimingStatesHandler.subscribe(this.onTimingStatesUpdate)
 		handlers.partInstancesInPlaylistHandler.subscribe(this.onPartInstancesInPlaylistUpdate, ['all'])
 		handlers.piecesInPlaylistHandler.subscribe(this.onPiecesInPlaylistUpdate)
 		handlers.pieceInstancesInPlaylistHandler.subscribe(this.onPieceInstancesInPlaylistUpdate)
@@ -79,6 +82,7 @@ export class ResolvedPlaylistTopic extends WebSocketTopicBase implements WebSock
 			showStyleBaseExtsByIdState: this._showStyleBaseExtsById,
 			segmentsState: this._segments,
 			partsState: this._parts,
+			timingStatesState: this._timingStates,
 			partInstancesInPlaylistState: this._partInstancesInPlaylist as PartInstance[],
 			piecesInPlaylistState: this._piecesInPlaylist,
 			pieceInstancesInPlaylistState: this._pieceInstancesInPlaylist,
@@ -115,6 +119,12 @@ export class ResolvedPlaylistTopic extends WebSocketTopicBase implements WebSock
 	private onSegmentsUpdate = (segments: ToResolvedPlaylistStatusProps['segmentsState'] | undefined): void => {
 		this.logUpdateReceived('segments')
 		this._segments = segments ?? []
+		this.throttledSendStatusToAll()
+	}
+
+	private onTimingStatesUpdate = (timingStates: PlaylistTimingStates | undefined): void => {
+		this.logUpdateReceived('playlistTimingStates')
+		this._timingStates = timingStates
 		this.throttledSendStatusToAll()
 	}
 
