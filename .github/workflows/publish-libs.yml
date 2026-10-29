@@ -260,7 +260,7 @@ jobs:
             NPM_TAG=$(node ../scripts/determine-npm-tag.js "$PUBLISHED_VERSION" "$THIS_VERSION")
           fi
 
-          yarn lerna publish from-package --tag-version-prefix='' --dist-tag $NPM_TAG --yes
+          yarn lerna publish from-package --tag-version-prefix='' --dist-tag $NPM_TAG --concurrency 1 --yes
 
           LERNA_VERSION=$(node -p "require('./lerna.json').version")
           NEW_VERSION=$(node -p "require('./shared-lib/package.json').version")
