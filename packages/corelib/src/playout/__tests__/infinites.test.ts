@@ -1,662 +1,844 @@
-import { IBlueprintPieceType, PieceLifespan, PlaylistTimingType } from '@sofie-automation/blueprints-integration'
+import { IBlueprintPieceType, LegacyPieceLifespan } from '@sofie-automation/blueprints-integration'
 import { DBPartInstance } from '../../dataModel/PartInstance.js'
-import { PartId, PartInstanceId, RundownId, RundownPlaylistId } from '../../dataModel/Ids.js'
+import { PartId, RundownId, SegmentId, ShowStyleBaseId } from '../../dataModel/Ids.js'
 import { DBPart } from '../../dataModel/Part.js'
 import { EmptyPieceTimelineObjectsBlob, Piece } from '../../dataModel/Piece.js'
-import { PieceInstance, PieceInstancePiece } from '../../dataModel/PieceInstance.js'
-import { Rundown, DBRundown } from '../../dataModel/Rundown.js'
+import { PieceInstance } from '../../dataModel/PieceInstance.js'
 import { literal } from '../../lib.js'
 import { protectString } from '../../protectedString.js'
-import { getPieceInstancesForPart, getPlayheadTrackingInfinitesForPart } from '../infinites.js'
+import {
+	buildPastInfinitePiecesForThisPartQuery,
+	buildPastPiecesOnLayersForThisPartQuery,
+	getContinuedInfinitesForPart,
+	PieceInstancesForPartParams,
+	PlayingPartInstance,
+} from '../infinites.js'
+import { mongoWhere } from '../../mongo.js'
 import { DBSegment, SegmentOrphanedReason } from '../../dataModel/Segment.js'
+import { IPieceLifespan } from '@sofie-automation/shared-lib/dist/core/model/Rundown'
+import { DEFAULT_PIECE_LIFESPAN, LEGACY_PIECE_LIFESPAN_PRESETS } from '../pieceLifespan.js'
 
-describe('Infinites', () => {
-	describe('getPlayheadTrackingInfinitesForPart', () => {
-		function runAndTidyResult(
-			previousPartInstance: Pick<DBPartInstance, 'rundownId' | 'segmentId'> & { partId: PartId },
-			previousSegment: Pick<DBSegment, '_id' | 'orphaned'>,
-			previousPartPieces: PieceInstance[],
-			rundown: Rundown,
-			segment: Pick<DBSegment, '_id' | 'orphaned'>,
-			part: Pick<DBPart, 'rundownId' | 'segmentId'>,
-			newInstanceId: PartInstanceId
-		) {
-			const resolvedInstances = getPlayheadTrackingInfinitesForPart(
-				protectString('activation0'),
-				new Set([previousPartInstance.partId]),
-				new Set(),
-				[],
-				new Map(),
-				previousPartInstance as any,
-				previousSegment,
-				previousPartPieces,
-				rundown,
-				part as any,
-				segment,
-				newInstanceId,
-				true,
-				false,
-				false
-			)
-			return resolvedInstances.map((p) => ({
-				_id: p._id,
-				start: p.piece.enable.start,
-			}))
-		}
+/*
+ * The playlist used in these tests:
+ *   rundown0 (showstyleA): segment0 [part0, part1, part2], segment1 [part3, part4]
+ *   rundown1 (showstyleA): segment2 [part5]
+ *   rundown2 (showstyleB): segment3 [part6]
+ */
+const structure: Array<{ rundownId: string; showStyleBaseId: string; segments: Record<string, string[]> }> = [
+	{
+		rundownId: 'rundown0',
+		showStyleBaseId: 'showstyleA',
+		segments: { segment0: ['part0', 'part1', 'part2'], segment1: ['part3', 'part4'] },
+	},
+	{ rundownId: 'rundown1', showStyleBaseId: 'showstyleA', segments: { segment2: ['part5'] } },
+	{ rundownId: 'rundown2', showStyleBaseId: 'showstyleB', segments: { segment3: ['part6'] } },
+]
 
-		function createPieceInstanceAsInfinite(
-			id: string,
-			rundownId: RundownId,
-			partId: PartId,
-			enable: Piece['enable'],
-			sourceLayerId: string,
-			lifespan: PieceLifespan,
-			clear?: boolean
-		): PieceInstance {
-			return literal<PieceInstance>({
-				_id: protectString(id),
-				rundownId: rundownId,
-				partInstanceId: protectString(''),
-				playlistActivationId: protectString('active'),
-				piece: literal<PieceInstancePiece>({
-					_id: protectString(`${id}_p`),
-					externalId: '',
-					startPartId: partId,
-					enable: enable,
-					name: '',
-					lifespan: lifespan,
-					sourceLayerId: sourceLayerId,
-					outputLayerId: '',
-					invalid: false,
-					virtual: clear,
-					content: {},
-					timelineObjectsString: EmptyPieceTimelineObjectsBlob,
-					pieceType: IBlueprintPieceType.Normal,
-				}),
-				dynamicallyInserted: clear ? Date.now() : undefined,
-				infinite: {
-					infiniteInstanceId: protectString(`${id}_inf`),
-					infiniteInstanceIndex: 0,
-					infinitePieceId: protectString(`${id}_p`),
-					fromPreviousPart: false,
+interface PartInfo {
+	part: DBPart
+	rundownIndex: number
+	segmentIndex: number
+	partIndex: number
+}
+
+const parts = new Map<string, PartInfo>()
+structure.forEach(({ rundownId, segments }, rundownIndex) => {
+	Object.entries<string[]>(segments).forEach(([segmentId, partIds], segmentIndex) => {
+		partIds.forEach((partId, partIndex) => {
+			parts.set(partId, {
+				part: {
+					_id: protectString(partId),
+					_rank: partIndex,
+					rundownId: protectString(rundownId),
+					segmentId: protectString(segmentId),
+					externalId: partId,
+					title: partId,
+					expectedDurationWithTransition: undefined,
 				},
-			})
-		}
-
-		function createRundown(
-			id: RundownId,
-			playlistId: RundownPlaylistId,
-			name: string,
-			externalId: string
-		): Rundown {
-			return literal<DBRundown>({
-				_id: id,
-				externalId,
-				name,
-				showStyleVariantId: protectString('test-variant'),
-				showStyleBaseId: protectString('test-base'),
-				studioId: protectString('studio0'),
-				created: 0,
-				modified: 0,
-				importVersions: {
-					studio: '0.0.0',
-					showStyleBase: '0.0.0',
-					showStyleVariant: '0.0.0',
-					blueprint: '0.0.0',
-					core: '0.0.0`',
-				},
-				playlistId,
-				timing: {
-					type: PlaylistTimingType.None,
-				},
-				source: {
-					type: 'http',
-				},
-			})
-		}
-
-		test('multiple continued pieces starting at 0 should preserve the newest', () => {
-			const playlistId = protectString('playlist0')
-			const rundownId = protectString('rundown0')
-			const segmentId = protectString('segment0')
-			const partId = protectString('part0')
-			const previousPartInstance = { rundownId, segmentId, partId }
-			const previousSegment = { _id: previousPartInstance.segmentId }
-			const previousPartPieces: PieceInstance[] = [
-				createPieceInstanceAsInfinite(
-					'one',
-					rundownId,
-					partId,
-					{ start: 0 },
-					'one',
-					PieceLifespan.OutOnRundownEnd
-				),
-				createPieceInstanceAsInfinite(
-					'two',
-					rundownId,
-					partId,
-					{ start: 0 },
-					'one',
-					PieceLifespan.OutOnRundownEnd,
-					true
-				),
-				{
-					...createPieceInstanceAsInfinite(
-						'three',
-						rundownId,
-						partId,
-						{ start: 0 },
-						'one',
-						PieceLifespan.OutOnRundownChange
-					),
-					dynamicallyInserted: Date.now() + 5000,
-				},
-			]
-			const segment = { _id: segmentId }
-			const part = { rundownId, segmentId }
-			const instanceId = protectString('newInstance0')
-			const rundown = createRundown(rundownId, playlistId, 'Test Rundown', 'rundown0')
-
-			const continuedInstances = runAndTidyResult(
-				previousPartInstance,
-				previousSegment,
-				previousPartPieces,
-				rundown,
-				segment,
-				part,
-				instanceId
-			)
-			expect(continuedInstances).toEqual([
-				{
-					_id: 'newInstance0_three_p_continue',
-					start: 0,
-				},
-				{
-					_id: 'newInstance0_two_p_continue',
-					start: 0,
-				},
-			])
-		})
-		test('piece dynamically converted to infinite should be continued', () => {
-			const playlistId = protectString('playlist0')
-			const rundownId = protectString('rundown0')
-			const segmentId = protectString('segment0')
-			const partId = protectString('part0')
-			const previousPartInstance = { rundownId, segmentId, partId }
-			const previousSegment = { _id: previousPartInstance.segmentId }
-			const previousPartPieces: PieceInstance[] = [
-				{
-					...createPieceInstanceAsInfinite(
-						'one',
-						rundownId,
-						partId,
-						{ start: 0 },
-						'one',
-						PieceLifespan.OutOnRundownEnd
-					),
-					dynamicallyConvertedToInfinite: Date.now(),
-				},
-			]
-			const segment = { _id: segmentId }
-			const part = { rundownId, segmentId }
-			const instanceId = protectString('newInstance0')
-			const rundown = createRundown(rundownId, playlistId, 'Test Rundown', 'rundown0')
-
-			const continuedInstances = runAndTidyResult(
-				previousPartInstance,
-				previousSegment,
-				previousPartPieces,
-				rundown,
-				segment,
-				part,
-				instanceId
-			)
-			expect(continuedInstances).toEqual([
-				{
-					_id: 'newInstance0_one_p_continue',
-					start: 0,
-				},
-			])
-		})
-		test('ignore pieces that have stopped', () => {
-			const playlistId = protectString('playlist0')
-			const rundownId = protectString('rundown0')
-			const segmentId = protectString('segment0')
-			const partId = protectString('part0')
-			const previousPartInstance = { rundownId, segmentId, partId }
-			const previousSegment = { _id: previousPartInstance.segmentId }
-			const previousPartPieces: PieceInstance[] = [
-				createPieceInstanceAsInfinite(
-					'one',
-					rundownId,
-					partId,
-					{ start: 1000 },
-					'one',
-					PieceLifespan.OutOnRundownChange
-				),
-				{
-					...createPieceInstanceAsInfinite(
-						'two',
-						rundownId,
-						partId,
-						{ start: 2000 },
-						'two',
-						PieceLifespan.OutOnRundownChange,
-						true
-					),
-					userDuration: { endRelativeToPart: 5000 },
-				},
-				{
-					...createPieceInstanceAsInfinite(
-						'three',
-						rundownId,
-						partId,
-						{ start: 3000 },
-						'three',
-						PieceLifespan.OutOnRundownChange
-					),
-					plannedStoppedPlayback: 5000,
-				},
-			]
-			const segment = { _id: segmentId }
-			const part = { rundownId, segmentId }
-			const instanceId = protectString('newInstance0')
-			const rundown = createRundown(rundownId, playlistId, 'Test Rundown', 'rundown0')
-
-			const continuedInstances = runAndTidyResult(
-				previousPartInstance,
-				previousSegment,
-				previousPartPieces,
-				rundown,
-				segment,
-				part,
-				instanceId
-			)
-			expect(continuedInstances).toEqual([
-				{
-					_id: 'newInstance0_one_p_continue',
-					start: 0,
-				},
-			])
-		})
-
-		describe('selecting which piece on a layer continues', () => {
-			const playlistId = protectString('playlist0')
-			const rundownId: RundownId = protectString('rundown0')
-			const segmentId = protectString('segment0')
-			const partId: PartId = protectString('part0')
-
-			/** Run with all the Pieces on one source layer, and return the ids of those which continued */
-			function getContinuedIds(previousPartPieces: PieceInstance[], brandingId?: string): string[] {
-				const continuedInstances = runAndTidyResult(
-					{ rundownId, segmentId, partId, brandingId: brandingId ?? null } as any,
-					{ _id: segmentId },
-					previousPartPieces,
-					createRundown(rundownId, playlistId, 'Test Rundown', 'rundown0'),
-					{ _id: segmentId },
-					{ rundownId, segmentId },
-					protectString('newInstance0')
-				)
-
-				return continuedInstances.map((p) => String(p._id)).sort()
-			}
-
-			function createOnChangePiece(id: string, enable: Piece['enable']): PieceInstance {
-				return createPieceInstanceAsInfinite(
-					id,
-					rundownId,
-					partId,
-					enable,
-					'one',
-					PieceLifespan.OutOnRundownChange
-				)
-			}
-
-			function createAdlibbedOnEndPiece(id: string, enable: Piece['enable']): PieceInstance {
-				return {
-					...createPieceInstanceAsInfinite(
-						id,
-						rundownId,
-						partId,
-						enable,
-						'one',
-						PieceLifespan.OutOnRundownEnd
-					),
-					dynamicallyConvertedToInfinite: Date.now(),
-				}
-			}
-
-			test('the onChange piece starting last is the one continued', () => {
-				expect(
-					getContinuedIds([
-						createOnChangePiece('early', { start: 1000 }),
-						createOnChangePiece('late', { start: 2000 }),
-					])
-				).toEqual(['newInstance0_late_p_continue'])
-			})
-
-			test('the onChange piece starting last is chosen regardless of the order they are considered in', () => {
-				expect(
-					getContinuedIds([
-						createOnChangePiece('late', { start: 2000 }),
-						createOnChangePiece('early', { start: 1000 }),
-					])
-				).toEqual(['newInstance0_late_p_continue'])
-			})
-
-			test("an onChange piece starting 'now' starts later than any planned start", () => {
-				expect(
-					getContinuedIds([
-						createOnChangePiece('planned', { start: 2000 }),
-						createOnChangePiece('now', { start: 'now' }),
-					])
-				).toEqual(['newInstance0_now_p_continue'])
-			})
-
-			test('the adlibbed onEnd piece starting last is the one continued', () => {
-				expect(
-					getContinuedIds([
-						createAdlibbedOnEndPiece('early', { start: 1000 }),
-						createAdlibbedOnEndPiece('late', { start: 2000 }),
-					])
-				).toEqual(['newInstance0_late_p_continue'])
-			})
-
-			test("an adlibbed onEnd piece starting 'now' starts later than any planned start", () => {
-				expect(
-					getContinuedIds([
-						createAdlibbedOnEndPiece('planned', { start: 2000 }),
-						createAdlibbedOnEndPiece('now', { start: 'now' }),
-					])
-				).toEqual(['newInstance0_now_p_continue'])
-			})
-
-			test('a piece hidden by the Branding is not continued, as it is not playing', () => {
-				const hidden = createOnChangePiece('hidden', { start: 2000 })
-				hidden.piece.onlyValidForBranding = ['brandingB']
-
-				// Without the Branding it would have beaten the other, as it starts later
-				expect(getContinuedIds([createOnChangePiece('shown', { start: 1000 }), hidden], 'brandingA')).toEqual([
-					'newInstance0_shown_p_continue',
-				])
-			})
-
-			test('a piece used with the selected Branding is continued', () => {
-				const limited = createOnChangePiece('limited', { start: 1000 })
-				limited.piece.onlyValidForBranding = ['brandingA']
-
-				expect(getContinuedIds([limited], 'brandingA')).toEqual(['newInstance0_limited_p_continue'])
-			})
-
-			test('a piece limited to a Branding is discarded by an unlimited one which beats it', () => {
-				const limited = createOnChangePiece('limited', { start: 1000 })
-				limited.piece.onlyValidForBranding = ['brandingA']
-
-				// Otherwise both would be continued, and with both starting at the beginning of the next Part they
-				// could not be told apart
-				expect(getContinuedIds([limited, createOnChangePiece('later', { start: 2000 })], 'brandingA')).toEqual([
-					'newInstance0_later_p_continue',
-				])
-				expect(getContinuedIds([createOnChangePiece('later', { start: 2000 }), limited], 'brandingA')).toEqual([
-					'newInstance0_later_p_continue',
-				])
-			})
-
-			test('a piece limited to a Branding does not discard an unlimited one which it beats', () => {
-				const limited = createOnChangePiece('limited', { start: 2000 })
-				limited.piece.onlyValidForBranding = ['brandingA']
-
-				expect(getContinuedIds([createOnChangePiece('early', { start: 1000 }), limited], 'brandingA')).toEqual([
-					'newInstance0_early_p_continue',
-					'newInstance0_limited_p_continue',
-				])
-				expect(getContinuedIds([limited, createOnChangePiece('early', { start: 1000 })], 'brandingA')).toEqual([
-					'newInstance0_early_p_continue',
-					'newInstance0_limited_p_continue',
-				])
-			})
-		})
-
-		describe('AdlibTesting', () => {
-			const playlistId = protectString('playlist0')
-			const rundownId = protectString('rundown0')
-			const segmentId = protectString('segment0')
-			const partId = protectString('part0')
-			const previousPartInstance = { rundownId, segmentId, partId }
-			const previousPartPieces: PieceInstance[] = [
-				createPieceInstanceAsInfinite(
-					'one',
-					rundownId,
-					partId,
-					{ start: 0 },
-					'one',
-					PieceLifespan.OutOnRundownEnd,
-					true
-				),
-			]
-			const part = { rundownId, segmentId }
-			const instanceId = protectString('newInstance0')
-			const rundown = createRundown(rundownId, playlistId, 'Test Rundown', 'rundown0')
-
-			test('normal rundown', () => {
-				const continuedInstances = runAndTidyResult(
-					previousPartInstance,
-					{ _id: previousPartInstance.segmentId },
-					previousPartPieces,
-					rundown,
-					{ _id: previousPartInstance.segmentId },
-					part,
-					instanceId
-				)
-				expect(continuedInstances).toHaveLength(1)
-			})
-
-			test('into AdlibTesting segment', () => {
-				const previousSegment: Pick<DBSegment, '_id' | 'orphaned'> = { _id: previousPartInstance.segmentId }
-				const adlibTestingSegment: Pick<DBSegment, '_id' | 'orphaned'> = {
-					_id: protectString('segment1'),
-					orphaned: SegmentOrphanedReason.ADLIB_TESTING,
-				}
-				const continuedInstances = runAndTidyResult(
-					previousPartInstance,
-					previousSegment,
-					previousPartPieces,
-					rundown,
-					adlibTestingSegment,
-					part,
-					instanceId
-				)
-				expect(continuedInstances).toHaveLength(0)
-			})
-
-			test('out of AdlibTesting', () => {
-				const segment: Pick<DBSegment, '_id' | 'orphaned'> = { _id: protectString('segment1') }
-				const adlibTestingSegment: Pick<DBSegment, '_id' | 'orphaned'> = {
-					_id: previousPartInstance.segmentId,
-					orphaned: SegmentOrphanedReason.ADLIB_TESTING,
-				}
-				const continuedInstances = runAndTidyResult(
-					previousPartInstance,
-					adlibTestingSegment,
-					previousPartPieces,
-					rundown,
-					segment,
-					part,
-					instanceId
-				)
-				expect(continuedInstances).toHaveLength(0)
-			})
-
-			test('within AdlibTesting', () => {
-				const segment: Pick<DBSegment, '_id' | 'orphaned'> = { _id: previousPartInstance.segmentId }
-				const adlibTestingSegment: Pick<DBSegment, '_id' | 'orphaned'> = {
-					_id: previousPartInstance.segmentId,
-					orphaned: SegmentOrphanedReason.ADLIB_TESTING,
-				}
-				const continuedInstances = runAndTidyResult(
-					previousPartInstance,
-					adlibTestingSegment,
-					previousPartPieces,
-					rundown,
-					segment,
-					part,
-					instanceId
-				)
-				expect(continuedInstances).toHaveLength(1)
+				rundownIndex,
+				segmentIndex,
+				partIndex,
 			})
 		})
 	})
 })
 
-describe('getPieceInstancesForPart branding', () => {
-	const rundownId: RundownId = protectString('rundown0')
-	const segmentId = protectString('segment0')
-	const partIds: PartId[] = [protectString('part0'), protectString('part1'), protectString('part2')]
+function getPart(partId: string): DBPart {
+	const info = parts.get(partId)
+	if (!info) throw new Error(`Unknown part ${partId}`)
+	return info.part
+}
 
-	function createInfinitePiece(
-		id: string,
-		startPartId: PartId,
-		sourceLayerId: string,
-		onlyValidForBranding?: string[],
-		branding?: Piece['branding']
-	): Piece {
-		return literal<Piece>({
-			_id: protectString(id),
-			externalId: '',
-			startPartId,
-			startSegmentId: segmentId,
-			startRundownId: rundownId,
-			enable: { start: 0 },
-			name: id,
-			lifespan: PieceLifespan.OutOnSegmentEnd,
-			sourceLayerId,
-			outputLayerId: '',
-			invalid: false,
-			content: {},
-			timelineObjectsString: EmptyPieceTimelineObjectsBlob,
-			pieceType: IBlueprintPieceType.Normal,
-			onlyValidForBranding,
-			branding,
+function createPiece(
+	id: string,
+	partId: string,
+	start: number,
+	sourceLayerId: string,
+	lifespan: IPieceLifespan
+): Piece {
+	const part = getPart(partId)
+	return literal<Piece>({
+		_id: protectString(id),
+		externalId: id,
+		startRundownId: part.rundownId,
+		startSegmentId: part.segmentId,
+		startPartId: part._id,
+		enable: { start },
+		name: id,
+		lifespan,
+		sourceLayerId,
+		outputLayerId: '',
+		invalid: false,
+		content: {},
+		timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+		pieceType: IBlueprintPieceType.Normal,
+	})
+}
+
+function createPieceInstance(
+	piece: Piece,
+	props?: Omit<Partial<PieceInstance>, 'piece'> & { piece?: Partial<PieceInstance['piece']> }
+): PieceInstance {
+	return {
+		_id: protectString(`instance_${piece._id}`),
+		rundownId: piece.startRundownId,
+		partInstanceId: protectString(`instance_${piece.startPartId}`),
+		playlistActivationId: protectString('active'),
+		...props,
+		piece: { ...piece, ...props?.piece },
+	}
+}
+
+function createPlaying(
+	partId: string,
+	pieceInstances: PieceInstance[],
+	segment?: Pick<DBSegment, '_id' | 'orphaned'>,
+	isBeforeTarget = true
+): PlayingPartInstance {
+	const part = getPart(partId)
+	return {
+		partInstance: literal<Partial<DBPartInstance>>({
+			_id: protectString(`instance_${partId}`),
+			rundownId: part.rundownId,
+			segmentId: part.segmentId,
+			part,
+		}) as DBPartInstance,
+		segment: segment ?? { _id: part.segmentId },
+		pieceInstances,
+		isBeforeTarget,
+	}
+}
+
+function getParams(
+	targetPartId: string,
+	pieces: Piece[],
+	playing?: PlayingPartInstance,
+	segment?: Pick<DBSegment, '_id' | 'orphaned'>,
+	isTemporary = false
+): PieceInstancesForPartParams {
+	const target = parts.get(targetPartId)
+	if (!target) throw new Error(`Unknown part ${targetPartId}`)
+
+	const allParts = Array.from(parts.values())
+	const sameRundown = allParts.filter((p) => p.rundownIndex === target.rundownIndex)
+
+	return {
+		playlistActivationId: protectString('active'),
+		rundown: {
+			_id: target.part.rundownId,
+			showStyleBaseId: protectString(structure[target.rundownIndex].showStyleBaseId),
+		},
+		segment: segment ?? { _id: target.part.segmentId },
+		part: target.part,
+		position: {
+			partIdsBefore: new Set(
+				sameRundown
+					.filter((p) => p.segmentIndex === target.segmentIndex && p.partIndex < target.partIndex)
+					.map((p) => p.part._id)
+			),
+			segmentIdsBefore: new Set(
+				sameRundown.filter((p) => p.segmentIndex < target.segmentIndex).map((p) => p.part.segmentId)
+			),
+			rundownIdsBefore: structure.slice(0, target.rundownIndex).map((r) => protectString<RundownId>(r.rundownId)),
+			rundownShowStyles: new Map(
+				structure.map((r) => [
+					protectString<RundownId>(r.rundownId),
+					protectString<ShowStyleBaseId>(r.showStyleBaseId),
+				])
+			),
+			orderedPartIds: allParts.map((p) => p.part._id),
+		},
+		pieces,
+		playing,
+		newInstanceId: protectString('newInstance'),
+		isTemporary,
+		allowTestingAdlibsToPersist: false,
+	}
+}
+
+function getContinuedPieceIds(params: PieceInstancesForPartParams): string[] {
+	return getContinuedInfinitesForPart(params).map((p) => String(p.piece._id))
+}
+
+const segmentStop: IPieceLifespan = { scope: 'segment', presence: 'forward-scope', inShadow: 'stop' }
+const segmentPersist: IPieceLifespan = { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' }
+const rundownPersist: IPieceLifespan = { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' }
+const showstylePersist: IPieceLifespan = { scope: 'showstyle', presence: 'forward-scope', inShadow: 'persist' }
+const playlistPersist: IPieceLifespan = { scope: 'playlist', presence: 'forward-scope', inShadow: 'persist' }
+const partOnly = DEFAULT_PIECE_LIFESPAN
+const segmentPlayhead = LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentChange]
+const rundownPlayhead = LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownChange]
+/** The legacy onEnd presets, which are `legacy-persist` */
+const segmentLegacy = LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentEnd]
+const rundownLegacy = LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd]
+const showstyleLegacy = LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnShowStyleEnd]
+
+/** Behaviour shared by `persist` and the `legacy-persist` legacy onEnd presets */
+const persistingLifespans = [
+	{ name: 'persist', segment: segmentPersist, rundown: rundownPersist, showstyle: showstylePersist },
+	{ name: 'legacy onEnd preset', segment: segmentLegacy, rundown: rundownLegacy, showstyle: showstyleLegacy },
+]
+
+describe('Infinites', () => {
+	describe('planned pieces', () => {
+		test('an infinite which stops in shadow is stopped by any later piece on its layer', () => {
+			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentStop)
+			const finite = createPiece('finite', 'part1', 0, 'layer', partOnly)
+			const otherLayer = createPiece('otherLayer', 'part1', 0, 'other', partOnly)
+
+			expect(getContinuedPieceIds(getParams('part2', [infinite, otherLayer]))).toEqual(['infinite'])
+			expect(getContinuedPieceIds(getParams('part2', [infinite, finite]))).toEqual([])
 		})
-	}
 
-	/** The ids of the Pieces which got a PieceInstance for the last Part in the Segment */
-	function getKeptPieceIds(possiblePieces: Piece[]): string[] {
-		const instances = getPieceInstancesForPart(
-			protectString('activation0'),
-			undefined,
-			undefined,
-			undefined,
-			{ _id: rundownId, showStyleBaseId: protectString('showStyleBase0') },
-			{ _id: segmentId },
-			{ _id: partIds[2], rundownId, segmentId } as any,
-			new Set([partIds[0], partIds[1]]),
-			new Set(),
-			[],
-			new Map(),
-			possiblePieces,
-			partIds,
-			protectString('newInstance0'),
-			false,
-			true,
-			false
-		)
+		describe.each(persistingLifespans)('an infinite which persists in shadow ($name)', (lifespans) => {
+			test('resumes after a later piece', () => {
+				const infinite = createPiece('infinite', 'part0', 0, 'layer', lifespans.segment)
+				const finite = createPiece('finite', 'part1', 0, 'layer', partOnly)
 
-		return instances.map((p) => String(p.piece._id)).sort()
-	}
+				expect(getContinuedPieceIds(getParams('part2', [infinite, finite]))).toEqual(['infinite'])
+			})
 
-	test('without Branding, only the last starting infinite on a layer is kept', () => {
-		expect(
-			getKeptPieceIds([
-				createInfinitePiece('early', partIds[0], 'layer0'),
-				createInfinitePiece('late', partIds[1], 'layer0'),
+			test('is replaced by a later one of the same scope', () => {
+				const first = createPiece('first', 'part0', 0, 'layer', lifespans.segment)
+				const second = createPiece('second', 'part1', 0, 'layer', lifespans.segment)
+
+				expect(getContinuedPieceIds(getParams('part2', [first, second]))).toEqual(['second'])
+			})
+
+			test('is stacked with ones of different scopes, broadest first', () => {
+				const segment = createPiece('segment', 'part0', 0, 'layer', lifespans.segment)
+				const rundown = createPiece('rundown', 'part1', 0, 'layer', lifespans.rundown)
+
+				expect(getContinuedPieceIds(getParams('part2', [segment, rundown]))).toEqual(['rundown', 'segment'])
+				expect(getContinuedPieceIds(getParams('part3', [segment, rundown]))).toEqual(['rundown'])
+			})
+
+			test('ends at the boundary of its scope', () => {
+				const segment = createPiece('segment', 'part0', 0, 'segmentLayer', lifespans.segment)
+				const rundown = createPiece('rundown', 'part0', 0, 'rundownLayer', lifespans.rundown)
+				const showstyle = createPiece('showstyle', 'part0', 0, 'showstyleLayer', lifespans.showstyle)
+
+				const pieces = [segment, rundown, showstyle]
+
+				expect(getContinuedPieceIds(getParams('part1', pieces)).sort()).toEqual([
+					'rundown',
+					'segment',
+					'showstyle',
+				])
+				expect(getContinuedPieceIds(getParams('part3', pieces)).sort()).toEqual(['rundown', 'showstyle'])
+				expect(getContinuedPieceIds(getParams('part5', pieces))).toEqual(['showstyle'])
+				expect(getContinuedPieceIds(getParams('part6', pieces))).toEqual([])
+			})
+		})
+
+		test('a persist infinite is not replaced by a later one of the same scope with an end', () => {
+			const first = createPiece('first', 'part0', 0, 'layer', segmentPersist)
+			const second = {
+				...createPiece('second', 'part1', 0, 'layer', segmentPersist),
+				enable: { start: 0, duration: 1000 },
+			}
+
+			// The second one ends with its duration, so only the first one continues
+			expect(getContinuedPieceIds(getParams('part2', [first, second]))).toEqual(['first'])
+		})
+
+		test('a legacy onEnd infinite is replaced by a later one of the same scope, even with an end', () => {
+			const first = createPiece('first', 'part0', 0, 'layer', segmentLegacy)
+			const second = {
+				...createPiece('second', 'part1', 0, 'layer', segmentLegacy),
+				enable: { start: 0, duration: 1000 },
+			}
+
+			expect(getContinuedPieceIds(getParams('part2', [first, second]))).toEqual(['second'])
+		})
+
+		test('a persist infinite resumes after a later one of a narrower scope with an end', () => {
+			const infinite = createPiece('infinite', 'part0', 0, 'layer', rundownPersist)
+			const narrower = {
+				...createPiece('narrower', 'part1', 0, 'layer', segmentPersist),
+				enable: { start: 0, duration: 1000 },
+			}
+
+			expect(getContinuedPieceIds(getParams('part2', [infinite, narrower]))).toEqual(['infinite'])
+		})
+
+		test('a legacy onEnd infinite with an end covering a broader one continues past its end', () => {
+			const infinite = createPiece('infinite', 'part0', 0, 'layer', rundownLegacy)
+			const narrower = {
+				...createPiece('narrower', 'part1', 0, 'layer', segmentLegacy),
+				enable: { start: 0, duration: 1000 },
+			}
+
+			// The narrower one keeps covering the broader one until the end of its segment
+			expect(getContinuedPieceIds(getParams('part2', [infinite, narrower]))).toEqual(['infinite', 'narrower'])
+			expect(getContinuedPieceIds(getParams('part3', [infinite, narrower]))).toEqual(['infinite'])
+		})
+
+		test('a planned infinite with a duration does not continue, except a legacy onEnd preset', () => {
+			const timed = (id: string, lifespan: IPieceLifespan) => ({
+				...createPiece(id, 'part0', 0, id, lifespan),
+				enable: { start: 0, duration: 1000 },
+			})
+
+			expect(
+				getContinuedPieceIds(
+					getParams('part1', [timed('persist', segmentPersist), timed('legacy', segmentLegacy)])
+				)
+			).toEqual(['legacy'])
+		})
+
+		test('a shadow ends no infinite, they all continue under it', () => {
+			const stop = createPiece('stop', 'part0', 0, 'layerA', segmentStop)
+			const persist = createPiece('persist', 'part0', 0, 'layerB', rundownPersist)
+			const shadow = (layer: string) => ({
+				...createPiece(`shadow_${layer}`, 'part1', 0, layer, segmentPersist),
+				virtual: true,
+				virtualMode: 'shadow' as const,
+			})
+			const pieces = [stop, persist, shadow('layerA'), shadow('layerB')]
+
+			// The shadows continue for their own scope, the infinites are still there under them
+			expect(getContinuedPieceIds(getParams('part2', pieces)).sort()).toEqual([
+				'persist',
+				'shadow_layerA',
+				'shadow_layerB',
+				'stop',
 			])
-		).toEqual(['late'])
+			expect(getContinuedPieceIds(getParams('part3', pieces))).toEqual(['persist'])
+		})
+
+		test('later pieces in the same part are applied in order of their start', () => {
+			const finite = createPiece('finite', 'part0', 0, 'layer', partOnly)
+			const infinite = createPiece('infinite', 'part0', 1000, 'layer', segmentStop)
+
+			expect(getContinuedPieceIds(getParams('part1', [infinite, finite]))).toEqual(['infinite'])
+		})
+
+		test('a part scoped piece is never continued, even when it persists in shadow', () => {
+			const piece = createPiece('piece', 'part0', 0, 'layer', {
+				scope: 'part',
+				presence: 'forward-scope',
+				inShadow: 'persist',
+			})
+
+			expect(getContinuedPieceIds(getParams('part1', [piece]))).toEqual([])
+		})
+
+		test('a showstyle scoped infinite ends when the showstyle changes, a playlist scoped one does not', () => {
+			const showstyle = createPiece('showstyle', 'part0', 0, 'showstyleLayer', showstylePersist)
+			const playlist = createPiece('playlist', 'part0', 0, 'playlistLayer', playlistPersist)
+
+			expect(getContinuedPieceIds(getParams('part5', [showstyle, playlist]))).toEqual(['playlist', 'showstyle'])
+			expect(getContinuedPieceIds(getParams('part6', [showstyle, playlist]))).toEqual(['playlist'])
+		})
+
+		test('an infinite following the playhead is not continued from the plan, only forward scoped ones are', () => {
+			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentPlayhead)
+			const forward = createPiece('forward', 'part0', 0, 'other', segmentPersist)
+
+			expect(getContinuedPieceIds(getParams('part1', [infinite, forward]))).toEqual(['forward'])
+			expect(getContinuedPieceIds(getParams('part1', [infinite, forward], undefined, undefined, true))).toEqual([
+				'forward',
+			])
+		})
+
+		test('pieces after the part are ignored', () => {
+			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentStop)
+			const later = createPiece('later', 'part2', 0, 'layer', partOnly)
+
+			expect(getContinuedPieceIds(getParams('part1', [infinite, later]))).toEqual(['infinite'])
+		})
 	})
 
-	test('an infinite limited to a Branding does not discard the one it beats', () => {
-		expect(
-			getKeptPieceIds([
-				createInfinitePiece('early', partIds[0], 'layer0'),
-				createInfinitePiece('late', partIds[1], 'layer0', ['brandingA']),
-			])
-		).toEqual(['early', 'late'])
-	})
+	describe('the playing PartInstance', () => {
+		test('multiple continued pieces starting at 0 keep the newest of each kind', () => {
+			const planned = createPiece('planned', 'part0', 0, 'layer', rundownPersist)
+			const virtual = createPiece('virtual', 'part0', 0, 'layer', rundownPersist)
+			const playhead = createPiece('playhead', 'part0', 0, 'layer', rundownPlayhead)
 
-	test('infinites limited to different Brandings are all kept', () => {
-		expect(
-			getKeptPieceIds([
-				createInfinitePiece('early', partIds[0], 'layer0', ['brandingB']),
-				createInfinitePiece('late', partIds[1], 'layer0', ['brandingA']),
+			const playing = createPlaying('part0', [
+				createPieceInstance(planned),
+				createPieceInstance(virtual, { dynamicallyInserted: 1000, piece: { virtual: true } }),
+				createPieceInstance(playhead, { dynamicallyInserted: 5000 }),
 			])
-		).toEqual(['early', 'late'])
-	})
 
-	test('an infinite limited to a Branding is discarded when an unlimited one beats it', () => {
-		expect(
-			getKeptPieceIds([
-				createInfinitePiece('early', partIds[0], 'layer0', ['brandingA']),
-				createInfinitePiece('late', partIds[1], 'layer0'),
+			// The planned piece is continued from the plan, the others from what is playing
+			expect(getContinuedPieceIds(getParams('part1', [], playing))).toEqual(['virtual', 'playhead'])
+		})
+
+		test('a piece dynamically converted to an infinite is continued', () => {
+			const piece = createPiece('piece', 'part0', 0, 'layer', rundownPersist)
+			const playing = createPlaying('part0', [createPieceInstance(piece, { dynamicallyConvertedToInfinite: 1 })])
+
+			expect(getContinuedPieceIds(getParams('part1', [], playing))).toEqual(['piece'])
+		})
+
+		test('pieces which have been stopped are not continued', () => {
+			const one = createPiece('one', 'part0', 1000, 'one', rundownPlayhead)
+			const two = createPiece('two', 'part0', 2000, 'two', rundownPlayhead)
+			const three = createPiece('three', 'part0', 3000, 'three', rundownPlayhead)
+
+			const playing = createPlaying('part0', [
+				createPieceInstance(one),
+				createPieceInstance(two, { userDuration: { endRelativeToPart: 5000 } }),
+				createPieceInstance(three, { plannedStoppedPlayback: 5000 }),
 			])
-		).toEqual(['late'])
-	})
 
-	test('an infinite limited to a Branding is discarded when an unlimited one beats it, in either order', () => {
-		expect(
-			getKeptPieceIds([
-				createInfinitePiece('late', partIds[1], 'layer0'),
-				createInfinitePiece('early', partIds[0], 'layer0', ['brandingA']),
+			expect(getContinuedPieceIds(getParams('part1', [], playing))).toEqual(['one'])
+		})
+
+		test('an infinite following the playhead is stopped by a later piece in the playing part', () => {
+			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentPlayhead)
+			const finite = createPiece('finite', 'part0', 1000, 'layer', partOnly)
+
+			const playing = createPlaying('part0', [createPieceInstance(infinite), createPieceInstance(finite)])
+
+			expect(getContinuedPieceIds(getParams('part1', [], playing))).toEqual([])
+		})
+
+		test('an adlib in the playing part stops a planned infinite which stops in shadow', () => {
+			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentStop)
+			const adlib = createPiece('adlib', 'part1', 0, 'layer', partOnly)
+
+			const continuation = createPieceInstance(infinite, {
+				infinite: {
+					infiniteInstanceId: protectString('chain'),
+					infiniteInstanceIndex: 1,
+					infinitePieceId: infinite._id,
+					fromPreviousPart: true,
+				},
+			})
+
+			const withoutAdlib = createPlaying('part1', [continuation])
+			expect(getContinuedPieceIds(getParams('part2', [infinite], withoutAdlib))).toEqual(['infinite'])
+
+			const withAdlib = createPlaying('part1', [
+				continuation,
+				createPieceInstance(adlib, { dynamicallyInserted: 1000, piece: { enable: { start: 'now' } } }),
 			])
-		).toEqual(['late'])
-	})
+			expect(getContinuedPieceIds(getParams('part2', [infinite], withAdlib))).toEqual([])
+		})
 
-	test('an infinite limited to a Branding is kept when it starts at the same time as an unlimited one', () => {
-		// Neither is preferred, so this has to be left to be resolved during playout
-		expect(
-			getKeptPieceIds([
-				createInfinitePiece('limited', partIds[1], 'layer0', ['brandingA']),
-				createInfinitePiece('unlimited', partIds[1], 'layer0'),
-			])
-		).toEqual(['limited', 'unlimited'])
-	})
+		test('an infinite which stopped playing while hidden by a shadow is still continued', () => {
+			const playhead = createPiece('playhead', 'part0', 0, 'layer', segmentPlayhead)
+			const shadow = {
+				...createPiece('shadow', 'part0', 2000, 'layer', partOnly),
+				enable: { start: 2000, duration: 3000 },
+				virtual: true,
+				virtualMode: 'shadow' as const,
+			}
+			// Playout reports the piece as stopped when the shadow cuts it, and the slice resuming after it is not it
+			const stoppedPlayhead = createPieceInstance(playhead, { plannedStoppedPlayback: 2000 })
 
-	test('a later unlimited infinite discards both the limited and the unlimited ones it beats', () => {
-		expect(
-			getKeptPieceIds([
-				createInfinitePiece('early', partIds[0], 'layer0'),
-				createInfinitePiece('limited', partIds[0], 'layer0', ['brandingA']),
-				createInfinitePiece('latest', partIds[1], 'layer0'),
-			])
-		).toEqual(['latest'])
-	})
+			const withShadow = createPlaying('part0', [stoppedPlayhead, createPieceInstance(shadow)])
+			expect(getContinuedPieceIds(getParams('part1', [], withShadow))).toEqual(['playhead'])
 
-	test('an unlimited infinite is kept when everything beating it is limited', () => {
-		expect(
-			getKeptPieceIds([
-				createInfinitePiece('early', partIds[0], 'layer0'),
-				createInfinitePiece('late', partIds[1], 'layer0', ['brandingA']),
-				createInfinitePiece('latest', partIds[1], 'layer0', ['brandingB']),
-			])
-		).toEqual(['early', 'late', 'latest'])
-	})
+			const withoutShadow = createPlaying('part0', [stoppedPlayhead])
+			expect(getContinuedPieceIds(getParams('part1', [], withoutShadow))).toEqual([])
+		})
 
-	test('an override does not affect the selection, as it cannot move the Piece between layers', () => {
-		expect(
-			getKeptPieceIds([
-				createInfinitePiece('early', partIds[0], 'layer0'),
-				createInfinitePiece('late', partIds[1], 'layer0', undefined, {
-					brandingA: { name: 'branded-name' },
+		test('a planned infinite which was stopped in the playing part is not continued', () => {
+			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentPersist)
+
+			const playing = createPlaying('part1', [
+				createPieceInstance(infinite, {
+					userDuration: { endRelativeToPart: 1000 },
+					infinite: {
+						infiniteInstanceId: protectString('chain'),
+						infiniteInstanceIndex: 1,
+						infinitePieceId: infinite._id,
+						fromPreviousPart: true,
+					},
 				}),
 			])
-		).toEqual(['late'])
+
+			expect(getContinuedPieceIds(getParams('part2', [infinite], playing))).toEqual([])
+		})
+
+		test('adlibbed infinites are only continued when moving forwards', () => {
+			const adlib = createPiece('adlib', 'part1', 0, 'layer', segmentPersist)
+			const playing = (isBeforeTarget: boolean) =>
+				createPlaying(
+					'part1',
+					[createPieceInstance(adlib, { dynamicallyInserted: 1 })],
+					undefined,
+					isBeforeTarget
+				)
+
+			expect(getContinuedPieceIds(getParams('part2', [], playing(true)))).toEqual(['adlib'])
+			expect(getContinuedPieceIds(getParams('part0', [], playing(false)))).toEqual([])
+		})
+
+		test('pieces planned between the playing part and the part are replayed after the playing part', () => {
+			const playhead = createPiece('playhead', 'part0', 0, 'layer', rundownPlayhead)
+			const later = createPiece('later', 'part1', 0, 'layer', partOnly)
+			const playing = createPlaying('part0', [createPieceInstance(playhead)])
+
+			expect(getContinuedPieceIds(getParams('part2', [later], playing, undefined, true))).toEqual([])
+		})
+
+		test('an adlib in the playing part does not stop an infinite planned after it', () => {
+			const adlib = createPiece('adlib', 'part0', 0, 'layer', partOnly)
+			const infinite = createPiece('infinite', 'part1', 0, 'layer', segmentStop)
+			const playing = createPlaying('part0', [createPieceInstance(adlib, { dynamicallyInserted: 1 })])
+
+			expect(getContinuedPieceIds(getParams('part2', [infinite], playing, undefined, true))).toEqual(['infinite'])
+		})
+
+		test('an infinite following the playhead planned after the playing part is not predicted further ahead', () => {
+			const playhead = createPiece('playhead', 'part1', 0, 'layer', rundownPlayhead)
+			const playing = createPlaying('part0', [])
+
+			expect(getContinuedPieceIds(getParams('part3', [playhead], playing, undefined, true))).toEqual([])
+			expect(getContinuedPieceIds(getParams('part3', [playhead], playing))).toEqual([])
+		})
+
+		test('a skipped part does not affect an infinite following the playhead', () => {
+			const playheadLifespan: IPieceLifespan = {
+				scope: 'segment',
+				presence: 'follow-playhead',
+				inShadow: 'persist',
+			}
+			const playhead = createPiece('playhead', 'part0', 0, 'layer', playheadLifespan)
+			const playing = createPlaying('part0', [createPieceInstance(playhead)])
+
+			const occludingPart = createPiece('occludingPart', 'part1', 0, 'layer', partOnly)
+			expect(getContinuedPieceIds(getParams('part2', [occludingPart], playing))).toEqual(['playhead'])
+
+			const occludingScope = createPiece('occludingScope', 'part1', 0, 'layer', playheadLifespan)
+			expect(getContinuedPieceIds(getParams('part2', [occludingScope], playing))).toEqual(['playhead'])
+
+			const occludingStop = createPiece('occludingStop', 'part1', 0, 'layer', segmentStop)
+			const playingStop = createPlaying('part0', [
+				createPieceInstance(createPiece('playheadStop', 'part0', 0, 'layer', segmentPlayhead)),
+			])
+			// A forward scoped infinite is part of the plan, so it continues even though its part was skipped
+			expect(getContinuedPieceIds(getParams('part2', [occludingStop], playingStop))).toEqual([
+				'playheadStop',
+				'occludingStop',
+			])
+		})
+
+		test('a planned piece does not end an adlibbed legacy-persist infinite, as it did not before', () => {
+			const continuedAdlib = (id: string, lifespan: IPieceLifespan) =>
+				createPieceInstance(createPiece(id, 'part0', 0, id, lifespan), {
+					dynamicallyInserted: 1,
+					infinite: {
+						infiniteInstanceId: protectString(`${id}_chain`),
+						infiniteInstanceIndex: 1,
+						infinitePieceId: protectString(id),
+						fromPreviousPart: true,
+						fromPreviousPlayhead: true,
+					},
+				})
+			const virtualEnder = (id: string, lifespan: IPieceLifespan) =>
+				createPieceInstance({ ...createPiece(`${id}_end`, 'part1', 0, id, lifespan), virtual: true })
+
+			const playing = createPlaying('part1', [
+				continuedAdlib('legacy', rundownLegacy),
+				virtualEnder('legacy', rundownLegacy),
+				continuedAdlib('persist', rundownPersist),
+				virtualEnder('persist', rundownPersist),
+			])
+
+			expect(getContinuedPieceIds(getParams('part2', [], playing))).toEqual(['legacy'])
+		})
+
+		test('an adlib is ordered by when it was taken against the planned pieces of its part', () => {
+			const planned = createPiece('planned', 'part1', 5000, 'layer', segmentPersist)
+			const adlib = createPiece('adlib', 'part1', 0, 'layer', segmentPersist)
+			const playing = (takenAt: number) => {
+				const instance = createPlaying('part1', [
+					createPieceInstance(planned),
+					createPieceInstance(adlib, {
+						dynamicallyInserted: 100000 + takenAt,
+						piece: { enable: { start: 'now' } },
+					}),
+				])
+				return {
+					...instance,
+					partInstance: { ...instance.partInstance, timings: { plannedStartedPlayback: 100000 } },
+				}
+			}
+
+			// Taken at 3s: the planned piece at 5s is newer, of the same scope and has no end, so it ends the adlib
+			expect(getContinuedPieceIds(getParams('part2', [planned], playing(3000)))).toEqual(['planned'])
+			// Taken at 7s: the adlib is newer, and replaces the planned piece
+			expect(getContinuedPieceIds(getParams('part2', [planned], playing(7000)))).toEqual(['adlib'])
+		})
+
+		describe('AdlibTesting', () => {
+			const adlib = createPiece('adlib', 'part0', 0, 'layer', rundownPersist)
+			const pieceInstances = [createPieceInstance(adlib, { dynamicallyInserted: 1 })]
+			const adlibTestingSegment = (id: string): Pick<DBSegment, '_id' | 'orphaned'> => ({
+				_id: protectString<SegmentId>(id),
+				orphaned: SegmentOrphanedReason.ADLIB_TESTING,
+			})
+
+			test('normal rundown', () => {
+				expect(
+					getContinuedPieceIds(getParams('part1', [], createPlaying('part0', pieceInstances)))
+				).toHaveLength(1)
+			})
+
+			test('into AdlibTesting segment', () => {
+				const params = getParams(
+					'part1',
+					[],
+					createPlaying('part0', pieceInstances),
+					adlibTestingSegment('adlibTesting')
+				)
+				expect(getContinuedPieceIds(params)).toHaveLength(0)
+			})
+
+			test('out of AdlibTesting', () => {
+				const playing = createPlaying('part0', pieceInstances, adlibTestingSegment('adlibTesting'))
+				expect(getContinuedPieceIds(getParams('part1', [], playing))).toHaveLength(0)
+			})
+
+			test('within AdlibTesting', () => {
+				const playing = createPlaying('part0', pieceInstances, adlibTestingSegment('segment0'))
+				const params = getParams('part1', [], playing, adlibTestingSegment('segment0'))
+				expect(getContinuedPieceIds(params)).toHaveLength(1)
+			})
+		})
 	})
 
-	test('infinites on separate layers never compete', () => {
-		expect(
-			getKeptPieceIds([
-				createInfinitePiece('early', partIds[0], 'layer0'),
-				createInfinitePiece('late', partIds[1], 'layer1'),
-			])
-		).toEqual(['early', 'late'])
+	describe('Branding', () => {
+		function limitTo(piece: Piece, onlyValidForBranding: string[]): Piece {
+			return { ...piece, onlyValidForBranding }
+		}
+
+		describe('the playing PartInstance', () => {
+			/** Play the PieceInstances in part0 with the Branding selected, and return the ids of those continued into part1 */
+			function getContinuedIds(pieceInstances: PieceInstance[], brandingId: string | null = null): string[] {
+				const playing = createPlaying('part0', pieceInstances)
+				const branded = { ...playing, partInstance: { ...playing.partInstance, brandingId } }
+				return getContinuedPieceIds(getParams('part1', [], branded)).sort()
+			}
+
+			function createOnChange(id: string, start: number | 'now', onlyValidForBranding?: string[]): PieceInstance {
+				const piece = createPiece(id, 'part0', 0, 'layer', rundownPlayhead)
+				return createPieceInstance(onlyValidForBranding ? limitTo(piece, onlyValidForBranding) : piece, {
+					piece: { enable: { start } },
+				})
+			}
+
+			function createAdlibbedOnEnd(id: string, start: number | 'now'): PieceInstance {
+				return createPieceInstance(createPiece(id, 'part0', 0, 'layer', rundownLegacy), {
+					dynamicallyConvertedToInfinite: 1,
+					piece: { enable: { start } },
+				})
+			}
+
+			test('the onChange piece starting last is the one continued', () => {
+				expect(getContinuedIds([createOnChange('early', 1000), createOnChange('late', 2000)])).toEqual(['late'])
+			})
+
+			test('the onChange piece starting last is chosen regardless of the order they are considered in', () => {
+				expect(getContinuedIds([createOnChange('late', 2000), createOnChange('early', 1000)])).toEqual(['late'])
+			})
+
+			test("an onChange piece starting 'now' starts later than any planned start", () => {
+				expect(getContinuedIds([createOnChange('planned', 2000), createOnChange('now', 'now')])).toEqual([
+					'now',
+				])
+			})
+
+			test('the adlibbed onEnd piece starting last is the one continued', () => {
+				expect(
+					getContinuedIds([createAdlibbedOnEnd('early', 1000), createAdlibbedOnEnd('late', 2000)])
+				).toEqual(['late'])
+			})
+
+			test("an adlibbed onEnd piece starting 'now' starts later than any planned start", () => {
+				expect(
+					getContinuedIds([createAdlibbedOnEnd('planned', 2000), createAdlibbedOnEnd('now', 'now')])
+				).toEqual(['now'])
+			})
+
+			test('a piece hidden by the Branding is not continued, as it is not playing', () => {
+				// Without the Branding it would have stopped the other, as it starts later
+				expect(
+					getContinuedIds(
+						[createOnChange('shown', 1000), createOnChange('hidden', 2000, ['brandingB'])],
+						'brandingA'
+					)
+				).toEqual(['shown'])
+			})
+
+			test('a piece used with the selected Branding is continued', () => {
+				expect(getContinuedIds([createOnChange('limited', 1000, ['brandingA'])], 'brandingA')).toEqual([
+					'limited',
+				])
+			})
+
+			test('a piece limited to a Branding is stopped by a later unlimited one', () => {
+				const limited = createOnChange('limited', 1000, ['brandingA'])
+				const later = createOnChange('later', 2000)
+
+				expect(getContinuedIds([limited, later], 'brandingA')).toEqual(['later'])
+				expect(getContinuedIds([later, limited], 'brandingA')).toEqual(['later'])
+			})
+
+			test('a piece limited to a Branding does not stop an earlier unlimited one', () => {
+				const early = createOnChange('early', 1000)
+				const limited = createOnChange('limited', 2000, ['brandingA'])
+
+				expect(getContinuedIds([early, limited], 'brandingA')).toEqual(['early', 'limited'])
+				expect(getContinuedIds([limited, early], 'brandingA')).toEqual(['early', 'limited'])
+			})
+
+			test('a piece limited to a Branding is kept when an unlimited one starts at the same time', () => {
+				const limited = createOnChange('limited', 1000, ['brandingA'])
+				const unlimited = createOnChange('unlimited', 1000)
+
+				expect(getContinuedIds([limited, unlimited], 'brandingA')).toEqual(['limited', 'unlimited'])
+				expect(getContinuedIds([unlimited, limited], 'brandingA')).toEqual(['limited', 'unlimited'])
+			})
+		})
+
+		describe('planned pieces', () => {
+			/** The ids of the planned Pieces continued into part2, the last Part in segment0 */
+			function getKeptIds(pieces: Piece[]): string[] {
+				return getContinuedPieceIds(getParams('part2', pieces)).sort()
+			}
+
+			function createInfinite(id: string, partId: string, sourceLayerId = 'layer'): Piece {
+				return createPiece(id, partId, 0, sourceLayerId, segmentLegacy)
+			}
+
+			test('without Branding, only the last starting infinite on a layer is kept', () => {
+				expect(getKeptIds([createInfinite('early', 'part0'), createInfinite('late', 'part1')])).toEqual([
+					'late',
+				])
+			})
+
+			test('an infinite limited to a Branding does not stop the one before it', () => {
+				expect(
+					getKeptIds([
+						createInfinite('early', 'part0'),
+						limitTo(createInfinite('late', 'part1'), ['brandingA']),
+					])
+				).toEqual(['early', 'late'])
+			})
+
+			test('infinites limited to different Brandings are all kept', () => {
+				expect(
+					getKeptIds([
+						limitTo(createInfinite('early', 'part0'), ['brandingB']),
+						limitTo(createInfinite('late', 'part1'), ['brandingA']),
+					])
+				).toEqual(['early', 'late'])
+			})
+
+			test('an infinite limited to a Branding is stopped by a later unlimited one', () => {
+				expect(
+					getKeptIds([
+						limitTo(createInfinite('early', 'part0'), ['brandingA']),
+						createInfinite('late', 'part1'),
+					])
+				).toEqual(['late'])
+			})
+
+			test('an infinite limited to a Branding is stopped by a later unlimited one, in either order', () => {
+				expect(
+					getKeptIds([
+						createInfinite('late', 'part1'),
+						limitTo(createInfinite('early', 'part0'), ['brandingA']),
+					])
+				).toEqual(['late'])
+			})
+
+			test('an infinite limited to a Branding is kept when it starts at the same time as an unlimited one', () => {
+				// Neither is preferred, so this has to be left to be resolved during playout
+				const limited = limitTo(createInfinite('limited', 'part1'), ['brandingA'])
+				const unlimited = createInfinite('unlimited', 'part1')
+
+				expect(getKeptIds([limited, unlimited])).toEqual(['limited', 'unlimited'])
+				expect(getKeptIds([unlimited, limited])).toEqual(['limited', 'unlimited'])
+			})
+
+			test('a later unlimited infinite stops both the limited and the unlimited ones before it', () => {
+				expect(
+					getKeptIds([
+						createInfinite('early', 'part0'),
+						limitTo(createInfinite('limited', 'part0'), ['brandingA']),
+						createInfinite('latest', 'part1'),
+					])
+				).toEqual(['latest'])
+			})
+
+			test('an unlimited infinite is kept when everything after it is limited', () => {
+				expect(
+					getKeptIds([
+						createInfinite('early', 'part0'),
+						limitTo(createInfinite('late', 'part1'), ['brandingA']),
+						limitTo(createInfinite('latest', 'part1'), ['brandingB']),
+					])
+				).toEqual(['early', 'late', 'latest'])
+			})
+
+			test('an override does not affect the selection, as it cannot move the Piece between layers', () => {
+				const late: Piece = { ...createInfinite('late', 'part1'), branding: { brandingA: { name: 'branded' } } }
+
+				expect(getKeptIds([createInfinite('early', 'part0'), late])).toEqual(['late'])
+			})
+
+			test('infinites on separate layers never compete', () => {
+				expect(
+					getKeptIds([createInfinite('early', 'part0', 'layer0'), createInfinite('late', 'part1', 'layer1')])
+				).toEqual(['early', 'late'])
+			})
+		})
+	})
+
+	describe('queries', () => {
+		const part = getPart('part1')
+
+		test('past infinites match on scope', () => {
+			const query = buildPastInfinitePiecesForThisPartQuery(part, [protectString<PartId>('part0')], [], [])
+			if (!query) throw new Error('Expected a query')
+
+			expect(mongoWhere(createPiece('stop', 'part0', 0, 'layer', segmentStop), query)).toBe(true)
+			expect(
+				mongoWhere(createPiece('partPersist', 'part0', 0, 'layer', { ...partOnly, inShadow: 'persist' }), query)
+			).toBe(false)
+		})
+
+		test('past pieces on layers match any lifespan on those layers', () => {
+			const query = buildPastPiecesOnLayersForThisPartQuery(
+				part,
+				[protectString<PartId>('part0')],
+				[],
+				[],
+				['layer']
+			)
+			if (!query) throw new Error('Expected a query')
+
+			expect(mongoWhere(createPiece('finite', 'part0', 0, 'layer', partOnly), query)).toBe(true)
+			expect(mongoWhere(createPiece('otherLayer', 'part0', 0, 'other', partOnly), query)).toBe(false)
+			expect(buildPastPiecesOnLayersForThisPartQuery(part, [protectString('part0')], [], [], [])).toBeNull()
+		})
 	})
 })

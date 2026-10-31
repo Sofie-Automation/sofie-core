@@ -1,12 +1,13 @@
 import { PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { PieceLifespan, IBlueprintPieceType } from '@sofie-automation/blueprints-integration/dist'
+import { IBlueprintPieceType } from '@sofie-automation/blueprints-integration/dist'
 import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
 import { JobContext } from '../jobs/index.js'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import _ from 'underscore'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
 import { ReadonlyDeep } from 'type-fest'
 
@@ -128,7 +129,7 @@ export function convertAdLibToGenericPiece(
 		pieceType: IBlueprintPieceType.Normal,
 		enable: {
 			start: isBeingQueued ? 0 : 'now',
-			duration: !isBeingQueued && adLibPiece.lifespan === PieceLifespan.WithinPart ? duration : undefined,
+			duration: !isBeingQueued && !PieceLifespan.from(adLibPiece.lifespan).isInfinite ? duration : undefined,
 		},
 	}
 }
@@ -138,7 +139,7 @@ export function convertAdLibToGenericPiece(
  * @param pieceInstance PieceInstance to setup
  */
 export function setupPieceInstanceInfiniteProperties(pieceInstance: PieceInstance): void {
-	if (pieceInstance.piece.lifespan !== PieceLifespan.WithinPart) {
+	if (PieceLifespan.from(pieceInstance.piece.lifespan).isInfinite) {
 		// Set it up as an infinite
 		pieceInstance.infinite = {
 			infiniteInstanceId: getRandomId(),

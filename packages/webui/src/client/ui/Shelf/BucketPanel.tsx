@@ -24,7 +24,7 @@ import type {
 } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import {
 	type ISourceLayer,
-	PieceLifespan,
+	LegacyPieceLifespan,
 	type IBlueprintActionTriggerMode,
 	type SomeContent,
 } from '@sofie-automation/blueprints-integration'
@@ -241,7 +241,7 @@ export function actionToAdLibPieceUi(
 		tags: action.display.tags,
 		currentPieceTags: action.display.currentPieceTags,
 		nextPieceTags: action.display.nextPieceTags,
-		lifespan: PieceLifespan.WithinPart, // value doesn't matter
+		lifespan: LegacyPieceLifespan.WithinPart, // value doesn't matter
 		expectedPackages: action.expectedPackages,
 		uniquenessId: action.uniquenessId,
 	})

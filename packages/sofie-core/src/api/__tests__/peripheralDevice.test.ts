@@ -14,12 +14,7 @@ import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../__mocks
 import { setLogLevel } from '../../logging'
 import { IngestDeviceSecretSettings } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceSettings/ingestDevice'
 import { MediaObject } from '@sofie-automation/shared-lib/dist/core/model/MediaObjects'
-import {
-	IBlueprintPieceType,
-	PieceLifespan,
-	PlaylistTimingType,
-	StatusCode,
-} from '@sofie-automation/blueprints-integration'
+import { IBlueprintPieceType, PlaylistTimingType, StatusCode } from '@sofie-automation/blueprints-integration'
 import { CreateFakeResult, QueueStudioJobSpy } from '../../__mocks__/worker'
 import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
 
@@ -48,6 +43,7 @@ import {
 import { SupressLogMessages } from '../../__mocks__/suppressLogging'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { PeripheralDeviceCommand } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceCommand'
+import { DEFAULT_PIECE_LIFESPAN } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 
 const MeteorCall = makeMeteorCallForTest({
 	methods: PeripheralDeviceAPIMethods,
@@ -141,7 +137,7 @@ describe('test peripheralDevice general API methods', () => {
 			startPartId: protectString('part000'),
 			startSegmentId: segmentID,
 			startRundownId: rundownID,
-			lifespan: PieceLifespan.WithinPart,
+			lifespan: DEFAULT_PIECE_LIFESPAN,
 			pieceType: IBlueprintPieceType.Normal,
 			invalid: false,
 			content: {},

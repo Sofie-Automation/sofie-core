@@ -10,10 +10,10 @@ import {
 	IBlueprintActionManifest,
 	IBlueprintAdLibPiece,
 	IBlueprintPiece,
-	PieceLifespan,
 	TimelineObjectCoreExt,
 	TSR,
 	IBlueprintPieceType,
+	LegacyPieceLifespan,
 } from '@sofie-automation/blueprints-integration'
 import { setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { clone, literal, omit } from '@sofie-automation/corelib/dist/lib'
@@ -28,6 +28,10 @@ import {
 
 // Setup the mocks
 import * as hashlib from '@sofie-automation/corelib/dist/hash'
+import {
+	DEFAULT_PIECE_LIFESPAN,
+	LEGACY_PIECE_LIFESPAN_PRESETS,
+} from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 const getHashOrig = hashlib.getHash
 const getHashMock = jest.spyOn(hashlib, 'getHash')
 
@@ -329,7 +333,7 @@ describe('Test blueprint post-process', () => {
 					content: {
 						timelineObjects: [],
 					},
-					lifespan: PieceLifespan.WithinPart,
+					lifespan: DEFAULT_PIECE_LIFESPAN,
 				},
 				{
 					_rank: 1,
@@ -340,7 +344,7 @@ describe('Test blueprint post-process', () => {
 					content: {
 						timelineObjects: [],
 					},
-					lifespan: PieceLifespan.WithinPart,
+					lifespan: DEFAULT_PIECE_LIFESPAN,
 				},
 				{
 					_rank: 9,
@@ -351,7 +355,7 @@ describe('Test blueprint post-process', () => {
 					content: {
 						timelineObjects: [],
 					},
-					lifespan: PieceLifespan.WithinPart,
+					lifespan: DEFAULT_PIECE_LIFESPAN,
 				},
 			])
 
@@ -382,7 +386,7 @@ describe('Test blueprint post-process', () => {
 				rundownId: protectString(''),
 				content: {},
 				timelineObjectsString: EmptyPieceTimelineObjectsBlob,
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: DEFAULT_PIECE_LIFESPAN,
 			})
 			ensureAllKeysDefined(tmpObj, res)
 
@@ -422,7 +426,7 @@ describe('Test blueprint post-process', () => {
 						}),
 					],
 				},
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: DEFAULT_PIECE_LIFESPAN,
 			})
 
 			const res = postProcessAdLibPieces(jobContext, blueprintId, rundownId, undefined, [piece])
@@ -440,6 +444,31 @@ describe('Test blueprint post-process', () => {
 	})
 
 	describe('postProcessPieces', () => {
+		test('normalizes legacy lifespan', () => {
+			const jobContext = setupDefaultJobEnvironment()
+			const piece = literal<IBlueprintPiece>({
+				name: 'legacy',
+				externalId: 'legacy-id',
+				enable: { start: 0 },
+				sourceLayerId: 'sl0',
+				outputLayerId: 'ol0',
+				content: { timelineObjects: [] },
+				lifespan: LegacyPieceLifespan.OutOnSegmentEnd,
+			})
+
+			const [processedPiece] = postProcessPieces(
+				jobContext,
+				[piece],
+				protectString('blueprint9'),
+				protectString('fakeRo'),
+				protectString('segment5'),
+				protectString('part8'),
+				false
+			)
+
+			expect(processedPiece.lifespan).toEqual(LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentEnd])
+		})
+
 		test('no pieces', () => {
 			const jobContext = setupDefaultJobEnvironment()
 
@@ -469,7 +498,7 @@ describe('Test blueprint post-process', () => {
 					content: {
 						timelineObjects: [],
 					},
-					lifespan: PieceLifespan.OutOnSegmentEnd,
+					lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentEnd],
 				},
 				{
 					name: 'test2',
@@ -480,7 +509,7 @@ describe('Test blueprint post-process', () => {
 					content: {
 						timelineObjects: [],
 					},
-					lifespan: PieceLifespan.WithinPart,
+					lifespan: DEFAULT_PIECE_LIFESPAN,
 				},
 			])
 
@@ -518,7 +547,7 @@ describe('Test blueprint post-process', () => {
 				startPartId: protectString(''),
 				startSegmentId: protectString(''),
 				startRundownId: protectString(''),
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: DEFAULT_PIECE_LIFESPAN,
 				pieceType: IBlueprintPieceType.Normal,
 				content: {},
 				timelineObjectsString: EmptyPieceTimelineObjectsBlob,
@@ -558,7 +587,7 @@ describe('Test blueprint post-process', () => {
 						}),
 					],
 				},
-				lifespan: PieceLifespan.OutOnRundownEnd,
+				lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 			})
 
 			const res = postProcessPieces(
@@ -604,7 +633,7 @@ describe('Test blueprint post-process', () => {
 						}),
 					],
 				},
-				lifespan: PieceLifespan.OutOnRundownEnd,
+				lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 			})
 
 			expect(() => {

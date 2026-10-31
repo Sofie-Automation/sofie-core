@@ -13,10 +13,11 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { literal, normalizeArray } from '@sofie-automation/corelib/dist/lib'
-import { ISourceLayer, PieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-integration'
+import { ISourceLayer, LegacyPieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { IWrappedAdLib } from '@sofie-automation/meteor-lib/dist/triggers/actionFilterChainCompilers'
+import { DEFAULT_PIECE_LIFESPAN } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 
 const createTestee = () => new TagsService()
 
@@ -98,7 +99,7 @@ function createAndPopulateMockCache(): ContentCache {
 			tags: [tag0, tag2],
 			sourceLayerId: sourceLayerId0,
 			enable: { start: 0 },
-			lifespan: PieceLifespan.WithinPart,
+			lifespan: DEFAULT_PIECE_LIFESPAN,
 		},
 		partInstanceId: partInstanceId0,
 	} as PieceInstance)
@@ -108,7 +109,7 @@ function createAndPopulateMockCache(): ContentCache {
 			tags: [tag1],
 			sourceLayerId: sourceLayerId0,
 			enable: { start: 0 },
-			lifespan: PieceLifespan.WithinPart,
+			lifespan: DEFAULT_PIECE_LIFESPAN,
 		},
 		partInstanceId: partInstanceId1,
 	} as PieceInstance)
@@ -118,7 +119,7 @@ function createAndPopulateMockCache(): ContentCache {
 			tags: [tag2],
 			sourceLayerId: sourceLayerId1,
 			enable: { start: 0 },
-			lifespan: PieceLifespan.WithinPart,
+			lifespan: DEFAULT_PIECE_LIFESPAN,
 		},
 		partInstanceId: partInstanceId1,
 	} as PieceInstance)
@@ -128,7 +129,7 @@ function createAndPopulateMockCache(): ContentCache {
 			tags: [tag3],
 			sourceLayerId: sourceLayerId0,
 			enable: { start: 0 },
-			lifespan: PieceLifespan.WithinPart,
+			lifespan: DEFAULT_PIECE_LIFESPAN,
 		},
 		partInstanceId: partInstanceId2,
 	} as PieceInstance)
@@ -288,7 +289,7 @@ describe('TagsService', () => {
 				piece: {
 					sourceLayerId: sourceLayerId0,
 					enable: { start: 0 },
-					lifespan: PieceLifespan.WithinPart,
+					lifespan: LegacyPieceLifespan.WithinPart,
 					...piece,
 				},
 			} as PieceInstance)
@@ -381,7 +382,7 @@ describe('TagsService', () => {
 				tags: [tag5],
 				sourceLayerId: sourceLayerId0,
 				enable: { start: 0 },
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: LegacyPieceLifespan.WithinPart,
 			},
 			partInstanceId: partInstanceId3,
 			plannedStartedPlayback: 1000,
@@ -393,7 +394,7 @@ describe('TagsService', () => {
 				tags: [tag0],
 				sourceLayerId: sourceLayerId0,
 				enable: { start: 0 },
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: LegacyPieceLifespan.WithinPart,
 			},
 			partInstanceId: partInstanceId0,
 		} as PieceInstance)
@@ -454,7 +455,7 @@ describe('TagsService', () => {
 				tags: [tag5],
 				sourceLayerId: sourceLayerId0,
 				enable: { start: 0 },
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: LegacyPieceLifespan.WithinPart,
 			},
 			partInstanceId: partInstanceId3,
 			plannedStartedPlayback: 1000,
@@ -466,7 +467,7 @@ describe('TagsService', () => {
 				tags: [tag6],
 				sourceLayerId: sourceLayerId0,
 				enable: { start: 0 },
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: LegacyPieceLifespan.WithinPart,
 			},
 			partInstanceId: partInstanceId4,
 			plannedStartedPlayback: 500,
@@ -478,7 +479,7 @@ describe('TagsService', () => {
 				tags: [tag0],
 				sourceLayerId: sourceLayerId0,
 				enable: { start: 0 },
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: LegacyPieceLifespan.WithinPart,
 			},
 			partInstanceId: partInstanceId0,
 		} as PieceInstance)

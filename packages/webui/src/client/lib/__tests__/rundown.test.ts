@@ -8,7 +8,6 @@ import { RundownUtils } from '../rundown.js'
 import type { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { defaultPartInstance, defaultPiece, defaultPieceInstance } from '../../../__mocks__/defaultCollectionObjects.js'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import type { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstances, Pieces, RundownPlaylists } from '../../collections/index.js'
@@ -19,6 +18,11 @@ import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js
 import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 import { convertToUIShowStyleBase } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 import { UIPartInstances } from '../../ui/Collections.js'
+import {
+	DEFAULT_PIECE_LIFESPAN,
+	LEGACY_PIECE_LIFESPAN_PRESETS,
+} from '@sofie-automation/corelib/dist/playout/pieceLifespan'
+import { LegacyPieceLifespan } from '@sofie-automation/blueprints-integration'
 
 const mockRundownPlaylistsCollection = MongoMock.getInnerMockCollection(RundownPlaylists)
 const mockPartInstancesCollection = MongoMock.getInnerMockCollection(UIPartInstances)
@@ -105,7 +109,7 @@ describe('client/lib/rundown', () => {
 				enable: {
 					start: 1000,
 				},
-				lifespan: PieceLifespan.OutOnSegmentEnd,
+				lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentEnd],
 			}
 
 			mockPiecesCollection.insert(infinitePiece)
@@ -178,7 +182,7 @@ describe('client/lib/rundown', () => {
 				enable: {
 					start: 1000,
 				},
-				lifespan: PieceLifespan.OutOnSegmentChange,
+				lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentChange],
 			}
 			mockPiecesCollection.insert(infinitePiece)
 
@@ -192,7 +196,7 @@ describe('client/lib/rundown', () => {
 					start: 4000,
 					duration: 1000,
 				},
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: DEFAULT_PIECE_LIFESPAN,
 			}
 			mockPiecesCollection.insert(croppingPiece)
 
@@ -274,7 +278,7 @@ describe('client/lib/rundown', () => {
 				enable: {
 					start: 1000,
 				},
-				lifespan: PieceLifespan.OutOnSegmentChange,
+				lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentChange],
 			}
 			mockPiecesCollection.insert(infinitePiece)
 
@@ -288,7 +292,7 @@ describe('client/lib/rundown', () => {
 					start: 4000,
 					duration: 1000,
 				},
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: DEFAULT_PIECE_LIFESPAN,
 			}
 			mockPiecesCollection.insert(followingPiece)
 

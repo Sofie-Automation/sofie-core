@@ -4,8 +4,8 @@ import {
 	IBlueprintPart,
 	IBlueprintPiece,
 	IBlueprintPieceType,
+	LegacyPieceLifespan,
 	NoteSeverity,
-	PieceLifespan,
 } from '@sofie-automation/blueprints-integration'
 import { PlayoutModel } from '../../../../playout/model/PlayoutModel.js'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../../../__mocks__/context.js'
@@ -60,6 +60,10 @@ import { postProcessPieces, postProcessTimelineObjects } from '../../../postProc
 import { ActionPartChange, PartAndPieceInstanceActionService } from '../PartAndPieceInstanceActionService.js'
 import { mock } from 'jest-mock-extended'
 import { QuickLoopService } from '../../../../playout/model/services/QuickLoopService.js'
+import {
+	DEFAULT_PIECE_LIFESPAN,
+	LEGACY_PIECE_LIFESPAN_PRESETS,
+} from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 const { postProcessPieces: postProcessPiecesOrig, postProcessTimelineObjects: postProcessTimelineObjectsOrig } =
 	jest.requireActual('../../../postProcess')
 
@@ -128,7 +132,7 @@ describe('Test blueprint api context', () => {
 							index: o,
 						} as any,
 						timelineObjectsString: EmptyPieceTimelineObjectsBlob,
-						lifespan: PieceLifespan.WithinPart,
+						lifespan: DEFAULT_PIECE_LIFESPAN,
 						pieceType: IBlueprintPieceType.Normal,
 						invalid: false,
 					},
@@ -548,7 +552,7 @@ describe('Test blueprint api context', () => {
 							sourceLayerId: sourceLayerIds[0],
 							outputLayerId: '',
 							enable: { start: 0 },
-							lifespan: PieceLifespan.OutOnSegmentChange,
+							lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentChange],
 							pieceType: IBlueprintPieceType.Normal,
 							invalid: false,
 							content: {},
@@ -576,7 +580,7 @@ describe('Test blueprint api context', () => {
 							sourceLayerId: sourceLayerIds[0],
 							outputLayerId: '',
 							enable: { start: 0 },
-							lifespan: PieceLifespan.OutOnSegmentChange,
+							lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentChange],
 							pieceType: IBlueprintPieceType.Normal,
 							invalid: false,
 							content: {},
@@ -629,7 +633,7 @@ describe('Test blueprint api context', () => {
 							sourceLayerId: sourceLayerIds[0],
 							outputLayerId: '',
 							enable: { start: 0 },
-							lifespan: PieceLifespan.OutOnSegmentChange,
+							lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentChange],
 							pieceType: IBlueprintPieceType.Normal,
 							invalid: false,
 							content: {},
@@ -646,7 +650,7 @@ describe('Test blueprint api context', () => {
 							sourceLayerId: sourceLayerIds[0],
 							outputLayerId: '',
 							enable: { start: 0 },
-							lifespan: PieceLifespan.OutOnSegmentChange,
+							lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentChange],
 							pieceType: IBlueprintPieceType.Normal,
 							invalid: false,
 							content: {},
@@ -701,7 +705,7 @@ describe('Test blueprint api context', () => {
 							sourceLayerId: sourceLayerIds[0],
 							outputLayerId: '',
 							enable: { start: 0 },
-							lifespan: PieceLifespan.OutOnSegmentChange,
+							lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentChange],
 							pieceType: IBlueprintPieceType.Normal,
 							invalid: false,
 							content: {},
@@ -722,7 +726,7 @@ describe('Test blueprint api context', () => {
 								prop1: 'hello',
 								prop2: '5',
 							},
-							lifespan: PieceLifespan.OutOnSegmentChange,
+							lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentChange],
 							pieceType: IBlueprintPieceType.Normal,
 							invalid: false,
 							content: {},
@@ -1191,7 +1195,7 @@ describe('Test blueprint api context', () => {
 						outputLayerId: 'o1',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 						content: {
 							timelineObjects: [],
 						},
@@ -1260,7 +1264,7 @@ describe('Test blueprint api context', () => {
 						outputLayerId: 'o1',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 						content: {
 							timelineObjects: [],
 						},
@@ -1311,7 +1315,7 @@ describe('Test blueprint api context', () => {
 						outputLayerId: 'o1',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: LegacyPieceLifespan.OutOnRundownEnd,
 						content: {
 							timelineObjects: [],
 						},
@@ -1357,7 +1361,7 @@ describe('Test blueprint api context', () => {
 									outputLayerId: 'o1',
 									externalId: '-',
 									enable: { start: 0 },
-									lifespan: PieceLifespan.OutOnRundownEnd,
+									lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 									content: {
 										timelineObjects: [],
 									},
@@ -1398,7 +1402,7 @@ describe('Test blueprint api context', () => {
 									outputLayerId: 'o1',
 									externalId: '-',
 									enable: { start: 0 },
-									lifespan: PieceLifespan.OutOnRundownEnd,
+									lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 									content: {
 										timelineObjects: [],
 									},
@@ -1444,7 +1448,7 @@ describe('Test blueprint api context', () => {
 									outputLayerId: 'o1',
 									externalId: '-',
 									enable: { start: 0 },
-									lifespan: PieceLifespan.OutOnRundownEnd,
+									lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 									content: {
 										timelineObjects: [],
 									},
@@ -1477,7 +1481,7 @@ describe('Test blueprint api context', () => {
 					outputLayerId: 'o1',
 					externalId: '-',
 					enable: { start: 0 },
-					lifespan: PieceLifespan.OutOnRundownEnd,
+					lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 					content: {
 						timelineObjects: [],
 					},
@@ -1546,7 +1550,7 @@ describe('Test blueprint api context', () => {
 						outputLayerId: 'o1',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 						content: {
 							timelineObjects: [],
 						},
@@ -1600,7 +1604,7 @@ describe('Test blueprint api context', () => {
 						outputLayerId: 'o1',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 						content: {
 							timelineObjects: [],
 						},
@@ -1657,7 +1661,7 @@ describe('Test blueprint api context', () => {
 								outputLayerId: 'o1',
 								externalId: '-',
 								enable: { start: 0 },
-								lifespan: PieceLifespan.OutOnRundownEnd,
+								lifespan: LegacyPieceLifespan.OutOnRundownEnd,
 								content: {
 									timelineObjects: [],
 								},
@@ -1703,7 +1707,7 @@ describe('Test blueprint api context', () => {
 						outputLayerId: 'o1',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 						content: {
 							timelineObjects: [],
 						},
@@ -1760,7 +1764,7 @@ describe('Test blueprint api context', () => {
 								outputLayerId: 'o1',
 								externalId: '-',
 								enable: { start: 0 },
-								lifespan: PieceLifespan.OutOnRundownEnd,
+								lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 								content: {
 									timelineObjects: [],
 								},
@@ -1808,7 +1812,7 @@ describe('Test blueprint api context', () => {
 								outputLayerId: 'o1',
 								externalId: '-',
 								enable: { start: 0 },
-								lifespan: PieceLifespan.OutOnRundownEnd,
+								lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 								content: {
 									timelineObjects: [],
 								},
@@ -1848,7 +1852,7 @@ describe('Test blueprint api context', () => {
 							sourceLayerId: '',
 							outputLayerId: '',
 							pieceType: IBlueprintPieceType.Normal,
-							lifespan: PieceLifespan.OutOnSegmentEnd,
+							lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentEnd],
 							invalid: false,
 							content: {},
 							timelineObjectsString: EmptyPieceTimelineObjectsBlob,
@@ -1873,7 +1877,7 @@ describe('Test blueprint api context', () => {
 						outputLayerId: 'o1',
 						externalId: '-',
 						enable: { start: 0 },
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 						content: {
 							timelineObjects: [],
 						},
@@ -2143,7 +2147,7 @@ describe('Test blueprint api context', () => {
 						startPartId: allPartInstances[0].partInstance.part._id,
 						content: {},
 						timelineObjectsString: EmptyPieceTimelineObjectsBlob,
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 						pieceType: IBlueprintPieceType.Normal,
 						invalid: false,
 					},
@@ -2177,7 +2181,7 @@ describe('Test blueprint api context', () => {
 					partInstanceId: currentPartInstance.partInstance._id,
 				})) as PieceInstance
 				expect(pieceInstance).toBeTruthy()
-				expect(pieceInstance.piece.lifespan).toEqual(PieceLifespan.WithinPart)
+				expect(pieceInstance.piece.lifespan).toEqual(DEFAULT_PIECE_LIFESPAN)
 				expect(pieceInstance.infinite).toBeUndefined()
 
 				await setPartInstances(jobContext, playlistId, currentPartInstance, undefined)
@@ -2186,12 +2190,14 @@ describe('Test blueprint api context', () => {
 					const { service } = await getTestee(jobContext, playoutModel)
 
 					await service.updatePieceInstance(unprotectString(pieceInstance._id), {
-						lifespan: PieceLifespan.OutOnRundownEnd,
+						lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 					})
 
 					const updatedPieceInstance = playoutModel.findPieceInstance(pieceInstance._id)?.pieceInstance
 					expect(updatedPieceInstance).toBeTruthy()
-					expect(updatedPieceInstance?.pieceInstance.piece.lifespan).toEqual(PieceLifespan.OutOnRundownEnd)
+					expect(updatedPieceInstance?.pieceInstance.piece.lifespan).toEqual(
+						LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd]
+					)
 					expect(updatedPieceInstance?.pieceInstance.infinite).toBeTruthy()
 					expect(updatedPieceInstance?.pieceInstance.dynamicallyConvertedToInfinite).toBeTruthy()
 				})

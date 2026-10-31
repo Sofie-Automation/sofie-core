@@ -1,4 +1,4 @@
-import { JSONBlobStringify, PieceLifespan, StatusCode } from '@sofie-automation/blueprints-integration'
+import { JSONBlobStringify, StatusCode } from '@sofie-automation/blueprints-integration'
 import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { mock } from 'jest-mock-extended'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
@@ -45,6 +45,8 @@ import { PlayoutModelImpl } from '../PlayoutModelImpl.js'
 import { PlayoutRundownModelImpl } from '../PlayoutRundownModelImpl.js'
 import { PlayoutSegmentModelImpl } from '../PlayoutSegmentModelImpl.js'
 import _ from 'underscore'
+import { LEGACY_PIECE_LIFESPAN_PRESETS } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
+import { LegacyPieceLifespan } from '@sofie-automation/blueprints-integration'
 
 const TIME_FAR_PAST = 1000
 const TIME_CONNECTED = 2000
@@ -1107,7 +1109,7 @@ async function setupRundownWithAutoplayPart0(
 		_id: protectString(rundownId + '_globalAdLib0'),
 		_rank: 0,
 		externalId: 'MOCK_GLOBAL_ADLIB_0',
-		lifespan: PieceLifespan.OutOnRundownChange,
+		lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownChange],
 		rundownId: segment0.rundownId,
 		name: 'Global AdLib 0',
 		sourceLayerId: sourceLayerIds[0],
@@ -1120,7 +1122,7 @@ async function setupRundownWithAutoplayPart0(
 		_id: protectString(rundownId + '_globalAdLib1'),
 		_rank: 0,
 		externalId: 'MOCK_GLOBAL_ADLIB_1',
-		lifespan: PieceLifespan.OutOnRundownChange,
+		lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownChange],
 		rundownId: segment0.rundownId,
 		name: 'Global AdLib 1',
 		sourceLayerId: sourceLayerIds[1],

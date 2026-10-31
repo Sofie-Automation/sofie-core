@@ -1,11 +1,14 @@
-import { ISourceLayer, PieceLifespan } from '@sofie-automation/blueprints-integration'
+import { ISourceLayer } from '@sofie-automation/blueprints-integration'
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { PieceInstance, ResolvedPieceInstance } from '../dataModel/PieceInstance.js'
 import { SourceLayers } from '../dataModel/ShowStyleBase.js'
-import { assertNever, groupByToMapFunc } from '../lib.js'
+import { groupByToMapFunc } from '../lib.js'
+import { protectString } from '../protectedString.js'
+import { isShadowPiece, PieceLifespan } from './pieceLifespan.js'
 import _ from 'underscore'
 import { isCandidateBetterToBeContinued, isCandidateMoreImportant } from './infinites.js'
 import { ReadonlyDeep } from 'type-fest'
+import { PieceLifespanScope } from '@sofie-automation/shared-lib/dist/core/model/Rundown'
 
 /**
  * Get the `enable: { start: ?? }` for the new piece in terms that can be used as an `end` for another object
@@ -53,21 +56,16 @@ function isClear(piece?: ReadonlyDeep<PieceInstance>): boolean {
 
 function isCappedByAVirtual(
 	activePieces: PieceInstanceOnInfiniteLayers,
-	key: keyof PieceInstanceOnInfiniteLayers,
+	key: InfiniteLayerKey,
 	newPiece: ReadonlyDeep<PieceInstance>
 ): boolean {
-	if (
-		(key === 'onRundownEnd' || key === 'onShowStyleEnd') &&
-		activePieces.onSegmentEnd &&
-		isCandidateMoreImportant(newPiece, activePieces.onSegmentEnd)
-	)
-		return true
-	if (
-		key === 'onShowStyleEnd' &&
-		activePieces.onRundownEnd &&
-		isCandidateMoreImportant(newPiece, activePieces.onRundownEnd)
-	)
-		return true
+	if (key === 'other') return false
+
+	// A persisting piece is hidden while a narrower persisting piece (such as a virtual) is covering it
+	for (const narrowerKey of PERSISTING_LAYER_KEYS.slice(0, PERSISTING_LAYER_KEYS.indexOf(key))) {
+		const narrowerPiece = activePieces[narrowerKey]
+		if (narrowerPiece && isCandidateMoreImportant(newPiece, narrowerPiece)) return true
+	}
 	return false
 }
 
@@ -144,72 +142,95 @@ export function processAndPrunePieceInstanceTimings(
 	)
 	for (const piecesInExclusiveGroupOrLayer of piecesGroupedByExclusiveGroupOrLayer.values()) {
 		// Group and sort the pieces so that we can step through each point in time in order
-		const piecesByStartMap = groupByToMapFunc(piecesInExclusiveGroupOrLayer, (p) =>
-			getPieceStartTimeWithinPart(p, partTimes)
-		)
-		const piecesByStart: Array<[number | 'now', ReadonlyDeep<PieceInstance[]>]> = _.sortBy(
+		// Pieces starting 'now' are grouped by when they were actually started, so that they are ordered correctly
+		const piecesByStartMap = groupByToMapFunc(piecesInExclusiveGroupOrLayer, (p) => {
+			const start = getPieceStartTimeWithinPart(p, partTimes)
+			return start === 'now' ? `now:${getPieceOrderTime(p, partTimes)}` : `${start}`
+		})
+		const piecesByStart: Array<[number | 'now', number, ReadonlyDeep<PieceInstance[]>]> = _.sortBy(
 			Array.from(piecesByStartMap.entries()).map(([k, v]) =>
-				literal<[number | 'now', ReadonlyDeep<PieceInstance[]>]>([k === 'now' ? 'now' : Number(k), v])
+				k.startsWith('now:')
+					? literal<[number | 'now', number, ReadonlyDeep<PieceInstance[]>]>(['now', Number(k.slice(4)), v])
+					: literal<[number | 'now', number, ReadonlyDeep<PieceInstance[]>]>([Number(k), Number(k), v])
 			),
-			([k]) => (k === 'now' ? partTimes.nowInPart : k)
+			([, orderTime]) => orderTime
 		)
 
 		// Step through time
-		const activePieces: PieceInstanceOnInfiniteLayers = {}
-		for (const [newPiecesStart, pieces] of piecesByStart) {
-			const newPieces = findPieceInstancesOnInfiniteLayers(pieces)
+		const layerState: InfiniteLayerState = { activePieces: {}, shadowedPieces: new Map() }
+		for (const [newPiecesStart, orderTime, pieces] of piecesByStart) {
+			const [shadows, otherPieces] = _.partition(pieces, (p) => isShadowPiece(p.piece))
+			const newPieces = findPieceInstancesOnInfiniteLayers(otherPieces)
 
 			// Apply the updates
 			// Note: order is important, the higher layers must be done first
-			updateWithNewPieces(results, partTimes, activePieces, newPieces, newPiecesStart, includeVirtual, 'other')
-			updateWithNewPieces(
-				results,
-				partTimes,
-				activePieces,
-				newPieces,
-				newPiecesStart,
-				includeVirtual,
-				'onSegmentEnd'
-			)
-			updateWithNewPieces(
-				results,
-				partTimes,
-				activePieces,
-				newPieces,
-				newPiecesStart,
-				includeVirtual,
-				'onRundownEnd'
-			)
-			updateWithNewPieces(
-				results,
-				partTimes,
-				activePieces,
-				newPieces,
-				newPiecesStart,
-				includeVirtual,
-				'onShowStyleEnd'
-			)
+			updateWithNewPieces(results, partTimes, layerState, newPieces, newPiecesStart, includeVirtual, 'other')
+			for (const key of PERSISTING_LAYER_KEYS) {
+				updateWithNewPieces(results, partTimes, layerState, newPieces, newPiecesStart, includeVirtual, key)
+			}
+
+			// A clear virtual has no content to cover the pieces it doesn't end, so it obstructs them as a shadow does
+			for (const key of ['other', ...PERSISTING_LAYER_KEYS] as const) {
+				const newPiece = newPieces.best[key]
+				if (newPiece && isClear(newPiece) && layerState.activePieces[key] === newPiece) {
+					const keysUnder =
+						key === 'other'
+							? PERSISTING_LAYER_KEYS
+							: PERSISTING_LAYER_KEYS.slice(PERSISTING_LAYER_KEYS.indexOf(key))
+					applyShadow(results, partTimes, layerState, newPiece, newPiecesStart, orderTime, keysUnder, true)
+				}
+			}
+
+			for (const shadow of shadows) {
+				applyShadow(results, partTimes, layerState, shadow, newPiecesStart, orderTime)
+				if (includeVirtual)
+					results.push({ ...shadow, priority: PieceLifespan.from(shadow.piece.lifespan).stackingPriority })
+			}
 		}
 	}
 
-	// Strip out any pieces that start and end at the same point
-	return results.filter((p) => p.resolvedEndCap === undefined || p.resolvedEndCap !== p.piece.enable.start)
+	// Strip out any pieces that end before they start
+	return results.filter(
+		(p) =>
+			p.resolvedEndCap === undefined ||
+			(typeof p.resolvedEndCap === 'number' && typeof p.piece.enable.start === 'number'
+				? p.resolvedEndCap > p.piece.enable.start
+				: p.resolvedEndCap !== p.piece.enable.start)
+	)
 }
 function updateWithNewPieces(
 	results: PieceInstanceWithTimings[],
 	partTimes: PartCurrentTimes,
-	activePieces: PieceInstanceOnInfiniteLayers,
-	newPieces: PieceInstanceOnInfiniteLayers,
+	{ activePieces, shadowedPieces }: InfiniteLayerState,
+	newPieces: PieceInstancesStartingTogether,
 	newPiecesStart: number | 'now',
 	includeVirtual: boolean | undefined,
-	key: keyof PieceInstanceOnInfiniteLayers
+	key: InfiniteLayerKey
 ): void {
-	const newPiece = newPieces[key]
+	const newPiece = newPieces.best[key]
 	if (newPiece) {
-		const activePiece = activePieces[key]
-		if (activePiece) {
-			activePiece.resolvedEndCap = getPieceStartTimeAsReference(newPiecesStart, partTimes, activePiece)
+		const coveredPieces = _.compact([...(shadowedPieces.get(key) ?? []), activePieces[key]])
+		const stillShadowed: PieceInstanceWithTimings[] = []
+		for (const piece of coveredPieces) {
+			if (key !== 'other' && isResumedAfter(piece, newPiece)) {
+				// A piece persisting in shadow resumes when the one covering it ends
+				stillShadowed.push(piece)
+			} else {
+				piece.resolvedEndCap = getPieceStartTimeAsReference(newPiecesStart, partTimes, piece)
+			}
 		}
+
+		// Pieces starting together with the new one are covered by it, only the ones resuming after it are kept
+		for (const piece of newPieces.others.get(key) ?? []) {
+			if (key !== 'other' && !isClear(piece) && isResumedAfter(piece, newPiece)) {
+				// Below the new piece, which has the same priority and start
+				piece.priority -= 0.5
+				stillShadowed.push(piece)
+				results.push(piece)
+			}
+		}
+		shadowedPieces.set(key, stillShadowed)
+
 		// track the new piece
 		activePieces[key] = newPiece
 
@@ -223,9 +244,10 @@ function updateWithNewPieces(
 			results.push(newPiece)
 
 			if (
-				key === 'onSegmentEnd' ||
-				(key === 'onRundownEnd' && !activePieces.onSegmentEnd) ||
-				(key === 'onShowStyleEnd' && !activePieces.onSegmentEnd && !activePieces.onRundownEnd)
+				key !== 'other' &&
+				PERSISTING_LAYER_KEYS.slice(0, PERSISTING_LAYER_KEYS.indexOf(key)).every(
+					(narrowerKey) => !activePieces[narrowerKey]
+				)
 			) {
 				// when start === 0, we are likely to have multiple infinite continuations. Only stop the 'other' if it should not be considered for being on air
 				if (
@@ -245,61 +267,161 @@ function updateWithNewPieces(
 	}
 }
 
-interface PieceInstanceOnInfiniteLayers {
-	onShowStyleEnd?: PieceInstanceWithTimings
-	onRundownEnd?: PieceInstanceWithTimings
-	onSegmentEnd?: PieceInstanceWithTimings
-	other?: PieceInstanceWithTimings
+/**
+ * Pieces that persist in shadow are tracked per scope, so that each scope can be stacked on top of the broader ones.
+ * Every other piece is tracked as 'other', where a newer piece always replaces the previous one.
+ */
+type InfiniteLayerKey = PieceLifespanScope | 'other'
+
+/** The scopes of persisting pieces, ordered from the narrowest to the broadest */
+const PERSISTING_LAYER_KEYS: readonly PieceLifespanScope[] = ['part', 'segment', 'rundown', 'showstyle', 'playlist']
+
+type PieceInstanceOnInfiniteLayers = Partial<Record<InfiniteLayerKey, PieceInstanceWithTimings>>
+
+interface InfiniteLayerState {
+	/** The newest piece in each group */
+	activePieces: PieceInstanceOnInfiniteLayers
+	/** Older pieces persisting in shadow of a newer one in their group, which will resume when it ends */
+	shadowedPieces: Map<InfiniteLayerKey, PieceInstanceWithTimings[]>
 }
-function findPieceInstancesOnInfiniteLayers(pieces: ReadonlyDeep<PieceInstance[]>): PieceInstanceOnInfiniteLayers {
-	if (pieces.length === 0) {
-		return {}
+
+/**
+ * A shadow obstructs the pieces already on its layer while it is active. Pieces starting after it are on top of it.
+ * It ends nothing: the pieces under it are cut at the start of the shadow, and a slice of them resumes once it ends.
+ * Continuations from a previous Part are obstructed by a shadow starting at the same time too.
+ * @param keys The groups of pieces under the shadow
+ * @param keepLegacy Leave the legacy-persist pieces to the timeline, which covers them by priority as it used to
+ */
+function applyShadow(
+	results: PieceInstanceWithTimings[],
+	partTimes: PartCurrentTimes,
+	{ activePieces, shadowedPieces }: InfiniteLayerState,
+	shadow: ReadonlyDeep<PieceInstance>,
+	shadowStart: number | 'now',
+	startTime: number,
+	keys: readonly InfiniteLayerKey[] = ['other', ...PERSISTING_LAYER_KEYS],
+	keepLegacy = false
+): void {
+	const shadowEnd = getPieceEndTimeWithinPart(shadow, partTimes)
+	const isUnder = (piece: PieceInstanceWithTimings) => {
+		if (piece === shadow) return false
+		if (keepLegacy && PieceLifespan.from(piece.piece.lifespan).isEndedByNewerOfSameScope) return false
+		if (!piece.infinite?.fromPreviousPart) return getPieceOrderTime(piece, partTimes) < startTime
+
+		// When both were continued, the one whose chain started first is underneath
+		const pieceChainStart = getChainStartTime(piece)
+		const shadowChainStart = shadow.infinite?.fromPreviousPart ? getChainStartTime(shadow) : undefined
+		if (pieceChainStart !== undefined && shadowChainStart !== undefined) return pieceChainStart < shadowChainStart
+
+		return true
 	}
 
-	const res: PieceInstanceOnInfiniteLayers = {}
+	const sliceAfterShadow = (piece: PieceInstanceWithTimings): PieceInstanceWithTimings | undefined => {
+		piece.resolvedEndCap = getPieceStartTimeAsReference(shadowStart, partTimes, piece)
+		if (shadowEnd === undefined) return undefined
+
+		const pieceEnd = getPieceEndTimeWithinPart(piece, partTimes)
+		if (pieceEnd !== undefined && pieceEnd <= shadowEnd) return undefined
+
+		const slice: PieceInstanceWithTimings = {
+			...piece,
+			_id: protectString(`${piece._id}_after_${shadow._id}`),
+			infinite: undefined,
+			resolvedEndCap: undefined,
+			piece: {
+				...piece.piece,
+				enable: {
+					...piece.piece.enable,
+					start: piece.piece.enable.isAbsolute
+						? partTimes.currentTime - partTimes.nowInPart + shadowEnd
+						: shadowEnd,
+					duration: pieceEnd !== undefined && !piece.userDuration ? pieceEnd - shadowEnd : undefined,
+				},
+			},
+		}
+		results.push(slice)
+		return slice
+	}
+
+	for (const key of keys) {
+		const activePiece = activePieces[key]
+		if (activePiece && isUnder(activePiece)) activePieces[key] = sliceAfterShadow(activePiece)
+
+		const shadowed = shadowedPieces.get(key) ?? []
+		shadowedPieces.set(key, _.compact(shadowed.map((piece) => (isUnder(piece) ? sliceAfterShadow(piece) : piece))))
+	}
+}
+
+/** When a piece ends within the Part, if it has an end */
+function getPieceEndTimeWithinPart(
+	piece: ReadonlyDeep<PieceInstance>,
+	partTimes: PartCurrentTimes
+): number | undefined {
+	const start = getPieceOrderTime(piece, partTimes)
+	const ends = [
+		typeof piece.piece.enable.duration === 'number' ? start + piece.piece.enable.duration : undefined,
+		piece.userDuration?.endRelativeToPart,
+	].filter((end): end is number => end !== undefined)
+	return ends.length > 0 ? Math.min(...ends) : undefined
+}
+
+/**
+ * When a piece starts within the Part, to order it against the others.
+ * A piece starting 'now' is placed at when it was actually started, if that is known, otherwise at the playhead
+ */
+function getPieceOrderTime(piece: ReadonlyDeep<PieceInstance>, partTimes: PartCurrentTimes): number {
+	const start = getPieceStartTimeWithinPart(piece, partTimes)
+	if (start !== 'now') return start
+
+	const startedAt = piece.plannedStartedPlayback ?? piece.reportedStartedPlayback ?? piece.dynamicallyInserted
+	if (startedAt === undefined || partTimes.partStartTime === null) return partTimes.nowInPart
+
+	return Math.max(0, Math.min(startedAt - partTimes.partStartTime, partTimes.nowInPart))
+}
+
+/** When the chain of an infinite was started (milliseconds since epoch), as continuations keep that of their origin */
+function getChainStartTime(piece: ReadonlyDeep<PieceInstance>): number | undefined {
+	return piece.plannedStartedPlayback ?? piece.reportedStartedPlayback
+}
+
+/** Whether a piece will stay on air until something stops it */
+function isOpenEnded(piece: ReadonlyDeep<PieceInstance>): boolean {
+	return !piece.userDuration && typeof piece.piece.enable.duration !== 'number'
+}
+
+/** Whether a piece persisting in shadow resumes after a newer piece of its scope, or is ended by it */
+function isResumedAfter(piece: ReadonlyDeep<PieceInstance>, newPiece: ReadonlyDeep<PieceInstance>): boolean {
+	return !isOpenEnded(newPiece) && !PieceLifespan.from(piece.piece.lifespan).isEndedByNewerOfSameScope
+}
+
+interface PieceInstancesStartingTogether {
+	/** The most important new piece in each group */
+	best: PieceInstanceOnInfiniteLayers
+	/** The other new pieces in each group */
+	others: Map<InfiniteLayerKey, PieceInstanceWithTimings[]>
+}
+
+function findPieceInstancesOnInfiniteLayers(pieces: ReadonlyDeep<PieceInstance[]>): PieceInstancesStartingTogether {
+	const best: PieceInstanceOnInfiniteLayers = {}
+	const others = new Map<InfiniteLayerKey, PieceInstanceWithTimings[]>()
 
 	for (const piece of pieces) {
-		switch (piece.piece.lifespan) {
-			case PieceLifespan.OutOnShowStyleEnd:
-				if (!res.onShowStyleEnd || isCandidateBetterToBeContinued(res.onShowStyleEnd, piece)) {
-					res.onShowStyleEnd = {
-						...piece,
-						priority: 0,
-					}
-				}
-				break
-			case PieceLifespan.OutOnRundownEnd:
-				if (!res.onRundownEnd || isCandidateBetterToBeContinued(res.onRundownEnd, piece)) {
-					res.onRundownEnd = {
-						...piece,
-						priority: 1,
-					}
-				}
-				break
-			case PieceLifespan.OutOnSegmentEnd:
-				if (!res.onSegmentEnd || isCandidateBetterToBeContinued(res.onSegmentEnd, piece)) {
-					res.onSegmentEnd = {
-						...piece,
-						priority: 2,
-					}
-				}
-				break
-			case PieceLifespan.OutOnRundownChange:
-			case PieceLifespan.OutOnSegmentChange:
-			case PieceLifespan.WithinPart:
-				if (!res.other || isCandidateBetterToBeContinued(res.other, piece)) {
-					res.other = {
-						...piece,
-						priority: 5,
-					}
-				}
-				break
-			default:
-				assertNever(piece.piece.lifespan)
+		const lifespan = PieceLifespan.from(piece.piece.lifespan)
+		const key: InfiniteLayerKey = lifespan.persistsInShadow ? lifespan.scope : 'other'
+		const candidate: PieceInstanceWithTimings = { ...piece, priority: lifespan.stackingPriority }
+
+		const existing = best[key]
+		const othersInGroup = others.get(key) ?? []
+		if (!existing || isCandidateBetterToBeContinued(existing, piece)) {
+			best[key] = candidate
+			if (existing) othersInGroup.push(existing)
+		} else {
+			othersInGroup.push(candidate)
 		}
+		others.set(key, othersInGroup)
 	}
 
-	return res
+	return { best, others }
 }
 
 /**

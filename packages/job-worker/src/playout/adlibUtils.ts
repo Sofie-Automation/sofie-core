@@ -10,7 +10,7 @@ import {
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { assertNever, getRandomId, getRank } from '@sofie-automation/corelib/dist/lib'
+import { getRandomId, getRank } from '@sofie-automation/corelib/dist/lib'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { getCurrentTime } from '../lib/index.js'
 import { JobContext } from '../jobs/index.js'
@@ -24,7 +24,7 @@ import {
 import { convertAdLibToGenericPiece } from './pieces.js'
 import { getResolvedPiecesForCurrentPartInstance } from './resolvedPieces.js'
 import { updateTimeline } from './timeline/generate.js'
-import { PieceLifespan, QueuePartTarget } from '@sofie-automation/blueprints-integration'
+import { QueuePartTarget } from '@sofie-automation/blueprints-integration'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { updatePartInstanceRanksAfterAdlib } from '../updatePartInstanceRanksAndOrphanedState.js'
 import { setNextPart } from './setNext.js'
@@ -35,6 +35,7 @@ import { PlayoutSegmentModel } from './model/PlayoutSegmentModel.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 import { compareMarkerPositions, MarkerPosition } from '@sofie-automation/corelib/dist/playout/playlist'
 import { QueueablePartAndPieces } from '../blueprints/context/services/PartAndPieceInstanceActionService.js'
 
@@ -479,46 +480,33 @@ export function innerStopPieces(
 		// If there end time of the piece is already known, make sure it is in the future
 		if (pieceInstance.plannedStoppedPlayback && pieceInstance.plannedStoppedPlayback <= stopAt) continue
 
-		switch (pieceInstance.piece.lifespan) {
-			case PieceLifespan.WithinPart:
-			case PieceLifespan.OutOnSegmentChange:
-			case PieceLifespan.OutOnRundownChange: {
-				logger.info(`Blueprint action: Cropping PieceInstance "${pieceInstance._id}" to ${stopAt}`)
+		const lifespan = PieceLifespan.from(pieceInstance.piece.lifespan)
+		if (!lifespan.isInfinite || lifespan.followsPlayhead) {
+			// The PieceInstance is what continues into later parts, so cropping it is enough
+			logger.info(`Blueprint action: Cropping PieceInstance "${pieceInstance._id}" to ${stopAt}`)
 
-				const pieceInstanceModel = playoutModel.findPieceInstance(pieceInstance._id)
-				if (pieceInstanceModel) {
-					pieceInstanceModel.pieceInstance.setDuration({
-						endRelativeToPart: relativeStopAt,
-					})
-
-					stoppedInstances.push(pieceInstance._id)
-				} else {
-					logger.warn(
-						`Blueprint action: Failed to crop PieceInstance "${pieceInstance._id}", it was not found`
-					)
-				}
-
-				break
-			}
-			case PieceLifespan.OutOnSegmentEnd:
-			case PieceLifespan.OutOnRundownEnd:
-			case PieceLifespan.OutOnShowStyleEnd: {
-				logger.info(
-					`Blueprint action: Cropping PieceInstance "${pieceInstance._id}" to ${stopAt} with a virtual`
-				)
-
-				currentPartInstance.insertVirtualPiece(
-					relativeStopAt,
-					pieceInstance.piece.lifespan,
-					pieceInstance.piece.sourceLayerId,
-					pieceInstance.piece.outputLayerId
-				)
+			const pieceInstanceModel = playoutModel.findPieceInstance(pieceInstance._id)
+			if (pieceInstanceModel) {
+				pieceInstanceModel.pieceInstance.setDuration({
+					endRelativeToPart: relativeStopAt,
+				})
 
 				stoppedInstances.push(pieceInstance._id)
-				break
+			} else {
+				logger.warn(`Blueprint action: Failed to crop PieceInstance "${pieceInstance._id}", it was not found`)
 			}
-			default:
-				assertNever(pieceInstance.piece.lifespan)
+		} else {
+			// Static infinites are recreated from the planned Piece in later parts, so a virtual is needed to stop them
+			logger.info(`Blueprint action: Cropping PieceInstance "${pieceInstance._id}" to ${stopAt} with a virtual`)
+
+			currentPartInstance.insertVirtualPiece(
+				relativeStopAt,
+				lifespan.definition(),
+				pieceInstance.piece.sourceLayerId,
+				pieceInstance.piece.outputLayerId
+			)
+
+			stoppedInstances.push(pieceInstance._id)
 		}
 	}
 

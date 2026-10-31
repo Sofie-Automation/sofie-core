@@ -1,10 +1,4 @@
-import {
-	IBlueprintPieceType,
-	PieceLifespan,
-	Time,
-	TimelineObjClassesCore,
-	TSR,
-} from '@sofie-automation/blueprints-integration'
+import { IBlueprintPieceType, Time, TimelineObjClassesCore, TSR } from '@sofie-automation/blueprints-integration'
 import { PartInstanceId, PieceInstanceId, PieceInstanceInfiniteId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstanceInfinite } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
@@ -18,6 +12,7 @@ import {
 	TimelineObjType,
 } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { getPartGroupId } from '@sofie-automation/corelib/dist/playout/ids'
+import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 import { PieceInstanceWithTimings } from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -135,7 +130,7 @@ export function buildTimelineObjsForRundown(
 
 	const [currentInfinitePieces, currentNormalItems] = _.partition(
 		partInstancesInfo.current.pieceInstances,
-		(l) => !!(l.infinite && (l.piece.lifespan !== PieceLifespan.WithinPart || l.infinite.fromHold))
+		(l) => !!(l.infinite && (PieceLifespan.from(l.piece.lifespan).isInfinite || l.infinite.fromHold))
 	)
 
 	// Find all the infinites in each of the selected parts

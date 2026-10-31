@@ -18,7 +18,7 @@ import type {
 } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import {
 	type ISourceLayer,
-	PieceLifespan,
+	LegacyPieceLifespan,
 	type IBlueprintActionTriggerMode,
 	type SomeContent,
 } from '@sofie-automation/blueprints-integration'
@@ -124,7 +124,7 @@ function actionToAdLibPieceUi(
 		currentPieceTags: action.display.currentPieceTags,
 		nextPieceTags: action.display.nextPieceTags,
 		uniquenessId: action.display.uniquenessId,
-		lifespan: PieceLifespan.WithinPart, // value doesn't matter
+		lifespan: LegacyPieceLifespan.WithinPart, // value doesn't matter
 		expectedPackages: action.expectedPackages,
 		invalid: action.invalid,
 		userEditOperations: action.userEditOperations,
@@ -484,7 +484,7 @@ export function fetchAndFilter(props: IFetchAndFilterProps): AdLibFetchAndFilter
 									isSticky: true,
 									isGlobal: true,
 									expectedDuration: 0,
-									lifespan: PieceLifespan.WithinPart,
+									lifespan: LegacyPieceLifespan.WithinPart,
 									externalId: layer._id,
 									rundownId: protectString(''),
 									sourceLayer: layer,
@@ -556,7 +556,7 @@ export function fetchAndFilter(props: IFetchAndFilterProps): AdLibFetchAndFilter
 								isClearSourceLayer: true,
 								isGlobal: true,
 								expectedDuration: 0,
-								lifespan: PieceLifespan.WithinPart,
+								lifespan: LegacyPieceLifespan.WithinPart,
 								externalId: layer._id,
 								rundownId: protectString(''),
 								sourceLayer: layer,

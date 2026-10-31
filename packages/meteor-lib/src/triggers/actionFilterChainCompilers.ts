@@ -6,10 +6,11 @@ import {
 	IRundownPlaylistFilterLink,
 	ISourceLayer,
 	ITranslatableMessage,
-	PieceLifespan,
+	LegacyPieceLifespan,
 } from '@sofie-automation/blueprints-integration'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 import { sortAdlibs } from '../adlibs.js'
 import { ReactivePlaylistActionContext } from './actionFactory.js'
 import { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
@@ -62,7 +63,7 @@ interface IWrappedAdLibType<T extends SomeAdLib, typeName extends MountedAdLibTr
 	label: string | ITranslatableMessage
 	sourceLayerId?: ISourceLayer['_id']
 	outputLayerId?: IOutputLayer['_id']
-	expectedDuration?: number | PieceLifespan
+	expectedDuration?: number | LegacyPieceLifespan
 	currentPieceTags?: string[]
 	item: T
 }
@@ -114,7 +115,7 @@ function wrapAdLibPiece<T extends TriggersRundownBaselineAdLibItem | TriggersAdL
 		label: adLib.name,
 		sourceLayerId: adLib.sourceLayerId,
 		outputLayerId: adLib.outputLayerId,
-		expectedDuration: adLib.expectedDuration || adLib.lifespan,
+		expectedDuration: adLib.expectedDuration || PieceLifespan.from(adLib.lifespan).legacyLifespan,
 		item: adLib,
 	}
 }

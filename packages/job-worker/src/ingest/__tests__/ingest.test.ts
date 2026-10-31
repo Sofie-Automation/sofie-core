@@ -4,7 +4,7 @@ import {
 	IngestPart,
 	IngestRundown,
 	IngestSegment,
-	PieceLifespan,
+	LegacyPieceLifespan,
 } from '@sofie-automation/blueprints-integration'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import {
@@ -51,6 +51,7 @@ import { PlayoutPartInstanceModel } from '../../playout/model/PlayoutPartInstanc
 import { NrcsIngestCacheType } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { wrapGenericIngestJob, wrapGenericIngestJobWithPrecheck } from '../jobWrappers.js'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { DEFAULT_PIECE_LIFESPAN } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 
 const handleRemovedRundownWrapped = wrapGenericIngestJob(handleRemovedRundown)
 const handleUpdatedRundownWrapped = wrapGenericIngestJob(handleUpdatedRundown)
@@ -1057,7 +1058,7 @@ describe('Test ingest actions for rundowns and segments', () => {
 										enable: { start: 0 },
 										sourceLayerId: '',
 										outputLayerId: '',
-										lifespan: PieceLifespan.WithinPart,
+										lifespan: LegacyPieceLifespan.WithinPart,
 										content: { timelineObjects: [] },
 									}),
 								],
@@ -1603,7 +1604,7 @@ describe('Test ingest actions for rundowns and segments', () => {
 										enable: { start: 0 },
 										sourceLayerId: '',
 										outputLayerId: '',
-										lifespan: PieceLifespan.WithinPart,
+										lifespan: DEFAULT_PIECE_LIFESPAN,
 										content: {
 											timelineObjects: [],
 										},
@@ -1623,7 +1624,7 @@ describe('Test ingest actions for rundowns and segments', () => {
 										enable: { start: 0 },
 										sourceLayerId: '',
 										outputLayerId: '',
-										lifespan: PieceLifespan.WithinPart,
+										lifespan: DEFAULT_PIECE_LIFESPAN,
 										content: {
 											timelineObjects: [],
 										},
@@ -1783,7 +1784,7 @@ describe('Test ingest actions for rundowns and segments', () => {
 										enable: { start: 0 },
 										sourceLayerId: '',
 										outputLayerId: '',
-										lifespan: PieceLifespan.WithinPart,
+										lifespan: DEFAULT_PIECE_LIFESPAN,
 										content: {
 											timelineObjects: [],
 										},
@@ -1803,7 +1804,7 @@ describe('Test ingest actions for rundowns and segments', () => {
 										enable: { start: 0 },
 										sourceLayerId: '',
 										outputLayerId: '',
-										lifespan: PieceLifespan.WithinPart,
+										lifespan: DEFAULT_PIECE_LIFESPAN,
 										content: {
 											timelineObjects: [],
 										},
@@ -2091,7 +2092,7 @@ describe('Test ingest actions for rundowns and segments', () => {
 										enable: { start: 0 },
 										sourceLayerId: '',
 										outputLayerId: '',
-										lifespan: PieceLifespan.WithinPart,
+										lifespan: DEFAULT_PIECE_LIFESPAN,
 										content: { timelineObjects: [] },
 									}),
 								],
@@ -2109,7 +2110,7 @@ describe('Test ingest actions for rundowns and segments', () => {
 										enable: { start: 0 },
 										sourceLayerId: '',
 										outputLayerId: '',
-										lifespan: PieceLifespan.WithinPart,
+										lifespan: DEFAULT_PIECE_LIFESPAN,
 										content: { timelineObjects: [] },
 									}),
 								],
@@ -2259,7 +2260,7 @@ describe('Test ingest actions for rundowns and segments', () => {
 										enable: { start: 0 },
 										sourceLayerId: '',
 										outputLayerId: '',
-										lifespan: PieceLifespan.WithinPart,
+										lifespan: DEFAULT_PIECE_LIFESPAN,
 										content: { timelineObjects: [] },
 									}),
 								],
@@ -2277,7 +2278,7 @@ describe('Test ingest actions for rundowns and segments', () => {
 										enable: { start: 0 },
 										sourceLayerId: '',
 										outputLayerId: '',
-										lifespan: PieceLifespan.WithinPart,
+										lifespan: DEFAULT_PIECE_LIFESPAN,
 										content: { timelineObjects: [] },
 									}),
 								],

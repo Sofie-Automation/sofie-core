@@ -3,7 +3,8 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
 import { PlayoutPartInstanceModelImpl } from '../PlayoutPartInstanceModelImpl.js'
 import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { IBlueprintPieceType, PieceLifespan } from '@sofie-automation/blueprints-integration'
+import { IBlueprintPieceType, LegacyPieceLifespan } from '@sofie-automation/blueprints-integration'
+import { LEGACY_PIECE_LIFESPAN_PRESETS } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 
 describe('PlayoutPartInstanceModelImpl', () => {
 	function createBasicDBPartInstance(): DBPartInstance {
@@ -31,7 +32,7 @@ describe('PlayoutPartInstanceModelImpl', () => {
 		}
 	}
 
-	function createPieceInstanceAsInfinite(id: string, fromPreviousPlayhead: boolean): PieceInstance {
+	function createPieceInstanceAsInfinite(id: string, fromPreviousPart: boolean): PieceInstance {
 		return literal<PieceInstance>({
 			_id: protectString(id),
 			rundownId: protectString(''),
@@ -43,7 +44,7 @@ describe('PlayoutPartInstanceModelImpl', () => {
 				startPartId: protectString(''),
 				enable: { start: 0 },
 				name: '',
-				lifespan: PieceLifespan.OutOnRundownChange,
+				lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownChange],
 				sourceLayerId: '',
 				outputLayerId: '',
 				invalid: false,
@@ -55,23 +56,22 @@ describe('PlayoutPartInstanceModelImpl', () => {
 				infiniteInstanceId: protectString(`${id}_inf`),
 				infiniteInstanceIndex: 0,
 				infinitePieceId: protectString(`${id}_p`),
-				fromPreviousPart: false,
-				fromPreviousPlayhead,
+				fromPreviousPart,
 			},
 		})
 	}
 
-	describe('replaceInfinitesFromPreviousPlayhead', () => {
+	describe('replaceContinuedInfinites', () => {
 		it('works for an empty part', async () => {
 			const partInstance = createBasicDBPartInstance()
 			// note: QuickLoopService not implemented as it is not required for the test
 			const model = new PlayoutPartInstanceModelImpl(partInstance, [], false, {} as any)
 
-			expect(() => model.replaceInfinitesFromPreviousPlayhead([])).not.toThrow()
+			expect(() => model.replaceContinuedInfinites([])).not.toThrow()
 			expect(model.pieceInstances).toEqual([])
 		})
 
-		it('keeps pieceInstance with fromPreviousPlayhead=false', async () => {
+		it('keeps pieceInstance with fromPreviousPart=false', async () => {
 			const partInstance = createBasicDBPartInstance()
 			// note: QuickLoopService not implemented as it is not required for the test
 			const model = new PlayoutPartInstanceModelImpl(
@@ -81,11 +81,11 @@ describe('PlayoutPartInstanceModelImpl', () => {
 				{} as any
 			)
 
-			expect(() => model.replaceInfinitesFromPreviousPlayhead([])).not.toThrow()
+			expect(() => model.replaceContinuedInfinites([])).not.toThrow()
 			expect(model.pieceInstances.map((p) => p.pieceInstance._id)).toEqual(['p1'])
 		})
 
-		it('deleted pieceInstance with fromPreviousPlayhead=true if no replacement provided', async () => {
+		it('deleted pieceInstance with fromPreviousPart=true if no replacement provided', async () => {
 			const partInstance = createBasicDBPartInstance()
 			// note: QuickLoopService not implemented as it is not required for the test
 			const model = new PlayoutPartInstanceModelImpl(
@@ -95,11 +95,11 @@ describe('PlayoutPartInstanceModelImpl', () => {
 				{} as any
 			)
 
-			expect(() => model.replaceInfinitesFromPreviousPlayhead([])).not.toThrow()
+			expect(() => model.replaceContinuedInfinites([])).not.toThrow()
 			expect(model.pieceInstances.map((p) => p.pieceInstance._id)).toEqual([])
 		})
 
-		it('replaces pieceInstance with fromPreviousPlayhead=true if replacement provided', async () => {
+		it('replaces pieceInstance with fromPreviousPart=true if replacement provided', async () => {
 			const partInstance = createBasicDBPartInstance()
 			// note: QuickLoopService not implemented as it is not required for the test
 			const model = new PlayoutPartInstanceModelImpl(
@@ -109,9 +109,7 @@ describe('PlayoutPartInstanceModelImpl', () => {
 				{} as any
 			)
 
-			expect(() =>
-				model.replaceInfinitesFromPreviousPlayhead([createPieceInstanceAsInfinite('p1', true)])
-			).not.toThrow()
+			expect(() => model.replaceContinuedInfinites([createPieceInstanceAsInfinite('p1', true)])).not.toThrow()
 			expect(model.pieceInstances.map((p) => p.pieceInstance._id)).toEqual(['p1'])
 		})
 	})

@@ -9,7 +9,8 @@ import { ScriptPreview } from './Previews/ScriptPreview.js'
 import { RundownUtils } from '../../lib/rundown.js'
 import type { PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import type { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
-import { PieceLifespan } from '@sofie-automation/blueprints-integration'
+import type { PieceLifespanInfo } from '@sofie-automation/blueprints-integration'
+import { getPieceLifespanText } from '../../lib/ui/pieceLifespanText.js'
 import { LayerInfoPreview } from './Previews/LayerInfoPreview.js'
 import type { PreviewContentUI } from './PreviewPopUpContext.js'
 
@@ -96,34 +97,15 @@ export function PreviewPopUpContent({ content, time }: PreviewPopUpContentProps)
 
 function getDurationText(
 	t: TFunction,
-	lifespan: PieceLifespan,
+	lifespan: PieceLifespanInfo,
 	timeAsRendered?: { in?: number | null; dur?: number | null },
 	enable?: ReadonlyObjectDeep<PieceInstancePiece>['enable']
 ): string {
 	if (!timeAsRendered?.dur && !enable?.duration) {
-		return getLifeSpanText(t, lifespan)
+		return getPieceLifespanText(t, lifespan)
 	} else {
 		return RundownUtils.formatTimeToShortTime(
 			timeAsRendered?.dur ?? (typeof enable?.duration === 'number' ? enable?.duration : 0)
 		)
-	}
-}
-
-function getLifeSpanText(t: TFunction, lifespan: PieceLifespan): string {
-	switch (lifespan) {
-		case PieceLifespan.WithinPart:
-			return t('Until Next Take')
-		case PieceLifespan.OutOnSegmentChange:
-			return t('Until Next Segment')
-		case PieceLifespan.OutOnSegmentEnd:
-			return t('Until End of Segment')
-		case PieceLifespan.OutOnRundownChange:
-			return t('Until Next Rundown')
-		case PieceLifespan.OutOnRundownEnd:
-			return t('Until End of Rundown')
-		case PieceLifespan.OutOnShowStyleEnd:
-			return t('Until End of Showstyle')
-		default:
-			return ''
 	}
 }

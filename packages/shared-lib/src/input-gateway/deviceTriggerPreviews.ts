@@ -2,7 +2,7 @@ import type { ITranslatableMessage } from '../lib/translations.js'
 import type { PartId, ShowStyleBaseId, StudioId, TriggeredActionId } from '../core/model/Ids.js'
 import type { ProtectedString } from '../lib/protectedString.js'
 import type { ISourceLayer, IOutputLayer, SourceLayerType, SomeActionIdentifier } from '../core/model/ShowStyle.js'
-import type { PieceLifespan } from '../core/model/Rundown.js'
+import type { LegacyPieceLifespan } from '../core/model/Rundown.js'
 
 export type DeviceTriggerMountedActionId = ProtectedString<'deviceTriggerMountedActionId'>
 
@@ -18,7 +18,7 @@ export interface IWrappedAdLibBase {
 	label: string | ITranslatableMessage
 	sourceLayerId?: ISourceLayer['_id']
 	outputLayerId?: IOutputLayer['_id']
-	expectedDuration?: number | PieceLifespan
+	expectedDuration?: number | LegacyPieceLifespan
 	item: unknown
 }
 

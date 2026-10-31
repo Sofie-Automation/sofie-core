@@ -4,7 +4,7 @@ import { getRandomId, protectString } from '../../../../lib/lib'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { Bucket, BucketId, Buckets } from '../../../../lib/collections/Buckets'
 import { BucketAdLibs } from '../../../../lib/collections/BucketAdlibs'
-import { PieceLifespan } from '@sofie-automation/blueprints-integration'
+import { LegacyPieceLifespan } from '@sofie-automation/blueprints-integration'
 import { CreateFakeResult, QueueIngestJobSpy } from '../../../../__mocks__/worker'
 import { MeteorCall } from '../../../lib/meteorApi'
 
@@ -45,7 +45,7 @@ describe('User Actions - Buckets', () => {
 				showStyleVariantId: env.showStyleVariantId,
 				sourceLayerId: env.showStyleBase.sourceLayers[0]._id,
 				studioId: env.studio._id,
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: LegacyPieceLifespan.WithinPart,
 				content: {
 					timelineObjects: [],
 				},

@@ -14,7 +14,6 @@ import {
 	IBlueprintPieceType,
 	IOutputLayer,
 	ISourceLayer,
-	PieceLifespan,
 	PlaylistTimingType,
 	SourceLayerType,
 	StatusCode,
@@ -38,6 +37,11 @@ import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objec
 import { processShowStyleBase, processShowStyleVariant } from '../jobs/showStyle.js'
 import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
 import { MockJobContext } from './context.js'
+import {
+	DEFAULT_PIECE_LIFESPAN,
+	LEGACY_PIECE_LIFESPAN_PRESETS,
+} from '@sofie-automation/corelib/dist/playout/pieceLifespan'
+import { LegacyPieceLifespan } from '@sofie-automation/blueprints-integration'
 
 export enum LAYER_IDS {
 	SOURCE_CAM0 = 'cam0',
@@ -249,7 +253,7 @@ export async function setupDefaultRundown(
 		sourceLayerId: sourceLayerIds[0],
 		outputLayerId: outputLayerIds[0],
 		pieceType: IBlueprintPieceType.Normal,
-		lifespan: PieceLifespan.WithinPart,
+		lifespan: DEFAULT_PIECE_LIFESPAN,
 		invalid: false,
 		content: {},
 		timelineObjectsString: EmptyPieceTimelineObjectsBlob,
@@ -269,7 +273,7 @@ export async function setupDefaultRundown(
 		sourceLayerId: sourceLayerIds[1],
 		outputLayerId: outputLayerIds[0],
 		pieceType: IBlueprintPieceType.Normal,
-		lifespan: PieceLifespan.WithinPart,
+		lifespan: DEFAULT_PIECE_LIFESPAN,
 		invalid: false,
 		content: {},
 		timelineObjectsString: EmptyPieceTimelineObjectsBlob,
@@ -280,7 +284,7 @@ export async function setupDefaultRundown(
 		_id: protectString(rundownId + '_adLib000'),
 		_rank: 0,
 		expectedDuration: 1000,
-		lifespan: PieceLifespan.WithinPart,
+		lifespan: DEFAULT_PIECE_LIFESPAN,
 		externalId: 'MOCK_ADLIB_000',
 		partId: part00._id,
 		rundownId: rundownId,
@@ -317,7 +321,7 @@ export async function setupDefaultRundown(
 		sourceLayerId: sourceLayerIds[0],
 		outputLayerId: outputLayerIds[0],
 		pieceType: IBlueprintPieceType.Normal,
-		lifespan: PieceLifespan.WithinPart,
+		lifespan: DEFAULT_PIECE_LIFESPAN,
 		invalid: false,
 		content: {},
 		timelineObjectsString: EmptyPieceTimelineObjectsBlob,
@@ -377,7 +381,7 @@ export async function setupDefaultRundown(
 		_id: protectString(rundownId + '_globalAdLib0'),
 		_rank: 0,
 		externalId: 'MOCK_GLOBAL_ADLIB_0',
-		lifespan: PieceLifespan.OutOnRundownEnd,
+		lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 		rundownId: rundownId,
 		name: 'Global AdLib 0',
 		sourceLayerId: sourceLayerIds[0],
@@ -390,7 +394,7 @@ export async function setupDefaultRundown(
 		_id: protectString(rundownId + '_globalAdLib1'),
 		_rank: 0,
 		externalId: 'MOCK_GLOBAL_ADLIB_1',
-		lifespan: PieceLifespan.OutOnRundownEnd,
+		lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnRundownEnd],
 		rundownId: rundownId,
 		name: 'Global AdLib 1',
 		sourceLayerId: sourceLayerIds[1],

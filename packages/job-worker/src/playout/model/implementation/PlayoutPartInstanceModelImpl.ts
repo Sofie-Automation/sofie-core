@@ -14,7 +14,7 @@ import {
 	calculatePartExpectedDurationWithTransition,
 	PartCalculatedTimings,
 } from '@sofie-automation/corelib/dist/playout/timings'
-import { IBlueprintPieceType, PieceLifespan, Time } from '@sofie-automation/blueprints-integration'
+import { IBlueprintPieceType, Time } from '@sofie-automation/blueprints-integration'
 import {
 	PlayoutMutatablePart,
 	PlayoutPartInstanceModel,
@@ -28,6 +28,7 @@ import _ from 'underscore'
 import { DBPart, PartInvalidReason } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PlayoutMutatablePartSampleKeys } from '../../../blueprints/context/lib.js'
 import { QuickLoopService } from '../services/QuickLoopService.js'
+import { IPieceLifespan } from '@sofie-automation/shared-lib/dist/core/model/Rundown'
 
 /**
  * time in ms before an autotake when we don't accept takes/updates
@@ -324,7 +325,7 @@ export class PlayoutPartInstanceModelImpl implements PlayoutPartInstanceModel {
 
 	insertVirtualPiece(
 		start: number,
-		lifespan: PieceLifespan,
+		lifespan: IPieceLifespan,
 		sourceLayerId: string,
 		outputLayerId: string
 	): PlayoutPieceInstanceModel {
@@ -391,14 +392,14 @@ export class PlayoutPartInstanceModelImpl implements PlayoutPartInstanceModel {
 		return false
 	}
 
-	replaceInfinitesFromPreviousPlayhead(pieceInstances: PieceInstance[]): void {
+	replaceContinuedInfinites(pieceInstances: PieceInstance[]): void {
 		// Future: this should do some of the wrapping from a Piece into a PieceInstance
 
 		// Remove old infinite pieces
 		for (const [id, piece] of this.pieceInstancesImpl.entries()) {
 			if (!piece) continue
 
-			if (piece.pieceInstance.infinite?.fromPreviousPlayhead) {
+			if (piece.pieceInstance.infinite?.fromPreviousPart) {
 				this.pieceInstancesImpl.set(id, null)
 			}
 		}
@@ -409,7 +410,7 @@ export class PlayoutPartInstanceModelImpl implements PlayoutPartInstanceModel {
 					`Cannot replace infinite PieceInstance "${pieceInstance._id}" as it replaces a non-infinite`
 				)
 
-			if (!pieceInstance.infinite?.fromPreviousPlayhead)
+			if (!pieceInstance.infinite?.fromPreviousPart)
 				throw new Error(`Cannot insert non-infinite PieceInstance "${pieceInstance._id}" as an infinite`)
 
 			// Future: should this do any deeper validation of the PieceInstances?

@@ -10,7 +10,7 @@ import type { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/Pa
 import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { PieceLifespan } from '@sofie-automation/blueprints-integration'
+import { LegacyPieceLifespan } from '@sofie-automation/blueprints-integration'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { setupDefaultRundownPlaylist, setupMockShowStyleCompound } from '../../__mocks__/presetCollections.js'
 import { handleTakeNextPart } from '../take.js'
@@ -71,7 +71,7 @@ describe('Playout API', () => {
 				partId: currentPartInstance.part._id,
 				rundownId,
 				name: 'Branded AdLib',
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: LegacyPieceLifespan.WithinPart,
 				sourceLayerId: Object.keys(showStyle.sourceLayers)[0],
 				outputLayerId: Object.keys(showStyle.outputLayers)[0],
 				content: {},
@@ -153,7 +153,7 @@ describe('Playout API', () => {
 				},
 				ingestInfo: undefined,
 				name: 'Bucket AdLib',
-				lifespan: PieceLifespan.WithinPart,
+				lifespan: LegacyPieceLifespan.WithinPart,
 				sourceLayerId: Object.keys(showStyle.sourceLayers)[0],
 				outputLayerId: Object.keys(showStyle.outputLayers)[0],
 				content: {},

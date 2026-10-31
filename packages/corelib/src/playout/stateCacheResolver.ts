@@ -1,20 +1,19 @@
 import _ from 'underscore'
 
 import {
-	PieceLifespan,
 	IBlueprintActionManifestDisplay,
 	IBlueprintActionManifestDisplayContent,
 	IOutputLayer,
 	ISourceLayer,
 } from '@sofie-automation/blueprints-integration'
-import { SegmentId, RundownId, PartId, PieceId, RundownPlaylistActivationId } from '../dataModel/Ids.js'
+import { PartId, PieceId, RundownPlaylistActivationId } from '../dataModel/Ids.js'
 import { DBPart, PartExtended } from '../dataModel/Part.js'
 import { Piece, PieceExtended } from '../dataModel/Piece.js'
 import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
 import { DBRundownPlaylist, QuickLoopMarkerType } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
 import { DBSegment, SegmentExtended, SegmentOrphanedReason } from '../dataModel/Segment.js'
 import { literal, groupByToMap, Complete } from '../lib.js'
-import { FindOptions, mongoWhereFilter } from '../mongo.js'
+import { FindOptions, MongoQuery, mongoWhereFilter } from '../mongo.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import {
 	createPartCurrentTimes,
@@ -22,10 +21,14 @@ import {
 	resolvePrunedPieceInstance,
 } from './processAndPrune.js'
 import { calculatePartInstanceExpectedDurationWithTransition } from './timings.js'
+import { DEFAULT_PIECE_LIFESPAN, PieceLifespan } from './pieceLifespan.js'
 import {
 	buildPastInfinitePiecesForThisPartQuery,
+	buildPastPiecesOnLayersForThisPartQuery,
 	buildPiecesStartingInThisPartQuery,
 	getPieceInstancesForPart,
+	PartPosition,
+	PieceInstancesForPartParams,
 } from './infinites.js'
 import {
 	DBShowStyleBase,
@@ -393,79 +396,16 @@ export function getResolvedSegment({
 							: item.instance.piece.outputLayerId + '_' + item.instance.piece.sourceLayerId
 					})
 				)
-				// check if the Pieces should be cropped (as should be the case if an item on a layer is placed after
-				// an infinite Piece) and limit the width of the labels so that they dont go under or over the next Piece.
-				for (let i = 0; i < itemsByLayer.length; i++) {
-					// const layerId = itemsByLayer[i][0]
-					const layerItems = itemsByLayer[i][1]
-					// sort on rendered in-point and then on priority
-					const sortedItems = layerItems.sort(
-						(a, b) =>
-							(a.renderedInPoint || 0) - (b.renderedInPoint || 0) ||
-							a.instance.priority - b.instance.priority ||
-							(a.sourceLayer?._rank || 0) - (b.sourceLayer?._rank || 0)
-					)
-					for (let i = 0; i < sortedItems.length; i++) {
-						const currentItem = sortedItems[i]
-						const previousItem = sortedItems[i - 1] as PieceExtended | undefined
-
-						// This block, along with a some of the adjacent code has been removed at the request of
-						// Jesper Stærkær making all infinite pieces that do not start in a given Part lose their
-						// labels. I'm keeping it here, in case someone realizes this was a horrible mistake,
-						// and we can skip all of the head-scratching. -- Jan Starzak, 2021/10/14
-						//
-						// const possibleBuddyPiece = lastPartPiecesBySourceLayer[layerId]
-						// if (
-						// 	possibleBuddyPiece &&
-						// 	possibleBuddyPiece.instance.piece.lifespan !== PieceLifespan.WithinPart &&
-						// 	currentItem.instance.infinite &&
-						// 	possibleBuddyPiece.instance.infinite &&
-						// 	(possibleBuddyPiece.instance.infinite.infiniteInstanceId ===
-						// 		currentItem.instance.infinite.infiniteInstanceId ||
-						// 		possibleBuddyPiece.instance.infinite.infinitePieceId ===
-						// 			currentItem.instance.infinite.infinitePieceId)
-						// ) {
-						// 	currentItem.hasOriginInPreceedingPart = true
-						// }
-						if (currentItem.instance.piece.startPartId !== part.instance.part._id) {
-							currentItem.hasOriginInPreceedingPart = true
+				for (const [, layerItems] of itemsByLayer) {
+					for (const item of layerItems) {
+						if (item.instance.piece.startPartId !== part.instance.part._id) {
+							item.hasOriginInPreceedingPart = true
 						}
+					}
 
-						if (
-							previousItem !== undefined && // on i === 0, previousItem will be undefined
-							previousItem.renderedInPoint !== null &&
-							currentItem.renderedInPoint !== null &&
-							previousItem.renderedInPoint !== undefined &&
-							currentItem.renderedInPoint !== undefined &&
-							previousItem.renderedDuration !== undefined &&
-							currentItem.renderedDuration !== undefined
-						) {
-							// if previousItem is infinite, currentItem caps it within the current part
-							if (previousItem.instance.infinite) {
-								;(previousItem.instance.piece as PieceInstancePiece).lifespan = PieceLifespan.WithinPart
-								delete (previousItem.instance as PieceInstance).infinite
-							}
-
-							if (
-								// previousItem spans beyond the currentItem renderedInPoint
-								(previousItem.renderedDuration !== null &&
-									previousItem.renderedInPoint + previousItem.renderedDuration >
-										currentItem.renderedInPoint) ||
-								// previousItem is infinite
-								previousItem.renderedDuration === null
-							) {
-								previousItem.renderedDuration =
-									currentItem.renderedInPoint - previousItem.renderedInPoint
-								previousItem.cropped = true
-							}
-
-							previousItem.maxLabelWidth = currentItem.renderedInPoint - previousItem.renderedInPoint
-						}
-
-						if (currentItem.renderedDuration === null && i === sortedItems.length - 1) {
-							// only if this is the very last piece on this layer
-							// thisLastPartPiecesBySourceLayer[layerId] = currentItem
-						}
+					for (const resumedItem of resolveVisiblePiecesOnLayer(layerItems)) {
+						part.pieces.push(resumedItem)
+						resumedItem.sourceLayer?.pieces?.push(resumedItem)
 					}
 				}
 			}
@@ -496,6 +436,99 @@ export function getResolvedSegment({
 	}
 
 	// get the part immediately after the last segment
+}
+
+/**
+ * Crop the pieces on a layer to what playout shows. As the timeline resolves it, at any time the piece with the highest
+ * priority is visible, or the latest started one when they are equal. A piece covered for a while comes back once the
+ * pieces covering it end, as an extra item.
+ * @returns The extra items of the pieces coming back
+ */
+function resolveVisiblePiecesOnLayer(items: PieceExtended[]): PieceExtended[] {
+	const timedItems = items.filter(
+		(item): item is PieceExtended & { renderedInPoint: number } =>
+			typeof item.renderedInPoint === 'number' && item.renderedDuration !== undefined
+	)
+	const getEnd = (item: PieceExtended & { renderedInPoint: number }) =>
+		item.renderedDuration === null ? Infinity : item.renderedInPoint + item.renderedDuration
+
+	// Step through every point where the visible piece may change
+	const points = _.uniq(timedItems.flatMap((item) => [item.renderedInPoint, getEnd(item)]))
+		.filter((point) => Number.isFinite(point))
+		.sort((a, b) => a - b)
+	const visibleSpans = new Map<PieceExtended, Array<{ start: number; end: number }>>()
+	points.forEach((start, index) => {
+		const end = points[index + 1] ?? Infinity
+		const visible = timedItems
+			.filter((item) => item.renderedInPoint <= start && getEnd(item) > start)
+			.reduce<
+				(PieceExtended & { renderedInPoint: number }) | undefined
+			>((best, item) => (!best || item.instance.priority > best.instance.priority || (item.instance.priority === best.instance.priority && item.renderedInPoint >= best.renderedInPoint) ? item : best), undefined)
+		if (!visible) return
+
+		const spans = visibleSpans.get(visible) ?? []
+		const lastSpan = spans[spans.length - 1]
+		if (lastSpan && lastSpan.end === start) lastSpan.end = end
+		else spans.push({ start, end })
+		visibleSpans.set(visible, spans)
+	})
+
+	const renderedItems: PieceExtended[] = []
+	const resumedItems: PieceExtended[] = []
+	for (const item of timedItems) {
+		const end = getEnd(item)
+		const spans = visibleSpans.get(item) ?? []
+		const lastSpan = spans[spans.length - 1]
+		const lifespan = PieceLifespan.from(item.instance.piece.lifespan)
+
+		// An infinite which doesn't persist in shadow and stops being visible within this Part was ended here
+		if (item.instance.infinite && !lifespan.persistsInShadow && (!lastSpan || lastSpan.end !== Infinity)) {
+			;(item.instance.piece as PieceInstancePiece).lifespan = DEFAULT_PIECE_LIFESPAN
+			delete (item.instance as PieceInstance).infinite
+		}
+
+		const [firstSpan, ...laterSpans] = spans
+		if (!firstSpan) {
+			item.renderedDuration = 0
+			item.cropped = true
+			continue
+		}
+
+		const toDuration = (span: { start: number; end: number }) =>
+			span.end === Infinity ? null : span.end - span.start
+		item.renderedInPoint = firstSpan.start
+		item.renderedDuration = toDuration(firstSpan)
+		if (firstSpan.end < end) item.cropped = true
+		renderedItems.push(item)
+
+		for (const span of laterSpans) {
+			const resumedItem: PieceExtended = {
+				...item,
+				instance: {
+					...item.instance,
+					_id: protectString(`${item.instance._id}_resumed_${span.start}`),
+				},
+				renderedInPoint: span.start,
+				renderedDuration: toDuration(span),
+				cropped: span.end < end,
+				maxLabelWidth: undefined,
+				hasOriginInPreceedingPart: true,
+			}
+			renderedItems.push(resumedItem)
+			resumedItems.push(resumedItem)
+		}
+	}
+
+	// Limit the labels so that they don't go under the next item
+	const byStart = _.sortBy(renderedItems, (item) => item.renderedInPoint ?? 0)
+	byStart.forEach((item, index) => {
+		const next = byStart
+			.slice(index + 1)
+			.find((other) => (other.renderedInPoint ?? 0) > (item.renderedInPoint ?? 0))
+		if (next) item.maxLabelWidth = (next.renderedInPoint ?? 0) - (item.renderedInPoint ?? 0)
+	})
+
+	return resumedItems
 }
 
 export function isAdlibActionContent(
@@ -578,41 +611,41 @@ export function getSegmentsWithPartInstances({
 
 function fetchPiecesThatMayBeActiveForPart(
 	part: DBPart,
-	partsToReceiveOnSegmentEndFromSet: Set<PartId>,
-	segmentsToReceiveOnRundownEndFromSet: Set<SegmentId>,
-	rundownsToReceiveOnShowStyleEndFrom: RundownId[],
+	position: PartPosition,
 	piecesFind: PiecesFind,
 	/** Map of Pieces on Parts, passed through for performance */
 	allPiecesCache?: Map<PartId | null, Piece[]>
 ): Piece[] {
-	let piecesStartingInPart: Piece[]
-	const allPieces = allPiecesCache?.get(part._id)
-	const selector = buildPiecesStartingInThisPartQuery(part)
-	if (allPieces) {
+	const allPieces = allPiecesCache ? Array.from(allPiecesCache.values()).flat() : undefined
+	const findPieces = (selector: MongoQuery<Piece>): Piece[] =>
 		// Fast-path: if we already have the pieces, we can use them directly:
-		piecesStartingInPart = mongoWhereFilter(allPieces, selector)
-	} else {
-		piecesStartingInPart = piecesFind(selector)
-	}
+		allPieces ? mongoWhereFilter(allPieces, selector) : piecesFind(selector)
 
-	const partsToReceiveOnSegmentEndFrom = Array.from(partsToReceiveOnSegmentEndFromSet.values())
-	const segmentsToReceiveOnRundownEndFrom = Array.from(segmentsToReceiveOnRundownEndFromSet.values())
+	const piecesStartingInPart = allPiecesCache?.get(part._id) ?? findPieces(buildPiecesStartingInThisPartQuery(part))
+
+	const partIdsBefore = Array.from(position.partIdsBefore)
+	const segmentIdsBefore = Array.from(position.segmentIdsBefore)
+	const rundownIdsBefore = [...position.rundownIdsBefore]
 
 	const infinitePieceQuery = buildPastInfinitePiecesForThisPartQuery(
 		part,
-		partsToReceiveOnSegmentEndFrom,
-		segmentsToReceiveOnRundownEndFrom,
-		rundownsToReceiveOnShowStyleEndFrom
+		partIdsBefore,
+		segmentIdsBefore,
+		rundownIdsBefore
 	)
-	let infinitePieces: Piece[]
-	if (allPieces) {
-		// Fast-path: if we already have the pieces, we can use them directly:
-		infinitePieces = infinitePieceQuery ? mongoWhereFilter(allPieces, infinitePieceQuery) : []
-	} else {
-		infinitePieces = infinitePieceQuery ? piecesFind(infinitePieceQuery) : []
-	}
+	const infinitePieces = infinitePieceQuery ? findPieces(infinitePieceQuery) : []
 
-	return piecesStartingInPart.concat(infinitePieces) // replace spread with concat, as 3x is faster (https://stackoverflow.com/questions/48865710/spread-operator-vs-array-concat)
+	// Any piece on the same layer as one of those infinites may stop it
+	const layerPieceQuery = buildPastPiecesOnLayersForThisPartQuery(
+		part,
+		partIdsBefore,
+		segmentIdsBefore,
+		rundownIdsBefore,
+		_.uniq(infinitePieces.map((p) => p.sourceLayerId))
+	)
+	const layerPieces = layerPieceQuery ? findPieces(layerPieceQuery) : []
+
+	return piecesStartingInPart.concat(layerPieces.length > 0 ? layerPieces : infinitePieces)
 }
 
 const SIMULATION_INVALIDATION = 3000
@@ -647,33 +680,39 @@ export function getPieceInstancesForPartInstance({
 		rundownsToReceiveOnShowStyleEndFrom = []
 	}
 
-	if (partInstance.isTemporary) {
-		return getPieceInstancesForPart(
-			playlistActivationId || protectString(''),
-			currentPartInstance,
-			currentSegment,
-			currentPartInstancePieceInstances,
+	const getPieceInstancesForPartParams = (isTemporary: boolean): PieceInstancesForPartParams => {
+		const position: PartPosition = {
+			partIdsBefore: partsToReceiveOnSegmentEndFromSet,
+			segmentIdsBefore: segmentsToReceiveOnRundownEndFromSet,
+			rundownIdsBefore: rundownsToReceiveOnShowStyleEndFrom,
+			rundownShowStyles: rundownsToShowStyles,
+			orderedPartIds: orderedAllParts,
+		}
+
+		return {
+			playlistActivationId: playlistActivationId || protectString(''),
 			rundown,
 			segment,
-			partInstance.part,
-			partsToReceiveOnSegmentEndFromSet,
-			segmentsToReceiveOnRundownEndFromSet,
-			rundownsToReceiveOnShowStyleEndFrom,
-			rundownsToShowStyles,
-			fetchPiecesThatMayBeActiveForPart(
-				partInstance.part,
-				partsToReceiveOnSegmentEndFromSet,
-				segmentsToReceiveOnRundownEndFromSet,
-				rundownsToReceiveOnShowStyleEndFrom,
-				piecesFind,
-				allPiecesCache
-			),
-			orderedAllParts,
-			partInstance._id,
-			nextPartIsAfterCurrentPart,
-			partInstance.isTemporary,
-			allowTestingAdlibsToPersist
-		)
+			part: partInstance.part,
+			position,
+			pieces: fetchPiecesThatMayBeActiveForPart(partInstance.part, position, piecesFind, allPiecesCache),
+			playing:
+				currentPartInstance && currentSegment
+					? {
+							partInstance: currentPartInstance,
+							segment: currentSegment,
+							pieceInstances: currentPartInstancePieceInstances ?? [],
+							isBeforeTarget: nextPartIsAfterCurrentPart,
+						}
+					: undefined,
+			newInstanceId: partInstance._id,
+			isTemporary,
+			allowTestingAdlibsToPersist,
+		}
+	}
+
+	if (partInstance.isTemporary) {
+		return getPieceInstancesForPart(getPieceInstancesForPartParams(true))
 	} else {
 		const results =
 			// Check if the PartInstance we're currently looking for PieceInstances for is already the current one.
@@ -696,32 +735,7 @@ export function getPieceInstancesForPartInstance({
 			// make sure to invalidate the current computation after SIMULATION_INVALIDATION has passed
 			invalidateAfter(SIMULATION_INVALIDATION)
 
-			return getPieceInstancesForPart(
-				playlistActivationId || protectString(''),
-				currentPartInstance,
-				currentSegment,
-				currentPartInstancePieceInstances,
-				rundown,
-				segment,
-				partInstance.part,
-				partsToReceiveOnSegmentEndFromSet,
-				segmentsToReceiveOnRundownEndFromSet,
-				rundownsToReceiveOnShowStyleEndFrom,
-				rundownsToShowStyles,
-				fetchPiecesThatMayBeActiveForPart(
-					partInstance.part,
-					partsToReceiveOnSegmentEndFromSet,
-					segmentsToReceiveOnRundownEndFromSet,
-					rundownsToReceiveOnShowStyleEndFrom,
-					piecesFind,
-					allPiecesCache
-				),
-				orderedAllParts,
-				partInstance._id,
-				nextPartIsAfterCurrentPart,
-				true,
-				allowTestingAdlibsToPersist
-			)
+			return getPieceInstancesForPart(getPieceInstancesForPartParams(true))
 		} else {
 			// otherwise, return results as they are
 			return results

@@ -1,46 +1,33 @@
-import { PartInstanceId, RundownId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartId, PartInstanceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PieceInstance, wrapPieceToInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import {
-	getPieceInstancesForPart as libgetPieceInstancesForPart,
-	getPlayheadTrackingInfinitesForPart as libgetPlayheadTrackingInfinitesForPart,
 	buildPiecesStartingInThisPartQuery,
 	buildPastInfinitePiecesForThisPartQuery,
+	buildPastPiecesOnLayersForThisPartQuery,
+	getContinuedInfinitesForPart,
+	getPieceInstancesForPart as libGetPieceInstancesForPart,
+	PartPosition,
+	PieceInstancesForPartParams,
+	PlayingPartInstance,
 } from '@sofie-automation/corelib/dist/playout/infinites'
-import {
-	createPartCurrentTimes,
-	processAndPrunePieceInstanceTimings,
-} from '@sofie-automation/corelib/dist/playout/processAndPrune'
 import { JobContext } from '../jobs/index.js'
 import { ReadonlyDeep } from 'type-fest'
 import { PlayoutModel } from './model/PlayoutModel.js'
 import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel.js'
 import { PlayoutSegmentModel } from './model/PlayoutSegmentModel.js'
-import { getCurrentTime } from '../lib/index.js'
-import { filterPieceInstancesForBranding } from './branding.js'
-import { clone, flatten, getRandomId } from '@sofie-automation/corelib/dist/lib'
+import { clone, getRandomId } from '@sofie-automation/corelib/dist/lib'
 import _ from 'underscore'
 import { IngestModelReadonly } from '../ingest/model/IngestModel.js'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { sortRundownIDsInPlaylist } from '@sofie-automation/corelib/dist/playout/playlist'
-import { mongoWhere } from '@sofie-automation/corelib/dist/mongo'
+import { MongoQuery, mongoWhere } from '@sofie-automation/corelib/dist/mongo'
 import { PlayoutRundownModel } from './model/PlayoutRundownModel.js'
-import { logger } from '../logging.js'
 
 /** When we crop a piece, set the piece as "it has definitely ended" this far into the future. */
 export const DEFINITELY_ENDED_FUTURE_DURATION = 1 * 1000
-
-function getShowStyleIdsRundownMapping(rundowns: readonly PlayoutRundownModel[]): Map<RundownId, ShowStyleBaseId> {
-	const ret = new Map()
-
-	for (const rundown of rundowns) {
-		ret.set(rundown.rundown._id, rundown.rundown.showStyleBaseId)
-	}
-
-	return ret
-}
 
 /**
  * We can only continue adlib onEnd infinites if we go forwards in the rundown. Any distance backwards will clear them.
@@ -77,11 +64,21 @@ export function candidatePartIsAfterPreviewPartInstance(
 	}
 }
 
+interface IdsBeforePart {
+	partIdsBefore: PartId[]
+	segmentIdsBefore: SegmentId[]
+	rundownIdsBefore: RundownId[]
+}
+
 /**
  * Get the ids of parts, segments and rundowns before a given part in the playlist.
  * Note: this will return no segments and rundowns if the part is in the AdlibTesting segment.
  */
-function getIdsBeforeThisPart(context: JobContext, playoutModel: PlayoutModel, nextPart: ReadonlyDeep<DBPart>) {
+function getIdsBeforeThisPart(
+	context: JobContext,
+	playoutModel: PlayoutModel,
+	nextPart: ReadonlyDeep<DBPart>
+): IdsBeforePart {
 	const span = context.startSpan('getIdsBeforeThisPart')
 
 	const currentRundown = playoutModel.getRundown(nextPart.rundownId)
@@ -99,51 +96,114 @@ function getIdsBeforeThisPart(context: JobContext, playoutModel: PlayoutModel, n
 	)
 	partsBeforeThisInSegment.push(...partInstancesBeforeThisInSegment.map((p) => p.partInstance.part))
 
-	const partsBeforeThisInSegmentSorted = _.sortBy(partsBeforeThisInSegment, (p) => p._rank).map((p) => p._id)
+	const partIdsBefore = _.sortBy(partsBeforeThisInSegment, (p) => p._rank).map((p) => p._id)
 
-	const nextPartSegment = currentRundown?.getSegment(nextPart.segmentId)
-	if (nextPartSegment?.segment?.orphaned === SegmentOrphanedReason.ADLIB_TESTING) {
+	if (currentSegment?.segment?.orphaned === SegmentOrphanedReason.ADLIB_TESTING) {
 		if (span) span.end()
 		return {
-			partsToReceiveOnSegmentEndFrom: partsBeforeThisInSegmentSorted,
-			segmentsToReceiveOnRundownEndFrom: [],
-			rundownsToReceiveOnShowStyleEndFrom: [],
+			partIdsBefore,
+			segmentIdsBefore: [],
+			rundownIdsBefore: [],
 		}
-	} else {
-		// Note: In theory we should ignore any AdlibTesting segments here, but they will never produce any planned `Pieces`, only `PieceInstances`
+	}
 
-		const currentSegment = currentRundown?.getSegment(nextPart.segmentId)
-		const segmentsToReceiveOnRundownEndFrom =
-			currentRundown && currentSegment
-				? currentRundown.segments
-						.filter(
-							(s) =>
-								s.segment.rundownId === nextPart.rundownId &&
-								s.segment._rank < currentSegment.segment._rank &&
-								s.segment.orphaned !== SegmentOrphanedReason.ADLIB_TESTING
-						)
-						.map((p) => p.segment._id)
-				: []
+	// Note: In theory we should ignore any AdlibTesting segments here, but they will never produce any planned `Pieces`, only `PieceInstances`
+	const segmentIdsBefore =
+		currentRundown && currentSegment
+			? currentRundown.segments
+					.filter(
+						(s) =>
+							s.segment.rundownId === nextPart.rundownId &&
+							s.segment._rank < currentSegment.segment._rank &&
+							s.segment.orphaned !== SegmentOrphanedReason.ADLIB_TESTING
+					)
+					.map((p) => p.segment._id)
+			: []
 
-		const sortedRundownIds = sortRundownIDsInPlaylist(
-			playoutModel.playlist.rundownIdsInOrder,
-			playoutModel.rundowns.map((rd) => rd.rundown._id)
-		)
-		const currentRundownIndex = sortedRundownIds.indexOf(nextPart.rundownId)
-		const rundownsToReceiveOnShowStyleEndFrom =
-			currentRundownIndex === -1 ? [] : sortedRundownIds.slice(0, currentRundownIndex)
+	const sortedRundownIds = sortRundownIDsInPlaylist(
+		playoutModel.playlist.rundownIdsInOrder,
+		playoutModel.rundowns.map((rd) => rd.rundown._id)
+	)
+	const currentRundownIndex = sortedRundownIds.indexOf(nextPart.rundownId)
+	const rundownIdsBefore = currentRundownIndex === -1 ? [] : sortedRundownIds.slice(0, currentRundownIndex)
 
-		if (span) span.end()
-		return {
-			partsToReceiveOnSegmentEndFrom: partsBeforeThisInSegmentSorted,
-			segmentsToReceiveOnRundownEndFrom,
-			rundownsToReceiveOnShowStyleEndFrom,
-		}
+	if (span) span.end()
+	return {
+		partIdsBefore,
+		segmentIdsBefore,
+		rundownIdsBefore,
+	}
+}
+
+function getPartPosition(context: JobContext, playoutModel: PlayoutModel, part: ReadonlyDeep<DBPart>): PartPosition {
+	const { partIdsBefore, segmentIdsBefore, rundownIdsBefore } = getIdsBeforeThisPart(context, playoutModel, part)
+
+	return {
+		partIdsBefore: new Set(partIdsBefore),
+		segmentIdsBefore: new Set(segmentIdsBefore),
+		rundownIdsBefore,
+		rundownShowStyles: new Map(playoutModel.rundowns.map((r) => [r.rundown._id, r.rundown.showStyleBaseId])),
+		orderedPartIds: playoutModel.getAllOrderedParts().map((p) => p._id),
+	}
+}
+
+function getPlayingPartInstance(
+	context: JobContext,
+	playoutModel: PlayoutModel,
+	playingPartInstance: PlayoutPartInstanceModel | null,
+	part: ReadonlyDeep<DBPart>
+): PlayingPartInstance | undefined {
+	if (!playingPartInstance) return undefined
+
+	const { rundownId, segmentId } = playingPartInstance.partInstance
+	const playingSegment = playoutModel.getRundown(rundownId)?.getSegment(segmentId)
+	if (!playingSegment) throw new Error(`Segment "${segmentId}" in Rundown "${rundownId}" not found!`)
+
+	return {
+		partInstance: playingPartInstance.partInstance,
+		segment: playingSegment.segment,
+		pieceInstances: playingPartInstance.pieceInstances.map((p) => p.pieceInstance),
+		isBeforeTarget: candidatePartIsAfterPreviewPartInstance(
+			context,
+			playoutModel.getAllOrderedSegments(),
+			playingPartInstance.partInstance,
+			part
+		),
+	}
+}
+
+function getPieceInstancesForPartParams(
+	context: JobContext,
+	playoutModel: PlayoutModel,
+	playingPartInstance: PlayoutPartInstanceModel | null,
+	rundown: PlayoutRundownModel,
+	part: ReadonlyDeep<DBPart>,
+	possiblePieces: ReadonlyDeep<Piece>[],
+	newInstanceId: PartInstanceId
+): PieceInstancesForPartParams {
+	const playlistActivationId = playoutModel.playlist.activationId
+	if (!playlistActivationId) throw new Error(`RundownPlaylist "${playoutModel.playlistId}" is not active`)
+
+	const segment = rundown.getSegment(part.segmentId)
+	if (!segment) throw new Error(`Segment "${part.segmentId}" not found!`)
+
+	return {
+		playlistActivationId,
+		rundown: rundown.rundown,
+		segment: segment.segment,
+		part,
+		position: getPartPosition(context, playoutModel, part),
+		pieces: possiblePieces,
+		playing: getPlayingPartInstance(context, playoutModel, playingPartInstance, part),
+		newInstanceId,
+		isTemporary: false,
+		allowTestingAdlibsToPersist: context.studio.settings.allowTestingAdlibsToPersist ?? false,
 	}
 }
 
 /**
- * Find all infinite Pieces that _may_ be active in the given Part, which will be continued from a previous part
+ * Find all Pieces that _may_ be active in the given Part: the ones starting in it, the infinites which may be
+ * continued from a previous part, and the other Pieces on their layers which may stop them.
  * Either search a provided ingest model, or the database for these Pieces
  * @param context Context of the current job
  * @param playoutModel Playout model for the current playlist
@@ -159,64 +219,50 @@ export async function fetchPiecesThatMayBeActiveForPart(
 ): Promise<ReadonlyDeep<Piece>[]> {
 	const span = context.startSpan('fetchPiecesThatMayBeActiveForPart')
 
-	const piecePromises: Array<Promise<Array<Piece> | Array<ReadonlyDeep<Piece>>>> = []
-
-	// Find all the pieces starting in the part
-	const thisPiecesQuery = buildPiecesStartingInThisPartQuery(part)
-	piecePromises.push(
-		unsavedIngestModel?.rundownId === part.rundownId
-			? Promise.resolve(unsavedIngestModel.getAllPieces().filter((p) => mongoWhere(p, thisPiecesQuery)))
-			: context.directCollections.Pieces.findFetch(thisPiecesQuery)
-	)
-
-	// Figure out the ids of everything else we will have to search through
-	const { partsToReceiveOnSegmentEndFrom, segmentsToReceiveOnRundownEndFrom, rundownsToReceiveOnShowStyleEndFrom } =
-		getIdsBeforeThisPart(context, playoutModel, part)
-
-	if (unsavedIngestModel?.rundownId === part.rundownId) {
-		// Find pieces for the current rundown
-		const thisRundownPieceQuery = buildPastInfinitePiecesForThisPartQuery(
-			part,
-			partsToReceiveOnSegmentEndFrom,
-			segmentsToReceiveOnRundownEndFrom,
-			[] // other rundowns don't exist in the ingestModel
-		)
-		if (thisRundownPieceQuery) {
-			piecePromises.push(
-				Promise.resolve(unsavedIngestModel.getAllPieces().filter((p) => mongoWhere(p, thisRundownPieceQuery)))
-			)
+	const useIngestModel = unsavedIngestModel?.rundownId === part.rundownId
+	const findPieces = async (query: MongoQuery<Piece> | null, inIngestModel: boolean) => {
+		if (!query) return []
+		if (inIngestModel && unsavedIngestModel) {
+			return unsavedIngestModel.getAllPieces().filter((p) => mongoWhere(p, query))
 		}
+		return context.directCollections.Pieces.findFetch(query)
+	}
 
-		// Find pieces for the previous rundowns
-		const previousRundownPieceQuery = buildPastInfinitePiecesForThisPartQuery(
-			part,
-			[], // Only applies to the current rundown
-			[], // Only applies to the current rundown
-			rundownsToReceiveOnShowStyleEndFrom
-		)
-		if (previousRundownPieceQuery) {
-			piecePromises.push(context.directCollections.Pieces.findFetch(previousRundownPieceQuery))
-		}
-	} else {
-		// Skip model, so we can do a single query to the db for it all
-		const infinitePiecesQuery = buildPastInfinitePiecesForThisPartQuery(
-			part,
-			partsToReceiveOnSegmentEndFrom,
-			segmentsToReceiveOnRundownEndFrom,
-			rundownsToReceiveOnShowStyleEndFrom
-		)
-		if (infinitePiecesQuery) {
-			piecePromises.push(context.directCollections.Pieces.findFetch(infinitePiecesQuery))
+	// The ingest model only contains the current rundown, so the previous rundowns need to come from the database
+	const ids = getIdsBeforeThisPart(context, playoutModel, part)
+	const findPiecesBeforePart = async (
+		buildQuery: (partIds: PartId[], segmentIds: SegmentId[], rundownIds: RundownId[]) => MongoQuery<Piece> | null
+	) => {
+		if (useIngestModel) {
+			const [thisRundown, previousRundowns] = await Promise.all([
+				findPieces(buildQuery(ids.partIdsBefore, ids.segmentIdsBefore, []), true),
+				findPieces(buildQuery([], [], ids.rundownIdsBefore), false),
+			])
+			return [...thisRundown, ...previousRundowns]
+		} else {
+			return findPieces(buildQuery(ids.partIdsBefore, ids.segmentIdsBefore, ids.rundownIdsBefore), false)
 		}
 	}
 
-	const pieces = flatten(await Promise.all(piecePromises))
+	const [piecesStartingInPart, infinitePieces] = await Promise.all([
+		findPieces(buildPiecesStartingInThisPartQuery(part), useIngestModel),
+		findPiecesBeforePart((partIds, segmentIds, rundownIds) =>
+			buildPastInfinitePiecesForThisPartQuery(part, partIds, segmentIds, rundownIds)
+		),
+	])
+
+	// Any piece on the same layer as one of those infinites may stop it
+	const sourceLayerIds = _.uniq(infinitePieces.map((p) => p.sourceLayerId))
+	const layerPieces = await findPiecesBeforePart((partIds, segmentIds, rundownIds) =>
+		buildPastPiecesOnLayersForThisPartQuery(part, partIds, segmentIds, rundownIds, sourceLayerIds)
+	)
+
 	if (span) span.end()
-	return pieces
+	return [...piecesStartingInPart, ...layerPieces]
 }
 
 /**
- * Update the onChange infinites for the nextPartInstance to be up to date with the ones on the currentPartInstance
+ * Update the infinites continued into the nextPartInstance, to match what is happening in the currentPartInstance
  * @param context Context for the current job
  * @param playoutModel Playout model for the current playlist
  */
@@ -230,70 +276,26 @@ export async function syncPlayheadInfinitesForNextPartInstance(
 	const span = context.startSpan('syncPlayheadInfinitesForNextPartInstance')
 
 	if (toPartInstance && fromPartInstance) {
-		const playlist = playoutModel.playlist
-		if (!playlist.activationId) throw new Error(`RundownPlaylist "${playlist._id}" is not active`)
+		const part = toPartInstance.partInstance.part
 
-		const {
-			partsToReceiveOnSegmentEndFrom,
-			segmentsToReceiveOnRundownEndFrom,
-			rundownsToReceiveOnShowStyleEndFrom,
-		} = getIdsBeforeThisPart(context, playoutModel, toPartInstance.partInstance.part)
+		const rundown = playoutModel.getRundown(part.rundownId)
+		if (!rundown) throw new Error(`Rundown "${part.rundownId}" not found!`)
 
-		const currentRundown = playoutModel.getRundown(fromPartInstance.partInstance.rundownId)
-		if (!currentRundown) throw new Error(`Rundown "${fromPartInstance.partInstance.rundownId}" not found!`)
+		const possiblePieces = await fetchPiecesThatMayBeActiveForPart(context, playoutModel, unsavedIngestModel, part)
 
-		const currentSegment = currentRundown.getSegment(fromPartInstance.partInstance.segmentId)
-		if (!currentSegment) throw new Error(`Segment "${fromPartInstance.partInstance.segmentId}" not found!`)
-
-		const nextRundown = playoutModel.getRundown(toPartInstance.partInstance.rundownId)
-		if (!nextRundown) throw new Error(`Rundown "${toPartInstance.partInstance.rundownId}" not found!`)
-
-		const nextSegment = nextRundown.getSegment(toPartInstance.partInstance.segmentId)
-		if (!nextSegment) throw new Error(`Segment "${toPartInstance.partInstance.segmentId}" not found!`)
-
-		const showStyleBase = await context.getShowStyleBase(nextRundown.rundown.showStyleBaseId)
-
-		const nextPartIsAfterCurrentPart = candidatePartIsAfterPreviewPartInstance(
-			context,
-			playoutModel.getAllOrderedSegments(),
-			fromPartInstance.partInstance,
-			toPartInstance.partInstance.part
+		const infinites = getContinuedInfinitesForPart(
+			getPieceInstancesForPartParams(
+				context,
+				playoutModel,
+				fromPartInstance,
+				rundown,
+				part,
+				possiblePieces,
+				toPartInstance.partInstance._id
+			)
 		)
 
-		const partTimes = createPartCurrentTimes(
-			getCurrentTime(),
-			fromPartInstance.partInstance.timings?.plannedStartedPlayback
-		)
-		const prunedPieceInstances = processAndPrunePieceInstanceTimings(
-			showStyleBase.sourceLayers,
-			// A Piece hidden by the Branding is not playing, so it cannot be continued as an infinite
-			filterPieceInstancesForBranding(fromPartInstance),
-			partTimes,
-			undefined,
-			true
-		)
-
-		const rundownIdsToShowstyleIds = getShowStyleIdsRundownMapping(playoutModel.rundowns)
-
-		const infinites = libgetPlayheadTrackingInfinitesForPart(
-			playlist.activationId,
-			new Set(partsToReceiveOnSegmentEndFrom),
-			new Set(segmentsToReceiveOnRundownEndFrom),
-			rundownsToReceiveOnShowStyleEndFrom,
-			rundownIdsToShowstyleIds,
-			fromPartInstance.partInstance,
-			currentSegment?.segment,
-			prunedPieceInstances,
-			nextRundown.rundown,
-			toPartInstance.partInstance.part,
-			nextSegment?.segment,
-			toPartInstance.partInstance._id,
-			nextPartIsAfterCurrentPart,
-			false,
-			context.studio.settings.allowTestingAdlibsToPersist ?? false
-		)
-
-		toPartInstance.replaceInfinitesFromPreviousPlayhead(infinites)
+		toPartInstance.replaceContinuedInfinites(infinites)
 	} else if (toPartInstance && !fromPartInstance) {
 		// This is the first take of the rundown, ensure the baseline infinites are loaded
 		const baselineInfinites = await getBaselineInfinitesForPart(
@@ -304,13 +306,13 @@ export async function syncPlayheadInfinitesForNextPartInstance(
 			toPartInstance.partInstance._id
 		)
 
-		toPartInstance.replaceInfinitesFromPreviousPlayhead(baselineInfinites)
+		toPartInstance.replaceContinuedInfinites(baselineInfinites)
 	}
 	if (span) span.end()
 }
 
 /**
- * Calculate all of the onEnd PieceInstances for a PartInstance
+ * Calculate all of the PieceInstances for a PartInstance
  * @param context Context for the running job
  * @param playoutModel Playout model for the current playlist
  * @param playingPartInstance The current PartInstance, if there is one
@@ -330,80 +332,19 @@ export function getPieceInstancesForPart(
 	newInstanceId: PartInstanceId
 ): PieceInstance[] {
 	const span = context.startSpan('getPieceInstancesForPart')
-	const { partsToReceiveOnSegmentEndFrom, segmentsToReceiveOnRundownEndFrom, rundownsToReceiveOnShowStyleEndFrom } =
-		getIdsBeforeThisPart(context, playoutModel, part)
 
-	const playlist = playoutModel.playlist
-	if (!playlist.activationId) throw new Error(`RundownPlaylist "${playlist._id}" is not active`)
-
-	const playingPieceInstances = playingPartInstance?.pieceInstances ?? []
-
-	const nextPartIsAfterCurrentPart = candidatePartIsAfterPreviewPartInstance(
-		context,
-		playoutModel.getAllOrderedSegments(),
-		playingPartInstance?.partInstance,
-		part
+	const res = libGetPieceInstancesForPart(
+		getPieceInstancesForPartParams(
+			context,
+			playoutModel,
+			playingPartInstance,
+			rundown,
+			part,
+			possiblePieces,
+			newInstanceId
+		)
 	)
 
-	const rundownIdsToShowstyleIds = getShowStyleIdsRundownMapping(playoutModel.rundowns)
-
-	let playingRundown: PlayoutRundownModel | undefined
-	let playingSegment: PlayoutSegmentModel | undefined
-	if (playingPartInstance) {
-		playingRundown = playoutModel.getRundown(playingPartInstance.partInstance.rundownId)
-		if (!playingRundown) throw new Error(`Rundown "${playingPartInstance.partInstance.rundownId}" not found!`)
-
-		playingSegment = playingRundown.getSegment(playingPartInstance.partInstance.segmentId)
-		if (!playingSegment) {
-			// Double check that there are no parts using the old segment ids:
-			// TODO: This whole section can probably be removed later, it's really unneccessary in the grand scheme of
-			// things, it's here only to debug some problems
-			const rundownId = playingRundown.rundown._id
-			context.directCollections.Segments.findFetch({
-				rundownId: rundownId,
-			})
-				.then((segment) => {
-					logger.error(
-						`TROUBLESHOOT: Segment not found, rundown "${rundownId}", segments in db: ${JSON.stringify(
-							segment.map((s) => s._id)
-						)}`
-					)
-				})
-				.catch((e) => logger.error(e))
-			// End of temporary section
-
-			throw new Error(
-				`Segment "${playingPartInstance.partInstance.segmentId}" in Rundown "${
-					playingRundown.rundown._id
-				}" not found! (partInstanceId: "${
-					playingPartInstance.partInstance._id
-				}", other segments: ${JSON.stringify(playingRundown.segments.map((s) => s.segment._id))})`
-			)
-		}
-	}
-
-	const segment = rundown.getSegment(part.segmentId)
-	if (!segment) throw new Error(`Segment "${part.segmentId}" not found!`)
-
-	const res = libgetPieceInstancesForPart(
-		playlist.activationId,
-		playingPartInstance?.partInstance,
-		playingSegment?.segment,
-		playingPieceInstances.map((p) => p.pieceInstance),
-		rundown.rundown,
-		segment.segment,
-		part,
-		new Set(partsToReceiveOnSegmentEndFrom),
-		new Set(segmentsToReceiveOnRundownEndFrom),
-		rundownsToReceiveOnShowStyleEndFrom,
-		rundownIdsToShowstyleIds,
-		possiblePieces,
-		playoutModel.getAllOrderedParts().map((p) => p._id),
-		newInstanceId,
-		nextPartIsAfterCurrentPart,
-		false,
-		context.studio.settings.allowTestingAdlibsToPersist ?? false
-	)
 	if (span) span.end()
 	return res
 }

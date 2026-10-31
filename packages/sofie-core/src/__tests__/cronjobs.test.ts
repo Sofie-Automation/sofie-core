@@ -4,13 +4,7 @@ import { logger } from '../logging'
 import { getRandomId, getRandomString, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { SnapshotType } from '@sofie-automation/meteor-lib/dist/collections/Snapshots'
-import {
-	IBlueprintPieceType,
-	PieceLifespan,
-	PlaylistTimingType,
-	StatusCode,
-	TSR,
-} from '@sofie-automation/blueprints-integration'
+import { IBlueprintPieceType, PlaylistTimingType, StatusCode, TSR } from '@sofie-automation/blueprints-integration'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import {
 	PeripheralDeviceType,
@@ -78,6 +72,8 @@ import { PeripheralDeviceAPIMethods } from '@sofie-automation/server-core-integr
 import { ServerPeripheralDeviceAPIClass } from '../api/peripheralDevice'
 import { getMethodContext } from '../__mocks__/helpers/methods'
 import { startCronjobs } from '../cronjobs'
+import { LEGACY_PIECE_LIFESPAN_PRESETS } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
+import { LegacyPieceLifespan } from '@sofie-automation/blueprints-integration'
 
 describe('cronjobs', () => {
 	let env: DefaultEnvironment
@@ -385,7 +381,7 @@ describe('cronjobs', () => {
 					sourceLayerId: '',
 					outputLayerId: '',
 					enable: { start: 0 },
-					lifespan: PieceLifespan.OutOnSegmentChange,
+					lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentChange],
 					invalid: false,
 					pieceType: IBlueprintPieceType.Normal,
 				},
@@ -405,7 +401,7 @@ describe('cronjobs', () => {
 					sourceLayerId: '',
 					outputLayerId: '',
 					enable: { start: 0 },
-					lifespan: PieceLifespan.OutOnSegmentChange,
+					lifespan: LEGACY_PIECE_LIFESPAN_PRESETS[LegacyPieceLifespan.OutOnSegmentChange],
 					invalid: false,
 					pieceType: IBlueprintPieceType.Normal,
 				},

@@ -1,6 +1,6 @@
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
-import { IBlueprintPieceType, PieceLifespan } from '@sofie-automation/blueprints-integration'
+import { IBlueprintPieceType, LegacyPieceLifespan } from '@sofie-automation/blueprints-integration'
 import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
@@ -32,7 +32,7 @@ function createPieceInstance(
 			pieceType: IBlueprintPieceType.Normal,
 			sourceLayerId: piecePartial?.sourceLayerId ?? 'unbranded-layer',
 			outputLayerId: '',
-			lifespan: PieceLifespan.WithinPart,
+			lifespan: LegacyPieceLifespan.WithinPart,
 			enable: { start: 0 },
 			timelineObjectsString: EmptyPieceTimelineObjectsBlob,
 			onlyValidForBranding: piecePartial?.onlyValidForBranding,
