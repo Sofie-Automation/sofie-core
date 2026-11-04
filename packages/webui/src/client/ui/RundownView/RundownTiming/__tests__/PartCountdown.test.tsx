@@ -59,8 +59,6 @@ function partDoc(countdownOffset: number | undefined): PartTimingStateDoc {
 		rank: 3,
 		isInQuickLoop: false,
 		countsTowardsTiming: true,
-		untimed: false,
-		orphaned: false,
 	}
 	if (countdownOffset !== undefined) doc.countdownOffset = countdownOffset
 	return doc

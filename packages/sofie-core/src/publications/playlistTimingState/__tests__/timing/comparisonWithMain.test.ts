@@ -593,7 +593,7 @@ function publishedScreens(moment: Moment, docs: PublishedDocuments): ShownValues
 
 	return new Map([
 		['Plan. Start', clockText(zeroTimeAt(playlistDoc?.plannedStart, now))],
-		['Plan. Dur', lengthText(durationAt(playlistDoc?.plannedDuration, now))],
+		['Plan. Dur', lengthText(playlistDoc?.plannedDuration)],
 		['Plan. End', clockText(zeroTimeAt(playlistDoc?.plannedEnd, now))],
 		['Started', clockText(startedPlayback)],
 		[
@@ -606,7 +606,7 @@ function publishedScreens(moment: Moment, docs: PublishedDocuments): ShownValues
 		['On Air', lengthText(durationAt(onAirTimer(playlistDoc?.remainingOnCurrentPart), now))],
 		['Seg. Budg.', lengthText(durationAt(onAirTimer(playlistDoc?.remainingBudgetOnCurrentSegment), now))],
 		['segment durations', segmentDurations((segmentDoc) => durationAt(segmentDoc.remaining, now))],
-		['fixed segment durations', segmentDurations((segmentDoc) => durationAt(segmentDoc.plannedDuration, now) ?? 0)],
+		['fixed segment durations', segmentDurations((segmentDoc) => segmentDoc.targetDuration ?? 0)],
 		// the published played-out duration counts up by going negative, and the shelf shows it positive
 		['segments counting up', segmentDurations((segmentDoc) => 0 - (durationAt(segmentDoc.playedOut, now) ?? 0))],
 		['On Air In', countdowns.onAirIn],
@@ -614,11 +614,9 @@ function publishedScreens(moment: Moment, docs: PublishedDocuments): ShownValues
 	])
 }
 
-/** The length of a segment's content, as the gateway adds it up: its planned, timed parts, as published */
+/** The length of a segment's content, as the gateway reads it: the segment's published expected duration */
 function contentLength(docs: PublishedDocuments, segmentId: string): number {
-	return docs.parts
-		.filter((doc) => unprotectString(doc.segmentId) === segmentId && !doc.untimed && !doc.orphaned)
-		.reduce((sum, doc) => sum + (durationAt(doc.expectedDuration, 0) ?? 0), 0)
+	return docs.segments.get(segmentId)?.expectedDuration ?? 0
 }
 
 /** What the gateway sends from the publication in a message at the moment: the documents it holds, evaluated then */
@@ -643,7 +641,7 @@ function publishedGateway(moment: Moment, docs: PublishedDocuments): ShownValues
 
 	const partDoc = docs.parts.find((doc) => doc.partId === onAir.part._id)
 	const startTime = onAir.timings?.plannedStartedPlayback ?? now
-	const expectedDurationMs = durationAt(partDoc?.expectedDuration, 0) ?? 0
+	const expectedDurationMs = partDoc?.expectedDuration ?? 0
 	const projectedEndTime =
 		projectedZeroTimeAt(docs.playlist?.remainingOnCurrentPart, now) ?? startTime + expectedDurationMs
 	const segmentKey = unprotectString(onAir.segmentId)

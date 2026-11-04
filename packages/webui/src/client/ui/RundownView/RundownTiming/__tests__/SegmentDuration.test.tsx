@@ -43,7 +43,7 @@ const ON_AIR_SEGMENT_DOC: SegmentTimingStateDoc = {
 	playlistId: PLAYLIST_ID,
 	segmentId: SEGMENT_ID,
 	countdownType: CountdownType.PART_EXPECTED_DURATION,
-	plannedDuration: { paused: true, duration: 30000 },
+	targetDuration: 30000,
 	// on air since 30 s before its zero, counting up as a negative value
 	playedOut: { paused: false, zeroTime: SEGMENT_ZERO_TIME - 30000 },
 	remaining: { paused: false, zeroTime: SEGMENT_ZERO_TIME },

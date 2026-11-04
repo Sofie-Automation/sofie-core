@@ -156,7 +156,6 @@ export class ActivePlaylistTopic extends WebSocketTopicBase implements WebSocket
 									timing: calculateCurrentSegmentTiming(
 										this._currentSegment.segmentTiming,
 										this._timingStates?.segments.get(currentPart.segmentId),
-										this._timingStates?.partsBySegment.get(currentPart.segmentId),
 										now
 									),
 									parts: getCurrentSegmentParts(

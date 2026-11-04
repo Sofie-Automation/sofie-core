@@ -113,8 +113,6 @@ function makePartTiming(partId: PartId, segmentId: SegmentId, rank: number): Par
 		rank,
 		isInQuickLoop: false,
 		countsTowardsTiming: true,
-		untimed: false,
-		orphaned: false,
 	}
 }
 

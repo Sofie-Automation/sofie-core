@@ -1,5 +1,4 @@
 import type { PartTimingStateDoc, PlaylistTimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/TimingState'
-import { timerStateToDuration } from '@sofie-automation/corelib/dist/dataModel/TimerState'
 import type { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import type { CurrentPartTiming } from '@sofie-automation/live-status-gateway-api'
 import { projectedZeroTime } from './timerState.js'
@@ -26,8 +25,7 @@ export function calculateCurrentPartTiming(
 ): CurrentPartTiming {
 	const startTime = currentPartInstance.timings?.plannedStartedPlayback ?? now
 
-	// a constant state, so any instant reads the same value
-	const expectedDurationMs = partTiming?.expectedDuration ? timerStateToDuration(partTiming.expectedDuration, 0) : 0
+	const expectedDurationMs = partTiming?.expectedDuration ?? 0
 
 	return {
 		startTime,

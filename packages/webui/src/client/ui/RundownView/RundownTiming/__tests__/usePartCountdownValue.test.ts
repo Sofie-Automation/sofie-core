@@ -62,9 +62,7 @@ function publishPart(countdownOffset: number | undefined): void {
 		rank: 0,
 		isInQuickLoop: false,
 		countsTowardsTiming: true,
-		untimed: false,
-		orphaned: false,
-		expectedDuration: { paused: true, duration: 10000 },
+		expectedDuration: 10000,
 	}
 	if (countdownOffset !== undefined) doc.countdownOffset = countdownOffset
 	publishedDocs.set(doc._id, doc)

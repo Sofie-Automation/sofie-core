@@ -4,7 +4,7 @@ import { RundownUtils } from '../../../lib/rundown.js'
 import type { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
 import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
-import { TimerValueMode, useSegmentTimingValue } from './usePlaylistTimingValue.js'
+import { TimerValueMode, useSegmentTimingField, useSegmentTimingValue } from './usePlaylistTimingValue.js'
 
 interface ISegmentDurationProps {
 	segment: DBSegment
@@ -24,7 +24,7 @@ interface ISegmentDurationProps {
 export function SegmentDuration(props: ISegmentDurationProps): JSX.Element | null {
 	const segmentId = props.segment._id
 	const remaining = useSegmentTimingValue(segmentId, 'remaining', TimerValueMode.Duration)
-	const plannedDuration = useSegmentTimingValue(segmentId, 'plannedDuration', TimerValueMode.Duration)
+	const targetDuration = useSegmentTimingField(segmentId, 'targetDuration')
 	const playedOut = useSegmentTimingValue(segmentId, 'playedOut', TimerValueMode.Duration)
 
 	if (remaining === null) return null
@@ -33,10 +33,10 @@ export function SegmentDuration(props: ISegmentDurationProps): JSX.Element | nul
 
 	let text: string
 	if (props.fixed) {
-		// a budgeted segment's planned length rounds down, as it always did
+		// a budgeted segment's target length rounds down, as it always did
 		const hardFloor = props.segment.segmentTiming?.countdownType === CountdownType.SEGMENT_BUDGET_DURATION
 		text = RundownUtils.formatDiffToTimecode(
-			plannedDuration ?? 0,
+			targetDuration ?? 0,
 			false,
 			false,
 			true,

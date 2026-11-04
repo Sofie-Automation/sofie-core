@@ -1,5 +1,4 @@
-import type { PartTimingStateDoc, SegmentTimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/TimingState'
-import { timerStateToDuration } from '@sofie-automation/corelib/dist/dataModel/TimerState'
+import type { SegmentTimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/TimingState'
 import { CountdownType, type SegmentTimingInfo } from '@sofie-automation/blueprints-integration'
 import {
 	SegmentCountdownType,
@@ -13,21 +12,16 @@ import { projectedZeroTime } from './timerState.js'
  *
  * Sofie resolves these itself: the gateway forwards the timers and evaluates only the values the public
  * schema declares as plain numbers, so `remaining` and `playedOut` are the ones the Sofie UI shows.
- * `expectedDurationMs` is the sum of the Parts' resolved expected durations. It is not quite the planned
- * segment length the Sofie UI uses: that is the budget where there is one, and otherwise adds up each
- * Part's own expected duration with its transition, so the two differ for a Part without one of its
- * own, such as one in a display-duration group.
  */
 export function calculateSegmentTiming(
 	segmentTimingInfo: SegmentTimingInfo | undefined,
-	timing: SegmentTimingStateDoc | undefined,
-	partTimings: PartTimingStateDoc[] | undefined
+	timing: SegmentTimingStateDoc | undefined
 ): SegmentTiming {
 	return {
-		// Summed from the Parts rather than taken from the Segment's published `plannedDuration`:
-		// for a Segment with a budget duration that is the budget, whereas this field has always
-		// meant the length of the content, with the budget reported separately below.
-		expectedDurationMs: sumExpectedDurations(partTimings),
+		// The Segment's `expectedDuration` rather than its `targetDuration`: for a Segment with a budget
+		// duration that is the budget, whereas this field has always meant the length of the content,
+		// with the budget reported separately below.
+		expectedDurationMs: timing?.expectedDuration ?? 0,
 		budgetDurationMs: segmentTimingInfo?.budgetDuration,
 		countdownType: translateSegmentCountdownType(segmentTimingInfo?.countdownType),
 		playedOut: timing?.playedOut,
@@ -46,48 +40,14 @@ export function calculateSegmentTiming(
 export function calculateCurrentSegmentTiming(
 	segmentTimingInfo: SegmentTimingInfo | undefined,
 	timing: SegmentTimingStateDoc | undefined,
-	partTimings: PartTimingStateDoc[] | undefined,
 	now: number
 ): CurrentSegmentTiming {
-	const segmentTiming = calculateSegmentTiming(segmentTimingInfo, timing, partTimings)
+	const segmentTiming = calculateSegmentTiming(segmentTimingInfo, timing)
 
 	return {
 		...segmentTiming,
 		projectedEndTime: timing?.remaining ? projectedZeroTime(timing.remaining, now) : now,
 	}
-}
-
-/**
- * The length of a Segment's content: the sum of its Parts' expected durations as Sofie resolves
- * them - with transitions, and through display-duration groups.
- *
- * Only the Parts that count towards the Segment's expected duration are added up, see
- * {@link countsTowardsSegmentExpectedDuration}.
- */
-function sumExpectedDurations(partTimings: PartTimingStateDoc[] | undefined): number {
-	if (!partTimings) return 0
-
-	const countedParts = partTimings.filter(countsTowardsSegmentExpectedDuration)
-
-	return countedParts.reduce(
-		// a constant state, so any instant reads the same value
-		(sum, part) => sum + (part.expectedDuration ? timerStateToDuration(part.expectedDuration, 0) : 0),
-		0
-	)
-}
-
-/**
- * Whether a Part's expected duration counts towards its Segment's, as in Sofie's own segment totals.
- * Every Part is published with its own expected duration, but two kinds do not count:
- * - an untimed Part
- * - an orphaned Part, which is either created by an adlib or no longer in the rundown, and so is not
- *   part of the Segment as planned
- */
-function countsTowardsSegmentExpectedDuration(part: PartTimingStateDoc): boolean {
-	const isTimed = !part.untimed
-	const isPlanned = !part.orphaned
-
-	return isTimed && isPlanned
 }
 
 function translateSegmentCountdownType(type: CountdownType | undefined): SegmentCountdownType | undefined {

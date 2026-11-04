@@ -70,8 +70,6 @@ function makeDoc(segmentId: SegmentId, partId: PartId, rank: number, displayDura
 		rank,
 		isInQuickLoop: false,
 		countsTowardsTiming: true,
-		untimed: false,
-		orphaned: false,
 		liveDisplayDuration: displayDuration,
 		duration: displayDuration,
 	}

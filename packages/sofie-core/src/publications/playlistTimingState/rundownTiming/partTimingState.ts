@@ -81,22 +81,17 @@ function calculateOnePartTimingStates(
 	// `partCountdown` is keyed by PartId, unlike every other map here, and so is this
 	const countdownOffset = timingContext.partCountdownOffsets?.[partId]
 
-	// adlibbed, or its Part has been removed from the rundown since; either way there is no Part for it
-	const isOrphaned = partInstance.orphaned !== undefined
-
 	const values: PartTimingStateValues = {
 		rank,
 		isInQuickLoop: timingContext.partsInQuickLoop?.[timingId] ?? false,
 		countsTowardsTiming: timingContext.partCountsTowardsTiming?.[timingId] ?? false,
-		untimed: partInstance.part.untimed ?? false,
-		orphaned: isOrphaned,
 	}
 
 	// A value the part does not have is left out, rather than set to undefined (see
 	// `computeTimingState` in publication.ts for why)
-	if (expectedDuration !== undefined) values.expectedDuration = { paused: true, duration: expectedDuration }
+	if (expectedDuration !== undefined) values.expectedDuration = expectedDuration
 	if (displayDurationNoPlayback !== undefined) {
-		values.displayDuration = { paused: true, duration: displayDurationNoPlayback }
+		values.displayDuration = displayDurationNoPlayback
 	}
 
 	// A null offset means "will probably not be played out, if played in order", which the displays

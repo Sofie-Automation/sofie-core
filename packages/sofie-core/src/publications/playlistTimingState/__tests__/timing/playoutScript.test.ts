@@ -252,18 +252,16 @@ describe('reading the publication', () => {
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:05  remaining 2:25 runs until 12:00:15  ends 12:02:35 fixed until 12:00:15  in hand 0:00 holds until 12:00:15
 		  on air     A1 in A  left 0:05 running since 12:00:05  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:05 runs  left 0:25 runs
-		  segment B  parts  planned 0:40  played 0:00  left 0:40
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:05 runs  left 0:25 runs
+		  segment B  parts  target 0:40  content 0:40  played 0:00  left 0:40
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  runs until 12:00:15: A2 0:05  A3 0:15  B1 0:25  B2 0:45  C1 1:05  C2 1:15  C3 1:35  D1 2:05  D2 2:15
 		  as planned A3 B1 B2 C1 C2 C3 D1 D2
 		  A1         on air  planned 0:10  drawn 0:10  played 0:05 running since 12:00:05  length 0:10 holds until 12:00:15  width 0:10 holds until 12:00:15
 		  A2         next  planned 0:10  drawn 0:10  played 0:00  length 0:10  width 0:10
 		  counted    all
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})

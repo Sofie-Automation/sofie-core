@@ -47,8 +47,6 @@ function partDoc(partId: PartId, rank: number): PartTimingStateDoc {
 		rank,
 		isInQuickLoop: false,
 		countsTowardsTiming: true,
-		untimed: false,
-		orphaned: false,
 	}
 }
 

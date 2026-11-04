@@ -2,7 +2,7 @@ import ClassNames from 'classnames'
 import type { ReactNode } from 'react'
 import { RundownUtils } from '../../../lib/rundown.js'
 import type { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
-import { TimerValueMode, usePartTimingValue } from './usePlaylistTimingValue.js'
+import { TimerValueMode, usePartTimingField, usePartTimingValue } from './usePlaylistTimingValue.js'
 
 interface IPartDurationProps {
 	part: PartUi
@@ -21,7 +21,7 @@ interface IPartDurationProps {
  */
 export function PartDisplayDuration(props: IPartDurationProps): JSX.Element | null {
 	const part = props.part
-	const expectedDuration = usePartTimingValue(part.instance.part._id, 'expectedDuration', TimerValueMode.Duration)
+	const expectedDuration = usePartTimingField(part.instance.part._id, 'expectedDuration')
 	const budget = part.instance.orphaned || part.instance.part.untimed ? 0 : (expectedDuration ?? 0)
 	// drawn again when the shown number changes its second: the time left is the budget minus the played time,
 	// and the budget is not always a whole number of seconds

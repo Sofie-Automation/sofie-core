@@ -32,7 +32,7 @@ import { formatClock, formatLength } from './referenceRundown'
  *     plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
  *     show       started 12:00:05  remaining 2:25 runs until 12:00:15  ends 12:02:35 fixed until 12:00:15  in hand 0:00 holds until 12:00:15
  *     on air     A1 in A  left 0:05 running since 12:00:05  budget none  auto-next no
- *     segment A  parts  planned 0:30  played 0:05 runs  left 0:25 runs
+ *     segment A  parts  target 0:30  content 0:30  played 0:05 runs  left 0:25 runs
  *     ...        (one line per segment)
  *     order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
  *     countdown  runs until 12:00:15: A2 0:05  A3 0:15  B1 0:25  ...
@@ -40,8 +40,6 @@ import { formatClock, formatLength } from './referenceRundown'
  *     A1         on air  planned 0:10  drawn 0:10  played 0:05 running since 12:00:05  length 0:10 holds until 12:00:15  width 0:10 holds until 12:00:15
  *     A2         next  planned 0:10  drawn 0:10  played 0:00  length 0:10  width 0:10
  *     counted    all
- *     untimed    none
- *     orphaned   none
  *     in loop    none
  *
  * The first line is the instant, and when the publication last calculated the documents: the last change of its
@@ -51,8 +49,9 @@ import { formatClock, formatLength } from './referenceRundown'
  *   ahead of the plan, negative behind it).
  * - on air: the on-air part and its segment, the time left of the part and of the segment's budget, and whether
  *   the part will auto-next.
- * - segment: for each segment, in published order, what it counts down (its parts or its budget), its planned
- *   length, how much of it has played, and what is left.
+ * - segment: for each segment, in published order, what it counts down (its parts or its budget), its target
+ *   length (its budget, or its parts when it has none), the length of its content (its parts, without the budget), how much of it has played, and what is
+ *   left.
  * - order: the parts by their published rank. An underscore stands for a rank no part document has, which happens
  *   when a later PartInstance of a part replaces an earlier one's document.
  * - countdown: the time until each part goes on air, one line per way the countdowns move, in rank order. Parts
@@ -68,9 +67,6 @@ import { formatClock, formatLength } from './referenceRundown'
  *   instance; the segment ('in C') when it is not the part's own segment in the rundown; then the planned length,
  *   the drawn length, the played time, the length, and the width (the drawn length as it grows while on air).
  * - counted: whether each part counts towards the playlist's timing: 'all', or 'all but' the parts that do not.
- * - untimed: the parts that are untimed, as set on the part, or 'none'.
- * - orphaned: the parts whose PartInstance has no part in the rundown (an adlib, or a part removed since), or
- *   'none'.
  * - in loop: the parts inside the loop, or 'none'.
  *
  * A replayed part is labelled by the order of its PartInstances, 'A2 (2nd take)', when the publication reads more
@@ -193,7 +189,8 @@ const SEGMENT_FIELDS: FieldList<SegmentTimingStateDoc> = {
 	playlistId: 'checked: the same in every document',
 	segmentId: 'segment: the key',
 	countdownType: 'segment: parts or budget',
-	plannedDuration: 'segment: planned',
+	targetDuration: 'segment: target',
+	expectedDuration: 'segment: content',
 	playedOut: 'segment: played',
 	remaining: 'segment: left',
 }
@@ -213,8 +210,6 @@ const PART_FIELDS: FieldList<PartTimingStateDoc> = {
 	duration: 'part: length',
 	liveDisplayDuration: 'part: width',
 	countsTowardsTiming: 'counted',
-	untimed: 'untimed',
-	orphaned: 'orphaned',
 	isInQuickLoop: 'in loop',
 }
 
@@ -232,8 +227,6 @@ const PLAYLIST_FLAGS: Flags<PlaylistTimingStateDoc> = { currentPartWillAutoNext:
 const SEGMENT_FLAGS: Flags<SegmentTimingStateDoc> = {}
 const PART_FLAGS: Flags<PartTimingStateDoc> = {
 	countsTowardsTiming: true,
-	untimed: true,
-	orphaned: true,
 	isInQuickLoop: true,
 }
 
@@ -300,17 +293,26 @@ function readDocuments(docs: ReadonlyArray<TimingStateDoc>): Documents {
 		switch (doc.type) {
 			case 'playlist':
 				checkFields(doc, PLAYLIST_FIELDS, PLAYLIST_FLAGS, 'playlist document')
+				checkWholeMilliseconds('playlist document', { 'planned duration': doc.plannedDuration })
 				checkDocumentId(doc, getPlaylistTimingStateDocId(playlistId))
 				break
 			case 'segment':
 				checkFields(doc, SEGMENT_FIELDS, SEGMENT_FLAGS, `document of segment ${doc.segmentId}`)
+				checkWholeMilliseconds(`document of segment ${doc.segmentId}`, {
+					'target duration': doc.targetDuration,
+					'expected duration': doc.expectedDuration,
+				})
 				checkDocumentId(doc, getSegmentTimingStateDocId(doc.segmentId))
 				segments.push(doc)
 				break
 			case 'part':
 				checkFields(doc, PART_FIELDS, PART_FLAGS, `document of part ${doc.partId}`)
 				checkDocumentId(doc, getPartTimingStateDocId(doc.partId))
-				checkCountdownOffset(doc)
+				checkWholeMilliseconds(`document of part ${doc.partId}`, {
+					'countdown offset': doc.countdownOffset,
+					'expected duration': doc.expectedDuration,
+					'display duration': doc.displayDuration,
+				})
 				parts.push(doc)
 				break
 			default:
@@ -322,13 +324,12 @@ function readDocuments(docs: ReadonlyArray<TimingStateDoc>): Documents {
 	return { playlist, segments, parts }
 }
 
-/** A countdown offset, like every value of a timer state, is a whole number of milliseconds */
-function checkCountdownOffset(doc: PartTimingStateDoc): void {
-	const offset = doc.countdownOffset
-	if (offset === undefined || Number.isInteger(offset)) return
-	throw new Error(
-		`The document of part ${doc.partId} has the countdown offset ${offset}, not a whole number of milliseconds`
-	)
+/** The lengths and offsets published as plain numbers are, like every value of a timer state, whole milliseconds */
+function checkWholeMilliseconds(what: string, values: Record<string, number | undefined>): void {
+	for (const [name, value] of Object.entries<number | undefined>(values)) {
+		if (value === undefined || Number.isInteger(value)) continue
+		throw new Error(`The ${what} has the ${name} ${value}, not a whole number of milliseconds`)
+	}
 }
 
 /** A part's countdown, as a client composes it: the playlist's base for the part countdowns, shifted by the part's offset */
@@ -419,6 +420,12 @@ function clockMotion(state: TimerState, instant: number): string {
 function lengthPhrase(state: TimerState | undefined, instant: number): Phrase {
 	if (!state) return NONE
 	return withMotion(formatLength(timerStateToDuration(state, instant)), lengthMotion(state, instant))
+}
+
+/** A length published as a plain number: it does not move with the clock */
+function fixedLengthPhrase(length: number | undefined): Phrase {
+	if (length === undefined) return NONE
+	return plainPhrase(formatLength(length))
 }
 
 /** A growing length, published counting down from zero: printed the way it grows */
@@ -573,7 +580,7 @@ function planFields({ instant, calculation }: LineContext): string {
 		comparedValue(playlists, (playlist) => plainPhrase(playlist.timingType)),
 		documentField('start', playlists, (playlist) => clockPhrase(playlist.plannedStart, instant)),
 		documentField('end', playlists, (playlist) => clockPhrase(playlist.plannedEnd, instant)),
-		documentField('duration', playlists, (playlist) => lengthPhrase(playlist.plannedDuration, instant)),
+		documentField('duration', playlists, (playlist) => fixedLengthPhrase(playlist.plannedDuration)),
 	].join('  ')
 }
 
@@ -631,7 +638,8 @@ function segmentLines({ instant, calculation: { published, fresh } }: LineContex
 			`segment ${unprotectString(segment.segmentId)}`,
 			[
 				comparedValue(segments, (doc) => plainPhrase(countdownTypeName(doc.countdownType))),
-				documentField('planned', segments, (doc) => lengthPhrase(doc.plannedDuration, instant)),
+				documentField('target', segments, (doc) => fixedLengthPhrase(doc.targetDuration)),
+				documentField('content', segments, (doc) => fixedLengthPhrase(doc.expectedDuration)),
 				documentField('played', segments, (doc) => countUpPhrase(doc.playedOut, instant)),
 				documentField('left', segments, (doc) => lengthPhrase(doc.remaining, instant)),
 			].join('  ')
@@ -717,8 +725,8 @@ function readsAsPlanned(doc: PartTimingStateDoc, context: LineContext): boolean 
 	return (
 		plannedLength !== undefined &&
 		!context.names.segmentIfNotItsOwn(doc) &&
-		holdsAt(doc.expectedDuration, plannedLength) &&
-		holdsAt(doc.displayDuration, plannedLength) &&
+		doc.expectedDuration === plannedLength &&
+		doc.displayDuration === plannedLength &&
 		holdsAt(doc.played, 0) &&
 		holdsAt(doc.duration, 0 - plannedLength) &&
 		holdsAt(doc.liveDisplayDuration, 0 - plannedLength)
@@ -732,7 +740,7 @@ function readsAsPlanned(doc: PartTimingStateDoc, context: LineContext): boolean 
 function finishedLength(doc: PartTimingStateDoc, context: LineContext): string | undefined {
 	const plannedLength = context.names.plannedLength(doc.partId)
 	if (plannedLength === undefined || context.names.segmentIfNotItsOwn(doc)) return undefined
-	if (!holdsAt(doc.expectedDuration, plannedLength) || !holdsAt(doc.displayDuration, plannedLength)) return undefined
+	if (doc.expectedDuration !== plannedLength || doc.displayDuration !== plannedLength) return undefined
 
 	const played = doc.played
 	if (!played?.paused) return undefined
@@ -779,8 +787,8 @@ function partLines(context: LineContext): string[] {
 			fields.push(documentField('in', docs, (part) => names.segmentIfNotItsOwn(part) ?? NONE))
 		}
 		fields.push(
-			documentField('planned', docs, (part) => lengthPhrase(part.expectedDuration, instant)),
-			documentField('drawn', docs, (part) => lengthPhrase(part.displayDuration, instant)),
+			documentField('planned', docs, (part) => fixedLengthPhrase(part.expectedDuration)),
+			documentField('drawn', docs, (part) => fixedLengthPhrase(part.displayDuration)),
 			documentField('played', docs, (part) => countUpPhrase(part.played, instant)),
 			documentField('length', docs, (part) => countUpPhrase(part.duration, instant)),
 			documentField('width', docs, (part) => countUpPhrase(part.liveDisplayDuration, instant))
@@ -810,8 +818,6 @@ function contentLines(context: LineContext): string[] {
 		...countdownLines(context),
 		...partLines(context),
 		comparedLine('counted', countedValue(calculation.published, names), countedValue(calculation.fresh, names)),
-		flagLine('untimed', 'untimed'),
-		flagLine('orphaned', 'orphaned'),
 		flagLine('in loop', 'isInQuickLoop'),
 	]
 }

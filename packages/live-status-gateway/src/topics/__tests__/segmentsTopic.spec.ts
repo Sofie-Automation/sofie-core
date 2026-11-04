@@ -2,7 +2,6 @@ import { SegmentsTopic } from '../segmentsTopic.js'
 import { protectString, unprotectString } from '@sofie-automation/server-core-integration'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import {
-	constantMs,
 	makeMockHandlers,
 	makeMockLogger,
 	makeMockSubscriber,
@@ -323,13 +322,13 @@ describe('SegmentsTopic', () => {
 			makeTestSegment(segment_1_1_id, 1, RUNDOWN_1_ID),
 		])
 		mockSubscriber.send.mockClear()
-		// Sofie resolves the durations and publishes them; the gateway no longer sums parts itself
+		// Sofie adds up the Parts and publishes the total; the gateway does not sum parts itself
 		handlers.playlistTimingStatesHandler.notify(
 			makeTestTimingStates({
 				segments: {
-					[segment_1_1_id]: { parts: { '1_1_1': { expectedDuration: constantMs(5000) } } },
-					[segment_1_2_id]: { parts: { '1_2_1': { expectedDuration: constantMs(15000) } } },
-					[segment_2_2_id]: { parts: { '2_2_1': { expectedDuration: constantMs(51000) } } },
+					[segment_1_1_id]: { expectedDuration: 5000 },
+					[segment_1_2_id]: { expectedDuration: 15000 },
+					[segment_2_2_id]: { expectedDuration: 51000 },
 				},
 			})
 		)
@@ -372,7 +371,7 @@ describe('SegmentsTopic', () => {
 		expect(mockSubscriber.send.mock.calls).toEqual([[JSON.stringify(expectedStatus)]])
 	})
 
-	it('leaves untimed parts out of expectedDuration', async () => {
+	it('sends the content length rather than the budget as expectedDuration', async () => {
 		const handlers = makeMockHandlers()
 		const topic = new SegmentsTopic(makeMockLogger(), handlers)
 		const mockSubscriber = makeMockSubscriber()
@@ -384,19 +383,15 @@ describe('SegmentsTopic', () => {
 		mockSubscriber.send.mockClear()
 
 		const segment_1_1_id = '1_1'
-		handlers.segmentsHandler.notify([makeTestSegment(segment_1_1_id, 1, RUNDOWN_1_ID)])
+		handlers.segmentsHandler.notify([
+			makeTestSegment(segment_1_1_id, 1, RUNDOWN_1_ID, { segmentTiming: { budgetDuration: 30000 } }),
+		])
 		mockSubscriber.send.mockClear()
-		// an untimed part is published with its own expected duration, like any other part
+		// a budgeted segment's target length is its budget
 		handlers.playlistTimingStatesHandler.notify(
 			makeTestTimingStates({
 				segments: {
-					[segment_1_1_id]: {
-						parts: {
-							'1_1_1': { expectedDuration: constantMs(5000), untimed: false },
-							'1_1_2': { expectedDuration: constantMs(20000), untimed: true },
-							'1_1_3': { expectedDuration: constantMs(3000), untimed: false },
-						},
-					},
+					[segment_1_1_id]: { targetDuration: 30000, expectedDuration: 8000 },
 				},
 			})
 		)
@@ -410,54 +405,7 @@ describe('SegmentsTopic', () => {
 					id: '1_1',
 					rundownId: RUNDOWN_1_ID,
 					name: 'Segment 1_1',
-					timing: { expectedDurationMs: 8000 },
-					publicData: undefined,
-				},
-			],
-		}
-		expect(mockSubscriber.send.mock.calls).toEqual([[JSON.stringify(expectedStatus)]])
-	})
-
-	it('leaves adlibbed and deleted parts out of expectedDuration', async () => {
-		const handlers = makeMockHandlers()
-		const topic = new SegmentsTopic(makeMockLogger(), handlers)
-		const mockSubscriber = makeMockSubscriber()
-
-		const testPlaylist = makeTestPlaylist()
-		handlers.playlistHandler.notify(testPlaylist)
-
-		topic.addSubscriber(mockSubscriber)
-		mockSubscriber.send.mockClear()
-
-		const segment_1_1_id = '1_1'
-		handlers.segmentsHandler.notify([makeTestSegment(segment_1_1_id, 1, RUNDOWN_1_ID)])
-		mockSubscriber.send.mockClear()
-		// a part created by an adlib is published with its own expected duration, like any other part,
-		// and is orphaned because there is no Part for it in the rundown
-		handlers.playlistTimingStatesHandler.notify(
-			makeTestTimingStates({
-				segments: {
-					[segment_1_1_id]: {
-						parts: {
-							'1_1_1': { expectedDuration: constantMs(5000), untimed: false, orphaned: false },
-							adlibbed_part: { expectedDuration: constantMs(20000), untimed: false, orphaned: true },
-							'1_1_2': { expectedDuration: constantMs(3000), untimed: false, orphaned: false },
-						},
-					},
-				},
-			})
-		)
-		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
-
-		const expectedStatus: SegmentsEvent = {
-			event: 'segments',
-			rundownPlaylistId: unprotectString(testPlaylist._id),
-			segments: [
-				{
-					id: '1_1',
-					rundownId: RUNDOWN_1_ID,
-					name: 'Segment 1_1',
-					timing: { expectedDurationMs: 8000 },
+					timing: { expectedDurationMs: 8000, budgetDurationMs: 30000 },
 					publicData: undefined,
 				},
 			],

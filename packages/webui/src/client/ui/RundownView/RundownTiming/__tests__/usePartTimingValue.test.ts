@@ -39,8 +39,6 @@ function makeDoc(fields: Partial<PartTimingStateDoc>): PartTimingStateDoc {
 		rank: 0,
 		isInQuickLoop: false,
 		countsTowardsTiming: true,
-		untimed: false,
-		orphaned: false,
 		...fields,
 	}
 }
@@ -91,13 +89,13 @@ describe('usePartTimingValue', () => {
 	})
 
 	it('returns null when nothing is published for the part', () => {
-		const { result } = renderHook(() => usePartTimingValue(PART_ID, 'expectedDuration', TimerValueMode.Duration))
+		const { result } = renderHook(() => usePartTimingValue(PART_ID, 'duration', TimerValueMode.Duration))
 
 		expect(result.current).toBeNull()
 	})
 
 	it('returns null when the document omits the requested timer', () => {
-		publishedDoc = makeDoc({ expectedDuration: { paused: true, duration: 10000 } })
+		publishedDoc = makeDoc({ duration: { paused: true, duration: 10000 } })
 
 		const { result } = renderHook(() => usePartTimingValue(PART_ID, 'played', TimerValueMode.CountUp))
 
@@ -105,9 +103,9 @@ describe('usePartTimingValue', () => {
 	})
 
 	it('reads a static duration', () => {
-		publishedDoc = makeDoc({ expectedDuration: { paused: true, duration: 10000 } })
+		publishedDoc = makeDoc({ duration: { paused: true, duration: 10000 } })
 
-		const { result } = renderHook(() => usePartTimingValue(PART_ID, 'expectedDuration', TimerValueMode.Duration))
+		const { result } = renderHook(() => usePartTimingValue(PART_ID, 'duration', TimerValueMode.Duration))
 		expect(result.current).toBe(10000)
 
 		tick(NOW + 60000)
@@ -241,12 +239,9 @@ describe('usePartTimingValue', () => {
 
 		it('keeps ticking for a timestamp, since the moment a timer that holds would reach zero moves with the clock', () => {
 			// holding at 30s, so it reaches zero 30s after whenever it is read
-			publishedDoc = makeDoc({ expectedDuration: { paused: true, duration: 30000 } })
+			publishedDoc = makeDoc({ duration: { paused: true, duration: 30000 } })
 
-			const { result, renders } = renderHighResolutionOnlyWhileMoving(
-				'expectedDuration',
-				TimerValueMode.Timestamp
-			)
+			const { result, renders } = renderHighResolutionOnlyWhileMoving('duration', TimerValueMode.Timestamp)
 			const rendersBeforeTicks = renders.count
 
 			dispatchHighResolutionTicks(60, NOW + 16)
@@ -259,11 +254,11 @@ describe('usePartTimingValue', () => {
 
 	it('ignores a document of another type sharing the collection', () => {
 		publishedDoc = {
-			...makeDoc({ expectedDuration: { paused: true, duration: 10000 } }),
+			...makeDoc({ duration: { paused: true, duration: 10000 } }),
 			type: 'segment' as unknown as 'part',
 		}
 
-		const { result } = renderHook(() => usePartTimingValue(PART_ID, 'expectedDuration', TimerValueMode.Duration))
+		const { result } = renderHook(() => usePartTimingValue(PART_ID, 'duration', TimerValueMode.Duration))
 
 		expect(result.current).toBeNull()
 	})

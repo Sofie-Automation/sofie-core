@@ -9,7 +9,7 @@
 import type { TimerState } from '@sofie-automation/corelib/dist/dataModel/TimerState'
 import type { SegmentTimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/TimingState'
 import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import type { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { calculatePartInstanceExpectedDurationWithTransition } from '@sofie-automation/corelib/dist/playout/timings'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
@@ -70,9 +70,10 @@ function calculateOneSegmentTimingStates(
 		(partInstance) => partInstance._id === timingContext.currentPartInstanceId
 	)
 	const onAirPartScheduledStart = scheduledStartOf(onAirPartInstance, now)
+	const expectedDuration = sumResolvedExpectedDurations(timingContext, partInstances)
 
 	if (countdownType === CountdownType.SEGMENT_BUDGET_DURATION) {
-		const plannedDuration = budgetDuration ?? 0
+		const targetDuration = budgetDuration ?? 0
 
 		// Only the on-air segment's budget is actually counting down
 		const isOnAir = timingContext.currentSegmentId === segment._id
@@ -84,12 +85,13 @@ function calculateOneSegmentTimingStates(
 		if (budgetCountdown?.paused && onAirPartScheduledStart !== undefined) {
 			remaining = { paused: true, duration: budgetCountdown.duration, resumesAt: onAirPartScheduledStart }
 		} else {
-			remaining = budgetCountdown ?? { paused: true, duration: plannedDuration }
+			remaining = budgetCountdown ?? { paused: true, duration: targetDuration }
 		}
 
 		return {
 			countdownType,
-			plannedDuration: { paused: true, duration: plannedDuration },
+			targetDuration,
+			expectedDuration,
 			// A budgeted segment has never reported a played-out time - the display's count-up mode
 			// reads zero for one today, and this preserves that rather than quietly changing it
 			playedOut: { paused: true, duration: 0 },
@@ -98,8 +100,8 @@ function calculateOneSegmentTimingStates(
 	}
 
 	const { playedOut, isAccumulating } = sumPlayedOut(now, timingContext, partInstances)
-	const plannedDuration = budgetDuration ?? sumExpectedDurations(partInstances)
-	const remainingDuration = plannedDuration - playedOut
+	const targetDuration = budgetDuration ?? sumExpectedDurations(partInstances)
+	const remainingDuration = targetDuration - playedOut
 	// The segment's time grows with its on-air part's, so while that part is still waiting for its
 	// planned start - the window after a take in a multi-gateway studio - the timers hold, and
 	// `resumesAt` carries that start, as the part's own countdown does. An untimed part adds no
@@ -124,7 +126,8 @@ function calculateOneSegmentTimingStates(
 
 	return {
 		countdownType,
-		plannedDuration: { paused: true, duration: plannedDuration },
+		targetDuration,
+		expectedDuration,
 		playedOut: playedOutState,
 		remaining: remainingState,
 	}
@@ -170,12 +173,38 @@ function sumPlayedOut(
 	return { playedOut, isAccumulating }
 }
 
-/** The planned length of a segment with no budget: the sum of its parts' expected durations */
+/** The target length of a segment with no budget: the sum of its parts' expected durations */
 function sumExpectedDurations(partInstances: CalculateTimingsPartInstance[]): number {
 	let total = 0
 	for (const partInstance of partInstances) {
 		if (partInstance.orphaned || partInstance.part.untimed) continue
 		total += calculatePartInstanceExpectedDurationWithTransition(partInstance) || 0
+	}
+	return total
+}
+
+/**
+ * The length of a segment's content, from the resolved expected durations that the part documents
+ * carry, so that the two agree. Like the segment's target length it leaves out untimed parts, and
+ * orphaned ones, which were adlibbed or have been removed from the rundown and so are not part of
+ * the segment as planned.
+ *
+ * There is one part document per Part, from the last of its PartInstances, so a Part taken again
+ * counts once here too.
+ */
+function sumResolvedExpectedDurations(
+	timingContext: RundownTimingContext,
+	partInstances: CalculateTimingsPartInstance[]
+): number {
+	const lastInstanceByPart = new Map<PartId, CalculateTimingsPartInstance>()
+	for (const partInstance of partInstances) lastInstanceByPart.set(partInstance.part._id, partInstance)
+
+	const expectedDurations = timingContext.partExpectedDurations ?? {}
+
+	let total = 0
+	for (const partInstance of lastInstanceByPart.values()) {
+		if (partInstance.orphaned || partInstance.part.untimed) continue
+		total += expectedDurations[getPartInstanceTimingId(partInstance)] ?? 0
 	}
 	return total
 }

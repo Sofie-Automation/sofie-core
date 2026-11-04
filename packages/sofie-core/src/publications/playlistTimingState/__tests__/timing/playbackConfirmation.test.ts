@@ -72,10 +72,10 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:00.200  remaining 2:00  ends 12:02:35  in hand -0:04.800
 		  on air     B1 in B  left 0:20  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:34.800  left -0:04.800
-		  segment B  parts  planned 0:40  played 0:00  left 0:40
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:34.800  left -0:04.800
+		  segment B  parts  target 0:40  content 0:40  played 0:00  left 0:40
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  holds: B2 0:20  C1 0:40  C2 0:50  C3 1:10  D1 1:40  D2 1:50
 		  as planned C1 C2 C3 D1 D2
@@ -85,8 +85,6 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 		  B1         on air  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  B2         next  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  counted    all but A1 A2 A3
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})
@@ -111,10 +109,10 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:00.200  remaining 2:00 held since 12:00:32.200  ends 12:02:35 moving since 12:00:32.200  in hand -0:04.800 running since 12:00:32.200
 		  on air     A3 in A  left -0:02.800 running since 12:00:22.200  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:34.800 runs  left -0:04.800 runs
-		  segment B  parts  planned 0:40  played 0:00  left 0:40
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:34.800 runs  left -0:04.800 runs
+		  segment B  parts  target 0:40  content 0:40  played 0:00  left 0:40
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  held since 12:00:32.200: B1 0:00  B2 0:20  C1 0:40  C2 0:50  C3 1:10  D1 1:40  D2 1:50
 		  as planned B2 C1 C2 C3 D1 D2
@@ -123,8 +121,6 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 		  A3         on air  planned 0:10  drawn 0:10  played 0:12.800 running since 12:00:22.200  length 0:12.800 running since 12:00:32.200  width 0:12.800 running since 12:00:32.200
 		  B1         next  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  counted    all but A1 A2
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})
@@ -135,10 +131,10 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:00.200  remaining 2:00  ends 12:02:35  in hand -0:04.800
 		  on air     B1 in B  left 0:20  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:34.800 (fresh 0:34.900)  left -0:04.800 (fresh -0:04.900)
-		  segment B  parts  planned 0:40  played 0:00  left 0:40
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:34.800 (fresh 0:34.900)  left -0:04.800 (fresh -0:04.900)
+		  segment B  parts  target 0:40  content 0:40  played 0:00  left 0:40
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  holds: B2 0:20  C1 0:40  C2 0:50  C3 1:10  D1 1:40  D2 1:50
 		  as planned C1 C2 C3 D1 D2
@@ -148,8 +144,6 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 		  B1         on air  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  B2         next  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  counted    all but A1 A2 A3
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})
@@ -160,10 +154,10 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:00.200  remaining 1:59.900 runs until 12:00:55.200  ends 12:02:35.200 fixed until 12:00:55.200  in hand -0:05 holds until 12:00:55.200
 		  on air     B1 in B  left 0:19.900 running since 12:00:35.200  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:35  left -0:05
-		  segment B  parts  planned 0:40  played 0:00.100 runs  left 0:39.900 runs
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:35  left -0:05
+		  segment B  parts  target 0:40  content 0:40  played 0:00.100 runs  left 0:39.900 runs
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  runs until 12:00:55.200: B2 0:19.900  C1 0:39.900  C2 0:49.900  C3 1:09.900  D1 1:39.900  D2 1:49.900
 		  as planned C1 C2 C3 D1 D2
@@ -173,8 +167,6 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 		  B1         on air  planned 0:20  drawn 0:20  played 0:00.100 running since 12:00:35.200  length 0:20 holds until 12:00:55.200  width 0:20 holds until 12:00:55.200
 		  B2         next  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  counted    all but A1 A2 A3
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})
@@ -191,10 +183,10 @@ describe('a take that ends the previous part before its planned end, with a gate
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:00.200  remaining 2:00  ends 12:02:32.200  in hand -0:02
 		  on air     B1 in B  left 0:20  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:29.800 (fresh 0:29.900)  left 0:00.200 (fresh 0:00.100)
-		  segment B  parts  planned 0:40  played 0:00  left 0:40
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:29.800 (fresh 0:29.900)  left 0:00.200 (fresh 0:00.100)
+		  segment B  parts  target 0:40  content 0:40  played 0:00  left 0:40
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  holds: B2 0:20  C1 0:40  C2 0:50  C3 1:10  D1 1:40  D2 1:50
 		  as planned C1 C2 C3 D1 D2
@@ -204,8 +196,6 @@ describe('a take that ends the previous part before its planned end, with a gate
 		  B1         on air  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  B2         next  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  counted    all but A1 A2 A3
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})
@@ -216,10 +206,10 @@ describe('a take that ends the previous part before its planned end, with a gate
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:00.200  remaining 1:59.900 runs until 12:00:50.200  ends 12:02:30.200 fixed until 12:00:50.200  in hand 0:00 holds until 12:00:50.200
 		  on air     B1 in B  left 0:19.900 running since 12:00:30.200  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:30  left 0:00
-		  segment B  parts  planned 0:40  played 0:00.100 runs  left 0:39.900 runs
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:30  left 0:00
+		  segment B  parts  target 0:40  content 0:40  played 0:00.100 runs  left 0:39.900 runs
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  runs until 12:00:50.200: B2 0:19.900  C1 0:39.900  C2 0:49.900  C3 1:09.900  D1 1:39.900  D2 1:49.900
 		  as planned C1 C2 C3 D1 D2
@@ -229,8 +219,6 @@ describe('a take that ends the previous part before its planned end, with a gate
 		  B1         on air  planned 0:20  drawn 0:20  played 0:00.100 running since 12:00:30.200  length 0:20 holds until 12:00:50.200  width 0:20 holds until 12:00:50.200
 		  B2         next  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  counted    all but A1 A2 A3
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})
@@ -258,10 +246,10 @@ describe('a gateway that never confirms the start of B1', () => {
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:00  remaining 2:00  ends 12:02:35  in hand -0:05
 		  on air     B1 in B  left 0:20  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:35  left -0:05
-		  segment B  parts  planned 0:40  played 0:00  left 0:40
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:35  left -0:05
+		  segment B  parts  target 0:40  content 0:40  played 0:00  left 0:40
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  holds: B2 0:20  C1 0:40  C2 0:50  C3 1:10  D1 1:40  D2 1:50
 		  as planned C1 C2 C3 D1 D2
@@ -271,8 +259,6 @@ describe('a gateway that never confirms the start of B1', () => {
 		  B1         on air  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  B2         next  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  counted    all but A1 A2 A3
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})
@@ -283,10 +269,10 @@ describe('a gateway that never confirms the start of B1', () => {
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:00  remaining 2:00  ends 12:02:35  in hand -0:05
 		  on air     B1 in B  left 0:20  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:35 (fresh 0:45)  left -0:05 (fresh -0:15)
-		  segment B  parts  planned 0:40  played 0:00  left 0:40
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:35 (fresh 0:45)  left -0:05 (fresh -0:15)
+		  segment B  parts  target 0:40  content 0:40  played 0:00  left 0:40
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  holds: B2 0:20  C1 0:40  C2 0:50  C3 1:10  D1 1:40  D2 1:50
 		  as planned C1 C2 C3 D1 D2
@@ -296,8 +282,6 @@ describe('a gateway that never confirms the start of B1', () => {
 		  B1         on air  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  B2         next  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  counted    all but A1 A2 A3
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})
@@ -334,10 +318,10 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:02  remaining 2:02 runs until 12:00:57  ends 12:02:37 fixed until 12:00:57  in hand -0:05 holds until 12:00:57
 		  on air     B1 in B  left 0:20 holds until 12:00:37  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:29  left 0:01
-		  segment B  parts  planned 0:40  played 0:00 holds until 12:00:37  left 0:40 holds until 12:00:37
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:29  left 0:01
+		  segment B  parts  target 0:40  content 0:40  played 0:00 holds until 12:00:37  left 0:40 holds until 12:00:37
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  holds until 12:00:37: B2 0:20  C1 0:40  C2 0:50  C3 1:10  D1 1:40  D2 1:50
 		  as planned C1 C2 C3 D1 D2
@@ -347,8 +331,6 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 		  B1         on air  planned 0:20  drawn 0:20  played 0:00 holds until 12:00:37  length 0:20 holds until 12:00:57  width 0:20 holds until 12:00:57
 		  B2         next  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  counted    all but A1 A2 A3
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})
@@ -359,10 +341,10 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:02  remaining 2:01 runs until 12:00:57  ends 12:02:37 fixed until 12:00:57  in hand -0:05 holds until 12:00:57
 		  on air     B1 in B  left 0:20 holds until 12:00:37  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:29  left 0:01
-		  segment B  parts  planned 0:40  played 0:00 holds until 12:00:37  left 0:40 holds until 12:00:37
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:29  left 0:01
+		  segment B  parts  target 0:40  content 0:40  played 0:00 holds until 12:00:37  left 0:40 holds until 12:00:37
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  holds until 12:00:37: B2 0:20  C1 0:40  C2 0:50  C3 1:10  D1 1:40  D2 1:50
 		  as planned C1 C2 C3 D1 D2
@@ -372,8 +354,6 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 		  B1         on air  planned 0:20  drawn 0:20  played 0:00 holds until 12:00:37  length 0:20 holds until 12:00:57  width 0:20 holds until 12:00:57
 		  B2         next  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  counted    all but A1 A2 A3
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})
@@ -384,10 +364,10 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:02  remaining 1:59 runs until 12:00:57  ends 12:02:37 fixed until 12:00:57  in hand -0:05 holds until 12:00:57
 		  on air     B1 in B  left 0:19 running since 12:00:37  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:29  left 0:01
-		  segment B  parts  planned 0:40  played 0:01 runs  left 0:39 runs
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:29  left 0:01
+		  segment B  parts  target 0:40  content 0:40  played 0:01 runs  left 0:39 runs
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  runs until 12:00:57: B2 0:19  C1 0:39  C2 0:49  C3 1:09  D1 1:39  D2 1:49
 		  as planned C1 C2 C3 D1 D2
@@ -397,8 +377,6 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 		  B1         on air  planned 0:20  drawn 0:20  played 0:01 running since 12:00:37  length 0:20 holds until 12:00:57  width 0:20 holds until 12:00:57
 		  B2         next  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  counted    all but A1 A2 A3
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})
@@ -423,10 +401,10 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:02  remaining 1:40 held since 12:00:57 (fresh 1:20)  ends 12:02:37.500 moving since 12:00:57 (fresh 12:02:17.500)  in hand -0:05.500 running since 12:00:57 (fresh 0:14.500)
 		  on air     B1 in B  left -0:00.500 running since 12:00:37  budget none  auto-next yes
-		  segment A  parts  planned 0:30  played 0:29  left 0:01
-		  segment B  parts  planned 0:40  played 0:20.500 runs (fresh 0:21)  left 0:19.500 runs (fresh 0:19)
-		  segment C  parts  planned 1:00  played 0:00  left 1:00
-		  segment D  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:29  left 0:01
+		  segment B  parts  target 0:40  content 0:40  played 0:20.500 runs (fresh 0:21)  left 0:19.500 runs (fresh 0:19)
+		  segment C  parts  target 1:00  content 1:00  played 0:00  left 1:00
+		  segment D  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 A3 B1 B2 C1 C2 C3 D1 D2
 		  countdown  held since 12:00:57: B2 0:00 (fresh 0:19.500)  C1 0:20 (fresh 0:39.500)  C2 0:30 (fresh 0:49.500)  C3 0:50 (fresh 1:09.500)  D1 1:20 (fresh 1:39.500)  D2 1:30 (fresh 1:49.500)
 		  as planned C1 C2 C3 D1 D2
@@ -436,8 +414,6 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 		  B1         on air  planned 0:20  drawn 0:20  played 0:20.500 running since 12:00:37  length 0:20.500 running since 12:00:57  width 0:20.500 running since 12:00:57
 		  B2         next  planned 0:20  drawn 0:20  played 0:00 (fresh 0:00.500)  length 0:20  width 0:20
 		  counted    all but A1 A2 A3
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 	})

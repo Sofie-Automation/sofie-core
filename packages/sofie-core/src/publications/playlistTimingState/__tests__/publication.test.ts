@@ -236,7 +236,7 @@ describe('playlistTimingState publication', () => {
 				currentPartWillAutoNext: false,
 				plannedStart: { paused: false, zeroTime: EXPECTED_START },
 				plannedEnd: { paused: false, zeroTime: EXPECTED_START + EXPECTED_DURATION },
-				plannedDuration: { paused: true, duration: EXPECTED_DURATION },
+				plannedDuration: EXPECTED_DURATION,
 				startedPlayback: undefined,
 				// Nothing is playing: remaining is the constant sum of the part durations
 				remainingDuration: { paused: true, duration: totalPartDurations },
@@ -568,7 +568,7 @@ describe('playlistTimingState publication', () => {
 
 			const doc = part3DocAt(cache, 10000)
 
-			expect(doc.displayDuration).toEqual({ paused: true, duration: DEFAULT_DISPLAY_DURATION_FROM_STUDIO })
+			expect(doc.displayDuration).toBe(DEFAULT_DISPLAY_DURATION_FROM_STUDIO)
 			// counting up, so published negated; the part is not on air, so it does not grow
 			expect(doc.liveDisplayDuration).toEqual({
 				paused: true,
@@ -576,7 +576,7 @@ describe('playlistTimingState publication', () => {
 				resumesAt: null,
 			})
 			// it is only drawn at that length: it still has no duration of its own
-			expect(doc.expectedDuration).toEqual({ paused: true, duration: 0 })
+			expect(doc.expectedDuration).toBe(0)
 			// and it goes on air after the three parts before it, as usual
 			expect(countdownOf(doc, createPlaylistTimingStateDoc(playlistId, cache, 10000))).toEqual({
 				paused: true,
@@ -589,14 +589,11 @@ describe('playlistTimingState publication', () => {
 			setPart3Duration(cache, undefined)
 
 			setStudioDefaultDisplayDuration(cache, 7000)
-			expect(part3DocAt(cache, 10000).displayDuration).toEqual({ paused: true, duration: 7000 })
+			expect(part3DocAt(cache, 10000).displayDuration).toBe(7000)
 
 			// without a setting, the built-in default applies
 			setStudioDefaultDisplayDuration(cache, undefined)
-			expect(part3DocAt(cache, 10000).displayDuration).toEqual({
-				paused: true,
-				duration: DEFAULT_DISPLAY_DURATION,
-			})
+			expect(part3DocAt(cache, 10000).displayDuration).toBe(DEFAULT_DISPLAY_DURATION)
 		})
 
 		it('a short part without auto-next is drawn at least as long as the default', () => {
@@ -605,9 +602,9 @@ describe('playlistTimingState publication', () => {
 
 			const doc = part3DocAt(cache, 10000)
 
-			expect(doc.displayDuration).toEqual({ paused: true, duration: DEFAULT_DISPLAY_DURATION_FROM_STUDIO })
+			expect(doc.displayDuration).toBe(DEFAULT_DISPLAY_DURATION_FROM_STUDIO)
 			// while its own length stays as it is
-			expect(doc.expectedDuration).toEqual({ paused: true, duration: 1000 })
+			expect(doc.expectedDuration).toBe(1000)
 			expect(doc.duration).toEqual({ paused: true, duration: -1000, resumesAt: null })
 		})
 	})

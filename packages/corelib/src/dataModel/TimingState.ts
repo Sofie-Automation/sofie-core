@@ -9,10 +9,11 @@ export type TimingStateDocId = ProtectedString<'TimingStateDoc'>
  * A document published by the `playlistTimingState` publication, which carries the timing state of
  * everything within a RundownPlaylist.
  *
- * Every timing value is expressed as a `TimerState` — a piecewise-linear function of wall-clock time —
- * so that consumers can evaluate the current value locally (via `timerStateToDuration` /
- * `timerStateToZeroTime`) and the server only needs to publish updates when playout or ingest state
- * changes, never on a clock tick.
+ * Every timing value that moves with the clock is expressed as a `TimerState` — a piecewise-linear
+ * function of wall-clock time — so that consumers can evaluate the current value locally (via
+ * `timerStateToDuration` / `timerStateToZeroTime`) and the server only needs to publish updates when
+ * playout or ingest state changes, never on a clock tick. A length that never moves with the clock is
+ * a plain number of milliseconds instead: it changes only when the document is republished.
  *
  * This is a discriminated union, keyed on `type`, with one document per "area": the playlist, each
  * segment and each part. Consumers must narrow on `type` (e.g. with `isPlaylistTimingStateDoc`)
@@ -47,11 +48,10 @@ export interface PlaylistTimingStateDoc {
 	plannedEnd?: TimerState
 
 	/**
-	 * Planned duration of the playlist ("Plan. Dur").
-	 * Always paused (a constant duration read).
+	 * Planned duration of the playlist ("Plan. Dur"), in milliseconds.
 	 * Omitted if the playlist has no planned duration.
 	 */
-	plannedDuration?: TimerState
+	plannedDuration?: number
 
 	/**
 	 * Actual start of playback (only present while the playlist is active, matching the header behavior).
@@ -138,10 +138,17 @@ export interface SegmentTimingStateDoc {
 	countdownType: CountdownType
 
 	/**
-	 * The segment's planned length: its budget duration, or the sum of its parts' expected
-	 * durations when it has no budget. Constant - duration read.
+	 * How long the segment is meant to take: its budget duration, or the length of its parts when it
+	 * has no budget, in milliseconds. This is the segment length to show, and what `remaining` counts
+	 * down from.
 	 */
-	plannedDuration?: TimerState
+	targetDuration?: number
+	/**
+	 * The length of the segment's content, in milliseconds: the sum of the `expectedDuration`s of the
+	 * Parts that count towards it. Unlike `targetDuration`, it is never the budget duration, so use it
+	 * to compare the content with the budget.
+	 */
+	expectedDuration?: number
 	/**
 	 * How much of the segment has played out. duration read = the elapsed time, counting up as a
 	 * negative value while the segment is on air (the usual count-up convention).
@@ -149,7 +156,7 @@ export interface SegmentTimingStateDoc {
 	playedOut?: TimerState
 	/**
 	 * What is left of the segment. duration read = time remaining, going negative once over.
-	 * For a budgeted segment this is the budget countdown; otherwise planned minus played out.
+	 * For a budgeted segment this is the budget countdown; otherwise target minus played out.
 	 */
 	remaining?: TimerState
 }
@@ -192,31 +199,18 @@ export interface PartTimingStateDoc {
 	countsTowardsTiming: boolean
 
 	/**
-	 * Whether the Part is untimed, as set on the Part. An untimed Part still has its own
-	 * `expectedDuration` here, but it is left out of the playlist and segment totals, and so has to be
-	 * left out of any total a consumer adds up from the Parts.
+	 * The Part's expected duration, resolved, in milliseconds.
+	 *
+	 * Not every Part's expected duration counts towards its segment's: use the segment's
+	 * `expectedDuration` rather than adding these up.
 	 */
-	untimed: boolean
+	expectedDuration?: number
 
 	/**
-	 * Whether the PartInstance is orphaned: there is no Part for it in the rundown, because it was
-	 * created by an adlib, or because its Part has been removed from the rundown since. An orphaned Part
-	 * still has its own `expectedDuration` here, but it is not part of the Segment as planned, so it is
-	 * left out of the segment totals, and has to be left out of any segment total a consumer adds up
-	 * from the Parts.
+	 * How long the Part occupies in the rundown display, resolved, as if it were not playing, in
+	 * milliseconds. See `liveDisplayDuration` for the on-air value.
 	 */
-	orphaned: boolean
-
-	/**
-	 * The Part's expected duration, resolved. Constant - duration read, positive.
-	 */
-	expectedDuration?: TimerState
-
-	/**
-	 * How long the Part occupies in the rundown display, resolved, as if it were not playing.
-	 * Constant - duration read, positive. See `liveDisplayDuration` for the on-air value.
-	 */
-	displayDuration?: TimerState
+	displayDuration?: number
 
 	/**
 	 * Where this Part's countdown is against the playlist document's `partCountdownBase`, in ms. The

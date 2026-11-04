@@ -131,7 +131,7 @@ export function calculatePlaylistTimingStatesFromContext(
 
 	if (expectedStart !== undefined) values.plannedStart = { paused: false, zeroTime: expectedStart }
 	if (expectedEnd !== undefined) values.plannedEnd = { paused: false, zeroTime: expectedEnd }
-	if (expectedDuration !== undefined) values.plannedDuration = { paused: true, duration: expectedDuration }
+	if (expectedDuration !== undefined) values.plannedDuration = expectedDuration
 	if (startedPlayback !== undefined) values.startedPlayback = { paused: false, zeroTime: startedPlayback }
 
 	if (remainingDuration !== undefined) values.remainingDuration = remainingDuration

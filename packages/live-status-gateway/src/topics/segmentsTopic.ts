@@ -42,8 +42,7 @@ export class SegmentsTopic extends WebSocketTopicBase implements WebSocketTopic 
 					name: segment.name,
 					timing: calculateSegmentTiming(
 						segment.segmentTiming,
-						this._timingStates?.segments.get(segment._id),
-						this._timingStates?.partsBySegment.get(segment._id)
+						this._timingStates?.segments.get(segment._id)
 					),
 					identifier: segment.identifier,
 					publicData: segment.publicData,

@@ -55,7 +55,8 @@ function segmentDoc(segment: string, planned: string, values?: Partial<SegmentTi
 		playlistId: REFERENCE_PLAYLIST_ID,
 		segmentId,
 		countdownType: CountdownType.PART_EXPECTED_DURATION,
-		plannedDuration: paused(length(planned)),
+		targetDuration: length(planned),
+		expectedDuration: length(planned),
 		playedOut: paused(0),
 		remaining: paused(length(planned)),
 		...values,
@@ -75,10 +76,8 @@ function partDoc(part: string, rank: number, values: Partial<PartTimingStateDoc>
 		rank,
 		isInQuickLoop: false,
 		countsTowardsTiming: true,
-		untimed: false,
-		orphaned: false,
-		expectedDuration: paused(plannedLength),
-		displayDuration: paused(plannedLength),
+		expectedDuration: plannedLength,
+		displayDuration: plannedLength,
 		played: paused(0),
 		duration: paused(0 - plannedLength),
 		liveDisplayDuration: paused(0 - plannedLength),
@@ -89,7 +88,7 @@ function partDoc(part: string, rank: number, values: Partial<PartTimingStateDoc>
 /** A finished part's drawn length, played time, length and width: the length it played (the last three negated) */
 function playedFor(played: string): Partial<PartTimingStateDoc> {
 	const grown = paused(0 - length(played))
-	return { displayDuration: paused(length(played)), played: grown, duration: grown, liveDisplayDuration: grown }
+	return { displayDuration: length(played), played: grown, duration: grown, liveDisplayDuration: grown }
 }
 
 /** The PartInstances the publication read, as 'id of part' in the order of their takes, and the Next one */
@@ -129,7 +128,7 @@ function showDocs(): TimingStateDoc[] {
 			timingType: PlaylistTimingType.ForwardTime,
 			plannedStart: running(clock('12:00:00')),
 			plannedEnd: running(clock('12:02:30')),
-			plannedDuration: paused(length('2:30')),
+			plannedDuration: length('2:30'),
 			startedPlayback: running(clock('12:00:05')),
 			remainingDuration: running(clock('12:02:21'), onAirEnds),
 			estimatedEnd: running(clock('12:02:21'), onAirEnds),
@@ -147,8 +146,7 @@ function showDocs(): TimingStateDoc[] {
 		partDoc('adlib1', 2, {
 			segmentId: protectString('A'),
 			partInstanceId: protectString('adlib1_3'),
-			orphaned: true,
-			expectedDuration: paused(length('0:05')),
+			expectedDuration: length('0:05'),
 			...playedFor('0:05'),
 			...noLongerCounted,
 		}),
@@ -160,7 +158,7 @@ function showDocs(): TimingStateDoc[] {
 			liveDisplayDuration: paused(-length('0:10'), onAirEnds),
 		}),
 		partDoc('B1', 4, { partInstanceId: protectString('B1_5'), countdownOffset: -length('2:00') }),
-		partDoc('B2', 5, { untimed: true, countdownOffset: -length('1:40') }),
+		partDoc('B2', 5, { countdownOffset: -length('1:40') }),
 	]
 }
 
@@ -181,8 +179,8 @@ describe('the readable text of the timing documents', () => {
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
 		  show       started 12:00:05  remaining 1:48 runs until 12:00:41  ends 12:02:21 fixed until 12:00:41  in hand 0:14 holds until 12:00:41
 		  on air     A3 in A  left 0:08 running since 12:00:31  budget none  auto-next no
-		  segment A  parts  planned 0:30  played 0:28 runs  left 0:02 runs
-		  segment B  parts  planned 0:20  played 0:00  left 0:20
+		  segment A  parts  target 0:30  content 0:30  played 0:28 runs  left 0:02 runs
+		  segment B  parts  target 0:20  content 0:20  played 0:00  left 0:20
 		  order      A1 A2 adlib1 A3 B1 B2
 		  countdown  runs until 12:00:41: B1 0:08  B2 0:28
 		  as planned B2
@@ -192,8 +190,6 @@ describe('the readable text of the timing documents', () => {
 		  A3         on air  planned 0:10  drawn 0:10  played 0:02 running since 12:00:31  length 0:10 holds until 12:00:41  width 0:10 holds until 12:00:41
 		  B1         next  planned 0:20  drawn 0:20  played 0:00  length 0:20  width 0:20
 		  counted    all but A1 A2 adlib1
-		  untimed    B2
-		  orphaned   adlib1
 		  in loop    none
 	`)
 
@@ -294,7 +290,8 @@ describe('the readable text of the timing documents', () => {
 		  playlistId                      refused
 		  segmentId                       refused
 		  countdownType                   segment A
-		  plannedDuration                 segment A
+		  targetDuration                  segment A
+		  expectedDuration                segment A
 		  playedOut                       segment A
 		  remaining                       segment A
 		part                              A2, finished                      A3, on air                        B2, as planned
@@ -312,8 +309,6 @@ describe('the readable text of the timing documents', () => {
 		  duration                        finished, A2                      A3                                as planned, B2
 		  liveDisplayDuration             finished, A2                      A3                                as planned, B2
 		  countsTowardsTiming             counted                           counted                           counted
-		  untimed                         untimed                           untimed                           untimed
-		  orphaned                        orphaned                          orphaned                          orphaned
 		  isInQuickLoop                   in loop                           in loop                           in loop
 	`)
 	})
@@ -322,18 +317,18 @@ describe('the readable text of the timing documents', () => {
 		const published = showDocs()
 		const freshChanges: Array<[docId: string, field: string, value: unknown]> = [
 			['segment_A', 'remaining', paused(0)],
-			['part_A1', 'displayDuration', paused(length('0:10'))],
-			['part_B2', 'untimed', false],
+			['part_A1', 'displayDuration', length('0:10')],
+			['part_B2', 'isInQuickLoop', true],
 		]
 		const fresh = freshChanges.reduce(
 			(docs, [docId, field, value]) => withField(docs, docId, field, value),
 			published
 		)
 
-		expect(linesOf(readShow(published, 'full', fresh), 'segment A', 'A1', 'untimed')).toEqual([
-			'  segment A  parts  planned 0:30  played 0:28 runs  left 0:02 runs (fresh 0:00)',
+		expect(linesOf(readShow(published, 'full', fresh), 'segment A', 'A1', 'in loop')).toEqual([
+			'  segment A  parts  target 0:30  content 0:30  played 0:28 runs  left 0:02 runs (fresh 0:00)',
 			'  A1         instance  planned 0:10  drawn 0:11 (fresh 0:10)  played 0:11  length 0:11  width 0:11',
-			'  untimed    B2 (fresh none)',
+			'  in loop    none (fresh B2)',
 		])
 	})
 
@@ -356,7 +351,7 @@ describe('the readable text of the timing documents', () => {
 		const none = inMode('none', { remainingDuration: paused(length('0:20')), overUnder: paused(0) })
 		const duration = inMode('duration 2:30', {
 			timingType: PlaylistTimingType.Duration,
-			plannedDuration: paused(length('2:30')),
+			plannedDuration: length('2:30'),
 			overUnder: paused(length('2:10')),
 		})
 		expect(readModes('full', [none, duration])).toMatchInlineSnapshot(`
@@ -368,8 +363,6 @@ describe('the readable text of the timing documents', () => {
 		  countdown  none
 		  A1         on air  planned 0:10  drawn 0:10  played 0:00  length 0:10  width 0:10
 		  counted    all
-		  untimed    none
-		  orphaned   none
 		  in loop    none
 	`)
 		expect(readModes('plan', [none, duration])).toMatchInlineSnapshot(`
@@ -381,9 +374,9 @@ describe('the readable text of the timing documents', () => {
 		expect(() => readModes('show', [none, inMode('none 2:30', { currentPartWillAutoNext: true })])).toThrow(
 			'The on-air lines differ between the timing modes "none" and "none 2:30"'
 		)
-		const untimed = inMode('none 2:30', {})
-		untimed.published = untimed.published.map((doc) => (doc.type === 'part' ? { ...doc, untimed: true } : doc))
-		expect(() => readModes('full', [none, untimed])).toThrow(
+		const looped = inMode('none 2:30', {})
+		looped.published = looped.published.map((doc) => (doc.type === 'part' ? { ...doc, isInQuickLoop: true } : doc))
+		expect(() => readModes('full', [none, looped])).toThrow(
 			'The segment and part lines differ between the timing modes "none" and "none 2:30"'
 		)
 	})
@@ -403,7 +396,7 @@ describe('the readable text of the timing documents', () => {
 			...[playlist, 'segment_A', 'part_A1'].map((docId) => refusal(docId, 'newValue', 1)),
 			refusal(playlist, 'overUnder', { paused: true, duration: 0, slope: 2 }),
 			// a flag that is missing, or not true or false, would read as false
-			refusal('part_A1', 'orphaned', undefined),
+			refusal('part_A1', 'isInQuickLoop', undefined),
 			refusal(playlist, 'currentPartWillAutoNext', 1),
 			refusal('segment_A', 'countdownType', 'x'),
 			// a timer state of neither shape
@@ -421,7 +414,7 @@ describe('the readable text of the timing documents', () => {
 		The document of segment A has a field the timing text does not know: "newValue". Add it to the text
 		The document of part A1 has a field the timing text does not know: "newValue". Add it to the text
 		The timer state overUnder of the playlist document has a field the timing text does not know: "slope"
-		The document of part A1 has "orphaned" undefined, not true or false
+		The document of part A1 has "isInQuickLoop" undefined, not true or false
 		The playlist document has "currentPartWillAutoNext" 1, not true or false
 		A countdown type the timing text does not know: "x"
 		The timer state played of the document of part A1 is not a paused or a running timer state: {"paused":true,"zeroTime":0}
@@ -455,5 +448,7 @@ function otherValue(field: string, value: unknown): unknown {
 	const listed = OTHER_VALUES[field]
 	if (listed) return listed(value)
 	if (typeof value === 'boolean') return !value
+	// one second more, for a length that is published as a plain number
+	if (typeof value === 'number') return value + 1000
 	return value === undefined ? paused(1000) : offsetTimerState(value as TimerState, 1000)
 }

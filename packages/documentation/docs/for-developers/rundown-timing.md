@@ -19,6 +19,9 @@ A value that moves with the clock is published as a `TimerState`. A `TimerState`
 absolute unix timestamps. The client calculates the value from its own clock. Thus the value is correct to the
 millisecond, and the server sends a new state only at a playout event.
 
+A length that does not move with the clock is a plain number of milliseconds. Examples are the `targetDuration` of a
+segment and the `expectedDuration` of a Part. It changes only when the server sends the document again.
+
 ```ts
 type TimerState =
 	| { paused: false; zeroTime: number; pauseTime?: number | null; resumesAt?: null }
@@ -57,8 +60,8 @@ gives each field.
 | `type`     | One document for each | Fields                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ---------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `playlist` | playlist              | The header timers `plannedStart`, `plannedEnd`, `plannedDuration`, `startedPlayback`, `remainingDuration`, `estimatedEnd` and `overUnder`. The on-air timers `remainingOnCurrentPart` and `remainingBudgetOnCurrentSegment`, and `currentPartInstanceId` and `currentSegmentId`, which tell which Part and segment these timers are about. `partCountdownBase`. The fields `timingType` and `currentPartWillAutoNext`. |
-| `segment`  | segment               | `plannedDuration`, `playedOut`, `remaining` and `countdownType`.                                                                                                                                                                                                                                                                                                                                                       |
-| `part`     | Part                  | The resolved `expectedDuration` and `displayDuration`, which do not move. `duration`, `played` and `liveDisplayDuration`, which count up. `countdownOffset`. `rank`, the playout order. The flags `isInQuickLoop`, `countsTowardsTiming`, `untimed` and `orphaned`.                                                                                                                                                    |
+| `segment`  | segment               | `targetDuration` (the budget, or the length of the content when there is no budget), `expectedDuration` (the length of the content), `playedOut`, `remaining` and `countdownType`.                                                                                                                                                                                                                                     |
+| `part`     | Part                  | The resolved `expectedDuration` and `displayDuration`, which do not move. `duration`, `played` and `liveDisplayDuration`, which count up. `countdownOffset`. `rank`, the playout order. The flags `isInQuickLoop` and `countsTowardsTiming`.                                                                                                                                                                           |
 
 **The part countdown** is the `partCountdownBase` of the playlist, moved by the `countdownOffset` of the Part. In
 Sofie code:
@@ -78,9 +81,8 @@ if (partDoc.countdownOffset !== undefined) {
 - A take moves only the base. The offsets of the Parts that are still to come do not change. Thus a take changes
   about 10 documents, for any number of Parts.
 
-**Totals**. The totals of a segment and of a playlist do not include untimed Parts and orphaned Parts. An orphaned
-Part is a Part that an adlib made, or a Part that was removed from the rundown after it was queued or played. If you
-add the durations of Parts, do not include these Parts.
+**Totals**. Do not add up the durations of the Parts. Not every Part counts towards the totals of its segment and
+its playlist. The segment and playlist documents publish the totals.
 
 If you cannot make a value from the documents, add a field to the publication. Do not calculate the value in a
 client.

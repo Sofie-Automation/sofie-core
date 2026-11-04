@@ -156,8 +156,8 @@ function evaluateStates(states: Map<PartId, PartTimingStateValues>, partCountdow
 		Array.from(states.entries()).map(([partId, state]) => [
 			unprotectString(partId),
 			{
-				expectedDuration: evalDuration(state.expectedDuration, t),
-				displayDurationNoPlayback: evalDuration(state.displayDuration, t),
+				expectedDuration: state.expectedDuration,
+				displayDurationNoPlayback: state.displayDuration,
 				// the count-ups are published negated, per the convention on PartTimingStateDoc.played
 				displayDuration: negate(evalDuration(state.liveDisplayDuration, t)),
 				duration: negate(evalDuration(state.duration, t)),
@@ -227,36 +227,6 @@ describe('calculatePartTimingStates', () => {
 
 		expect(Array.from(states.keys()).map(unprotectString)).toEqual(['part0', 'part1', 'part2', 'part3'])
 		expect(Array.from(states.values()).map((state) => state.rank)).toEqual([0, 1, 2, 3])
-	})
-
-	it('says which parts are untimed, while still giving an untimed part its own expected duration', () => {
-		const states = statesAt(makeScenario([{}, { untimed: true }]), 10000)
-		const timedPart = states.get(protectString('part0'))
-		const untimedPart = states.get(protectString('part1'))
-
-		// the expected duration is the Part's own either way, so a consumer that adds them up has to
-		// leave the untimed ones out itself
-		expect(evalDuration(untimedPart?.expectedDuration, 10000)).toBe(PART_DURATION)
-		expect(timedPart?.untimed).toBe(false)
-		expect(untimedPart?.untimed).toBe(true)
-	})
-
-	it('says which parts are orphaned, while still giving an orphaned part its own expected duration', () => {
-		const scenario = makeScenario()
-		scenario.partInstances[1].orphaned = 'adlib-part'
-		scenario.partInstances[2].orphaned = 'deleted'
-		const states = statesAt(scenario, 10000)
-		const plannedPart = states.get(protectString('part0'))
-		const adlibbedPart = states.get(protectString('part1'))
-		const deletedPart = states.get(protectString('part2'))
-
-		// the expected duration is the Part's own either way, so a consumer that adds up a Segment has
-		// to leave the orphaned ones out itself
-		expect(evalDuration(adlibbedPart?.expectedDuration, 10000)).toBe(PART_DURATION)
-		expect(evalDuration(deletedPart?.expectedDuration, 10000)).toBe(PART_DURATION)
-		expect(plannedPart?.orphaned).toBe(false)
-		expect(adlibbedPart?.orphaned).toBe(true)
-		expect(deletedPart?.orphaned).toBe(true)
 	})
 
 	describe('matches the calculator', () => {

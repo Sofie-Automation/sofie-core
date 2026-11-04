@@ -47,9 +47,7 @@ const ON_AIR_PART_DOC: PartTimingStateDoc = {
 	rank: 0,
 	isInQuickLoop: false,
 	countsTowardsTiming: true,
-	untimed: false,
-	orphaned: false,
-	expectedDuration: { paused: true, duration: PART_EXPECTED_DURATION },
+	expectedDuration: PART_EXPECTED_DURATION,
 	// on air since PART_START, counting up as a negative value
 	played: { paused: false, zeroTime: PART_START },
 }
@@ -102,7 +100,7 @@ describe('PartDisplayDuration', () => {
 	})
 
 	it('with a length that is not a whole number of seconds, changes at the moment its own second changes', () => {
-		publishedDocs.set(ON_AIR_PART_DOC._id, { ...ON_AIR_PART_DOC, expectedDuration: { paused: true, duration: 10500 } })
+		publishedDocs.set(ON_AIR_PART_DOC._id, { ...ON_AIR_PART_DOC, expectedDuration: 10500 })
 		const timer = renderPartDuration()
 		expect(timer?.textContent).toBe('00:11')
 

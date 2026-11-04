@@ -227,9 +227,10 @@ describe('ActivePlaylistTopic', () => {
 				},
 				segments: {
 					SEGMENT_1: {
-						plannedDuration: constantMs(10000),
+						targetDuration: 10000,
+						expectedDuration: 10000,
 						remaining: { paused: true, duration: 10000, resumesAt: 1600000060000 },
-						parts: { PART_1: { expectedDuration: constantMs(10000) } },
+						parts: { PART_1: { expectedDuration: 10000 } },
 					},
 				},
 			})
@@ -429,9 +430,11 @@ describe('ActivePlaylistTopic', () => {
 				},
 				segments: {
 					SEGMENT_1: {
-						plannedDuration: constantMs(12300),
+						// a budgeted segment's target length is its budget, and its content is shorter
+						targetDuration: 12300,
+						expectedDuration: 10000,
 						remaining: { paused: true, duration: 12300, resumesAt: 1600000060000 },
-						parts: { PART_1: { expectedDuration: constantMs(10000) } },
+						parts: { PART_1: { expectedDuration: 10000 } },
 					},
 				},
 			})
@@ -637,7 +640,7 @@ describe('ActivePlaylistTopic', () => {
 						remainingOnCurrentPart: { paused: true, duration: expectedDurationMs, resumesAt: plannedStart },
 					},
 					segments: {
-						SEGMENT_1: { parts: { PART_1: { expectedDuration: constantMs(expectedDurationMs) } } },
+						SEGMENT_1: { parts: { PART_1: { expectedDuration: expectedDurationMs } } },
 					},
 				})
 			)

@@ -31,8 +31,6 @@ export interface PlaylistTimingStates {
 	playlist: PlaylistTimingStateDoc | undefined
 	segments: Map<SegmentId, SegmentTimingStateDoc>
 	parts: Map<PartId, PartTimingStateDoc>
-	/** The same part timings grouped by Segment, for the values that are a sum over a Segment's Parts */
-	partsBySegment: Map<SegmentId, PartTimingStateDoc[]>
 }
 
 /**
@@ -106,7 +104,7 @@ export class PlaylistTimingStatesHandler extends PublicationCollection<
 }
 
 function emptyTimingStates(): PlaylistTimingStates {
-	return { playlist: undefined, segments: new Map(), parts: new Map(), partsBySegment: new Map() }
+	return { playlist: undefined, segments: new Map(), parts: new Map() }
 }
 
 /** Split the published union by what each document describes. Exported for testing. */
@@ -120,13 +118,6 @@ export function splitTimingStates(docs: TimingStateDoc[]): PlaylistTimingStates 
 			states.segments.set(doc.segmentId, doc)
 		} else if (isPartTimingStateDoc(doc)) {
 			states.parts.set(doc.partId, doc)
-
-			const inSegment = states.partsBySegment.get(doc.segmentId)
-			if (inSegment) {
-				inSegment.push(doc)
-			} else {
-				states.partsBySegment.set(doc.segmentId, [doc])
-			}
 		}
 	}
 

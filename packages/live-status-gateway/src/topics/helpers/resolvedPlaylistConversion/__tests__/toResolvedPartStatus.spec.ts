@@ -205,8 +205,8 @@ describe('toResolvedPartStatus rundown timing', () => {
 	it('evaluates the resolved durations, which are constant', () => {
 		const result = toResolvedPartStatus(
 			contextWithTiming({
-				expectedDuration: { paused: true, duration: 10000 },
-				displayDuration: { paused: true, duration: 12000 },
+				expectedDuration: 10000,
+				displayDuration: 12000,
 				isInQuickLoop: true,
 				countsTowardsTiming: true,
 			}),

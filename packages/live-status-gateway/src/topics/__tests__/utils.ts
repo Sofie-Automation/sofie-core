@@ -166,7 +166,7 @@ export function makeTestTimingStates(states: {
 }
 
 /**
- * A constant timer, as the publication expresses a resolved duration.
+ * A timer that holds at a duration, as a timer the publication publishes does while nothing moves it.
  *
  * Typed from corelib rather than the generated API types: the generator cannot express `const: true`
  * as a literal, so the generated `TimerStatePaused` has `paused: boolean` and is not assignable to

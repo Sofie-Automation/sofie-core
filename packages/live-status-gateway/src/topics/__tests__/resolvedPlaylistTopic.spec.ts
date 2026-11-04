@@ -10,7 +10,6 @@ import type { ShowStyleBaseExt } from '../../collections/showStyleBaseHandler.js
 import type { CollectionHandlers } from '../../liveStatusServer.js'
 import type { PlaylistTimingStates } from '../../collections/playlistTimingStatesHandler.js'
 import {
-	constantMs,
 	makeMockHandlers,
 	makeMockLogger,
 	makeMockSubscriber,
@@ -85,8 +84,8 @@ function makeTestTimingStatesOfOnePart(partCountdownBase: TimerState): PlaylistT
 			segment0: {
 				parts: {
 					part0: {
-						expectedDuration: constantMs(1000),
-						displayDuration: constantMs(3000),
+						expectedDuration: 1000,
+						displayDuration: 3000,
 						isInQuickLoop: true,
 						countsTowardsTiming: true,
 						countdownOffset: -30000,

@@ -1,5 +1,9 @@
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import type { RundownPlaylistActivationId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type {
+	PartInstanceId,
+	RundownPlaylistActivationId,
+	SegmentId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import type { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
@@ -175,7 +179,7 @@ function expectMatchesReference(scenario: MockScenario, now: number, offsets: nu
 			const state = states.get(segmentId)
 			const reference = referenceValues(scenario, segmentId, t)
 
-			expect({ segmentId, offset, value: evalDuration(state?.plannedDuration, t) }).toEqual({
+			expect({ segmentId, offset, value: state?.targetDuration }).toEqual({
 				segmentId,
 				offset,
 				value: reference.budget,
@@ -222,7 +226,7 @@ describe('calculateSegmentTimingStates', () => {
 
 			const live = states.get(SEGMENT_0)
 			// 5s into the segment, of 20s planned
-			expect(evalDuration(live?.plannedDuration, 25000)).toBe(2 * PART_DURATION)
+			expect(live?.targetDuration).toBe(2 * PART_DURATION)
 			expect(evalDuration(live?.playedOut, 25000)).toBe(-5000)
 			expect(evalDuration(live?.remaining, 25000)).toBe(15000)
 			// and it keeps moving without a new document
@@ -241,7 +245,7 @@ describe('calculateSegmentTimingStates', () => {
 
 			const states = statesAt(scenario, 10000)
 
-			expect(evalDuration(states.get(SEGMENT_0)?.plannedDuration, 10000)).toBe(PART_DURATION)
+			expect(states.get(SEGMENT_0)?.targetDuration).toBe(PART_DURATION)
 		})
 	})
 
@@ -264,7 +268,7 @@ describe('calculateSegmentTimingStates', () => {
 			const states = statesAt(makeBudgetScenario(), 30000)
 			const live = states.get(SEGMENT_0)
 
-			expect(evalDuration(live?.plannedDuration, 30000)).toBe(budgetDuration)
+			expect(live?.targetDuration).toBe(budgetDuration)
 			// 10s into a 25s budget, continuing into overtime
 			expect(evalDuration(live?.remaining, 30000)).toBe(15000)
 			expect(evalDuration(live?.remaining, 45000)).toBe(0)
@@ -283,6 +287,60 @@ describe('calculateSegmentTimingStates', () => {
 			const states = statesAt(makeBudgetScenario(), 30000)
 
 			expect(evalDuration(states.get(SEGMENT_0)?.playedOut, 30000)).toBe(0)
+		})
+	})
+
+	describe('the length of the content', () => {
+		it('adds up the expected durations of the parts', () => {
+			const states = statesAt(makeScenario(), 10000)
+
+			expect(states.get(SEGMENT_0)?.expectedDuration).toBe(2 * PART_DURATION)
+			expect(states.get(SEGMENT_1)?.expectedDuration).toBe(2 * PART_DURATION)
+		})
+
+		it('leaves out untimed parts', () => {
+			const scenario = makeScenario()
+			scenario.partInstances[1].part.untimed = true
+
+			const states = statesAt(scenario, 10000)
+
+			expect(states.get(SEGMENT_0)?.expectedDuration).toBe(PART_DURATION)
+		})
+
+		it('leaves out adlibbed parts, and parts removed from the rundown', () => {
+			const scenario = makeScenario()
+			scenario.partInstances[1].orphaned = 'adlib-part'
+			scenario.partInstances[3].orphaned = 'deleted'
+
+			const states = statesAt(scenario, 10000)
+
+			expect(states.get(SEGMENT_0)?.expectedDuration).toBe(PART_DURATION)
+			expect(states.get(SEGMENT_1)?.expectedDuration).toBe(PART_DURATION)
+		})
+
+		it('is the content of a budgeted segment, not its budget', () => {
+			const scenario = makeScenario({
+				budgetDuration: 25000,
+				countdownType: CountdownType.SEGMENT_BUDGET_DURATION,
+			})
+
+			const states = statesAt(scenario, 10000)
+
+			expect(states.get(SEGMENT_0)?.targetDuration).toBe(25000)
+			expect(states.get(SEGMENT_0)?.expectedDuration).toBe(2 * PART_DURATION)
+		})
+
+		it('counts a part taken again once, as there is one part document for it', () => {
+			const scenario = makeScenario()
+			const firstTake = scenario.partInstances[0]
+			firstTake._id = protectString('part0_first')
+			firstTake.isTemporary = false
+			const secondTake = { ...firstTake, _id: protectString<PartInstanceId>('part0_second') }
+			scenario.partInstances.splice(2, 0, secondTake)
+
+			const states = statesAt(scenario, 10000)
+
+			expect(states.get(SEGMENT_0)?.expectedDuration).toBe(2 * PART_DURATION)
 		})
 	})
 

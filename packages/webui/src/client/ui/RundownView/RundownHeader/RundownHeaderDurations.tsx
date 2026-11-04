@@ -1,7 +1,11 @@
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { useTranslation } from 'react-i18next'
 import { Countdown } from './Countdown'
-import { TimerValueMode, usePlaylistTimingValue } from '../RundownTiming/usePlaylistTimingValue.js'
+import {
+	TimerValueMode,
+	usePlaylistTimingField,
+	usePlaylistTimingValue,
+} from '../RundownTiming/usePlaylistTimingValue.js'
 import { RundownUtils } from '../../../lib/rundown.js'
 
 export function RundownHeaderDurations({
@@ -12,10 +16,10 @@ export function RundownHeaderDurations({
 	readonly simplified?: boolean
 }): JSX.Element | null {
 	const { t } = useTranslation()
-	const expectedDuration = usePlaylistTimingValue(playlist._id, 'plannedDuration', TimerValueMode.Duration)
+	const expectedDuration = usePlaylistTimingField(playlist._id, 'plannedDuration')
 	const estDuration = usePlaylistTimingValue(playlist._id, 'remainingDuration', TimerValueMode.Duration)
 
-	if (expectedDuration === null && estDuration === null) return null
+	if (expectedDuration === undefined && estDuration === null) return null
 
 	const clampedEstDuration = estDuration !== null ? Math.max(0, estDuration) : null
 

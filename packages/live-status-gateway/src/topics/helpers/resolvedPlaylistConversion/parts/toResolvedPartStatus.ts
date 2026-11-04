@@ -10,11 +10,7 @@ import {
 	ResolvedPartState,
 } from '@sofie-automation/live-status-gateway-api'
 import type { PartTimingStateDoc, PlaylistTimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/TimingState'
-import {
-	offsetTimerState,
-	type TimerState,
-	timerStateToDuration,
-} from '@sofie-automation/corelib/dist/dataModel/TimerState'
+import { offsetTimerState, type TimerState } from '@sofie-automation/corelib/dist/dataModel/TimerState'
 import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { toNotificationSeverity } from '../../notification/toNotificationStatus.js'
 
@@ -84,17 +80,16 @@ function toApiPartInvalidReason(invalidReason: CorePartInvalidReason): PartInval
  * A Part's rundown timing, as Sofie resolved and published it.
  *
  * The timers are forwarded rather than evaluated: the client reads them against its own clock, so
- * the gateway sends on playout events instead of on a tick. The durations are constant states, so
- * evaluating them to plain numbers costs nothing and matches the plain-number fields around them.
+ * the gateway sends on playout events instead of on a tick. The durations do not move with the clock,
+ * so they are published, and sent on, as plain numbers.
  */
 function toPartRundownTiming(
 	timing: PartTimingStateDoc | undefined,
 	playlistTiming: PlaylistTimingStateDoc | undefined
 ): PartRundownTiming {
 	return {
-		// constant states, so any instant reads the same value
-		expectedDurationMs: timing?.expectedDuration ? timerStateToDuration(timing.expectedDuration, 0) : 0,
-		displayDurationMs: timing?.displayDuration ? timerStateToDuration(timing.displayDuration, 0) : 0,
+		expectedDurationMs: timing?.expectedDuration ?? 0,
+		displayDurationMs: timing?.displayDuration ?? 0,
 		isInQuickLoop: timing?.isInQuickLoop ?? false,
 		countsTowardsTiming: timing?.countsTowardsTiming ?? false,
 		countdown: toPartCountdown(timing, playlistTiming),

@@ -22,8 +22,6 @@ const PART_DOC: PartTimingStateDoc = {
 	rank: 0,
 	isInQuickLoop: false,
 	countsTowardsTiming: true,
-	untimed: false,
-	orphaned: false,
 	played: { paused: false, zeroTime: PART_START },
 	liveDisplayDuration: { paused: true, duration: -20000 },
 }

@@ -232,7 +232,7 @@ export function usePartCountdownValue(
  *
  * @returns The value, or undefined while nothing is published for the playlist
  */
-export function usePlaylistTimingField<TField extends 'timingType' | 'currentPartWillAutoNext'>(
+export function usePlaylistTimingField<TField extends 'timingType' | 'currentPartWillAutoNext' | 'plannedDuration'>(
 	playlistId: RundownPlaylistId | undefined,
 	field: TField
 ): PlaylistTimingStateDoc[TField] | undefined {
@@ -255,18 +255,48 @@ export function usePlaylistTimingField<TField extends 'timingType' | 'currentPar
 }
 
 /**
- * Read one of a part's non-timer fields from its published timing state - `rank`, `isInQuickLoop`
- * or `countsTowardsTiming`.
+ * Read one of a segment's non-timer fields from its published timing state - `countdownType`, or one
+ * of the lengths `targetDuration` and `expectedDuration`.
+ *
+ * These do not vary with the clock, so unlike {@link useSegmentTimingValue} this does not tick: the
+ * caller re-renders only when the published value actually changes.
+ *
+ * @returns The value, or undefined while nothing is published for the segment
+ */
+export function useSegmentTimingField<TField extends 'countdownType' | 'targetDuration' | 'expectedDuration'>(
+	segmentId: SegmentId | undefined,
+	field: TField
+): SegmentTimingStateDoc[TField] | undefined {
+	return useTracker(
+		() => {
+			if (!segmentId) return undefined
+
+			// `type` narrows the published union, so it has to be in the projection
+			const doc = PlaylistTimingStates.findOne(getSegmentTimingStateDocId(segmentId), {
+				fields: { type: 1, [field]: 1 } satisfies MongoFieldSpecifierOnes<SegmentTimingStateDoc>,
+			}) as (Pick<TimingStateDoc, 'type'> & Partial<SegmentTimingStateDoc>) | undefined
+
+			if (!doc || !isSegmentTimingStateDoc(doc)) return undefined
+
+			return doc[field]
+		},
+		[segmentId, field],
+		undefined
+	)
+}
+
+/**
+ * Read one of a part's non-timer fields from its published timing state - `rank`, `isInQuickLoop`,
+ * `countsTowardsTiming`, or one of the lengths `expectedDuration` and `displayDuration`.
  *
  * These do not vary with the clock, so unlike {@link usePartTimingValue} this does not tick: the
  * caller re-renders only when the published value actually changes.
  *
  * @returns The value, or undefined while nothing is published for the part
  */
-export function usePartTimingField<TField extends 'rank' | 'isInQuickLoop' | 'countsTowardsTiming'>(
-	partId: PartId | undefined,
-	field: TField
-): PartTimingStateDoc[TField] | undefined {
+export function usePartTimingField<
+	TField extends 'rank' | 'isInQuickLoop' | 'countsTowardsTiming' | 'expectedDuration' | 'displayDuration',
+>(partId: PartId | undefined, field: TField): PartTimingStateDoc[TField] | undefined {
 	return useTracker(
 		() => {
 			if (!partId) return undefined
@@ -441,9 +471,7 @@ export function usePartsTotalExpectedDuration(playlistId: RundownPlaylistId | un
 				PlaylistTimingStates.find({ type: 'part', playlistId } as never, {
 					fields: { expectedDuration: 1 } satisfies MongoFieldSpecifierOnes<PartTimingStateDoc>,
 				}).forEach((doc) => {
-					const expectedDuration = (doc as PartTimingStateDoc).expectedDuration
-					// a constant state, so any instant reads the same value
-					total += expectedDuration ? timerStateToDuration(expectedDuration, 0) : 0
+					total += (doc as PartTimingStateDoc).expectedDuration ?? 0
 				})
 				return total
 			},

@@ -188,7 +188,7 @@ function assertEquivalence(
 		// Static values
 		expect(evalZeroTime(states.plannedStart, t)).toBe(PlaylistTiming.getExpectedStart(playlist.timing))
 		expect(evalZeroTime(states.plannedEnd, t)).toBe(PlaylistTiming.getExpectedEnd(playlist.timing))
-		expect(evalDuration(states.plannedDuration, t)).toBe(PlaylistTiming.getExpectedDuration(playlist.timing))
+		expect(states.plannedDuration).toBe(PlaylistTiming.getExpectedDuration(playlist.timing))
 		expect(evalZeroTime(states.startedPlayback, t)).toBe(gatedStartedPlayback)
 
 		// Live values

@@ -44,8 +44,6 @@ function makeDoc(partId: PartId, rank: number, displayDuration: TimerState): Par
 		rank,
 		isInQuickLoop: false,
 		countsTowardsTiming: true,
-		untimed: false,
-		orphaned: false,
 		liveDisplayDuration: displayDuration,
 		duration: displayDuration,
 	}
