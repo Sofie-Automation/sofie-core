@@ -13,7 +13,7 @@ import {
 	type TimerState,
 } from '@sofie-automation/corelib/dist/dataModel/TimerState'
 import { RundownTimingCalculator, getPartInstanceTimingId, type RundownTimingContext } from '../index'
-import { calculatePartTimingStates, type PartTimingStateValues } from '../partTimingState'
+import { calculatePartTimingStates, type PartTimingState, type PartTimingStateValues } from '../partTimingState'
 
 const DEFAULT_DURATION = 0
 const RUNDOWN_ID = 'rundown1'
@@ -137,8 +137,13 @@ function contextAt(scenario: MockScenario, now: number): RundownTimingContext {
 	)
 }
 
+/** The timing values of each part, without the PartInstances they were resolved from */
+function valuesOf(states: Map<PartId, PartTimingState>): Map<PartId, PartTimingStateValues> {
+	return new Map(Array.from(states, ([partId, { values }]) => [partId, values]))
+}
+
 function statesAt(scenario: MockScenario, now: number): Map<PartId, PartTimingStateValues> {
-	return calculatePartTimingStates(contextAt(scenario, now), scenario.partInstances)
+	return valuesOf(calculatePartTimingStates(contextAt(scenario, now), scenario.partInstances))
 }
 
 function evalDuration(state: TimerState | undefined, now: number): number | undefined {
@@ -210,7 +215,7 @@ function negate(value: number | undefined): number | undefined {
  */
 function expectMatchesCalculator(scenario: MockScenario, now: number, offsets: number[]): void {
 	const timingContext = contextAt(scenario, now)
-	const states = calculatePartTimingStates(timingContext, scenario.partInstances)
+	const states = valuesOf(calculatePartTimingStates(timingContext, scenario.partInstances))
 
 	for (const offset of offsets) {
 		const t = now + offset

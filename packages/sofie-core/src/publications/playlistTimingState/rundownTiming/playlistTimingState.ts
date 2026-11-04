@@ -118,26 +118,22 @@ export function calculatePlaylistTimingStatesFromContext(
 		timingType: timing.type,
 		currentPartWillAutoNext: timingContext.currentPartWillAutoNext ?? false,
 		partCountdownBase: timingContext.partCountdownBase,
+
+		currentPartInstanceId,
+		currentSegmentId,
+		remainingOnCurrentPart,
+		remainingBudgetOnCurrentSegment,
+
+		plannedStart: expectedStart !== undefined ? { paused: false, zeroTime: expectedStart } : undefined,
+		plannedEnd: expectedEnd !== undefined ? { paused: false, zeroTime: expectedEnd } : undefined,
+		plannedDuration: expectedDuration,
+		targetDuration: timingContext.totalPlaylistDuration,
+		startedPlayback: startedPlayback !== undefined ? { paused: false, zeroTime: startedPlayback } : undefined,
+
+		remainingDuration,
+		estimatedEnd,
+		overUnder: overUnderIsMeaningful ? calculateOverUnderState(now, playlist, timingContext) : undefined,
 	}
-
-	// A value the playlist does not have is left out, rather than set to undefined (see
-	// `computeTimingState` in publication.ts for why)
-	if (currentPartInstanceId !== undefined) values.currentPartInstanceId = currentPartInstanceId
-	if (currentSegmentId !== undefined) values.currentSegmentId = currentSegmentId
-	if (remainingOnCurrentPart !== undefined) values.remainingOnCurrentPart = remainingOnCurrentPart
-	if (remainingBudgetOnCurrentSegment !== undefined) {
-		values.remainingBudgetOnCurrentSegment = remainingBudgetOnCurrentSegment
-	}
-
-	if (expectedStart !== undefined) values.plannedStart = { paused: false, zeroTime: expectedStart }
-	if (expectedEnd !== undefined) values.plannedEnd = { paused: false, zeroTime: expectedEnd }
-	if (expectedDuration !== undefined) values.plannedDuration = expectedDuration
-	if (timingContext.totalPlaylistDuration !== undefined) values.targetDuration = timingContext.totalPlaylistDuration
-	if (startedPlayback !== undefined) values.startedPlayback = { paused: false, zeroTime: startedPlayback }
-
-	if (remainingDuration !== undefined) values.remainingDuration = remainingDuration
-	if (estimatedEnd !== undefined) values.estimatedEnd = estimatedEnd
-	if (overUnderIsMeaningful) values.overUnder = calculateOverUnderState(now, playlist, timingContext)
 
 	return values
 }

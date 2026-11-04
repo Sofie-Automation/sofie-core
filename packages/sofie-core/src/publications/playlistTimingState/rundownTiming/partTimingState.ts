@@ -23,6 +23,12 @@ export type PartTimingStateValues = Omit<
 	'_id' | 'type' | 'playlistId' | 'segmentId' | 'partId' | 'partInstanceId'
 >
 
+/** A part's timing values, with the PartInstance they were resolved from */
+export interface PartTimingState {
+	partInstance: CalculateTimingsPartInstance
+	values: PartTimingStateValues
+}
+
 /**
  * Calculate the timing values for every part of the playlist.
  *
@@ -31,16 +37,22 @@ export type PartTimingStateValues = Omit<
  * already.
  *
  * @param timingContext The context calculated for the same inputs
+ * There is one state per Part: a Part with several PartInstances, such as one taken again, is
+ * described by the last of them.
+ *
  * @param partInstances Sorted PartInstances, as fed to the RundownTimingCalculator
  */
 export function calculatePartTimingStates(
 	timingContext: RundownTimingContext,
 	partInstances: CalculateTimingsPartInstance[]
-): Map<PartId, PartTimingStateValues> {
-	const states = new Map<PartId, PartTimingStateValues>()
+): Map<PartId, PartTimingState> {
+	const states = new Map<PartId, PartTimingState>()
 
 	partInstances.forEach((partInstance, rank) => {
-		states.set(partInstance.part._id, calculateOnePartTimingStates(timingContext, partInstance, rank))
+		states.set(partInstance.part._id, {
+			partInstance,
+			values: calculateOnePartTimingStates(timingContext, partInstance, rank),
+		})
 	})
 
 	return states
@@ -85,19 +97,12 @@ function calculateOnePartTimingStates(
 		rank,
 		isInQuickLoop: timingContext.partsInQuickLoop?.[timingId] ?? false,
 		countsTowardsTiming: timingContext.partCountsTowardsTiming?.[timingId] ?? false,
+		expectedDuration,
+		displayDuration: displayDurationNoPlayback,
+		// A null offset means "will probably not be played out, if played in order", which the displays
+		// render as no countdown at all - so it is simply absent from the document
+		countdownOffset: countdownOffset ?? undefined,
 	}
-
-	// A value the part does not have is left out, rather than set to undefined (see
-	// `computeTimingState` in publication.ts for why)
-	if (expectedDuration !== undefined) values.expectedDuration = expectedDuration
-	if (displayDurationNoPlayback !== undefined) {
-		values.displayDuration = displayDurationNoPlayback
-	}
-
-	// A null offset means "will probably not be played out, if played in order", which the displays
-	// render as no countdown at all - so it is simply absent from the document
-	const hasCountdownOffset = countdownOffset !== undefined && countdownOffset !== null
-	if (hasCountdownOffset) values.countdownOffset = countdownOffset
 
 	// The played time grows from the moment the part starts, from zero
 	if (played !== undefined) {
