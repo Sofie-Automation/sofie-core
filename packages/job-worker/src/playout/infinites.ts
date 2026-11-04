@@ -23,7 +23,7 @@ import _ from 'underscore'
 import { IngestModelReadonly } from '../ingest/model/IngestModel.js'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { sortRundownIDsInPlaylist } from '@sofie-automation/corelib/dist/playout/playlist'
-import { MongoQuery, mongoWhere } from '@sofie-automation/corelib/dist/mongo'
+import { compileMongoSelector, MongoQuery } from '@sofie-automation/corelib/dist/mongo'
 import { PlayoutRundownModel } from './model/PlayoutRundownModel.js'
 
 /** When we crop a piece, set the piece as "it has definitely ended" this far into the future. */
@@ -223,7 +223,7 @@ export async function fetchPiecesThatMayBeActiveForPart(
 	const findPieces = async (query: MongoQuery<Piece> | null, inIngestModel: boolean) => {
 		if (!query) return []
 		if (inIngestModel && unsavedIngestModel) {
-			return unsavedIngestModel.getAllPieces().filter((p) => mongoWhere(p, query))
+			return unsavedIngestModel.getAllPieces().filter(compileMongoSelector(query))
 		}
 		return context.directCollections.Pieces.findFetch(query)
 	}
