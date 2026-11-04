@@ -1,55 +1,7 @@
 import type { PartTimingStateDoc, PlaylistTimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/TimingState'
 import type { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { offsetTimerState, type TimerState } from '@sofie-automation/corelib/dist/dataModel/TimerState'
-import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
-import type { CurrentPartTiming, PartTiming } from '@sofie-automation/live-status-gateway-api'
+import type { CurrentPartTiming } from '@sofie-automation/live-status-gateway-api'
 import { projectedZeroTime } from './timerState.js'
-
-/**
- * A Part's timing, as Sofie resolved and published it.
- *
- * The timers are forwarded rather than evaluated: the client reads them against its own clock, so
- * the gateway sends on playout events instead of on a tick. The durations do not move with the clock,
- * so they are published, and sent on, as plain numbers.
- */
-export function toPartTiming(
-	timing: PartTimingStateDoc,
-	playlistTiming: PlaylistTimingStateDoc | undefined
-): PartTiming {
-	return {
-		id: unprotectString(timing.partId),
-		instanceId: timing.partInstanceId ? unprotectString(timing.partInstanceId) : null,
-		segmentId: unprotectString(timing.segmentId),
-		rank: timing.rank,
-		expectedDurationMs: timing.expectedDuration ?? 0,
-		displayDurationMs: timing.displayDuration ?? 0,
-		isInQuickLoop: timing.isInQuickLoop,
-		countsTowardsTiming: timing.countsTowardsTiming,
-		countdown: toPartCountdown(timing, playlistTiming),
-		played: timing.played,
-		duration: timing.duration,
-		liveDisplayDuration: timing.liveDisplayDuration,
-	}
-}
-
-/**
- * The countdown until the Part goes on air: the playlist's base for the Part countdowns, shifted by the Part's offset.
- * Undefined when the Part has no offset, as it will probably not be played out if the rundown is played in order, and
- * when the playlist's timing is not that of the Part's playlist: after a switch of playlist, the previous playlist's
- * document can still be held until the new subscription delivers.
- */
-function toPartCountdown(
-	timing: PartTimingStateDoc,
-	playlistTiming: PlaylistTimingStateDoc | undefined
-): TimerState | undefined {
-	const countdownOffset = timing.countdownOffset
-	if (countdownOffset === undefined || !playlistTiming) return undefined
-
-	const isOfThePartsPlaylist = playlistTiming.playlistId === timing.playlistId
-	if (!isOfThePartsPlaylist) return undefined
-
-	return offsetTimerState(playlistTiming.partCountdownBase, countdownOffset)
-}
 
 /**
  * The on-air Part's timing, taken from the `playlistTimingState` publication.

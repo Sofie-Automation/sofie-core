@@ -23,6 +23,7 @@ export function toResolvedPlaylistStatus({
 	partInstancesInPlaylistState,
 	piecesInPlaylistState,
 	pieceInstancesInPlaylistState,
+	timingStatesState,
 	logger,
 }: ToResolvedPlaylistStatusProps & { logger?: Logger }): ResolvedPlaylistEvent {
 	// Keep payload shape stable before all dependencies are available.
@@ -56,6 +57,7 @@ export function toResolvedPlaylistStatus({
 		partInstancesInPlaylistState,
 		piecesInPlaylistState,
 		pieceInstancesInPlaylistState,
+		timingStatesState,
 	})
 
 	let activationStatus: PlaylistActivationStatus =

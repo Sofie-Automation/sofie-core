@@ -63,7 +63,6 @@ enum SubscriptionName {
 	RESOLVED_PLAYLIST = 'resolvedPlaylist',
 	ACTIVE_PIECES = 'activePieces',
 	SEGMENTS = 'segments',
-	PART_TIMINGS = 'partTimings',
 	AD_LIBS = 'adLibs',
 	NOTIFICATIONS = 'notifications',
 	BUCKETS = 'buckets',
@@ -961,6 +960,10 @@ interface ResolvedPart {
 	 */
 	timing: ResolvedPartTiming
 	/**
+	 * The rundown timing of the part, as Sofie resolves it: durations and countdowns. It is different from `timing`, which describes the position of this part in the resolved playout.
+	 */
+	rundownTiming?: PartRundownTiming
+	/**
 	 * Pieces in this part
 	 */
 	pieces: ResolvedPiece[]
@@ -1034,6 +1037,44 @@ interface ResolvedPartTiming {
 	 * Unix timestamp (ms) when the part was taken
 	 */
 	take?: number
+}
+
+/**
+ * The rundown timing of the part, as Sofie resolves it: durations and countdowns. It is different from `timing`, which describes the position of this part in the resolved playout.
+ */
+interface PartRundownTiming {
+	/**
+	 * The resolved expected duration of the part (milliseconds), as for `currentPart.timing.expectedDurationMs` on the `activePlaylist` topic. For a part with an expected duration of its own, it is that expected duration with its transition. For a part with no expected duration of its own, it is its recorded duration after it has played. If it has not played, it is its share of its display-duration group. It is 0 for a part with none of these values, and until Sofie has published the timing for the playlist.
+	 */
+	expectedDurationMs: number
+	/**
+	 * The resolved space that the part uses in a rundown display, as if the part does not play (milliseconds). See `liveDisplayDuration` for the value that increases while the part is on air.
+	 */
+	displayDurationMs: number
+	/**
+	 * True when the part is in the QuickLoop
+	 */
+	isInQuickLoop: boolean
+	/**
+	 * True when the totals of the playlist and the rundown include the part. False for parts that the rundown skips when it plays in order, unless the playlist allows out-of-order timing.
+	 */
+	countsTowardsTiming: boolean
+	/**
+	 * Time until this part goes on air, as a timer that the client evaluates against its own clock. When the on-air part overruns, it holds at the remaining wait of this part. A countdown cannot decrease below the waits that must still occur. Absent when the part will probably not play out if the rundown plays in order. A display uses this to decide not to show a countdown.
+	 */
+	countdown?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * The time that the part has played, as a timer. It counts up, so the duration that you read is *negative*, and the elapsed time is its negation. The duration that you read from a timer can hold or decrease, but it cannot increase. It runs freely while the part is on air. When the part is done, it holds at the recorded duration.
+	 */
+	played?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * The duration of the part. After the part has played, it is the as-run duration. Before that, it is the as-planned duration. While the part overruns, it increases past the planned value. It counts up, so it reads *negative*. See `played`.
+	 */
+	duration?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * `displayDurationMs` while the part is on air. It increases when the part passes its planned end. Thus a part that overruns continues to use more space, and the display does not draw it as finished. It counts up, so it reads *negative*. See `played`.
+	 */
+	liveDisplayDuration?: TimerStateRunning | TimerStatePaused | null
 }
 
 /**
@@ -1187,81 +1228,6 @@ interface SegmentTiming {
 	 */
 	remaining?: TimerStateRunning | TimerStatePaused | null
 	additionalProperties?: Record<string, any>
-}
-
-/**
- * The timing of each part in the active rundown playlist, as Sofie resolves it. The timers are sent as timer states that the client evaluates against its own clock, so a message is sent when playout or the rundown changes, not each second.
- *
- * Sofie calculates the timing a moment after the change that it follows. After a take, the `resolvedPlaylist` and `activePlaylist` topics can therefore already show the new on-air part while this topic still describes the part before. To find this moment, compare `currentPartInstanceId` with `currentPartInstanceId` of the `resolvedPlaylist` topic. While they differ, keep the timing that you show, and use the next message of this topic.
- */
-interface PartTimingsEvent {
-	event: 'partTimings'
-	/**
-	 * Unique id of the rundown playlist, or null if no playlist is active
-	 */
-	rundownPlaylistId: string | null
-	/**
-	 * Unique id of the part instance that this timing treats as on air, or null if none is. See the description of the message.
-	 */
-	currentPartInstanceId: string | null
-	/**
-	 * The timing of each part of the playlist that Sofie times, in order of `rank`. Empty until Sofie has published the timing for the active playlist.
-	 */
-	parts: PartTiming[]
-}
-
-/**
- * The timing of a part, as Sofie resolves it. These are the numbers that the Sofie UI shows, with the fallbacks applied. The fallbacks are transitions, recorded durations, display-duration groups and, for the display duration only, the default duration of the Studio.
- */
-interface PartTiming {
-	/**
-	 * Unique id of the part, as `id` of a part on the `resolvedPlaylist` topic
-	 */
-	id: string
-	/**
-	 * Unique id of the part instance that this timing describes, as `instanceId` of a part on the `resolvedPlaylist` topic. Null for a part that has not been played. A part that is played again has one timing, of its last part instance.
-	 */
-	instanceId: string | null
-	/**
-	 * Unique id of the segment that the part belongs to
-	 */
-	segmentId: string
-	/**
-	 * Position of the part in the order that Sofie times the playlist in, counting from 0. The parts of the message are in this order.
-	 */
-	rank: number
-	/**
-	 * The resolved expected duration of the part (milliseconds), as for `currentPart.timing.expectedDurationMs` on the `activePlaylist` topic. For a part with an expected duration of its own, it is that expected duration with its transition. For a part with no expected duration of its own, it is its recorded duration after it has played. If it has not played, it is its share of its display-duration group. It is 0 for a part with none of these values, and until Sofie has published the timing for the playlist.
-	 */
-	expectedDurationMs: number
-	/**
-	 * The resolved space that the part uses in a rundown display, as if the part does not play (milliseconds). See `liveDisplayDuration` for the value that increases while the part is on air.
-	 */
-	displayDurationMs: number
-	/**
-	 * True when the part is in the QuickLoop
-	 */
-	isInQuickLoop: boolean
-	/**
-	 * True when the totals of the playlist and the rundown include the part. False for parts that the rundown skips when it plays in order, unless the playlist allows out-of-order timing.
-	 */
-	countsTowardsTiming: boolean
-	/**
-	 * Time until this part goes on air, as a timer that the client evaluates against its own clock. When the on-air part overruns, it holds at the remaining wait of this part. A countdown cannot decrease below the waits that must still occur. Absent when the part will probably not play out if the rundown plays in order. A display uses this to decide not to show a countdown.
-	 */
-	countdown?: TimerStateRunning | TimerStatePaused | null
-	/**
-	 * The time that the part has played, as a timer. It counts up, so the duration that you read is *negative*, and the elapsed time is its negation. The duration that you read from a timer can hold or decrease, but it cannot increase. It runs freely while the part is on air. When the part is done, it holds at the recorded duration.
-	 */
-	played?: TimerStateRunning | TimerStatePaused | null
-	/**
-	 * The duration of the part. After the part has played, it is the as-run duration. Before that, it is the as-planned duration. While the part overruns, it increases past the planned value. It counts up, so it reads *negative*. See `played`.
-	 */
-	duration?: TimerStateRunning | TimerStatePaused | null
-	/**
-	 * `displayDurationMs` while the part is on air. It increases when the part passes its planned end. Thus a part that overruns continues to use more space, and the display does not draw it as finished. It counts up, so it reads *negative*. See `played`.
-	 */
-	liveDisplayDuration?: TimerStateRunning | TimerStatePaused | null
 }
 
 interface AdLibsEvent {
@@ -1622,7 +1588,6 @@ export type Slash =
 	| HeartbeatEvent
 	| NotificationsEvent
 	| PackagesEvent
-	| PartTimingsEvent
 	| PongEvent
 	| ResolvedPlaylistEvent
 	| SegmentsEvent
@@ -1682,14 +1647,13 @@ export {
 	NotificationSeverity,
 	ResolvedPartState,
 	ResolvedPartTiming,
+	PartRundownTiming,
 	ResolvedPiece,
 	ResolvedPieceTiming,
 	ActivePiecesEvent,
 	SegmentsEvent,
 	Segment,
 	SegmentTiming,
-	PartTimingsEvent,
-	PartTiming,
 	AdLibsEvent,
 	AdLibStatus,
 	AdLibActionType,

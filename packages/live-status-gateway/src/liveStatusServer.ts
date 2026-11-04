@@ -38,7 +38,6 @@ import { PlaylistNotificationsHandler } from './collections/notifications/playli
 import { RundownNotificationsHandler } from './collections/notifications/rundownNotificationsHandler.js'
 import { wsConnectionsGauge } from './wsMetrics.js'
 import { ResolvedPlaylistTopic } from './topics/resolvedPlaylistTopic.js'
-import { PartTimingsTopic } from './topics/partTimingsTopic.js'
 import { PartInstancesInPlaylistHandler } from './collections/partInstancesInPlaylistHandler.js'
 import { PiecesInPlaylistHandler } from './collections/piecesInPlaylistHandler.js'
 import { PieceInstancesInPlaylistHandler } from './collections/pieceInstancesInPlaylistHandler.js'
@@ -157,7 +156,6 @@ export class LiveStatusServer {
 		const activePiecesTopic = new ActivePiecesTopic(this._logger, handlers)
 		const activePlaylistTopic = new ActivePlaylistTopic(this._logger, handlers)
 		const segmentsTopic = new SegmentsTopic(this._logger, handlers)
-		const partTimingsTopic = new PartTimingsTopic(this._logger, handlers)
 		const resolvedPlaylistTopic = new ResolvedPlaylistTopic(this._logger, handlers)
 		const adLibsTopic = new AdLibsTopic(this._logger, handlers)
 		const notificationsTopic = new NotificationsTopic(this._logger, handlers)
@@ -169,7 +167,6 @@ export class LiveStatusServer {
 		rootChannel.addTopic(SubscriptionName.RESOLVED_PLAYLIST, resolvedPlaylistTopic)
 		rootChannel.addTopic(SubscriptionName.ACTIVE_PIECES, activePiecesTopic)
 		rootChannel.addTopic(SubscriptionName.SEGMENTS, segmentsTopic)
-		rootChannel.addTopic(SubscriptionName.PART_TIMINGS, partTimingsTopic)
 		rootChannel.addTopic(SubscriptionName.AD_LIBS, adLibsTopic)
 		rootChannel.addTopic(SubscriptionName.NOTIFICATIONS, notificationsTopic)
 		rootChannel.addTopic(SubscriptionName.RESERVED_PACKAGES, packageStatusTopic)

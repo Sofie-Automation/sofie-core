@@ -1,33 +1,14 @@
-title: Part Timing
-description: The timing of a part, as Sofie resolves it
+title: Part Rundown Timing
+description: Rundown timing for a part, as Sofie resolves it
 $defs:
-  partTiming:
+  partRundownTiming:
     type: object
-    title: PartTiming
+    title: PartRundownTiming
     description: >-
-      The timing of a part, as Sofie resolves it. These are the numbers that the Sofie UI shows,
+      The rundown timing of a part, as Sofie resolves it. These are the numbers that the Sofie UI shows,
       with the fallbacks applied. The fallbacks are transitions, recorded durations, display-duration
       groups and, for the display duration only, the default duration of the Studio.
     properties:
-      id:
-        description: Unique id of the part, as `id` of a part on the `resolvedPlaylist` topic
-        type: string
-      instanceId:
-        description: >-
-          Unique id of the part instance that this timing describes, as `instanceId` of a part on the
-          `resolvedPlaylist` topic. Null for a part that has not been played. A part that is played
-          again has one timing, of its last part instance.
-        oneOf:
-          - type: string
-          - type: 'null'
-      segmentId:
-        description: Unique id of the segment that the part belongs to
-        type: string
-      rank:
-        description: >-
-          Position of the part in the order that Sofie times the playlist in, counting from 0. The
-          parts of the message are in this order.
-        type: number
       expectedDurationMs:
         description: >-
           The resolved expected duration of the part (milliseconds), as for
@@ -85,8 +66,7 @@ $defs:
         oneOf:
           - type: 'null'
           - $ref: '../../tTimers/timerState.yaml#/$defs/timerState'
-    required:
-      [id, instanceId, segmentId, rank, expectedDurationMs, displayDurationMs, isInQuickLoop, countsTowardsTiming]
+    required: [expectedDurationMs, displayDurationMs, isInQuickLoop, countsTowardsTiming]
     additionalProperties: false
     examples:
-      - $ref: './partTiming-example.yaml'
+      - $ref: './partRundownTiming-example.yaml'

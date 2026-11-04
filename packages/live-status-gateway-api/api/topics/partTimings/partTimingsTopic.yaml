@@ -1,7 +1,0 @@
-description: Topic for the timing of each Part in the active Playlist
-
-subscribe:
-  operationId: receivePartTimings
-  description: Server publishes the timing of each Part, as Sofie resolves it
-  message:
-    $ref: '../../components/timing/messages/partTimingsMessage.yaml#/components/messages/partTimingsMessage'

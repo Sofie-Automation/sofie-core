@@ -43,6 +43,12 @@ $defs:
             description: Optional arbitrary data
           timing:
             $ref: '../../timing/resolvedPartTiming/resolvedPartTiming.yaml#/$defs/resolvedPartTiming'
+          rundownTiming:
+            description: >-
+              The rundown timing of the part, as Sofie resolves it: durations and countdowns. It is
+              different from `timing`, which describes the position of this part in the resolved
+              playout.
+            $ref: '../../timing/partRundownTiming/partRundownTiming.yaml#/$defs/partRundownTiming'
           pieces:
             description: Pieces in this part
             type: array

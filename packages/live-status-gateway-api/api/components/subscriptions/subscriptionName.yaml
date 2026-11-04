@@ -9,7 +9,6 @@ $defs:
       - resolvedPlaylist
       - activePieces
       - segments
-      - partTimings
       - adLibs
       - notifications
       - buckets

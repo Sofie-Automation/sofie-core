@@ -105,23 +105,17 @@ You do not have to copy the duration rules, display-duration groups or QuickLoop
 
 The Live Status Gateway is the supported route for an external system. It puts the published values on its topics:
 
-| Topic            | Field                                                                    |
-| ---------------- | ------------------------------------------------------------------------ |
-| `activePlaylist` | `timing.remainingDuration`, `timing.estimatedEnd`, `timing.timeInHand`   |
-| `activePlaylist` | `currentSegment.timing.playedOut`, `currentSegment.timing.remaining`     |
-| `segments`       | `timing.playedOut`, `timing.remaining` of each segment                   |
-| `partTimings`    | The timing of each Part: the resolved durations, `countdown` and `played` |
+| Topic              | Field                                                                          |
+| ------------------ | ------------------------------------------------------------------------------ |
+| `activePlaylist`   | `timing.remainingDuration`, `timing.estimatedEnd`, `timing.timeInHand`         |
+| `activePlaylist`   | `currentSegment.timing.playedOut`, `currentSegment.timing.remaining`           |
+| `segments`         | `timing.playedOut`, `timing.remaining` of each segment                         |
+| `resolvedPlaylist` | `rundownTiming` of each Part: the resolved durations, `countdown` and `played` |
 
-- The timers are `TimerState`s. In `partTimings`, `expectedDurationMs` and `displayDurationMs` are plain
+- The timers are `TimerState`s. In `rundownTiming`, `expectedDurationMs` and `displayDurationMs` are plain
   milliseconds, because they do not move. `duration` and `liveDisplayDuration` are `TimerState`s that count up.
 - `timeInHand` is the published `overUnder`. It is positive when the show is early.
 - The gateway makes the `countdown` of each Part from the base and the offset.
-- `partTimings` has only timing. Take the names, the order in the rundown and the pieces of the Parts from
-  `resolvedPlaylist`, and join the two topics on the id of the Part.
-- Each `partTimings` message is one calculation of Sofie, so its values agree with each other. Sofie calculates a
-  moment after a take. For that moment, `resolvedPlaylist` already has the new on-air Part, and `partTimings` still
-  has the timing from before the take. To find this moment, compare `currentPartInstanceId` of the two topics. While
-  they differ, keep the timing that you show. The next `partTimings` message has the timing of the new Part.
 - In the generated TypeScript types, each `TimerState` has `paused: boolean`. Use `'zeroTime' in state` to find the
   type of a state.
 - The `expectedDurationMs` of a segment is the length of its content. It is not the budget. The budget is in
@@ -186,7 +180,7 @@ uses the values of `playlistTimingState`. The other timing fields do not change.
 | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `activePlaylist` `currentPart.timing.startTime`                              | The start that the playout gateway reported. Before that report, the planned start.                                                                                                      | The planned start of the Part (`plannedStartedPlayback`). Sofie's countdowns count from it. While the Part has no planned start, the send time. In multi-gateway mode, the take sets it a moment ahead, so right after a take it is in the future. |
 | `currentPart.timing.expectedDurationMs`                                      | The expected duration set on the Part, without its transition.                                                                                                                           | The length that Sofie calculates: the expected duration with its transition; else the played duration after the Part played; else its part of its display-duration group; else 0. Never the Studio default.                                        |
-| `currentPart.timing.projectedEndTime`                                        | `startTime` plus the expected duration set on the Part, without its transition. For a Part in a display-duration group with no length of its own: the group total minus the played time. | The time at which the On Air countdown is zero. When the start is known, this is the start plus the countdown length. Until then, it is the send time plus that length. With no timing for this Part yet, it is `startTime` plus `expectedDurationMs`. This is also so right after a take, until the timing of the new Part arrives. |
+| `currentPart.timing.projectedEndTime`                                        | `startTime` plus the expected duration set on the Part, without its transition. For a Part in a display-duration group with no length of its own: the group total minus the played time. | The time at which the On Air countdown is zero. When the start is known, this is the start plus the countdown length. Until then, it is the send time plus that length. With no timing yet, it is `startTime` plus `expectedDurationMs`.           |
 | `currentSegment.timing.projectedEndTime`                                     | Calculated from the start of the on-air Part, or from the start of the segment if it has a budget.                                                                                       | The time at which the `remaining` timer of the segment is zero. While that timer is paused, it is the send time plus the time that remains, or `resumesAt` plus the time that remains. With no timing yet, it is the send time.                    |
 | `timing.expectedDurationMs` of a segment, on `segments` and `currentSegment` | The sum of the lengths set on the Parts, with their transitions.                                                                                                                         | The sum of the lengths that Sofie calculates. It can change during the show, for example in a display-duration group. As before, it does not include untimed, adlibbed and removed Parts.                                                          |
 | `timing.countdownType` of a segment                                          | An unknown value was sent as it is.                                                                                                                                                      | Absent for a value that the API does not know.                                                                                                                                                                                                     |
@@ -198,7 +192,7 @@ uses the values of `playlistTimingState`. The other timing fields do not change.
 | --------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `activePlaylist`                              | `timing.remainingDuration`, `timing.estimatedEnd`, `timing.timeInHand` | The header timers. `null` when no playlist is active, and until the timing arrives. `timeInHand` is also `null` in the `none` timing mode with no planned duration and no playback. |
 | `segments`, `activePlaylist` `currentSegment` | `timing.playedOut`, `timing.remaining`                                 | Absent until the timing arrives.                                                                                                                                                    |
-| `partTimings` (a new topic)                   | `currentPartInstanceId`, and `parts` with the timing of each Part      | Each Part has its ids and `rank`, `expectedDurationMs`, `displayDurationMs`, `isInQuickLoop`, `countsTowardsTiming`, and the timers `countdown`, `played`, `duration` and `liveDisplayDuration`. |
+| `resolvedPlaylist`                            | `rundownTiming` of each Part                                           | `expectedDurationMs`, `displayDurationMs`, `isInQuickLoop`, `countsTowardsTiming`, and the timers `countdown`, `played`, `duration` and `liveDisplayDuration`.                      |
 | All topics with a `TimerState`                | `resumesAt`                                                            | See the last row of the table above.                                                                                                                                                |
 
 ### Other changes
@@ -211,16 +205,16 @@ uses the values of `playlistTimingState`. The other timing fields do not change.
 - **Fewer messages**. A topic does not send all subscribers a copy of a message that they all have. A new subscriber
   still gets the current message. `packages` still sends each message. Use the heartbeat to know that the
   connection is alive, not the messages.
-- **Messages at timing changes**. `activePlaylist`, `segments` and `partTimings` send a message when the published
-  timing changes. Thus `segments` now also sends at each take and at each start report. `resolvedPlaylist` has no
-  timing, so a change of the timing alone does not send it.
+- **Messages at timing changes**. `activePlaylist`, `resolvedPlaylist` and `segments` send a message when the
+  published timing changes. Thus `segments` now also sends at each take and at each start report.
+- **Larger `resolvedPlaylist` messages**. Each Part now has `rundownTiming`. See [Known limitations](#known-limitations).
 
 ### Upgrading and rolling back
 
 | Gateway | Core                          | Result                                                                                                                                                                                                                                                                                                         |
 | ------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 3.0.0   | With `playlistTimingState`    | All values.                                                                                                                                                                                                                                                                                                    |
-| 3.0.0   | Without `playlistTimingState` | The gateway logs a failed subscription. It tries again only when a different playlist, or no playlist, is active, or when the gateway starts again. Until then, it sends 0 for each `expectedDurationMs`, `null` for the playlist timers, no Parts in `partTimings`, and no segment timers. |
+| 3.0.0   | Without `playlistTimingState` | The gateway logs a failed subscription. It tries again only when a different playlist, or no playlist, is active, or when the gateway starts again. Until then, it sends 0 for each `expectedDurationMs`, `null` for the playlist timers, zeros and `false` in `rundownTiming`, and no segment or Part timers. |
 | 2.0.1   | With `playlistTimingState`    | As before, with the same data as before.                                                                                                                                                                                                                                                                       |
 
 Upgrade the core first, then start the gateway again. A gateway that started before the core upgrade keeps empty
@@ -270,16 +264,15 @@ fails on a difference that is not on its list. The full table is `comparisonWith
 - **Just after a take, some values can be wrong for about 0.1–0.3 s**. In a late show, the estimated end and the
   over/under can go one second on and back. Near zero, the over/under chip can change between −00:00, +00:00 and
   −00:01. The gateway can hold the remaining time of the on-air segment for about 0.1 s after a take in the segment.
-- **Just after a take, the timing is from before the take for a moment**. Until the timing for the new Part arrives,
-  `partTimings` and the playlist and segment timers of `activePlaylist` have the values from before the take.
-  `currentPart.timing.projectedEndTime` is then `startTime` plus `expectedDurationMs`. The next message has the
-  correct values.
+- **Just after a take, the gateway can send old values**. Until the timing for the new Part arrives,
+  `currentPart.timing.projectedEndTime` can be the end of the Part before. One message can also have Part
+  countdowns that are wrong. The next message has the correct values.
 - **Before the timing arrives, the gateway sends zeros**. The first message after the activation of a playlist can
   have zeros. See the row "3.0.0, without `playlistTimingState`" in
   [Upgrading and rolling back](#upgrading-and-rolling-back).
-- **`resolvedPlaylist` is slow at scale**. At 1,000 Parts, the gateway takes one second or more to make each message,
-  and the other topics wait behind it. Most of this time is the search for the pieces of each Part. Earlier versions
-  have the same limit.
+- **`resolvedPlaylist` is large at scale**. Each message has the timing of each Part. At 1,000 Parts, each message is
+  about 1.2 MB, and a take sends about 3.5 MB to each client. The first `activePlaylist` message after a take comes
+  about 4 s after the take, behind the `resolvedPlaylist` messages. At 300 Parts, it comes after about 0.15 s.
 - **A Part in a retake has one timing document**. The document describes the PartInstance with the highest take
   count. When the operator sets the on-air Part as Next again, its document describes the queued play.
 - **An adlib or a retake changes all later Part documents**, because the `rank` of each later Part changes.
@@ -293,8 +286,8 @@ fails on a difference that is not on its list. The full table is `comparisonWith
   same rounding.
 - **A reference client for the Live Status Gateway.** A small library that reads the timer states and applies the
   display rules of the Sofie UI. Then a client does not have to copy code from Sofie.
-- **The gateway at scale.** A faster `resolvedPlaylist`, which finds the pieces of each Part without a search of all
-  pieces. Then the on-air timers arrive sooner after a take.
+- **The gateway at scale.** The timing of each Part in its own topic, and `activePlaylist` before `resolvedPlaylist`.
+  Then a take sends less data, and the on-air timers arrive sooner.
 - **The moments around a take.** No short wrong values just after a take.
 
 :::
