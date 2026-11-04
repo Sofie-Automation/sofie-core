@@ -16,6 +16,11 @@ import { projectedZeroTime } from './timerState.js'
  *
  * `projectedEndTime` is when the On Air countdown reaches zero, read as {@link projectedZeroTime} does.
  * Before the Part has started, that is its planned start plus the length the countdown runs for.
+ *
+ * The On Air countdown is used only while the playlist's timing describes this PartInstance. Sofie
+ * calculates the timing a moment after a take, and until then the countdown is still that of the part
+ * before. In that moment the end is the start plus the expected duration, which is also what Sofie
+ * publishes for a part that has just been taken.
  */
 export function calculateCurrentPartTiming(
 	currentPartInstance: DBPartInstance,
@@ -27,11 +32,12 @@ export function calculateCurrentPartTiming(
 
 	const expectedDurationMs = partTiming?.expectedDuration ?? 0
 
+	const isTimingOfThisPartInstance = playlistTiming?.currentPartInstanceId === currentPartInstance._id
+	const onAirCountdown = isTimingOfThisPartInstance ? playlistTiming?.remainingOnCurrentPart : undefined
+
 	return {
 		startTime,
 		expectedDurationMs,
-		projectedEndTime: playlistTiming?.remainingOnCurrentPart
-			? projectedZeroTime(playlistTiming.remainingOnCurrentPart, now)
-			: startTime + expectedDurationMs,
+		projectedEndTime: onAirCountdown ? projectedZeroTime(onAirCountdown, now) : startTime + expectedDurationMs,
 	}
 }

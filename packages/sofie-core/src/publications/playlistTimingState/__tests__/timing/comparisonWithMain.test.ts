@@ -642,8 +642,10 @@ function publishedGateway(moment: Moment, docs: PublishedDocuments): ShownValues
 	const partDoc = docs.parts.find((doc) => doc.partId === onAir.part._id)
 	const startTime = onAir.timings?.plannedStartedPlayback ?? now
 	const expectedDurationMs = partDoc?.expectedDuration ?? 0
-	const projectedEndTime =
-		projectedZeroTimeAt(docs.playlist?.remainingOnCurrentPart, now) ?? startTime + expectedDurationMs
+	// the On Air countdown is used only while it is about the on-air part
+	const isAboutOnAirPart = docs.playlist?.currentPartInstanceId === onAir._id
+	const onAirCountdown = isAboutOnAirPart ? docs.playlist?.remainingOnCurrentPart : undefined
+	const projectedEndTime = projectedZeroTimeAt(onAirCountdown, now) ?? startTime + expectedDurationMs
 	const segmentKey = unprotectString(onAir.segmentId)
 	const segmentEndTime = projectedZeroTimeAt(docs.segments.get(segmentKey)?.remaining, now) ?? now
 	values.set('gateway part timing', partTimingText(startTime, expectedDurationMs, projectedEndTime))

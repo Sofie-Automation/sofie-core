@@ -17,6 +17,7 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { CountdownType } from '@sofie-automation/blueprints-integration'
+import type { PlaylistTimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/TimingState'
 import {
 	ActivePlaylistEvent,
 	ActivePlaylistTimingMode,
@@ -426,6 +427,7 @@ describe('ActivePlaylistTopic', () => {
 			makeTestTimingStates({
 				playlist: {
 					playlistId: playlist._id,
+					currentPartInstanceId: protectString(currentPartInstanceId),
 					remainingOnCurrentPart: { paused: true, duration: 10000, resumesAt: 1600000060000 },
 				},
 				segments: {
@@ -583,12 +585,16 @@ describe('ActivePlaylistTopic', () => {
 			jest.useRealTimers()
 		})
 
-		it('projects the end of the part from its planned start', async () => {
+		const currentPartInstanceId = 'CURRENT_PART_INSTANCE_ID'
+		const expectedDurationMs = 10000
+
+		/** Sends the taken part's message, with the playlist timing that Sofie has published so far */
+		function sendStatusOfTakenPart(
+			playlistTiming: Omit<Partial<PlaylistTimingStateDoc>, 'playlistId'>
+		): ActivePlaylistEvent {
 			const handlers = makeMockHandlers()
 			const topic = new ActivePlaylistTopic(makeMockLogger(), handlers)
 			const mockSubscriber = makeMockSubscriber()
-
-			const currentPartInstanceId = 'CURRENT_PART_INSTANCE_ID'
 
 			const playlist = makeTestPlaylist()
 			playlist.activationId = protectString('somethingRandom')
@@ -630,15 +636,9 @@ describe('ActivePlaylistTopic', () => {
 			handlers.partsHandler.notify([part1] as DBPart[])
 			handlers.segmentHandler.notify({ _id: segment1id } as DBSegment)
 
-			// The On Air countdown holds at the part's length until the planned start, and counts down from then
-			const expectedDurationMs = 10000
 			handlers.playlistTimingStatesHandler.notify(
 				makeTestTimingStates({
-					playlist: {
-						playlistId: playlist._id,
-						currentPartInstanceId: protectString(currentPartInstanceId),
-						remainingOnCurrentPart: { paused: true, duration: expectedDurationMs, resumesAt: plannedStart },
-					},
+					playlist: { playlistId: playlist._id, ...playlistTiming },
 					segments: {
 						SEGMENT_1: { parts: { PART_1: { expectedDuration: expectedDurationMs } } },
 					},
@@ -647,7 +647,31 @@ describe('ActivePlaylistTopic', () => {
 
 			topic.addSubscriber(mockSubscriber)
 
-			const status = JSON.parse(mockSubscriber.send.mock.calls[0][0] as string) as ActivePlaylistEvent
+			return JSON.parse(mockSubscriber.send.mock.calls[0][0] as string) as ActivePlaylistEvent
+		}
+
+		it('projects the end of the part from its planned start', async () => {
+			// The On Air countdown holds at the part's length until the planned start, and counts down from then
+			const status = sendStatusOfTakenPart({
+				currentPartInstanceId: protectString(currentPartInstanceId),
+				remainingOnCurrentPart: { paused: true, duration: expectedDurationMs, resumesAt: plannedStart },
+			})
+
+			expect(status.currentPart?.timing).toEqual({
+				startTime: plannedStart,
+				expectedDurationMs,
+				projectedEndTime: plannedStart + expectedDurationMs,
+			})
+		})
+
+		it('does not take the end of the part before, while Sofie has not yet timed the taken part', async () => {
+			// Sofie calculates the timing a moment after the take, so the On Air countdown is still the part before's
+			const endOfThePartBefore = plannedStart + 25000
+			const status = sendStatusOfTakenPart({
+				currentPartInstanceId: protectString('PREVIOUS_PART_INSTANCE_ID'),
+				remainingOnCurrentPart: { paused: false, zeroTime: endOfThePartBefore },
+			})
+
 			expect(status.currentPart?.timing).toEqual({
 				startTime: plannedStart,
 				expectedDurationMs,
