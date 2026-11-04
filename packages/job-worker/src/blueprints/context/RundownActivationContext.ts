@@ -13,7 +13,11 @@ import { executePeripheralDeviceAction, listPlayoutDevices } from '../../periphe
 import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
 import { RundownEventContext } from './RundownEventContext.js'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import { setTimelineDatastoreValue, removeTimelineDatastoreValue } from '../../playout/datastore.js'
+import {
+	assertValidTimelineDatastoreValue,
+	setTimelineDatastoreValue,
+	removeTimelineDatastoreValue,
+} from '../../playout/datastore.js'
 import { TTimersService } from './services/TTimersService.js'
 import type { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
 import type { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
@@ -77,6 +81,9 @@ export class RundownActivationContext extends RundownEventContext implements IRu
 	}
 
 	async setTimelineDatastoreValue(key: string, value: unknown, mode: DatastorePersistenceMode): Promise<void> {
+		// Check now, so that the blueprint gets the error instead of it being thrown after the save
+		assertValidTimelineDatastoreValue(key, value)
+
 		this._playoutModel.deferAfterSave(async () => {
 			await setTimelineDatastoreValue(this._context, key, value, mode)
 		})

@@ -35,12 +35,51 @@ export async function cleanTimelineDatastore(context: JobContext, playoutModel: 
 	})
 }
 
+/**
+ * Field names which MongoDB will store, but which the minimongo in the UI refuses to accept when they are
+ * published to it. A single such document makes the UI's DDP client throw, dropping the rest of that batch of
+ * updates (for every collection) for that client. See `packages/webui/src/meteor/__tests__/hostileFieldNames.test.ts`
+ */
+const INVALID_FIELD_NAME = /^\$|\.|\0/
+
+function findInvalidFieldName(value: unknown, path: string[]): string[] | undefined {
+	if (Array.isArray(value)) {
+		for (let i = 0; i < value.length; i++) {
+			const invalidPath = findInvalidFieldName(value[i], [...path, `${i}`])
+			if (invalidPath) return invalidPath
+		}
+	} else if (value && typeof value === 'object') {
+		for (const [fieldName, fieldValue] of Object.entries<unknown>(value as Record<string, unknown>)) {
+			if (INVALID_FIELD_NAME.test(fieldName)) return [...path, fieldName]
+
+			const invalidPath = findInvalidFieldName(fieldValue, [...path, fieldName])
+			if (invalidPath) return invalidPath
+		}
+	}
+	return undefined
+}
+
+/**
+ * Check that a value can be stored in the TimelineDatastore and published to the UI.
+ * Throws if any field name in the value contains `.` or a null byte, or starts with `$`.
+ */
+export function assertValidTimelineDatastoreValue(key: string, value: unknown): void {
+	const invalidPath = findInvalidFieldName(value, [])
+	if (invalidPath) {
+		throw new Error(
+			`Timeline datastore value for key "${key}" has an invalid field name "${invalidPath[invalidPath.length - 1]}" (at ${JSON.stringify(invalidPath)}): field names must not contain '.' or null bytes, or start with '$'`
+		)
+	}
+}
+
 export async function setTimelineDatastoreValue(
 	context: JobContext,
 	key: string,
 	value: unknown,
 	mode: DatastorePersistenceMode
 ): Promise<void> {
+	assertValidTimelineDatastoreValue(key, value)
+
 	const studioId = context.studioId
 	const id = protectString(`${studioId}_${key}`)
 	const collection = context.directCollections.TimelineDatastores

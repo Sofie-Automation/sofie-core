@@ -2,9 +2,13 @@
  * Adversarial test for TimelineDatastore values containing field names with `.` or a leading `$`.
  *
  * Blueprints may store any value in the datastore (`setTimelineDatastoreValue(key, value: any, mode)`), and
- * unlike timeline objects (stored as a serialised `timelineBlob`) the value is written to MongoDB as-is. This
- * pushes hostile values through the full production path, against a real MongoDB, and asserts the value
- * survives every hop unchanged:
+ * unlike timeline objects (stored as a serialised `timelineBlob`) the value is written to MongoDB as-is.
+ * MongoDB accepts such field names, but the UI's minimongo does not, and a single such document breaks the
+ * UI's DDP client (see `packages/webui/src/meteor/__tests__/hostileFieldNames.test.ts`). So job-worker rejects
+ * them when they are set.
+ *
+ * Against a real MongoDB, this asserts that hostile values never get stored or published, and that the values
+ * which are allowed survive the full production path unchanged:
  *
  *   job-worker setTimelineDatastoreValue -> MongoDB -> change-stream ObserveMultiplexer (publication)
  *   -> DDP wire encoding (server EJSON.stringify) -> DDP wire decoding (gateway EJSON.parse)
@@ -59,6 +63,15 @@ const hostileValues: Array<[string, unknown]> = [
 	['dotted and $ field names combined', { '$a.b': { 'c.$d': 1 } }],
 ]
 
+/** Values that are allowed, including `.` and `$` where they are harmless */
+const safeValues: Array<[string, unknown]> = [
+	['string containing a dot', 'a.b'],
+	['string starting with $', '$foo'],
+	['number', 42],
+	['nested object', { a: { b: [1, { c: 'd.e' }] } }],
+	['field name with $ in the middle', { a$b: 1 }],
+]
+
 /** Datastore keys (not the value) containing `.` and `$`. The key is only ever stored as a string value. */
 const hostileKeys = ['foo.bar', '$foo', '.', '$', 'a.$b']
 
@@ -78,6 +91,54 @@ describe('TimelineDatastore: hostile field names in values', () => {
 	})
 
 	describe.each(hostileValues)('%s', (_name, value) => {
+		test('is rejected, and never stored or published', async () => {
+			const collection = await freshCollection<any>(client)
+			const context = makeJobContext(collection)
+
+			// The publication `timelineDatastoreForDevice` uses `{ studioId }` with `fields: {}`
+			const multiplexer = makeMultiplexer(client, collection, { studioId }, {})
+			const sink = newSink()
+			const abort = new AbortController()
+			try {
+				await subscribeChanges(multiplexer, sink, abort.signal)
+
+				await setTimelineDatastoreValue(context, 'existing', 'before', DatastorePersistenceMode.Temporary)
+
+				// as a new document
+				await expect(
+					setTimelineDatastoreValue(context, 'new', value, DatastorePersistenceMode.Temporary)
+				).rejects.toThrow('invalid field name')
+				// replacing an existing document
+				await expect(
+					setTimelineDatastoreValue(context, 'existing', value, DatastorePersistenceMode.Temporary)
+				).rejects.toThrow('invalid field name')
+
+				// Once a later write has been published, anything written before it would have been too
+				await setTimelineDatastoreValue(context, 'sentinel', 'after', DatastorePersistenceMode.Temporary)
+				await waitFor(
+					() => sink.added.length >= 2,
+					undefined,
+					() => JSON.stringify(sink)
+				)
+
+				expect(sink.added.map(([, fields]) => [fields.key, fields.value])).toEqual([
+					['existing', 'before'],
+					['sentinel', 'after'],
+				])
+				expect(sink.changed).toEqual([])
+			} finally {
+				abort.abort()
+			}
+
+			const stored = await collection.find({}).toArray()
+			expect(stored.map((d) => [d.key, d.value])).toEqual([
+				['existing', 'before'],
+				['sentinel', 'after'],
+			])
+		})
+	})
+
+	describe.each(safeValues)('%s', (_name, value) => {
 		const key = 'myKey'
 		const docId = getDatastoreId(studioId, key)
 
@@ -99,7 +160,6 @@ describe('TimelineDatastore: hostile field names in values', () => {
 			const collection = await freshCollection<any>(client)
 			const context = makeJobContext(collection)
 
-			// The publication `timelineDatastoreForDevice` uses `{ studioId }` with `fields: {}`
 			const multiplexer = makeMultiplexer(client, collection, { studioId }, {})
 			const sink = newSink()
 			const abort = new AbortController()
