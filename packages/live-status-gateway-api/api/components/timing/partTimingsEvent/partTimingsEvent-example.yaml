@@ -1,0 +1,5 @@
+event: partTimings
+rundownPlaylistId: 'OKAgZmZ0Buc99lE_2uPPSKVbMrQ_'
+currentPartInstanceId: 'y9HauyWkcxQS3XaAOsW40BRLLsI_'
+parts:
+  - $ref: '../partTiming/partTiming-example.yaml'

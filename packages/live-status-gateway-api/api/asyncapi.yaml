@@ -43,6 +43,8 @@ channels:
     $ref: './topics/activePieces/activePiecesTopic.yaml'
   segments:
     $ref: './topics/segments/segmentsTopic.yaml'
+  partTimings:
+    $ref: './topics/partTimings/partTimingsTopic.yaml'
   adLibs:
     $ref: './topics/adLibs/adLibsTopic.yaml'
   packages:

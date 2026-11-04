@@ -1,0 +1,44 @@
+title: Part Timings
+description: Part timings schema for websocket subscriptions
+$defs:
+  partTimingsEvent:
+    type: object
+    title: PartTimingsEvent
+    description: >-
+      The timing of each part in the active rundown playlist, as Sofie resolves it. The timers are sent
+      as timer states that the client evaluates against its own clock, so a message is sent when
+      playout or the rundown changes, not each second.
+
+
+      Sofie calculates the timing a moment after the change that it follows. After a take, the
+      `resolvedPlaylist` and `activePlaylist` topics can therefore already show the new on-air part
+      while this topic still describes the part before. To find this moment, compare
+      `currentPartInstanceId` with `currentPartInstanceId` of the `resolvedPlaylist` topic. While they
+      differ, keep the timing that you show, and use the next message of this topic.
+    properties:
+      event:
+        type: string
+        const: partTimings
+      rundownPlaylistId:
+        description: Unique id of the rundown playlist, or null if no playlist is active
+        oneOf:
+          - type: string
+          - type: 'null'
+      currentPartInstanceId:
+        description: >-
+          Unique id of the part instance that this timing treats as on air, or null if none is. See the
+          description of the message.
+        oneOf:
+          - type: string
+          - type: 'null'
+      parts:
+        description: >-
+          The timing of each part of the playlist that Sofie times, in order of `rank`. Empty until
+          Sofie has published the timing for the active playlist.
+        type: array
+        items:
+          $ref: '../partTiming/partTiming.yaml#/$defs/partTiming'
+    required: [event, rundownPlaylistId, currentPartInstanceId, parts]
+    additionalProperties: false
+    examples:
+      - $ref: './partTimingsEvent-example.yaml'

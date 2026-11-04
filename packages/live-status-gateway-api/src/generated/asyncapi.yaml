@@ -158,6 +158,7 @@ channels:
                             - resolvedPlaylist
                             - activePieces
                             - segments
+                            - partTimings
                             - adLibs
                             - notifications
                             - buckets
@@ -1657,7 +1658,7 @@ channels:
                                                     description: Severity hint for displaying the invalid reason
                                                     type: string
                                                     title: NotificationSeverity
-                                                    enum: &a71
+                                                    enum: &a73
                                                       - warning
                                                       - error
                                                       - info
@@ -1725,132 +1726,6 @@ channels:
                                                     playOffsetMs: 1000
                                                     setAsNext: 1706371804000
                                                     take: 1706371806000
-                                              rundownTiming:
-                                                description: "The rundown timing of the part, as Sofie resolves it: durations
-                                                  and countdowns. It is
-                                                  different from `timing`, which
-                                                  describes the position of this
-                                                  part in the resolved playout."
-                                                type: object
-                                                title: PartRundownTiming
-                                                properties:
-                                                  expectedDurationMs:
-                                                    description: The resolved expected duration of the part (milliseconds), as for
-                                                      `currentPart.timing.expectedDurationMs`
-                                                      on the `activePlaylist`
-                                                      topic. For a part with an
-                                                      expected duration of its
-                                                      own, it is that expected
-                                                      duration with its
-                                                      transition. For a part
-                                                      with no expected duration
-                                                      of its own, it is its
-                                                      recorded duration after it
-                                                      has played. If it has not
-                                                      played, it is its share of
-                                                      its display-duration
-                                                      group. It is 0 for a part
-                                                      with none of these values,
-                                                      and until Sofie has
-                                                      published the timing for
-                                                      the playlist.
-                                                    type: number
-                                                  displayDurationMs:
-                                                    description: The resolved space that the part uses in a rundown display, as if
-                                                      the part does not play
-                                                      (milliseconds). See
-                                                      `liveDisplayDuration` for
-                                                      the value that increases
-                                                      while the part is on air.
-                                                    type: number
-                                                  isInQuickLoop:
-                                                    description: True when the part is in the QuickLoop
-                                                    type: boolean
-                                                  countsTowardsTiming:
-                                                    description: True when the totals of the playlist and the rundown include the
-                                                      part. False for parts that
-                                                      the rundown skips when it
-                                                      plays in order, unless the
-                                                      playlist allows
-                                                      out-of-order timing.
-                                                    type: boolean
-                                                  countdown:
-                                                    description: Time until this part goes on air, as a timer that the client
-                                                      evaluates against its own
-                                                      clock. When the on-air
-                                                      part overruns, it holds at
-                                                      the remaining wait of this
-                                                      part. A countdown cannot
-                                                      decrease below the waits
-                                                      that must still occur.
-                                                      Absent when the part will
-                                                      probably not play out if
-                                                      the rundown plays in
-                                                      order. A display uses this
-                                                      to decide not to show a
-                                                      countdown.
-                                                    oneOf:
-                                                      - type: "null"
-                                                      - *a17
-                                                  played:
-                                                    description: The time that the part has played, as a timer. It counts up, so the
-                                                      duration that you read is
-                                                      *negative*, and the
-                                                      elapsed time is its
-                                                      negation. The duration
-                                                      that you read from a timer
-                                                      can hold or decrease, but
-                                                      it cannot increase. It
-                                                      runs freely while the part
-                                                      is on air. When the part
-                                                      is done, it holds at the
-                                                      recorded duration.
-                                                    oneOf:
-                                                      - type: "null"
-                                                      - *a17
-                                                  duration:
-                                                    description: The duration of the part. After the part has played, it is the
-                                                      as-run duration. Before
-                                                      that, it is the as-planned
-                                                      duration. While the part
-                                                      overruns, it increases
-                                                      past the planned value. It
-                                                      counts up, so it reads
-                                                      *negative*. See `played`.
-                                                    oneOf:
-                                                      - type: "null"
-                                                      - *a17
-                                                  liveDisplayDuration:
-                                                    description: "`displayDurationMs` while the part is on air. It increases when
-                                                      the part passes its
-                                                      planned end. Thus a part
-                                                      that overruns continues to
-                                                      use more space, and the
-                                                      display does not draw it
-                                                      as finished. It counts up,
-                                                      so it reads *negative*.
-                                                      See `played`."
-                                                    oneOf:
-                                                      - type: "null"
-                                                      - *a17
-                                                required:
-                                                  - expectedDurationMs
-                                                  - displayDurationMs
-                                                  - isInQuickLoop
-                                                  - countsTowardsTiming
-                                                additionalProperties: false
-                                                examples:
-                                                  - expectedDurationMs: 10000
-                                                    displayDurationMs: 10000
-                                                    isInQuickLoop: false
-                                                    countsTowardsTiming: true
-                                                    countdown:
-                                                      paused: false
-                                                      zeroTime: 1728895760727
-                                                      pauseTime: 1728895750727
-                                                    played:
-                                                      paused: true
-                                                      duration: 0
                                               pieces:
                                                 description: Pieces in this part
                                                 type: array
@@ -2192,6 +2067,186 @@ channels:
                 - *a57
         examples:
           - payload: *a58
+  partTimings:
+    description: Topic for the timing of each Part in the active Playlist
+    subscribe:
+      operationId: receivePartTimings
+      description: Server publishes the timing of each Part, as Sofie resolves it
+      message:
+        messageId: partTimings
+        title: Part Timings Event Message
+        payload:
+          type: object
+          title: PartTimingsEvent
+          description: >-
+            The timing of each part in the active rundown playlist, as Sofie
+            resolves it. The timers are sent as timer states that the client
+            evaluates against its own clock, so a message is sent when playout
+            or the rundown changes, not each second.
+
+
+            Sofie calculates the timing a moment after the change that it
+            follows. After a take, the `resolvedPlaylist` and `activePlaylist`
+            topics can therefore already show the new on-air part while this
+            topic still describes the part before. To find this moment, compare
+            `currentPartInstanceId` with `currentPartInstanceId` of the
+            `resolvedPlaylist` topic. While they differ, keep the timing that
+            you show, and use the next message of this topic.
+          properties:
+            event:
+              type: string
+              const: partTimings
+            rundownPlaylistId:
+              description: Unique id of the rundown playlist, or null if no playlist is active
+              oneOf:
+                - type: string
+                - type: "null"
+            currentPartInstanceId:
+              description: Unique id of the part instance that this timing treats as on air,
+                or null if none is. See the description of the message.
+              oneOf:
+                - type: string
+                - type: "null"
+            parts:
+              description: The timing of each part of the playlist that Sofie times, in order
+                of `rank`. Empty until Sofie has published the timing for the
+                active playlist.
+              type: array
+              items:
+                type: object
+                title: PartTiming
+                description: The timing of a part, as Sofie resolves it. These are the numbers
+                  that the Sofie UI shows, with the fallbacks applied. The
+                  fallbacks are transitions, recorded durations,
+                  display-duration groups and, for the display duration only,
+                  the default duration of the Studio.
+                properties:
+                  id:
+                    description: Unique id of the part, as `id` of a part on the `resolvedPlaylist`
+                      topic
+                    type: string
+                  instanceId:
+                    description: Unique id of the part instance that this timing describes, as
+                      `instanceId` of a part on the `resolvedPlaylist` topic.
+                      Null for a part that has not been played. A part that is
+                      played again has one timing, of its last part instance.
+                    oneOf:
+                      - type: string
+                      - type: "null"
+                  segmentId:
+                    description: Unique id of the segment that the part belongs to
+                    type: string
+                  rank:
+                    description: Position of the part in the order that Sofie times the playlist in,
+                      counting from 0. The parts of the message are in this
+                      order.
+                    type: number
+                  expectedDurationMs:
+                    description: The resolved expected duration of the part (milliseconds), as for
+                      `currentPart.timing.expectedDurationMs` on the
+                      `activePlaylist` topic. For a part with an expected
+                      duration of its own, it is that expected duration with its
+                      transition. For a part with no expected duration of its
+                      own, it is its recorded duration after it has played. If
+                      it has not played, it is its share of its display-duration
+                      group. It is 0 for a part with none of these values, and
+                      until Sofie has published the timing for the playlist.
+                    type: number
+                  displayDurationMs:
+                    description: The resolved space that the part uses in a rundown display, as if
+                      the part does not play (milliseconds). See
+                      `liveDisplayDuration` for the value that increases while
+                      the part is on air.
+                    type: number
+                  isInQuickLoop:
+                    description: True when the part is in the QuickLoop
+                    type: boolean
+                  countsTowardsTiming:
+                    description: True when the totals of the playlist and the rundown include the
+                      part. False for parts that the rundown skips when it plays
+                      in order, unless the playlist allows out-of-order timing.
+                    type: boolean
+                  countdown:
+                    description: Time until this part goes on air, as a timer that the client
+                      evaluates against its own clock. When the on-air part
+                      overruns, it holds at the remaining wait of this part. A
+                      countdown cannot decrease below the waits that must still
+                      occur. Absent when the part will probably not play out if
+                      the rundown plays in order. A display uses this to decide
+                      not to show a countdown.
+                    oneOf:
+                      - type: "null"
+                      - *a17
+                  played:
+                    description: The time that the part has played, as a timer. It counts up, so the
+                      duration that you read is *negative*, and the elapsed time
+                      is its negation. The duration that you read from a timer
+                      can hold or decrease, but it cannot increase. It runs
+                      freely while the part is on air. When the part is done, it
+                      holds at the recorded duration.
+                    oneOf:
+                      - type: "null"
+                      - *a17
+                  duration:
+                    description: The duration of the part. After the part has played, it is the
+                      as-run duration. Before that, it is the as-planned
+                      duration. While the part overruns, it increases past the
+                      planned value. It counts up, so it reads *negative*. See
+                      `played`.
+                    oneOf:
+                      - type: "null"
+                      - *a17
+                  liveDisplayDuration:
+                    description: "`displayDurationMs` while the part is on air. It increases when
+                      the part passes its planned end. Thus a part that overruns
+                      continues to use more space, and the display does not draw
+                      it as finished. It counts up, so it reads *negative*. See
+                      `played`."
+                    oneOf:
+                      - type: "null"
+                      - *a17
+                required:
+                  - id
+                  - instanceId
+                  - segmentId
+                  - rank
+                  - expectedDurationMs
+                  - displayDurationMs
+                  - isInQuickLoop
+                  - countsTowardsTiming
+                additionalProperties: false
+                examples:
+                  - &a59
+                    id: H5CBGYSThtx_3WdsVUBQhuN4f0k_
+                    instanceId: null
+                    segmentId: n1mOVd5_K5tt4sfk6HYfTuwumGQ_
+                    rank: 3
+                    expectedDurationMs: 10000
+                    displayDurationMs: 10000
+                    isInQuickLoop: false
+                    countsTowardsTiming: true
+                    countdown:
+                      paused: false
+                      zeroTime: 1728895760727
+                      pauseTime: 1728895750727
+                    played:
+                      paused: true
+                      duration: 0
+          required:
+            - event
+            - rundownPlaylistId
+            - currentPartInstanceId
+            - parts
+          additionalProperties: false
+          examples:
+            - &a60
+              event: partTimings
+              rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
+              currentPartInstanceId: y9HauyWkcxQS3XaAOsW40BRLLsI_
+              parts:
+                - *a59
+        examples:
+          - payload: *a60
   adLibs:
     description: Topic for AdLibs updates
     subscribe:
@@ -2221,7 +2276,7 @@ channels:
                   items:
                     title: AdLibStatus
                     allOf:
-                      - &a63
+                      - &a65
                         title: AdLibBase
                         type: object
                         properties:
@@ -2256,7 +2311,7 @@ channels:
                                 - label
                               additionalProperties: false
                               examples:
-                                - &a59
+                                - &a61
                                   name: pvw
                                   label: Preview
                           tags:
@@ -2276,15 +2331,15 @@ channels:
                           - sourceLayer
                           - actionType
                         examples:
-                          - &a64
+                          - &a66
                             id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                             name: Music video clip
                             sourceLayer: Video Clip
-                            actionType: &a60
-                              - *a59
-                            tags: &a61
+                            actionType: &a62
+                              - *a61
+                            tags: &a63
                               - music_video
-                            publicData: &a62
+                            publicData: &a64
                               fileName: MV000123.mxf
                             optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
                               Video
@@ -2316,15 +2371,15 @@ channels:
                           - segmentId
                           - partId
                     examples:
-                      - &a65
+                      - &a67
                         segmentId: HsD8_QwE1ZmR5vN3XcK_Ab7y
                         partId: JkL3_OpR6WxT1bF8Vq2_Zy9u
                         id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                         name: Music video clip
                         sourceLayer: Video Clip
-                        actionType: *a60
-                        tags: *a61
-                        publicData: *a62
+                        actionType: *a62
+                        tags: *a63
+                        publicData: *a64
                         optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
                           Video
                           Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
@@ -2348,9 +2403,9 @@ channels:
                   items:
                     title: GlobalAdLibStatus
                     allOf:
-                      - *a63
+                      - *a65
                     examples:
-                      - *a64
+                      - *a66
               required:
                 - event
                 - rundownPlaylistId
@@ -2358,15 +2413,15 @@ channels:
                 - globalAdLibs
               additionalProperties: false
               examples:
-                - &a66
+                - &a68
                   event: adLibs
                   rundownPlaylistId: OKAgZmZ0Buc99lE_2uPPSKVbMrQ_
                   adLibs:
-                    - *a65
+                    - *a67
                   globalAdLibs:
-                    - *a64
+                    - *a66
             examples:
-              - payload: *a66
+              - payload: *a68
   packages:
     description: Packages topic for websocket subscriptions. Packages are assets
       that need to be prepared by Sofie Package Manager or third-party systems
@@ -2474,7 +2529,7 @@ channels:
                       - pieceOrAdLibId
                     additionalProperties: false
                     examples:
-                      - &a67
+                      - &a69
                         packageName: MV000123.mxf
                         status: ok
                         rundownId: y9HauyWkcxQS3XaAOsW40BRLLsI_
@@ -2492,7 +2547,7 @@ channels:
                 - event: packages
                   rundownPlaylistId: y9HauyWkcxQS3XaAOsW40BRLLsI_
                   packages:
-                    - *a67
+                    - *a69
   buckets:
     description: Buckets schema for websocket subscriptions
     subscribe:
@@ -2528,7 +2583,7 @@ channels:
                         items:
                           title: BucketAdLibStatus
                           allOf:
-                            - *a63
+                            - *a65
                             - type: object
                               title: BucketAdLibStatus
                               properties:
@@ -2539,14 +2594,14 @@ channels:
                               required:
                                 - externalId
                           examples:
-                            - &a68
+                            - &a70
                               externalId: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                               id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                               name: Music video clip
                               sourceLayer: Video Clip
-                              actionType: *a60
-                              tags: *a61
-                              publicData: *a62
+                              actionType: *a62
+                              tags: *a63
+                              publicData: *a64
                               optionsSchema: '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Play
                                 Video
                                 Clip","type":"object","properties":{"type":"adlib_action_video_clip","label":{"type":"string"},"clipId":{"type":"string"},"vo":{"type":"boolean"},"target":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"Object
@@ -2570,22 +2625,22 @@ channels:
                       - adLibs
                     additionalProperties: false
                     examples:
-                      - &a69
+                      - &a71
                         id: C6K_yIMuGFUk8X_L9A9_jRT6aq4_
                         name: My Bucket
                         adLibs:
-                          - *a68
+                          - *a70
               required:
                 - event
                 - buckets
               additionalProperties: false
               examples:
-                - &a70
+                - &a72
                   event: buckets
                   buckets:
-                    - *a69
+                    - *a71
             examples:
-              - payload: *a70
+              - payload: *a72
   notifications:
     description: Notifications topic for websocket subscriptions.
     subscribe:
@@ -2626,7 +2681,7 @@ channels:
                         type: string
                         title: NotificationSeverity
                         description: Severity level of the notification.
-                        enum: *a71
+                        enum: *a73
                       message:
                         type: string
                         description: The message of the notification
@@ -2646,7 +2701,7 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: &a72
+                                enum: &a74
                                   - rundown
                                   - playlist
                                   - partInstance
@@ -2658,7 +2713,7 @@ channels:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a73
+                              - &a75
                                 type: rundown
                                 studioId: studio01
                                 rundownId: rd123
@@ -2674,14 +2729,14 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a72
+                                enum: *a74
                               studioId:
                                 type: string
                               playlistId:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a74
+                              - &a76
                                 type: playlist
                                 studioId: studio01
                                 playlistId: pl456
@@ -2698,7 +2753,7 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a72
+                                enum: *a74
                               studioId:
                                 type: string
                               rundownId:
@@ -2707,7 +2762,7 @@ channels:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a75
+                              - &a77
                                 type: partInstance
                                 studioId: studio01
                                 rundownId: rd123
@@ -2726,7 +2781,7 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a72
+                                enum: *a74
                               studioId:
                                 type: string
                               rundownId:
@@ -2737,7 +2792,7 @@ channels:
                                 type: string
                             additionalProperties: false
                             examples:
-                              - &a76
+                              - &a78
                                 type: pieceInstance
                                 studioId: studio01
                                 rundownId: rd123
@@ -2753,17 +2808,17 @@ channels:
                                 type: string
                                 title: NotificationTargetType
                                 description: Possible NotificationTarget types
-                                enum: *a72
+                                enum: *a74
                             additionalProperties: false
                             examples:
-                              - &a77
+                              - &a79
                                 type: unknown
                         examples:
-                          - *a73
-                          - *a74
                           - *a75
                           - *a76
                           - *a77
+                          - *a78
+                          - *a79
                       created:
                         type: integer
                         format: int64
@@ -2774,11 +2829,11 @@ channels:
                         description: Unix timestamp of last modification
                     additionalProperties: false
                     examples:
-                      - &a78
+                      - &a80
                         _id: notif123
                         severity: error
                         message: disk.space.low
-                        relatedTo: *a76
+                        relatedTo: *a78
                         created: 1694784932
                         modified: 1694784950
               required:
@@ -2786,9 +2841,9 @@ channels:
                 - activeNotifications
               additionalProperties: false
               examples:
-                - &a79
+                - &a81
                   event: notifications
                   activeNotifications:
-                    - *a78
+                    - *a80
             examples:
-              - payload: *a79
+              - payload: *a81
