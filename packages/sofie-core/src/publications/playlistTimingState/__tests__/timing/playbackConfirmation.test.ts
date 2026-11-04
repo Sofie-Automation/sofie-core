@@ -3,7 +3,11 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { manipulatePlaylistTimingStatePublicationData } from '../../publication'
 import { createReactiveContentCache } from '../../reactiveContentCache'
 import { type Gateway, playoutScript, type PublicationInputs } from './lib/playoutScript'
-import { REFERENCE_PLAYLIST_ID, referenceRundown, type RundownVariant } from './lib/referenceRundown'
+import {
+	REFERENCE_PLAYLIST_ID,
+	referenceRundown,
+	type RundownVariant,
+} from '@sofie-automation/corelib/dist/testing/referenceRundown'
 import { timingTextSerializer } from './lib/renderTimingText'
 import { PLANNED_TIMING } from './lib/standardShows'
 

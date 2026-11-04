@@ -180,4 +180,34 @@ extendedRules.push(
 	}
 )
 
+// corelib's `testing` folder is test data that is built and shipped with corelib only so that every package's tests
+// can share it. Only test code may import it.
+extendedRules.push({
+	files: ['packages/*/src/**/*.{ts,tsx,js,jsx,mjs}'],
+	ignores: [
+		'**/__tests__/**',
+		'**/__mocks__/**',
+		'**/*.{spec,test}.{ts,tsx,js,jsx}',
+		'packages/corelib/src/testing/**',
+	],
+	rules: {
+		'no-restricted-imports': [
+			'error',
+			{
+				patterns: [
+					{
+						group: [
+							'@sofie-automation/corelib/dist/testing',
+							'@sofie-automation/corelib/dist/testing/*',
+							// from inside corelib itself
+							'**/testing/*',
+						],
+						message: "corelib's testing folder is test data: only test code may import it.",
+					},
+				],
+			},
+		],
+	},
+})
+
 export default extendedRules

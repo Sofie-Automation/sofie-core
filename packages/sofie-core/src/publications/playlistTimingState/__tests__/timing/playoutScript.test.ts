@@ -2,7 +2,12 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { PartHoldMode, PlaylistTimingType, type RundownPlaylistTiming } from '@sofie-automation/blueprints-integration'
 import { type Gateway, GATEWAY_CONFIRMING_AT_ONCE, type PlayoutScript, playoutScript } from './lib/playoutScript'
-import { clock, length, referenceRundown, type RundownVariant } from './lib/referenceRundown'
+import {
+	clock,
+	length,
+	referenceRundown,
+	type RundownVariant,
+} from '@sofie-automation/corelib/dist/testing/referenceRundown'
 import { type TimingText, timingTextSerializer } from './lib/renderTimingText'
 
 /**

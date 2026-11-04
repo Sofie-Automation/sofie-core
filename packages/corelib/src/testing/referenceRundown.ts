@@ -12,11 +12,11 @@ import type {
 	ShowStyleBaseId,
 	ShowStyleVariantId,
 	StudioId,
-} from '@sofie-automation/corelib/dist/dataModel/Ids'
-import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
-import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+} from '../dataModel/Ids.js'
+import type { DBPart } from '../dataModel/Part.js'
+import type { DBRundown } from '../dataModel/Rundown.js'
+import type { DBSegment } from '../dataModel/Segment.js'
+import { protectString, unprotectString } from '../protectedString.js'
 
 /**
  * The reference rundown for the timing tests: four segments, ten parts, 2:30 in all.
@@ -26,8 +26,8 @@ import { protectString, unprotectString } from '@sofie-automation/corelib/dist/p
  *   C Feature  C1 0:10  C2 0:20  C3 0:30
  *   D Close    D1 0:10  D2 0:10
  *
- * Test code is not built into any package, so the tests of another package cannot import this file. A package
- * whose tests need the same rundown keeps its own copy of this table, and the copies are changed together.
+ * This is test data, for the tests of any package. It is built and shipped with corelib so that every package's tests
+ * can share it, but only test code may import it: a lint rule refuses an import of `corelib/dist/testing` elsewhere.
  *
  * The rundown is one rundown in one playlist. The ids are the plain keys: segment 'A', part 'A1'. Part ranks
  * restart at 0 in each segment. The parts have no pieces, so the expected duration with transition equals the

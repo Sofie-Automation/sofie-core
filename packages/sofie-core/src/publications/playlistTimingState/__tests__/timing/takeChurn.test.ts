@@ -3,7 +3,12 @@ import type { PartId, SegmentId } from '@sofie-automation/corelib/dist/dataModel
 import type { TimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/TimingState'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { calculateTimingDocuments, type Gateway, type PlayoutScript, playoutScript } from './lib/playoutScript'
-import { clock, formatClock, type ReferenceRundown, referenceRundown } from './lib/referenceRundown'
+import {
+	clock,
+	formatClock,
+	type ReferenceRundown,
+	referenceRundown,
+} from '@sofie-automation/corelib/dist/testing/referenceRundown'
 import { OptimisedObserverGenericArray } from '../../../../lib/customPublication/optimizedObserverArray'
 
 /**

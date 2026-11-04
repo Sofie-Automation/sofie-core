@@ -1,6 +1,11 @@
 import { PlaylistTimingType, type RundownPlaylistTiming } from '@sofie-automation/blueprints-integration'
 import { type Gateway, GATEWAY_CONFIRMING_AT_ONCE, playoutScript, type PlayoutScript } from './playoutScript'
-import { clock, length, referenceRundown, type RundownVariant } from './referenceRundown'
+import {
+	clock,
+	length,
+	referenceRundown,
+	type RundownVariant,
+} from '@sofie-automation/corelib/dist/testing/referenceRundown'
 
 /**
  * The standard shows of the timing tests: the reference rundown played from A1 to D2 on time, late and early, a

@@ -1,5 +1,5 @@
 import { CountdownType, PartHoldMode, type RundownPlaylistTiming } from '@sofie-automation/blueprints-integration'
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { unprotectString } from '../../protectedString.js'
 import {
 	budget,
 	clock,
@@ -12,7 +12,7 @@ import {
 	referenceRundown,
 	type ReferenceRundown,
 	TIMING_MODES,
-} from './lib/referenceRundown'
+} from '../referenceRundown.js'
 
 /** Each segment as 'segment rank n (part length, ...)' */
 function describeSegments(rundown: ReferenceRundown): string[] {

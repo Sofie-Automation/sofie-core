@@ -39,7 +39,7 @@ import {
 	referenceRundown,
 	TIMING_MODES,
 	type TimingModeName,
-} from './lib/referenceRundown'
+} from '@sofie-automation/corelib/dist/testing/referenceRundown'
 import {
 	deactivatedAt,
 	EARLY_SHOW,

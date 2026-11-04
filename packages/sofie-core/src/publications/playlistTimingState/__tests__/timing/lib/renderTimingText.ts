@@ -19,7 +19,7 @@ import {
 	type TimingStateDocId,
 } from '@sofie-automation/corelib/dist/dataModel/TimingState'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { formatClock, formatLength } from './referenceRundown'
+import { formatClock, formatLength } from '@sofie-automation/corelib/dist/testing/referenceRundown'
 
 /**
  * Renders the documents of the playlist timing publication as plain text, as a client holding them would read

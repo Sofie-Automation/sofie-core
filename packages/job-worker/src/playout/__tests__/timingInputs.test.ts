@@ -34,8 +34,8 @@ import {
 	REFERENCE_RUNDOWN,
 	REFERENCE_RUNDOWN_ID,
 	RundownVariant,
-	setupReferenceRundown,
-} from '../../__mocks__/referenceRundown.js'
+} from '@sofie-automation/corelib/dist/testing/referenceRundown'
+import { setupReferenceRundown } from '../../__mocks__/referenceRundown.js'
 import { getCurrentTime, useFakeCurrentTime, useRealCurrentTime } from '../../__mocks__/time.js'
 import {
 	handleActivateRundownPlaylist,

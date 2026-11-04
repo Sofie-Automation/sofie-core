@@ -51,7 +51,7 @@ import {
 	type ReferenceRundown,
 	TIMING_MODES,
 	type TimingModeName,
-} from './referenceRundown'
+} from '@sofie-automation/corelib/dist/testing/referenceRundown'
 import { renderTimingText, type TimingCalculation, type TimingText, type TimingTextView } from './renderTimingText'
 
 /**

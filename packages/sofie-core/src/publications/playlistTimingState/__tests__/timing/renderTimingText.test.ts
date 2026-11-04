@@ -11,7 +11,12 @@ import {
 	type TimingStateDoc,
 } from '@sofie-automation/corelib/dist/dataModel/TimingState'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import { clock, length, REFERENCE_PLAYLIST_ID, referenceRundown } from './lib/referenceRundown'
+import {
+	clock,
+	length,
+	REFERENCE_PLAYLIST_ID,
+	referenceRundown,
+} from '@sofie-automation/corelib/dist/testing/referenceRundown'
 import {
 	renderTimingText,
 	type TimingCalculation,
