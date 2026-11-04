@@ -50,6 +50,9 @@ function findInvalidFieldName(value: unknown, path: string[]): string[] | undefi
 			const invalidPath = findInvalidFieldName(value[i], [...path, `${i}`])
 			if (invalidPath) return invalidPath
 		}
+	} else if (value instanceof BSON.DBRef) {
+		// Deserializing promotes `{ $ref, $id }` to a DBRef, which is stored with those field names
+		return [...path, '$ref']
 	} else if (value && typeof value === 'object') {
 		for (const [fieldName, fieldValue] of Object.entries<unknown>(value as Record<string, unknown>)) {
 			if (INVALID_FIELD_NAME.test(fieldName)) return [...path, fieldName]

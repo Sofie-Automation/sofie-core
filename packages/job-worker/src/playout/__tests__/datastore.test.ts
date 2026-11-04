@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { DatastorePersistenceMode } from '@sofie-automation/shared-lib/dist/core/model/TimelineDatastore'
 import { mock } from 'jest-mock-extended'
+import { BSON } from 'mongodb'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
 import { ActionExecutionContext } from '../../blueprints/context/adlibActions.js'
 import { RundownActivationContext } from '../../blueprints/context/RundownActivationContext.js'
@@ -22,6 +23,10 @@ const invalidValues: Array<[string, unknown, string]> = [
 	['mongo update operator lookalike', { $set: { a: 1 } }, '$set'],
 	['$-prefixed field name inside an array', [{ $foo: 1 }], '$foo'],
 	['EJSON $date lookalike', { $date: 0 }, '$date'],
+	// Deserializing these gives a DBRef, but they are stored with $ref and $id fields
+	['DBRef lookalike', { $ref: 'collection', $id: 1 }, '$ref'],
+	['nested DBRef lookalike', { x: { $ref: 'collection', $id: 1, $db: 'db' } }, '$ref'],
+	['DBRef', new BSON.DBRef('collection', new BSON.ObjectId()), '$ref'],
 	// MongoDB stores the entries of a Map, and the result of toBSON(), as plain fields
 	['nested Map with a dotted key', { x: new Map([['a.b', 1]]) }, 'a.b'],
 	['Map with a $-prefixed key', new Map([['$foo', 1]]), '$foo'],
