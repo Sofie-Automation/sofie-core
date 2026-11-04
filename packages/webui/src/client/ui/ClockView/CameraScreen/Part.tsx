@@ -29,13 +29,21 @@ interface IProps {
 export function Part({ playlist, part, piece, isLive, isNext }: IProps): JSX.Element | null {
 	const areaZoom = useContext(AreaZoom)
 
-	const highResolution = { tickResolution: TimingTickResolution.High }
-	const countdown = usePartCountdownValue(part.partId, TimerValueMode.Duration, highResolution)
-	const played = usePartTimingValue(part.partId, 'played', TimerValueMode.CountUp, highResolution)
+	// Each frame while a value moves, so that the piece moves smoothly. A value that holds, as most of them do for
+	// the parts that are not on air, reads the same at any time, so it does not draw the part again
+	const highResolution = {
+		tickResolution: TimingTickResolution.High,
+		tickResolutionWhileHolding: TimingTickResolution.None,
+	}
+	// The live part is drawn from the On Air countdown alone, and the others from their own values alone, so a part
+	// reads only the values it draws from: each read is done again on each frame while the part moves
+	const ownPartId = isLive ? undefined : part.partId
+	const countdown = usePartCountdownValue(ownPartId, TimerValueMode.Duration, highResolution)
+	const played = usePartTimingValue(ownPartId, 'played', TimerValueMode.CountUp, highResolution)
 	// the live display duration, which grows past the planned one while the part overruns
-	const displayDuration = usePartTimingValue(part.partId, 'liveDisplayDuration', TimerValueMode.CountUp, highResolution)
+	const displayDuration = usePartTimingValue(ownPartId, 'liveDisplayDuration', TimerValueMode.CountUp, highResolution)
 	const remainingOnCurrentPart = usePlaylistTimingValue(
-		playlist._id,
+		isLive ? playlist._id : undefined,
 		'remainingOnCurrentPart',
 		TimerValueMode.Duration,
 		{ ...highResolution, forPartInstanceId: part.instance._id }

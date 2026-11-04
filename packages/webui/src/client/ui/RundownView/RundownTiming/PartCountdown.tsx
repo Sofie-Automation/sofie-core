@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { memo, type ReactNode } from 'react'
 import Moment from 'react-moment'
 import { RundownUtils } from '../../../lib/rundown.js'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
@@ -15,8 +15,11 @@ interface IPartCountdownProps {
 
 /**
  * A presentational component that will render a countdown to a given Part
+ *
+ * It draws itself again when its second changes, so it is memoised: a parent that is drawn on each
+ * frame, as the camera screen's parts are, does not draw it again with it.
  */
-export function PartCountdown(props: IPartCountdownProps): JSX.Element | null {
+export const PartCountdown = memo(function PartCountdown(props: IPartCountdownProps): JSX.Element | null {
 	// absent when the Part will probably not be played out, if played in order
 	const thisPartCountdown = usePartCountdownValue(props.partId, TimerValueMode.Duration)
 	// the countdown read as the time of day it reaches zero, at the same moment as the countdown itself
@@ -48,4 +51,4 @@ export function PartCountdown(props: IPartCountdownProps): JSX.Element | null {
 			</span>
 		</>
 	)
-}
+})

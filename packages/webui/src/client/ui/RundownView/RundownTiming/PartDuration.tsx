@@ -1,5 +1,5 @@
 import ClassNames from 'classnames'
-import type { ReactNode } from 'react'
+import { memo, type ReactNode } from 'react'
 import { RundownUtils } from '../../../lib/rundown.js'
 import type { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
 import { TimerValueMode, usePartTimingField, usePartTimingValue } from './usePlaylistTimingValue.js'
@@ -16,10 +16,11 @@ interface IPartDurationProps {
 
 /**
  * A presentational component that will render a duration for a Part
- * @function PartDisplayDuration
- * @extends React.Component<WithTiming<IPartDurationProps>>
+ *
+ * It draws itself again when its second changes, so it is memoised: a parent that is drawn on each
+ * frame, as the camera screen's parts are, does not draw it again with it.
  */
-export function PartDisplayDuration(props: IPartDurationProps): JSX.Element | null {
+export const PartDisplayDuration = memo(function PartDisplayDuration(props: IPartDurationProps): JSX.Element | null {
 	const part = props.part
 	const expectedDuration = usePartTimingField(part.instance.part._id, 'expectedDuration')
 	const budget = part.instance.orphaned || part.instance.part.untimed ? 0 : (expectedDuration ?? 0)
@@ -56,4 +57,4 @@ export function PartDisplayDuration(props: IPartDurationProps): JSX.Element | nu
 	}
 
 	return null
-}
+})
