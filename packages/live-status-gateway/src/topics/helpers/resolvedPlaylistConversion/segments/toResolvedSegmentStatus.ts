@@ -1,6 +1,10 @@
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getResolvedSegment } from '@sofie-automation/corelib/dist/playout/stateCacheResolver'
-import { ResolvedPlaylistConversionContext, getOrderedPartsInRundown } from '../context/conversionContext.js'
+import {
+	ResolvedPlaylistConversionContext,
+	getOrderedPartIdsInRundown,
+	getSegmentIdsInRundown,
+} from '../context/conversionContext.js'
 import { toResolvedPartStatus } from '../parts/toResolvedPartStatus.js'
 import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import type { DBSegment, SegmentExtended } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -23,7 +27,7 @@ export function toResolvedSegmentStatus(
 		segmentsToReceiveOnRundownEndFromSet: getSegmentsToReceiveOnRundownEndFromSet(ctx, segment),
 		rundownsToReceiveOnShowStyleEndFrom: [],
 		rundownsToShowStyles: ctx.rundownsToShowStyles,
-		orderedAllPartIds: getOrderedPartsInRundown(ctx, unprotectString(segment.rundownId)).map((p) => p._id),
+		orderedAllPartIds: getOrderedPartIdsInRundown(ctx, unprotectString(segment.rundownId)),
 		currentPartInstance: ctx.currentPartInstance,
 		nextPartInstance: ctx.nextPartInstance,
 		accessors: ctx.accessors,
@@ -66,8 +70,7 @@ function getSegmentsToReceiveOnRundownEndFromSet(
 	ctx: ResolvedPlaylistConversionContext,
 	segment: DBSegment
 ): Set<DBSegment['_id']> {
-	const segmentsInThisRundown = ctx.segmentsByRundownId.get(String(segment.rundownId)) ?? []
-	return new Set(segmentsInThisRundown.map((s) => s._id))
+	return getSegmentIdsInRundown(ctx, String(segment.rundownId))
 }
 
 /** Maps source layers from resolved segment output to API shape sorted by rank. */
