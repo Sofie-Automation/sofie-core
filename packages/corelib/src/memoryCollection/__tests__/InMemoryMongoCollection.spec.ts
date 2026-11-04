@@ -106,6 +106,31 @@ describe('CRUD basics', () => {
 	})
 })
 
+describe('selectors built by action trigger filter chains', () => {
+	// Server-side action triggers evaluate the meteor-lib filter chains against in-memory caches, while the
+	// webui evaluates the very same selectors with minimongo. Both must give the same answer.
+	interface AdLib {
+		_id: ProtectedString<'AdLibId'>
+		display: { tags?: string[] }
+	}
+	const adLib = (s: string, tags: string[] | undefined): AdLib => ({
+		_id: protectString(s),
+		display: tags ? { tags } : {},
+	})
+
+	test('a "tag" filter (`display.tags: { $all }`) matches adlibs carrying every listed tag', () => {
+		// The shape produced by meteor-lib `compileAdLibPieceFilter` / `compileAdLibActionFilter` for a 'tag' link
+		const c = new InMemoryMongoCollection<AdLib>('adLibs')
+		c.insert(adLib('both', ['camera', 'wide']))
+		c.insert(adLib('one', ['camera']))
+		c.insert(adLib('other', ['vt']))
+		c.insert(adLib('none', undefined))
+
+		expect(c.findFetch({ 'display.tags': { $all: ['camera', 'wide'] } } as any).map((d) => d._id)).toEqual(['both'])
+		expect(c.findFetch({ 'display.tags': { $all: ['camera'] } } as any).map((d) => d._id)).toEqual(['both', 'one'])
+	})
+})
+
 describe('update', () => {
 	test('single vs multi', () => {
 		const c = makeCollection()

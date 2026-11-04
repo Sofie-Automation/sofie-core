@@ -18,6 +18,7 @@ import type {
 	UpdateOneModel,
 } from 'mongodb'
 import { clone } from './lib.js'
+import { MongoMatcher } from './mongoMatcher.js'
 
 /** Hack's using typings pulled from meteor */
 
@@ -135,223 +136,35 @@ export type MongoBulkWriteOperation<TDoc extends Document> =
 
 /** End of hacks */
 
+/**
+ * Compile a selector once, for testing many documents against it.
+ * Uses {@link MongoMatcher}, the same matcher as the webui's minimongo, so the result matches it (and MongoDB).
+ */
+export function compileMongoSelector<T>(selector: MongoQuery<T>): (doc: Record<string, any>) => boolean {
+	const matcher = new MongoMatcher(selector)
+	return (doc) => matcher.test(doc)
+}
+
+/** The documents matching the selector, in their original order */
 export function mongoWhereFilter<T, R extends Record<string, any>>(items: R[], selector: MongoQuery<T>): R[] {
+	const matches = compileMongoSelector(selector)
 	const results: R[] = []
 	for (const item of items) {
-		if (mongoWhere(item, selector)) results.push(item)
+		if (matches(item)) results.push(item)
 	}
 	return results
 }
 
 /**
- * MongoDB `$in`/`$nin` membership: matches when the field value deep-equals a listed value, OR (when the
- * field is an array) when any of its elements deep-equals a listed value. Uses deep equality so embedded
- * documents and arrays compare by value, like MongoDB (and unlike a JS `indexOf`).
- */
-function mongoMatchesAnyOf(value: any, list: any[]): boolean {
-	const equalsAnyMember = (v: any) => list.some((member) => _.isEqual(v, member))
-	if (equalsAnyMember(value)) return true
-	return Array.isArray(value) && value.some(equalsAnyMember)
-}
-
-/**
- * MongoDB `$regex`: matches string field values against the pattern, or (when the field is an array) any
- * string element of it. Non-string values never match, as in MongoDB.
+ * Test a single document against a selector.
+ * This compiles the selector on every call: to test many documents against the same selector, use
+ * {@link compileMongoSelector} or {@link mongoWhereFilter} instead.
  *
- * The `g`/`y` flags are stripped, because `RegExp.test` advances `lastIndex` with them set, which would make
- * repeated matches against the same compiled selector return alternating results.
- *
- * As in MongoDB, `$options` applies to a RegExp pattern too, but not when the RegExp carries its own flags.
- * MongoDB's `x` (extended) option has no JS equivalent, so it is applied by rewriting the pattern.
+ * NOTE: unsupported operators throw, rather than being silently treated as a non-match, so that a query using
+ * something we don't support fails loudly instead of producing quietly-wrong results.
  */
-function mongoMatchesRegex(value: any, pattern: string | RegExp, options: string | undefined): boolean {
-	let source = pattern instanceof RegExp ? pattern.source : pattern
-	let flags = (pattern instanceof RegExp ? pattern.flags : '').replace(/[gy]/g, '')
-	if (options) {
-		if (flags) throw new Error('options set in both $regex and $options')
-		// MongoDB only supports these; JS-only flags such as `g` would otherwise be accepted by `RegExp`
-		const invalidOption = options.match(/[^imsux]/)
-		if (invalidOption) throw new Error(`invalid flag in regex options: ${invalidOption[0]}`)
-		flags = options
-	}
-	if (flags.includes('x')) {
-		source = stripExtendedRegexSyntax(source)
-		flags = flags.replace(/x/g, '')
-	}
-	const regex = new RegExp(source, flags)
-
-	const matches = (v: any) => typeof v === 'string' && regex.test(v)
-	if (matches(value)) return true
-	return Array.isArray(value) && value.some(matches)
-}
-
-/**
- * Apply PCRE extended-mode (MongoDB's `x` option) to a pattern: unescaped whitespace, and `#` comments up to
- * the end of the line, are removed, except inside a character class.
- */
-function stripExtendedRegexSyntax(source: string): string {
-	let result = ''
-	let inClass = false
-	for (let i = 0; i < source.length; i++) {
-		const char = source[i]
-		if (char === '\\') {
-			// Keep the escape and the escaped character verbatim
-			result += source.slice(i, i + 2)
-			i++
-		} else if (inClass) {
-			if (char === ']') inClass = false
-			result += char
-		} else if (char === '[') {
-			inClass = true
-			result += char
-		} else if (char === '#') {
-			while (i + 1 < source.length && source[i + 1] !== '\n') i++
-		} else if (!/\s/.test(char)) {
-			result += char
-		}
-	}
-	return result
-}
-
-/**
- * Match a single field's operator-object (e.g. `{ $gte: 2, $lte: 4 }`) against the field value. MongoDB
- * applies ALL operators in such an object, so every one must hold (logical AND). Throws on any operator we
- * do not implement (rather than silently ignoring it). `o`/`key` are passed through for `$not`/`$exists`,
- * which need the parent-document context.
- */
-function mongoMatchFieldOperators(oAttr: any, s: Record<string, any>, o: Record<string, any>, key: string): boolean {
-	for (const op of Object.keys(s)) {
-		const value = s[op]
-		let ok: boolean
-		switch (op) {
-			case '$elemMatch':
-				ok = Array.isArray(oAttr) && oAttr.some((item) => mongoWhere(item, value))
-				break
-			case '$gt':
-				ok = oAttr > value
-				break
-			case '$gte':
-				ok = oAttr >= value
-				break
-			case '$lt':
-				ok = oAttr < value
-				break
-			case '$lte':
-				ok = oAttr <= value
-				break
-			case '$eq':
-				ok = _.isEqual(oAttr, value)
-				break
-			case '$ne':
-				ok = !_.isEqual(oAttr, value)
-				break
-			case '$in':
-				ok = mongoMatchesAnyOf(oAttr, value)
-				break
-			case '$nin':
-				ok = !mongoMatchesAnyOf(oAttr, value)
-				break
-			case '$exists':
-				ok = (o[key] !== undefined) === !!value
-				break
-			case '$regex':
-				ok = mongoMatchesRegex(oAttr, value, s['$options'])
-				break
-			case '$options':
-				// Consumed by the sibling `$regex`, but reject it on its own so that a selector which would
-				// be an error in MongoDB doesn't quietly match everything here.
-				if (!('$regex' in s)) throw new Error('Operand "$options" requires a sibling "$regex"')
-				ok = true
-				break
-			case '$not': {
-				const innerSelector: any = {}
-				innerSelector[key] = value
-				ok = !mongoWhere(o, innerSelector)
-				break
-			}
-			default:
-				throw new Error(`Operand "${op}" is not implemented`)
-		}
-		if (!ok) return false
-	}
-	return true
-}
-
 export function mongoWhere<T>(o: Record<string, any>, selector: MongoQuery<T>): boolean {
-	if (typeof selector !== 'object') {
-		// selector must be an object
-		return false
-	}
-
-	let ok = true
-	for (const [key, s] of Object.entries<any>(selector)) {
-		if (!ok) break
-
-		// NOTE: unsupported operators (and malformed $and/$or) throw, rather than being silently treated as a
-		// non-match. Callers that re-implement a subset of MongoDB must fail loudly when a query uses something
-		// they don't support, so the divergence surfaces instead of producing quietly-wrong results.
-		const keyWords = key.split('.')
-		if (keyWords.length > 1) {
-			const oAttr = o[keyWords[0]]
-			const innerSelector: any = {}
-			innerSelector[keyWords.slice(1).join('.')] = s
-			if (Array.isArray(oAttr)) {
-				// Path passes through an array: match if any element satisfies the remaining selector,
-				// as MongoDB does for `items.name` against `items: [{ name: ... }, ...]`.
-				ok = oAttr.some((element) => mongoWhere(_.isObject(element) ? element : {}, innerSelector))
-			} else if (_.isObject(oAttr) || oAttr === undefined) {
-				ok = mongoWhere(oAttr || {}, innerSelector)
-			} else {
-				ok = false
-			}
-		} else if (key === '$or') {
-			if (_.isArray(s)) {
-				let ok2 = false
-				for (const innerSelector of s) {
-					ok2 = ok2 || mongoWhere(o, innerSelector)
-				}
-				ok = ok2
-			} else {
-				throw new Error('An $or filter must be an array')
-			}
-		} else if (key === '$and') {
-			if (Array.isArray(s) && s.length >= 1) {
-				let ok2 = true
-				for (const innerSelector of s) {
-					ok2 = ok2 && mongoWhere(o, innerSelector)
-					if (!ok2) break
-				}
-				ok = ok2
-			} else {
-				throw new Error('An $and filter must be an array')
-			}
-		} else if (key.startsWith('$')) {
-			throw new Error(`Operand "${key}" is not implemented`)
-		} else {
-			const oAttr = o[key]
-
-			if (s instanceof RegExp) {
-				// A bare RegExp field value, which MongoDB treats as `{ $regex: ... }`. Handled before the
-				// sub-document branch below, which would otherwise compare it field-by-field and never match.
-				ok = mongoMatchesRegex(oAttr, s, undefined)
-			} else if (_.isObject(s) && !Array.isArray(s) && Object.keys(s).some((k) => k.startsWith('$'))) {
-				// An operator object such as `{ $gte: 2, $lte: 4 }` — every operator must hold (logical AND).
-				ok = mongoMatchFieldOperators(oAttr, s as Record<string, any>, o, key)
-			} else if (_.isObject(s)) {
-				// A plain sub-document match (or an array, compared field-by-field, as before).
-				if (_.isObject(oAttr) || oAttr === undefined) {
-					ok = mongoWhere(oAttr || {}, s)
-				} else {
-					ok = false
-				}
-			} else {
-				const innerSelector: any = {}
-				innerSelector[key] = { $eq: s }
-				ok = mongoWhere(o, innerSelector)
-			}
-		}
-	}
-	return ok
+	return new MongoMatcher(selector).test(o)
 }
 /**
  * Build a comparator for a {@link SortSpecifier}. Compares by each sort key in turn, then falls back
@@ -786,7 +599,11 @@ export function pullFromPath<T>(obj: Record<string, unknown>, path: string, matc
 			// An object is treated as a query against each element (handles plain sub-document matches as
 			// well as nested operators like `{ field: { $in: [...] } }`)
 			if (matchValue && typeof matchValue === 'object') {
-				return (o[lastAttr] = arrAttr.filter((entry: T) => !mongoWhere(entry as any, matchValue as any)))
+				const matches = compileMongoSelector(matchValue as any)
+				// A query can only match documents, so other elements are kept
+				return (o[lastAttr] = arrAttr.filter(
+					(entry: T) => !(entry !== null && typeof entry === 'object' && matches(entry as any))
+				))
 			}
 
 			// A primitive removes elements equal to it

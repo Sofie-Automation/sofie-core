@@ -169,35 +169,81 @@ const cases: ConformanceCase[] = [
 		expectation: { status: 'bothThrow', reason: 'Operand "$options" requires a sibling "$regex"' },
 	},
 
+	{ kind: 'where', name: '$size', seed: withArrays, query: { tags: { $size: 2 } } },
+	{ kind: 'where', name: '$size: 0', seed: withArrays, query: { tags: { $size: 0 } } },
+	{ kind: 'where', name: '$type with the number alias', seed: scalars, query: { rank: { $type: 'number' } } },
+	{ kind: 'where', name: '$type with a string alias', seed: scalars, query: { name: { $type: 'string' } } },
+	{ kind: 'where', name: '$all', seed: withArrays, query: { tags: { $all: ['x', 'y'] } } },
+	{ kind: 'where', name: '$all with a single value', seed: withArrays, query: { tags: { $all: ['x'] } } },
+	{ kind: 'where', name: 'top-level $nor', seed: scalars, query: { $nor: [{ name: 'abc' }] } },
+	{ kind: 'where', name: '$mod', seed: scalars, query: { rank: { $mod: [2, 1] } } },
+
+	// Cases where the old hand-rolled matcher disagreed with MongoDB
+	{
+		kind: 'where',
+		name: 'implicit equality matching an ARRAY field element',
+		seed: withArrays,
+		query: { tags: 'x' },
+	},
+	{ kind: 'where', name: 'equality with null matches a missing field', seed: withMissing, query: { val: null } },
+	{ kind: 'where', name: '$eq null matches a missing field', seed: withMissing, query: { val: { $eq: null } } },
+	{ kind: 'where', name: '$ne null excludes a missing field', seed: withMissing, query: { val: { $ne: null } } },
+	{
+		kind: 'where',
+		name: '$in with null matches a missing field',
+		seed: withMissing,
+		query: { val: { $in: [null, 3] } },
+	},
+	{
+		kind: 'where',
+		name: 'comparisons never match values of another type',
+		seed: [...scalars, { _id: 'e', name: 'num', rank: '5' }],
+		query: { rank: { $gt: 1 } },
+	},
+	{
+		kind: 'where',
+		name: 'embedded document equality is sensitive to key order',
+		seed: [
+			{ _id: 'a', meta: { x: 1, y: 2 } },
+			{ _id: 'b', meta: { y: 2, x: 1 } },
+		],
+		query: { meta: { x: 1, y: 2 } },
+	},
+	{
+		kind: 'where',
+		name: '$elemMatch with operators on scalar elements',
+		seed: [
+			{ _id: 'a', nums: [1, 5] },
+			{ _id: 'b', nums: [3] },
+		],
+		query: { nums: { $elemMatch: { $gt: 2, $lt: 4 } } },
+	},
+	{
+		kind: 'where',
+		name: 'range on an array field may match different elements',
+		seed: [
+			{ _id: 'a', nums: [1, 5] },
+			{ _id: 'b', nums: [3] },
+			{ _id: 'c', nums: [0] },
+		],
+		query: { nums: { $gt: 2, $lt: 4 } },
+	},
+
 	// Operators the in-memory matcher deliberately does NOT implement: it must throw (loud), not silently
 	// mis-match. Real mongo supports these, so we only assert the in-memory side throws.
 	{
 		kind: 'where',
-		name: 'UNSUPPORTED $size throws',
-		seed: withArrays,
-		query: { tags: { $size: 2 } },
-		expectation: { status: 'inMemoryThrows', reason: 'Operand "$size" is not implemented' },
-	},
-	{
-		kind: 'where',
-		name: 'UNSUPPORTED $type throws',
+		name: 'UNSUPPORTED $where throws',
 		seed: scalars,
-		query: { rank: { $type: 'number' } },
-		expectation: { status: 'inMemoryThrows', reason: 'Operand "$type" is not implemented' },
+		query: { $where: 'true' },
+		expectation: { status: 'inMemoryThrows', reason: 'Operand "$where" is not implemented' },
 	},
 	{
 		kind: 'where',
-		name: 'UNSUPPORTED $all throws',
-		seed: withArrays,
-		query: { tags: { $all: ['x', 'y'] } },
-		expectation: { status: 'inMemoryThrows', reason: 'Operand "$all" is not implemented' },
-	},
-	{
-		kind: 'where',
-		name: 'UNSUPPORTED top-level $nor throws',
+		name: 'UNSUPPORTED $bitsAllSet throws',
 		seed: scalars,
-		query: { $nor: [{ name: 'abc' }] },
-		expectation: { status: 'inMemoryThrows', reason: 'Operand "$nor" is not implemented' },
+		query: { rank: { $bitsAllSet: 1 } },
+		expectation: { status: 'inMemoryThrows', reason: 'Operand "$bitsAllSet" is not implemented' },
 	},
 ]
 
