@@ -37,17 +37,18 @@ jest.mock('../../../../lib/systemTime.js', () => ({
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({ t: (key: string) => key }),
 }))
-// The countdown's stylesheet cannot load in Jest, so draw each countdown as its label and its text
-jest.mock('../Countdown.js', () => ({
-	Countdown: ({ label, children }: { label?: string; children?: unknown }) =>
-		jest.requireActual('react').createElement('span', { 'data-label': label }, children),
-}))
-
 import { RundownHeaderDurations } from '../RundownHeaderDurations.js'
+
+/** The value a countdown shows, found by its label */
+function countdownValue(container: HTMLElement, label: string): HTMLElement | null {
+	const labels = Array.from(container.querySelectorAll<HTMLElement>('.countdown__label'))
+	const countdown = labels.find((element) => element.textContent === label)?.closest('.countdown')
+	return countdown?.querySelector<HTMLElement>('.countdown__counter') ?? null
+}
 
 describe('RundownHeaderDurations', () => {
 	it('shows Rem. Dur 00:00:01 in the last 0.1 s, as the time left rounds up', () => {
 		const { container } = render(<RundownHeaderDurations playlist={{ _id: PLAYLIST_ID } as DBRundownPlaylist} />)
-		expect(container.querySelector('[data-label="Rem. Dur"]')?.textContent).toBe('00:00:01')
+		expect(countdownValue(container, 'Rem. Dur')?.textContent).toBe('00:00:01')
 	})
 })

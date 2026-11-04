@@ -1,11 +1,5 @@
 import { render } from '@testing-library/react'
 
-// The countdown's stylesheet cannot load in Jest, so draw the countdown as its text
-jest.mock('../../../ui/RundownView/RundownHeader/Countdown.js', () => ({
-	Countdown: ({ children }: { children?: unknown }) =>
-		jest.requireActual('react').createElement('span', null, children),
-}))
-
 import { TimeToFromPlannedEndComponent } from '../CounterComponents.js'
 
 describe('TimeToFromPlannedEndComponent', () => {

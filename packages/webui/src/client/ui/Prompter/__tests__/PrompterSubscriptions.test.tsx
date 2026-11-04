@@ -23,12 +23,6 @@ jest.mock('react-i18next', () => ({
 		},
 }))
 
-// Components the loading state does not render, mocked so that their stylesheets are not loaded
-jest.mock('../../ClockView/RundownStatusBar.js', () => ({ RundownStatusBar: () => null }))
-jest.mock('../../../lib/Components/OverUnderChip.js', () => ({ OverUnderChip: () => null }))
-jest.mock('../../StudioScreenSaver/StudioScreenSaver.js', () => ({ StudioScreenSaver: () => null }))
-jest.mock('../PrompterControlButtons/PrompterControlButtons.js', () => ({ PrompterControlButtons: () => null }))
-
 import { Prompter } from '../PrompterView.js'
 
 const PLAYLIST_ID = protectString<RundownPlaylistId>('playlist0')

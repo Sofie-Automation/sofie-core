@@ -1,8 +1,5 @@
 import { render } from '@testing-library/react'
 
-// The chip's stylesheet cannot load in Jest
-jest.mock('../OverUnderChip.scss', () => ({}))
-
 import { OverUnderChip } from '../OverUnderChip.js'
 
 function chipText(valueMs: number): string | null {
