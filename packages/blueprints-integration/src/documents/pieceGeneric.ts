@@ -6,7 +6,14 @@ import type { SomeContent, WithTimeline } from '../content.js'
 import type { ExpectedPackage } from '../package.js'
 import type { ExpectedPlayoutItemGeneric } from './expectedPlayoutItem.js'
 
-export { LegacyPieceLifespan, PieceLifespanInfo } from '@sofie-automation/shared-lib/dist/core/model/Rundown'
+export {
+	LegacyPieceLifespan,
+	IPieceLifespan,
+	PieceLifespanInfo,
+	PieceLifespanScope,
+	PieceLifespanPresence,
+	PieceLifespanInShadow,
+} from '@sofie-automation/shared-lib/dist/core/model/Rundown'
 
 export enum IBlueprintDirectPlayType {
 	AdLibPiece = 'adlib',
