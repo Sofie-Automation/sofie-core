@@ -36,11 +36,14 @@ export interface PartTimingState {
  * the PartInstances' own timestamps and from `timingContext`, which was calculated at some instant
  * already.
  *
- * @param timingContext The context calculated for the same inputs
- * There is one state per Part: a Part with several PartInstances, such as one taken again, is
- * described by the last of them.
+ * There is one state per Part, because a part document is keyed by its PartId. A Part with several
+ * PartInstances, such as one taken again, is described by the last of them. Each state's `rank` is
+ * still its PartInstance's position in `partInstances`, so the ranks of the PartInstances left out
+ * are not used by any state.
  *
+ * @param timingContext The context calculated for the same inputs
  * @param partInstances Sorted PartInstances, as fed to the RundownTimingCalculator
+ * @returns The state of each Part, by its PartId, in the order each Part first appears in `partInstances`
  */
 export function calculatePartTimingStates(
 	timingContext: RundownTimingContext,
@@ -49,6 +52,8 @@ export function calculatePartTimingStates(
 	const states = new Map<PartId, PartTimingState>()
 
 	partInstances.forEach((partInstance, rank) => {
+		// a later PartInstance of the same Part replaces the earlier one's state, which is what leaves
+		// one state per Part
 		states.set(partInstance.part._id, {
 			partInstance,
 			values: calculateOnePartTimingStates(timingContext, partInstance, rank),
