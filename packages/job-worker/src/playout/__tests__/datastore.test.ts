@@ -22,7 +22,11 @@ const invalidValues: Array<[string, unknown, string]> = [
 	['mongo update operator lookalike', { $set: { a: 1 } }, '$set'],
 	['$-prefixed field name inside an array', [{ $foo: 1 }], '$foo'],
 	['EJSON $date lookalike', { $date: 0 }, '$date'],
-	['field name with a null byte', { 'a\0b': 1 }, 'a\0b'],
+	// MongoDB stores the entries of a Map, and the result of toBSON(), as plain fields
+	['nested Map with a dotted key', { x: new Map([['a.b', 1]]) }, 'a.b'],
+	['Map with a $-prefixed key', new Map([['$foo', 1]]), '$foo'],
+	['toBSON() returning a dotted field name', { toBSON: () => ({ 'a.b': 1 }) }, 'a.b'],
+	['nested toBSON() returning a $-prefixed field name', { x: { toBSON: () => ({ $set: 1 }) } }, '$set'],
 ]
 
 const validValues: Array<[string, unknown]> = [
@@ -45,6 +49,22 @@ describe('assertValidTimelineDatastoreValue', () => {
 
 	test.each(validValues)('accepts a %s', (_name, value) => {
 		expect(() => assertValidTimelineDatastoreValue('myKey', value)).not.toThrow()
+	})
+
+	test.each<[string, unknown]>([
+		['field name with a null byte', { 'a\0b': 1 }],
+		[
+			'circular reference',
+			(() => {
+				const value: Record<string, unknown> = {}
+				value.self = value
+				return value
+			})(),
+		],
+	])('rejects a value MongoDB cannot store: %s', (_name, value) => {
+		expect(() => assertValidTimelineDatastoreValue('myKey', value)).toThrow(
+			`Timeline datastore value for key "myKey" can't be stored`
+		)
 	})
 })
 
@@ -78,6 +98,18 @@ describe('setTimelineDatastoreValue', () => {
 
 		const docs = await context.mockCollections.TimelineDatastores.findFetch({})
 		expect(docs.map((d) => d.value)).toEqual([value])
+	})
+
+	test.each<[string, unknown, unknown]>([
+		['nested Map', { x: new Map([['a', 1]]) }, { x: { a: 1 } }],
+		['toBSON()', { toBSON: () => ({ a: 1 }) }, { a: 1 }],
+		['undefined field', { a: 1, b: undefined }, { a: 1 }],
+		['Date', { at: new Date(0) }, { at: new Date(0) }],
+	])('stores a %s as MongoDB would, which is what was checked', async (_name, value, expected) => {
+		await setTimelineDatastoreValue(context, 'myKey', value, DatastorePersistenceMode.Temporary)
+
+		const docs = await context.mockCollections.TimelineDatastores.findFetch({})
+		expect(docs.map((d) => d.value)).toStrictEqual([expected])
 	})
 })
 
