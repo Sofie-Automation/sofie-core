@@ -90,42 +90,160 @@ const cases: ConformanceCase[] = [
 		query: { 'objs.kind': 'durian' },
 	},
 
+	// `$regex` is what the device-trigger filter chains compile label/name filters down to, so the
+	// in-memory matcher has to agree with real mongo on it.
+	{ kind: 'where', name: '$regex anchored', seed: scalars, query: { name: { $regex: '^abc' } } },
+	{ kind: 'where', name: '$regex substring', seed: scalars, query: { name: { $regex: 'bc' } } },
+	{ kind: 'where', name: '$regex alternation', seed: scalars, query: { name: { $regex: 'abcd|xyz' } } },
+	{ kind: 'where', name: '$regex no match', seed: scalars, query: { name: { $regex: 'nope' } } },
+	{
+		kind: 'where',
+		name: '$regex is case-sensitive by default',
+		seed: scalars,
+		query: { name: { $regex: 'ABC' } },
+	},
+	{
+		kind: 'where',
+		name: '$regex with $options: i',
+		seed: scalars,
+		query: { name: { $regex: 'ABC', $options: 'i' } },
+	},
+	{
+		kind: 'where',
+		name: '$regex combined with another operator on the same field',
+		seed: scalars,
+		query: { name: { $regex: '^abc', $ne: 'abcd' } },
+	},
+	{
+		kind: 'where',
+		name: '$regex matches any element of an array field',
+		seed: withArrays,
+		query: { tags: { $regex: 'x' } },
+	},
+	{ kind: 'where', name: '$regex does not match non-string values', seed: scalars, query: { rank: { $regex: '1' } } },
+	{
+		kind: 'where',
+		name: '$regex does not match a missing field',
+		seed: withMissing,
+		query: { val: { $regex: '.*' } },
+	},
+	{
+		kind: 'where',
+		name: '$regex RegExp with $options: i',
+		seed: scalars,
+		query: { name: { $regex: /ABC/, $options: 'i' } },
+	},
+	{
+		kind: 'where',
+		name: '$regex RegExp with flags and $options is rejected',
+		seed: scalars,
+		query: { name: { $regex: /ABC/m, $options: 'i' } },
+		expectation: { status: 'bothThrow', reason: 'options set in both $regex and $options' },
+	},
+	{
+		kind: 'where',
+		name: '$regex with unsupported $options: g is rejected',
+		seed: scalars,
+		query: { name: { $regex: 'abc', $options: 'g' } },
+		expectation: { status: 'bothThrow', reason: 'invalid flag in regex options: g' },
+	},
+	{
+		kind: 'where',
+		name: '$regex with $options: x ignores whitespace and comments',
+		seed: scalars,
+		query: { name: { $regex: '^ a b c # a comment\n d', $options: 'x' } },
+	},
+	{
+		kind: 'where',
+		name: '$regex with $options: x keeps escaped whitespace and character classes',
+		seed: [...scalars, { _id: 'e', name: 'ab c' }, { _id: 'f', name: 'ab  c' }],
+		query: { name: { $regex: '^ab\\ [ ] c$', $options: 'x' } },
+	},
+	{ kind: 'where', name: 'bare RegExp field value', seed: scalars, query: { name: /^abc/ } },
+	{ kind: 'where', name: 'bare RegExp field value, case-insensitive', seed: scalars, query: { name: /ABC/i } },
+	{
+		kind: 'where',
+		name: '$options without $regex is rejected',
+		seed: scalars,
+		query: { name: { $options: 'i' } },
+		expectation: { status: 'bothThrow', reason: 'Operand "$options" requires a sibling "$regex"' },
+	},
+
+	{ kind: 'where', name: '$size', seed: withArrays, query: { tags: { $size: 2 } } },
+	{ kind: 'where', name: '$size: 0', seed: withArrays, query: { tags: { $size: 0 } } },
+	{ kind: 'where', name: '$type with the number alias', seed: scalars, query: { rank: { $type: 'number' } } },
+	{ kind: 'where', name: '$type with a string alias', seed: scalars, query: { name: { $type: 'string' } } },
+	{ kind: 'where', name: '$all', seed: withArrays, query: { tags: { $all: ['x', 'y'] } } },
+	{ kind: 'where', name: '$all with a single value', seed: withArrays, query: { tags: { $all: ['x'] } } },
+	{ kind: 'where', name: 'top-level $nor', seed: scalars, query: { $nor: [{ name: 'abc' }] } },
+	{ kind: 'where', name: '$mod', seed: scalars, query: { rank: { $mod: [2, 1] } } },
+
+	// Cases where the old hand-rolled matcher disagreed with MongoDB
+	{
+		kind: 'where',
+		name: 'implicit equality matching an ARRAY field element',
+		seed: withArrays,
+		query: { tags: 'x' },
+	},
+	{ kind: 'where', name: 'equality with null matches a missing field', seed: withMissing, query: { val: null } },
+	{ kind: 'where', name: '$eq null matches a missing field', seed: withMissing, query: { val: { $eq: null } } },
+	{ kind: 'where', name: '$ne null excludes a missing field', seed: withMissing, query: { val: { $ne: null } } },
+	{
+		kind: 'where',
+		name: '$in with null matches a missing field',
+		seed: withMissing,
+		query: { val: { $in: [null, 3] } },
+	},
+	{
+		kind: 'where',
+		name: 'comparisons never match values of another type',
+		seed: [...scalars, { _id: 'e', name: 'num', rank: '5' }],
+		query: { rank: { $gt: 1 } },
+	},
+	{
+		kind: 'where',
+		name: 'embedded document equality is sensitive to key order',
+		seed: [
+			{ _id: 'a', meta: { x: 1, y: 2 } },
+			{ _id: 'b', meta: { y: 2, x: 1 } },
+		],
+		query: { meta: { x: 1, y: 2 } },
+	},
+	{
+		kind: 'where',
+		name: '$elemMatch with operators on scalar elements',
+		seed: [
+			{ _id: 'a', nums: [1, 5] },
+			{ _id: 'b', nums: [3] },
+		],
+		query: { nums: { $elemMatch: { $gt: 2, $lt: 4 } } },
+	},
+	{
+		kind: 'where',
+		name: 'range on an array field may match different elements',
+		seed: [
+			{ _id: 'a', nums: [1, 5] },
+			{ _id: 'b', nums: [3] },
+			{ _id: 'c', nums: [0] },
+		],
+		query: { nums: { $gt: 2, $lt: 4 } },
+	},
+
 	// Operators the in-memory matcher deliberately does NOT implement: it must throw (loud), not silently
 	// mis-match. Real mongo supports these, so we only assert the in-memory side throws.
 	{
 		kind: 'where',
-		name: 'UNSUPPORTED $regex throws',
+		name: 'UNSUPPORTED $where throws',
 		seed: scalars,
-		query: { name: { $regex: '^abc' } },
-		expectation: { status: 'inMemoryThrows', reason: 'Operand "$regex" is not implemented' },
+		query: { $where: 'true' },
+		expectation: { status: 'inMemoryThrows', reason: 'Operand "$where" is not implemented' },
 	},
 	{
 		kind: 'where',
-		name: 'UNSUPPORTED $size throws',
-		seed: withArrays,
-		query: { tags: { $size: 2 } },
-		expectation: { status: 'inMemoryThrows', reason: 'Operand "$size" is not implemented' },
-	},
-	{
-		kind: 'where',
-		name: 'UNSUPPORTED $type throws',
+		name: 'UNSUPPORTED $bitsAllSet throws',
 		seed: scalars,
-		query: { rank: { $type: 'number' } },
-		expectation: { status: 'inMemoryThrows', reason: 'Operand "$type" is not implemented' },
-	},
-	{
-		kind: 'where',
-		name: 'UNSUPPORTED $all throws',
-		seed: withArrays,
-		query: { tags: { $all: ['x', 'y'] } },
-		expectation: { status: 'inMemoryThrows', reason: 'Operand "$all" is not implemented' },
-	},
-	{
-		kind: 'where',
-		name: 'UNSUPPORTED top-level $nor throws',
-		seed: scalars,
-		query: { $nor: [{ name: 'abc' }] },
-		expectation: { status: 'inMemoryThrows', reason: 'Operand "$nor" is not implemented' },
+		query: { rank: { $bitsAllSet: 1 } },
+		expectation: { status: 'inMemoryThrows', reason: 'Operand "$bitsAllSet" is not implemented' },
 	},
 ]
 
