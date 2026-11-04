@@ -48,10 +48,17 @@ export interface PlaylistTimingStateDoc {
 	plannedEnd?: TimerState
 
 	/**
-	 * Planned duration of the playlist ("Plan. Dur"), in milliseconds.
+	 * Planned duration of the playlist ("Plan. Dur"), in milliseconds, as set in the playlist's timing.
 	 * Omitted if the playlist has no planned duration.
 	 */
 	plannedDuration?: number
+
+	/**
+	 * How long the playlist's segments are meant to take, in milliseconds: each segment's budget
+	 * duration, or the length of its timed parts when it has none. Unlike `plannedDuration` it comes
+	 * from the rundown rather than the playlist's timing, so it is there for an untimed playlist too.
+	 */
+	targetDuration?: number
 
 	/**
 	 * Actual start of playback (only present while the playlist is active, matching the header behavior).

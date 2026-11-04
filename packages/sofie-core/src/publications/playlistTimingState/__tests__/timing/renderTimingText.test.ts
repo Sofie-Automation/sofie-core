@@ -129,6 +129,8 @@ function showDocs(): TimingStateDoc[] {
 			plannedStart: running(clock('12:00:00')),
 			plannedEnd: running(clock('12:02:30')),
 			plannedDuration: length('2:30'),
+			// B2 is untimed, so the segments are meant to take 0:20 less than the reference rundown's 2:30
+			targetDuration: length('2:10'),
 			startedPlayback: running(clock('12:00:05')),
 			remainingDuration: running(clock('12:02:21'), onAirEnds),
 			estimatedEnd: running(clock('12:02:21'), onAirEnds),
@@ -176,7 +178,7 @@ describe('the readable text of the timing documents', () => {
 		const text = readShow(showDocs())
 		expect(text).toMatchInlineSnapshot(`
 		12:00:33, published 12:00:31
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:10
 		  show       started 12:00:05  remaining 1:48 runs until 12:00:41  ends 12:02:21 fixed until 12:00:41  in hand 0:14 holds until 12:00:41
 		  on air     A3 in A  left 0:08 running since 12:00:31  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:28 runs  left 0:02 runs
@@ -274,6 +276,7 @@ describe('the readable text of the timing documents', () => {
 		  plannedStart                    plan
 		  plannedEnd                      plan
 		  plannedDuration                 plan
+		  targetDuration                  plan
 		  startedPlayback                 show
 		  remainingDuration               show
 		  estimatedEnd                    show
@@ -367,8 +370,8 @@ describe('the readable text of the timing documents', () => {
 	`)
 		expect(readModes('plan', [none, duration])).toMatchInlineSnapshot(`
 		12:00:33, published 12:00:33
-		  none          none  start none  end none  duration none
-		  duration 2:30 duration  start none  end none  duration 2:30
+		  none          none  start none  end none  duration none  target none
+		  duration 2:30 duration  start none  end none  duration 2:30  target none
 	`)
 
 		expect(() => readModes('show', [none, inMode('none 2:30', { currentPartWillAutoNext: true })])).toThrow(

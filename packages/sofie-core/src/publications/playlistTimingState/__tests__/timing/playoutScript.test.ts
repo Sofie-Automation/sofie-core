@@ -249,7 +249,7 @@ describe('reading the publication', () => {
 	it('reads the documents published at the last step, at a later instant', () => {
 		expect(lateStart.readAt('12:00:10')).toMatchInlineSnapshot(`
 		12:00:10, published 12:00:05
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:05  remaining 2:25 runs until 12:00:15  ends 12:02:35 fixed until 12:00:15  in hand 0:00 holds until 12:00:15
 		  on air     A1 in A  left 0:05 running since 12:00:05  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:05 runs  left 0:25 runs
@@ -281,7 +281,7 @@ describe('reading the publication', () => {
 	it('reads only the steps at or before the instant', () => {
 		expect(lateStart.readAt('12:00:04', { view: 'show' })).toMatchInlineSnapshot(`
 		12:00:04, published 11:59:00
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started none  remaining 2:30  ends 12:02:34 moving since 12:00:00  in hand 0:00
 		  on air     none in none  left none  budget none  auto-next no
 	`)

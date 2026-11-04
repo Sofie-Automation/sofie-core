@@ -29,7 +29,7 @@ import { formatClock, formatLength } from './referenceRundown'
  * A read in full looks like this:
  *
  *   12:00:10, published 12:00:05
- *     plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+ *     plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
  *     show       started 12:00:05  remaining 2:25 runs until 12:00:15  ends 12:02:35 fixed until 12:00:15  in hand 0:00 holds until 12:00:15
  *     on air     A1 in A  left 0:05 running since 12:00:05  budget none  auto-next no
  *     segment A  parts  target 0:30  content 0:30  played 0:05 runs  left 0:25 runs
@@ -44,7 +44,8 @@ import { formatClock, formatLength } from './referenceRundown'
  *
  * The first line is the instant, and when the publication last calculated the documents: the last change of its
  * inputs. Every value is the published value read at the instant. Then, line by line:
- * - plan: the playlist's timing type, planned start, planned end and planned duration.
+ * - plan: the playlist's timing type, planned start, planned end and planned duration, and how long its segments are
+ *   meant to take (their budgets, or their timed parts).
  * - show: when the show started, the remaining duration, the estimated end, and the time in hand (positive is
  *   ahead of the plan, negative behind it).
  * - on air: the on-air part and its segment, the time left of the part and of the segment's budget, and whether
@@ -171,6 +172,7 @@ const PLAYLIST_FIELDS: FieldList<PlaylistTimingStateDoc> = {
 	plannedStart: 'plan: start',
 	plannedEnd: 'plan: end',
 	plannedDuration: 'plan: duration',
+	targetDuration: 'plan: target',
 	startedPlayback: 'show: started',
 	remainingDuration: 'show: remaining',
 	estimatedEnd: 'show: ends',
@@ -293,7 +295,10 @@ function readDocuments(docs: ReadonlyArray<TimingStateDoc>): Documents {
 		switch (doc.type) {
 			case 'playlist':
 				checkFields(doc, PLAYLIST_FIELDS, PLAYLIST_FLAGS, 'playlist document')
-				checkWholeMilliseconds('playlist document', { 'planned duration': doc.plannedDuration })
+				checkWholeMilliseconds('playlist document', {
+					'planned duration': doc.plannedDuration,
+					'target duration': doc.targetDuration,
+				})
 				checkDocumentId(doc, getPlaylistTimingStateDocId(playlistId))
 				break
 			case 'segment':
@@ -581,6 +586,7 @@ function planFields({ instant, calculation }: LineContext): string {
 		documentField('start', playlists, (playlist) => clockPhrase(playlist.plannedStart, instant)),
 		documentField('end', playlists, (playlist) => clockPhrase(playlist.plannedEnd, instant)),
 		documentField('duration', playlists, (playlist) => fixedLengthPhrase(playlist.plannedDuration)),
+		documentField('target', playlists, (playlist) => fixedLengthPhrase(playlist.targetDuration)),
 	].join('  ')
 }
 

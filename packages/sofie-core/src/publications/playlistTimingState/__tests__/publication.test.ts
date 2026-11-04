@@ -237,6 +237,7 @@ describe('playlistTimingState publication', () => {
 				plannedStart: { paused: false, zeroTime: EXPECTED_START },
 				plannedEnd: { paused: false, zeroTime: EXPECTED_START + EXPECTED_DURATION },
 				plannedDuration: EXPECTED_DURATION,
+				targetDuration: totalPartDurations,
 				startedPlayback: undefined,
 				// Nothing is playing: remaining is the constant sum of the part durations
 				remainingDuration: { paused: true, duration: totalPartDurations },

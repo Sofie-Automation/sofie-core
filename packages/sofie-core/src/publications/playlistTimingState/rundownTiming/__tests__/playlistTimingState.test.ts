@@ -448,6 +448,39 @@ describe('calculatePlaylistTimingStates', () => {
 	 * playlist with nothing playing - otherwise the projected end pushes with the clock, and stays
 	 * wrong until the gateway reports playback, because nothing recomputes at the planned start.
 	 */
+	describe('the target duration', () => {
+		function targetDurationOf(scenario: MockScenario): number | undefined {
+			return calculatePlaylistTimingStates(
+				10000,
+				scenario.playlist,
+				scenario.partInstances,
+				scenario.segmentsMap,
+				DEFAULT_DURATION,
+				{}
+			).targetDuration
+		}
+
+		it('is the length of the parts, for an untimed playlist that has no planned duration', () => {
+			const scenario = makeStandardScenario()
+			scenario.playlist.timing = { type: PlaylistTimingType.None }
+
+			expect(targetDurationOf(scenario)).toBe(40000)
+		})
+
+		it("counts a segment's budget instead of its parts", () => {
+			const scenario = makeStandardScenario({ budgetDuration: 25000 })
+
+			expect(targetDurationOf(scenario)).toBe(25000 + 20000)
+		})
+
+		it('leaves out untimed parts', () => {
+			const scenario = makeStandardScenario()
+			scenario.partInstances[3].part.untimed = true
+
+			expect(targetDurationOf(scenario)).toBe(30000)
+		})
+	})
+
 	describe('taken but not yet started', () => {
 		const TAKE_TIME = 20000
 		const GATEWAY_LATENCY = 400

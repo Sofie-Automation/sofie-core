@@ -69,7 +69,7 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 	it('B1 at its take', () => {
 		expect(b1Taken.readAt('12:00:35.000')).toMatchInlineSnapshot(`
 		12:00:35, published 12:00:35
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00.200  remaining 2:00  ends 12:02:35  in hand -0:04.800
 		  on air     B1 in B  left 0:20  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:34.800  left -0:04.800
@@ -106,7 +106,7 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 		 */
 		expect(a3OnAir.readAt('12:00:35')).toMatchInlineSnapshot(`
 		12:00:35, published 12:00:22.200
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00.200  remaining 2:00 held since 12:00:32.200  ends 12:02:35 moving since 12:00:32.200  in hand -0:04.800 running since 12:00:32.200
 		  on air     A3 in A  left -0:02.800 running since 12:00:22.200  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:34.800 runs  left -0:04.800 runs
@@ -128,7 +128,7 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 	it('B1 taken 0.1 s ago, not yet confirmed', () => {
 		expect(b1Taken.readAt('12:00:35.100')).toMatchInlineSnapshot(`
 		12:00:35.100, published 12:00:35
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00.200  remaining 2:00  ends 12:02:35  in hand -0:04.800
 		  on air     B1 in B  left 0:20  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:34.800 (fresh 0:34.900)  left -0:04.800 (fresh -0:04.900)
@@ -151,7 +151,7 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 	it('B1 confirmed 0.1 s ago', () => {
 		expect(b1Taken.readAt('12:00:35.300')).toMatchInlineSnapshot(`
 		12:00:35.300, published 12:00:35.200
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00.200  remaining 1:59.900 runs until 12:00:55.200  ends 12:02:35.200 fixed until 12:00:55.200  in hand -0:05 holds until 12:00:55.200
 		  on air     B1 in B  left 0:19.900 running since 12:00:35.200  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:35  left -0:05
@@ -180,7 +180,7 @@ describe('a take that ends the previous part before its planned end, with a gate
 		// before the take, the show was to end at A3's planned end + 2:00
 		expect(b1TakenEarly.readAt('12:00:30.100')).toMatchInlineSnapshot(`
 		12:00:30.100, published 12:00:30
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00.200  remaining 2:00  ends 12:02:32.200  in hand -0:02
 		  on air     B1 in B  left 0:20  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:29.800 (fresh 0:29.900)  left 0:00.200 (fresh 0:00.100)
@@ -203,7 +203,7 @@ describe('a take that ends the previous part before its planned end, with a gate
 	it('changes them once, when the start is reported', () => {
 		expect(b1TakenEarly.readAt('12:00:30.300')).toMatchInlineSnapshot(`
 		12:00:30.300, published 12:00:30.200
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00.200  remaining 1:59.900 runs until 12:00:50.200  ends 12:02:30.200 fixed until 12:00:50.200  in hand 0:00 holds until 12:00:50.200
 		  on air     B1 in B  left 0:19.900 running since 12:00:30.200  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:30  left 0:00
@@ -243,7 +243,7 @@ describe('a gateway that never confirms the start of B1', () => {
 	it('B1 at its take', () => {
 		expect(b1Taken.readAt('12:00:35')).toMatchInlineSnapshot(`
 		12:00:35, published 12:00:35
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00  remaining 2:00  ends 12:02:35  in hand -0:05
 		  on air     B1 in B  left 0:20  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:35  left -0:05
@@ -266,7 +266,7 @@ describe('a gateway that never confirms the start of B1', () => {
 	it('10 s after the take of B1, still not confirmed', () => {
 		expect(b1Taken.readAt('12:00:45')).toMatchInlineSnapshot(`
 		12:00:45, published 12:00:35
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00  remaining 2:00  ends 12:02:35  in hand -0:05
 		  on air     B1 in B  left 0:20  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:35 (fresh 0:45)  left -0:05 (fresh -0:15)
@@ -315,7 +315,7 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 	it('B1 at its take, its start 2 s ahead', () => {
 		expect(b1Taken.readAt('12:00:35')).toMatchInlineSnapshot(`
 		12:00:35, published 12:00:35
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:02  remaining 2:02 runs until 12:00:57  ends 12:02:37 fixed until 12:00:57  in hand -0:05 holds until 12:00:57
 		  on air     B1 in B  left 0:20 holds until 12:00:37  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:29  left 0:01
@@ -338,7 +338,7 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 	it('B1 taken 1 s ago, its start 1 s ahead', () => {
 		expect(b1Taken.readAt('12:00:36')).toMatchInlineSnapshot(`
 		12:00:36, published 12:00:35
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:02  remaining 2:01 runs until 12:00:57  ends 12:02:37 fixed until 12:00:57  in hand -0:05 holds until 12:00:57
 		  on air     B1 in B  left 0:20 holds until 12:00:37  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:29  left 0:01
@@ -361,7 +361,7 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 	it('B1 started 1 s ago, as the gateway reported', () => {
 		expect(b1Taken.readAt('12:00:38')).toMatchInlineSnapshot(`
 		12:00:38, published 12:00:37
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:02  remaining 1:59 runs until 12:00:57  ends 12:02:37 fixed until 12:00:57  in hand -0:05 holds until 12:00:57
 		  on air     B1 in B  left 0:19 running since 12:00:37  budget none  auto-next no
 		  segment A  parts  target 0:30  content 0:30  played 0:29  left 0:01
@@ -398,7 +398,7 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 
 		expect(autoNext.readAt('12:00:57.500')).toMatchInlineSnapshot(`
 		12:00:57.500, published 12:00:37
-		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30
+		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:02  remaining 1:40 held since 12:00:57 (fresh 1:20)  ends 12:02:37.500 moving since 12:00:57 (fresh 12:02:17.500)  in hand -0:05.500 running since 12:00:57 (fresh 0:14.500)
 		  on air     B1 in B  left -0:00.500 running since 12:00:37  budget none  auto-next yes
 		  segment A  parts  target 0:30  content 0:30  played 0:29  left 0:01

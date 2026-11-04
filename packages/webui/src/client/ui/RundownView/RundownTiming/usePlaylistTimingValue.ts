@@ -232,10 +232,9 @@ export function usePartCountdownValue(
  *
  * @returns The value, or undefined while nothing is published for the playlist
  */
-export function usePlaylistTimingField<TField extends 'timingType' | 'currentPartWillAutoNext' | 'plannedDuration'>(
-	playlistId: RundownPlaylistId | undefined,
-	field: TField
-): PlaylistTimingStateDoc[TField] | undefined {
+export function usePlaylistTimingField<
+	TField extends 'timingType' | 'currentPartWillAutoNext' | 'plannedDuration' | 'targetDuration',
+>(playlistId: RundownPlaylistId | undefined, field: TField): PlaylistTimingStateDoc[TField] | undefined {
 	return useTracker(
 		() => {
 			if (!playlistId) return undefined
@@ -452,33 +451,6 @@ function timerValueChangesWithClock(state: TimerState | undefined, mode: TimerVa
 			assertNever(mode)
 			return true
 	}
-}
-
-/**
- * The sum of every part's resolved expected duration.
- *
- * Used as a stand-in playlist length where the playlist has no planned duration of its own. Note
- * this counts the parts that currently exist, so unlike the calculator's equivalent it does not
- * keep counting parts that an ingest has since removed.
- */
-export function usePartsTotalExpectedDuration(playlistId: RundownPlaylistId | undefined): number {
-	return (
-		useTracker(
-			() => {
-				if (!playlistId) return 0
-
-				let total = 0
-				PlaylistTimingStates.find({ type: 'part', playlistId } as never, {
-					fields: { expectedDuration: 1 } satisfies MongoFieldSpecifierOnes<PartTimingStateDoc>,
-				}).forEach((doc) => {
-					total += (doc as PartTimingStateDoc).expectedDuration ?? 0
-				})
-				return total
-			},
-			[playlistId],
-			0
-		) ?? 0
-	)
 }
 
 function useTimingStateValue<TDoc extends TimingStateDoc>(
