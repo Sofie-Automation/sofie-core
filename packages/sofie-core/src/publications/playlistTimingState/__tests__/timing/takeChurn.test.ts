@@ -4,6 +4,7 @@ import type { TimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/Ti
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { calculateTimingDocuments, type Gateway, type PlayoutScript, playoutScript } from './lib/playoutScript'
 import { clock, formatClock, type ReferenceRundown, referenceRundown } from './lib/referenceRundown'
+import { OptimisedObserverGenericArray } from '../../../../lib/customPublication/optimizedObserverArray'
 
 /**
  * How many of the publication's documents a take changes. Every changed document is sent to every subscriber, so this
@@ -105,11 +106,11 @@ function documentsJustBefore(script: PlayoutScript, instant: number): TimingStat
 
 /** The ids of the documents that differ between the two, as the publication finds them and sends them on */
 function changedDocumentIds(before: TimingStateDoc[], after: TimingStateDoc[]): string[] {
-	const beforeById = new Map(before.map((doc) => [unprotectString(doc._id), JSON.stringify(doc)]))
-	const afterById = new Map(after.map((doc) => [unprotectString(doc._id), JSON.stringify(doc)]))
-	const ids = new Set([...beforeById.keys(), ...afterById.keys()])
-	return Array.from(ids)
-		.filter((id) => beforeById.get(id) !== afterById.get(id))
+	const observer = new OptimisedObserverGenericArray<TimingStateDoc>()
+	observer.updatedDocs(before)
+	const changes = observer.updatedDocs(after)
+	return [...changes.added.map((doc) => doc._id), ...changes.changed.map((doc) => doc._id), ...changes.removed]
+		.map((id) => unprotectString(id))
 		.sort()
 }
 
