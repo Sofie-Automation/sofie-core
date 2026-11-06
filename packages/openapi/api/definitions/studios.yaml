@@ -365,6 +365,71 @@ resources:
                 additionalProperties: false
         500:
           $ref: '#/components/responses/internalServerError'
+  baselineReload:
+    post:
+      operationId: reloadStudioBaseline
+      tags:
+        - studios
+      summary: Reloads the baseline of a Studio.
+      description: >-
+        Regenerates the Studio timeline (baseline). This is the same as the 'Reload Baseline' action in the UI.
+        The reload always runs, and the result reports whether the baseline was out of date.
+        It cannot be done while a Rundown Playlist in the Studio is active.
+      parameters:
+        - name: studioId
+          in: path
+          description: Id of the Studio to reload the baseline of.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Baseline was reloaded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  result:
+                    type: object
+                    properties:
+                      outdatedReason:
+                        type: string
+                        nullable: true
+                        description: Why the baseline needed reloading, or null if it was already up to date.
+                        example: blueprintVersion
+                      remainingReason:
+                        type: string
+                        nullable: true
+                        description: Why the baseline is still out of date after reloading, or null if it is now up to date.
+                        example: null
+                    required:
+                      - outdatedReason
+                      - remainingReason
+        404:
+          $ref: '#/components/responses/studioNotFound'
+        412:
+          description: >-
+            A Rundown Playlist in the Studio is active, so the baseline was not reloaded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 412
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        500:
+          $ref: '#/components/responses/internalServerError'
   switchRouteSet:
     put:
       operationId: switchRouteSet
