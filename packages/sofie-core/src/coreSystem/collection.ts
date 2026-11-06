@@ -4,12 +4,27 @@ import { parseVersion } from '../systemStatus/semverUtils'
 import { logger } from '../logging'
 import { CoreSystem } from '../collections'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
+import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
 
 // The CoreSystem collection will contain one (exactly 1) object.
 // This represents the "system"
 
 export async function getCoreSystemAsync(): Promise<ICoreSystem | undefined> {
 	return CoreSystem.findOneAsync(SYSTEM_ID)
+}
+
+/** Resolve the settings of the given CoreSystem document, with the overrides applied */
+export function getCoreSystemSettings(
+	coreSystem: Pick<ICoreSystem, 'settingsWithOverrides'> | undefined
+): ICoreSystemSettings | undefined {
+	return coreSystem && applyAndValidateOverrides(coreSystem.settingsWithOverrides).obj
+}
+
+/** Fetch the CoreSystem settings, with the overrides applied */
+export async function getCoreSystemSettingsAsync(): Promise<ICoreSystemSettings | undefined> {
+	const coreSystem = await CoreSystem.findOneAsync(SYSTEM_ID, { projection: { settingsWithOverrides: 1 } })
+	return getCoreSystemSettings(coreSystem)
 }
 export async function setCoreSystemVersion(versionStr: string): Promise<string> {
 	const system = await getCoreSystemAsync()

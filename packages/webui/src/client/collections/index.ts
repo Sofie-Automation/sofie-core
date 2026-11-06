@@ -155,5 +155,12 @@ export function getCoreSystem(): ICoreSystem | undefined {
 /** Returns the resolved (overrides applied) CoreSystem settings, or undefined if the CoreSystem document is not available. */
 export function getCoreSystemSettings(): ICoreSystemSettings | undefined {
 	const core = CoreSystem.findOne(SYSTEM_ID, { projection: { settingsWithOverrides: 1 } })
+	return resolveCoreSystemSettings(core)
+}
+
+/** Returns the resolved (overrides applied) settings of the given CoreSystem document */
+export function resolveCoreSystemSettings(
+	core: Pick<ICoreSystem, 'settingsWithOverrides'> | undefined
+): ICoreSystemSettings | undefined {
 	return core && applyAndValidateOverrides(core.settingsWithOverrides).obj
 }
