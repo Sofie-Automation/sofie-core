@@ -13,6 +13,7 @@ import { UserPermissionsContext } from '../../UserPermissions.js'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import Button from 'react-bootstrap/Button'
 import { UserError } from '@sofie-automation/corelib/dist/error'
+import { resolveCoreSystemSettings } from '../../../collections/index.js'
 
 interface ICoreItemProps {
 	systemStatus: StatusResponse | undefined
@@ -23,6 +24,8 @@ export function CoreItem({ systemStatus, coreSystem }: ICoreItemProps): JSX.Elem
 	const { t } = useTranslation()
 
 	const userPermissions = useContext(UserPermissionsContext)
+
+	const coreSystemName = resolveCoreSystemSettings(coreSystem)?.name
 
 	return (
 		<div key={unprotectString(coreSystem._id)} className="device-item">
@@ -57,9 +60,9 @@ export function CoreItem({ systemStatus, coreSystem }: ICoreItemProps): JSX.Elem
 			</div>
 			<div className="device-item__id">
 				<div className="value">
-					{!coreSystem.name
+					{!coreSystemName
 						? t('Sofie Automation Server Core')
-						: t('Sofie Automation Server Core: {{name}}', { name: coreSystem.name })}
+						: t('Sofie Automation Server Core: {{name}}', { name: coreSystemName })}
 				</div>
 			</div>
 			<div className="device-item__version">
@@ -83,7 +86,7 @@ export function CoreItem({ systemStatus, coreSystem }: ICoreItemProps): JSX.Elem
 									message: (
 										<p>
 											{t('Are you sure you want to restart this Sofie Automation Server Core: {{name}}?', {
-												name: coreSystem.name || 'unnamed',
+												name: coreSystemName || 'unnamed',
 											})}
 										</p>
 									),

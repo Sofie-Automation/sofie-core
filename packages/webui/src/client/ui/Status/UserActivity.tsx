@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { parse as queryStringParse } from 'query-string'
 import { Link, useHistory, useLocation } from 'react-router-dom'
 import classNames from 'classnames'
-import { getCoreSystem, UserActionsLog } from '../../collections/index.js'
+import { getCoreSystemSettings, UserActionsLog } from '../../collections/index.js'
 import Tooltip from 'rc-tooltip'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { CollapseJSON } from '../../lib/collapseJSON.js'
@@ -229,8 +229,7 @@ function UserActivity(): JSX.Element {
 	const logItems = log.filter(({ timestamp }) => timestamp >= dateFrom && timestamp < dateTo)
 
 	function onDownloadAllLogItems() {
-		const coreSystem = getCoreSystem()
-		const systemName = coreSystem?.name ?? 'Sofie'
+		const systemName = getCoreSystemSettings()?.name ?? 'Sofie'
 		const fileName = `${systemName}_UserActionsLog_${moment(dateFrom).format(PARAM_DATE_FORMAT)}.json`
 
 		downloadBlob(

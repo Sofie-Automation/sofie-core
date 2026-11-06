@@ -21,7 +21,7 @@ import {
 } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import type { TFunction } from 'i18next'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
-import { CoreSystem } from '../collections/index.js'
+import { CoreSystem, resolveCoreSystemSettings } from '../collections/index.js'
 import { useEffect } from 'react'
 
 export class ConnectionStatusNotifier extends WithManagedTracker {
@@ -219,11 +219,12 @@ export class ConnectionStatusNotifier extends WithManagedTracker {
 }
 
 function createSystemNotification(cs: ICoreSystem | undefined): Notification | undefined {
-	if (cs && cs.systemInfo && cs.systemInfo.enabled) {
+	const systemInfo = resolveCoreSystemSettings(cs)?.systemInfo
+	if (systemInfo?.enabled) {
 		return new Notification(
 			getRandomId(),
 			NoticeLevel.CRITICAL,
-			cs.systemInfo.message,
+			systemInfo.message,
 			'SystemMessage',
 			undefined,
 			true,
