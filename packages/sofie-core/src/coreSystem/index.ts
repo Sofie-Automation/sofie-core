@@ -61,10 +61,6 @@ export async function initializeCoreSystem(): Promise<ICoreSystem> {
 			version: version,
 			previousVersion: null,
 			serviceMessages: {},
-			apm: {
-				enabled: false,
-				transactionSampleRate: -1,
-			},
 			settingsWithOverrides: wrapDefaultObject<ICoreSystemSettings>({
 				cron: {
 					casparCGRestart: {
