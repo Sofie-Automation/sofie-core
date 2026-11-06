@@ -22,7 +22,7 @@ import { getDevDataPath, isInDevelopmentMode, isInTestMode } from '../lib'
 import path from 'path'
 import { checkDatabaseVersions } from './checkDatabaseVersions'
 import PLazy from 'p-lazy'
-import { getCoreSystemAsync } from './collection'
+import { getCoreSystemAsync, getCoreSystemSettings } from './collection'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 const mosPkgJson = require('@mos-connection/helper/package.json')
@@ -141,17 +141,19 @@ export function startApmInstrumenting(system: ICoreSystem): void {
 	// attempt init elastic APM
 	const { APM_HOST, APM_SECRET, KIBANA_INDEX, APP_HOST } = process.env
 
-	if (APM_HOST && system && system.apm) {
+	const apm = getCoreSystemSettings(system)?.apm
+
+	if (APM_HOST && apm) {
 		logger.info(`APM agent starting up`)
 		startAgent({
 			serviceName: KIBANA_INDEX || 'tv-automation-server-core',
 			hostname: APP_HOST,
 			serverUrl: APM_HOST,
 			secretToken: APM_SECRET,
-			active: system.apm.enabled,
-			transactionSampleRate: system.apm.transactionSampleRate,
+			active: apm.enabled,
+			transactionSampleRate: apm.transactionSampleRate,
 		})
-		profiler.setActive(system.apm.enabled || false)
+		profiler.setActive(apm.enabled || false)
 	} else {
 		logger.info(`APM agent inactive`)
 		startAgent({
@@ -164,7 +166,7 @@ export function updateLoggerLevel(coreSystem: ICoreSystem, startup: boolean): vo
 	if (isInTestMode()) return // ignore this when running in tests
 
 	if (coreSystem) {
-		setLogLevel(coreSystem.logLevel ?? getEnvLogLevel() ?? LogLevel.SILLY, startup)
+		setLogLevel(getCoreSystemSettings(coreSystem)?.logLevel ?? getEnvLogLevel() ?? LogLevel.SILLY, startup)
 	} else {
 		logger.error('updateLoggerLevel: CoreSystem not found')
 	}

@@ -27,6 +27,7 @@ import {
 	UIBlueprintUpgradeStatusId,
 } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
 import { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { getCoreSystemSettings } from '../../coreSystem/collection'
 import { assertConnectionHasOneOfPermissions } from '../../security/auth'
 
 type BlueprintUpgradeStatusArgs = Record<string, never>
@@ -230,7 +231,7 @@ function updateCoreSystemUpgradeStatus(
 		_id: getDocumentId('coreSystem', coreSystem._id),
 		documentType: 'coreSystem',
 		documentId: coreSystem._id,
-		name: coreSystem.name ?? 'System',
+		name: getCoreSystemSettings(coreSystem)?.name ?? 'System',
 	})
 }
 
