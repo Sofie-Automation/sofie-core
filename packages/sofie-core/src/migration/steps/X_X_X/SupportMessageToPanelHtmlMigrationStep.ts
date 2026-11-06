@@ -21,7 +21,8 @@ export class SupportMessageToPanelHtmlMigrationStep implements Omit<MigrationSte
 	public async validate(): Promise<boolean | string> {
 		const systems = await CoreSystem.findFetchAsync({})
 		const count = systems.filter((system) => needsMigration(system)).length
-		if (count > 0) return `${count} CoreSystem documents have support.message which must be renamed to support.panelHtml`
+		if (count > 0)
+			return `${count} CoreSystem documents have support.message which must be renamed to support.panelHtml`
 		return false
 	}
 
