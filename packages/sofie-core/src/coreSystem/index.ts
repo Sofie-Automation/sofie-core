@@ -75,7 +75,7 @@ export async function initializeCoreSystem(): Promise<ICoreSystem> {
 					},
 				},
 				support: {
-					message: '',
+					panelHtml: '',
 				},
 				evaluationsMessage: {
 					enabled: false,

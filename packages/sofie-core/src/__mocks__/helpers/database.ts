@@ -170,7 +170,7 @@ export async function setupMockCore(doc?: Partial<ICoreSystem>): Promise<ICoreSy
 				},
 			},
 			support: {
-				message: '',
+				panelHtml: '',
 			},
 			evaluationsMessage: {
 				enabled: false,
