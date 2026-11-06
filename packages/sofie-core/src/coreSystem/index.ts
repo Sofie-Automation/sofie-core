@@ -74,6 +74,14 @@ export async function initializeCoreSystem(): Promise<ICoreSystem> {
 						enabled: false,
 					},
 				},
+				systemInfo: {
+					message: '',
+					enabled: false,
+				},
+				apm: {
+					enabled: false,
+					transactionSampleRate: -1,
+				},
 				support: {
 					panelHtml: '',
 				},

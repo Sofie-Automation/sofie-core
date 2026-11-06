@@ -169,6 +169,14 @@ export async function setupMockCore(doc?: Partial<ICoreSystem>): Promise<ICoreSy
 					enabled: false,
 				},
 			},
+			systemInfo: {
+				message: '',
+				enabled: false,
+			},
+			apm: {
+				enabled: false,
+				transactionSampleRate: -1,
+			},
 			support: {
 				panelHtml: '',
 			},

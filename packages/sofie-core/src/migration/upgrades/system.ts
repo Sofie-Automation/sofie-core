@@ -39,7 +39,13 @@ export async function runUpgradeForCoreSystem(coreSystemId: CoreSystemId): Promi
 		result = generateDefaultSystemConfig()
 	}
 
-	const coreSystemSettings: ICoreSystemSettings = result.settings
+	const defaultSettings = generateDefaultSystemConfig().settings
+	const coreSystemSettings: ICoreSystemSettings = {
+		...result.settings,
+		// Older blueprints may not provide these. They must exist for overrides of their properties to be applied
+		systemInfo: result.settings.systemInfo ?? defaultSettings.systemInfo,
+		apm: result.settings.apm ?? defaultSettings.apm,
+	}
 
 	await CoreSystem.updateAsync(coreSystemId, {
 		$set: {
@@ -88,7 +94,7 @@ async function loadCoreSystemAndBlueprint(coreSystemId: CoreSystemId) {
 	}
 }
 
-function generateDefaultSystemConfig(): BlueprintResultApplySystemConfig {
+function generateDefaultSystemConfig(): BlueprintResultApplySystemConfig & { settings: ICoreSystemSettings } {
 	return {
 		settings: {
 			cron: {
@@ -98,6 +104,14 @@ function generateDefaultSystemConfig(): BlueprintResultApplySystemConfig {
 				storeRundownSnapshots: {
 					enabled: false,
 				},
+			},
+			systemInfo: {
+				message: '',
+				enabled: false,
+			},
+			apm: {
+				enabled: false,
+				transactionSampleRate: -1,
 			},
 			support: {
 				panelHtml: '',
