@@ -12,7 +12,8 @@ export interface ICoreSystemSettings {
 
 	/** Support info */
 	support: {
-		message: string
+		/** Custom HTML shown in the Help & Support panel. When non-empty, it replaces the default documentation links */
+		panelHtml: string
 	}
 
 	evaluationsMessage: {

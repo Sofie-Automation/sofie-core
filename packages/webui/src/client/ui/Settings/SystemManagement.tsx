@@ -156,7 +156,7 @@ function SystemManagementSupportPanel({ coreSystem }: Readonly<WithCoreSystemPro
 					label={t('Edit Support Panel')}
 					item={wrappedItem}
 					// @ts-expect-error deep property
-					itemKey={'support.message'}
+					itemKey={'support.panelHtml'}
 					overrideHelper={overrideHelper}
 					hint={t('HTML that will be shown in the Support Panel')}
 				>

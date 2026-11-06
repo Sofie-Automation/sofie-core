@@ -373,7 +373,8 @@ export const addSteps = addMigrationSteps('1.52.0', [
 			})
 
 			for (const system of systems) {
-				const newSettings = wrapDefaultObject<ICoreSystemSettings>({
+				// Note: this writes the legacy `support.message` shape, which is renamed by a later migration
+				const newSettings = wrapDefaultObject({
 					cron: {
 						casparCGRestart: {
 							enabled: false,
@@ -384,7 +385,7 @@ export const addSteps = addMigrationSteps('1.52.0', [
 					},
 					support: { message: '' },
 					evaluationsMessage: { enabled: false, heading: '', message: '' },
-				})
+				}) as unknown as ObjectWithOverrides<ICoreSystemSettings>
 
 				await CoreSystem.updateAsync(system._id, {
 					$set: {

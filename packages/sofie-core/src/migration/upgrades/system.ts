@@ -100,7 +100,7 @@ function generateDefaultSystemConfig(): BlueprintResultApplySystemConfig {
 				},
 			},
 			support: {
-				message: '',
+				panelHtml: '',
 			},
 			evaluationsMessage: {
 				enabled: false,

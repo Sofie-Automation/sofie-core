@@ -1,6 +1,7 @@
 import { CURRENT_SYSTEM_VERSION } from './currentSystemVersion'
 import { addMigrationSteps } from './databaseMigration'
 import { PlaylistBrandingSelectionMigrationStep } from './steps/X_X_X/PlaylistBrandingSelectionMigrationStep'
+import { SupportMessageToPanelHtmlMigrationStep } from './steps/X_X_X/SupportMessageToPanelHtmlMigrationStep'
 import { ShowStyleBases } from '../collections'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 
@@ -16,6 +17,7 @@ import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objec
 
 export const addSteps = addMigrationSteps(CURRENT_SYSTEM_VERSION, [
 	new PlaylistBrandingSelectionMigrationStep(),
+	new SupportMessageToPanelHtmlMigrationStep(),
 	// Add your migration here
 
 	{
