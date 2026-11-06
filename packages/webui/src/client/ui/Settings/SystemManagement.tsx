@@ -1,8 +1,9 @@
 import React, { useCallback, useMemo } from 'react'
 import { useTracker, useSubscription } from '../../lib/ReactMeteorData/ReactMeteorData.js'
-import { type ICoreSystem, SofieLogo } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import type { ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { LogLevel, SofieLogo } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { EditAttribute } from '../../lib/EditAttribute.js'
+import { EditAttribute, type IEditAttributeBaseProps } from '../../lib/EditAttribute.js'
 import { doModalDialog } from '../../lib/ModalDialog.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { languageAnd } from '../../lib/language.js'
@@ -10,7 +11,6 @@ import { TriggeredActionsEditor } from './components/triggeredActions/TriggeredA
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Meteor } from 'meteor/meteor'
-import { LogLevel } from '@sofie-automation/meteor-lib/dist/lib'
 import { CoreSystem } from '../../collections/index.js'
 import type { CollectionCleanupResult } from '@sofie-automation/meteor-lib/dist/api/system'
 import {
@@ -76,13 +76,15 @@ export default function SystemManagement(): JSX.Element | null {
 function SystemManagementGeneral({ coreSystem }: Readonly<WithCoreSystemProps>) {
 	const { t } = useTranslation()
 
+	const { settings, updateSetting } = useCoreSystemSettingsEditAttribute(coreSystem)
+
 	return (
 		<>
 			<h2 className="my-4">{t('General')}</h2>
 			<div className="properties-grid">
 				<label className="field">
 					<LabelActual label={t('Installation name')} />
-					<EditAttribute attribute="name" obj={coreSystem} type="text" collection={CoreSystem} />
+					<EditAttribute attribute="name" obj={settings} type="text" updateFunction={updateSetting} />
 					<span className="text-s dimmed field-hint">
 						{t('This name will be shown in the title bar of the window')}
 					</span>
@@ -91,10 +93,10 @@ function SystemManagementGeneral({ coreSystem }: Readonly<WithCoreSystemProps>) 
 					<LabelActual label={t('Logo')} />
 					<EditAttribute
 						attribute="logo"
-						obj={coreSystem}
+						obj={settings}
 						type="dropdown"
 						options={{ ...SofieLogo }}
-						collection={CoreSystem}
+						updateFunction={updateSetting}
 					/>
 					<span className="text-s dimmed field-hint">
 						{t('Sofie logo to be displayed in the header. Requires a page refresh.')}
@@ -104,10 +106,10 @@ function SystemManagementGeneral({ coreSystem }: Readonly<WithCoreSystemProps>) 
 					<LabelActual label={t('Logging level')} />
 					<EditAttribute
 						attribute="logLevel"
-						obj={coreSystem}
+						obj={settings}
 						type="dropdown"
 						options={{ ...LogLevel, 'Use fallback': undefined }}
-						collection={CoreSystem}
+						updateFunction={updateSetting}
 					/>
 					<span className="text-s dimmed field-hint">
 						{t('This affects how much is logged to the console on the server')}
@@ -121,21 +123,23 @@ function SystemManagementGeneral({ coreSystem }: Readonly<WithCoreSystemProps>) 
 function SystemManagementNotificationMessage({ coreSystem }: Readonly<WithCoreSystemProps>) {
 	const { t } = useTranslation()
 
+	const { settings, updateSetting } = useCoreSystemSettingsEditAttribute(coreSystem)
+
 	return (
 		<>
 			<h2 className="my-4">{t('System-wide Notification Message')}</h2>
 			<div className="properties-grid">
 				<label className="field">
 					<LabelActual label={t('Message')} />
-					<EditAttribute attribute="systemInfo.message" obj={coreSystem} type="text" collection={CoreSystem} />
+					<EditAttribute attribute="systemInfo.message" obj={settings} type="text" updateFunction={updateSetting} />
 				</label>
 				<label className="field">
 					<LabelActual label={t('Enabled')} />
 					<EditAttribute
 						attribute="systemInfo.enabled"
-						obj={coreSystem}
+						obj={settings}
 						type="checkbox"
-						collection={CoreSystem}
+						updateFunction={updateSetting}
 					></EditAttribute>
 				</label>
 			</div>
@@ -214,6 +218,8 @@ function SystemManagementEvaluationsMessage({ coreSystem }: Readonly<WithCoreSys
 function SystemManagementMonitoring({ coreSystem }: Readonly<WithCoreSystemProps>) {
 	const { t } = useTranslation()
 
+	const { settings, updateSetting } = useCoreSystemSettingsEditAttribute(coreSystem)
+
 	return (
 		<>
 			<h2 className="my-4">{t('Application Performance Monitoring')}</h2>
@@ -222,14 +228,19 @@ function SystemManagementMonitoring({ coreSystem }: Readonly<WithCoreSystemProps
 					<LabelActual label={t('APM Enabled')} />
 					<EditAttribute
 						attribute="apm.enabled"
-						obj={coreSystem}
+						obj={settings}
 						type="checkbox"
-						collection={CoreSystem}
+						updateFunction={updateSetting}
 					></EditAttribute>
 				</label>
 				<label className="field">
 					<LabelActual label={t('APM Transaction Sample Rate')} />
-					<EditAttribute attribute="apm.transactionSampleRate" obj={coreSystem} type="float" collection={CoreSystem} />
+					<EditAttribute
+						attribute="apm.transactionSampleRate"
+						obj={settings}
+						type="float"
+						updateFunction={updateSetting}
+					/>
 					<span className="text-s dimmed field-hint">
 						{t(
 							'How many of the transactions to monitor. Set to -1 to log nothing (max performance), 0.5 to log 50% of the transactions, 1 to log all transactions'
@@ -244,9 +255,9 @@ function SystemManagementMonitoring({ coreSystem }: Readonly<WithCoreSystemProps
 					<LabelActual label={t('Monitor blocked thread')} />
 					<EditAttribute
 						attribute="enableMonitorBlockedThread"
-						obj={coreSystem}
+						obj={settings}
 						type="checkbox"
-						collection={CoreSystem}
+						updateFunction={updateSetting}
 					/>
 					<span className="text-s dimmed field-hint">
 						{t(
@@ -586,4 +597,19 @@ function useCoreSystemSettingsWithOverrides(coreSystem: ICoreSystem) {
 	)
 
 	return useOverrideOpHelperForSimpleObject(saveOverrides, coreSystem.settingsWithOverrides)
+}
+
+/** Resolved CoreSystem settings, and an EditAttribute updateFunction which saves the change as an override */
+function useCoreSystemSettingsEditAttribute(coreSystem: ICoreSystem) {
+	const { wrappedItem, overrideHelper } = useCoreSystemSettingsWithOverrides(coreSystem)
+
+	const updateSetting = useCallback(
+		(editProps: IEditAttributeBaseProps, newValue: unknown) => {
+			if (!editProps.attribute) return
+			overrideHelper().setItemValue(wrappedItem.id, editProps.attribute, newValue).commit()
+		},
+		[overrideHelper, wrappedItem.id]
+	)
+
+	return { settings: wrappedItem.computed, updateSetting }
 }
