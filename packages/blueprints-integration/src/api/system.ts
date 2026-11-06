@@ -41,8 +41,14 @@ export interface SystemBlueprintManifest extends BlueprintManifestBase {
 	) => BlueprintResultApplySystemConfig
 }
 
+/** Settings which Sofie will populate with defaults, if the blueprint does not provide them */
+type OptionalSystemSettingsKeys = 'systemInfo' | 'apm'
+
+export type BlueprintSystemSettings = Omit<ICoreSystemSettings, OptionalSystemSettingsKeys> &
+	Partial<Pick<ICoreSystemSettings, OptionalSystemSettingsKeys>>
+
 export interface BlueprintResultApplySystemConfig {
-	settings: ICoreSystemSettings
+	settings: BlueprintSystemSettings
 
 	triggeredActions: IBlueprintTriggeredActions[]
 }
