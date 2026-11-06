@@ -193,6 +193,7 @@ export function showStyleVariantFrom(
 		_rank: apiShowStyleVariant.rank,
 		showStyleBaseId: protectString(apiShowStyleVariant.showStyleBaseId),
 		name: apiShowStyleVariant.name,
+		blueprintConfigPresetId: apiShowStyleVariant.blueprintConfigPresetId,
 		blueprintConfigWithOverrides: blueprintConfig,
 		_rundownVersionHash: '',
 	}
