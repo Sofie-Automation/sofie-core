@@ -68,6 +68,9 @@ export enum UserErrorMessage {
 	AdlibNotValidForBranding = 52,
 	BlueprintFixUpNotSupported = 53,
 	BlueprintFixUpNotNeeded = 54,
+	BlueprintConfigInvalid = 55,
+	BlueprintConfigFixUpRequired = 56,
+	BlueprintMethodNotSupported = 57,
 }
 
 const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
@@ -137,6 +140,13 @@ const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
 	),
 	[UserErrorMessage.BlueprintFixUpNotNeeded]: t(
 		`Config has already been fixed up for the current version of blueprint "{{blueprintId}}"`
+	),
+	[UserErrorMessage.BlueprintConfigInvalid]: t(`Blueprint config is not valid: {{reason}}`),
+	[UserErrorMessage.BlueprintConfigFixUpRequired]: t(
+		`Config must be fixed up for the current version of blueprint "{{blueprintId}}" before it can be applied`
+	),
+	[UserErrorMessage.BlueprintMethodNotSupported]: t(
+		`Blueprint "{{blueprintId}}" does not have a {{method}} function`
 	),
 }
 

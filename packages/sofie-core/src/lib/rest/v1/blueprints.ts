@@ -47,3 +47,19 @@ export interface APIBlueprintFixUpConfigMessage {
 	/** Human readable message from the blueprint */
 	message: string
 }
+
+export interface APIBlueprintValidateConfigMessage {
+	level: 'error' | 'warning' | 'info'
+	/** Human readable message from the blueprint */
+	message: string
+}
+
+export interface APIBlueprintApplyConfigResult {
+	/** The changes that were applied. Empty if the config was already up to date */
+	changes: string[]
+}
+
+export interface APIBlueprintValidateAndApplyConfigResult extends APIBlueprintApplyConfigResult {
+	/** Messages produced by the blueprint while validating the config */
+	messages: APIBlueprintValidateConfigMessage[]
+}

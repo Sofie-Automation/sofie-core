@@ -24,6 +24,8 @@ paths:
     $ref: 'definitions/sofie.yaml#/resources/health'
   /system/blueprint:
     $ref: 'definitions/sofie.yaml#/resources/systemBlueprint'
+  /system/config/apply:
+    $ref: 'definitions/sofie.yaml#/resources/systemConfigApply'
   /system/migrations:
     $ref: 'definitions/sofie.yaml#/resources/migrations'
   # peripheral devices
@@ -100,6 +102,8 @@ paths:
     $ref: 'definitions/studios.yaml#/resources/config'
   /studios/{studioId}/config/fixup:
     $ref: 'definitions/studios.yaml#/resources/configFixup'
+  /studios/{studioId}/config/apply:
+    $ref: 'definitions/studios.yaml#/resources/configApply'
   /studios/{studioId}/switch-route-set:
     $ref: 'definitions/studios.yaml#/resources/switchRouteSet'
   /studios/{studioId}/devices:
@@ -117,6 +121,8 @@ paths:
     $ref: 'definitions/showstyles.yaml#/resources/config'
   /showstyles/{showStyleBaseId}/config/fixup:
     $ref: 'definitions/showstyles.yaml#/resources/configFixup'
+  /showstyles/{showStyleBaseId}/config/apply:
+    $ref: 'definitions/showstyles.yaml#/resources/configApply'
   /showstyles/{showStyleBaseId}/variants:
     $ref: 'definitions/showstyles.yaml#/resources/showStyleVariants'
   /showstyles/{showStyleBaseId}/variants/{showStyleVariantId}:

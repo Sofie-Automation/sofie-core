@@ -7,6 +7,7 @@ import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dat
 import { check, zPlainObject } from '../../../lib/check'
 import {
 	APIBlueprintFixUpConfigMessage,
+	APIBlueprintValidateAndApplyConfigResult,
 	APIStudio,
 	StudioAction,
 	StudioActionType,
@@ -34,7 +35,13 @@ import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { DBStudio, StudioDeviceSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { ServerPlayoutAPI } from '../../playout/playout'
-import { assertBlueprintFixUpNeeded, checkValidation } from '.'
+import {
+	assertBlueprintConfigCanBeValidatedAndApplied,
+	assertBlueprintConfigValidationPassed,
+	assertBlueprintFixUpNeeded,
+	checkValidation,
+} from '.'
+import { StudioFields, studioFieldSpecifier } from '../../../publications/blueprintUpgradeStatus/reactiveContentCache'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 import { assertConnectionHasOneOfPermissions } from '../../../security/auth'
@@ -215,6 +222,36 @@ class StudiosServerAPI implements StudiosRestAPI {
 		const messages = await fixupConfigForStudio(studioId)
 
 		return ClientAPI.responseSuccess(messages.map(APIBlueprintFixUpConfigMessageFrom))
+	}
+
+	async applyStudioConfig(
+		_connection: DDPClientConnection,
+		_event: string,
+		studioId: StudioId
+	): Promise<ClientAPI.ClientResponse<APIBlueprintValidateAndApplyConfigResult>> {
+		const studio = (await Studios.findOneAsync(studioId, { projection: studioFieldSpecifier })) as
+			| Pick<DBStudio, StudioFields>
+			| undefined
+		if (!studio)
+			throw UserError.from(
+				new Error(`Studio ${studioId} not found`),
+				UserErrorMessage.StudioNotFound,
+				undefined,
+				404
+			)
+
+		const blueprint = studio.blueprintId
+			? await Blueprints.findOneAsync({ _id: studio.blueprintId, blueprintType: BlueprintManifestType.STUDIO })
+			: undefined
+		const changes = assertBlueprintConfigCanBeValidatedAndApplied(studio, blueprint, {
+			configPresets: blueprint?.studioConfigPresets,
+			configSchema: blueprint?.studioConfigSchema,
+		})
+
+		const messages = assertBlueprintConfigValidationPassed(await validateConfigForStudio(studioId))
+		await runUpgradeForStudio(studioId)
+
+		return ClientAPI.responseSuccess({ changes, messages })
 	}
 
 	async deleteStudio(
@@ -533,6 +570,20 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 
 			check(studioId, z.string())
 			return await serverAPI.fixupStudioConfig(connection, event, studioId)
+		}
+	)
+
+	registerRoute<{ studioId: string }, never, APIBlueprintValidateAndApplyConfigResult>(
+		'post',
+		'/studios/:studioId/config/apply',
+		new Map([[404, [UserErrorMessage.StudioNotFound]]]),
+		studiosAPIFactory,
+		async (serverAPI, connection, event, params, _) => {
+			const studioId = protectString<StudioId>(params.studioId)
+			logger.info(`API POST: Validate and apply studio config ${studioId}`)
+
+			check(studioId, z.string())
+			return await serverAPI.applyStudioConfig(connection, event, studioId)
 		}
 	)
 

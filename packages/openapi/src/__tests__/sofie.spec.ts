@@ -35,6 +35,12 @@ describe('Network client', () => {
 			expect(sofieVersion.status).toBe(200)
 		})
 
+		test('can apply the system config', async () => {
+			const apply = await sofieApi.applySystemConfig()
+			expect(apply.status).toBe(200)
+			expect(Array.isArray(apply.result.changes)).toBe(true)
+		})
+
 		test('can unassign a system blueprint for Sofie Core', async () => {
 			const sofieVersion = await sofieApi.unassignSystemBlueprint()
 			expect(sofieVersion.status).toBe(200)

@@ -90,6 +90,19 @@ describe('Network client', () => {
 		})
 	})
 
+	test('can validate and apply a studio config', async () => {
+		const apply = await studiosApi.applyStudioConfig({
+			studioId: studioIds[0],
+		})
+		expect(apply.status).toBe(200)
+		expect(Array.isArray(apply.result.changes)).toBe(true)
+		expect(Array.isArray(apply.result.messages)).toBe(true)
+		apply.result.messages.forEach((msg) => {
+			expect(['error', 'warning', 'info']).toContain(msg.level)
+			expect(typeof msg.message).toBe('string')
+		})
+	})
+
 	const studioDevices: string[] = []
 	test('can request a list of devices for a studio', async () => {
 		const devices = await studiosApi.devices({ studioId: studioIds[0] })

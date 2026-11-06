@@ -2,7 +2,7 @@ import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import type { DDPClientConnection } from '../../../ddp-server/types'
-import type { APIBlueprintFixUpConfigMessage } from './blueprints'
+import type { APIBlueprintFixUpConfigMessage, APIBlueprintValidateAndApplyConfigResult } from './blueprints'
 
 /* *************************************************************************
 This file contains types and interfaces that are used by the REST API.
@@ -102,6 +102,24 @@ export interface StudiosRestAPI {
 		event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<APIBlueprintFixUpConfigMessage[]>>
+	/**
+	 * Validates the blueprint config of a Studio (`validateConfig`), and then applies it (`applyConfig`), storing the result.
+	 * This is the same as the 'Validate and Apply Config' action in the UI.
+	 *
+	 * Throws if the specified Studio does not exist.
+	 * Throws if the blueprint config is not valid, or must be fixed up first.
+	 * Throws if the blueprint does not support `validateConfig` and `applyConfig`.
+	 * Throws if the validation reports any errors, without applying the config.
+	 * @param connection Connection data including client and header details
+	 * @param event User event string
+	 * @param studioId Id of the Studio to apply the config of
+	 * @returns The changes that were applied (empty if the config was already up to date), and the messages produced by the blueprint while validating the config
+	 */
+	applyStudioConfig(
+		connection: DDPClientConnection,
+		event: string,
+		studioId: StudioId
+	): Promise<ClientAPI.ClientResponse<APIBlueprintValidateAndApplyConfigResult>>
 	/**
 	 * Deletes a Studio.
 	 *

@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
-import { MigrationData, PendingMigrations, SystemRestAPI } from '../../../lib/rest/v1'
+import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
+import { APIBlueprintApplyConfigResult, MigrationData, PendingMigrations, SystemRestAPI } from '../../../lib/rest/v1'
 import { logger } from '../../../logging'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { check } from '../../../lib/check'
@@ -10,6 +10,12 @@ import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { assignSystemBlueprint } from '../../blueprints/api'
 import * as Migrations from '../../../migration/databaseMigration'
 import type { DDPClientConnection } from '../../../ddp-server/types'
+import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
+import { Blueprints } from '../../../collections'
+import { getCoreSystemAsync } from '../../../coreSystem/collection'
+import { runUpgradeForCoreSystem } from '../../../migration/upgrades/system'
+import { BlueprintMapEntry, checkSystemUpgradeStatus } from '../../../publications/blueprintUpgradeStatus/checkStatus'
+import { assertBlueprintConfigCanBeApplied } from '.'
 
 class SystemServerAPI implements SystemRestAPI {
 	constructor(private context: ServerAPIContext) {}
@@ -57,6 +63,40 @@ class SystemServerAPI implements SystemRestAPI {
 		if (result.migrationCompleted) return ClientAPI.responseSuccess(undefined)
 		throw new Error(`Unknown error occurred`)
 	}
+
+	async applySystemConfig(
+		_connection: DDPClientConnection,
+		_event: string
+	): Promise<ClientAPI.ClientResponse<APIBlueprintApplyConfigResult>> {
+		const coreSystem = await getCoreSystemAsync()
+		if (!coreSystem)
+			throw UserError.from(new Error(`CoreSystem not found`), UserErrorMessage.InternalError, undefined, 500)
+
+		const blueprint = coreSystem.blueprintId
+			? await Blueprints.findOneAsync({
+					_id: coreSystem.blueprintId,
+					blueprintType: BlueprintManifestType.SYSTEM,
+				})
+			: undefined
+		const blueprintMap = new Map<BlueprintId, BlueprintMapEntry>()
+		if (blueprint) {
+			blueprintMap.set(blueprint._id, {
+				_id: blueprint._id,
+				configPresets: {},
+				configSchema: undefined,
+				blueprintHash: blueprint.blueprintHash,
+				hasFixUpFunction: false,
+			})
+		}
+		const changes = assertBlueprintConfigCanBeApplied(
+			checkSystemUpgradeStatus(blueprintMap, coreSystem),
+			coreSystem.blueprintId
+		)
+
+		await runUpgradeForCoreSystem(coreSystem._id)
+
+		return ClientAPI.responseSuccess({ changes })
+	}
 }
 
 class SystemAPIFactory implements APIFactory<SystemRestAPI> {
@@ -89,6 +129,18 @@ export function registerRoutes(registerRoute: APIRegisterHook<SystemRestAPI>): v
 			logger.info(`API POST: System migrations`)
 
 			return await serverAPI.applyPendingMigrations(connection, event)
+		}
+	)
+
+	registerRoute<never, never, APIBlueprintApplyConfigResult>(
+		'post',
+		'/system/config/apply',
+		new Map(),
+		systemAPIFactory,
+		async (serverAPI, connection, event, _params, _body) => {
+			logger.info(`API POST: Apply system config`)
+
+			return await serverAPI.applySystemConfig(connection, event)
 		}
 	)
 

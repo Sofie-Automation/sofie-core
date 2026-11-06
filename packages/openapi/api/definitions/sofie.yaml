@@ -81,6 +81,56 @@ resources:
                     type: string
         500:
           $ref: '#/components/responses/internalServerError'
+  systemConfigApply:
+    post:
+      operationId: applySystemConfig
+      tags:
+        - sofie
+      summary: Applies the system blueprint configuration.
+      description: >-
+        Runs the system blueprint `applyConfig` method, storing the result. When no system blueprint is assigned,
+        the default system configuration is applied. This is the same as the 'Apply Config' action in the UI.
+        The result lists the changes that were applied, which is empty if the configuration was already up to date.
+      responses:
+        200:
+          description: Configuration was applied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  result:
+                    type: object
+                    properties:
+                      changes:
+                        type: array
+                        description: The changes that were applied. Empty if the configuration was already up to date.
+                        items:
+                          type: string
+                    required:
+                      - changes
+        412:
+          description: >-
+            The configuration cannot be applied, so nothing was executed: the system blueprint is not valid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 412
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        500:
+          $ref: '#/components/responses/internalServerError'
   migrations:
     get:
       operationId: getPendingMigrations
