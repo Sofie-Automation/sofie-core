@@ -77,6 +77,19 @@ describe('Network client', () => {
 		expect(studio.status).toBe(200)
 	})
 
+	test('can fix up a studio config', async () => {
+		const fixup = await studiosApi.fixupStudioConfig({
+			studioId: studioIds[0],
+		})
+		expect(fixup.status).toBe(200)
+		expect(fixup).toHaveProperty('result')
+		expect(Array.isArray(fixup.result)).toBe(true)
+		fixup.result.forEach((msg) => {
+			expect(typeof msg.path).toBe('string')
+			expect(typeof msg.message).toBe('string')
+		})
+	})
+
 	const studioDevices: string[] = []
 	test('can request a list of devices for a studio', async () => {
 		const devices = await studiosApi.devices({ studioId: studioIds[0] })

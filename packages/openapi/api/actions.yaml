@@ -98,6 +98,8 @@ paths:
     $ref: 'definitions/studios.yaml#/resources/studio'
   /studios/{studioId}/config:
     $ref: 'definitions/studios.yaml#/resources/config'
+  /studios/{studioId}/config/fixup:
+    $ref: 'definitions/studios.yaml#/resources/configFixup'
   /studios/{studioId}/switch-route-set:
     $ref: 'definitions/studios.yaml#/resources/switchRouteSet'
   /studios/{studioId}/devices:
@@ -113,6 +115,8 @@ paths:
     $ref: 'definitions/showstyles.yaml#/resources/showStyleBase'
   /showstyles/{showStyleBaseId}/config:
     $ref: 'definitions/showstyles.yaml#/resources/config'
+  /showstyles/{showStyleBaseId}/config/fixup:
+    $ref: 'definitions/showstyles.yaml#/resources/configFixup'
   /showstyles/{showStyleBaseId}/variants:
     $ref: 'definitions/showstyles.yaml#/resources/showStyleVariants'
   /showstyles/{showStyleBaseId}/variants/{showStyleVariantId}:

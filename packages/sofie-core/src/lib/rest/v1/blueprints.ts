@@ -40,3 +40,10 @@ export interface APIBlueprint {
 	blueprintType: 'system' | 'studio' | 'showstyle'
 	blueprintVersion: string
 }
+
+export interface APIBlueprintFixUpConfigMessage {
+	/** Path of the blueprint config property the message relates to */
+	path: string
+	/** Human readable message from the blueprint */
+	message: string
+}

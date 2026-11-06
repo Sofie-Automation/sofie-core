@@ -2,6 +2,7 @@ import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import type { DDPClientConnection } from '../../../ddp-server/types'
+import type { APIBlueprintFixUpConfigMessage } from './blueprints'
 
 /* *************************************************************************
 This file contains types and interfaces that are used by the REST API.
@@ -85,6 +86,22 @@ export interface StudiosRestAPI {
 		studioId: StudioId,
 		config: object
 	): Promise<ClientAPI.ClientResponse<string | false>>
+	/**
+	 * Runs the blueprint `fixUpConfig` method for a Studio, and stores the fixed-up config.
+	 *
+	 * This must be run whenever the Studio blueprint has changed, before the config can be validated and applied.
+	 * Throws if the specified Studio does not exist.
+	 * Throws if a fix up is not needed (the Studio blueprint does not support `fixUpConfig`, or it has already been run for the current blueprint version).
+	 * @param connection Connection data including client and header details
+	 * @param event User event string
+	 * @param studioId Id of the Studio to fix up
+	 * @returns Messages produced by the blueprint while fixing up the config
+	 */
+	fixupStudioConfig(
+		connection: DDPClientConnection,
+		event: string,
+		studioId: StudioId
+	): Promise<ClientAPI.ClientResponse<APIBlueprintFixUpConfigMessage[]>>
 	/**
 	 * Deletes a Studio.
 	 *

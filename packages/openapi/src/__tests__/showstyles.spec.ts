@@ -97,6 +97,19 @@ describe('Network client', () => {
 		expect(showStyle.status).toBe(200)
 	})
 
+	test('can fix up a ShowStyle config', async () => {
+		const fixup = await showStylesApi.fixupShowStyleConfig({
+			showStyleBaseId: showStyleBaseIds[0],
+		})
+		expect(fixup.status).toBe(200)
+		expect(fixup).toHaveProperty('result')
+		expect(Array.isArray(fixup.result)).toBe(true)
+		fixup.result.forEach((msg) => {
+			expect(typeof msg.path).toBe('string')
+			expect(typeof msg.message).toBe('string')
+		})
+	})
+
 	const showStyleVariantIds: string[] = []
 	test('can request all ShowStyleVariants', async () => {
 		const showStyleVariants = await showStylesApi.getShowStyleVariants({
