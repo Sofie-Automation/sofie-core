@@ -1,4 +1,4 @@
-import { UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
+import { UserError, UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
 import { z } from 'zod'
 import {
 	APIBlueprintFixUpConfigMessage,
@@ -197,7 +197,13 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		const showStyleBase = (await ShowStyleBases.findOneAsync(showStyleBaseId, {
 			projection: { blueprintId: 1, lastBlueprintFixUpHash: 1 },
 		})) as Pick<DBShowStyleBase, 'blueprintId' | 'lastBlueprintFixUpHash'> | undefined
-		if (!showStyleBase) throw new SofieError(404, `ShowStyleBase ${showStyleBaseId} not found`)
+		if (!showStyleBase)
+			throw UserError.from(
+				new Error(`ShowStyleBase ${showStyleBaseId} not found`),
+				UserErrorMessage.ShowStyleBaseNotFound,
+				undefined,
+				404
+			)
 
 		const blueprint = showStyleBase.blueprintId
 			? ((await Blueprints.findOneAsync(
@@ -205,9 +211,15 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 					{ projection: { _id: 1, blueprintHash: 1, hasFixUpFunction: 1 } }
 				)) as Pick<Blueprint, '_id' | 'blueprintHash' | 'hasFixUpFunction'> | undefined)
 			: undefined
-		if (!blueprint) throw new SofieError(412, `ShowStyleBase ${showStyleBaseId} does not have a valid blueprint`)
+		if (!blueprint)
+			throw UserError.from(
+				new Error(`ShowStyleBase ${showStyleBaseId} does not have a valid blueprint`),
+				UserErrorMessage.BlueprintNotFound,
+				undefined,
+				412
+			)
 
-		assertBlueprintFixUpNeeded(`ShowStyleBase ${showStyleBaseId}`, showStyleBase.lastBlueprintFixUpHash, blueprint)
+		assertBlueprintFixUpNeeded(showStyleBase.lastBlueprintFixUpHash, blueprint)
 
 		const messages = await fixupConfigForShowStyleBase(showStyleBaseId)
 

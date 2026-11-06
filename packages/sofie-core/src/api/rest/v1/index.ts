@@ -23,6 +23,7 @@ import { APIFactory, ServerAPIContext } from './types'
 import { getSystemStatus } from '../../../systemStatus/systemStatus'
 import { Component, ExternalStatus } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import type { DDPClientConnection } from '../../../ddp-server/types'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import type { Blueprint, BlueprintHash } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 
 function restAPIUserEvent(ctx: Koa.ParameterizedContext<Koa.DefaultState, Koa.DefaultContext, unknown>): string {
@@ -122,21 +123,15 @@ export const checkValidation = (method: string, configValidationMsgs: IConfigMes
  * has a `fixUpConfig` method and it has not yet been run against the current version of the blueprint.
  */
 export function assertBlueprintFixUpNeeded(
-	description: string,
 	lastBlueprintFixUpHash: BlueprintHash | undefined,
 	blueprint: Pick<Blueprint, '_id' | 'blueprintHash' | 'hasFixUpFunction'>
 ): void {
+	const args = { blueprintId: unprotectString(blueprint._id) }
 	if (!blueprint.hasFixUpFunction) {
-		throw new SofieError(
-			412,
-			`${description} does not need a fix up, blueprint "${blueprint._id}" has no fixUpConfig`
-		)
+		throw UserError.create(UserErrorMessage.BlueprintFixUpNotSupported, args, 412)
 	}
 	if (lastBlueprintFixUpHash && lastBlueprintFixUpHash === blueprint.blueprintHash) {
-		throw new SofieError(
-			412,
-			`${description} does not need a fix up, it has already been fixed up for this blueprint`
-		)
+		throw UserError.create(UserErrorMessage.BlueprintFixUpNotNeeded, args, 412)
 	}
 }
 

@@ -188,7 +188,13 @@ class StudiosServerAPI implements StudiosRestAPI {
 		const studio = (await Studios.findOneAsync(studioId, {
 			projection: { blueprintId: 1, lastBlueprintFixUpHash: 1 },
 		})) as Pick<DBStudio, 'blueprintId' | 'lastBlueprintFixUpHash'> | undefined
-		if (!studio) throw new SofieError(404, `Studio ${studioId} not found`)
+		if (!studio)
+			throw UserError.from(
+				new Error(`Studio ${studioId} not found`),
+				UserErrorMessage.StudioNotFound,
+				undefined,
+				404
+			)
 
 		const blueprint = studio.blueprintId
 			? ((await Blueprints.findOneAsync(
@@ -196,9 +202,15 @@ class StudiosServerAPI implements StudiosRestAPI {
 					{ projection: { _id: 1, blueprintHash: 1, hasFixUpFunction: 1 } }
 				)) as Pick<Blueprint, '_id' | 'blueprintHash' | 'hasFixUpFunction'> | undefined)
 			: undefined
-		if (!blueprint) throw new SofieError(412, `Studio ${studioId} does not have a valid blueprint`)
+		if (!blueprint)
+			throw UserError.from(
+				new Error(`Studio ${studioId} does not have a valid blueprint`),
+				UserErrorMessage.BlueprintNotFound,
+				undefined,
+				412
+			)
 
-		assertBlueprintFixUpNeeded(`Studio ${studioId}`, studio.lastBlueprintFixUpHash, blueprint)
+		assertBlueprintFixUpNeeded(studio.lastBlueprintFixUpHash, blueprint)
 
 		const messages = await fixupConfigForStudio(studioId)
 
