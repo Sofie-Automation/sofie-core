@@ -1,6 +1,7 @@
 import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import type { DDPClientConnection } from '../../../ddp-server/types'
+import type { APIBlueprintApplyConfigResult } from './blueprints'
 
 /* *************************************************************************
 This file contains types and interfaces that are used by the REST API.
@@ -49,6 +50,20 @@ export interface SystemRestAPI {
 	 * @param inputs Migration data to apply
 	 */
 	applyPendingMigrations(connection: DDPClientConnection, event: string): Promise<ClientAPI.ClientResponse<void>>
+	/**
+	 * Applies the system blueprint config (`applyConfig`), storing the result.
+	 * When no system blueprint is assigned, the default system config is applied.
+	 * This is the same as the 'Apply Config' action in the UI.
+	 *
+	 * Throws if the system blueprint is not valid.
+	 * @param connection Connection data including client and header details
+	 * @param event User event string
+	 * @returns The changes that were applied. Empty if the config was already up to date
+	 */
+	applySystemConfig(
+		connection: DDPClientConnection,
+		event: string
+	): Promise<ClientAPI.ClientResponse<APIBlueprintApplyConfigResult>>
 }
 
 export interface PendingMigrationStep {

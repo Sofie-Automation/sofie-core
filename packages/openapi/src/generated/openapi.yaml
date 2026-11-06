@@ -249,6 +249,65 @@ paths:
                     example: 500
                   message:
                     type: string
+  /system/config/apply:
+    post:
+      operationId: applySystemConfig
+      tags:
+        - sofie
+      summary: Applies the system blueprint configuration.
+      description: >-
+        Runs the system blueprint `applyConfig` method, storing the result. When no system blueprint is assigned, the
+        default system configuration is applied. This is the same as the 'Apply Config' action in the UI. The result
+        lists the changes that were applied, which is empty if the configuration was already up to date.
+      responses:
+        '200':
+          description: Configuration was applied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  result:
+                    type: object
+                    properties:
+                      changes:
+                        type: array
+                        description: The changes that were applied. Empty if the configuration was already up to date.
+                        items:
+                          type: string
+                    required:
+                      - changes
+        '412':
+          description: 'The configuration cannot be applied, so nothing was executed: the system blueprint is not valid.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 412
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        '500':
+          description: An error unlikely to be the fault of the caller has occurred.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 500
+                  message:
+                    type: string
   /system/migrations:
     get:
       operationId: getPendingMigrations
@@ -3724,6 +3783,132 @@ paths:
                   - status
                   - message
                 additionalProperties: false
+  /studios/{studioId}/config/apply:
+    post:
+      operationId: applyStudioConfig
+      tags:
+        - studios
+      summary: Validates and applies the blueprint configuration for a Studio.
+      description: >-
+        Runs the blueprint `validateConfig` method, and then the `applyConfig` method, storing the result. This is the
+        same as the 'Validate and Apply Config' action in the UI. The configuration must have been fixed up first, if
+        the blueprint requires it. The result lists the changes that were applied, which is empty if the configuration
+        was already up to date. If the validation reports any errors, the configuration is not applied.
+      parameters:
+        - name: studioId
+          in: path
+          description: Id of the Studio to apply the configuration of.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Configuration was validated and applied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  result:
+                    type: object
+                    properties:
+                      changes:
+                        type: array
+                        description: The changes that were applied. Empty if the configuration was already up to date.
+                        items:
+                          type: string
+                      messages:
+                        type: array
+                        description: Messages produced by the blueprint while validating the configuration.
+                        items:
+                          type: object
+                          description: A message produced by the blueprint while validating the configuration.
+                          properties:
+                            level:
+                              type: string
+                              enum:
+                                - error
+                                - warning
+                                - info
+                            message:
+                              type: string
+                              description: Human readable message.
+                          required:
+                            - level
+                            - message
+                          additionalProperties: false
+                    required:
+                      - changes
+                      - messages
+        '404':
+          description: The specified Studio does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 404
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        '409':
+          description: The validation reported errors, so the configuration was not applied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 409
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        '412':
+          description: >-
+            The configuration cannot be applied, so nothing was executed: the blueprint configuration is not valid, it
+            must be fixed up first, or the blueprint does not support validateConfig and applyConfig.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 412
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        '500':
+          description: An error unlikely to be the fault of the caller has occurred.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 500
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
   /studios/{studioId}/switch-route-set:
     put:
       operationId: switchRouteSet
@@ -5108,6 +5293,132 @@ paths:
           description: >-
             A fix up is not needed: the blueprint has no fixUpConfig method, the configuration has already been fixed up
             for the current blueprint version, or no valid blueprint is assigned. Nothing was executed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 412
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        '500':
+          description: An error unlikely to be the fault of the caller has occurred.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 500
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+  /showstyles/{showStyleBaseId}/config/apply:
+    post:
+      operationId: applyShowStyleConfig
+      tags:
+        - showstyles
+      summary: Validates and applies the blueprint configuration for a ShowStyleBase.
+      description: >-
+        Runs the blueprint `validateConfig` method, and then the `applyConfig` method, storing the result. This is the
+        same as the 'Validate and Apply Config' action in the UI. The configuration must have been fixed up first, if
+        the blueprint requires it. The result lists the changes that were applied, which is empty if the configuration
+        was already up to date. If the validation reports any errors, the configuration is not applied.
+      parameters:
+        - name: showStyleBaseId
+          in: path
+          description: Id of the ShowStyleBase to apply the configuration of.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Configuration was validated and applied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  result:
+                    type: object
+                    properties:
+                      changes:
+                        type: array
+                        description: The changes that were applied. Empty if the configuration was already up to date.
+                        items:
+                          type: string
+                      messages:
+                        type: array
+                        description: Messages produced by the blueprint while validating the configuration.
+                        items:
+                          type: object
+                          description: A message produced by the blueprint while validating the configuration.
+                          properties:
+                            level:
+                              type: string
+                              enum:
+                                - error
+                                - warning
+                                - info
+                            message:
+                              type: string
+                              description: Human readable message.
+                          required:
+                            - level
+                            - message
+                          additionalProperties: false
+                    required:
+                      - changes
+                      - messages
+        '404':
+          description: The specified ShowStyleBase does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 404
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        '409':
+          description: The validation reported errors, so the configuration was not applied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 409
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        '412':
+          description: >-
+            The configuration cannot be applied, so nothing was executed: the blueprint configuration is not valid, it
+            must be fixed up first, or the blueprint does not support validateConfig and applyConfig.
           content:
             application/json:
               schema:

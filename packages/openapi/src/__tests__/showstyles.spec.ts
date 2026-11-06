@@ -110,6 +110,19 @@ describe('Network client', () => {
 		})
 	})
 
+	test('can validate and apply a ShowStyle config', async () => {
+		const apply = await showStylesApi.applyShowStyleConfig({
+			showStyleBaseId: showStyleBaseIds[0],
+		})
+		expect(apply.status).toBe(200)
+		expect(Array.isArray(apply.result.changes)).toBe(true)
+		expect(Array.isArray(apply.result.messages)).toBe(true)
+		apply.result.messages.forEach((msg) => {
+			expect(['error', 'warning', 'info']).toContain(msg.level)
+			expect(typeof msg.message).toBe('string')
+		})
+	})
+
 	const showStyleVariantIds: string[] = []
 	test('can request all ShowStyleVariants', async () => {
 		const showStyleVariants = await showStylesApi.getShowStyleVariants({

@@ -389,6 +389,90 @@ resources:
                 additionalProperties: false
         500:
           $ref: '#/components/responses/internalServerError'
+  configApply:
+    post:
+      operationId: applyShowStyleConfig
+      tags:
+        - showstyles
+      summary: Validates and applies the blueprint configuration for a ShowStyleBase.
+      description: >-
+        Runs the blueprint `validateConfig` method, and then the `applyConfig` method, storing the result.
+        This is the same as the 'Validate and Apply Config' action in the UI.
+        The configuration must have been fixed up first, if the blueprint requires it.
+        The result lists the changes that were applied, which is empty if the configuration was already up to date.
+        If the validation reports any errors, the configuration is not applied.
+      parameters:
+        - name: showStyleBaseId
+          in: path
+          description: Id of the ShowStyleBase to apply the configuration of.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Configuration was validated and applied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  result:
+                    type: object
+                    properties:
+                      changes:
+                        type: array
+                        description: The changes that were applied. Empty if the configuration was already up to date.
+                        items:
+                          type: string
+                      messages:
+                        type: array
+                        description: Messages produced by the blueprint while validating the configuration.
+                        items:
+                          $ref: '#/components/schemas/blueprintValidateConfigMessage'
+                    required:
+                      - changes
+                      - messages
+        404:
+          $ref: '#/components/responses/showStyleBaseNotFound'
+        409:
+          description: >-
+            The validation reported errors, so the configuration was not applied.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 409
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        412:
+          description: >-
+            The configuration cannot be applied, so nothing was executed: the blueprint configuration is not valid, it must be fixed up first, or the blueprint does not support validateConfig and applyConfig.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 412
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        500:
+          $ref: '#/components/responses/internalServerError'
   showStyleVariants:
     get:
       operationId: getShowStyleVariants
@@ -924,6 +1008,23 @@ components:
           description: Human readable message.
       required:
         - path
+        - message
+      additionalProperties: false
+    blueprintValidateConfigMessage:
+      type: object
+      description: A message produced by the blueprint while validating the configuration.
+      properties:
+        level:
+          type: string
+          enum:
+            - error
+            - warning
+            - info
+        message:
+          type: string
+          description: Human readable message.
+      required:
+        - level
         - message
       additionalProperties: false
     blueprintUpgrade:
