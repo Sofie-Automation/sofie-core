@@ -717,6 +717,9 @@ components:
         showStyleBaseId:
           type: string
           description: Id of the ShowStyleBase this ShowStyleVariant is based on.
+        blueprintConfigPresetId:
+          type: string
+          description: Id of the Blueprint config preset to use for the ShowStyleVariant.
         config:
           type: object
           description: Blueprint config.
