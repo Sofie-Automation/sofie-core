@@ -5,11 +5,27 @@ import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check, zPlainObject } from '../../../lib/check'
-import { APIStudio, StudioAction, StudioActionType, StudiosRestAPI } from '../../../lib/rest/v1'
+import {
+	APIBlueprintFixUpConfigMessage,
+	APIStudio,
+	StudioAction,
+	StudioActionType,
+	StudiosRestAPI,
+} from '../../../lib/rest/v1'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
-import { PeripheralDevices, RundownPlaylists, Studios } from '../../../collections'
-import { APIStudioFrom, studioFrom, validateAPIBlueprintConfigForStudio } from './typeConversion'
-import { runUpgradeForStudio, updateStudioBaseline, validateConfigForStudio } from '../../../migration/upgrades'
+import { Blueprints, PeripheralDevices, RundownPlaylists, Studios } from '../../../collections'
+import {
+	APIBlueprintFixUpConfigMessageFrom,
+	APIStudioFrom,
+	studioFrom,
+	validateAPIBlueprintConfigForStudio,
+} from './typeConversion'
+import {
+	fixupConfigForStudio,
+	runUpgradeForStudio,
+	updateStudioBaseline,
+	validateConfigForStudio,
+} from '../../../migration/upgrades'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { ServerClientAPI } from '../../client'
 import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
@@ -18,7 +34,9 @@ import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { DBStudio, StudioDeviceSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { ServerPlayoutAPI } from '../../playout/playout'
-import { checkValidation } from '.'
+import { assertBlueprintFixUpNeeded, checkValidation } from '.'
+import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
+import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 import { assertConnectionHasOneOfPermissions } from '../../../security/auth'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import {
@@ -160,6 +178,31 @@ class StudiosServerAPI implements StudiosRestAPI {
 		await runUpgradeForStudio(studioId)
 
 		return ClientAPI.responseSuccess(await updateStudioBaseline(studioId))
+	}
+
+	async fixupStudioConfig(
+		_connection: DDPClientConnection,
+		_event: string,
+		studioId: StudioId
+	): Promise<ClientAPI.ClientResponse<APIBlueprintFixUpConfigMessage[]>> {
+		const studio = (await Studios.findOneAsync(studioId, {
+			projection: { blueprintId: 1, lastBlueprintFixUpHash: 1 },
+		})) as Pick<DBStudio, 'blueprintId' | 'lastBlueprintFixUpHash'> | undefined
+		if (!studio) throw new SofieError(404, `Studio ${studioId} not found`)
+
+		const blueprint = studio.blueprintId
+			? ((await Blueprints.findOneAsync(
+					{ _id: studio.blueprintId, blueprintType: BlueprintManifestType.STUDIO },
+					{ projection: { _id: 1, blueprintHash: 1, hasFixUpFunction: 1 } }
+				)) as Pick<Blueprint, '_id' | 'blueprintHash' | 'hasFixUpFunction'> | undefined)
+			: undefined
+		if (!blueprint) throw new SofieError(412, `Studio ${studioId} does not have a valid blueprint`)
+
+		assertBlueprintFixUpNeeded(`Studio ${studioId}`, studio.lastBlueprintFixUpHash, blueprint)
+
+		const messages = await fixupConfigForStudio(studioId)
+
+		return ClientAPI.responseSuccess(messages.map(APIBlueprintFixUpConfigMessageFrom))
 	}
 
 	async deleteStudio(
@@ -464,6 +507,20 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 
 			check(studioId, z.string())
 			return await serverAPI.updateStudioConfig(connection, event, studioId, body)
+		}
+	)
+
+	registerRoute<{ studioId: string }, never, APIBlueprintFixUpConfigMessage[]>(
+		'post',
+		'/studios/:studioId/config/fixup',
+		new Map([[404, [UserErrorMessage.StudioNotFound]]]),
+		studiosAPIFactory,
+		async (serverAPI, connection, event, params, _) => {
+			const studioId = protectString<StudioId>(params.studioId)
+			logger.info(`API POST: Fix up studio config ${studioId}`)
+
+			check(studioId, z.string())
+			return await serverAPI.fixupStudioConfig(connection, event, studioId)
 		}
 	)
 

@@ -3630,6 +3630,100 @@ paths:
                   - status
                   - message
                 additionalProperties: false
+  /studios/{studioId}/config/fixup:
+    post:
+      operationId: fixupStudioConfig
+      tags:
+        - studios
+      summary: Runs the blueprint fixUpConfig method for a Studio.
+      description: >-
+        Runs the blueprint `fixUpConfig` method against the Studio blueprint configuration and stores the result. This
+        must be run after the Studio blueprint has been updated, before the configuration can be validated and applied.
+      parameters:
+        - name: studioId
+          in: path
+          description: Id of the Studio to fix up the configuration of.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Configuration was fixed up.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  result:
+                    type: array
+                    description: Messages produced by the blueprint while fixing up the configuration.
+                    items:
+                      type: object
+                      description: A message produced by the blueprint while fixing up the configuration.
+                      properties:
+                        path:
+                          type: string
+                          description: Path of the blueprint configuration property the message relates to.
+                        message:
+                          type: string
+                          description: Human readable message.
+                      required:
+                        - path
+                        - message
+                      additionalProperties: false
+        '404':
+          description: The specified Studio does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 404
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        '412':
+          description: >-
+            A fix up is not needed: the blueprint has no fixUpConfig method, the configuration has already been fixed up
+            for the current blueprint version, or no valid blueprint is assigned. Nothing was executed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 412
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        '500':
+          description: An error unlikely to be the fault of the caller has occurred.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 500
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
   /studios/{studioId}/switch-route-set:
     put:
       operationId: switchRouteSet
@@ -4949,6 +5043,101 @@ paths:
                   - status
                   - message
                 additionalProperties: false
+  /showstyles/{showStyleBaseId}/config/fixup:
+    post:
+      operationId: fixupShowStyleConfig
+      tags:
+        - showstyles
+      summary: Runs the blueprint fixUpConfig method for a ShowStyleBase.
+      description: >-
+        Runs the blueprint `fixUpConfig` method against the ShowStyleBase blueprint configuration and stores the result.
+        This must be run after the ShowStyleBase blueprint has been updated, before the configuration can be validated
+        and applied.
+      parameters:
+        - name: showStyleBaseId
+          in: path
+          description: Id of the ShowStyleBase to fix up the configuration of.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Configuration was fixed up.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  result:
+                    type: array
+                    description: Messages produced by the blueprint while fixing up the configuration.
+                    items:
+                      type: object
+                      description: A message produced by the blueprint while fixing up the configuration.
+                      properties:
+                        path:
+                          type: string
+                          description: Path of the blueprint configuration property the message relates to.
+                        message:
+                          type: string
+                          description: Human readable message.
+                      required:
+                        - path
+                        - message
+                      additionalProperties: false
+        '404':
+          description: The specified ShowStyleBase does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 404
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        '412':
+          description: >-
+            A fix up is not needed: the blueprint has no fixUpConfig method, the configuration has already been fixed up
+            for the current blueprint version, or no valid blueprint is assigned. Nothing was executed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 412
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        '500':
+          description: An error unlikely to be the fault of the caller has occurred.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 500
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
   /showstyles/{showStyleBaseId}/variants:
     get:
       operationId: getShowStyleVariants
@@ -5042,6 +5231,9 @@ paths:
                 showStyleBaseId:
                   type: string
                   description: Id of the ShowStyleBase this ShowStyleVariant is based on.
+                blueprintConfigPresetId:
+                  type: string
+                  description: Id of the Blueprint config preset to use for the ShowStyleVariant.
                 config:
                   type: object
                   description: Blueprint config.
@@ -5144,6 +5336,9 @@ paths:
                       showStyleBaseId:
                         type: string
                         description: Id of the ShowStyleBase this ShowStyleVariant is based on.
+                      blueprintConfigPresetId:
+                        type: string
+                        description: Id of the Blueprint config preset to use for the ShowStyleVariant.
                       config:
                         type: object
                         description: Blueprint config.
@@ -5223,6 +5418,9 @@ paths:
                 showStyleBaseId:
                   type: string
                   description: Id of the ShowStyleBase this ShowStyleVariant is based on.
+                blueprintConfigPresetId:
+                  type: string
+                  description: Id of the Blueprint config preset to use for the ShowStyleVariant.
                 config:
                   type: object
                   description: Blueprint config.

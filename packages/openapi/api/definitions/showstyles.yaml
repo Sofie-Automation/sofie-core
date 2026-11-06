@@ -335,6 +335,60 @@ resources:
                 additionalProperties: false
         500:
           $ref: '#/components/responses/internalServerError'
+  configFixup:
+    post:
+      operationId: fixupShowStyleConfig
+      tags:
+        - showstyles
+      summary: Runs the blueprint fixUpConfig method for a ShowStyleBase.
+      description: >-
+        Runs the blueprint `fixUpConfig` method against the ShowStyleBase blueprint configuration and stores the result.
+        This must be run after the ShowStyleBase blueprint has been updated, before the configuration can be validated and applied.
+      parameters:
+        - name: showStyleBaseId
+          in: path
+          description: Id of the ShowStyleBase to fix up the configuration of.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Configuration was fixed up.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 200
+                  result:
+                    type: array
+                    description: Messages produced by the blueprint while fixing up the configuration.
+                    items:
+                      $ref: '#/components/schemas/blueprintFixUpConfigMessage'
+        404:
+          $ref: '#/components/responses/showStyleBaseNotFound'
+        412:
+          description: >-
+            A fix up is not needed: the blueprint has no fixUpConfig method, the configuration has already been fixed up
+            for the current blueprint version, or no valid blueprint is assigned. Nothing was executed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    example: 412
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+                additionalProperties: false
+        500:
+          $ref: '#/components/responses/internalServerError'
   showStyleVariants:
     get:
       operationId: getShowStyleVariants
@@ -857,6 +911,20 @@ components:
         - name
         - rank
         - layerType
+      additionalProperties: false
+    blueprintFixUpConfigMessage:
+      type: object
+      description: A message produced by the blueprint while fixing up the configuration.
+      properties:
+        path:
+          type: string
+          description: Path of the blueprint configuration property the message relates to.
+        message:
+          type: string
+          description: Human readable message.
+      required:
+        - path
+        - message
       additionalProperties: false
     blueprintUpgrade:
       type: object

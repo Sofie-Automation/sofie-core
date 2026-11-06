@@ -23,6 +23,7 @@ import { APIFactory, ServerAPIContext } from './types'
 import { getSystemStatus } from '../../../systemStatus/systemStatus'
 import { Component, ExternalStatus } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import type { DDPClientConnection } from '../../../ddp-server/types'
+import type { Blueprint, BlueprintHash } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 
 function restAPIUserEvent(ctx: Koa.ParameterizedContext<Koa.DefaultState, Koa.DefaultContext, unknown>): string {
 	// the ctx.URL.pathname will contain `/v1.0`, but will not contain `/api`
@@ -112,6 +113,30 @@ export const checkValidation = (method: string, configValidationMsgs: IConfigMes
 			2
 		)
 		logger.info(`${method} received messages from bluepring config validation: ${details}`)
+	}
+}
+
+/**
+ * Throws if running the blueprint `fixUpConfig` method is not needed for a document.
+ * Matches the logic used by the blueprint upgrade status: a fix up is only pending when the blueprint
+ * has a `fixUpConfig` method and it has not yet been run against the current version of the blueprint.
+ */
+export function assertBlueprintFixUpNeeded(
+	description: string,
+	lastBlueprintFixUpHash: BlueprintHash | undefined,
+	blueprint: Pick<Blueprint, '_id' | 'blueprintHash' | 'hasFixUpFunction'>
+): void {
+	if (!blueprint.hasFixUpFunction) {
+		throw new SofieError(
+			412,
+			`${description} does not need a fix up, blueprint "${blueprint._id}" has no fixUpConfig`
+		)
+	}
+	if (lastBlueprintFixUpHash && lastBlueprintFixUpHash === blueprint.blueprintHash) {
+		throw new SofieError(
+			412,
+			`${description} does not need a fix up, it has already been fixed up for this blueprint`
+		)
 	}
 }
 

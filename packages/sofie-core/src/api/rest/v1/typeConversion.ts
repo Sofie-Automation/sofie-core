@@ -32,6 +32,7 @@ import {
 } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import {
 	APIBlueprint,
+	APIBlueprintFixUpConfigMessage,
 	APIBranding,
 	APIBucket,
 	APIBucketComplete,
@@ -58,6 +59,8 @@ import {
 import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
 import { ForceQuickLoopAutoNext, ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { PlaylistSnapshotOptions, SystemSnapshotOptions } from '@sofie-automation/meteor-lib/dist/api/shapshot'
+import type { BlueprintFixUpConfigMessage } from '@sofie-automation/meteor-lib/dist/api/migration'
+import { interpollateTranslation, translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /*
@@ -885,4 +888,11 @@ export async function validateAPIPartPayload(
 	const blueprintContext = new CommonContext('validateAPIPartPayload', `blueprint:${blueprint._id}`)
 
 	return blueprintManifest.validatePartPayloadFromAPI(blueprintContext, partPayload)
+}
+
+export function APIBlueprintFixUpConfigMessageFrom(msg: BlueprintFixUpConfigMessage): APIBlueprintFixUpConfigMessage {
+	return {
+		path: msg.path,
+		message: translateMessage(msg.message, interpollateTranslation),
+	}
 }
