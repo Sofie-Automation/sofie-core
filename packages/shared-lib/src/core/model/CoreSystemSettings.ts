@@ -1,3 +1,20 @@
+export enum LogLevel {
+	SILLY = 'silly',
+	DEBUG = 'debug',
+	VERBOSE = 'verbose',
+	INFO = 'info',
+	WARN = 'warn',
+	ERROR = 'error',
+	NONE = 'crit',
+}
+
+export enum SofieLogo {
+	Default = 'default',
+	Pride = 'pride',
+	Norway = 'norway',
+	Christmas = 'christmas',
+}
+
 export interface ICoreSystemSettings {
 	/** Cron jobs running nightly */
 	cron: {
