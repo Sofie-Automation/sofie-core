@@ -103,6 +103,15 @@ describe('Network client', () => {
 		})
 	})
 
+	test('can reload a studio baseline', async () => {
+		const reload = await studiosApi.reloadStudioBaseline({
+			studioId: studioIds[0],
+		})
+		expect(reload.status).toBe(200)
+		expect(reload.result).toHaveProperty('outdatedReason')
+		expect(reload.result).toHaveProperty('remainingReason')
+	})
+
 	const studioDevices: string[] = []
 	test('can request a list of devices for a studio', async () => {
 		const devices = await studiosApi.devices({ studioId: studioIds[0] })

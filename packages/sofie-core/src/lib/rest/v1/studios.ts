@@ -121,6 +121,22 @@ export interface StudiosRestAPI {
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<APIBlueprintValidateAndApplyConfigResult>>
 	/**
+	 * Reloads the baseline of a Studio, regenerating the Studio timeline.
+	 * This is the same as the 'Reload Baseline' action in the UI.
+	 *
+	 * Throws if the specified Studio does not exist.
+	 * Throws if a Rundown Playlist in the Studio is active.
+	 * @param connection Connection data including client and header details
+	 * @param event User event string
+	 * @param studioId Id of the Studio to reload the baseline of
+	 * @returns Why the baseline was out of date before reloading, and if it is still out of date after reloading
+	 */
+	reloadStudioBaseline(
+		connection: DDPClientConnection,
+		event: string,
+		studioId: StudioId
+	): Promise<ClientAPI.ClientResponse<APIStudioBaselineReloadResult>>
+	/**
 	 * Deletes a Studio.
 	 *
 	 * Throws if the specified Studio is in use in an active Rundown.
@@ -227,6 +243,13 @@ export interface StudioActionBlueprintUpgrade extends StudioActionBase {
 }
 
 export type StudioAction = StudioActionBlueprintUpgrade
+
+export interface APIStudioBaselineReloadResult {
+	/** Why the baseline needed reloading (eg 'coreVersion', 'blueprintVersion'), or null if it was already up to date */
+	outdatedReason: string | null
+	/** Why the baseline is still out of date after reloading (eg 'missingBlueprint'), or null if it is now up to date */
+	remainingReason: string | null
+}
 
 export interface APIStudio {
 	name: string

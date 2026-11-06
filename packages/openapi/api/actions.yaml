@@ -104,6 +104,8 @@ paths:
     $ref: 'definitions/studios.yaml#/resources/configFixup'
   /studios/{studioId}/config/apply:
     $ref: 'definitions/studios.yaml#/resources/configApply'
+  /studios/{studioId}/baseline/reload:
+    $ref: 'definitions/studios.yaml#/resources/baselineReload'
   /studios/{studioId}/switch-route-set:
     $ref: 'definitions/studios.yaml#/resources/switchRouteSet'
   /studios/{studioId}/devices:

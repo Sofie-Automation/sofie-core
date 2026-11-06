@@ -71,6 +71,7 @@ export enum UserErrorMessage {
 	BlueprintConfigInvalid = 55,
 	BlueprintConfigFixUpRequired = 56,
 	BlueprintMethodNotSupported = 57,
+	StudioBaselineReloadWhileActive = 58,
 }
 
 const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
@@ -147,6 +148,9 @@ const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
 	),
 	[UserErrorMessage.BlueprintMethodNotSupported]: t(
 		`Blueprint "{{blueprintId}}" does not have a {{method}} function`
+	),
+	[UserErrorMessage.StudioBaselineReloadWhileActive]: t(
+		`The Studio baseline cannot be reloaded while a Rundown Playlist is active`
 	),
 }
 

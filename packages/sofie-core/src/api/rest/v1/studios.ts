@@ -9,6 +9,7 @@ import {
 	APIBlueprintFixUpConfigMessage,
 	APIBlueprintValidateAndApplyConfigResult,
 	APIStudio,
+	APIStudioBaselineReloadResult,
 	StudioAction,
 	StudioActionType,
 	StudiosRestAPI,
@@ -252,6 +253,41 @@ class StudiosServerAPI implements StudiosRestAPI {
 		await runUpgradeForStudio(studioId)
 
 		return ClientAPI.responseSuccess({ changes, messages })
+	}
+
+	async reloadStudioBaseline(
+		_connection: DDPClientConnection,
+		_event: string,
+		studioId: StudioId
+	): Promise<ClientAPI.ClientResponse<APIStudioBaselineReloadResult>> {
+		const studio = await Studios.findOneAsync(studioId)
+		if (!studio)
+			throw UserError.from(
+				new Error(`Studio ${studioId} not found`),
+				UserErrorMessage.StudioNotFound,
+				undefined,
+				404
+			)
+
+		// The baseline job silently skips the reload while a playlist is active, so refuse it here instead
+		const activePlaylist = await RundownPlaylists.findOneAsync(
+			{ studioId, activationId: { $exists: true } },
+			{ projection: { _id: 1 } }
+		)
+		if (activePlaylist) throw UserError.create(UserErrorMessage.StudioBaselineReloadWhileActive, undefined, 412)
+
+		const outdatedReason = await ServerPlayoutAPI.shouldUpdateStudioBaseline(studio)
+		await updateStudioBaseline(studioId)
+
+		// The result of the baseline job is checked before the regenerated timeline is saved, so it reports the state
+		// from before the reload. The job completes once the timeline has been saved, so check the saved state instead
+		const updatedStudio = await Studios.findOneAsync(studioId)
+		const remainingReason = updatedStudio ? await ServerPlayoutAPI.shouldUpdateStudioBaseline(updatedStudio) : false
+
+		return ClientAPI.responseSuccess({
+			outdatedReason: outdatedReason || null,
+			remainingReason: remainingReason || null,
+		})
 	}
 
 	async deleteStudio(
@@ -584,6 +620,20 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 
 			check(studioId, z.string())
 			return await serverAPI.applyStudioConfig(connection, event, studioId)
+		}
+	)
+
+	registerRoute<{ studioId: string }, never, APIStudioBaselineReloadResult>(
+		'post',
+		'/studios/:studioId/baseline/reload',
+		new Map([[404, [UserErrorMessage.StudioNotFound]]]),
+		studiosAPIFactory,
+		async (serverAPI, connection, event, params, _) => {
+			const studioId = protectString<StudioId>(params.studioId)
+			logger.info(`API POST: Reload studio baseline ${studioId}`)
+
+			check(studioId, z.string())
+			return await serverAPI.reloadStudioBaseline(connection, event, studioId)
 		}
 	)
 
