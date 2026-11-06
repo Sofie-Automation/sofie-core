@@ -6,7 +6,7 @@ import { NotificationCenter, NoticeLevel } from '../lib/notifications/notificati
 import { ErrorBoundary } from '../lib/ErrorBoundary.js'
 import { SupportPopUpToggle, SupportPopUp } from './SupportPopUp.js'
 import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData.js'
-import { CoreSystem } from '../collections/index.js'
+import { getCoreSystemSettings } from '../collections/index.js'
 import Container from 'react-bootstrap/Container'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
@@ -22,11 +22,7 @@ interface IPropsHeader {
 export default function Header({ allowConfigure, allowTesting }: IPropsHeader): JSX.Element {
 	const { t } = useTranslation()
 
-	const sofieName = useTracker(() => {
-		const coreSystem = CoreSystem.findOne()
-
-		return coreSystem?.name
-	}, [])
+	const sofieName = useTracker(() => getCoreSystemSettings()?.name, [])
 
 	const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState<NoticeLevel | undefined>(undefined)
 	const onToggleNotifications = useCallback(
