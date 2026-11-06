@@ -13,7 +13,7 @@ import { generateTranslation } from '@sofie-automation/corelib/dist/lib'
 import { ITranslatableMessage } from '@sofie-automation/blueprints-integration'
 import { interpollateTranslation } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { getCoreSystemAsync } from './coreSystem/collection'
+import { getCoreSystemAsync, getCoreSystemSettings } from './coreSystem/collection'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import { bindKoaRouter } from './api/rest/koa'
@@ -101,7 +101,7 @@ async function getWebManifest(languageCode: string): Promise<JSONSchemaForWebApp
 		shortcuts.push(...getShortcutsForStudio(locale, studio, studios.length))
 	})
 
-	const csName = core?.name
+	const csName = getCoreSystemSettings(core)?.name
 	const coreId = core?._id || os.hostname()
 
 	return {

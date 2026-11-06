@@ -13,7 +13,7 @@ export type CoreSystemFields =
 	| 'lastBlueprintConfig'
 	| 'blueprintConfigWithOverrides'
 	| 'lastBlueprintFixUpHash'
-	| 'name'
+	| 'settingsWithOverrides'
 export const coreSystemFieldsSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<ICoreSystem, CoreSystemFields>>>({
 	_id: 1,
 	blueprintId: 1,
@@ -21,7 +21,7 @@ export const coreSystemFieldsSpecifier = literal<MongoFieldSpecifierOnesStrict<P
 	lastBlueprintConfig: 1,
 	lastBlueprintFixUpHash: 1,
 	blueprintConfigWithOverrides: 1,
-	name: 1,
+	settingsWithOverrides: 1,
 })
 
 export type StudioFields =

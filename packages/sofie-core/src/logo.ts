@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import { public_dir } from './lib'
-import { getCoreSystemAsync } from './coreSystem/collection'
-import { SofieLogo } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
+import { getCoreSystemSettingsAsync } from './coreSystem/collection'
+import { SofieLogo } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
 import KoaRouter from '@koa/router'
 import { bindKoaRouter } from './api/rest/koa'
 
@@ -15,8 +15,8 @@ export function bindLogoRouter(): KoaRouter {
 			return
 		}
 
-		const core = await getCoreSystemAsync()
-		const logo = core?.logo ?? SofieLogo.Default
+		const settings = await getCoreSystemSettingsAsync()
+		const logo = settings?.logo ?? SofieLogo.Default
 
 		const paths: Record<SofieLogo, string> = {
 			[SofieLogo.Default]: '/images/sofie-logo-default.svg',
