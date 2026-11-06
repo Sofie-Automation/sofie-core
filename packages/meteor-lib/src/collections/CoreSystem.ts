@@ -2,13 +2,9 @@ import { LastBlueprintConfig } from '@sofie-automation/corelib/dist/dataModel/Bl
 import { CoreSystemId, BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { ObjectWithOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import {
-	ICoreSystemSettings,
-	LogLevel,
-	SofieLogo,
-} from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
+import { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
 
-export { SofieLogo }
+export { SofieLogo } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
 
 export const SYSTEM_ID: CoreSystemId = protectString('core')
 
@@ -55,39 +51,12 @@ export interface ICoreSystem {
 	/** Id of the blueprint used by this system */
 	blueprintId?: BlueprintId
 
-	systemInfo?: {
-		message: string
-		enabled: boolean
-	}
-
-	/** A user-defined name for the installation */
-	name?: string
-
-	/** What log-level to set. Defaults to SILLY */
-	logLevel?: LogLevel
-
 	/** Service messages currently valid for this instance */
 	serviceMessages: {
 		[index: string]: ServiceMessage
 	}
 
-	/** elastic APM (application performance monitoring) settings */
-	apm?: {
-		enabled?: boolean
-		/**
-		 * How many of the transactions to monitor.
-		 * Set to:
-		 * -1 to log nothing (max performance),
-		 * 0.5 to log 50% of the transactions,
-		 * 1 to log all transactions
-		 */
-		transactionSampleRate?: number
-	}
-	enableMonitorBlockedThread?: boolean
-
 	settingsWithOverrides: ObjectWithOverrides<ICoreSystemSettings>
-
-	logo?: SofieLogo
 
 	/** Details on the last blueprint used to generate the defaults values for this
 	 * Note: This doesn't currently have any 'config' which it relates to.

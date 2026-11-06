@@ -46,16 +46,7 @@ export const Blueprints = createAsyncOnlyMongoCollection<Blueprint>(CollectionNa
 export const CoreSystem = createAsyncOnlyMongoCollection<ICoreSystem>(CollectionName.CoreSystem, {
 	requiredPermissions: ['configure'],
 	async update(_permissions, doc, fields, _modifier) {
-		return allowOnlyFields(doc, fields, [
-			'systemInfo',
-			'name',
-			'logLevel',
-			'apm',
-			'logo',
-			'blueprintId',
-			'settingsWithOverrides',
-			'enableMonitorBlockedThread',
-		])
+		return allowOnlyFields(doc, fields, ['blueprintId', 'settingsWithOverrides'])
 	},
 })
 
