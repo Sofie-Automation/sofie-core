@@ -65,13 +65,13 @@ export async function setupMockCore(doc?: Partial<ICoreSystem>): Promise<ICoreSy
 
 	const defaultCore: ICoreSystem = {
 		_id: SYSTEM_ID,
-		name: 'mock Core',
 		created: 0,
 		modified: 0,
 		version: '0.0.0',
 		previousVersion: '0.0.0',
 		serviceMessages: {},
 		settingsWithOverrides: wrapDefaultObject({
+			name: 'mock Core',
 			cron: {
 				casparCGRestart: {
 					enabled: true,
