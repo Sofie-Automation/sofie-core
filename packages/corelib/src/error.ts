@@ -66,6 +66,8 @@ export enum UserErrorMessage {
 	SystemSingleStudio = 50,
 	TakePartInstanceInvalid = 51,
 	AdlibNotValidForBranding = 52,
+	BlueprintFixUpNotSupported = 53,
+	BlueprintFixUpNotNeeded = 54,
 }
 
 const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
@@ -130,6 +132,12 @@ const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
 	[UserErrorMessage.SystemSingleStudio]: t(`System must have exactly one studio`),
 	[UserErrorMessage.TakePartInstanceInvalid]: t(`Part has issues and cannot be taken`),
 	[UserErrorMessage.AdlibNotValidForBranding]: t(`AdLib is not used with the selected Branding`),
+	[UserErrorMessage.BlueprintFixUpNotSupported]: t(
+		`Blueprint "{{blueprintId}}" does not have a fixUpConfig function, the config does not need fixing up`
+	),
+	[UserErrorMessage.BlueprintFixUpNotNeeded]: t(
+		`Config has already been fixed up for the current version of blueprint "{{blueprintId}}"`
+	),
 }
 
 export interface SerializedUserError {
