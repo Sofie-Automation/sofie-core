@@ -1,5 +1,6 @@
 import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { mongoWhereFilter } from '@sofie-automation/corelib/dist/mongo'
+import { groupByToMap, groupByToMapFunc } from '@sofie-automation/corelib/dist/lib'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -99,8 +100,8 @@ export function createResolvedPlaylistConversionContext(
 		if (showStyle) rundownsToShowStyleBaseExt.set(rundownId, showStyle)
 	}
 
-	const segmentsByRundownId = groupByRundownId(props.segmentsState)
-	const partsByRundownId = groupByRundownId(props.partsState)
+	const segmentsByRundownId = groupByToMapFunc(props.segmentsState, (s) => unprotectString(s.rundownId))
+	const partsByRundownId = groupByToMapFunc(props.partsState, (p) => unprotectString(p.rundownId))
 
 	const currentPartInstance = findCurrentPartInstance(playlist, props.partInstancesInPlaylistState)
 	const nextPartInstance = findNextPartInstance(playlist, props.partInstancesInPlaylistState)
@@ -150,17 +151,6 @@ export function getSegmentIdsInRundown(ctx: ResolvedPlaylistConversionContext, r
 	const cache = getPerRundownCache(ctx, String(rundownId))
 	cache.segmentIds ??= new Set((ctx.segmentsByRundownId.get(String(rundownId)) ?? []).map((s) => s._id))
 	return cache.segmentIds
-}
-
-function groupByRundownId<T extends { rundownId: unknown }>(items: T[]): Map<string, T[]> {
-	const map = new Map<string, T[]>()
-	for (const item of items ?? []) {
-		const rundownId = String(item.rundownId)
-		const list = map.get(rundownId) ?? ([] as T[])
-		list.push(item)
-		map.set(rundownId, list)
-	}
-	return map
 }
 
 /** Returns segments in rundown order so API consumers get stable ranks. */
@@ -214,31 +204,13 @@ export function findNextPartInstance(
 }
 
 /**
- * Group documents by the value of one field, keeping each group in the original document order.
- */
-function groupByField<T, K extends keyof T>(items: readonly T[], key: K): Map<T[K], T[]> {
-	const map = new Map<T[K], T[]>()
-	for (const item of items) {
-		const value = item[key]
-		const list = map.get(value)
-		if (list) list.push(item)
-		else map.set(value, [item])
-	}
-	return map
-}
-
-/**
- * If the selector requires `key` to equal a single plain value, return that value.
- * Returns `undefined` when the selector constrains the field in any other way (or not at all).
+ * The value `selector` requires `key` to equal, when it is `{ [key]: value }` or `{ [key]: { $eq: value } }`.
+ * Returns `undefined` for anything else, such as `$in`, or no condition on `key`.
  */
 function getRequiredEqualValue(selector: unknown, key: string): string | number | undefined {
-	if (!selector || typeof selector !== 'object') return undefined
-	let value = (selector as Record<string, unknown>)[key]
-	if (value && typeof value === 'object' && !Array.isArray(value)) {
-		const operators = Object.keys(value)
-		if (operators.length !== 1 || operators[0] !== '$eq') return undefined
-		value = (value as Record<string, unknown>).$eq
-	}
+	let value = (selector as Record<string, any>)[key]
+	// `{ $eq: value }` means the same as `value`, as long as `$eq` is the only operator
+	if (value && typeof value === 'object' && Object.keys(value).length === 1) value = value.$eq
 	return typeof value === 'string' || typeof value === 'number' ? value : undefined
 }
 
@@ -303,17 +275,17 @@ function createQueryAdapters({
 	piecesInPlaylistState: Piece[]
 	pieceInstancesInPlaylistState: PieceInstance[]
 }): StateCacheResolverDataAccess {
-	const segmentsById = groupByField(segmentsState, '_id')
-	const partsBySegmentId = groupByField(partsState, 'segmentId')
+	const segmentsById = groupByToMap(segmentsState, '_id')
+	const partsBySegmentId = groupByToMap(partsState, 'segmentId')
 
 	const activePartInstances = partInstancesInPlaylistState.filter((pi) => pi.reset !== true)
-	const activePartInstancesBySegmentId = groupByField(activePartInstances, 'segmentId')
+	const activePartInstancesBySegmentId = groupByToMap(activePartInstances, 'segmentId')
 
-	const piecesByStartPartId = groupByField(piecesInPlaylistState, 'startPartId')
+	const piecesByStartPartId = groupByToMap(piecesInPlaylistState, 'startPartId')
 	/** Pieces which may continue beyond the Part they start in. Usually a small fraction of all Pieces */
 	const infinitePieces = piecesInPlaylistState.filter((p) => p.lifespan !== PieceLifespan.WithinPart)
 
-	const pieceInstancesByPartInstanceId = groupByField(pieceInstancesInPlaylistState, 'partInstanceId')
+	const pieceInstancesByPartInstanceId = groupByToMap(pieceInstancesInPlaylistState, 'partInstanceId')
 
 	// Adapter surface expected by `getResolvedSegment`
 	return {
