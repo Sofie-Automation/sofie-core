@@ -18,9 +18,37 @@ export enum LegacyPieceLifespan {
 	OutOnShowStyleEnd = 'showstyle-end',
 }
 
-export type PieceLifespanScope = 'part' | 'segment' | 'rundown' | 'showstyle' | 'playlist'
+/** How far a piece continues past the part where it starts */
+export type PieceLifespanScope =
+	/** Stops when its part stops. This is a normal piece, not an infinite */
+	| 'part'
+	/** Stops when the playhead leaves the segment */
+	| 'segment'
+	/** Stops when the playhead leaves the rundown */
+	| 'rundown'
+	/**
+	 * Stops when the playhead goes into a rundown with a different ShowStyleBase.
+	 * All the rundowns between the starting rundown and the current one must share the ShowStyleBase
+	 * (the ShowStyleVariant is ignored)
+	 */
+	| 'showstyle'
+	/** Stops when the playlist stops. A change of ShowStyleBase does not stop it */
+	| 'playlist'
 
-export type PieceLifespanPresence = 'follow-playhead' | 'forward-scope'
+/** How an infinite moves through the rundown */
+export type PieceLifespanPresence =
+	/**
+	 * Follows the playhead. It only becomes an infinite once it has played, and then continues from the on-air part
+	 * in the order that the parts are played. Skipped parts do not affect it, and it is only shown in subsequent
+	 * parts after it has played
+	 */
+	| 'follow-playhead'
+	/**
+	 * Part of the plan. Continues into all the subsequent parts in its scope, in rundown order, also when parts are
+	 * skipped (pieces in a skipped part still affect it). It is shown in subsequent parts before they play.
+	 * An adlibbed `forward-scope` infinite is removed if the playhead moves backwards
+	 */
+	| 'forward-scope'
 
 /**
  * How a piece behaves while a newer piece covers it on its source layer:
