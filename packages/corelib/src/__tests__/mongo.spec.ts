@@ -412,6 +412,21 @@ describe('mongoModify', () => {
 			modify(doc, { $pull: { tags: /^x/ } })
 			expect(doc.tags).toEqual(['yb'])
 		})
+		test('removes elements equal to an array value', () => {
+			const doc = {
+				...makeDoc(),
+				pairs: [
+					[1, 2],
+					[2, 1],
+					[3, 4],
+				],
+			}
+			modify(doc, { $pull: { pairs: [1, 2] } })
+			expect(doc.pairs).toEqual([
+				[2, 1],
+				[3, 4],
+			])
+		})
 		test('removes elements via a logical query', () => {
 			const doc = makeDoc()
 			modify(doc, { $pull: { objs: { $or: [{ id: 'x' }, { kind: 'banana' }] } } })

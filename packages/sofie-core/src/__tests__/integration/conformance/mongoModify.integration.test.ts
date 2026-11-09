@@ -84,6 +84,22 @@ const cases: ConformanceCase[] = [
 	},
 	{
 		kind: 'modify',
+		name: '$pull an array value',
+		seed: [
+			{
+				_id: 'a',
+				pairs: [
+					[1, 2],
+					[2, 1],
+					[3, 4],
+				],
+			},
+		],
+		selector: sel,
+		modifier: { $pull: { pairs: [1, 2] } } as any,
+	},
+	{
+		kind: 'modify',
 		name: '$pull via $or on sub-documents',
 		seed: one(),
 		selector: sel,

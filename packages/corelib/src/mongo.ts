@@ -574,7 +574,7 @@ export function addToSetOntoPath<T>(obj: Record<string, unknown>, path: string, 
  *  - a value condition such as `{ $in: [...] }`, `{ $gte: 6 }` or a regex is tested against each element
  *  - any other object is treated as a query against each element (supporting nested operators such as
  *    `{ field: { $in: [...] } }`, evaluated by {@link mongoWhere})
- *  - a primitive removes elements equal to it
+ *  - a primitive or an array removes elements equal to it (arrays are order-sensitive)
  */
 export function pullFromPath<T>(obj: Record<string, unknown>, path: string, matchValue: T): void {
 	const mutator = (o: Record<string, unknown>, lastAttr: string) => {
@@ -594,7 +594,7 @@ export function pullFromPath<T>(obj: Record<string, unknown>, path: string, matc
 
 			// Any other object is treated as a query against each element (handles plain sub-document matches as
 			// well as nested operators like `{ field: { $in: [...] } }`)
-			if (matchValue && typeof matchValue === 'object') {
+			if (matchValue && typeof matchValue === 'object' && !Array.isArray(matchValue)) {
 				const matches = compileMongoSelector(matchValue as any)
 				// A query can only match documents, so other elements are kept
 				return (o[lastAttr] = arrAttr.filter(
@@ -602,7 +602,7 @@ export function pullFromPath<T>(obj: Record<string, unknown>, path: string, matc
 				))
 			}
 
-			// A primitive removes elements equal to it
+			// A primitive or an array removes elements equal to it
 			return (o[lastAttr] = arrAttr.filter((entry: T) => !_.isEqual(entry, matchValue)))
 		} else {
 			return undefined
