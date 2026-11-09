@@ -278,6 +278,7 @@ describe('MongoMatcher', () => {
 			[{ a: { $elemMatch: { $gt: 1, $lt: 3 } } }, { a: [0, 5] }, false],
 			[{ a: { $elemMatch: { $gt: 1 } } }, { a: [[5]] }, false],
 			[{ a: { $elemMatch: { b: 1 } } }, { a: { b: 1 } }, false],
+			[{ a: { $elemMatch: { b: 1 } } }, { a: [1, { b: 1 }] }, true],
 			[{ a: { $elemMatch: { $or: [{ b: 1 }, { c: 1 }] } } }, { a: [{ c: 1 }] }, true],
 		])
 	})

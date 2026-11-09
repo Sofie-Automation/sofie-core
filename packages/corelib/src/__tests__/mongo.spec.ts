@@ -397,6 +397,26 @@ describe('mongoModify', () => {
 			modify(doc, { $pull: { objs: { id: { $in: ['x', 'z'] } } } })
 			expect(doc.objs).toEqual([{ id: 'y', kind: 'banana' }])
 		})
+		test('removes elements via a comparison operator', () => {
+			const doc = makeDoc()
+			modify(doc, { $pull: { values: { $gte: 2 } } })
+			expect(doc.values).toEqual([1])
+		})
+		test('pulling with a comparison operator from an empty array is a no-op', () => {
+			const doc = { ...makeDoc(), values: [] }
+			modify(doc, { $pull: { values: { $gte: 2 } } })
+			expect(doc.values).toEqual([])
+		})
+		test('removes elements matching a regex', () => {
+			const doc = { ...makeDoc(), tags: ['xa', 'yb', 'xc'] }
+			modify(doc, { $pull: { tags: /^x/ } })
+			expect(doc.tags).toEqual(['yb'])
+		})
+		test('removes elements via a logical query', () => {
+			const doc = makeDoc()
+			modify(doc, { $pull: { objs: { $or: [{ id: 'x' }, { kind: 'banana' }] } } })
+			expect(doc.objs).toEqual([{ id: 'z', kind: 'apple' }])
+		})
 	})
 
 	describe('$addToSet', () => {

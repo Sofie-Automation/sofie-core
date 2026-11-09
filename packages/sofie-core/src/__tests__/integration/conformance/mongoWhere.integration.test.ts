@@ -220,6 +220,15 @@ const cases: ConformanceCase[] = [
 	},
 	{
 		kind: 'where',
+		name: '$elemMatch on fields skips scalar elements',
+		seed: [
+			{ _id: 'a', objs: [1, { kind: 'apple' }] },
+			{ _id: 'b', objs: [1, { kind: 'banana' }] },
+		],
+		query: { objs: { $elemMatch: { kind: 'apple' } } },
+	},
+	{
+		kind: 'where',
 		name: 'range on an array field may match different elements',
 		seed: [
 			{ _id: 'a', nums: [1, 5] },

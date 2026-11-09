@@ -77,6 +77,20 @@ const cases: ConformanceCase[] = [
 	},
 	{
 		kind: 'modify',
+		name: '$pull via a comparison operator',
+		seed: one(),
+		selector: sel,
+		modifier: { $pull: { values: { $gte: 2 } } } as any,
+	},
+	{
+		kind: 'modify',
+		name: '$pull via $or on sub-documents',
+		seed: one(),
+		selector: sel,
+		modifier: { $pull: { objs: { $or: [{ kind: 'apple' }, { kind: 'cherry' }] } } } as any,
+	},
+	{
+		kind: 'modify',
 		name: '$addToSet a new value',
 		seed: one(),
 		selector: sel,

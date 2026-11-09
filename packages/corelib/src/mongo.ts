@@ -571,7 +571,7 @@ export function addToSetOntoPath<T>(obj: Record<string, unknown>, path: string, 
  * @param obj Object
  * @param path Path to array in object
  * @param matchValue Value to match for removal. This mirrors MongoDB's `$pull`:
- *  - a `{ $in: [...] }` operator removes elements equal to one of the listed values
+ *  - a value condition such as `{ $in: [...] }`, `{ $gte: 6 }` or a regex is tested against each element
  *  - any other object is treated as a query against each element (supporting nested operators such as
  *    `{ field: { $in: [...] } }`, evaluated by {@link mongoWhere})
  *  - a primitive removes elements equal to it
@@ -585,18 +585,14 @@ export function pullFromPath<T>(obj: Record<string, unknown>, path: string, matc
 					'Object propery "' + lastAttr + '" is not an array ("' + arrAttr + '") (in path "' + path + '")'
 				)
 
-			// Handle $in operator for matching multiple values against the array elements directly
-			if (
-				matchValue &&
-				typeof matchValue === 'object' &&
-				'$in' in matchValue &&
-				Array.isArray((matchValue as Record<string, unknown>).$in)
-			) {
-				const inValues = (matchValue as Record<string, unknown>).$in as unknown[]
-				return (o[lastAttr] = arrAttr.filter((entry: T) => !inValues.some((value) => _.isEqual(entry, value))))
+			// A value condition (eg `{ $in: [...] }`, `{ $gte: 6 }` or a regex) is tested against each element as if
+			// it were a field, the same way MongoDB wraps it as `{ '': condition }`
+			if (isPullValueCondition(matchValue)) {
+				const matches = compileMongoSelector({ v: matchValue } as any)
+				return (o[lastAttr] = arrAttr.filter((entry: T) => !matches({ v: entry })))
 			}
 
-			// An object is treated as a query against each element (handles plain sub-document matches as
+			// Any other object is treated as a query against each element (handles plain sub-document matches as
 			// well as nested operators like `{ field: { $in: [...] } }`)
 			if (matchValue && typeof matchValue === 'object') {
 				const matches = compileMongoSelector(matchValue as any)
@@ -613,6 +609,17 @@ export function pullFromPath<T>(obj: Record<string, unknown>, path: string, matc
 		}
 	}
 	mutatePath(obj, path, {}, mutator)
+}
+/**
+ * Whether a `$pull` condition applies to the elements themselves, rather than being a query against their fields.
+ * Like MongoDB, this is decided by the first key being a value operator (so not `$and`, `$or` or `$nor`)
+ */
+function isPullValueCondition(matchValue: unknown): boolean {
+	if (matchValue instanceof RegExp) return true
+	if (!matchValue || typeof matchValue !== 'object' || Array.isArray(matchValue)) return false
+
+	const firstKey = Object.keys(matchValue)[0]
+	return !!firstKey && firstKey.startsWith('$') && !['$and', '$or', '$nor'].includes(firstKey)
 }
 /**
  * Set a value into a object

@@ -280,8 +280,9 @@ const ELEMENT_OPERATORS: Record<string, ElementOperator> = {
 					const arrayElement = value[i]
 					let arg: any
 					if (isDocMatcher) {
-						// `{$elemMatch: {b: 3}}` can only match objects, or arrays through numeric indices
-						if (!isIndexable(arrayElement)) return false
+						// `{$elemMatch: {b: 3}}` can only match objects, or arrays through numeric indices. Unlike minimongo,
+						// other elements are skipped rather than failing the match, as MongoDB does
+						if (!isIndexable(arrayElement)) continue
 
 						arg = arrayElement
 					} else {
