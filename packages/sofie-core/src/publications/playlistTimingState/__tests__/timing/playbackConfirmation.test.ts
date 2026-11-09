@@ -1,5 +1,4 @@
 import { isPlaylistTimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/TimingState'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { manipulatePlaylistTimingStatePublicationData } from '../../publication'
 import { createReactiveContentCache } from '../../reactiveContentCache'
 import { type Gateway, playoutScript, type PublicationInputs } from './lib/playoutScript'
@@ -70,8 +69,8 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 	// B1 taken at 12:00:35, and confirmed at 12:00:35.200
 	const b1Taken = a3OnAir.take('12:00:35')
 
-	it('B1 at its take', () => {
-		expect(b1Taken.readAt('12:00:35.000')).toMatchInlineSnapshot(`
+	it('B1 at its take', async () => {
+		expect(await b1Taken.readAt('12:00:35.000')).toMatchInlineSnapshot(`
 		12:00:35, published 12:00:35
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00.200  remaining 2:00  ends 12:02:35  in hand -0:04.800
@@ -96,19 +95,20 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 	it("B1 at its take, when the playlist arrives before B2's new PartInstance", async () => {
 		// The playlist as the take of B1 wrote it, which names B2's new PartInstance as next, with the PartInstances as
 		// they were before the take
-		const beforeTheTake = a3OnAir.inputsAt('12:00:35')
-		const afterTheTake = b1Taken.inputsAt('12:00:35')
+		const beforeTheTake = await b1Taken.inputsAt('12:00:34.999')
+		const afterTheTake = await b1Taken.inputsAt('12:00:35')
 		const playlistArrivedFirst = { ...beforeTheTake, playlist: afterTheTake.playlist }
 
 		expect(await publish(playlistArrivedFirst)).toBeNull()
 		const published = await publish(afterTheTake)
-		expect(published?.find(isPlaylistTimingStateDoc)?.currentPartInstanceId).toBe(protectString('B1_1'))
+		const onAir = published?.find(isPlaylistTimingStateDoc)?.currentPartInstanceId
+		expect(onAir && (await b1Taken.played()).label(onAir)).toBe('B1#1')
 
 		/*
 		 * So until B2's PartInstance arrives, a client reads the documents published at the confirmation of A3. They
 		 * read the same remaining time, end and time in hand as the documents of the take, in the cell above
 		 */
-		expect(a3OnAir.readAt('12:00:35')).toMatchInlineSnapshot(`
+		expect(await a3OnAir.readAt('12:00:35')).toMatchInlineSnapshot(`
 		12:00:35, published 12:00:22.200
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00.200  remaining 2:00 held since 12:00:32.200  ends 12:02:35 moving since 12:00:32.200  in hand -0:04.800 running since 12:00:32.200
@@ -129,8 +129,8 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 	`)
 	})
 
-	it('B1 taken 0.1 s ago, not yet confirmed', () => {
-		expect(b1Taken.readAt('12:00:35.100')).toMatchInlineSnapshot(`
+	it('B1 taken 0.1 s ago, not yet confirmed', async () => {
+		expect(await b1Taken.readAt('12:00:35.100')).toMatchInlineSnapshot(`
 		12:00:35.100, published 12:00:35
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00.200  remaining 2:00  ends 12:02:35  in hand -0:04.800
@@ -152,8 +152,8 @@ describe('a gateway that confirms each start 0.2 s after the take', () => {
 	`)
 	})
 
-	it('B1 confirmed 0.1 s ago', () => {
-		expect(b1Taken.readAt('12:00:35.300')).toMatchInlineSnapshot(`
+	it('B1 confirmed 0.1 s ago', async () => {
+		expect(await b1Taken.readAt('12:00:35.300')).toMatchInlineSnapshot(`
 		12:00:35.300, published 12:00:35.200
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00.200  remaining 1:59.900 runs until 12:00:55.200  ends 12:02:35.200 fixed until 12:00:55.200  in hand -0:05 holds until 12:00:55.200
@@ -180,9 +180,9 @@ describe('a take that ends the previous part before its planned end, with a gate
 	// A3 started at 12:00:22.200 and is planned to end at 12:00:32.200; B1 is taken 2.2 s before that
 	const b1TakenEarly = untilA3OnAir(GATEWAY_CONFIRMING_AFTER_200_MS).take('12:00:30')
 
-	it('keeps the estimated end and the over/under from before the take until the start is reported', () => {
+	it('keeps the estimated end and the over/under from before the take until the start is reported', async () => {
 		// before the take, the show was to end at A3's planned end + 2:00
-		expect(b1TakenEarly.readAt('12:00:30.100')).toMatchInlineSnapshot(`
+		expect(await b1TakenEarly.readAt('12:00:30.100')).toMatchInlineSnapshot(`
 		12:00:30.100, published 12:00:30
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00.200  remaining 2:00  ends 12:02:32.200  in hand -0:02
@@ -204,8 +204,8 @@ describe('a take that ends the previous part before its planned end, with a gate
 	`)
 	})
 
-	it('changes them once, when the start is reported', () => {
-		expect(b1TakenEarly.readAt('12:00:30.300')).toMatchInlineSnapshot(`
+	it('changes them once, when the start is reported', async () => {
+		expect(await b1TakenEarly.readAt('12:00:30.300')).toMatchInlineSnapshot(`
 		12:00:30.300, published 12:00:30.200
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00.200  remaining 1:59.900 runs until 12:00:50.200  ends 12:02:30.200 fixed until 12:00:50.200  in hand 0:00 holds until 12:00:50.200
@@ -244,8 +244,8 @@ describe('a gateway that never confirms the start of B1', () => {
 		.confirmStart('12:00:22')
 		.take('12:00:35')
 
-	it('B1 at its take', () => {
-		expect(b1Taken.readAt('12:00:35')).toMatchInlineSnapshot(`
+	it('B1 at its take', async () => {
+		expect(await b1Taken.readAt('12:00:35')).toMatchInlineSnapshot(`
 		12:00:35, published 12:00:35
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00  remaining 2:00  ends 12:02:35  in hand -0:05
@@ -267,8 +267,8 @@ describe('a gateway that never confirms the start of B1', () => {
 	`)
 	})
 
-	it('10 s after the take of B1, still not confirmed', () => {
-		expect(b1Taken.readAt('12:00:45')).toMatchInlineSnapshot(`
+	it('10 s after the take of B1, still not confirmed', async () => {
+		expect(await b1Taken.readAt('12:00:45')).toMatchInlineSnapshot(`
 		12:00:45, published 12:00:35
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:00  remaining 2:00  ends 12:02:35  in hand -0:05
@@ -290,14 +290,14 @@ describe('a gateway that never confirms the start of B1', () => {
 	`)
 	})
 
-	it('10 s after the take of B1, still not confirmed, in a timing mode of each kind planned to last 2:30', () => {
+	it('10 s after the take of B1, still not confirmed, in a timing mode of each kind planned to last 2:30', async () => {
 		/*
 		 * In the forward and back modes the time in hand runs on with the clock, as on main. In the none and duration
 		 * modes it holds at what it read at the take, where main's, the fresh value, moved on with the clock: 10 s apart
 		 * by now. The comparison with main does not play this show
 		 */
 		expect(
-			b1Taken.readAt('12:00:45', {
+			await b1Taken.readAt('12:00:45', {
 				view: 'show',
 				modes: ['none 2:30', 'forward start+duration', 'back end+duration', 'duration 2:30'],
 			})
@@ -316,8 +316,8 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 	// B1 taken at 12:00:35, its start scheduled at 12:00:37, and reported by the gateway then
 	const b1Taken = untilA3OnAir(MULTI_GATEWAY_2_S_AHEAD).take('12:00:35')
 
-	it('B1 at its take, its start 2 s ahead', () => {
-		expect(b1Taken.readAt('12:00:35')).toMatchInlineSnapshot(`
+	it('B1 at its take, its start 2 s ahead', async () => {
+		expect(await b1Taken.readAt('12:00:35')).toMatchInlineSnapshot(`
 		12:00:35, published 12:00:35
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:02  remaining 2:02 runs until 12:00:57  ends 12:02:37 fixed until 12:00:57  in hand -0:05 holds until 12:00:57
@@ -339,8 +339,8 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 	`)
 	})
 
-	it('B1 taken 1 s ago, its start 1 s ahead', () => {
-		expect(b1Taken.readAt('12:00:36')).toMatchInlineSnapshot(`
+	it('B1 taken 1 s ago, its start 1 s ahead', async () => {
+		expect(await b1Taken.readAt('12:00:36')).toMatchInlineSnapshot(`
 		12:00:36, published 12:00:35
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:02  remaining 2:01 runs until 12:00:57  ends 12:02:37 fixed until 12:00:57  in hand -0:05 holds until 12:00:57
@@ -362,8 +362,8 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 	`)
 	})
 
-	it('B1 started 1 s ago, as the gateway reported', () => {
-		expect(b1Taken.readAt('12:00:38')).toMatchInlineSnapshot(`
+	it('B1 started 1 s ago, as the gateway reported', async () => {
+		expect(await b1Taken.readAt('12:00:38')).toMatchInlineSnapshot(`
 		12:00:38, published 12:00:37
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:02  remaining 1:59 runs until 12:00:57  ends 12:02:37 fixed until 12:00:57  in hand -0:05 holds until 12:00:57
@@ -385,7 +385,7 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 	`)
 	})
 
-	it('B1 auto-nexts into B2 at its scheduled start, read before the gateway reports it', () => {
+	it('B1 auto-nexts into B2 at its scheduled start, read before the gateway reports it', async () => {
 		/*
 		 * B1 auto-nexts. Building the timeline at the take of B1 schedules B2 to start when B1 ends, at 12:00:57, and
 		 * the publication last calculated when the gateway reported the start of B1, at 12:00:37. The gateway reports
@@ -400,7 +400,7 @@ describe('multi-gateway mode, each start scheduled 2 s after its take', () => {
 			.take('12:00:35')
 			.autoNext('12:00:58')
 
-		expect(autoNext.readAt('12:00:57.500')).toMatchInlineSnapshot(`
+		expect(await autoNext.readAt('12:00:57.500')).toMatchInlineSnapshot(`
 		12:00:57.500, published 12:00:37
 		  plan       forward-time  start 12:00:00  end 12:02:30  duration 2:30  target 2:30
 		  show       started 12:00:02  remaining 1:40 held since 12:00:57 (fresh 1:20)  ends 12:02:37.500 moving since 12:00:57 (fresh 12:02:17.500)  in hand -0:05.500 running since 12:00:57 (fresh 0:14.500)

@@ -4,6 +4,7 @@ import {
 	REFERENCE_PLAYLIST_ID,
 	REFERENCE_RUNDOWN_ID,
 	referenceRundown,
+	type ReferenceRundown,
 	type RundownVariant,
 } from '@sofie-automation/corelib/dist/testing/referenceRundown'
 import type { MockJobContext } from './context.js'
@@ -19,8 +20,18 @@ import { setupMockShowStyleCompound } from './presetCollections.js'
  */
 export async function setupReferenceRundown(
 	context: MockJobContext,
-	options: { timing: RundownPlaylistTiming; variant?: RundownVariant }
+	options: {
+		timing: RundownPlaylistTiming
+		variant?: RundownVariant
+		/** A rundown of the reference form, in place of the reference rundown with the variant's changes */
+		rundown?: ReferenceRundown
+	}
 ): Promise<void> {
+	const { rundowns, segments, parts } = options.rundown ?? referenceRundown(options.variant)
+	if (rundowns.length !== 1 || rundowns[0]._id !== REFERENCE_RUNDOWN_ID) {
+		throw new Error('A rundown of the reference form has one rundown, with the reference rundown id')
+	}
+
 	const showStyle = await setupMockShowStyleCompound(context)
 
 	await context.mockCollections.RundownPlaylists.insertOne({
@@ -44,7 +55,6 @@ export async function setupReferenceRundown(
 	}
 	await context.mockCollections.Rundowns.insertOne(rundown)
 
-	const { segments, parts } = referenceRundown(options.variant)
 	for (const segment of segments) await context.mockCollections.Segments.insertOne(segment)
 	for (const part of parts) await context.mockCollections.Parts.insertOne(part)
 }

@@ -5,47 +5,31 @@ import { RundownPlaylistActivationId, SegmentId } from '@sofie-automation/coreli
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance, PartInstanceTimings } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import {
-	PeripheralDeviceCategory,
-	PeripheralDeviceType,
-	PERIPHERAL_SUBTYPE_PROCESS,
-} from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
-import {
 	DBRundownPlaylist,
 	RundownHoldState,
 	SelectedPartInstance,
 } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
-import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
-import type { IStudioSettings } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
-import {
-	PlayoutChangedResult,
-	PlayoutChangedType,
-} from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
-import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
-import { setupMockPeripheralDevice } from '../../__mocks__/presetCollections.js'
+import { assertNever } from '@sofie-automation/corelib/dist/lib'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import type { MockJobContext } from '../../__mocks__/context.js'
 import {
 	clock,
 	formatClock,
 	formatLength,
 	length,
-	PartKey,
 	REFERENCE_DAY,
 	REFERENCE_PLAYLIST_ID,
 	REFERENCE_RUNDOWN,
 	REFERENCE_RUNDOWN_ID,
 	RundownVariant,
 } from '@sofie-automation/corelib/dist/testing/referenceRundown'
-import { setupReferenceRundown } from '../../__mocks__/referenceRundown.js'
-import { getCurrentTime, useFakeCurrentTime, useRealCurrentTime } from '../../__mocks__/time.js'
 import {
-	handleActivateRundownPlaylist,
-	handleDeactivateRundownPlaylist,
-	handleResetRundownPlaylist,
-} from '../activePlaylistJobs.js'
-import { handleActivateHold, handleDeactivateHold } from '../holdJobs.js'
-import { handleSetNextPart } from '../setNextJobs.js'
-import { handleTakeNextPart } from '../take.js'
-import { handleOnPlayoutPlaybackChanged } from '../timings/index.js'
+	type ReferenceShow,
+	type ReferenceShowGateway,
+	type ReferenceShowJob,
+	startReferenceShow,
+} from '../../__mocks__/referenceShow.js'
+import { useRealCurrentTime } from '../../__mocks__/time.js'
 
 /**
  * These tests run real playout jobs on the reference rundown, and record as text everything playout writes that the
@@ -67,8 +51,8 @@ import { handleOnPlayoutPlaybackChanged } from '../timings/index.js'
  *
  *   UPDATE_TIMING_TRACE=1 yarn unit --testPathPatterns playout/__tests__/timingInputs
  *
- * After each job a trace prints only what changed. The text format is exact, so that a simulation of playout
- * elsewhere can be checked against the same file line for line.
+ * After each job a trace prints only what changed. The shows are played by the shared driver in
+ * __mocks__/referenceShow.ts, which the timing tests of the playlist timing publication play their shows with too.
  */
 
 // The recording
@@ -491,17 +475,10 @@ class TimingInputsTrace {
 
 // Running a show
 
-type Gateway =
-	/** Core reports each taken part as started, and the previous one as stopped, itself at the end of the take */
-	| { kind: 'no gateway'; description: string }
-	/** One playout gateway, which reports a taken part as started after a delay, or never */
-	| { kind: 'single gateway'; description: string; confirmsAfterMs: number | 'never' }
-	/**
-	 * Multi-gateway mode, set by the studio setting: core schedules each start this far ahead,
-	 * and the gateway reports the start then; it reports the previous part stopped at the take,
-	 * when it gets the new timeline
-	 */
-	| { kind: 'multi gateway'; description: string; latencyMs: number }
+type Gateway = ReferenceShowGateway & {
+	/** The gateway in plain words, as the script names use it */
+	description: string
+}
 
 const NO_GATEWAY: Gateway = { kind: 'no gateway', description: 'with no gateway' }
 const GATEWAY_CONFIRMING_AT_ONCE: Gateway = {
@@ -529,15 +506,6 @@ const EVERY_GATEWAY: readonly Gateway[] = [
 	MULTI_GATEWAY,
 ]
 
-function studioSettingsFor(gateway: Gateway): Partial<IStudioSettings> {
-	const settings: Partial<IStudioSettings> = { minimumTakeSpan: 0 }
-	if (gateway.kind === 'multi gateway') {
-		settings.forceMultiGatewayMode = true
-		settings.multiGatewayNowSafeLatency = gateway.latencyMs
-	}
-	return settings
-}
-
 /** ForwardTime, planned to start at 12:00:00 and to last 2:30 */
 const SHOW_TIMING: RundownPlaylistTiming = {
 	type: PlaylistTimingType.ForwardTime,
@@ -545,258 +513,67 @@ const SHOW_TIMING: RundownPlaylistTiming = {
 	expectedDuration: length('2:30'),
 }
 
-/** The reference rundown, with playout driven by real jobs. Every job runs at the clock time it is given */
-class ReferenceShow {
-	readonly #context: MockJobContext
-	readonly #gateway: Gateway
-	readonly #trace = new TimingInputsTrace()
-
-	constructor(context: MockJobContext, gateway: Gateway) {
-		this.#context = context
-		this.#gateway = gateway
-	}
-
-	get trace(): string {
-		return this.#trace.text
-	}
-
-	async activate(at: string, options?: { rehearsal?: boolean }): Promise<void> {
-		const rehearsal = options?.rehearsal ?? false
-		this.#setClock(clock(at))
-		await handleActivateRundownPlaylist(this.#context, { playlistId: REFERENCE_PLAYLIST_ID, rehearsal })
-		await this.#record(`activate ${rehearsal ? 'in rehearsal' : 'on air'}`)
-	}
-
-	async deactivate(at: string): Promise<void> {
-		this.#setClock(clock(at))
-		await handleDeactivateRundownPlaylist(this.#context, { playlistId: REFERENCE_PLAYLIST_ID })
-		await this.#record('deactivate')
-	}
-
-	async reset(at: string, options?: { thenActivate?: 'on air' | 'in rehearsal' }): Promise<void> {
-		this.#setClock(clock(at))
-		const thenActivate = options?.thenActivate
-		await handleResetRundownPlaylist(this.#context, {
-			playlistId: REFERENCE_PLAYLIST_ID,
-			activate: thenActivate === undefined ? undefined : thenActivate === 'on air' ? 'active' : 'rehearsal',
-		})
-		await this.#record(thenActivate === undefined ? 'reset' : `reset and activate ${thenActivate}`)
-	}
-
-	/** Set the part as next, as a user does; optionally to play from a point inside the part */
-	async setNext(at: string, part: PartKey, options?: { from?: string }): Promise<void> {
-		this.#setClock(clock(at))
-		const from = options?.from === undefined ? undefined : length(options.from)
-		await handleSetNextPart(this.#context, {
-			playlistId: REFERENCE_PLAYLIST_ID,
-			nextPartId: protectString(part),
-			setManually: true,
-			nextTimeOffset: from,
-		})
-		await this.#record(from === undefined ? `set next ${part}` : `set next ${part} from ${formatLength(from)}`)
-	}
-
-	/** Take, and then let the gateway report what the take changed, as the gateway mode says */
-	async take(at: string): Promise<void> {
-		const takeTime = clock(at)
-		this.#setClock(takeTime)
-		const before = await this.#playlist()
-		await handleTakeNextPart(this.#context, {
-			playlistId: REFERENCE_PLAYLIST_ID,
-			fromPartInstanceId: before.currentPartInfo?.partInstanceId ?? null,
-		})
-		await this.#record('take')
-
-		const after = await this.#playlist()
-		// The take that completes a hold changes no part, so there is nothing for the gateway to report
-		if (after.currentPartInfo?.partInstanceId === before.currentPartInfo?.partInstanceId) return
-
-		await this.#reportTake(takeTime)
-	}
-
-	/** The gateway reports that the next part has started on its own, and the current one has stopped */
-	async autoNext(at: string): Promise<void> {
-		this.#setClock(clock(at))
-		const playlist = await this.#playlist()
-		if (!playlist.nextPartInfo) throw new Error('There is no next part to report as started')
-		// The next part's callback object takes over the on-air part's layer when the next part's group starts, so
-		// the on-air part is reported stopped in the same batch
-		await this.#reportPlayback(
-			{ stopped: playlist.currentPartInfo ?? undefined, started: playlist.nextPartInfo },
-			'auto-next'
-		)
-	}
-
-	async startHold(at: string): Promise<void> {
-		this.#setClock(clock(at))
-		await handleActivateHold(this.#context, { playlistId: REFERENCE_PLAYLIST_ID })
-		await this.#record('start a hold')
-	}
-
-	async cancelHold(at: string): Promise<void> {
-		this.#setClock(clock(at))
-		await handleDeactivateHold(this.#context, { playlistId: REFERENCE_PLAYLIST_ID })
-		await this.#record('cancel the hold')
-	}
-
-	/**
-	 * The gateway reports what a take changed, as the gateway mode says. A gateway reports a part as stopped when the
-	 * part's callback object leaves the state it resolves from the timeline, and after a take the previous part's
-	 * group is built without that object, so the stop is reported as soon as the gateway resolves the new timeline.
-	 */
-	async #reportTake(takeTime: number): Promise<void> {
-		const gateway = this.#gateway
-		switch (gateway.kind) {
-			case 'no gateway':
-				// The take has reported the start of the taken part and the stop of the previous one itself
-				return
-			case 'single gateway': {
-				if (gateway.confirmsAfterMs === 'never') return
-				// The new timeline starts the taken part when the gateway resolves it, so the stop of the previous part
-				// and the start of the taken part come in one batch
-				this.#setClock(takeTime + gateway.confirmsAfterMs)
-				const playlist = await this.#playlist()
-				if (!playlist.currentPartInfo) throw new Error('There is no taken part to report as started')
-				await this.#reportPlayback(
-					{ stopped: playlist.previousPartsInfo[0], started: playlist.currentPartInfo },
-					'take'
-				)
-				return
-			}
-			case 'multi gateway': {
-				// The new timeline starts the taken part at a fixed time, latencyMs after the take. The gateway resolves
-				// the timeline as soon as it gets it, right after the take, and reports the previous part stopped then;
-				// it reports the taken part started when its part group starts
-				const atTake = await this.#playlist()
-				if (!atTake.currentPartInfo) throw new Error('There is no taken part to report as started')
-				const previous = atTake.previousPartsInfo[0]
-				const taken = await this.#context.mockCollections.PartInstances.findOne(
-					atTake.currentPartInfo.partInstanceId
-				)
-				const takenStart = taken?.timings?.plannedStartedPlayback
-				if (takenStart !== undefined && takenStart <= takeTime) {
-					// Played from a point inside it: its part group started before the take, so the gateway reports its
-					// start in the same batch as the stop of the previous part
-					this.#setClock(takeTime)
-					await this.#reportPlayback({ stopped: previous, started: atTake.currentPartInfo }, 'take')
-					return
-				}
-				if (previous) {
-					this.#setClock(takeTime)
-					await this.#reportPlayback({ stopped: previous, started: undefined }, 'take')
-				}
-				this.#setClock(takeTime + gateway.latencyMs)
-				await this.#reportPlayback({ stopped: undefined, started: atTake.currentPartInfo }, 'take')
-				return
-			}
-			default:
-				assertNever(gateway)
+/** What a job did, as the header of its block names it */
+function describeJob(job: ReferenceShowJob, labels: TraceLabels): string {
+	switch (job.kind) {
+		case 'activate':
+			return `activate ${job.rehearsal ? 'in rehearsal' : 'on air'}`
+		case 'deactivate':
+			return 'deactivate'
+		case 'reset':
+			return job.thenActivate === undefined ? 'reset' : `reset and activate ${job.thenActivate}`
+		case 'set next':
+			return job.from === undefined
+				? `set next ${job.part}`
+				: `set next ${job.part} from ${formatLength(job.from)}`
+		case 'take':
+			return 'take'
+		case 'gateway report': {
+			// The header names the started part first
+			const reported: string[] = []
+			if (job.started) reported.push(`${labels.partInstance(unprotectString(job.started))} started`)
+			if (job.stopped) reported.push(`${labels.partInstance(unprotectString(job.stopped))} stopped`)
+			const reportText = `gateway reports ${reported.join(' and ')}`
+			return job.cause === 'auto-next' ? `auto-next: ${reportText}` : reportText
 		}
-	}
-
-	/**
-	 * The gateway reports, in one batch, a part as stopped and a part as started, each undefined when the batch has
-	 * none: every stop before every start, as the playout gateway sends them. The stop is reported at the current
-	 * time; the start at the part's planned start when core has set one (its part group starts there on the
-	 * timeline, e.g. back-dated for a part played from a point inside it), otherwise at the current time.
-	 */
-	async #reportPlayback(
-		batch: { stopped: SelectedPartInstance | undefined; started: SelectedPartInstance | undefined },
-		cause: 'take' | 'auto-next'
-	): Promise<void> {
-		if (!batch.stopped && !batch.started) throw new Error('A gateway report has a stop, a start, or both')
-
-		const labels = this.#trace.labels
-		const labelOf = (selected: SelectedPartInstance) =>
-			labels.partInstance(unprotectString(selected.partInstanceId))
-		// The header names the started part first
-		const reported: string[] = []
-		if (batch.started) reported.push(`${labelOf(batch.started)} started`)
-		if (batch.stopped) reported.push(`${labelOf(batch.stopped)} stopped`)
-		const reportText = `gateway reports ${reported.join(' and ')}`
-
-		const time = getCurrentTime()
-		const changes: PlayoutChangedResult[] = []
-		if (batch.stopped) {
-			changes.push(
-				literal<PlayoutChangedResult>({
-					type: PlayoutChangedType.PART_PLAYBACK_STOPPED,
-					objId: 'partGroup',
-					data: { partInstanceId: batch.stopped.partInstanceId, time },
-				})
-			)
-		}
-		if (batch.started) {
-			const startedPartInstance = await this.#context.mockCollections.PartInstances.findOne(
-				batch.started.partInstanceId
-			)
-			changes.push(
-				literal<PlayoutChangedResult>({
-					type: PlayoutChangedType.PART_PLAYBACK_STARTED,
-					objId: 'partGroup',
-					data: {
-						partInstanceId: batch.started.partInstanceId,
-						time: startedPartInstance?.timings?.plannedStartedPlayback ?? time,
-					},
-				})
-			)
-		}
-
-		await handleOnPlayoutPlaybackChanged(this.#context, { playlistId: REFERENCE_PLAYLIST_ID, changes })
-		await this.#record(cause === 'auto-next' ? `auto-next: ${reportText}` : reportText)
-	}
-
-	#setClock(time: number): void {
-		if (time < getCurrentTime()) throw new Error(`A job at ${formatClock(time)} would go back in time`)
-		useFakeCurrentTime(time)
-	}
-
-	async #playlist(): Promise<DBRundownPlaylist> {
-		const playlist = await this.#context.mockCollections.RundownPlaylists.findOne(REFERENCE_PLAYLIST_ID)
-		if (!playlist) throw new Error('The reference playlist is missing')
-		return playlist
-	}
-
-	/** Add a block to the trace, headed by the current time and the action */
-	async #record(action: string): Promise<void> {
-		this.#trace.record(`${formatClock(getCurrentTime())} ${action}`, await this.#state())
-	}
-
-	async #state(): Promise<PlayoutState> {
-		return {
-			playlist: await this.#playlist(),
-			partInstances: await this.#context.mockCollections.PartInstances.findFetch({}),
-			parts: await this.#context.mockCollections.Parts.findFetch({}),
-		}
-	}
-
-	/** Add the first block to the trace: the state after setup, before any job has run */
-	async recordStart(): Promise<void> {
-		this.#trace.record('before any job', await this.#state())
+		case 'start a hold':
+			return 'start a hold'
+		case 'cancel the hold':
+			return 'cancel the hold'
+		default:
+			assertNever(job)
+			return 'unknown'
 	}
 }
 
-async function startShow(gateway: Gateway, variant: RundownVariant | undefined): Promise<ReferenceShow> {
-	const context = setupDefaultJobEnvironment(undefined, studioSettingsFor(gateway))
-
-	// Ignore event jobs
-	jest.spyOn(context, 'queueEventJob').mockImplementation(async () => Promise.resolve())
-
-	if (gateway.kind !== 'no gateway') {
-		await setupMockPeripheralDevice(
-			context,
-			PeripheralDeviceCategory.PLAYOUT,
-			PeripheralDeviceType.PLAYOUT,
-			PERIPHERAL_SUBTYPE_PROCESS
-		)
+/** The reference rundown played by the real jobs, with a trace block recorded after each job */
+async function startShow(
+	gateway: Gateway,
+	variant: RundownVariant | undefined
+): Promise<{ show: ReferenceShow; trace: TimingInputsTrace }> {
+	const trace = new TimingInputsTrace()
+	const state = async (context: MockJobContext): Promise<PlayoutState> => {
+		const playlist = await context.mockCollections.RundownPlaylists.findOne(REFERENCE_PLAYLIST_ID)
+		if (!playlist) throw new Error('The reference playlist is missing')
+		return {
+			playlist,
+			partInstances: await context.mockCollections.PartInstances.findFetch({}),
+			parts: await context.mockCollections.Parts.findFetch({}),
+		}
 	}
 
-	useFakeCurrentTime(clock('11:50:00'))
-	await setupReferenceRundown(context, { timing: SHOW_TIMING, variant })
+	const show = await startReferenceShow({
+		timing: SHOW_TIMING,
+		gateway,
+		variant,
+		onJob: async (at, job, context) => {
+			trace.record(`${formatClock(at)} ${describeJob(job, trace.labels)}`, await state(context))
+		},
+	})
 
-	const show = new ReferenceShow(context, gateway)
-	await show.recordStart()
-	return show
+	// The first block: the state after setup, before any job has run
+	trace.record('before any job', await state(show.context))
+	return { show, trace }
 }
 
 // The scripts
@@ -893,7 +670,7 @@ const SCRIPTS: readonly Script[] = [
 			play: async (show) => {
 				await show.activate('11:59:00')
 				await show.take('12:00:05')
-				await show.setNext('12:00:09', 'A2', { from: '0:05' })
+				await show.setNext('12:00:09', 'A2', { from: length('0:05') })
 				await show.take('12:00:12')
 			},
 		})
@@ -1019,17 +796,17 @@ describe('timing inputs written by playout, on the reference rundown', () => {
 	})
 
 	it.each(SCRIPTS)('$name', async (script) => {
-		const show = await startShow(script.gateway, script.variant)
+		const { show, trace } = await startShow(script.gateway, script.variant)
 		await script.play(show)
 
 		if (UPDATE_RECORDING) {
-			newTraces.set(script.name, show.trace)
+			newTraces.set(script.name, trace.text)
 			return
 		}
 		const recordedTrace = recording.traces.get(script.name)
 		if (recordedTrace === undefined) {
 			throw new Error(`${RECORDING_PATH} has no trace for this script; set UPDATE_TIMING_TRACE=1 to add it`)
 		}
-		expect(show.trace).toBe(recordedTrace)
+		expect(trace.text).toBe(recordedTrace)
 	})
 })

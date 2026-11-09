@@ -95,17 +95,21 @@ function showTakingEachPartUpTo(rundown: ReferenceRundown, gateway: Gateway, las
 }
 
 /** The documents the publication calculates from what it holds at the instant, at a time */
-function documentsAt(script: PlayoutScript, instant: number, calculatedAt: number = instant): TimingStateDoc[] {
-	const inputs = script.inputsAt(formatClock(instant))
+async function documentsAt(
+	script: PlayoutScript,
+	instant: number,
+	calculatedAt: number = instant
+): Promise<TimingStateDoc[]> {
+	const inputs = await script.inputsAt(formatClock(instant))
 	return calculateTimingDocuments(inputs, inputs.playlist.timing, calculatedAt)
 }
 
 /** The documents a subscriber holds just before the instant: those calculated at the last change before it */
-function documentsJustBefore(script: PlayoutScript, instant: number): TimingStateDoc[] {
+async function documentsJustBefore(script: PlayoutScript, instant: number): Promise<TimingStateDoc[]> {
 	const justBefore = formatClock(instant - 1)
-	const calculatedAt = script.lastCalculationAt(justBefore)
+	const calculatedAt = await script.lastCalculationAt(justBefore)
 	if (calculatedAt === undefined) throw new Error(`Nothing has been calculated before ${formatClock(instant)}`)
-	const inputs = script.inputsAt(justBefore)
+	const inputs = await script.inputsAt(justBefore)
 	return calculateTimingDocuments(inputs, inputs.playlist.timing, calculatedAt)
 }
 
@@ -126,10 +130,10 @@ describe.each([{ partCount: 300 }, { partCount: 40 }])('on a rundown of $partCou
 	describe('with one playout gateway', () => {
 		const show = showTakingEachPartUpTo(rundown, GATEWAY_CONFIRMING_AFTER_120_MS, 'S03P01')
 
-		it('a take within a segment changes the playlist, the segment, and the parts taken, left and next', () => {
+		it('a take within a segment changes the playlist, the segment, and the parts taken, left and next', async () => {
 			const take = takeTimeOf(rundown, 'S02P04')
 
-			expect(changedDocumentIds(documentsJustBefore(show, take), documentsAt(show, take))).toEqual([
+			expect(changedDocumentIds(await documentsJustBefore(show, take), await documentsAt(show, take))).toEqual([
 				'part_S02P03',
 				'part_S02P04',
 				'part_S02P05',
@@ -138,40 +142,36 @@ describe.each([{ partCount: 300 }, { partCount: 40 }])('on a rundown of $partCou
 			])
 		})
 
-		it('its playback confirmation changes the playlist, the segment, and the parts started and stopped', () => {
+		it('its playback confirmation changes the playlist, the segment, and the parts started and stopped', async () => {
 			const confirmation = takeTimeOf(rundown, 'S02P04') + CONFIRMATION_DELAY
 
 			expect(
-				changedDocumentIds(documentsJustBefore(show, confirmation), documentsAt(show, confirmation))
+				changedDocumentIds(await documentsJustBefore(show, confirmation), await documentsAt(show, confirmation))
 			).toEqual(['part_S02P03', 'part_S02P04', 'playlist_referencePlaylist', 'segment_S02'])
 		})
 
-		it('a take into the next segment changes the segment it leaves, and its confirmation both segments', () => {
+		it('a take into the next segment changes the segment it leaves, and its confirmation both segments', async () => {
 			const take = takeTimeOf(rundown, 'S03P01')
 
-			expect(changedDocumentIds(documentsJustBefore(show, take), documentsAt(show, take))).toEqual([
+			expect(changedDocumentIds(await documentsJustBefore(show, take), await documentsAt(show, take))).toEqual([
 				'part_S02P10',
 				'part_S03P01',
 				'part_S03P02',
 				'playlist_referencePlaylist',
 				'segment_S02',
 			])
-			expect(changedDocumentIds(documentsAt(show, take), documentsAt(show, take + CONFIRMATION_DELAY))).toEqual([
-				'part_S02P10',
-				'part_S03P01',
-				'playlist_referencePlaylist',
-				'segment_S02',
-				'segment_S03',
-			])
+			expect(
+				changedDocumentIds(await documentsAt(show, take), await documentsAt(show, take + CONFIRMATION_DELAY))
+			).toEqual(['part_S02P10', 'part_S03P01', 'playlist_referencePlaylist', 'segment_S02', 'segment_S03'])
 		})
 
-		it('the clock changes nothing, also once the on-air part overruns', () => {
+		it('the clock changes nothing, also once the on-air part overruns', async () => {
 			const confirmation = takeTimeOf(rundown, 'S03P01') + CONFIRMATION_DELAY
 
 			expect(
 				changedDocumentIds(
-					documentsAt(show, confirmation),
-					documentsAt(show, confirmation, confirmation + 60000)
+					await documentsAt(show, confirmation),
+					await documentsAt(show, confirmation, confirmation + 60000)
 				)
 			).toEqual(['playlist_referencePlaylist'])
 		})
@@ -182,10 +182,10 @@ describe.each([{ partCount: 300 }, { partCount: 40 }])('on a rundown of $partCou
 		const budgetedRundown = generatedRundown(segmentCount, { S03: 60000 })
 		const show = showTakingEachPartUpTo(budgetedRundown, GATEWAY_CONFIRMING_AFTER_120_MS, 'S03P02')
 
-		it('a take into the segment changes, at the confirmation, the parts of the segment that waited for its budget', () => {
+		it('a take into the segment changes, at the confirmation, the parts of the segment that waited for its budget', async () => {
 			const take = takeTimeOf(budgetedRundown, 'S03P01')
 
-			expect(changedDocumentIds(documentsJustBefore(show, take), documentsAt(show, take))).toEqual([
+			expect(changedDocumentIds(await documentsJustBefore(show, take), await documentsAt(show, take))).toEqual([
 				'part_S02P10',
 				'part_S03P01',
 				'part_S03P02',
@@ -194,7 +194,9 @@ describe.each([{ partCount: 300 }, { partCount: 40 }])('on a rundown of $partCou
 			])
 			// Until the start of S03P01 is confirmed, S03P02 to S03P06 wait for what is left of the budget after the
 			// parts before them. From the start on, the budget counts down by itself, and they wait for none of it
-			expect(changedDocumentIds(documentsAt(show, take), documentsAt(show, take + CONFIRMATION_DELAY))).toEqual([
+			expect(
+				changedDocumentIds(await documentsAt(show, take), await documentsAt(show, take + CONFIRMATION_DELAY))
+			).toEqual([
 				'part_S02P10',
 				'part_S03P01',
 				'part_S03P02',
@@ -208,22 +210,20 @@ describe.each([{ partCount: 300 }, { partCount: 40 }])('on a rundown of $partCou
 			])
 		})
 
-		it('a take within the segment changes no more than elsewhere', () => {
+		it('a take within the segment changes no more than elsewhere', async () => {
 			const take = takeTimeOf(budgetedRundown, 'S03P02')
 
 			// the segment's budget counts down by itself, so its document stays as it was, at the take and at the
 			// confirmation
-			expect(changedDocumentIds(documentsJustBefore(show, take), documentsAt(show, take))).toEqual([
+			expect(changedDocumentIds(await documentsJustBefore(show, take), await documentsAt(show, take))).toEqual([
 				'part_S03P01',
 				'part_S03P02',
 				'part_S03P03',
 				'playlist_referencePlaylist',
 			])
-			expect(changedDocumentIds(documentsAt(show, take), documentsAt(show, take + CONFIRMATION_DELAY))).toEqual([
-				'part_S03P01',
-				'part_S03P02',
-				'playlist_referencePlaylist',
-			])
+			expect(
+				changedDocumentIds(await documentsAt(show, take), await documentsAt(show, take + CONFIRMATION_DELAY))
+			).toEqual(['part_S03P01', 'part_S03P02', 'playlist_referencePlaylist'])
 		})
 	})
 
@@ -232,8 +232,8 @@ describe.each([{ partCount: 300 }, { partCount: 40 }])('on a rundown of $partCou
 		const take = takeTimeOf(rundown, 'S02P04')
 		const plannedStart = take + 2000
 
-		it('a take changes the playlist, the segment, and the parts taken, left and next', () => {
-			expect(changedDocumentIds(documentsJustBefore(show, take), documentsAt(show, take))).toEqual([
+		it('a take changes the playlist, the segment, and the parts taken, left and next', async () => {
+			expect(changedDocumentIds(await documentsJustBefore(show, take), await documentsAt(show, take))).toEqual([
 				'part_S02P03',
 				'part_S02P04',
 				'part_S02P05',
@@ -242,11 +242,10 @@ describe.each([{ partCount: 300 }, { partCount: 40 }])('on a rundown of $partCou
 			])
 		})
 
-		it('a calculation once the planned start has passed changes the playlist and the segment', () => {
-			expect(changedDocumentIds(documentsAt(show, take), documentsAt(show, take, plannedStart + 500))).toEqual([
-				'playlist_referencePlaylist',
-				'segment_S02',
-			])
+		it('a calculation once the planned start has passed changes the playlist and the segment', async () => {
+			expect(
+				changedDocumentIds(await documentsAt(show, take), await documentsAt(show, take, plannedStart + 500))
+			).toEqual(['playlist_referencePlaylist', 'segment_S02'])
 		})
 	})
 })

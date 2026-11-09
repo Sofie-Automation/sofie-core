@@ -322,10 +322,10 @@ interface Moment {
 	now: number
 }
 
-function readMoment(script: PlayoutScript, at: ComparedMoment): Moment {
-	const inputs = script.inputsAt(at.at)
+async function readMoment(script: PlayoutScript, at: ComparedMoment): Promise<Moment> {
+	const inputs = await script.inputsAt(at.at)
 	const now = clock(at.at)
-	const lastChangeAt = script.lastCalculationAt(at.at) ?? SUBSCRIBED_AT
+	const lastChangeAt = (await script.lastCalculationAt(at.at)) ?? SUBSCRIBED_AT
 	const calculatedAgainAt = at.calculatedAgainAt === undefined ? undefined : clock(at.calculatedAgainAt)
 	if (calculatedAgainAt !== undefined && (calculatedAgainAt < lastChangeAt || calculatedAgainAt > now)) {
 		throw new Error(`At ${at.at} the publication cannot have calculated again at ${at.calculatedAgainAt}`)
@@ -673,8 +673,8 @@ interface ComparedRow {
 	nextStartedUnreported: boolean
 }
 
-function compareMoment(show: ComparedShow, at: ComparedMoment): ComparedRow[] {
-	const moment = readMoment(show.script, at)
+async function compareMoment(show: ComparedShow, at: ComparedMoment): Promise<ComparedRow[]> {
+	const moment = await readMoment(show.script, at)
 	const onAirStart = onAirPartInstance(moment)?.timings?.plannedStartedPlayback
 	const nextStart = nextPartInstance(moment)?.timings?.plannedStartedPlayback
 	const facts = {
@@ -998,7 +998,12 @@ function formatTable(rows: readonly ComparedRow[]): string {
 }
 
 describe('the timing publication against main', () => {
-	const rows = SHOWS.flatMap((show) => show.moments.flatMap((moment) => compareMoment(show, moment)))
+	const rows: ComparedRow[] = []
+	beforeAll(async () => {
+		for (const show of SHOWS) {
+			for (const moment of show.moments) rows.push(...(await compareMoment(show, moment)))
+		}
+	})
 
 	afterAll(() => {
 		if (UPDATE_TABLE) fs.writeFileSync(TABLE_FILE, formatTable(rows))
