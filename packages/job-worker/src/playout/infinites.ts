@@ -275,7 +275,7 @@ export async function syncPlayheadInfinitesForNextPartInstance(
 ): Promise<void> {
 	const span = context.startSpan('syncPlayheadInfinitesForNextPartInstance')
 
-	if (toPartInstance && fromPartInstance) {
+	if (toPartInstance) {
 		const part = toPartInstance.partInstance.part
 
 		const rundown = playoutModel.getRundown(part.rundownId)
@@ -283,6 +283,7 @@ export async function syncPlayheadInfinitesForNextPartInstance(
 
 		const possiblePieces = await fetchPiecesThatMayBeActiveForPart(context, playoutModel, unsavedIngestModel, part)
 
+		// This replaces every continued infinite, so the planned ones must be included even when nothing is playing
 		const infinites = getContinuedInfinitesForPart(
 			getPieceInstancesForPartParams(
 				context,
@@ -295,18 +296,19 @@ export async function syncPlayheadInfinitesForNextPartInstance(
 			)
 		)
 
-		toPartInstance.replaceContinuedInfinites(infinites)
-	} else if (toPartInstance && !fromPartInstance) {
-		// This is the first take of the rundown, ensure the baseline infinites are loaded
-		const baselineInfinites = await getBaselineInfinitesForPart(
-			context,
-			playoutModel,
-			unsavedIngestModel,
-			toPartInstance.partInstance.part,
-			toPartInstance.partInstance._id
-		)
+		if (!fromPartInstance) {
+			// This is the first take of the rundown, ensure the baseline infinites are loaded
+			const baselineInfinites = await getBaselineInfinitesForPart(
+				context,
+				playoutModel,
+				unsavedIngestModel,
+				part,
+				toPartInstance.partInstance._id
+			)
+			infinites.push(...baselineInfinites)
+		}
 
-		toPartInstance.replaceContinuedInfinites(baselineInfinites)
+		toPartInstance.replaceContinuedInfinites(infinites)
 	}
 	if (span) span.end()
 }

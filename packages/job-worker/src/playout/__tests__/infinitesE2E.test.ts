@@ -24,6 +24,7 @@ import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { IPieceLifespan } from '@sofie-automation/shared-lib/dist/core/model/Rundown'
 import { adjustFakeTime, useFakeCurrentTime } from '../../__mocks__/time.js'
+import { handleDebugSyncPlayheadInfinitesForNextPartInstance } from '../debug.js'
 
 jest.spyOn(peripheralDeviceLib, 'executePeripheralDeviceFunction').mockImplementation(async () => sleep(10))
 
@@ -343,4 +344,58 @@ describe('Infinites through playout', () => {
 			})
 		}
 	)
+	describe('before the first take', () => {
+		async function setupSegmentInfinite() {
+			const { playlistId, rundownId } = await setupDefaultRundownPlaylist(context)
+			const rd = String(rundownId)
+			await addPiece(
+				rd,
+				'Persist',
+				'1_0',
+				{ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+				'layerP'
+			)
+			await addPiece(
+				rd,
+				'Shadow',
+				'1_1',
+				{ scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+				'layerP',
+				{ virtual: true, virtualMode: 'shadow' }
+			)
+			return { playlistId, rd }
+		}
+
+		test('a forward scoped infinite survives re-syncing the next part', async () => {
+			const { playlistId, rd } = await setupSegmentInfinite()
+
+			await handleActivateRundownPlaylist(context, { playlistId, rehearsal: false })
+			await handleSetNextPart(context, { playlistId, nextPartId: protectString(`${rd}_part1_2`) })
+			expect((await getNamesOnAir(playlistId)).next).toEqual({ part: '1_2', pieces: ['T:Persist'] })
+
+			await handleDebugSyncPlayheadInfinitesForNextPartInstance(context, { playlistId })
+			expect((await getNamesOnAir(playlistId)).next).toEqual({ part: '1_2', pieces: ['T:Persist'] })
+
+			await take(playlistId)
+			expect((await getNamesOnAir(playlistId)).current).toEqual({ part: '1_2', pieces: ['T:Persist'] })
+		})
+
+		test('a forward scoped infinite survives onSetAsNext changing the next part', async () => {
+			const { playlistId, rd } = await setupSegmentInfinite()
+			context.updateShowStyleBlueprint({
+				onSetAsNext: async (setNextContext) => {
+					await setNextContext.updatePartInstance('next', { title: 'changed' })
+				},
+			})
+
+			await handleActivateRundownPlaylist(context, { playlistId, rehearsal: false })
+			for (const partId of ['1_1', '1_2']) {
+				await handleSetNextPart(context, { playlistId, nextPartId: protectString(`${rd}_part${partId}`) })
+				expect((await getNamesOnAir(playlistId)).next).toEqual({ part: partId, pieces: ['T:Persist'] })
+			}
+
+			await take(playlistId)
+			expect((await getNamesOnAir(playlistId)).current).toEqual({ part: '1_2', pieces: ['T:Persist'] })
+		})
+	})
 })
