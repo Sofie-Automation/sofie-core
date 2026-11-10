@@ -77,7 +77,7 @@ services:
   # Because docker volumes are owned by root by default
   # And our images follow best-practise and don't run as root
   change-vol-ownerships:
-    image: node:22-alpine3.22
+    image: node:26-alpine
     user: 'root'
     volumes:
       - http-server-data:/data/http-server

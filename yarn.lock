@@ -9076,12 +9076,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=13.7.0, @types/node@npm:>=18":
-  version: 25.6.0
-  resolution: "@types/node@npm:25.6.0"
+"@types/node@npm:*, @types/node@npm:>=13.7.0, @types/node@npm:>=18, @types/node@npm:^26.6.6":
+  version: 26.6.6
+  resolution: "@types/node@npm:26.6.6"
   dependencies:
-    undici-types: "npm:~7.19.0"
-  checksum: 10/99b18690a4be55904cbf8f6a6ac8eed5ec5b8d791fdd8ee2ae598b46c0fa9b83cda7b70dd7f00dbfb18189dcfc67648fdc7fdd3fcced2619a5a6453d9aec107d
+    undici-types: "npm:~8.9.0"
+  checksum: 10/07c6c6fc1f5cc89c700ac9ebcebd42b000fef234bf0b80e9461a8f077105f15faf16df95b83745e0c0e37338d1fbc28cb402ef27b5787fd7a57b492c926ff7ae
   languageName: node
   linkType: hard
 
@@ -9105,15 +9105,6 @@ __metadata:
   dependencies:
     undici-types: "npm:~6.21.0"
   checksum: 10/7e0d561d0d980109a0b64c6f797584a69d706421f18c0b24850206a15a4286443e676032abfa438590f25e4dfc3561ffc8d7f5c0c90edf08b705f6f9c35febba
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^22.20.5":
-  version: 22.20.5
-  resolution: "@types/node@npm:22.20.5"
-  dependencies:
-    undici-types: "npm:~6.21.0"
-  checksum: 10/a223a73e00e948b751b00144523674ecc73e7a3f14f48a0f3a6fca40745ff548a8b0ff5baca090d45ae8b61481cc56c1158db4df312970baeb6fc1b81fc511a1
   languageName: node
   linkType: hard
 
@@ -10825,7 +10816,7 @@ asn1@evs-broadcast/node-asn1:
     "@types/debug": "npm:^4.1.13"
     "@types/ejson": "npm:^2.2.2"
     "@types/jest": "npm:^30.0.0"
-    "@types/node": "npm:^22.20.5"
+    "@types/node": "npm:^26.6.6"
     "@types/object-path": "npm:^0.11.4"
     "@types/underscore": "npm:^1.13.0"
     babel-jest: "npm:^30.5.2"
@@ -10889,9 +10880,9 @@ asn1@evs-broadcast/node-asn1:
   linkType: hard
 
 "avsc@npm:^5.7.5, avsc@npm:^5.7.6":
-  version: 5.7.7
-  resolution: "avsc@npm:5.7.7"
-  checksum: 10/d217af16981fb94c29554e61d0aad87b1bcea8b5fe6f714c8cba26af1402ae0ae6783635844029211842a84cd57d678a6d7f18ce560d3de01226f2c97a1c6b1d
+  version: 5.7.9
+  resolution: "avsc@npm:5.7.9"
+  checksum: 10/7fc964f4f2ce017af9da004aaeab38464cf3a73ab17f68d5997e79544b2f1282e33763776203429efd8110268a78e7832833479dfa4d358c05e945c9ef8be0b2
   languageName: node
   linkType: hard
 
@@ -30627,10 +30618,10 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"undici-types@npm:~7.19.0":
-  version: 7.19.2
-  resolution: "undici-types@npm:7.19.2"
-  checksum: 10/05c34c63444c8caca7137f122b29ed50c1d7d05d1e0b2337f423575d3264054c4a0139e47e82e65723d09b97fcad6d8b0223b3550430a9006cc00e72a1e035bf
+"undici-types@npm:~8.9.0":
+  version: 8.9.0
+  resolution: "undici-types@npm:8.9.0"
+  checksum: 10/8785591929de2b71d281c684e915c4a8c41becc225adbf42a3e89148f8b384724a21533494c30a1cbb85b4cbccd088d020788ff4f2d605013eb2863cd47a1639
   languageName: node
   linkType: hard
 

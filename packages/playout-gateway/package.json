@@ -35,7 +35,7 @@
 		"license-validate": "run -T sofie-licensecheck"
 	},
 	"engines": {
-		"node": ">=22.20.0"
+		"node": ">=26.13.0"
 	},
 	"keywords": [
 		"broadcast",

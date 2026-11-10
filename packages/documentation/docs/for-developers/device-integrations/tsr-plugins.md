@@ -59,7 +59,7 @@ You can use a dockerfile in your plugin git repository along the lines of:
 
 ```Dockerfile
 # BUILD IMAGE
-FROM node:22
+FROM node:26
 WORKDIR /opt/tsr-plugin-example
 
 COPY . .

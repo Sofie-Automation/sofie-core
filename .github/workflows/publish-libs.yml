@@ -93,7 +93,11 @@ jobs:
           - shared-lib
           # - live-status-gateway-api # no tests yet
           - openapi
-        node-version: [22.x]
+        node-version: [22.x, 26.x]
+        exclude:
+          # blueprints should be developed against the node version that core runs them in
+          - node-version: 22.x
+            package-name: blueprints-integration
 
     steps:
       - uses: actions/checkout@v7
