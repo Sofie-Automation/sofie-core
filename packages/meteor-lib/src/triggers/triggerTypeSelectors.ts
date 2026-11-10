@@ -1,8 +1,8 @@
 import {
-	SomeBlueprintTrigger,
-	IBlueprintHotkeyTrigger,
+	type SomeBlueprintTrigger,
+	type IBlueprintHotkeyTrigger,
 	TriggerType,
-	IBlueprintDeviceTrigger,
+	type IBlueprintDeviceTrigger,
 } from '@sofie-automation/blueprints-integration'
 
 export function isHotkeyTrigger(trigger: SomeBlueprintTrigger | undefined): trigger is IBlueprintHotkeyTrigger {

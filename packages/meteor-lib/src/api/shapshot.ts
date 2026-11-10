@@ -1,4 +1,4 @@
-import { RundownPlaylistId, SnapshotId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { RundownPlaylistId, SnapshotId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
 
 export interface NewSnapshotAPI {
 	storeSystemSnapshot(hashedToken: string, studioId: StudioId | null, reason: string): Promise<SnapshotId>

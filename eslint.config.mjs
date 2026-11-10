@@ -75,6 +75,7 @@ extendedRules.push(
 			'packages/shared-lib/src/**/*',
 			'packages/server-core-integration/src/**/*',
 			'packages/blueprints-integration/src/**/*',
+			'packages/meteor-lib/src/**/*',
 		],
 		rules: {
 			// Override default behaviour for ESM and verbatimModuleSyntax

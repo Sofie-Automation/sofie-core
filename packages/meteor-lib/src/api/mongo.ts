@@ -1,5 +1,5 @@
-import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
-import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
+import type { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections.js'
+import type { ProtectedString } from '@sofie-automation/corelib/dist/protectedString.js'
 
 export interface MongoAPI {
 	insertDocument(collectionName: CollectionName, newDocument: any): Promise<ProtectedString<any>>

@@ -1,5 +1,5 @@
-import { Time } from '@sofie-automation/blueprints-integration'
-import { WorkerId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { Time } from '@sofie-automation/blueprints-integration'
+import type { WorkerId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 
 export interface WorkerStatus {

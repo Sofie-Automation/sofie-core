@@ -1,9 +1,9 @@
-import { LastBlueprintConfig } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
-import { LogLevel } from '../lib.js'
-import { CoreSystemId, BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { ObjectWithOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
+import type { LastBlueprintConfig } from '@sofie-automation/corelib/dist/dataModel/Blueprint.js'
+import type { LogLevel } from '../lib.js'
+import type { CoreSystemId, BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
+import { protectString } from '@sofie-automation/corelib/dist/protectedString.js'
+import type { ObjectWithOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides.js'
+import type { ICoreSystemSettings } from '@sofie-automation/shared-lib/dist/core/model/CoreSystemSettings'
 
 export const SYSTEM_ID: CoreSystemId = protectString('core')
 

@@ -1,4 +1,4 @@
-import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
 
 export interface NewPlayoutAPI {
 	updateStudioBaseline(studioId: StudioId): Promise<string | false>

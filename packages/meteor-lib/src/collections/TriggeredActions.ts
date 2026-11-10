@@ -1,7 +1,7 @@
-import { ITranslatableMessage, SomeAction, SomeBlueprintTrigger } from '@sofie-automation/blueprints-integration'
+import type { ITranslatableMessage, SomeAction, SomeBlueprintTrigger } from '@sofie-automation/blueprints-integration'
 
-import { ShowStyleBaseId, TriggeredActionId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { ObjectWithOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import type { ShowStyleBaseId, TriggeredActionId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
+import type { ObjectWithOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides.js'
 
 export type DBBlueprintTrigger = SomeBlueprintTrigger
 

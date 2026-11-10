@@ -1,4 +1,4 @@
-import {
+import type {
 	IAdLibFilterLink,
 	IBlueprintActionManifestDisplayContent,
 	IGUIContextFilterLink,
@@ -8,16 +8,16 @@ import {
 	ITranslatableMessage,
 	PieceLifespan,
 } from '@sofie-automation/blueprints-integration'
-import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { MongoQuery } from '@sofie-automation/corelib/dist/mongo'
+import type { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase.js'
+import type { MongoQuery } from '@sofie-automation/corelib/dist/mongo.js'
 import { sortAdlibs } from '../adlibs.js'
-import { ReactivePlaylistActionContext } from './actionFactory.js'
-import { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { IWrappedAdLibBase } from '@sofie-automation/shared-lib/dist/input-gateway/deviceTriggerPreviews'
+import type { ReactivePlaylistActionContext } from './actionFactory.js'
+import type { PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
+import type { IWrappedAdLibBase } from '@sofie-automation/shared-lib/dist/input-gateway/deviceTriggerPreviews'
 import { MountedAdLibTriggerType } from '../api/MountedTriggers.js'
-import { assertNever, generateTranslation } from '@sofie-automation/corelib/dist/lib'
-import { FindOptions } from '../collections/lib.js'
-import {
+import { assertNever, generateTranslation } from '@sofie-automation/corelib/dist/lib.js'
+import type { FindOptions } from '../collections/lib.js'
+import type {
 	TriggersAdLibAction,
 	TriggersAdLibPiece,
 	TriggersContext,
@@ -25,7 +25,7 @@ import {
 	TriggersRundownBaselineAdLibItem,
 	TriggerTrackerComputation,
 } from './triggersContext.js'
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString.js'
 
 export type AdLibFilterChainLink = IRundownPlaylistFilterLink | IGUIContextFilterLink | IAdLibFilterLink
 
