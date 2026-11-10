@@ -1,23 +1,16 @@
 import { sleep } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { PromiseDebounce } from '../PromiseDebounce'
+import { testWithAbort } from '../../../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../../../lib/observerLifetime'
 
 describe('PromiseDebounce', () => {
 	beforeEach(() => {
 		jest.useFakeTimers()
 	})
 
-	/** The lifetime of the debounce under test; aborted after each test */
-	let abort: AbortController
-	beforeEach(() => {
-		abort = new AbortController()
-	})
-	afterEach(() => {
-		abort.abort()
-	})
-
-	it('trigger', async () => {
+	testWithAbort('trigger', async ({ signal }) => {
 		const fn = jest.fn()
-		const debounce = new PromiseDebounce(fn, 10, abort.signal)
+		const debounce = new PromiseDebounce(fn, 10, signal)
 
 		// No promise returned
 		expect(debounce.trigger()).toBe(undefined)
@@ -38,9 +31,9 @@ describe('PromiseDebounce', () => {
 		expect(fn).toHaveBeenCalledTimes(0)
 	})
 
-	it('call', async () => {
+	testWithAbort('call', async ({ signal }) => {
 		const fn = jest.fn()
-		const debounce = new PromiseDebounce(fn, 10, abort.signal)
+		const debounce = new PromiseDebounce(fn, 10, signal)
 
 		const ps = debounce.call()
 		expect(ps).not.toBe(undefined)
@@ -64,9 +57,9 @@ describe('PromiseDebounce', () => {
 		expect(fn).toHaveBeenCalledTimes(0)
 	})
 
-	it('cancelWaiting - trigger', async () => {
+	testWithAbort('cancelWaiting - trigger', async ({ signal }) => {
 		const fn = jest.fn()
-		const debounce = new PromiseDebounce(fn, 10, abort.signal)
+		const debounce = new PromiseDebounce(fn, 10, signal)
 
 		// No promise returned
 		expect(debounce.trigger()).toBe(undefined)
@@ -85,9 +78,9 @@ describe('PromiseDebounce', () => {
 		expect(fn).toHaveBeenCalledTimes(0)
 	})
 
-	it('cancelWaiting - call', async () => {
+	testWithAbort('cancelWaiting - call', async ({ signal }) => {
 		const fn = jest.fn()
-		const debounce = new PromiseDebounce(fn, 10, abort.signal)
+		const debounce = new PromiseDebounce(fn, 10, signal)
 
 		const ps = debounce.call()
 		ps.catch(() => null) // Add an error handler
@@ -110,9 +103,9 @@ describe('PromiseDebounce', () => {
 		await expect(ps).rejects.toThrow('Cancelled')
 	})
 
-	it('cancelWaiting - call with error', async () => {
+	testWithAbort('cancelWaiting - call with error', async ({ signal }) => {
 		const fn = jest.fn()
-		const debounce = new PromiseDebounce(fn, 10, abort.signal)
+		const debounce = new PromiseDebounce(fn, 10, signal)
 
 		const ps = debounce.call()
 		ps.catch(() => null) // Add an error handler
@@ -135,9 +128,9 @@ describe('PromiseDebounce', () => {
 		await expect(ps).rejects.toThrow('Custom error')
 	})
 
-	it('trigger - multiple', async () => {
+	testWithAbort('trigger - multiple', async ({ signal }) => {
 		const fn = jest.fn()
-		const debounce = new PromiseDebounce<void, [number]>(fn, 10, abort.signal)
+		const debounce = new PromiseDebounce<void, [number]>(fn, 10, signal)
 
 		// No promise returned
 		expect(debounce.trigger(1)).toBe(undefined)
@@ -158,9 +151,9 @@ describe('PromiseDebounce', () => {
 		expect(fn).toHaveBeenCalledWith(5)
 	})
 
-	it('trigger - during slow execution', async () => {
+	testWithAbort('trigger - during slow execution', async ({ signal }) => {
 		const fn = jest.fn(async () => sleep(100))
-		const debounce = new PromiseDebounce<void, [number]>(fn, 10, abort.signal)
+		const debounce = new PromiseDebounce<void, [number]>(fn, 10, signal)
 
 		// No promise returned
 		expect(debounce.trigger(1)).toBe(undefined)
@@ -184,12 +177,12 @@ describe('PromiseDebounce', () => {
 		expect(fn).toHaveBeenCalledWith(5)
 	})
 
-	it('call - return value', async () => {
+	testWithAbort('call - return value', async ({ signal }) => {
 		const fn = jest.fn(async (val) => {
 			await sleep(100)
 			return val
 		})
-		const debounce = new PromiseDebounce<number, [number]>(fn, 10, abort.signal)
+		const debounce = new PromiseDebounce<number, [number]>(fn, 10, signal)
 
 		const ps1 = debounce.call(1)
 		expect(ps1).not.toBe(undefined)
@@ -217,12 +210,12 @@ describe('PromiseDebounce', () => {
 		await expect(ps5).resolves.toBe(5)
 	})
 
-	it('call - throw error', async () => {
+	testWithAbort('call - throw error', async ({ signal }) => {
 		const fn = jest.fn(async (val) => {
 			await sleep(100)
 			throw new Error(`Bad value: ${val}`)
 		})
-		const debounce = new PromiseDebounce<number, [number]>(fn, 10, abort.signal)
+		const debounce = new PromiseDebounce<number, [number]>(fn, 10, signal)
 
 		const ps1 = debounce.call(1)
 		ps1.catch(() => null) // Add an error handler
@@ -253,9 +246,9 @@ describe('PromiseDebounce', () => {
 		await expect(ps5).rejects.toThrow('Bad value: 5')
 	})
 
-	it('canelWaiting - during slow execution', async () => {
+	testWithAbort('canelWaiting - during slow execution', async ({ signal }) => {
 		const fn = jest.fn(async () => sleep(100))
-		const debounce = new PromiseDebounce<void, [number]>(fn, 10, abort.signal)
+		const debounce = new PromiseDebounce<void, [number]>(fn, 10, signal)
 
 		// No promise returned
 		expect(debounce.trigger(1)).toBe(undefined)
@@ -280,8 +273,9 @@ describe('PromiseDebounce', () => {
 		expect(fn).toHaveBeenCalledTimes(0)
 	})
 
-	it('aborting the signal rejects waiters with the abort reason', async () => {
+	testWithAbort('aborting the signal rejects waiters with the abort reason', async ({ signal }) => {
 		const fn = jest.fn()
+		const abort = createChildAbort(signal)
 		const debounce = new PromiseDebounce(fn, 10, abort.signal)
 
 		const ps = debounce.call()
@@ -294,8 +288,9 @@ describe('PromiseDebounce', () => {
 		await expect(ps).rejects.toThrow('Studio went away')
 	})
 
-	it('aborting the signal discards a waiting execution', async () => {
+	testWithAbort('aborting the signal discards a waiting execution', async ({ signal }) => {
 		const fn = jest.fn()
+		const abort = createChildAbort(signal)
 		const debounce = new PromiseDebounce(fn, 10, abort.signal)
 
 		debounce.trigger()
@@ -305,8 +300,9 @@ describe('PromiseDebounce', () => {
 		expect(fn).toHaveBeenCalledTimes(0)
 	})
 
-	it('triggering after the signal aborts does nothing', async () => {
+	testWithAbort('triggering after the signal aborts does nothing', async ({ signal }) => {
 		const fn = jest.fn()
+		const abort = createChildAbort(signal)
 		const debounce = new PromiseDebounce(fn, 10, abort.signal)
 
 		abort.abort()
