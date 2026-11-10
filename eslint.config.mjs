@@ -44,6 +44,13 @@ extendedRules.push(
 		rules: {
 			'n/no-missing-import': 'off', // erroring on every single import
 		},
+	},
+	{
+		files: ['packages/sofie-core/src/**/*'],
+		rules: {
+			// testWithAbort (src/__mocks__/helpers/testWithAbort.ts) wraps `test`
+			'jest/no-standalone-expect': ['error', { additionalTestBlockFunctions: ['testWithAbort'] }],
+		},
 	}
 )
 
