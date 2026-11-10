@@ -374,17 +374,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@asyncapi/generator-filters@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "@asyncapi/generator-filters@npm:2.1.0"
-  dependencies:
-    lodash: "npm:^4.17.15"
-    markdown-it: "npm:^10.0.0"
-    openapi-sampler: "npm:1.0.0-beta.17"
-  checksum: 10/32cd80a43d479d579e231dfde602afa873539360d0515d8e7e949c9d00acf4cc116c811259e7a2c575219077db2d583a727694c21647b651198044b74f23553c
-  languageName: node
-  linkType: hard
-
 "@asyncapi/generator-helpers@npm:*":
   version: 1.1.0
   resolution: "@asyncapi/generator-helpers@npm:1.1.0"
@@ -392,7 +381,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@asyncapi/generator-hooks@npm:*, @asyncapi/generator-hooks@npm:^0.1.0":
+"@asyncapi/generator-hooks@npm:*":
   version: 0.1.0
   resolution: "@asyncapi/generator-hooks@npm:0.1.0"
   dependencies:
@@ -523,16 +512,6 @@ __metadata:
     parserapiv1: "npm:@asyncapi/parser@^2.1.0"
     parserapiv2: "npm:@asyncapi/parser@3.0.0-next-major-spec.8"
   checksum: 10/8fe2277e812242e3efd3e635c648c094520a549b1bb58b72846184087fdcdbd6aa741f3091ccc11c2c0496a20041486e14fa72a914b9cd86941a42450b6866c6
-  languageName: node
-  linkType: hard
-
-"@asyncapi/nodejs-ws-template@npm:^0.10.0":
-  version: 0.10.0
-  resolution: "@asyncapi/nodejs-ws-template@npm:0.10.0"
-  dependencies:
-    "@asyncapi/generator-filters": "npm:^2.1.0"
-    "@asyncapi/generator-hooks": "npm:^0.1.0"
-  checksum: 10/1f1a60cff2ccef0a76ea8e5e11d6e5d4c793c4d54f6f822685dc95cbb7b6eff5de3c372c3f385b56af32a9711a0418a04e6c7008469f0ed44565cf2b68a026d6
   languageName: node
   linkType: hard
 
@@ -7360,7 +7339,6 @@ __metadata:
     "@asyncapi/generator": "npm:^2.11.0"
     "@asyncapi/html-template": "npm:^3.5.6"
     "@asyncapi/modelina": "npm:^5.10.1"
-    "@asyncapi/nodejs-ws-template": "npm:^0.10.0"
     "@asyncapi/parser": "npm:^3.6.6"
     prettier: "npm:^3.9.10"
     tslib: "npm:^2.9.1"
@@ -14830,13 +14808,6 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"entities@npm:~2.0.0":
-  version: 2.0.3
-  resolution: "entities@npm:2.0.3"
-  checksum: 10/01b95aa975dabd2b0bba0b894571c5401e624a1cd2144577add99ff1eca7d582a2bccaa36e9696e9e83258c00c9c8678461fac63e5fa3c014b82ea418bed04f8
-  languageName: node
-  linkType: hard
-
 "entities@npm:~2.1.0":
   version: 2.1.0
   resolution: "entities@npm:2.1.0"
@@ -20281,15 +20252,6 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"linkify-it@npm:^2.0.0":
-  version: 2.2.0
-  resolution: "linkify-it@npm:2.2.0"
-  dependencies:
-    uc.micro: "npm:^1.0.1"
-  checksum: 10/eb51435f581208b44be468a48ab942204fdbadcc71cf9855a8880167b91d59375824cc2f7be9da41b123d25a24a086fe9a832bad0dcdcc78b6005499ed33eff9
-  languageName: node
-  linkType: hard
-
 "linkify-it@npm:^3.0.1":
   version: 3.0.3
   resolution: "linkify-it@npm:3.0.3"
@@ -20875,21 +20837,6 @@ asn1@evs-broadcast/node-asn1:
   version: 2.0.0
   resolution: "markdown-extensions@npm:2.0.0"
   checksum: 10/ec4ffcb0768f112e778e7ac74cb8ef22a966c168c3e6c29829f007f015b0a0b5c79c73ee8599a0c72e440e7f5cfdbf19e80e2d77b9a313b8f66e180a330cf1b2
-  languageName: node
-  linkType: hard
-
-"markdown-it@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "markdown-it@npm:10.0.0"
-  dependencies:
-    argparse: "npm:^1.0.7"
-    entities: "npm:~2.0.0"
-    linkify-it: "npm:^2.0.0"
-    mdurl: "npm:^1.0.1"
-    uc.micro: "npm:^1.0.5"
-  bin:
-    markdown-it: bin/markdown-it.js
-  checksum: 10/16f0fcd75f8b369e4adda56d5f161d8a7102e53dae749300293dd3fc386743e8f06a3ee7045a9571cf0e675e215182b5acc8e27fb2a23d166f65f8fdfe8882ba
   languageName: node
   linkType: hard
 

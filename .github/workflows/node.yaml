@@ -490,7 +490,6 @@ jobs:
           cd packages/live-status-gateway-api
 
           yarn gendocs
-          yarn genserver
 
           yarn generate-schema-types
         env:
