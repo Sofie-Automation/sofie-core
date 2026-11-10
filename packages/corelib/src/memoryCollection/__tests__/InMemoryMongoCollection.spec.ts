@@ -2,6 +2,8 @@ import { protectString, ProtectedString } from '../../protectedString.js'
 import { MongoFieldSpecifier } from '../../mongo.js'
 import { ObserveCallbacks, ObserveChangesCallbacks } from '../../mongo.js'
 import { InMemoryMongoCollection } from '../InMemoryMongoCollection.js'
+import { testWithAbort } from '../../__mocks__/testWithAbort.js'
+import { createChildAbort } from '../../abortScope.js'
 
 interface Thing {
 	_id: ProtectedString<'ThingId'>
@@ -272,10 +274,10 @@ describe('mockSetData / clear', () => {
 })
 
 describe('onChange', () => {
-	test('fires on writes, not on mockSetData/clear; aborting unsubscribes', () => {
+	testWithAbort('fires on writes, not on mockSetData/clear; aborting unsubscribes', ({ signal }) => {
 		const c = makeCollection()
 		const cb = jest.fn()
-		const localAbort = new AbortController()
+		const localAbort = createChildAbort(signal)
 		c.onChange(cb, localAbort.signal)
 
 		c.insert(thing('a'))
@@ -386,10 +388,10 @@ describe('observe (full document)', () => {
 		expect(c.findOne('a' as any)?.tags).toEqual(['x'])
 	})
 
-	test('aborting unregisters the observer and stops callbacks', () => {
+	testWithAbort('aborting unregisters the observer and stops callbacks', ({ signal }) => {
 		const c = makeCollection()
 		const cb = spyCallbacks()
-		const localAbort = new AbortController()
+		const localAbort = createChildAbort(signal)
 		c.observe(cb, undefined, { signal: localAbort.signal })
 		expect(c.observers).toHaveLength(1)
 		localAbort.abort()

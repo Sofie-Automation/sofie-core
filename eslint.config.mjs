@@ -46,9 +46,9 @@ extendedRules.push(
 		},
 	},
 	{
-		files: ['packages/sofie-core/src/**/*'],
+		files: ['packages/sofie-core/src/**/*', 'packages/corelib/src/**/*'],
 		rules: {
-			// testWithAbort (src/__mocks__/helpers/testWithAbort.ts) wraps `test`
+			// testWithAbort (in each package's __mocks__) wraps `test`
 			'jest/no-standalone-expect': ['error', { additionalTestBlockFunctions: ['testWithAbort'] }],
 		},
 	}

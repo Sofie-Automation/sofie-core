@@ -1,5 +1,7 @@
 import { protectString, ProtectedString } from '../../protectedString.js'
 import { InMemoryMongoCollection } from '../InMemoryMongoCollection.js'
+import { testWithAbort } from '../../__mocks__/testWithAbort.js'
+import { createChildAbort } from '../../abortScope.js'
 
 interface Thing {
 	_id: ProtectedString<'ThingId'>
@@ -17,8 +19,8 @@ describe('observe with a signal', () => {
 		collection.mockSetData([thing('A')])
 	})
 
-	test('observeChanges runs until the signal aborts', () => {
-		const abort = new AbortController()
+	testWithAbort('observeChanges runs until the signal aborts', ({ signal }) => {
+		const abort = createChildAbort(signal)
 		const added: string[] = []
 
 		const result = collection.observeChanges({ added: (docId) => void added.push(String(docId)) }, undefined, {
@@ -40,8 +42,8 @@ describe('observe with a signal', () => {
 		expect(added).toEqual(['A', 'B'])
 	})
 
-	test('observeChanges starts nothing when the signal is already aborted', () => {
-		const abort = new AbortController()
+	testWithAbort('observeChanges starts nothing when the signal is already aborted', ({ signal }) => {
+		const abort = createChildAbort(signal)
 		abort.abort()
 
 		const added: string[] = []
@@ -53,8 +55,8 @@ describe('observe with a signal', () => {
 		expect(collection.observers).toHaveLength(0)
 	})
 
-	test('observe runs until the signal aborts', () => {
-		const abort = new AbortController()
+	testWithAbort('observe runs until the signal aborts', ({ signal }) => {
+		const abort = createChildAbort(signal)
 		const added: string[] = []
 
 		collection.observe({ added: (doc) => void added.push(doc.name) }, undefined, { signal: abort.signal })
@@ -65,8 +67,8 @@ describe('observe with a signal', () => {
 		expect(collection.observers).toHaveLength(0)
 	})
 
-	test('onChange runs until the signal aborts', () => {
-		const abort = new AbortController()
+	testWithAbort('onChange runs until the signal aborts', ({ signal }) => {
+		const abort = createChildAbort(signal)
 		let changes = 0
 
 		collection.onChange(() => changes++, abort.signal)
@@ -78,8 +80,8 @@ describe('observe with a signal', () => {
 		expect(changes).toBe(1)
 	})
 
-	test('onChange registers nothing when the signal is already aborted', () => {
-		const abort = new AbortController()
+	testWithAbort('onChange registers nothing when the signal is already aborted', ({ signal }) => {
+		const abort = createChildAbort(signal)
 		abort.abort()
 
 		let changes = 0
@@ -88,8 +90,8 @@ describe('observe with a signal', () => {
 		expect(changes).toBe(0)
 	})
 
-	test('several observers on one signal are all released together', () => {
-		const abort = new AbortController()
+	testWithAbort('several observers on one signal are all released together', ({ signal }) => {
+		const abort = createChildAbort(signal)
 
 		collection.observeChanges({}, undefined, { signal: abort.signal })
 		collection.observeChanges({}, undefined, { signal: abort.signal })
