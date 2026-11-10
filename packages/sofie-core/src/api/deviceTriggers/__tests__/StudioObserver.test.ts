@@ -106,7 +106,8 @@ describe('StudioObserver', () => {
 			(_ssbId: ShowStyleBaseId, _cache: PieceInstancesContentCache) => undefined
 		)
 
-		const observer = new StudioObserver(studioId, {
+		const lifetime = new AbortController()
+		const observer = new StudioObserver(studioId, lifetime.signal, {
 			onRundownContentChanged,
 			onRundownContentGone,
 			onPieceInstancesChanged,
@@ -149,7 +150,7 @@ describe('StudioObserver', () => {
 
 		// Teardown is registered on the observer's signal rather than returned from the change handler
 		expect(onRundownContentGone).not.toHaveBeenCalled()
-		observer.stop()
+		lifetime.abort()
 		expect(onRundownContentGone).toHaveBeenCalledTimes(1)
 	})
 })

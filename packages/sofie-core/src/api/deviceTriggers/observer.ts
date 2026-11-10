@@ -22,11 +22,7 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 import { TriggersContextFactory } from './triggersContext'
 import { TagsService } from './TagsService'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
-
-type ObserverAndManager = {
-	observer: StudioObserver
-	manager: StudioDeviceTriggerManager
-}
+import { AbortScope, createChildAbort, runOnAbort } from '../../lib/observerLifetime'
 
 /**
  * Start observing studios and maintaining a device-trigger manager per studio. `createTriggersContext` is
@@ -37,7 +33,8 @@ export async function startDeviceTriggersObserver(
 	createTriggersContext: TriggersContextFactory,
 	signal: AbortSignal
 ): Promise<void> {
-	const studioObserversAndManagers = new Map<StudioId, ObserverAndManager>()
+	/** The lifetime of the observer and manager of each studio */
+	const studioScopes = new Map<StudioId, AbortScope>()
 	const jobQueue = new JobQueueWithClasses({
 		autoStart: true,
 	})
@@ -55,8 +52,9 @@ export async function startDeviceTriggersObserver(
 
 	function createObserverAndManager(studioId: StudioId) {
 		logger.debug(`Creating observer for studio "${studioId}"`)
+		const scope = createChildAbort(signal)
 		const manager = new StudioDeviceTriggerManager(studioId, new TagsService(), createTriggersContext)
-		const observer = new StudioObserver(studioId, {
+		new StudioObserver(studioId, scope.signal, {
 			onRundownContentChanged: (showStyleBaseId, cache) => {
 				logger.silly(`Studio observer updating triggers for "${studioId}":"${showStyleBaseId}"`)
 				workInQueue(async () => manager.updateTriggers(cache, showStyleBaseId))
@@ -69,20 +67,22 @@ export async function startDeviceTriggersObserver(
 			},
 		})
 
-		studioObserversAndManagers.set(studioId, { manager, observer })
+		// The manager goes with the observer, whether the studio is removed or the whole process ends. This is
+		// queued, so that it runs after any update the observer queued before it was aborted.
+		runOnAbort(scope.signal, () => workInQueue(async () => manager.stop()))
+
+		studioScopes.set(studioId, scope)
 	}
 
 	function destroyObserverAndManager(studioId: StudioId) {
-		workInQueue(async () => {
-			const toRemove = studioObserversAndManagers.get(studioId)
-			if (toRemove) {
-				toRemove.observer.stop()
-				await toRemove.manager.stop()
-				studioObserversAndManagers.delete(studioId)
-			} else {
-				logger.error(`Observer for studio "${studioId}" not found`)
-			}
-		})
+		const scope = studioScopes.get(studioId)
+		if (!scope) {
+			logger.error(`Observer for studio "${studioId}" not found`)
+			return
+		}
+
+		studioScopes.delete(studioId)
+		scope.abort()
 	}
 
 	await Studios.observeChanges(
