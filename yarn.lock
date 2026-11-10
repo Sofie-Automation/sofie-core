@@ -7653,7 +7653,7 @@ __metadata:
   dependencies:
     "@mos-connection/model": "npm:^5.0.0"
     kairos-lib: "npm:^1.0.0"
-    timeline-state-resolver-types: "npm:10.0.0"
+    timeline-state-resolver-types: "npm:10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0"
     tslib: "npm:^2.8.1"
     type-fest: "npm:^4.41.0"
   languageName: unknown
@@ -26008,7 +26008,7 @@ asn1@evs-broadcast/node-asn1:
     "@sofie-automation/shared-lib": "npm:26.9.3"
     debug: "npm:^4.4.3"
     influx: "npm:^5.12.0"
-    timeline-state-resolver: "npm:10.0.0"
+    timeline-state-resolver: "npm:10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0"
     tslib: "npm:^2.8.1"
     underscore: "npm:^1.13.8"
     winston: "npm:^3.19.0"
@@ -31033,30 +31033,30 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-api@npm:10.0.0":
-  version: 10.0.0
-  resolution: "timeline-state-resolver-api@npm:10.0.0"
+"timeline-state-resolver-api@npm:10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0":
+  version: 10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0
+  resolution: "timeline-state-resolver-api@npm:10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0"
   dependencies:
     tslib: "npm:^2.8.1"
   peerDependencies:
-    timeline-state-resolver-types: 10.0.0
-  checksum: 10/dcbeef671ee60702aaca52e6c36d2d9937d4f199049ac1009c5f927a53057f5d6e1319edf76d23257147d133d037c9d149a1437c9ad93d90307dc0ccb13a04c2
+    timeline-state-resolver-types: 10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0
+  checksum: 10/46743a632e4718ae5b23af89e217b35d2463bd80214234d95a5917e57d6cceab632b1839b478912f6460ceaa073892f7fc53be81f151071a3544e740520f75a8
   languageName: node
   linkType: hard
 
-"timeline-state-resolver-types@npm:10.0.0":
-  version: 10.0.0
-  resolution: "timeline-state-resolver-types@npm:10.0.0"
+"timeline-state-resolver-types@npm:10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0":
+  version: 10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0
+  resolution: "timeline-state-resolver-types@npm:10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0"
   dependencies:
     kairos-lib: "npm:1.0.0"
     tslib: "npm:^2.8.1"
-  checksum: 10/bd6ab191ea5fe1484bdf62b273c07a10c035d721de90cf2cbc1e986ba3555be1540886f03c5e82c669ed7f2bd5965c0974364d6a2393d2c8ae71f03d8032f57b
+  checksum: 10/bcd2803643b66419b0349e81af5e7362410095a915bf79c5eadbdb1287c04f2288c8d7bca5e12fa42a61d48edd4b0f48f07a39d100460b016c6283f7e1bacad9
   languageName: node
   linkType: hard
 
-"timeline-state-resolver@npm:10.0.0":
-  version: 10.0.0
-  resolution: "timeline-state-resolver@npm:10.0.0"
+"timeline-state-resolver@npm:10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0":
+  version: 10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0
+  resolution: "timeline-state-resolver@npm:10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0"
   dependencies:
     "@tv2media/v-connection": "npm:^7.3.4"
     atem-connection: "npm:3.7.0"
@@ -31081,8 +31081,8 @@ asn1@evs-broadcast/node-asn1:
     sprintf-js: "npm:^1.1.3"
     superfly-timeline: "npm:^9.2.0"
     threadedclass: "npm:^1.4.0"
-    timeline-state-resolver-api: "npm:10.0.0"
-    timeline-state-resolver-types: "npm:10.0.0"
+    timeline-state-resolver-api: "npm:10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0"
+    timeline-state-resolver-types: "npm:10.0.1-nightly-superfly-feat-vindral-composer-20261110-071639-dca156427.0"
     tslib: "npm:^2.8.1"
     tv-automation-quantel-gateway-client: "npm:^3.1.7"
     type-fest: "npm:^3.13.1"
@@ -31091,7 +31091,7 @@ asn1@evs-broadcast/node-asn1:
     vindral-composer-connection: "npm:^0.2.0"
     ws: "npm:^8.21.0"
     xml-js: "npm:^1.6.11"
-  checksum: 10/19c913b7a1400e3e0a17f81e72508a7684bead1b2300c6dbc91fd76fa82989b1a8d357d572ef2f4e198e4c4a785e0b13817ef73052feadec9724d766fa26ed75
+  checksum: 10/5df6d9c00dcbc3d81fa750be89b06ac14097b659d2e7435f46b5265d084c98c087b0ef20462bca0a1928fb3b8856196d30ddd829058d88443e7b11fb1962c159
   languageName: node
   linkType: hard
 
