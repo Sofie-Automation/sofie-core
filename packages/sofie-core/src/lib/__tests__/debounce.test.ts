@@ -1,12 +1,14 @@
 import { createDebounce } from '../debounce'
+import { testWithAbort } from '../../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../observerLifetime'
 
 describe('createDebounce', () => {
 	beforeEach(() => {
 		jest.useFakeTimers()
 	})
 
-	test('invokes once the wait has elapsed, with the latest arguments', async () => {
-		const abort = new AbortController()
+	testWithAbort('invokes once the wait has elapsed, with the latest arguments', async ({ signal }) => {
+		const abort = createChildAbort(signal)
 		const fn = jest.fn()
 		const debounced = createDebounce(fn, 10, abort.signal)
 
@@ -19,8 +21,8 @@ describe('createDebounce', () => {
 		expect(fn).toHaveBeenCalledWith('b')
 	})
 
-	test('aborting the signal discards a pending invocation', async () => {
-		const abort = new AbortController()
+	testWithAbort('aborting the signal discards a pending invocation', async ({ signal }) => {
+		const abort = createChildAbort(signal)
 		const fn = jest.fn()
 		const debounced = createDebounce(fn, 10, abort.signal)
 
@@ -31,8 +33,8 @@ describe('createDebounce', () => {
 		expect(fn).toHaveBeenCalledTimes(0)
 	})
 
-	test('calling after the signal has aborted does nothing', async () => {
-		const abort = new AbortController()
+	testWithAbort('calling after the signal has aborted does nothing', async ({ signal }) => {
+		const abort = createChildAbort(signal)
 		abort.abort()
 
 		const fn = jest.fn()

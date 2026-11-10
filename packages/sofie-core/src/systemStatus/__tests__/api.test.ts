@@ -11,6 +11,8 @@ import { callKoaRoute } from '../../__mocks__/koa-util'
 import { healthRouter, ServerSystemStatusAPI } from '../api'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
 import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
+import { testWithAbort } from '../../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../../lib/observerLifetime'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../api/deviceTriggers/observer')
@@ -47,9 +49,9 @@ describe('systemStatus API', () => {
 			return ctx
 		}
 
-		test('REST /health with state BAD', async () => {
+		testWithAbort('REST /health with state BAD', async ({ signal }) => {
 			env = await setupDefaultStudioEnvironment()
-			const observersAbort = new AbortController()
+			const observersAbort = createChildAbort(signal)
 			afterEachAbort.push(observersAbort)
 			await setupSystemStatusObservers(observersAbort.signal)
 			await sleepNoFakeTimers(200)
@@ -84,9 +86,9 @@ describe('systemStatus API', () => {
 			return ctx
 		}
 
-		test('REST /health with state GOOD', async () => {
+		testWithAbort('REST /health with state GOOD', async ({ signal }) => {
 			env = await setupDefaultStudioEnvironment()
-			const observersAbort = new AbortController()
+			const observersAbort = createChildAbort(signal)
 			afterEachAbort.push(observersAbort)
 			await setupSystemStatusObservers(observersAbort.signal)
 			await sleepNoFakeTimers(200)

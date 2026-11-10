@@ -9,6 +9,8 @@ import {
 	getProjectedBrandingId,
 	observeSelectedPartInstancesBranding,
 } from '../branding'
+import { testWithAbort } from '../../../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../../../lib/observerLifetime'
 
 const PartInstancesMock = (PartInstances as any).mockCollection as InMemoryMongoCollection<DBPartInstance>
 
@@ -43,14 +45,14 @@ describe('observeSelectedPartInstancesBranding', () => {
 			.sort()
 	}
 
-	test('observes only the selected PartInstances, whichever Rundown they belong to', async () => {
+	testWithAbort('observes only the selected PartInstances, whichever Rundown they belong to', async ({ signal }) => {
 		insertPartInstance('pi0', 'rundownA', 'brandingX')
 		insertPartInstance('pi1', 'rundownB', 'brandingY')
 		insertPartInstance('pi2', 'rundownB', null)
 		insertPartInstance('pi3', 'rundownB', 'brandingW')
 
 		const cache = createBrandingContentCache()
-		const abort = new AbortController()
+		const abort = createChildAbort(signal)
 		await observeSelectedPartInstancesBranding(cache, abort.signal)
 		try {
 			// Nothing is selected yet
@@ -94,11 +96,11 @@ describe('observeSelectedPartInstancesBranding', () => {
 		expect(PartInstancesMock.observers).toHaveLength(0)
 	})
 
-	test('picks up a selection made while the observer is starting', async () => {
+	testWithAbort('picks up a selection made while the observer is starting', async ({ signal }) => {
 		insertPartInstance('pi0', 'rundownA', 'brandingX')
 
 		const cache = createBrandingContentCache()
-		const abort = new AbortController()
+		const abort = createChildAbort(signal)
 		const readyPromise = observeSelectedPartInstancesBranding(cache, abort.signal)
 		// The RundownPlaylist is observed concurrently, so may arrive before the PartInstances observer is ready
 		selectPartInstances(cache, 'pi0', null)

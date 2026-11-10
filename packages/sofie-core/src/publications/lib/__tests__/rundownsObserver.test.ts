@@ -10,7 +10,8 @@ import { Rundowns } from '../../../collections'
 import { runAllTimers, runTimersUntilNow, waitUntil } from '../../../__mocks__/helpers/jest'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { RundownsObserver } from '../rundownsObserver'
-import { runOnAbort } from '../../../lib/observerLifetime'
+import { runOnAbort, createChildAbort } from '../../../lib/observerLifetime'
+import { testWithAbort } from '../../../__mocks__/helpers/testWithAbort'
 
 const RundownsMock = (Rundowns as any).mockCollection as InMemoryMongoCollection<Rundown>
 
@@ -21,7 +22,7 @@ describe('RundownsObserver', () => {
 		jest.useFakeTimers()
 	})
 
-	test('create and destroy observer', async () => {
+	testWithAbort('create and destroy observer', async ({ signal }) => {
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
@@ -33,7 +34,7 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const abort = new AbortController()
+		const abort = createChildAbort(signal)
 		await RundownsObserver.createForPlaylist(studioId, playlistId, abort.signal, onChanged)
 		try {
 			// should now be an observer
@@ -77,7 +78,7 @@ describe('RundownsObserver', () => {
 		}
 	})
 
-	test('add a document', async () => {
+	testWithAbort('add a document', async ({ signal }) => {
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
@@ -89,7 +90,7 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const abort = new AbortController()
+		const abort = createChildAbort(signal)
 		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, abort.signal, onChanged)
 		try {
 			// ensure starts correct
@@ -134,7 +135,7 @@ describe('RundownsObserver', () => {
 		}
 	})
 
-	test('change a document', async () => {
+	testWithAbort('change a document', async ({ signal }) => {
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
@@ -146,7 +147,7 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const abort = new AbortController()
+		const abort = createChildAbort(signal)
 		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, abort.signal, onChanged)
 		try {
 			// ensure starts correct
@@ -191,7 +192,7 @@ describe('RundownsObserver', () => {
 		}
 	})
 
-	test('sequence of updates', async () => {
+	testWithAbort('sequence of updates', async ({ signal }) => {
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
@@ -203,7 +204,7 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const abort = new AbortController()
+		const abort = createChildAbort(signal)
 		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, abort.signal, onChanged)
 		try {
 			// ensure starts correct
@@ -282,7 +283,7 @@ describe('RundownsObserver', () => {
 		}
 	})
 
-	test('create and destroy observer - for peripheraldevice', async () => {
+	testWithAbort('create and destroy observer - for peripheraldevice', async ({ signal }) => {
 		const deviceId = protectString<PeripheralDeviceId>('device0')
 
 		const onChangedCleanup = jest.fn()
@@ -293,7 +294,7 @@ describe('RundownsObserver', () => {
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const abort = new AbortController()
+		const abort = createChildAbort(signal)
 		await RundownsObserver.createForPeripheralDevice(deviceId, abort.signal, onChanged)
 		try {
 			// should now be an observer

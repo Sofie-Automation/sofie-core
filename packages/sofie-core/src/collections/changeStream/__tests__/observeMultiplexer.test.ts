@@ -6,6 +6,8 @@ import {
 	getActiveMultiplexerCount,
 } from '../observeMultiplexer'
 import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
+import { testWithAbort } from '../../../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../../../lib/observerLifetime'
 
 interface TestDoc {
 	_id: any
@@ -427,7 +429,7 @@ describe('ObserveMultiplexer dedup registry', () => {
 		expect(getActiveMultiplexerCount()).toBe(base)
 	})
 
-	test('a subscriber joining as the last existing one leaves is not orphaned', async () => {
+	testWithAbort('a subscriber joining as the last existing one leaves is not orphaned', async ({ signal }) => {
 		const h = makeHarness([{ _id: id('A'), val: 1 }])
 		const deps = h.deps
 
@@ -440,7 +442,7 @@ describe('ObserveMultiplexer dedup registry', () => {
 		// down: doing so would orphan the newcomer on a dead, deregistered multiplexer (it would never receive
 		// its initial snapshot nor any future event, yet its observe promise still resolves).
 		const cb2 = changesCallbacks()
-		const ctrl2 = new AbortController()
+		const ctrl2 = createChildAbort(signal)
 		const joining = observeChangesViaChangeStream(
 			'coll',
 			{},

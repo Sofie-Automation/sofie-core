@@ -29,6 +29,8 @@ import {
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { defaultStudio } from '../__mocks__/defaultCollectionObjects'
 import { createMockCollection } from '../collections/implementations/mock'
+import { testWithAbort } from '../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../lib/observerLifetime'
 
 describe('Basic test of test environment', () => {
 	test('Meteor Random mock', () => {
@@ -79,7 +81,7 @@ describe('Basic test of test environment', () => {
 		// @ts-ignore
 		expect(UserActionsLog._isMock).toBeTruthy()
 	})
-	test('Mock collection data', async () => {
+	testWithAbort('Mock collection data', async ({ signal }) => {
 		expect(await Studios.findFetchAsync({})).toHaveLength(0)
 
 		MongoMock.mockSetData<DBStudio>(Studios, [
@@ -122,7 +124,7 @@ describe('Basic test of test environment', () => {
 		const studios = await Studios.findFetchAsync({})
 		expect(studios).toHaveLength(1)
 
-		const abort = new AbortController()
+		const abort = createChildAbort(signal)
 		await Studios.observeChanges({ _id: protectString('abc') }, {}, { signal: abort.signal })
 
 		await Studios.insertAsync({
@@ -137,14 +139,14 @@ describe('Basic test of test environment', () => {
 		MongoMock.mockSetData(Studios, null)
 		expect(await Studios.findFetchAsync({})).toHaveLength(0)
 	})
-	test('Mongo mock', async () => {
+	testWithAbort('Mongo mock', async ({ signal }) => {
 		const mockAdded = jest.fn()
 		const mockChanged = jest.fn()
 		const mockRemoved = jest.fn()
 
 		const collection = createMockCollection<any>('testmock')
 
-		const abort = new AbortController()
+		const abort = createChildAbort(signal)
 		await collection.observeChanges(
 			{
 				prop: 'b',

@@ -1,8 +1,10 @@
 import { runTimersUntilNow } from '../__mocks__/helpers/jest'
 import { TimeJumpDetector } from '../systemTime'
+import { testWithAbort } from '../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../lib/observerLifetime'
 
 describe('lib/systemTime', () => {
-	test('TimeJumpDetector', async () => {
+	testWithAbort('TimeJumpDetector', async ({ signal }) => {
 		jest.useFakeTimers()
 		const mockCallback = jest.fn()
 		let now = Date.now()
@@ -11,7 +13,7 @@ describe('lib/systemTime', () => {
 		const mockProcessHrtime = jest.spyOn(global.process.hrtime, 'bigint').mockImplementation(() => monotonicNow)
 
 		const timeJumpDetector = new TimeJumpDetector(10000, mockCallback)
-		const lifetime = new AbortController()
+		const lifetime = createChildAbort(signal)
 		timeJumpDetector.start(lifetime.signal)
 
 		jest.advanceTimersByTime(11000)

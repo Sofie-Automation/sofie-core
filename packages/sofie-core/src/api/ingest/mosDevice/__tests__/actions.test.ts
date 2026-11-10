@@ -15,6 +15,8 @@ import { PeripheralDeviceCommands } from '../../../../collections'
 import { SupressLogMessages } from '../../../../__mocks__/suppressLogging'
 import { logger } from '../../../../logging'
 import { generateRundownSource } from '../../lib'
+import { testWithAbort } from '../../../../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../../../../lib/observerLifetime'
 
 const mosTypes = MOS.getMosTypes(true)
 
@@ -45,14 +47,14 @@ describe('Test sending mos actions', () => {
 		}
 	})
 
-	test('reloadRundown: expect error', async () => {
+	testWithAbort('reloadRundown: expect error', async ({ signal }) => {
 		// setLogLevel(LogLevel.DEBUG)
 
 		const rundownId: RundownId = getRandomId()
 		const fakeRundown = { _id: rundownId, externalId: getRandomString(), studioId: studioId }
 
 		// Listen for changes
-		const abort = (observerAbort = new AbortController())
+		const abort = (observerAbort = createChildAbort(signal))
 		await PeripheralDeviceCommands.observeChanges(
 			{ deviceId: device._id },
 			{
@@ -82,7 +84,7 @@ describe('Test sending mos actions', () => {
 		await expect(MOSDeviceActions.reloadRundown(device, fakeRundown)).rejects.toMatch(`unknown annoying error`)
 	})
 
-	test('reloadRundown: valid payload', async () => {
+	testWithAbort('reloadRundown: valid payload', async ({ signal }) => {
 		// setLogLevel(LogLevel.DEBUG)
 
 		const roData = fakeMinimalRo()
@@ -96,7 +98,7 @@ describe('Test sending mos actions', () => {
 		}
 
 		// Listen for changes
-		const abort = (observerAbort = new AbortController())
+		const abort = (observerAbort = createChildAbort(signal))
 		await PeripheralDeviceCommands.observeChanges(
 			{ deviceId: device._id },
 			{
@@ -142,7 +144,7 @@ describe('Test sending mos actions', () => {
 		)
 	})
 
-	test('reloadRundown: receive incorrect response rundown id', async () => {
+	testWithAbort('reloadRundown: receive incorrect response rundown id', async ({ signal }) => {
 		// setLogLevel(LogLevel.DEBUG)
 
 		const roData = fakeMinimalRo()
@@ -155,7 +157,7 @@ describe('Test sending mos actions', () => {
 		}
 
 		// Listen for changes
-		const abort = (observerAbort = new AbortController())
+		const abort = (observerAbort = createChildAbort(signal))
 		await PeripheralDeviceCommands.observeChanges(
 			{ deviceId: device._id },
 			{

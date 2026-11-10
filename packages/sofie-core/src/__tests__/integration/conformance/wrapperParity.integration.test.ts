@@ -16,6 +16,8 @@ import { AsyncOnlyMongoCollection } from '../../../collections/collection'
 import { getMongoClient } from '../../../collections/mongoConnection'
 import { connectSharedMongoClient } from '../_integrationDb'
 import { waitFor } from '../_observeHelpers'
+import { testWithAbort } from '../../../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../../../lib/observerLifetime'
 
 interface Doc {
 	_id: string
@@ -188,42 +190,45 @@ describe('wrapper parity: mock vs real driver', () => {
 
 	describe('findWithCursor', () => {
 		// The cursor returned by findWithCursor only exposes observe(Changes)Async (it feeds publications).
-		test('observeChangesAsync delivers the same initial window (sort+limit) on both wrappers', async () => {
-			const pair = makePair()
-			await seedBoth(pair, [
-				{ _id: 'a', n: 3 },
-				{ _id: 'b', n: 1 },
-				{ _id: 'c', n: 2 },
-				{ _id: 'd', n: 4 },
-			])
+		testWithAbort(
+			'observeChangesAsync delivers the same initial window (sort+limit) on both wrappers',
+			async ({ signal }) => {
+				const pair = makePair()
+				await seedBoth(pair, [
+					{ _id: 'a', n: 3 },
+					{ _id: 'b', n: 1 },
+					{ _id: 'c', n: 2 },
+					{ _id: 'd', n: 4 },
+				])
 
-			const collectWindow = async (col: Col): Promise<string[]> => {
-				const abort = new AbortController()
-				try {
-					const added: string[] = []
-					const cursor = await col.findWithCursor({}, { sort: { n: 1 }, limit: 2 })
-					await cursor.observeChangesAsync(
-						{
-							added: (docId) => {
-								added.push(String(docId))
+				const collectWindow = async (col: Col): Promise<string[]> => {
+					const abort = createChildAbort(signal)
+					try {
+						const added: string[] = []
+						const cursor = await col.findWithCursor({}, { sort: { n: 1 }, limit: 2 })
+						await cursor.observeChangesAsync(
+							{
+								added: (docId) => {
+									added.push(String(docId))
+								},
 							},
-						},
-						{ signal: abort.signal }
-					)
-					await waitFor(() => added.length >= 2) // throws if the window never fills
-					await new Promise((r) => setTimeout(r, 30)) // let any (erroneous) extra events surface
-					return added.sort()
-				} finally {
-					abort.abort()
+							{ signal: abort.signal }
+						)
+						await waitFor(() => added.length >= 2) // throws if the window never fills
+						await new Promise((r) => setTimeout(r, 30)) // let any (erroneous) extra events surface
+						return added.sort()
+					} finally {
+						abort.abort()
+					}
 				}
-			}
 
-			const realWindow = await collectWindow(pair.real)
-			const mockWindow = await collectWindow(pair.mock)
-			// The `limit: 2` window (ordered by n asc) publishes only the two lowest-n docs: b (1), c (2).
-			expect(realWindow).toEqual(['b', 'c'])
-			expect(mockWindow).toEqual(realWindow)
-		})
+				const realWindow = await collectWindow(pair.real)
+				const mockWindow = await collectWindow(pair.mock)
+				// The `limit: 2` window (ordered by n asc) publishes only the two lowest-n docs: b (1), c (2).
+				expect(realWindow).toEqual(['b', 'c'])
+				expect(mockWindow).toEqual(realWindow)
+			}
+		)
 	})
 
 	describe('bulkWriteAsync', () => {

@@ -12,6 +12,8 @@ import { MongoFieldSpecifier, MongoQuery } from '@sofie-automation/corelib/dist/
 import { createMockCollection } from '../../../collections/implementations/mock'
 import { connectSharedMongoClient, freshCollection } from '../_integrationDb'
 import { TestDoc, id, waitFor, newSink, Sink, makeMultiplexer, subscribeChanges } from '../_observeHelpers'
+import { testWithAbort } from '../../../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../../../lib/observerLifetime'
 
 type Step =
 	| { op: 'insert'; doc: TestDoc }
@@ -179,12 +181,12 @@ describe('observeChanges parity: mock vs real change stream', () => {
 		expect(normalizeSink(mock)).toEqual(normalizeSink(real))
 	})
 
-	test('observe() delivers identical full-document transitions', async () => {
+	testWithAbort('observe() delivers identical full-document transitions', async ({ signal }) => {
 		// Mock side
 		const col = createMockCollection<TestDoc>('obs_mock_full')
 		col.mockCollection.mockSetData([{ _id: id('A'), val: 1 }])
 		const mockEvents: any[] = []
-		const mockAbort = new AbortController()
+		const mockAbort = createChildAbort(signal)
 		await col.observe(
 			{},
 			{
@@ -213,7 +215,7 @@ describe('observeChanges parity: mock vs real change stream', () => {
 		const collection = await freshCollection<TestDoc>(client, [{ _id: id('A'), val: 1 }])
 		const realEvents: any[] = []
 		const m = makeMultiplexer(client, collection, {}, undefined)
-		const abort = new AbortController()
+		const abort = createChildAbort(signal)
 		try {
 			await m.addObserveSubscriber(
 				{

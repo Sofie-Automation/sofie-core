@@ -2,14 +2,16 @@ import '../../../__mocks__/_extendJest'
 
 import { reactiveObserverGroup } from '../observerGroup'
 import { sleep } from '../../../lib/lib'
+import { testWithAbort } from '../../../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../../../lib/observerLifetime'
 
 describe('reactiveObserverGroup', () => {
 	beforeEach(() => {
 		jest.useRealTimers()
 	})
 
-	test('the generation signal aborts when the parent does', async () => {
-		const abort = new AbortController()
+	testWithAbort('the generation signal aborts when the parent does', async ({ signal }) => {
+		const abort = createChildAbort(signal)
 		const generationSignals: AbortSignal[] = []
 
 		await reactiveObserverGroup('test', abort.signal, async (signal) => {
@@ -23,8 +25,8 @@ describe('reactiveObserverGroup', () => {
 		expect(generationSignals[0].aborted).toBe(true)
 	})
 
-	test('restart aborts the previous generation before starting the next', async () => {
-		const abort = new AbortController()
+	testWithAbort('restart aborts the previous generation before starting the next', async ({ signal }) => {
+		const abort = createChildAbort(signal)
 		const generationSignals: AbortSignal[] = []
 
 		const group = await reactiveObserverGroup('test', abort.signal, async (signal) => {
@@ -43,10 +45,10 @@ describe('reactiveObserverGroup', () => {
 		expect(generationSignals[1].aborted).toBe(true)
 	})
 
-	test('an aborted generation delivers nothing, synchronously', async () => {
+	testWithAbort('an aborted generation delivers nothing, synchronously', async ({ signal }) => {
 		// The whole design rests on abort being synchronous: no callback from a superseded generation
 		// may arrive after the restart that replaced it.
-		const abort = new AbortController()
+		const abort = createChildAbort(signal)
 		const delivered: number[] = []
 		let generationCount = 0
 		const emitters: Array<{ signal: AbortSignal; emit: () => void }> = []
@@ -78,8 +80,8 @@ describe('reactiveObserverGroup', () => {
 		expect(delivered).toEqual([1, 2])
 	})
 
-	test('a generator failure releases that generation and does not start it', async () => {
-		const abort = new AbortController()
+	testWithAbort('a generator failure releases that generation and does not start it', async ({ signal }) => {
+		const abort = createChildAbort(signal)
 		const generationSignals: AbortSignal[] = []
 
 		await expect(
@@ -93,8 +95,8 @@ describe('reactiveObserverGroup', () => {
 		expect(abort.signal.aborted).toBe(false)
 	})
 
-	test('restart after the parent aborts is rejected', async () => {
-		const abort = new AbortController()
+	testWithAbort('restart after the parent aborts is rejected', async ({ signal }) => {
+		const abort = createChildAbort(signal)
 		const group = await reactiveObserverGroup('test', abort.signal, async () => undefined)
 
 		abort.abort()

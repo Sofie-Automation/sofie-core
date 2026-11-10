@@ -1,10 +1,11 @@
 import { createChildAbort, runOnAbort } from '../observerLifetime'
 import { getEventListeners } from 'node:events'
+import { testWithAbort } from '../../__mocks__/helpers/testWithAbort'
 
 describe('observerLifetime', () => {
 	describe('createChildAbort', () => {
-		test('child aborts when parent aborts', () => {
-			const parent = new AbortController()
+		testWithAbort('child aborts when parent aborts', ({ signal }) => {
+			const parent = createChildAbort(signal)
 			const child = createChildAbort(parent.signal)
 
 			expect(child.signal.aborted).toBe(false)
@@ -12,8 +13,8 @@ describe('observerLifetime', () => {
 			expect(child.signal.aborted).toBe(true)
 		})
 
-		test('child is aborted immediately if parent already aborted', () => {
-			const parent = new AbortController()
+		testWithAbort('child is aborted immediately if parent already aborted', ({ signal }) => {
+			const parent = createChildAbort(signal)
 			const reason = new Error('parent gone')
 			parent.abort(reason)
 
@@ -22,8 +23,8 @@ describe('observerLifetime', () => {
 			expect(child.signal.reason).toBe(reason)
 		})
 
-		test('child abort reason is propagated from parent', () => {
-			const parent = new AbortController()
+		testWithAbort('child abort reason is propagated from parent', ({ signal }) => {
+			const parent = createChildAbort(signal)
 			const child = createChildAbort(parent.signal)
 
 			const reason = new Error('parent gone')
@@ -31,8 +32,8 @@ describe('observerLifetime', () => {
 			expect(child.signal.reason).toBe(reason)
 		})
 
-		test('aborting the child does not abort the parent', () => {
-			const parent = new AbortController()
+		testWithAbort('aborting the child does not abort the parent', ({ signal }) => {
+			const parent = createChildAbort(signal)
 			const child = createChildAbort(parent.signal)
 
 			child.abort()
@@ -40,8 +41,8 @@ describe('observerLifetime', () => {
 			expect(parent.signal.aborted).toBe(false)
 		})
 
-		test('many sequential children do not accumulate listeners on the parent', () => {
-			const parent = new AbortController()
+		testWithAbort('many sequential children do not accumulate listeners on the parent', ({ signal }) => {
+			const parent = createChildAbort(signal)
 
 			const before = getEventListeners(parent.signal, 'abort').length
 			for (let i = 0; i < 1000; i++) {
@@ -53,8 +54,8 @@ describe('observerLifetime', () => {
 			expect(getEventListeners(parent.signal, 'abort').length).toBe(before)
 		})
 
-		test('aborting the parent still ends children created earlier', () => {
-			const parent = new AbortController()
+		testWithAbort('aborting the parent still ends children created earlier', ({ signal }) => {
+			const parent = createChildAbort(signal)
 			const children = Array.from({ length: 100 }, () => createChildAbort(parent.signal))
 
 			parent.abort()
@@ -66,8 +67,8 @@ describe('observerLifetime', () => {
 	})
 
 	describe('runOnAbort', () => {
-		test('runs the cleanup when the signal aborts', () => {
-			const abort = new AbortController()
+		testWithAbort('runs the cleanup when the signal aborts', ({ signal }) => {
+			const abort = createChildAbort(signal)
 			const cleanup = jest.fn()
 
 			runOnAbort(abort.signal, cleanup)
@@ -77,8 +78,8 @@ describe('observerLifetime', () => {
 			expect(cleanup).toHaveBeenCalledTimes(1)
 		})
 
-		test('runs the cleanup immediately if the signal is already aborted', () => {
-			const abort = new AbortController()
+		testWithAbort('runs the cleanup immediately if the signal is already aborted', ({ signal }) => {
+			const abort = createChildAbort(signal)
 			abort.abort()
 
 			const cleanup = jest.fn()
@@ -86,8 +87,8 @@ describe('observerLifetime', () => {
 			expect(cleanup).toHaveBeenCalledTimes(1)
 		})
 
-		test('a throwing cleanup does not prevent the others from running', () => {
-			const abort = new AbortController()
+		testWithAbort('a throwing cleanup does not prevent the others from running', ({ signal }) => {
+			const abort = createChildAbort(signal)
 			const good = jest.fn()
 
 			runOnAbort(abort.signal, () => {
@@ -99,8 +100,8 @@ describe('observerLifetime', () => {
 			expect(good).toHaveBeenCalledTimes(1)
 		})
 
-		test('an async rejecting cleanup is tolerated', async () => {
-			const abort = new AbortController()
+		testWithAbort('an async rejecting cleanup is tolerated', async ({ signal }) => {
+			const abort = createChildAbort(signal)
 			let cleanupCalled = false
 
 			runOnAbort(abort.signal, async () => {
