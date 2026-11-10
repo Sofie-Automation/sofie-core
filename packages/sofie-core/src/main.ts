@@ -21,6 +21,7 @@ import { startDeviceTriggersObserver } from './api/deviceTriggers/observer'
 import { bindLogoRouter } from './logo'
 import { setupPrometheusMetrics } from '@sofie-automation/corelib/dist/prometheus'
 import { startCronjobs } from './cronjobs'
+import { startServerBlueprintUpgradeStatuses } from './publications/blueprintUpgradeStatus/systemStatus'
 import { startTimeJumpDetector } from './systemTime'
 import { bindWebManifestRouter } from './webmanifest'
 import { startPerformanceMonitor } from './performanceMonitor'
@@ -156,6 +157,7 @@ const processLifetime = new AbortController()
 		startExternalMessageQueueStatusMonitor(processLifetime.signal),
 	])
 
+	startServerBlueprintUpgradeStatuses(processLifetime.signal)
 	startCronjobs(processLifetime.signal)
 	startPerformanceMonitor(ddpConnectionRegistry)
 
