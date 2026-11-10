@@ -17,8 +17,11 @@ import {
 	createPartCurrentTimes,
 	PieceInstanceWithTimings,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { IBlueprintPieceType, PieceLifespan } from '@sofie-automation/blueprints-integration'
+import {
+	EmptyPieceTimelineObjectsBlob,
+	serializePieceTimelineObjectsBlob,
+} from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { IBlueprintPieceType, PieceLifespan, TSR } from '@sofie-automation/blueprints-integration'
 import { getPartGroupId, getPieceControlObjectId } from '@sofie-automation/corelib/dist/playout/ids'
 
 const DEFAULT_PART_TIMINGS: PartCalculatedTimings = Object.freeze({
@@ -916,10 +919,11 @@ describe('buildTimelineObjsForRundown', () => {
 			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
 			const partGroupId = getPartGroupId(selectedPartInfos.current!.partInstance)
+			const nextPartGroupId = getPartGroupId(selectedPartInfos.next!.partInstance)
 			const getControlObj = (piece: PieceInstanceWithTimings) =>
 				objs.timeline.find((obj) => obj.id === getPieceControlObjectId(piece))
 
-			return { objs, partGroupId, getControlObj }
+			return { objs, partGroupId, nextPartGroupId, getControlObj }
 		}
 
 		it('additive OutTransition piece is anchored by the outTransition duration', () => {
@@ -931,6 +935,7 @@ describe('buildTimelineObjsForRundown', () => {
 			)
 
 			expect(getControlObj(outPiece)?.enable).toEqual({ start: `#${partGroupId}.end - 1200` })
+			expect(getControlObj(outPiece)?.inGroup).toBe(partGroupId)
 		})
 
 		it('additive OutTransition piece is not played when replaced by the autoNextOutTransition', () => {
@@ -948,9 +953,9 @@ describe('buildTimelineObjsForRundown', () => {
 			expect(getControlObj(outPiece)).toBeUndefined()
 		})
 
-		it('exclusive OutTransition piece starts at the transition start', () => {
+		it('exclusive OutTransition piece starts at the transition start, in the next part', () => {
 			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
-			const { partGroupId, getControlObj } = buildWithCurrentAndNext(
+			const { nextPartGroupId, getControlObj } = buildWithCurrentAndNext(
 				{ outTransition: exclusiveOutTransition },
 				[outPiece],
 				createNextPartTimings({
@@ -962,7 +967,9 @@ describe('buildTimelineObjsForRundown', () => {
 				})
 			)
 
-			expect(getControlObj(outPiece)?.enable).toEqual({ start: `#${partGroupId}.end - 900` })
+			// 200 take offset, the same as where an InTransition piece would start
+			expect(getControlObj(outPiece)?.enable).toEqual({ start: 200 })
+			expect(getControlObj(outPiece)?.inGroup).toBe(nextPartGroupId)
 		})
 
 		it('exclusive OutTransition piece respects its own start and duration', () => {
@@ -970,7 +977,7 @@ describe('buildTimelineObjsForRundown', () => {
 				pieceType: IBlueprintPieceType.OutTransition,
 				enable: { start: 300, duration: 1000 },
 			})
-			const { partGroupId, getControlObj } = buildWithCurrentAndNext(
+			const { nextPartGroupId, getControlObj } = buildWithCurrentAndNext(
 				{ outTransition: exclusiveOutTransition },
 				[outPiece],
 				createNextPartTimings({
@@ -980,7 +987,85 @@ describe('buildTimelineObjsForRundown', () => {
 				})
 			)
 
-			expect(getControlObj(outPiece)?.enable).toEqual({ start: `#${partGroupId}.end - 500`, duration: 1000 })
+			expect(getControlObj(outPiece)?.enable).toEqual({ start: 300, duration: 1000 })
+			expect(getControlObj(outPiece)?.inGroup).toBe(nextPartGroupId)
+		})
+
+		it('exclusive OutTransition piece is not stopped by the keepalive', () => {
+			// A stinger which keeps running after the content of this part has gone
+			const outPiece = createMockPieceInstance('pieceOut', {
+				pieceType: IBlueprintPieceType.OutTransition,
+				enable: { start: 0, duration: 2000 },
+			})
+			const { objs, partGroupId, nextPartGroupId, getControlObj } = buildWithCurrentAndNext(
+				{ outTransition: exclusiveOutTransition },
+				[outPiece],
+				createNextPartTimings({
+					fromPartRemaining: 800,
+					fromPartKeepalive: 800,
+					transitionSource: 'outTransition',
+				})
+			)
+
+			// The current part ends 800ms after the next part starts
+			expect(objs.timeline.find((obj) => obj.id === nextPartGroupId)?.enable).toEqual({
+				start: `#${partGroupId}.end - 800`,
+			})
+			// But the piece is in the next part, so plays for its full duration
+			expect(getControlObj(outPiece)?.enable).toEqual({ start: 0, duration: 2000 })
+			expect(getControlObj(outPiece)?.inGroup).toBe(nextPartGroupId)
+		})
+
+		it('exclusive OutTransition piece objects keep the PartInstance of the piece', () => {
+			const outPiece = createMockPieceInstance(
+				'pieceOut',
+				{
+					pieceType: IBlueprintPieceType.OutTransition,
+					timelineObjectsString: serializePieceTimelineObjectsBlob([
+						{
+							id: 'obj0',
+							enable: { start: 0 },
+							layer: 'layer0',
+							priority: 0,
+							content: { deviceType: TSR.DeviceType.ABSTRACT },
+						},
+					]),
+				},
+				{ partInstanceId: protectString('part0') }
+			)
+			const { objs, nextPartGroupId } = buildWithCurrentAndNext(
+				{ outTransition: exclusiveOutTransition },
+				[outPiece],
+				createNextPartTimings({
+					fromPartRemaining: 800,
+					fromPartKeepalive: 800,
+					transitionSource: 'outTransition',
+				})
+			)
+
+			const pieceObjs = objs.timeline.filter((obj) => obj.pieceInstanceId === 'pieceOut')
+			expect(pieceObjs.map((obj) => obj.id)).toContain('pieceOutobj0')
+			for (const obj of pieceObjs) {
+				expect(obj.partInstanceId).toBe('part0')
+			}
+			expect(pieceObjs.find((obj) => obj.id === getPieceControlObjectId(outPiece))?.inGroup).toBe(nextPartGroupId)
+		})
+
+		it('exclusive OutTransition piece is not played before the next part is on the timeline', () => {
+			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
+			const { objs, nextPartGroupId, getControlObj } = buildWithCurrentAndNext(
+				// Not an autonext, so the next part is only added once it is taken
+				{ outTransition: exclusiveOutTransition, autoNext: false },
+				[outPiece],
+				createNextPartTimings({
+					fromPartRemaining: 800,
+					fromPartKeepalive: 800,
+					transitionSource: 'outTransition',
+				})
+			)
+
+			expect(objs.timeline.find((obj) => obj.id === nextPartGroupId)).toBeUndefined()
+			expect(getControlObj(outPiece)).toBeUndefined()
 		})
 
 		it('exclusive OutTransition piece is not played when another transition was used', () => {
@@ -998,7 +1083,7 @@ describe('buildTimelineObjsForRundown', () => {
 			const outPiece = createMockPieceInstance('pieceOut', {
 				pieceType: IBlueprintPieceType.AutoNextOutTransition,
 			})
-			const { partGroupId, getControlObj } = buildWithCurrentAndNext(
+			const { nextPartGroupId, getControlObj } = buildWithCurrentAndNext(
 				{ autoNextOutTransition: exclusiveOutTransition },
 				[outPiece],
 				createNextPartTimings({
@@ -1008,7 +1093,8 @@ describe('buildTimelineObjsForRundown', () => {
 				})
 			)
 
-			expect(getControlObj(outPiece)?.enable).toEqual({ start: `#${partGroupId}.end - 800` })
+			expect(getControlObj(outPiece)?.enable).toEqual({ start: 0 })
+			expect(getControlObj(outPiece)?.inGroup).toBe(nextPartGroupId)
 		})
 
 		it('AutoNextOutTransition piece is not played without the autoNextOutTransition', () => {
@@ -1063,10 +1149,62 @@ describe('buildTimelineObjsForRundown', () => {
 			const playlist = createMockPlaylist(selectedPartInfos)
 			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
 
-			const previousPartGroupId = getPartGroupId(selectedPartInfos.previous[0].partInstance)
-			expect(objs.timeline.find((obj) => obj.id === getPieceControlObjectId(outPiece))?.enable).toEqual({
-				start: `#${previousPartGroupId}.end - 900`,
+			// The piece is in the current part, where an InTransition piece would be
+			const outPieceObj = objs.timeline.find((obj) => obj.id === getPieceControlObjectId(outPiece))
+			expect(outPieceObj?.enable).toEqual({ start: 0 })
+			expect(outPieceObj?.inGroup).toBe(getPartGroupId(selectedPartInfos.current!.partInstance))
+		})
+
+		it('exclusive OutTransition piece of an older previous part', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
+			const transitionTimings = createNextPartTimings({
+				fromPartRemaining: 800,
+				fromPartKeepalive: 800,
+				transitionSource: 'outTransition',
 			})
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [
+					{
+						partTimes: createPartCurrentTimes(currentTime, 3456),
+						partInstance: createMockPartInstance(
+							'part8',
+							{},
+							{ timings: { plannedStartedPlayback: 3456 } }
+						),
+						pieceInstances: [createMockPieceInstance('piece8')],
+						calculatedTimings: transitionTimings,
+						regenerateTimelineAt: undefined,
+					},
+					{
+						partTimes: createPartCurrentTimes(currentTime, 1234),
+						partInstance: createMockPartInstance(
+							'part9',
+							{ outTransition: exclusiveOutTransition },
+							{ timings: { plannedStartedPlayback: 1235 } }
+						),
+						pieceInstances: [createMockPieceInstance('piece9'), outPiece],
+						calculatedTimings: DEFAULT_PART_TIMINGS,
+						regenerateTimelineAt: undefined,
+					},
+				],
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 5678),
+					partInstance: createMockPartInstance('part0'),
+					pieceInstances: [createMockPieceInstance('piece0')],
+					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			// The piece is in the part it transitioned into
+			const outPieceObj = objs.timeline.find((obj) => obj.id === getPieceControlObjectId(outPiece))
+			expect(outPieceObj?.enable).toEqual({ start: 0 })
+			expect(outPieceObj?.inGroup).toBe(getPartGroupId(selectedPartInfos.previous[0].partInstance))
 		})
 
 		it('InTransition piece is not played when replaced by an outTransition', () => {

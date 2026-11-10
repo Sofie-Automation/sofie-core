@@ -599,11 +599,27 @@ export class PlayoutModelImpl extends PlayoutModelReadonlyImpl implements Playou
 			if (isActive) lastActiveIndex = i
 		}
 
-		const filtered = lastActiveIndex >= 0 ? current.slice(0, lastActiveIndex + 1) : []
-		// Always keep at least one entry, and never more than the cap.
+		// Always keep at least one entry
+		let keepCount = Math.max(lastActiveIndex + 1, Math.min(current.length, 1))
+
+		// The out transition pieces of an exclusive outTransition or autoNextOutTransition are placed in the part after
+		// it, so previous[i] must be kept for as long as previous[i-1] is
+		while (keepCount < current.length) {
+			const referenceTimings = this.allPartInstances.get(current[keepCount - 1].partInstanceId)?.partInstance
+				.partPlayoutTimings
+			if (
+				referenceTimings?.transitionSource !== 'outTransition' &&
+				referenceTimings?.transitionSource !== 'autoNextOutTransition'
+			)
+				break
+
+			keepCount++
+		}
+
+		// Never keep more than the cap.
 		// We keep a hard cap to prevent unbounded growth if blueprints were doing something really bad with part/piece timings.
 		const MAX_PREVIOUS_PARTS = 10
-		const pruned = filtered.length > 0 ? filtered.slice(0, MAX_PREVIOUS_PARTS) : current.slice(0, 1)
+		const pruned = current.slice(0, Math.min(keepCount, MAX_PREVIOUS_PARTS))
 		this.playlistImpl.previousPartsInfo = pruned
 		if (this.playlistImpl.previousPartsInfo.length !== before) {
 			this.#playlistHasChanged = true

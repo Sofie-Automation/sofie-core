@@ -677,6 +677,101 @@ export async function setupRundownWithExclusiveOutTransitionAndInTransitionPiece
 	return rundownId
 }
 
+/**
+ * An exclusive outTransition with a transition piece which is longer than the keepalive.
+ * This is equivalent to `setupRundownWithLongInTransition`
+ */
+export async function setupRundownWithLongExclusiveOutTransition(
+	context: MockJobContext,
+	playlistId: RundownPlaylistId,
+	rundownId: RundownId,
+	showStyle: ReadonlyDeep<ProcessedShowStyleCompound>
+): Promise<RundownId> {
+	const outputLayerIds = Object.keys(showStyle.outputLayers)
+	const sourceLayerIds = Object.keys(showStyle.sourceLayers)
+
+	const { rundown, segment0, part00 } = await setupRundownBase(context, playlistId, rundownId, showStyle, {
+		outTransition: {
+			type: 'exclusive',
+			blockTakeDuration: 0,
+			partKeepaliveDuration: 500,
+			nextPartContentDelayDuration: 500,
+		},
+	})
+
+	const piece002: Piece = {
+		_id: protectString(rundownId + '_piece002'),
+		externalId: 'MOCK_PIECE_002',
+		startRundownId: rundown._id,
+		startSegmentId: part00.segmentId,
+		startPartId: part00._id,
+		name: 'Piece 002',
+		pieceType: IBlueprintPieceType.OutTransition,
+		enable: {
+			start: 0,
+			duration: 2000,
+		},
+		sourceLayerId: sourceLayerIds[0],
+		outputLayerId: outputLayerIds[0],
+		lifespan: PieceLifespan.WithinPart,
+		invalid: false,
+		content: {},
+		timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+	}
+	await context.mockCollections.Pieces.insertOne(piece002)
+
+	await setupPart2(context, rundownId, showStyle, rundown, segment0)
+
+	return rundownId
+}
+
+/**
+ * An inTransition with a transition piece which is longer than the keepalive.
+ * This is equivalent to `setupRundownWithLongExclusiveOutTransition`
+ */
+export async function setupRundownWithLongInTransition(
+	context: MockJobContext,
+	playlistId: RundownPlaylistId,
+	rundownId: RundownId,
+	showStyle: ReadonlyDeep<ProcessedShowStyleCompound>
+): Promise<RundownId> {
+	const outputLayerIds = Object.keys(showStyle.outputLayers)
+	const sourceLayerIds = Object.keys(showStyle.sourceLayers)
+
+	const { rundown, segment0 } = await setupRundownBase(context, playlistId, rundownId, showStyle)
+
+	const { part01 } = await setupPart2(context, rundownId, showStyle, rundown, segment0, {
+		inTransition: {
+			blockTakeDuration: 0,
+			previousPartKeepaliveDuration: 500,
+			partContentDelayDuration: 500,
+		},
+	})
+
+	const piece011: Piece = {
+		_id: protectString(rundownId + '_piece011'),
+		externalId: 'MOCK_PIECE_011',
+		startRundownId: rundown._id,
+		startSegmentId: part01.segmentId,
+		startPartId: part01._id,
+		name: 'Piece 011',
+		pieceType: IBlueprintPieceType.InTransition,
+		enable: {
+			start: 0,
+			duration: 2000,
+		},
+		sourceLayerId: sourceLayerIds[0],
+		outputLayerId: outputLayerIds[0],
+		lifespan: PieceLifespan.WithinPart,
+		invalid: false,
+		content: {},
+		timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+	}
+	await context.mockCollections.Pieces.insertOne(piece011)
+
+	return rundownId
+}
+
 export async function setupRundownWithOutTransitionAndPreroll(
 	context: MockJobContext,
 	playlistId: RundownPlaylistId,

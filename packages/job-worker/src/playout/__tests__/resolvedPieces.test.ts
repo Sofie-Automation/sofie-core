@@ -26,7 +26,7 @@ import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
 import { SelectedPartInstanceTimelineInfo } from '../timeline/generate.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { setupPieceInstanceInfiniteProperties } from '../pieces.js'
-import { getPartTimingsOrDefaults } from '@sofie-automation/corelib/dist/playout/timings'
+import { getPartTimingsOrDefaults, PartCalculatedTimings } from '@sofie-automation/corelib/dist/playout/timings'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
@@ -60,7 +60,13 @@ describe('Resolved Pieces', () => {
 		piecePartial?: Partial<
 			Pick<
 				PieceInstancePiece,
-				'lifespan' | 'virtual' | 'prerollDuration' | 'postrollDuration' | 'onlyValidForBranding' | 'branding'
+				| 'lifespan'
+				| 'virtual'
+				| 'prerollDuration'
+				| 'postrollDuration'
+				| 'onlyValidForBranding'
+				| 'branding'
+				| 'pieceType'
 			>
 		>,
 		instancePartial?: Partial<Pick<PieceInstance, 'userDuration'>>
@@ -78,7 +84,7 @@ describe('Resolved Pieces', () => {
 				invalid: false,
 				name: '',
 				content: {},
-				pieceType: IBlueprintPieceType.Normal,
+				pieceType: piecePartial?.pieceType ?? IBlueprintPieceType.Normal,
 				sourceLayerId,
 				outputLayerId: '',
 				lifespan: piecePartial?.lifespan ?? PieceLifespan.WithinPart,
@@ -1585,6 +1591,198 @@ describe('Resolved Pieces', () => {
 					resolvedDuration: undefined,
 				},
 			] satisfies StrippedResult)
+		})
+
+		describe('exclusive out transitions', () => {
+			const exclusiveOutTransition = {
+				type: 'exclusive',
+				blockTakeDuration: 0,
+				partKeepaliveDuration: 500,
+				nextPartContentDelayDuration: 500,
+			} as const
+
+			/** The timings of a transition using the exclusiveOutTransition, with no take offset */
+			function setTransitionTimings(
+				info: SelectedPartInstanceTimelineInfo,
+				transitionSource: PartCalculatedTimings['transitionSource']
+			) {
+				info.calculatedTimings = {
+					...info.calculatedTimings,
+					toPartDelay: 500,
+					fromPartRemaining: 500,
+					fromPartKeepalive: 500,
+					transitionSource,
+				}
+			}
+
+			test('previous part piece is placed in the current part, and is not stopped by the keepalive', async () => {
+				const sourceLayerId = Object.keys(sourceLayers)[0]
+				expect(sourceLayerId).toBeTruthy()
+
+				const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
+				const pieceOut = createPieceInstance(
+					sourceLayerId,
+					{ start: 0, duration: 2000 },
+					{ pieceType: IBlueprintPieceType.OutTransition }
+				)
+				const piece010 = createPieceInstance(sourceLayerId, { start: 0 })
+
+				const now = 990000
+				const currentPartTimes = createPartCurrentTimes(now, now - 200)
+				const previousPartTimes = createPartCurrentTimes(now, now - 7000)
+
+				const previousPartInfo = createPartInstanceInfo(
+					previousPartTimes,
+					createPartInstance({ outTransition: exclusiveOutTransition }),
+					[piece001, pieceOut]
+				)
+				const currentPartInfo = createPartInstanceInfo(currentPartTimes, createPartInstance(), [piece010])
+				setTransitionTimings(currentPartInfo, 'outTransition')
+
+				const resolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
+					context,
+					{ current: currentPartInfo, previous: [previousPartInfo] },
+					now
+				)
+				expect(stripResult(resolvedPieces)).toEqual([
+					{
+						_id: piece001._id,
+						resolvedStart: previousPartTimes.partStartTime!,
+						resolvedDuration: 6800,
+					},
+					{
+						_id: piece010._id,
+						resolvedStart: currentPartTimes.partStartTime!,
+						resolvedDuration: undefined,
+					},
+					{
+						_id: pieceOut._id,
+						resolvedStart: currentPartTimes.partStartTime!,
+						resolvedDuration: 2000,
+					},
+				] satisfies StrippedResult)
+			})
+
+			test('previous part piece is dropped when another transition was used', async () => {
+				const sourceLayerId = Object.keys(sourceLayers)[0]
+				expect(sourceLayerId).toBeTruthy()
+
+				const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
+				const pieceOut = createPieceInstance(
+					sourceLayerId,
+					{ start: 0, duration: 2000 },
+					{ pieceType: IBlueprintPieceType.OutTransition }
+				)
+
+				const now = 990000
+				const currentPartTimes = createPartCurrentTimes(now, now - 200)
+				const previousPartTimes = createPartCurrentTimes(now, now - 7000)
+
+				const previousPartInfo = createPartInstanceInfo(
+					previousPartTimes,
+					createPartInstance({ outTransition: exclusiveOutTransition }),
+					[piece001, pieceOut]
+				)
+				const currentPartInfo = createPartInstanceInfo(currentPartTimes, createPartInstance(), [])
+				setTransitionTimings(currentPartInfo, 'none')
+
+				const resolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
+					context,
+					{ current: currentPartInfo, previous: [previousPartInfo] },
+					now
+				)
+				expect(stripResult(resolvedPieces).map((p) => p._id)).toEqual([piece001._id])
+			})
+
+			test('current part piece is placed in the autonexted next part', async () => {
+				const sourceLayerId = Object.keys(sourceLayers)[0]
+				expect(sourceLayerId).toBeTruthy()
+
+				const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
+				const pieceOut = createPieceInstance(
+					sourceLayerId,
+					{ start: 100, duration: 2000 },
+					{ pieceType: IBlueprintPieceType.OutTransition }
+				)
+				const piece010 = createPieceInstance(sourceLayerId, { start: 0 })
+
+				const now = 990000
+				const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+				const currentPartLength = 13000
+				const nextPartTimes = createPartCurrentTimes(now, undefined)
+
+				const currentPartInfo = createPartInstanceInfo(
+					currentPartTimes,
+					createPartInstance({
+						autoNext: true,
+						expectedDuration: currentPartLength,
+						outTransition: exclusiveOutTransition,
+						availablePostrollDuration: 500,
+					}),
+					[piece001, pieceOut]
+				)
+				const nextPartInfo = createPartInstanceInfo(nextPartTimes, createPartInstance(), [piece010])
+				setTransitionTimings(nextPartInfo, 'outTransition')
+
+				const resolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
+					context,
+					{ previous: [], current: currentPartInfo, next: nextPartInfo },
+					now
+				)
+
+				// The keepalive extends the current part, with the next part starting at the expectedDuration
+				const nextPartStart = currentPartTimes.partStartTime! + currentPartLength
+				expect(stripResult(resolvedPieces)).toEqual([
+					{
+						_id: piece001._id,
+						resolvedStart: currentPartTimes.partStartTime!,
+						resolvedDuration: currentPartLength + 500,
+					},
+					{
+						_id: piece010._id,
+						resolvedStart: nextPartStart,
+						resolvedDuration: undefined,
+					},
+					{
+						_id: pieceOut._id,
+						resolvedStart: nextPartStart + 100,
+						resolvedDuration: 2000,
+					},
+				] satisfies StrippedResult)
+			})
+
+			test('current part piece is not placed without an autonext', async () => {
+				const sourceLayerId = Object.keys(sourceLayers)[0]
+				expect(sourceLayerId).toBeTruthy()
+
+				const piece001 = createPieceInstance(sourceLayerId, { start: 0 })
+				const pieceOut = createPieceInstance(
+					sourceLayerId,
+					{ start: 0, duration: 2000 },
+					{ pieceType: IBlueprintPieceType.OutTransition }
+				)
+
+				const now = 990000
+				const currentPartTimes = createPartCurrentTimes(now, now - 2000)
+				const currentPartInfo = createPartInstanceInfo(
+					currentPartTimes,
+					createPartInstance({ outTransition: exclusiveOutTransition }),
+					[piece001, pieceOut]
+				)
+				const nextPartInfo = createPartInstanceInfo(
+					createPartCurrentTimes(now, undefined),
+					createPartInstance(),
+					[]
+				)
+				setTransitionTimings(nextPartInfo, 'outTransition')
+
+				const resolvedPieces = getResolvedPiecesForPartInstancesOnTimeline(
+					context,
+					{ previous: [], current: currentPartInfo, next: nextPartInfo },
+					now
+				)
+				expect(stripResult(resolvedPieces).map((p) => p._id)).toEqual([piece001._id])
+			})
 		})
 	})
 })

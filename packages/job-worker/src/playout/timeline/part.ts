@@ -30,6 +30,8 @@ export function transformPartIntoTimeline(
 	parentGroup: TimelineObjGroupPart & OnGenerateTimelineObjExt,
 	partInfo: SelectedPartInstanceTimelineInfo,
 	nextPartTimings: PartCalculatedTimings | null,
+	/** The group of the PartInstance this one transitions into, if it is on the timeline */
+	nextPartGroup: (TimelineObjGroupPart & OnGenerateTimelineObjExt) | null,
 	playoutState: TimelinePlayoutState
 ): Array<TimelineObjRundown & OnGenerateTimelineObjExt> {
 	const span = context.startSpan('transformPartIntoTimeline')
@@ -45,20 +47,22 @@ export function transformPartIntoTimeline(
 	for (const pieceInstance of pieceInstances) {
 		if (pieceInstance.disabled) continue
 
-		const pieceEnable = getPieceEnableForPieceInstance(
+		const placement = getPieceEnableForPieceInstance(
 			partTimings,
 			nextPartTimings,
 			outTransition,
 			parentGroup,
+			nextPartGroup,
 			pieceInstance
 		)
 
 		// Not able to enable this piece
-		if (!pieceEnable) continue
+		if (!placement) continue
+		const pieceEnable = placement.enable
 
 		// Determine which group to add to
-		let partGroupToAddTo = parentGroup
-		if (pieceInstance.piece.excludeDuringPartKeepalive) {
+		let partGroupToAddTo = placement.group
+		if (pieceInstance.piece.excludeDuringPartKeepalive && partGroupToAddTo === parentGroup) {
 			if (!parentGroupNoKeepalive) {
 				// Only generate the no-keepalive group if is is needed
 				parentGroupNoKeepalive = createPartNoKeepaliveGroup(parentGroup, nextPartTimings)
@@ -84,16 +88,37 @@ export function transformPartIntoTimeline(
 	return timelineObjs
 }
 
-export interface OutTransitionPiecePlacement {
-	/** How long before the end of the Part the piece starts. Negative values are after the end */
-	offsetFromPartEnd: number
-	/** The duration of the piece, if it is limited */
-	duration: number | undefined
+export type OutTransitionPiecePlacement =
+	| {
+			/** The piece is placed in its own PartInstance, relative to the end of it */
+			inNextPart: false
+			/** How long before the end of the Part the piece starts. Negative values are after the end */
+			offsetFromPartEnd: number
+	  }
+	| {
+			/**
+			 * The piece is placed in the PartInstance being transitioned into, the same as an InTransition piece of
+			 * that PartInstance would be. This means it is not stopped when its own PartInstance ends, so it can
+			 * outlive the partKeepaliveDuration
+			 */
+			inNextPart: true
+			/** When the piece starts, relative to the start of the PartInstance being transitioned into */
+			startInNextPart: number
+			/** The duration of the piece, if it is limited */
+			duration: number | undefined
+	  }
+
+/**
+ * Get when a transition starts, relative to the start of the PartInstance being transitioned into.
+ * This is the take point, plus any take offset, and is where an InTransition piece would start
+ */
+export function getTransitionStartInPart(timings: PartCalculatedTimings): number {
+	return timings.fromPartRemaining - timings.fromPartKeepalive - timings.fromPartPostroll
 }
 
 /**
  * Placement for an out-transition piece of a transition which replaced the next Part's inTransition.
- * This starts at the transition start, which is the start of the next Part (the take, plus any take offset)
+ * This starts at the transition start, in the next Part, matching where the InTransition piece would have been placed
  */
 function getExclusiveOutTransitionPiecePlacement(
 	nextPartTimings: PartCalculatedTimings,
@@ -103,13 +128,14 @@ function getExclusiveOutTransitionPiecePlacement(
 	const startOffset = typeof piece.enable.start === 'number' ? piece.enable.start : 0
 
 	return {
-		offsetFromPartEnd: nextPartTimings.fromPartKeepalive + nextPartTimings.fromPartPostroll - startOffset,
+		inNextPart: true,
+		startInNextPart: getTransitionStartInPart(nextPartTimings) + startOffset,
 		duration: piece.enable.duration,
 	}
 }
 
 /**
- * Determine where an out-transition piece is placed, relative to the end of its Part
+ * Determine where an out-transition piece is placed
  * @param partTimings Timings of the Part containing the piece
  * @param nextPartTimings Timings of the Part being taken into
  * @param outTransition The outTransition of the Part containing the piece
@@ -137,8 +163,8 @@ export function getOutTransitionPiecePlacement(
 					if (nextPartTimings?.transitionSource === 'autoNextOutTransition') return undefined
 
 					return {
+						inNextPart: false,
 						offsetFromPartEnd: outTransition.duration + partTimings.toPartPostroll,
-						duration: undefined,
 					}
 				default:
 					assertNever(outTransition)
@@ -158,13 +184,21 @@ export function getOutTransitionPiecePlacement(
 	}
 }
 
+interface PieceGroupPlacement {
+	/** The group to place the piece in */
+	group: TimelineObjGroupPart & OnGenerateTimelineObjExt
+	/** The enable of the piece, inside the group */
+	enable: TSR.Timeline.TimelineEnable
+}
+
 function getPieceEnableForPieceInstance(
 	partTimings: PartCalculatedTimings,
 	nextPartTimings: PartCalculatedTimings | null,
 	outTransition: ReadonlyDeep<IBlueprintPartOutTransition> | null,
 	parentGroup: TimelineObjGroupPart & OnGenerateTimelineObjExt,
+	nextPartGroup: (TimelineObjGroupPart & OnGenerateTimelineObjExt) | null,
 	pieceInstance: ReadonlyDeep<PieceInstanceWithTimings>
-): TSR.Timeline.TimelineEnable | undefined {
+): PieceGroupPlacement | undefined {
 	switch (pieceInstance.piece.pieceType) {
 		case IBlueprintPieceType.InTransition: {
 			if (typeof partTimings.inTransitionStart !== 'number') return undefined
@@ -173,8 +207,11 @@ function getPieceEnableForPieceInstance(
 				typeof pieceInstance.piece.enable.start === 'number' ? pieceInstance.piece.enable.start : 0
 
 			return {
-				start: partTimings.inTransitionStart + startOffset,
-				duration: pieceInstance.piece.enable.duration,
+				group: parentGroup,
+				enable: {
+					start: partTimings.inTransitionStart + startOffset,
+					duration: pieceInstance.piece.enable.duration,
+				},
 			}
 		}
 		case IBlueprintPieceType.OutTransition:
@@ -187,23 +224,36 @@ function getPieceEnableForPieceInstance(
 			)
 			if (!placement) return undefined
 
-			const pieceEnable: TSR.Timeline.TimelineEnable = {
-				start:
-					placement.offsetFromPartEnd >= 0
-						? `#${parentGroup.id}.end - ${placement.offsetFromPartEnd}`
-						: `#${parentGroup.id}.end + ${-placement.offsetFromPartEnd}`,
-			}
-			if (placement.duration !== undefined) pieceEnable.duration = placement.duration
+			if (placement.inNextPart) {
+				// Not able to play until the next PartInstance is on the timeline
+				if (!nextPartGroup) return undefined
 
-			return pieceEnable
+				const pieceEnable: TSR.Timeline.TimelineEnable = { start: placement.startInNextPart }
+				if (placement.duration !== undefined) pieceEnable.duration = placement.duration
+
+				return { group: nextPartGroup, enable: pieceEnable }
+			} else {
+				return {
+					group: parentGroup,
+					enable: {
+						start:
+							placement.offsetFromPartEnd >= 0
+								? `#${parentGroup.id}.end - ${placement.offsetFromPartEnd}`
+								: `#${parentGroup.id}.end + ${-placement.offsetFromPartEnd}`,
+					},
+				}
+			}
 		}
 		case IBlueprintPieceType.Normal:
-			return getPieceEnableInsidePart(
-				pieceInstance,
-				partTimings,
-				parentGroup.id,
-				parentGroup.enable.duration !== undefined || parentGroup.enable.end !== undefined
-			)
+			return {
+				group: parentGroup,
+				enable: getPieceEnableInsidePart(
+					pieceInstance,
+					partTimings,
+					parentGroup.id,
+					parentGroup.enable.duration !== undefined || parentGroup.enable.end !== undefined
+				),
+			}
 		default:
 			assertNever(pieceInstance.piece.pieceType)
 			return undefined

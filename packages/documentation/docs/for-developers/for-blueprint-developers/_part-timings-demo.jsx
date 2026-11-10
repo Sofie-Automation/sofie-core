@@ -131,7 +131,7 @@ export function PartTimingsDemo() {
 						/>
 						<InputRow
 							label="Part A Out Transition Piece Duration"
-							max={1000}
+							max={2000}
 							value={exclusiveOutPieceDuration}
 							setValue={setExclusiveOutPieceDuration}
 						/>

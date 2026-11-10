@@ -150,11 +150,9 @@ The transition starts when the next Part starts, which is the take plus any offs
 
 The InTransition pieces of the next Part are not played.
 
-:::note
-The OutTransition pieces live inside this Part, so they are stopped when this Part ends. That is `partKeepaliveDuration` (plus any postroll) after the transition starts, so `partKeepaliveDuration` must cover the full length of the transition piece.
+The OutTransition pieces are played in the next Part, exactly where an InTransition piece of the next Part would be. This means they are not stopped when this Part ends, so a transition piece can keep playing after this Part has gone, such as a stinger which cuts to the next Part partway through. The `partKeepaliveDuration` only decides how long the other pieces of this Part keep playing.
 
-This differs from an InTransition piece on the next Part, which is not limited by the keepalive. If you are replacing blueprint logic which sets an `inTransition` on the next Part (for example in `onSetAsNext` or `onTake`), move the transition piece onto this Part as an OutTransition piece and make sure the keepalive is long enough.
-:::
+This gives the same result as setting the matching `inTransition` on the next Part. If you are replacing blueprint logic which sets an `inTransition` on the next Part (for example in `onSetAsNext` or `onTake`), move the transition piece onto this Part as an OutTransition piece, and use the same values for the keepalive and content delay.
 
 A cut which ignores the inTransition of the next Part can be made with:
 
@@ -167,12 +165,36 @@ As an example, a wipe out of a Part that is played whatever comes next, revealin
 ```ts
 const part: IBlueprintPart = {
 	// ...
-	outTransition: { type: 'exclusive', blockTakeDuration: 1000, partKeepaliveDuration: 1000, nextPartContentDelayDuration: 500 },
+	outTransition: {
+		type: 'exclusive',
+		blockTakeDuration: 1000,
+		partKeepaliveDuration: 1000,
+		nextPartContentDelayDuration: 500,
+	},
 }
 const wipePiece: IBlueprintPiece = {
 	// ...
 	pieceType: IBlueprintPieceType.OutTransition,
 	enable: { start: 0, duration: 1000 },
+}
+```
+
+Or a stinger which cuts to the next Part 500ms in, but keeps playing for 2000ms:
+
+```ts
+const part: IBlueprintPart = {
+	// ...
+	outTransition: {
+		type: 'exclusive',
+		blockTakeDuration: 2000,
+		partKeepaliveDuration: 500,
+		nextPartContentDelayDuration: 500,
+	},
+}
+const stingerPiece: IBlueprintPiece = {
+	// ...
+	pieceType: IBlueprintPieceType.OutTransition,
+	enable: { start: 0, duration: 2000 },
 }
 ```
 
@@ -199,14 +221,16 @@ The `expectedDurationWithTransition` calculated for Parts which are not yet play
 
 Transition pieces are only played when their transition is the one used, and their `enable` is not relative to the start of the Part:
 
-| Piece type              | Played when                                                                                       | `enable.start`                                                                    | `enable.duration`                         |
-| ----------------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------- |
-| `InTransition`          | the `inTransition` of its Part is used                                                            | relative to the start of the transition                                           | respected                                 |
-| `OutTransition`         | its Part has an additive `outTransition`, and the `autoNextOutTransition` of its Part is not used | ignored. Starts `outTransition.duration` (plus any postroll) before its Part ends | ignored. Runs until its Part ends         |
-| `OutTransition`         | its Part has an `'exclusive'` `outTransition`, and that is used                                   | relative to the start of the transition                                           | respected, but stopped when its Part ends |
-| `AutoNextOutTransition` | the `autoNextOutTransition` of its Part is used                                                   | relative to the start of the transition                                           | respected, but stopped when its Part ends |
+| Piece type              | Played when                                                                                       | `enable.start`                                                                    | `enable.duration`                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------- |
+| `InTransition`          | the `inTransition` of its Part is used                                                            | relative to the start of the transition                                           | respected                         |
+| `OutTransition`         | its Part has an additive `outTransition`, and the `autoNextOutTransition` of its Part is not used | ignored. Starts `outTransition.duration` (plus any postroll) before its Part ends | ignored. Runs until its Part ends |
+| `OutTransition`         | its Part has an `'exclusive'` `outTransition`, and that is used                                   | relative to the start of the transition                                           | respected                         |
+| `AutoNextOutTransition` | the `autoNextOutTransition` of its Part is used                                                   | relative to the start of the transition                                           | respected                         |
 
 The start of the transition is when the next Part starts: the take, plus any offset needed for preroll or an additive `outTransition.duration`.
+
+The InTransition pieces, and the OutTransition and AutoNextOutTransition pieces of an `'exclusive'` transition, are played in the next Part. They are stopped when the next Part ends, not by the keepalive of the previous Part. The OutTransition pieces of an additive `outTransition` are played in their own Part, and are stopped when it ends.
 
 Because they are timed differently, transition pieces do not compete with other pieces on their source layer. For example, an InTransition piece and an OutTransition piece in the same Part, on the same layer and with the same `enable.start`, are both played. A transition piece also does not stop a Normal piece on its layer.
 

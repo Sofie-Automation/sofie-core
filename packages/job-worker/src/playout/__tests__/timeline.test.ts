@@ -45,6 +45,8 @@ import {
 	setupRundownWithOutTransition,
 	setupRundownWithOutTransitionAndPreroll,
 	setupRundownWithExclusiveOutTransitionAndInTransitionPiece,
+	setupRundownWithLongExclusiveOutTransition,
+	setupRundownWithLongInTransition,
 	setupRundownWithOutTransitionAndPreroll2,
 	setupRundownWithOutTransitionAndInTransition,
 	setupRundownWithOutTransitionEnableHold,
@@ -111,6 +113,8 @@ interface PartTimelineTimings {
 	 */
 	previousOutTransition:
 		| {
+				/** Expected group containing the control object */
+				inGroup: string | undefined
 				/** Expected offsets of the child group relative to the control object */
 				childGroup: PreAndPostRoll | PreAndPostRoll[]
 				/** Expected enable for the control object */
@@ -255,6 +259,7 @@ function checkTimingsRaw(
 				const controlObj = objs.get(getPieceControlObjectId(piece.pieceInstance))
 				previousOutTransition = controlObj
 					? {
+							inGroup: controlObj.inGroup,
 							childGroup: parsePieceGroupPrerollAndPostroll(pieceObj?.enable ?? []),
 							controlObj: controlObj.enable,
 						}
@@ -1022,6 +1027,7 @@ describe('Timeline', () => {
 						currentInfinitePieces: {},
 						// outTransitionPiece is inserted
 						previousOutTransition: {
+							inGroup: getPartGroupId(previousPartInstance),
 							controlObj: { start: `#${getPartGroupId(previousPartInstance)}.end - 1000` },
 							childGroup: { preroll: 0, postroll: 0 },
 						},
@@ -1032,7 +1038,7 @@ describe('Timeline', () => {
 			testTransitionTimings(
 				'exclusive outTransition with an inTransition piece on the same layer',
 				setupRundownWithExclusiveOutTransitionAndInTransitionPiece,
-				async (_rundownId0, _timeline, currentPartInstance, previousPartInstance, checkTimings) => {
+				async (_rundownId0, _timeline, currentPartInstance, _previousPartInstance, checkTimings) => {
 					await checkTimings({
 						// old part is extended by 1000ms due to transition keepalive
 						previousPart: { end: `#${getPartGroupId(currentPartInstance)}.start + 1000` },
@@ -1044,14 +1050,67 @@ describe('Timeline', () => {
 							},
 						},
 						currentInfinitePieces: {},
-						// outTransitionPiece is inserted, starting with the transition
+						// outTransitionPiece is inserted into the new part, starting with the transition
 						previousOutTransition: {
+							inGroup: getPartGroupId(currentPartInstance),
 							controlObj: {
-								start: `#${getPartGroupId(previousPartInstance)}.end - 1000`,
+								start: 0,
 								duration: 1000,
 							},
 							childGroup: { preroll: 0, postroll: 0 },
 						},
+					})
+				}
+			)
+
+			// An exclusive outTransition on the first part must be able to give the same result as an inTransition on
+			// the second part, including a transition piece which outlives the keepalive
+			testTransitionTimings(
+				'exclusive outTransition piece outlives the keepalive',
+				setupRundownWithLongExclusiveOutTransition,
+				async (_rundownId0, _timeline, currentPartInstance, _previousPartInstance, checkTimings) => {
+					await checkTimings({
+						// old part is extended by 500ms due to transition keepalive
+						previousPart: { end: `#${getPartGroupId(currentPartInstance)}.start + 500` },
+						currentPieces: {
+							// pieces are delayed by the content delay
+							piece010: {
+								controlObj: { start: 500 },
+								childGroup: { preroll: 0, postroll: 0 },
+							},
+						},
+						currentInfinitePieces: {},
+						// outTransitionPiece is inserted into the new part, so is not stopped by the keepalive
+						previousOutTransition: {
+							inGroup: getPartGroupId(currentPartInstance),
+							controlObj: { start: 0, duration: 2000 },
+							childGroup: { preroll: 0, postroll: 0 },
+						},
+					})
+				}
+			)
+
+			testTransitionTimings(
+				'inTransition matching the exclusive outTransition piece which outlives the keepalive',
+				setupRundownWithLongInTransition,
+				async (_rundownId0, _timeline, currentPartInstance, _previousPartInstance, checkTimings) => {
+					await checkTimings({
+						// old part is extended by 500ms due to transition keepalive
+						previousPart: { end: `#${getPartGroupId(currentPartInstance)}.start + 500` },
+						currentPieces: {
+							// pieces are delayed by the content delay
+							piece010: {
+								controlObj: { start: 500 },
+								childGroup: { preroll: 0, postroll: 0 },
+							},
+							// inTransitionPiece is in the new part, the same as the outTransition piece above
+							piece011: {
+								controlObj: { start: 0, duration: 2000 },
+								childGroup: { preroll: 0, postroll: 0 },
+							},
+						},
+						currentInfinitePieces: {},
+						previousOutTransition: undefined,
 					})
 				}
 			)
@@ -1074,6 +1133,7 @@ describe('Timeline', () => {
 						currentInfinitePieces: {},
 						// outTransitionPiece is inserted
 						previousOutTransition: {
+							inGroup: getPartGroupId(previousPartInstance),
 							controlObj: { start: `#${getPartGroupId(previousPartInstance)}.end - 1000` },
 							childGroup: { preroll: 0, postroll: 0 },
 						},
@@ -1099,6 +1159,7 @@ describe('Timeline', () => {
 						currentInfinitePieces: {},
 						// outTransitionPiece is inserted
 						previousOutTransition: {
+							inGroup: getPartGroupId(previousPartInstance),
 							controlObj: { start: `#${getPartGroupId(previousPartInstance)}.end - 250` },
 							childGroup: { preroll: 0, postroll: 0 },
 						},
@@ -1130,6 +1191,7 @@ describe('Timeline', () => {
 						currentInfinitePieces: {},
 						// outTransitionPiece is inserted
 						previousOutTransition: {
+							inGroup: getPartGroupId(previousPartInstance),
 							controlObj: { start: `#${getPartGroupId(previousPartInstance)}.end - 600` },
 							childGroup: { preroll: 0, postroll: 0 },
 						},
@@ -1162,6 +1224,7 @@ describe('Timeline', () => {
 							currentInfinitePieces: {},
 							// the outTransition still delays the take, and its piece is played
 							previousOutTransition: {
+								inGroup: getPartGroupId(previousPartInstance!.partInstance),
 								controlObj: {
 									start: `#${getPartGroupId(previousPartInstance!.partInstance)}.end - 500`,
 								},
@@ -1987,6 +2050,52 @@ describe('Timeline', () => {
 				setupRundownWithExclusiveOutTransitionAndInTransitionPiece,
 				async (rundownId0, _timeline, currentPartInstance, previousPartInstance) =>
 					checkExclusiveOutTransition(rundownId0, currentPartInstance, previousPartInstance)
+			)
+
+			/**
+			 * Check the transition piece of the long transitions, which outlives the keepalive.
+			 * The exclusive outTransition and inTransition variants must give the same result
+			 */
+			async function checkLongTransition(
+				pieceId: string,
+				pieceInPartInstance: DBPartInstance,
+				currentPartInstance: DBPartInstance,
+				previousPartInstance: DBPartInstance
+			) {
+				const takeTime = currentPartInstance.timings?.plannedStartedPlayback
+				expect(takeTime).toBeTruthy()
+
+				// The previous part is only kept alive for 500ms
+				expect(previousPartInstance.timings?.plannedStoppedPlayback).toBe(takeTime! + 500)
+
+				// But the piece is in the new part, so plays for its full duration
+				const piece = await getPieceInstanceForPiece(pieceInPartInstance._id, pieceId)
+				expect(piece.plannedStartedPlayback).toBe(takeTime!)
+				expect(piece.plannedStoppedPlayback).toBe(takeTime! + 2000)
+			}
+
+			testTransitionTimings(
+				'exclusive outTransition piece outlives the keepalive',
+				setupRundownWithLongExclusiveOutTransition,
+				async (rundownId0, _timeline, currentPartInstance, previousPartInstance) =>
+					checkLongTransition(
+						rundownId0 + '_piece002',
+						previousPartInstance,
+						currentPartInstance,
+						previousPartInstance
+					)
+			)
+
+			testTransitionTimings(
+				'inTransition matching the exclusive outTransition piece which outlives the keepalive',
+				setupRundownWithLongInTransition,
+				async (rundownId0, _timeline, currentPartInstance, previousPartInstance) =>
+					checkLongTransition(
+						rundownId0 + '_piece011',
+						currentPartInstance,
+						currentPartInstance,
+						previousPartInstance
+					)
 			)
 		})
 

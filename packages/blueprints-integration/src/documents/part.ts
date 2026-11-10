@@ -33,7 +33,10 @@ export interface IBlueprintPartOutTransitionExclusive {
 	type: 'exclusive'
 	/** Duration takes out of the *next* Part are blocked for. Measured from the take (plannedStartedPlayback of the next Part) */
 	blockTakeDuration: number
-	/** Duration this Part keeps playing once the transition starts. Typically until it is fully out of vision */
+	/**
+	 * Duration this Part keeps playing once the transition starts. Typically until it is fully out of vision.
+	 * The transition pieces are played in the next Part, so are not limited by this
+	 */
 	partKeepaliveDuration: number
 	/** Duration the pieces of the next Part are delayed for once the transition starts. Typically until it is in vision */
 	nextPartContentDelayDuration: number
