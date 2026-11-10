@@ -25,7 +25,7 @@
 		"validate:dependencies": "yarn npm audit --environment production && run license-validate",
 		"validate:dev-dependencies": "yarn npm audit --environment development",
 		"license-validate": "run -T sofie-licensecheck",
-		"gendocs": "yarn merge-schemas && ag ./src/generated/asyncapi.yaml @asyncapi/html-template -o docs -p singleFile=true -p outFilename=liveStatus.html",
+		"gendocs": "yarn merge-schemas && node scripts/gendocs.mjs",
 		"generate-schema-types": "yarn merge-schemas && node scripts/generate-schema-types.mjs",
 		"merge-schemas": "node scripts/merge-schemas.mjs"
 	},
@@ -44,7 +44,7 @@
 	},
 	"devDependencies": {
 		"@apidevtools/json-schema-ref-parser": "^15.5.2",
-		"@asyncapi/generator": "^2.11.0",
+		"@asyncapi/generator": "^3.5.0",
 		"@asyncapi/html-template": "^3.5.6",
 		"@asyncapi/modelina": "^5.10.1",
 		"@asyncapi/parser": "^3.6.6",
