@@ -772,6 +772,83 @@ export async function setupRundownWithLongInTransition(
 	return rundownId
 }
 
+/**
+ * An exclusive outTransition with a transition piece which has no duration, followed by two more parts
+ */
+export async function setupRundownWithUnboundedExclusiveOutTransitionAndThreeParts(
+	context: MockJobContext,
+	playlistId: RundownPlaylistId,
+	rundownId: RundownId,
+	showStyle: ReadonlyDeep<ProcessedShowStyleCompound>
+): Promise<RundownId> {
+	const outputLayerIds = Object.keys(showStyle.outputLayers)
+	const sourceLayerIds = Object.keys(showStyle.sourceLayers)
+
+	const { rundown, segment0, part00 } = await setupRundownBase(context, playlistId, rundownId, showStyle, {
+		outTransition: {
+			type: 'exclusive',
+			blockTakeDuration: 0,
+			partKeepaliveDuration: 500,
+			nextPartContentDelayDuration: 0,
+		},
+	})
+
+	const piece002: Piece = {
+		_id: protectString(rundownId + '_piece002'),
+		externalId: 'MOCK_PIECE_002',
+		startRundownId: rundown._id,
+		startSegmentId: part00.segmentId,
+		startPartId: part00._id,
+		name: 'Piece 002',
+		pieceType: IBlueprintPieceType.OutTransition,
+		enable: {
+			start: 0,
+		},
+		sourceLayerId: sourceLayerIds[0],
+		outputLayerId: outputLayerIds[0],
+		lifespan: PieceLifespan.WithinPart,
+		invalid: false,
+		content: {},
+		timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+	}
+	await context.mockCollections.Pieces.insertOne(piece002)
+
+	await setupPart2(context, rundownId, showStyle, rundown, segment0)
+
+	const part02: DBPart = {
+		_id: protectString(rundownId + '_part0_2'),
+		segmentId: segment0._id,
+		rundownId: segment0.rundownId,
+		_rank: 2,
+		externalId: 'MOCK_PART_0_2',
+		title: 'Part 0 2',
+		expectedDurationWithTransition: undefined,
+	}
+	await context.mockCollections.Parts.insertOne(part02)
+
+	const piece020: Piece = {
+		_id: protectString(rundownId + '_piece020'),
+		externalId: 'MOCK_PIECE_020',
+		startRundownId: rundown._id,
+		startSegmentId: part02.segmentId,
+		startPartId: part02._id,
+		name: 'Piece 020',
+		pieceType: IBlueprintPieceType.Normal,
+		enable: {
+			start: 0,
+		},
+		sourceLayerId: sourceLayerIds[0],
+		outputLayerId: outputLayerIds[0],
+		lifespan: PieceLifespan.WithinPart,
+		invalid: false,
+		content: {},
+		timelineObjectsString: EmptyPieceTimelineObjectsBlob,
+	}
+	await context.mockCollections.Pieces.insertOne(piece020)
+
+	return rundownId
+}
+
 export async function setupRundownWithOutTransitionAndPreroll(
 	context: MockJobContext,
 	playlistId: RundownPlaylistId,

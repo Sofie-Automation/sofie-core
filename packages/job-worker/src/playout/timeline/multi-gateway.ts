@@ -282,6 +282,12 @@ function updatePlannedTimingsForPieceInstances(
 				)
 			}
 		}
+
+		finalizeOutTransitionPiecesInPreviousPart(
+			playoutModel.previousPartInstances[1],
+			previousPartInstance,
+			partGroupTimings.previousEndTime
+		)
 	}
 
 	// Ensure any pieces have up to date timings
@@ -454,6 +460,46 @@ function setPlannedTimingsOnOutTransitionPiece(
 	} else {
 		// Not known yet, or not being played
 		pieceInstance.setPlannedStartedPlayback(undefined)
+	}
+}
+
+/**
+ * The out transition pieces of an exclusive transition are placed in the PartInstance being transitioned into, so are
+ * stopped when that ends. Once that PartInstance has been taken out of its end is known, so any of these pieces which
+ * are still unbounded can be given a planned stop
+ * @param partInstance The PartInstance the out transition pieces belong to
+ * @param nextPartInstance The PartInstance the out transition pieces were placed in
+ * @param nextPartPlannedEnd The planned end of `nextPartInstance`
+ */
+function finalizeOutTransitionPiecesInPreviousPart(
+	partInstance: PlayoutPartInstanceModel | undefined,
+	nextPartInstance: PlayoutPartInstanceModel,
+	nextPartPlannedEnd: Time | undefined
+): void {
+	if (!partInstance || nextPartPlannedEnd === undefined) return
+
+	const partTimings = partInstance.partInstance.partPlayoutTimings
+	if (!partTimings) return
+
+	for (const pieceInstance of partInstance.pieceInstances) {
+		if (!isOutTransitionPieceType(pieceInstance.pieceInstance.piece.pieceType)) continue
+		if (pieceInstance.pieceInstance.plannedStartedPlayback === undefined) continue
+
+		const placement = getOutTransitionPiecePlacement(
+			partTimings,
+			nextPartInstance.partInstance.partPlayoutTimings,
+			partInstance.partInstance.part.outTransition,
+			pieceInstance.pieceInstance.piece
+		)
+		if (!placement?.inNextPart) continue
+
+		// Preserve an earlier end from the duration of the piece
+		const plannedStoppedPlayback = pieceInstance.pieceInstance.plannedStoppedPlayback
+		pieceInstance.setPlannedStoppedPlayback(
+			plannedStoppedPlayback !== undefined
+				? Math.min(plannedStoppedPlayback, nextPartPlannedEnd)
+				: nextPartPlannedEnd
+		)
 	}
 }
 

@@ -47,6 +47,7 @@ import {
 	setupRundownWithExclusiveOutTransitionAndInTransitionPiece,
 	setupRundownWithLongExclusiveOutTransition,
 	setupRundownWithLongInTransition,
+	setupRundownWithUnboundedExclusiveOutTransitionAndThreeParts,
 	setupRundownWithOutTransitionAndPreroll2,
 	setupRundownWithOutTransitionAndInTransition,
 	setupRundownWithOutTransitionEnableHold,
@@ -2038,6 +2039,35 @@ describe('Timeline', () => {
 				expect(inPiece.plannedStoppedPlayback).toBeUndefined()
 			}
 
+			/**
+			 * Check the out transition piece of the first part, which has no duration so is stopped by the end of the
+			 * second part
+			 */
+			async function checkUnboundedOutTransitionPiece(
+				rundownId0: RundownId,
+				parts: DBPart[],
+				secondPartHasEnded: boolean
+			) {
+				const partInstances = await context.directCollections.PartInstances.findFetch({ rundownId: rundownId0 })
+				const firstPartInstance = partInstances.find((p) => p.part._id === parts[0]._id)
+				const secondPartInstance = partInstances.find((p) => p.part._id === parts[1]._id)
+				expect(firstPartInstance).toBeTruthy()
+				expect(secondPartInstance).toBeTruthy()
+
+				// It starts with the transition, at the start of the second part
+				const outPiece = await getPieceInstanceForPiece(firstPartInstance!._id, rundownId0 + '_piece002')
+				expect(outPiece.plannedStartedPlayback).toBe(secondPartInstance!.timings?.plannedStartedPlayback)
+
+				if (secondPartHasEnded) {
+					// It is stopped when the second part ends, not when the first part ends at the keepalive
+					expect(secondPartInstance!.timings?.plannedStoppedPlayback).toBeTruthy()
+					expect(outPiece.plannedStoppedPlayback).toBe(secondPartInstance!.timings?.plannedStoppedPlayback)
+				} else {
+					// The end of the second part is not known yet
+					expect(outPiece.plannedStoppedPlayback).toBeUndefined()
+				}
+			}
+
 			testTransitionTimings(
 				'additive outTransition and inTransition',
 				setupRundownWithOutTransitionAndInTransition,
@@ -2097,6 +2127,42 @@ describe('Timeline', () => {
 						previousPartInstance
 					)
 			)
+
+			// eslint-disable-next-line jest/expect-expect
+			test('exclusive outTransition piece without a duration is stopped when the part it was placed in ends', async () =>
+				runTimelineTimings(
+					setupRundownWithUnboundedExclusiveOutTransitionAndThreeParts,
+					async (playlistId, rundownId, parts) => {
+						const takeAndReportPlayback = async (
+							expectedPreviousPartId: PartId | null,
+							expectedCurrentPartId: PartId,
+							expectedNextPartId: PartId | null
+						) => {
+							const { currentPartInstance } = await doTakePart(
+								context,
+								playlistId,
+								expectedPreviousPartId,
+								expectedCurrentPartId,
+								expectedNextPartId
+							)
+							await doAutoPlayoutPlaybackChangedForPart(
+								context,
+								playlistId,
+								currentPartInstance!._id,
+								getCurrentTime()
+							)
+						}
+
+						await takeAndReportPlayback(null, parts[0]._id, parts[1]._id)
+						await takeAndReportPlayback(parts[0]._id, parts[1]._id, parts[2]._id)
+
+						await checkUnboundedOutTransitionPiece(rundownId, parts, false)
+
+						await takeAndReportPlayback(parts[1]._id, parts[2]._id, null)
+
+						await checkUnboundedOutTransitionPiece(rundownId, parts, true)
+					}
+				))
 		})
 
 		describe('Infinite Pieces', () => {

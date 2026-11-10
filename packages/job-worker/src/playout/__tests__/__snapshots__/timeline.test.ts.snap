@@ -85,6 +85,23 @@ exports[`Timeline Multi-gateway mode Transition piece planned timings exclusive 
 ]
 `;
 
+exports[`Timeline Multi-gateway mode Transition piece planned timings exclusive outTransition piece without a duration is stopped when the part it was placed in ends 1`] = `
+[
+  {
+    "_id": "mockStudio0",
+    "generated": 12345,
+    "generationVersions": {
+      "blueprintId": "studioBlueprint0",
+      "blueprintVersion": "-",
+      "core": "0.0.0-test",
+      "studio": "asdf",
+    },
+    "timelineBlob": "[]",
+    "timelineHash": "randomId9013",
+  },
+]
+`;
+
 exports[`Timeline Multi-gateway mode Transition piece planned timings inTransition matching the exclusive outTransition piece which outlives the keepalive 1`] = `
 [
   {
