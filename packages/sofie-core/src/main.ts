@@ -156,7 +156,7 @@ const processLifetime = new AbortController()
 		startExternalMessageQueueStatusMonitor(processLifetime.signal),
 	])
 
-	startCronjobs()
+	startCronjobs(processLifetime.signal)
 	startPerformanceMonitor(ddpConnectionRegistry)
 
 	// Build the http server and everything mounted on it, then start listening once it is all attached
@@ -167,7 +167,7 @@ const processLifetime = new AbortController()
 	// Ensure all the publications were registered at startup
 	if (isInDevelopmentMode()) publicationRegistry.verifyAllPublicationsRegistered()
 
-	startTimeJumpDetector()
+	startTimeJumpDetector(processLifetime.signal)
 })().catch((e) => {
 	logger.error(`Startup failed: ${stringifyError(e)}`)
 

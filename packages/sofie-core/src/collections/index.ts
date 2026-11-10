@@ -31,6 +31,7 @@ import { ObserveChangesForHash } from './lib'
 import { logger } from '../logging'
 import { allowOnlyFields, rejectFields } from '../security/allowDeny'
 import { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
+import { setIntervalForSignal } from '../lib/observerLifetime'
 
 export * from './bucket'
 export * from './packages-media'
@@ -234,7 +235,7 @@ const removeOldCommands = () => {
 }
 
 export async function startRundownVersionHashObservers(signal: AbortSignal): Promise<void> {
-	setInterval(() => removeOldCommands(), 5 * 60 * 1000)
+	setIntervalForSignal(() => removeOldCommands(), 5 * 60 * 1000, signal)
 
 	await Promise.allSettled([
 		ObserveChangesForHash(

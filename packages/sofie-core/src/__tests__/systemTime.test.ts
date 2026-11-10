@@ -11,7 +11,8 @@ describe('lib/systemTime', () => {
 		const mockProcessHrtime = jest.spyOn(global.process.hrtime, 'bigint').mockImplementation(() => monotonicNow)
 
 		const timeJumpDetector = new TimeJumpDetector(10000, mockCallback)
-		timeJumpDetector.start()
+		const lifetime = new AbortController()
+		timeJumpDetector.start(lifetime.signal)
 
 		jest.advanceTimersByTime(11000)
 		await runTimersUntilNow()
@@ -32,6 +33,7 @@ describe('lib/systemTime', () => {
 		await runTimersUntilNow()
 		expect(mockCallback).toHaveBeenCalledTimes(0)
 
+		lifetime.abort()
 		mockDateNow.mockRestore()
 		mockProcessHrtime.mockRestore()
 	})

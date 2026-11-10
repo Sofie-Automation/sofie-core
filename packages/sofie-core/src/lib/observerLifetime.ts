@@ -54,6 +54,16 @@ export function runOnAbort(signal: AbortSignal, cleanup: () => void | Promise<vo
 	}
 }
 
+/**
+ * `setInterval` for the lifetime of `signal`: the interval is cleared when the signal aborts, and is never
+ * started if it already has.
+ */
+export function setIntervalForSignal(fn: () => void, intervalMs: number, signal: AbortSignal): void {
+	if (signal.aborted) return
+	const interval = setInterval(fn, intervalMs)
+	signal.addEventListener('abort', () => clearInterval(interval), { once: true })
+}
+
 function runIgnoringErrors(cleanup: () => void | Promise<void>): void {
 	try {
 		const res = cleanup()
