@@ -2,7 +2,7 @@ import { RundownId, RundownPlaylistId, SegmentId } from '@sofie-automation/corel
 import { ProtectedString, protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { UISegmentPartNote } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
 import { CustomPublishCollection } from '../../../lib/customPublication'
-import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection/index'
 import { manipulateUISegmentPartNotesPublicationData, UISegmentPartNotesState } from '../publication'
 import { ContentCache } from '../reactiveContentCache'
 import * as generateNotesForSegment from '../generateNotesForSegment'

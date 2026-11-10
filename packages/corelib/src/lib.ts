@@ -1,14 +1,14 @@
 import _ from 'underscore'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 import fastClone from 'fast-clone'
-import { ProtectedString, protectString } from './protectedString.js'
+import { type ProtectedString, protectString } from './protectedString.js'
 import * as objectPath from 'object-path'
 import { Timecode } from './timecode.js'
-import { iterateDeeply, iterateDeeplyEnum, Time } from '@sofie-automation/blueprints-integration'
-import { IStudioSettings } from './dataModel/Studio.js'
+import { iterateDeeply, iterateDeeplyEnum, type Time } from '@sofie-automation/blueprints-integration'
+import type { IStudioSettings } from './dataModel/Studio.js'
 import { customAlphabet as createNanoid } from 'nanoid'
 import type { ITranslatableMessage } from './TranslatableMessage.js'
-import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
+import type { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep.js'
 
 /**
  * Limited character set to use for id generation

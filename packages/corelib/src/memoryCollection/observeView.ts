@@ -1,15 +1,15 @@
 import type { ChangeStreamDocument } from 'mongodb'
-import { ProtectedString } from '../protectedString.js'
+import type { ProtectedString } from '../protectedString.js'
 import { clone } from '../lib.js'
 import {
-	MongoQuery,
-	MongoFieldSpecifier,
-	SortSpecifier,
+	type MongoQuery,
+	type MongoFieldSpecifier,
+	type SortSpecifier,
 	mongoWhere,
 	mongoProjectDocument,
 	makeMongoSortComparator,
-	ObserveCallbacks,
-	ObserveChangesCallbacks,
+	type ObserveCallbacks,
+	type ObserveChangesCallbacks,
 } from '../mongo.js'
 import { diffObject } from '../diffObject.js'
 

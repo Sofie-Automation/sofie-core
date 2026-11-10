@@ -1,5 +1,5 @@
 import { TSR } from '@sofie-automation/blueprints-integration'
-import { TimelineObjGeneric, TimelineObjType } from '../dataModel/Timeline.js'
+import { type TimelineObjGeneric, TimelineObjType } from '../dataModel/Timeline.js'
 import {
 	formatDateAsTimecode,
 	formatDurationAsTimecode,

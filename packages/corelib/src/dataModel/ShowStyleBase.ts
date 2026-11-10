@@ -1,8 +1,13 @@
-import { IBlueprintConfig, IOutputLayer, ISourceLayer, SourceLayerType } from '@sofie-automation/blueprints-integration'
-import { ObjectWithOverrides } from '../settings/objectWithOverrides.js'
-import { BlueprintHash, LastBlueprintConfig } from './Blueprint.js'
-import { BlueprintId, ShowStyleBaseId } from './Ids.js'
-import { PieceExtended } from './Piece.js'
+import type {
+	IBlueprintConfig,
+	IOutputLayer,
+	ISourceLayer,
+	SourceLayerType,
+} from '@sofie-automation/blueprints-integration'
+import type { ObjectWithOverrides } from '../settings/objectWithOverrides.js'
+import type { BlueprintHash, LastBlueprintConfig } from './Blueprint.js'
+import type { BlueprintId, ShowStyleBaseId } from './Ids.js'
+import type { PieceExtended } from './Piece.js'
 
 export interface HotkeyDefinition {
 	_id: string

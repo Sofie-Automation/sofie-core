@@ -10,7 +10,7 @@ import {
 import type { ReadonlyDeep } from 'type-fest'
 import _ from 'underscore'
 import type { ContentCache, PartCompact, PartInstanceCompact, PlaylistCompact } from './reactiveContentCache'
-import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection/index'
 import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 
 export function createIngestRundownStatus(

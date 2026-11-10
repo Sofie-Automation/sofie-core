@@ -1,6 +1,6 @@
-import { Piece } from '../dataModel/Piece.js'
-import { DBPart } from '../dataModel/Part.js'
-import {
+import type { Piece } from '../dataModel/Piece.js'
+import type { DBPart } from '../dataModel/Part.js'
+import type {
 	PartId,
 	PartInstanceId,
 	RundownId,
@@ -9,15 +9,15 @@ import {
 	ShowStyleBaseId,
 } from '../dataModel/Ids.js'
 import { PieceLifespan } from '@sofie-automation/blueprints-integration'
-import { PieceInstance, PieceInstancePiece, rewrapPieceToInstance } from '../dataModel/PieceInstance.js'
-import { DBPartInstance } from '../dataModel/PartInstance.js'
-import { DBRundown } from '../dataModel/Rundown.js'
-import { ReadonlyDeep } from 'type-fest'
+import { type PieceInstance, type PieceInstancePiece, rewrapPieceToInstance } from '../dataModel/PieceInstance.js'
+import type { DBPartInstance } from '../dataModel/PartInstance.js'
+import type { DBRundown } from '../dataModel/Rundown.js'
+import type { ReadonlyDeep } from 'type-fest'
 import { assertNever, clone, getRandomId, groupByToMapFunc, normalizeArrayToMapFunc } from '../lib.js'
 import { protectString } from '../protectedString.js'
 import _ from 'underscore'
-import { MongoQuery } from '../mongo.js'
-import { DBSegment, SegmentOrphanedReason } from '../dataModel/Segment.js'
+import type { MongoQuery } from '../mongo.js'
+import { type DBSegment, SegmentOrphanedReason } from '../dataModel/Segment.js'
 import { isValidForBranding } from './branding.js'
 
 /**

@@ -12,14 +12,14 @@
  */
 
 import {
-	PlaylistTimingBackTime,
-	PlaylistTimingDuration,
-	PlaylistTimingForwardTime,
-	PlaylistTimingNone,
+	type PlaylistTimingBackTime,
+	type PlaylistTimingDuration,
+	type PlaylistTimingForwardTime,
+	type PlaylistTimingNone,
 	PlaylistTimingType,
-	RundownPlaylistTiming,
+	type RundownPlaylistTiming,
 } from '@sofie-automation/blueprints-integration'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace PlaylistTiming {

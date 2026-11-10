@@ -1,28 +1,28 @@
-import { TSR, OnGenerateTimelineObj, Time } from '@sofie-automation/blueprints-integration'
+import type { TSR, OnGenerateTimelineObj, Time } from '@sofie-automation/blueprints-integration'
 import {
-	TimelineObjGeneric,
+	type TimelineObjGeneric,
 	TimelineObjType,
-	TimelineEnableExt,
+	type TimelineEnableExt,
 } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
-import { SetRequired } from 'type-fest'
-import { PartInstanceId, PieceInstanceInfiniteId, BlueprintId, StudioId } from './Ids.js'
+import type { SetRequired } from 'type-fest'
+import type { PartInstanceId, PieceInstanceInfiniteId, BlueprintId, StudioId } from './Ids.js'
 
 export {
 	deserializeTimelineBlob,
 	serializeTimelineBlob,
-	RoutedTimeline,
+	type RoutedTimeline,
 } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
-import { TimelineHash, TimelineBlob } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-export { TimelineHash, TimelineBlob }
-import {
+import type { TimelineHash, TimelineBlob } from '@sofie-automation/shared-lib/dist/core/model/Ids'
+export { type TimelineHash, type TimelineBlob }
+import type {
 	PartPlaybackCallbackData,
 	PiecePlaybackCallbackData,
 	PlayoutChangedType,
 	TriggerRegenerationCallbackData,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
-export { PartPlaybackCallbackData, PiecePlaybackCallbackData }
+export { type PartPlaybackCallbackData, type PiecePlaybackCallbackData }
 
-export { TimelineObjGeneric, TimelineObjType, TimelineEnableExt }
+export { type TimelineObjGeneric, TimelineObjType, type TimelineEnableExt }
 
 export enum TimelineContentTypeOther {
 	NOTHING = 'nothing',

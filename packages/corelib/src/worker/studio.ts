@@ -1,6 +1,6 @@
-import { PlayoutChangedResults } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
+import type { PlayoutChangedResults } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 import type { PeripheralDeviceExternalEvent } from '@sofie-automation/shared-lib/dist/peripheralDevice/externalEvents'
-import {
+import type {
 	AdLibActionId,
 	BucketAdLibActionId,
 	BucketAdLibId,
@@ -17,12 +17,12 @@ import {
 	SnapshotId,
 	StudioId,
 } from '../dataModel/Ids.js'
-import { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
-import { CoreRundownPlaylistSnapshot } from '../snapshots.js'
-import { BlueprintSnapshotType, NoteSeverity } from '@sofie-automation/blueprints-integration'
-import { ITranslatableMessage } from '../TranslatableMessage.js'
-import { QuickLoopMarker } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
-import { RundownTTimerIndex } from '../dataModel/RundownPlaylist/TTimers.js'
+import type { JSONBlob } from '@sofie-automation/shared-lib/dist/lib/JSONBlob'
+import type { CoreRundownPlaylistSnapshot } from '../snapshots.js'
+import type { BlueprintSnapshotType, NoteSeverity } from '@sofie-automation/blueprints-integration'
+import type { ITranslatableMessage } from '../TranslatableMessage.js'
+import type { QuickLoopMarker } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
+import type { RundownTTimerIndex } from '../dataModel/RundownPlaylist/TTimers.js'
 
 /** List of all Jobs performed by the Worker related to a certain Studio */
 export enum StudioJobs {

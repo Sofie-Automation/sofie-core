@@ -1,38 +1,38 @@
-import { IBlueprintConfig, TSR } from '@sofie-automation/blueprints-integration'
-import { ObjectWithOverrides } from '../settings/objectWithOverrides.js'
-import { StudioId, BlueprintId, ShowStyleBaseId, MappingsHash, PeripheralDeviceId } from './Ids.js'
-import { BlueprintHash, LastBlueprintConfig } from './Blueprint.js'
-import { MappingsExt, MappingExt } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
+import type { IBlueprintConfig, TSR } from '@sofie-automation/blueprints-integration'
+import type { ObjectWithOverrides } from '../settings/objectWithOverrides.js'
+import type { StudioId, BlueprintId, ShowStyleBaseId, MappingsHash, PeripheralDeviceId } from './Ids.js'
+import type { BlueprintHash, LastBlueprintConfig } from './Blueprint.js'
+import type { MappingsExt, MappingExt } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
 import {
-	ResultingMappingRoute,
-	RouteMapping,
+	type ResultingMappingRoute,
+	type RouteMapping,
 	StudioRouteBehavior,
-	ResultingMappingRoutes,
-	StudioRouteSet,
-	StudioRouteSetExclusivityGroup,
+	type ResultingMappingRoutes,
+	type StudioRouteSet,
+	type StudioRouteSetExclusivityGroup,
 	StudioRouteType,
-	StudioAbPlayerDisabling,
+	type StudioAbPlayerDisabling,
 } from '@sofie-automation/shared-lib/dist/core/model/StudioRouteSet'
-import {
+import type {
 	StudioPackageContainer,
 	StudioPackageContainerSettings,
 } from '@sofie-automation/shared-lib/dist/core/model/PackageContainer'
-import { IStudioSettings } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import type { IStudioSettings } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 
-export { MappingsExt, MappingExt, MappingsHash, IStudioSettings }
+export { type MappingsExt, type MappingExt, type MappingsHash, type IStudioSettings }
 
 // RouteSet functions has been moved to shared-lib:
 // So we need to re-export them here:
 export {
-	StudioRouteSetExclusivityGroup,
-	ResultingMappingRoute,
-	RouteMapping,
+	type StudioRouteSetExclusivityGroup,
+	type ResultingMappingRoute,
+	type RouteMapping,
 	StudioRouteBehavior,
-	ResultingMappingRoutes,
-	StudioRouteSet,
+	type ResultingMappingRoutes,
+	type StudioRouteSet,
 	StudioRouteType,
-	StudioAbPlayerDisabling,
-	StudioPackageContainer,
+	type StudioAbPlayerDisabling,
+	type StudioPackageContainer,
 }
 
 export type StudioLight = Omit<DBStudio, 'mappingsWithOverrides' | 'blueprintConfigWithOverrides'>

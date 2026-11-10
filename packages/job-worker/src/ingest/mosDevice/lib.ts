@@ -1,4 +1,4 @@
-import { MOS } from '@sofie-automation/corelib'
+import { MOS } from '@sofie-automation/shared-lib/dist/mos'
 import { IngestRundown, IngestSegment } from '@sofie-automation/blueprints-integration'
 import _ from 'underscore'
 

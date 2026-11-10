@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Timecode } from '@sofie-automation/corelib/dist/index'
+import { Timecode } from '@sofie-automation/corelib/dist/timecode'
 import _ from 'underscore'
 import ClassNames from 'classnames'
 import { faCaretUp, faCaretDown } from '@fortawesome/free-solid-svg-icons'

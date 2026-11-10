@@ -1,6 +1,6 @@
-import { Time } from '@sofie-automation/blueprints-integration'
+import type { Time } from '@sofie-automation/blueprints-integration'
 import { protectString } from '../protectedString.js'
-import {
+import type {
 	PieceInstanceInfiniteId,
 	RundownPlaylistActivationId,
 	PieceInstanceId,
@@ -9,9 +9,9 @@ import {
 	PieceId,
 	ExpectedPackageId,
 } from './Ids.js'
-import { Piece } from './Piece.js'
+import type { Piece } from './Piece.js'
 import { omit } from '../lib.js'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 
 export type PieceInstancePiece = Omit<Piece, 'startRundownId' | 'startSegmentId'>
 

@@ -1,13 +1,13 @@
 import { IBlueprintPieceType, PieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import clone from 'fast-clone'
-import { EmptyPieceTimelineObjectsBlob, Piece } from '../../dataModel/Piece.js'
-import { PieceInstance, PieceInstancePiece, ResolvedPieceInstance } from '../../dataModel/PieceInstance.js'
+import { EmptyPieceTimelineObjectsBlob, type Piece } from '../../dataModel/Piece.js'
+import type { PieceInstance, PieceInstancePiece, ResolvedPieceInstance } from '../../dataModel/PieceInstance.js'
 import { literal } from '../../lib.js'
 import { protectString } from '../../protectedString.js'
 import {
 	createPartCurrentTimes,
-	PartCurrentTimes,
-	PieceInstanceWithTimings,
+	type PartCurrentTimes,
+	type PieceInstanceWithTimings,
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
 } from '../processAndPrune.js'

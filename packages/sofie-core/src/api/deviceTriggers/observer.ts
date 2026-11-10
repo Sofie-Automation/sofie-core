@@ -17,7 +17,7 @@ import { JobQueueWithClasses } from '@sofie-automation/shared-lib/dist/lib/JobQu
 import { StudioDeviceTriggerManager } from './StudioDeviceTriggerManager'
 import { StudioObserver } from './StudioObserver'
 import { Studios } from '../../collections'
-import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection/index'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { TriggersContextFactory } from './triggersContext'
 import { TagsService } from './TagsService'

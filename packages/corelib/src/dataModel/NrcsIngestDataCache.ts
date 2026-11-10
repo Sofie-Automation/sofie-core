@@ -1,6 +1,6 @@
-import { IngestRundown, IngestSegment, IngestPart } from '@sofie-automation/blueprints-integration'
-import { NrcsIngestDataCacheObjId, RundownId, SegmentId, PartId } from './Ids.js'
-import { RundownSource } from './Rundown.js'
+import type { IngestRundown, IngestSegment, IngestPart } from '@sofie-automation/blueprints-integration'
+import type { NrcsIngestDataCacheObjId, RundownId, SegmentId, PartId } from './Ids.js'
+import type { RundownSource } from './Rundown.js'
 
 /*
 	The NRCSIngestDataCache collection is used to store raw data that comes from an NRCS.

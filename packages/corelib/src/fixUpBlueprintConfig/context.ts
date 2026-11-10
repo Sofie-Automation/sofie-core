@@ -1,4 +1,4 @@
-import {
+import type {
 	IBlueprintConfig,
 	ICommonContext,
 	IFixUpConfigContext,
@@ -6,16 +6,16 @@ import {
 	JSONSchema,
 } from '@sofie-automation/blueprints-integration'
 import * as objectPath from 'object-path'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 import { literal, objectPathGet, objectPathSet, clone } from '../lib.js'
 import {
 	applyAndValidateOverrides,
 	filterOverrideOpsForPrefix,
 	findParentOpToUpdate,
-	ObjectOverrideDeleteOp,
-	ObjectOverrideSetOp,
-	ObjectWithOverrides,
-	SomeObjectOverrideOp,
+	type ObjectOverrideDeleteOp,
+	type ObjectOverrideSetOp,
+	type ObjectWithOverrides,
+	type SomeObjectOverrideOp,
 } from '../settings/objectWithOverrides.js'
 
 interface MatchedSchemaEntry {

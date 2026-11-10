@@ -1,4 +1,4 @@
-import { MOS } from '@sofie-automation/corelib'
+import { MOS } from '@sofie-automation/shared-lib/dist/mos'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 
 const mosTypes = MOS.getMosTypes(true)

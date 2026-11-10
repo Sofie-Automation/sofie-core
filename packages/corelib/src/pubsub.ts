@@ -1,31 +1,31 @@
-import { DBPart } from './dataModel/Part.js'
-import { CollectionName, CustomCollectionName } from './dataModel/Collections.js'
-import { MongoQuery } from './mongo.js'
-import { AdLibAction } from './dataModel/AdlibAction.js'
-import { AdLibPiece } from './dataModel/AdLibPiece.js'
-import { RundownBaselineAdLibAction } from './dataModel/RundownBaselineAdLibAction.js'
-import { RundownBaselineAdLibItem } from './dataModel/RundownBaselineAdLibPiece.js'
-import { DBPartInstance, PartInstance } from './dataModel/PartInstance.js'
-import { DBRundown } from './dataModel/Rundown.js'
-import { DBRundownPlaylist } from './dataModel/RundownPlaylist/RundownPlaylist.js'
-import { DBSegment } from './dataModel/Segment.js'
-import { DBShowStyleBase } from './dataModel/ShowStyleBase.js'
-import { DBShowStyleVariant } from './dataModel/ShowStyleVariant.js'
-import { DBStudio } from './dataModel/Studio.js'
-import { NrcsIngestDataCacheObj } from './dataModel/NrcsIngestDataCache.js'
-import { DBTimelineDatastoreEntry } from '@sofie-automation/shared-lib/dist/core/model/TimelineDatastore'
-import { Blueprint } from './dataModel/Blueprint.js'
-import { BucketAdLibAction } from './dataModel/BucketAdLibAction.js'
-import { BucketAdLib } from './dataModel/BucketAdLibPiece.js'
-import { ExpectedPackageWorkStatus } from './dataModel/ExpectedPackageWorkStatuses.js'
-import { ExpectedPackageDB } from './dataModel/ExpectedPackages.js'
-import { ExternalMessageQueueObj } from './dataModel/ExternalMessageQueue.js'
-import { PackageContainerStatusDB } from './dataModel/PackageContainerStatus.js'
-import { PeripheralDevice } from './dataModel/PeripheralDevice.js'
-import { Piece } from './dataModel/Piece.js'
-import { PieceInstance } from './dataModel/PieceInstance.js'
-import { TimelineComplete } from './dataModel/Timeline.js'
-import {
+import type { DBPart } from './dataModel/Part.js'
+import type { CollectionName, CustomCollectionName } from './dataModel/Collections.js'
+import type { MongoQuery } from './mongo.js'
+import type { AdLibAction } from './dataModel/AdlibAction.js'
+import type { AdLibPiece } from './dataModel/AdLibPiece.js'
+import type { RundownBaselineAdLibAction } from './dataModel/RundownBaselineAdLibAction.js'
+import type { RundownBaselineAdLibItem } from './dataModel/RundownBaselineAdLibPiece.js'
+import type { DBPartInstance, PartInstance } from './dataModel/PartInstance.js'
+import type { DBRundown } from './dataModel/Rundown.js'
+import type { DBRundownPlaylist } from './dataModel/RundownPlaylist/RundownPlaylist.js'
+import type { DBSegment } from './dataModel/Segment.js'
+import type { DBShowStyleBase } from './dataModel/ShowStyleBase.js'
+import type { DBShowStyleVariant } from './dataModel/ShowStyleVariant.js'
+import type { DBStudio } from './dataModel/Studio.js'
+import type { NrcsIngestDataCacheObj } from './dataModel/NrcsIngestDataCache.js'
+import type { DBTimelineDatastoreEntry } from '@sofie-automation/shared-lib/dist/core/model/TimelineDatastore'
+import type { Blueprint } from './dataModel/Blueprint.js'
+import type { BucketAdLibAction } from './dataModel/BucketAdLibAction.js'
+import type { BucketAdLib } from './dataModel/BucketAdLibPiece.js'
+import type { ExpectedPackageWorkStatus } from './dataModel/ExpectedPackageWorkStatuses.js'
+import type { ExpectedPackageDB } from './dataModel/ExpectedPackages.js'
+import type { ExternalMessageQueueObj } from './dataModel/ExternalMessageQueue.js'
+import type { PackageContainerStatusDB } from './dataModel/PackageContainerStatus.js'
+import type { PeripheralDevice } from './dataModel/PeripheralDevice.js'
+import type { Piece } from './dataModel/Piece.js'
+import type { PieceInstance } from './dataModel/PieceInstance.js'
+import type { TimelineComplete } from './dataModel/Timeline.js'
+import type {
 	PartId,
 	PartInstanceId,
 	PeripheralDeviceId,
@@ -34,11 +34,17 @@ import {
 	ShowStyleBaseId,
 	StudioId,
 } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import { BlueprintId, BucketId, RundownPlaylistActivationId, SegmentId, ShowStyleVariantId } from './dataModel/Ids.js'
-import { PackageInfoDB } from './dataModel/PackageInfos.js'
-import { UIPieceContentStatus } from './dataModel/PieceContentStatus.js'
-import { Bucket } from './dataModel/Bucket.js'
-import { DBNotificationObj } from './dataModel/Notifications.js'
+import type {
+	BlueprintId,
+	BucketId,
+	RundownPlaylistActivationId,
+	SegmentId,
+	ShowStyleVariantId,
+} from './dataModel/Ids.js'
+import type { PackageInfoDB } from './dataModel/PackageInfos.js'
+import type { UIPieceContentStatus } from './dataModel/PieceContentStatus.js'
+import type { Bucket } from './dataModel/Bucket.js'
+import type { DBNotificationObj } from './dataModel/Notifications.js'
 
 /**
  * Ids of possible DDP subscriptions for any the UI and gateways accessing the Rundown & RundownPlaylist model.

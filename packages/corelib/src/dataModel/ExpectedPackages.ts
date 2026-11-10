@@ -1,7 +1,7 @@
-import { ExpectedPackage, Time } from '@sofie-automation/blueprints-integration'
+import type { ExpectedPackage, Time } from '@sofie-automation/blueprints-integration'
 import { protectString } from '../protectedString.js'
 import { getHash, hashObj } from '../lib.js'
-import {
+import type {
 	AdLibActionId,
 	BucketAdLibActionId,
 	BucketAdLibId,
@@ -15,7 +15,7 @@ import {
 	SegmentId,
 	StudioId,
 } from './Ids.js'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 
 /*
  Expected Packages are created from Pieces and other content in the rundown.

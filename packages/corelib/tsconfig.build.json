@@ -7,15 +7,12 @@
 		"rootDir": "./src",
 		"outDir": "./dist",
 		"baseUrl": "./",
-		"paths": {
-			"*": ["./node_modules/*"],
-			"@sofie-automation/corelib": ["./src/index.ts"]
-		},
 		"resolveJsonModule": true,
 		"types": ["node"],
 		"esModuleInterop": true,
 		"composite": true,
-		"module": "node20"
+		"module": "node20",
+		"verbatimModuleSyntax": true
 	},
 	"references": [
 		{
