@@ -1,4 +1,4 @@
-import { Time } from './common.js'
+import type { Time } from './common.js'
 
 export interface IBlueprintExternalMessageQueueObj {
 	/** If set, the message references an existing message (that is to be overrritten) */

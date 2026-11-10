@@ -1,8 +1,4 @@
-import type {
-	IPlaylistTTimer,
-	RundownTTimerMode,
-	TimerState,
-} from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
+import type { IPlaylistTTimer, RundownTTimerMode, TimerState } from '@sofie-automation/blueprints-integration'
 import type {
 	RundownTTimer,
 	RundownTTimerIndex,

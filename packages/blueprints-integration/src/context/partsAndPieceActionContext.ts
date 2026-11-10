@@ -1,5 +1,5 @@
-import { ReadonlyDeep } from 'type-fest'
-import {
+import type { ReadonlyDeep } from 'type-fest'
+import type {
 	IBlueprintMutatablePart,
 	IBlueprintMutatablePartInstance,
 	IBlueprintPart,
@@ -11,7 +11,7 @@ import {
 	IBlueprintSegmentDB,
 	Time,
 } from '../index.js'
-import { BlueprintQuickLookInfo } from './quickLoopInfo.js'
+import type { BlueprintQuickLookInfo } from './quickLoopInfo.js'
 
 export interface IPartAndPieceActionContext {
 	/** Information about the current loop, if there is one */

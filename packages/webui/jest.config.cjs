@@ -32,6 +32,10 @@ module.exports = {
 	testMatch: ['**/__tests__/**/*.(spec|test).(ts|tsx|js)'],
 	testPathIgnorePatterns: ['integrationTests'],
 	testEnvironment: 'jsdom',
+	testEnvironmentOptions: {
+		// Resolve monorepo packages to their typescript source
+		customExportConditions: ['sofie-source', 'browser'],
+	},
 	// coverageThreshold: {
 	// 	global: {
 	// 		branches: 80,

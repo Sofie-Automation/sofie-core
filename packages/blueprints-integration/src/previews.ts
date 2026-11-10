@@ -1,9 +1,9 @@
 /**
  * This file defines the types for content previews that can be returned from blueprints.
  */
-import { SourceLayerType, SplitsContentBoxContent, SplitsContentBoxProperties } from './content.js'
-import { NoteSeverity } from './lib.js'
-import { ITranslatableMessage } from './translations.js'
+import type { SourceLayerType, SplitsContentBoxContent, SplitsContentBoxProperties } from './content.js'
+import type { NoteSeverity } from './lib.js'
+import type { ITranslatableMessage } from './translations.js'
 
 /**
  * Optional container for preview content with optional warnings and additional content.

@@ -5,6 +5,16 @@
 	"main": "dist/index.js",
 	"typings": "dist/index.d.ts",
 	"license": "MIT",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"sofie-source": "./src/index.ts",
+			"require": "./dist/index.js",
+			"import": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Sofie-Automation/sofie-core.git",

@@ -1,4 +1,4 @@
-import { Time } from '../common.js'
+import type { Time } from '../common.js'
 
 export enum PlaylistTimingType {
 	None = 'none',

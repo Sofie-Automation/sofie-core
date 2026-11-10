@@ -4,6 +4,7 @@ import {
 	IBlueprintPieceInstance,
 	ITimelineEventContext,
 	Time,
+	BlueprintQuickLookInfo,
 } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
 import { OnGenerateTimelineObjExt } from '@sofie-automation/corelib/dist/dataModel/Timeline'
@@ -24,7 +25,6 @@ import { RundownContext } from './RundownContext.js'
 import { AbSessionHelper } from '../../playout/abPlayback/abSessionHelper.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 
 export class OnTimelineGenerateContext extends RundownContext implements ITimelineEventContext {
 	readonly currentPartInstance: Readonly<IBlueprintPartInstance> | undefined

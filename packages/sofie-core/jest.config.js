@@ -9,6 +9,10 @@ const commonConfig = {
 		// Drop file extensions in imports
 		'(.+)\\.js$': '$1',
 	},
+	testEnvironmentOptions: {
+		// Resolve monorepo packages to their typescript source
+		customExportConditions: ['sofie-source', 'node', 'node-addons'],
+	},
 	unmockedModulePathPatterns: ['/^imports\\/.*\\.jsx?$/', '/^node_modules/'],
 	globals: {},
 	moduleFileExtensions: ['ts', 'js', 'json'],

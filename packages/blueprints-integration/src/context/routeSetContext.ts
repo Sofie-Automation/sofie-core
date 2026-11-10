@@ -1,4 +1,4 @@
-import { StudioRouteSet } from '@sofie-automation/shared-lib/dist/core/model/StudioRouteSet'
+import type { StudioRouteSet } from '@sofie-automation/shared-lib/dist/core/model/StudioRouteSet'
 
 export interface IRouteSetMethods {
 	/** Returns a list of the Routesets */

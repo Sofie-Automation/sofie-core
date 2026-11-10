@@ -2,10 +2,10 @@ import {
 	IBlueprintDefaultCoreSystemTriggers,
 	ICommonContext,
 	NoteSeverity,
+	ICoreSystemApplyConfigContext,
 } from '@sofie-automation/blueprints-integration'
 import { assertNever, clone, getHash } from '@sofie-automation/corelib/dist/lib'
 import { logger } from '../../logging'
-import { ICoreSystemApplyConfigContext } from '@sofie-automation/blueprints-integration/dist/context/systemApplyConfigContext'
 import { DEFAULT_CORE_TRIGGERS } from './defaultSystemActionTriggers'
 
 /**

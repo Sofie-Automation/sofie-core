@@ -16,6 +16,8 @@ import {
 	IBlueprintSegmentDB,
 	QueuePartTarget,
 	IBlueprintBrandingInfo,
+	BlueprintQuickLookInfo,
+	IPlaylistTTimer,
 } from '@sofie-automation/blueprints-integration'
 import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyDeep } from 'type-fest'
@@ -31,10 +33,8 @@ import {
 	PartAndPieceInstanceActionService,
 	QueueablePartAndPieces,
 } from './services/PartAndPieceInstanceActionService.js'
-import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
 import { convertPartToBlueprints, emitIngestOperation, resolveSelectedBranding } from './lib.js'
-import type { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
 import { TTimersService } from './services/TTimersService.js'
 import type { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 

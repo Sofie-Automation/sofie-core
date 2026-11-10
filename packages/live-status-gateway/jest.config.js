@@ -25,6 +25,10 @@ module.exports = {
 	testMatch: ['**/__tests__/**/*.(spec|test).(ts|js)'],
 	testPathIgnorePatterns: ['integrationTests'],
 	testEnvironment: 'node',
+	testEnvironmentOptions: {
+		// Resolve monorepo packages to their typescript source
+		customExportConditions: ['sofie-source', 'node', 'node-addons'],
+	},
 	// coverageThreshold: {
 	// 	global: {
 	// 		branches: 100,
