@@ -2,6 +2,8 @@ import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { optimizedObserverCountSubscribers, setUpOptimizedObserverInner, TriggerUpdate } from '../optimizedObserverBase'
 import { CustomPublish, CustomPublishChanges } from '../publish'
 import { sleep } from '../../lib'
+import { testWithAbort } from '../../../__mocks__/helpers/testWithAbort'
+import { type AbortScope, createChildAbort } from '../../observerLifetime'
 
 interface CustomPublishMockExt {
 	stop: () => void
@@ -10,12 +12,19 @@ interface CustomPublishMockExt {
 class CustomPublishMock<DBObj extends { _id: ProtectedString<any> }>
 	implements CustomPublish<DBObj>, CustomPublishMockExt
 {
-	static create<DBObj extends { _id: ProtectedString<any> }>(): CustomPublish<DBObj> & CustomPublishMockExt {
-		const mock = new CustomPublishMock<DBObj>()
+	/** @param signal The lifetime of the test, which this subscriber cannot outlive */
+	static create<DBObj extends { _id: ProtectedString<any> }>(
+		signal: AbortSignal
+	): CustomPublish<DBObj> & CustomPublishMockExt {
+		const mock = new CustomPublishMock<DBObj>(signal)
 		return mock as CustomPublish<DBObj> & CustomPublishMockExt
 	}
 
-	readonly #abort = new AbortController()
+	readonly #abort: AbortScope
+
+	private constructor(signal: AbortSignal) {
+		this.#abort = createChildAbort(signal)
+	}
 
 	get isReady(): boolean {
 		return false
@@ -45,9 +54,9 @@ function emptyChanges<DBObj extends { _id: ProtectedString<any> }>(): CustomPubl
 type ManipulateDataRes = [any[], CustomPublishChanges<any>]
 
 describe('optimizedObserver base', () => {
-	test('setup observer with pair of subscribers', async () => {
-		const receiver = CustomPublishMock.create<any>()
-		const receiver2 = CustomPublishMock.create<any>()
+	testWithAbort('setup observer with pair of subscribers', async ({ signal }) => {
+		const receiver = CustomPublishMock.create<any>(signal)
+		const receiver2 = CustomPublishMock.create<any>(signal)
 
 		try {
 			let triggerUpdate: TriggerUpdate<Record<string, never>> | undefined
@@ -99,9 +108,9 @@ describe('optimizedObserver base', () => {
 		}
 	})
 
-	test('remove the first subscribers while second joins', async () => {
-		const receiver = CustomPublishMock.create<any>()
-		const receiver2 = CustomPublishMock.create<any>()
+	testWithAbort('remove the first subscribers while second joins', async ({ signal }) => {
+		const receiver = CustomPublishMock.create<any>(signal)
+		const receiver2 = CustomPublishMock.create<any>(signal)
 
 		try {
 			const setupObservers = jest.fn(async () => {})

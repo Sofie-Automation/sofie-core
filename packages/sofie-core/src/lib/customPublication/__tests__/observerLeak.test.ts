@@ -8,6 +8,8 @@ import { protectString, ProtectedString } from '@sofie-automation/corelib/dist/p
 import { createMockCollection, WrappedMockCollection } from '../../../collections/implementations/mock'
 import { setUpOptimizedObserverInner } from '../optimizedObserverBase'
 import type { CustomPublish, CustomPublishChanges } from '../publish'
+import { testWithAbort } from '../../../__mocks__/helpers/testWithAbort'
+import { type AbortScope, createChildAbort } from '../../observerLifetime'
 
 interface TestDoc {
 	_id: ProtectedString<'TestDoc'>
@@ -16,7 +18,12 @@ interface TestDoc {
 
 /** A subscriber whose lifetime we can end, as unsubscribing would */
 class SubscriberMock implements CustomPublish<TestDoc> {
-	readonly #abort = new AbortController()
+	readonly #abort: AbortScope
+
+	/** @param signal The lifetime of the test, which this subscriber cannot outlive */
+	constructor(signal: AbortSignal) {
+		this.#abort = createChildAbort(signal)
+	}
 
 	get isReady(): boolean {
 		return false
@@ -50,40 +57,43 @@ describe('optimizedObserver observer lifetimes', () => {
 		return collection.mockCollection.observers.length
 	}
 
-	test('a throw partway through setupObservers releases the observers it already started', async () => {
-		const setupFailed = new Error('third observer failed')
+	testWithAbort(
+		'a throw partway through setupObservers releases the observers it already started',
+		async ({ signal }) => {
+			const setupFailed = new Error('third observer failed')
 
+			const setupObservers = async (_args: any, _triggerUpdate: any, signal: AbortSignal) => {
+				await collection.observeChanges({}, {}, { signal })
+				await collection.observeChanges({}, {}, { signal })
+
+				expect(liveObserverCount()).toBe(2)
+
+				// Before this migration, the two observers above were owned by handles this throw skipped past
+				throw setupFailed
+			}
+
+			await expect(
+				setUpOptimizedObserverInner(
+					'leak_setup_throws',
+					{},
+					setupObservers,
+					manipulateData,
+					new SubscriberMock(signal),
+					0
+				)
+			).rejects.toBe(setupFailed)
+
+			expect(liveObserverCount()).toBe(0)
+		}
+	)
+
+	testWithAbort('the observers are released once the last subscriber unsubscribes', async ({ signal }) => {
 		const setupObservers = async (_args: any, _triggerUpdate: any, signal: AbortSignal) => {
 			await collection.observeChanges({}, {}, { signal })
 			await collection.observeChanges({}, {}, { signal })
-
-			expect(liveObserverCount()).toBe(2)
-
-			// Before this migration, the two observers above were owned by handles this throw skipped past
-			throw setupFailed
 		}
 
-		await expect(
-			setUpOptimizedObserverInner(
-				'leak_setup_throws',
-				{},
-				setupObservers,
-				manipulateData,
-				new SubscriberMock(),
-				0
-			)
-		).rejects.toBe(setupFailed)
-
-		expect(liveObserverCount()).toBe(0)
-	})
-
-	test('the observers are released once the last subscriber unsubscribes', async () => {
-		const setupObservers = async (_args: any, _triggerUpdate: any, signal: AbortSignal) => {
-			await collection.observeChanges({}, {}, { signal })
-			await collection.observeChanges({}, {}, { signal })
-		}
-
-		const subscriber = new SubscriberMock()
+		const subscriber = new SubscriberMock(signal)
 		await setUpOptimizedObserverInner('leak_last_subscriber', {}, setupObservers, manipulateData, subscriber, 0)
 
 		expect(liveObserverCount()).toBe(2)

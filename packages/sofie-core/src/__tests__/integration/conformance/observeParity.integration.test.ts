@@ -58,12 +58,12 @@ async function waitForCounts(sink: Sink, expected: Script['expected']): Promise<
 	await settle() // give any (erroneous) extra events a chance to arrive, so the comparison catches them
 }
 
-async function runMock(script: Script): Promise<Sink> {
+async function runMock(signal: AbortSignal, script: Script): Promise<Sink> {
 	const col = createMockCollection<TestDoc>('obs_mock')
 	col.asyncBulkWriteDelay = 0
 	col.mockCollection.mockSetData(script.seed) // seed without firing observe events
 	const sink = newSink()
-	const abort = new AbortController()
+	const abort = createChildAbort(signal)
 	await col.observeChanges(
 		script.selector,
 		{
@@ -94,10 +94,10 @@ async function runMock(script: Script): Promise<Sink> {
 	}
 }
 
-async function runReal(client: MongoClient, script: Script): Promise<Sink> {
+async function runReal(signal: AbortSignal, client: MongoClient, script: Script): Promise<Sink> {
 	const collection: Collection<any> = await freshCollection<TestDoc>(client, script.seed)
 	const sink = newSink()
-	const abort = new AbortController()
+	const abort = createChildAbort(signal)
 	const m = makeMultiplexer(client, collection, script.selector, script.projection)
 	try {
 		await subscribeChanges(m, sink, abort.signal)
@@ -175,11 +175,13 @@ describe('observeChanges parity: mock vs real change stream', () => {
 
 	// No explicit timeout: the project default leaves `waitFor` room to report which counts it was
 	// still waiting for, rather than jest cutting the test off first with a bare "Exceeded timeout"
-	test.each(scripts.map((s) => [s.name, s] as const))('%s', async (_name, script) => {
-		const mock = await runMock(script)
-		const real = await runReal(client, script)
-		expect(normalizeSink(mock)).toEqual(normalizeSink(real))
-	})
+	for (const script of scripts) {
+		testWithAbort(script.name, async ({ signal }) => {
+			const mock = await runMock(signal, script)
+			const real = await runReal(signal, client, script)
+			expect(normalizeSink(mock)).toEqual(normalizeSink(real))
+		})
+	}
 
 	testWithAbort('observe() delivers identical full-document transitions', async ({ signal }) => {
 		// Mock side

@@ -60,6 +60,7 @@ import { RundownPlaylists } from '../../../collections'
 import { MongoMock } from '../../../__mocks__/mongo'
 import { DeviceActionId } from '@sofie-automation/meteor-lib/dist/api/MountedTriggers'
 import { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
+import { testWithAbort } from '../../../__mocks__/helpers/testWithAbort'
 
 type AdLibFilterChain = (IRundownPlaylistFilterLink | IGUIContextFilterLink | IAdLibFilterLink)[]
 
@@ -127,27 +128,24 @@ function adLibAction(id: string, label: string, rank: number, partId: PartId | u
 	}
 }
 
-/** The lifetimes of every cache built by `createAndPopulateCache`, aborted in `afterEach`. */
-const cacheLifetimes: AbortController[] = []
-
 /**
  * A playlist with two segments, each holding one part with one adLib piece, plus a global adLib piece and
  * action. The labels are deliberately in the opposite order to the segment ranks, so that a result sorted by
  * label (which is what happens when the rundown/segment/part ranks cannot be resolved) is distinguishable
  * from one sorted by position in the rundown.
  */
+/** @param signal The lifetime of the cache: the test's */
 function createAndPopulateCache(
+	signal: AbortSignal,
 	pieceLabels: { inPart0: string; inPart1: string } = { inPart0: 'B piece', inPart1: 'A piece' },
 	filterChain: AdLibFilterChain = [{ object: 'view' }]
 ): ContentCache {
-	const lifetime = new AbortController()
-	cacheLifetimes.push(lifetime)
 	const cache = createReactiveContentCache(
 		() => {
 			// Nothing to react to: the test drives `updateTriggers` itself
 		},
 		0,
-		lifetime.signal
+		signal
 	)
 
 	insertProjected<DBRundownPlaylist>(cache.RundownPlaylists, rundownPlaylistFieldSpecifier, {
@@ -324,15 +322,14 @@ describe('StudioDeviceTriggerManager', () => {
 		await manager?.clearTriggers()
 		await manager?.stop()
 		manager = undefined
-		while (cacheLifetimes.length) cacheLifetimes.pop()?.abort()
 		DeviceTriggerMountedActions.remove({})
 		DeviceTriggerMountedActionAdlibsPreview.remove({})
 	})
 
-	it('mounts the actions and previews from the content cache', async () => {
+	testWithAbort('mounts the actions and previews from the content cache', async ({ signal }) => {
 		const manager = createManager()
 
-		await manager.updateTriggers(createAndPopulateCache(), showStyleBaseId)
+		await manager.updateTriggers(createAndPopulateCache(signal), showStyleBaseId)
 
 		expect(
 			DeviceTriggerMountedActions.findFetch({}).map((action) => ({
@@ -362,16 +359,16 @@ describe('StudioDeviceTriggerManager', () => {
 		])
 	})
 
-	it('reads the replacement cache after the set of rundowns changes', async () => {
+	testWithAbort('reads the replacement cache after the set of rundowns changes', async ({ signal }) => {
 		const manager = createManager()
 
-		await manager.updateTriggers(createAndPopulateCache(), showStyleBaseId)
+		await manager.updateTriggers(createAndPopulateCache(signal), showStyleBaseId)
 		const actionIdsBefore = mountedActionIds()
 		expect(previewLabels()).toContain('B piece')
 
 		// A new ContentCache, as `RundownContentObserver` builds whenever the rundown set changes
 		await manager.updateTriggers(
-			createAndPopulateCache({ inPart0: 'B piece v2', inPart1: 'A piece v2' }),
+			createAndPopulateCache(signal, { inPart0: 'B piece v2', inPart1: 'A piece v2' }),
 			showStyleBaseId
 		)
 
@@ -388,7 +385,7 @@ describe('StudioDeviceTriggerManager', () => {
 		expect(mountedActionIds()).toEqual(actionIdsBefore)
 	})
 
-	it('executes the action with the adLib data from the cache', async () => {
+	testWithAbort('executes the action with the adLib data from the cache', async ({ signal }) => {
 		const executeAction = jest.fn(async () => ClientAPI.responseSuccess(undefined))
 		const segmentAdLibPieceStart = jest.fn(async () => ClientAPI.responseSuccess(undefined))
 		const baselineAdLibPieceStart = jest.fn(async () => ClientAPI.responseSuccess(undefined))
@@ -396,7 +393,7 @@ describe('StudioDeviceTriggerManager', () => {
 			userAction: { executeAction, segmentAdLibPieceStart, baselineAdLibPieceStart },
 		} as unknown as IMeteorCall)
 
-		await manager.updateTriggers(createAndPopulateCache(), showStyleBaseId)
+		await manager.updateTriggers(createAndPopulateCache(signal), showStyleBaseId)
 
 		const actionManager = StudioActionManagers.get(studioId)
 		const action = actionManager?.getAction(mountedActionIds()[0])
@@ -435,21 +432,24 @@ describe('StudioDeviceTriggerManager', () => {
 			MongoMock.deleteAllData()
 		})
 
-		it('builds the context from the cache when the chain matches the observed playlist', async () => {
-			const cache = createAndPopulateCache()
+		testWithAbort(
+			'builds the context from the cache when the chain matches the observed playlist',
+			async ({ signal }) => {
+				const cache = createAndPopulateCache(signal)
 
-			const context = createMeteorTriggersContext({} as IMeteorCall, () => cache)
-			const result = await context.createContextForRundownPlaylistChain(studioId, activationChain)
+				const context = createMeteorTriggersContext({} as IMeteorCall, () => cache)
+				const result = await context.createContextForRundownPlaylistChain(studioId, activationChain)
 
-			expect(result?.rundownPlaylistId.get(null)).toBe(playlistId)
-			expect(result?.currentPartId.get(null)).toBe(partId0)
-		})
+				expect(result?.rundownPlaylistId.get(null)).toBe(playlistId)
+				expect(result?.currentPartId.get(null)).toBe(partId0)
+			}
+		)
 
-		it('resolves the chain against the cache, not the database', async () => {
+		testWithAbort('resolves the chain against the cache, not the database', async ({ signal }) => {
 			// The database says the playlist is in rehearsal, the cache (which is what the rest of the
 			// evaluation reads) says it is not. The chain must follow the cache, so that one evaluation
 			// cannot straddle two snapshots.
-			const cache = createAndPopulateCache()
+			const cache = createAndPopulateCache(signal)
 			MongoMock.getInnerMockCollection(RundownPlaylists).insert({
 				_id: playlistId,
 				studioId,
@@ -468,8 +468,8 @@ describe('StudioDeviceTriggerManager', () => {
 			).resolves.toBeUndefined()
 		})
 
-		it('matches a name filter link, which compiles to a $regex selector', async () => {
-			const cache = createAndPopulateCache()
+		testWithAbort('matches a name filter link, which compiles to a $regex selector', async ({ signal }) => {
+			const cache = createAndPopulateCache(signal)
 			const context = createMeteorTriggersContext({} as IMeteorCall, () => cache)
 
 			const matchingChain: IRundownPlaylistFilterLink[] = [
@@ -489,8 +489,8 @@ describe('StudioDeviceTriggerManager', () => {
 			).resolves.toBeUndefined()
 		})
 
-		it('gives up when the chain does not match the observed playlist', async () => {
-			const cache = createAndPopulateCache()
+		testWithAbort('gives up when the chain does not match the observed playlist', async ({ signal }) => {
+			const cache = createAndPopulateCache(signal)
 
 			const context = createMeteorTriggersContext({} as IMeteorCall, () => cache)
 
@@ -505,11 +505,11 @@ describe('StudioDeviceTriggerManager', () => {
 		})
 	})
 
-	it('filters previews by adLib label, which compiles to a $regex selector', async () => {
+	testWithAbort('filters previews by adLib label, which compiles to a $regex selector', async ({ signal }) => {
 		const manager = createManager()
 
 		await manager.updateTriggers(
-			createAndPopulateCache(undefined, [
+			createAndPopulateCache(signal, undefined, [
 				{ object: 'view' },
 				{ object: 'adLib', field: 'label', value: ['B piece', 'C action'] },
 			]),

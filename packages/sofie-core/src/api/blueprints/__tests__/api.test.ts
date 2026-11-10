@@ -17,19 +17,23 @@ import { JSONBlobStringify } from '@sofie-automation/shared-lib/dist/lib/JSONBlo
 import * as CoreSystemAPI from '../../../coreSystem'
 import { makeMeteorCallForTest } from '../../../__mocks__/helpers/methods'
 import { DDPClientConnection } from '../../../ddp-server/types'
+import { testWithAbort } from '../../../__mocks__/helpers/testWithAbort'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../deviceTriggers/observer')
 
 const MeteorCall = makeMeteorCallForTest({ methods: BlueprintAPIMethods, class: ServerBlueprintAPI })
 
-const DEFAULT_CONNECTION: DDPClientConnection = {
-	id: 'mockConnectionId',
-	signal: new AbortController().signal, // noop signal for tests
-	close: () => undefined,
-	onClose: () => undefined,
-	clientAddress: '127.0.0.1',
-	httpHeaders: {},
+/** @param signal The lifetime of the connection: the test's */
+function mockConnection(signal: AbortSignal): DDPClientConnection {
+	return {
+		id: 'mockConnectionId',
+		signal,
+		close: () => undefined,
+		onClose: () => undefined,
+		clientAddress: '127.0.0.1',
+		httpHeaders: {},
+	}
 }
 
 describe('Test blueprint management api', () => {
@@ -192,9 +196,9 @@ describe('Test blueprint management api', () => {
 			expect(blueprint.name).toBeTruthy()
 			expect(blueprint.blueprintType).toBeFalsy()
 		})
-		test('with name', async () => {
+		testWithAbort('with name', async ({ signal }) => {
 			const rawName = 'some_fake_name'
-			const newId = await insertBlueprint(DEFAULT_CONNECTION, undefined, rawName)
+			const newId = await insertBlueprint(mockConnection(signal), undefined, rawName)
 			expect(newId).toBeTruthy()
 
 			// Check some props
@@ -203,9 +207,9 @@ describe('Test blueprint management api', () => {
 			expect(blueprint.name).toEqual(rawName)
 			expect(blueprint.blueprintType).toBeFalsy()
 		})
-		test('with type', async () => {
+		testWithAbort('with type', async ({ signal }) => {
 			const type = BlueprintManifestType.STUDIO
-			const newId = await insertBlueprint(DEFAULT_CONNECTION, type)
+			const newId = await insertBlueprint(mockConnection(signal), type)
 			expect(newId).toBeTruthy()
 
 			// Check some props
@@ -217,23 +221,23 @@ describe('Test blueprint management api', () => {
 	})
 
 	describe('uploadBlueprint', () => {
-		test('empty id', async () => {
-			await expect(uploadBlueprint(DEFAULT_CONNECTION, protectString(''), '0')).rejects.toThrowSofieError(
+		testWithAbort('empty id', async ({ signal }) => {
+			await expect(uploadBlueprint(mockConnection(signal), protectString(''), '0')).rejects.toThrowSofieError(
 				400,
 				'Blueprint id "" is not valid'
 			)
 		})
-		test('empty body', async () => {
-			await expect(uploadBlueprint(DEFAULT_CONNECTION, protectString('blueprint99'), '')).rejects.toMatchToString(
-				/Error evaluating Blueprint "blueprint99"(.+)/
-			)
-		})
-		test('body not a manifest', async () => {
+		testWithAbort('empty body', async ({ signal }) => {
 			await expect(
-				uploadBlueprint(DEFAULT_CONNECTION, protectString('blueprint99'), `({default: (() => 5)()})`)
+				uploadBlueprint(mockConnection(signal), protectString('blueprint99'), '')
+			).rejects.toMatchToString(/Error evaluating Blueprint "blueprint99"(.+)/)
+		})
+		testWithAbort('body not a manifest', async ({ signal }) => {
+			await expect(
+				uploadBlueprint(mockConnection(signal), protectString('blueprint99'), `({default: (() => 5)()})`)
 			).rejects.toThrowSofieError(400, 'Blueprint blueprint99 returned a manifest of type number')
 		})
-		test('manifest missing blueprintType', async () => {
+		testWithAbort('manifest missing blueprintType', async ({ signal }) => {
 			const blueprintStr = packageBlueprint({}, () => {
 				return {
 					blueprintType: undefined as any,
@@ -251,13 +255,13 @@ describe('Test blueprint management api', () => {
 				}
 			})
 			await expect(
-				uploadBlueprint(DEFAULT_CONNECTION, protectString('blueprint99'), blueprintStr)
+				uploadBlueprint(mockConnection(signal), protectString('blueprint99'), blueprintStr)
 			).rejects.toThrowSofieError(
 				400,
 				`Blueprint blueprint99 returned a manifest of unknown blueprintType "undefined"`
 			)
 		})
-		test('replace existing with different type', async () => {
+		testWithAbort('replace existing with different type', async ({ signal }) => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.STUDIO
 			const blueprintStr = packageBlueprint(
 				{
@@ -279,13 +283,13 @@ describe('Test blueprint management api', () => {
 			expect(existingBlueprint).toBeTruthy()
 
 			await expect(
-				uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
+				uploadBlueprint(mockConnection(signal), existingBlueprint._id, blueprintStr)
 			).rejects.toThrowSofieError(
 				400,
 				`Cannot replace old blueprint (of type "showstyle") with new blueprint of type "studio"`
 			)
 		})
-		test('success - showstyle', async () => {
+		testWithAbort('success - showstyle', async ({ signal }) => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
 			const blueprintStr = packageBlueprint(
 				{
@@ -304,7 +308,11 @@ describe('Test blueprint management api', () => {
 				}
 			)
 
-			const blueprint = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_showstyle'), blueprintStr)
+			const blueprint = await uploadBlueprint(
+				mockConnection(signal),
+				protectString('tmp_showstyle'),
+				blueprintStr
+			)
 			expect(blueprint).toBeTruthy()
 			expect(blueprint).toMatchObject(
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
@@ -323,7 +331,7 @@ describe('Test blueprint management api', () => {
 			)
 			expect(blueprint.studioConfigSchema).toBeUndefined()
 		})
-		test('success - studio', async () => {
+		testWithAbort('success - studio', async ({ signal }) => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.STUDIO
 			const blueprintStr = packageBlueprint(
 				{
@@ -341,7 +349,7 @@ describe('Test blueprint management api', () => {
 				}
 			)
 
-			const blueprint = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_studio'), blueprintStr, {
+			const blueprint = await uploadBlueprint(mockConnection(signal), protectString('tmp_studio'), blueprintStr, {
 				blueprintName: 'tmp name',
 			})
 			expect(blueprint).toBeTruthy()
@@ -362,7 +370,7 @@ describe('Test blueprint management api', () => {
 			)
 			expect(blueprint.showStyleConfigSchema).toBeUndefined()
 		})
-		test('success - system', async () => {
+		testWithAbort('success - system', async ({ signal }) => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SYSTEM
 			const blueprintStr = packageBlueprint(
 				{
@@ -381,7 +389,7 @@ describe('Test blueprint management api', () => {
 				}
 			)
 
-			const blueprint = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_system'), blueprintStr, {
+			const blueprint = await uploadBlueprint(mockConnection(signal), protectString('tmp_system'), blueprintStr, {
 				blueprintName: 'tmp name',
 			})
 			expect(blueprint).toBeTruthy()
@@ -402,7 +410,7 @@ describe('Test blueprint management api', () => {
 			expect(blueprint.showStyleConfigSchema).toBeUndefined()
 			expect(blueprint.studioConfigSchema).toBeUndefined()
 		})
-		test('update - studio', async () => {
+		testWithAbort('update - studio', async ({ signal }) => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.STUDIO
 			const blueprintStr = packageBlueprint(
 				{
@@ -426,7 +434,7 @@ describe('Test blueprint management api', () => {
 			expect(existingBlueprint).toBeTruthy()
 			expect(existingBlueprint.blueprintId).toBeFalsy()
 
-			const blueprint = await uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
+			const blueprint = await uploadBlueprint(mockConnection(signal), existingBlueprint._id, blueprintStr)
 			expect(blueprint).toBeTruthy()
 			expect(blueprint).toMatchObject(
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
@@ -445,7 +453,7 @@ describe('Test blueprint management api', () => {
 			)
 			expect(blueprint.showStyleConfigSchema).toBeUndefined()
 		})
-		test('update - matching blueprintId', async () => {
+		testWithAbort('update - matching blueprintId', async ({ signal }) => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
 			const blueprintStr = packageBlueprint(
 				{
@@ -471,7 +479,7 @@ describe('Test blueprint management api', () => {
 			expect(existingBlueprint).toBeTruthy()
 			expect(existingBlueprint.blueprintId).toBeTruthy()
 
-			const blueprint = await uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
+			const blueprint = await uploadBlueprint(mockConnection(signal), existingBlueprint._id, blueprintStr)
 			expect(blueprint).toBeTruthy()
 			expect(blueprint).toMatchObject(
 				literal<Omit<Blueprint, 'created' | 'modified' | 'databaseVersion' | 'blueprintHash'>>({
@@ -490,7 +498,7 @@ describe('Test blueprint management api', () => {
 			)
 			expect(blueprint.studioConfigSchema).toBeUndefined()
 		})
-		test('update - change blueprintId', async () => {
+		testWithAbort('update - change blueprintId', async ({ signal }) => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
 			const blueprintStr = packageBlueprint(
 				{
@@ -517,13 +525,13 @@ describe('Test blueprint management api', () => {
 			expect(existingBlueprint.blueprintId).toBeTruthy()
 
 			await expect(
-				uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
+				uploadBlueprint(mockConnection(signal), existingBlueprint._id, blueprintStr)
 			).rejects.toThrowSofieError(
 				422,
 				`Cannot replace old blueprint "${existingBlueprint._id}" ("ss1") with new blueprint "show2"`
 			)
 		})
-		test('content hash is stable for identical code and changes when code changes', async () => {
+		testWithAbort('content hash is stable for identical code and changes when code changes', async ({ signal }) => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
 			const blueprintStr = packageBlueprint(
 				{
@@ -556,15 +564,15 @@ describe('Test blueprint management api', () => {
 				}
 			)
 
-			const first = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_hash'), blueprintStr)
-			const second = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_hash'), blueprintStr)
+			const first = await uploadBlueprint(mockConnection(signal), protectString('tmp_hash'), blueprintStr)
+			const second = await uploadBlueprint(mockConnection(signal), protectString('tmp_hash'), blueprintStr)
 			expect(second.blueprintHash).toEqual(first.blueprintHash)
 
-			const third = await uploadBlueprint(DEFAULT_CONNECTION, protectString('tmp_hash'), blueprintStrChanged)
+			const third = await uploadBlueprint(mockConnection(signal), protectString('tmp_hash'), blueprintStrChanged)
 			expect(third.blueprintHash).not.toEqual(first.blueprintHash)
 			expect(third.blueprintVersion).toEqual(first.blueprintVersion)
 		})
-		test('update - drop blueprintId', async () => {
+		testWithAbort('update - drop blueprintId', async ({ signal }) => {
 			const BLUEPRINT_TYPE = BlueprintManifestType.SHOWSTYLE
 			const blueprintStr = packageBlueprint(
 				{
@@ -590,7 +598,7 @@ describe('Test blueprint management api', () => {
 			expect(existingBlueprint.blueprintId).toBeTruthy()
 
 			await expect(
-				uploadBlueprint(DEFAULT_CONNECTION, existingBlueprint._id, blueprintStr)
+				uploadBlueprint(mockConnection(signal), existingBlueprint._id, blueprintStr)
 			).rejects.toThrowSofieError(
 				422,
 				`Cannot replace old blueprint "${existingBlueprint._id}" ("ss1") with new blueprint ""`
@@ -610,20 +618,20 @@ describe('Test blueprint management api', () => {
 			await fsp.rm(storePath, { recursive: true, force: true })
 		})
 
-		test('writes decoded base64 payload to file', async () => {
+		testWithAbort('writes decoded base64 payload to file', async ({ signal }) => {
 			const payload = Buffer.from('some fake binary data \u0000\u0001', 'utf8')
 			const fileId = 'myBlueprint/logo.bin'
 
-			await uploadBlueprintAsset(DEFAULT_CONNECTION, fileId, payload.toString('base64'))
+			await uploadBlueprintAsset(mockConnection(signal), fileId, payload.toString('base64'))
 
 			const expectedFilePath = path.join(storePath, 'assets', fileId)
 			const writtenBuffer = await fsp.readFile(expectedFilePath)
 			expect(writtenBuffer.equals(payload)).toBeTruthy()
 		})
 
-		test('rejects path traversal attempts', async () => {
+		testWithAbort('rejects path traversal attempts', async ({ signal }) => {
 			await expect(
-				uploadBlueprintAsset(DEFAULT_CONNECTION, '../outside.bin', Buffer.from('x').toString('base64'))
+				uploadBlueprintAsset(mockConnection(signal), '../outside.bin', Buffer.from('x').toString('base64'))
 			).rejects.toThrow('Asset name outside of asset storage path')
 		})
 	})
