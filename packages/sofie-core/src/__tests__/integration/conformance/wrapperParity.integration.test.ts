@@ -198,21 +198,24 @@ describe('wrapper parity: mock vs real driver', () => {
 			])
 
 			const collectWindow = async (col: Col): Promise<string[]> => {
-				const added: string[] = []
 				const abort = new AbortController()
-				const cursor = await col.findWithCursor({}, { sort: { n: 1 }, limit: 2 })
-				await cursor.observeChangesAsync(
-					{
-						added: (docId) => {
-							added.push(String(docId))
+				try {
+					const added: string[] = []
+					const cursor = await col.findWithCursor({}, { sort: { n: 1 }, limit: 2 })
+					await cursor.observeChangesAsync(
+						{
+							added: (docId) => {
+								added.push(String(docId))
+							},
 						},
-					},
-					{ signal: abort.signal }
-				)
-				await waitFor(() => added.length >= 2) // throws if the window never fills
-				await new Promise((r) => setTimeout(r, 30)) // let any (erroneous) extra events surface
-				abort.abort()
-				return added.sort()
+						{ signal: abort.signal }
+					)
+					await waitFor(() => added.length >= 2) // throws if the window never fills
+					await new Promise((r) => setTimeout(r, 30)) // let any (erroneous) extra events surface
+					return added.sort()
+				} finally {
+					abort.abort()
+				}
 			}
 
 			const realWindow = await collectWindow(pair.real)
