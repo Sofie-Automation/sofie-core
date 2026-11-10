@@ -17,9 +17,6 @@ module.exports = {
 	},
 	moduleNameMapper: {
 		// Jest is not happy with esm modules, we need to point it to the source files instead
-		'^@sofie-automation/shared-lib/dist/(.+)\\.js$': '<rootDir>/../shared-lib/src/$1',
-		'^@sofie-automation/shared-lib/dist/(.+)$': '<rootDir>/../shared-lib/src/$1',
-		'^@sofie-automation/server-core-integration$': '<rootDir>/../server-core-integration/src/index.ts',
 		'(.+)\\.js$': '$1',
 	},
 	testMatch: ['**/__tests__/**/*.(spec|test).(ts|js)'],

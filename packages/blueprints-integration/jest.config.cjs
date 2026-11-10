@@ -16,13 +16,15 @@ module.exports = {
 		],
 	},
 	moduleNameMapper: {
-		'^@sofie-automation/shared-lib/dist/(.+)\\.js$': '<rootDir>/../shared-lib/src/$1',
-		'^@sofie-automation/shared-lib/dist/(.+)$': '<rootDir>/../shared-lib/src/$1',
 		'(.+)\\.js$': '$1',
 	},
 	testMatch: ['**/__tests__/**/*.spec.(ts|js)'],
 	testPathIgnorePatterns: ['integrationTests', 'dist'],
 	testEnvironment: 'node',
+	testEnvironmentOptions: {
+		// Resolve monorepo packages to their typescript source
+		customExportConditions: ['sofie-source', 'node', 'node-addons'],
+	},
 	coverageThreshold: {
 		global: {
 			branches: 80,

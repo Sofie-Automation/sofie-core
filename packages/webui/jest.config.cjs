@@ -7,8 +7,6 @@ module.exports = {
 	globals: {},
 	moduleFileExtensions: ['js', 'ts', 'tsx'],
 	moduleNameMapper: {
-		'^@sofie-automation/shared-lib/dist/(.+)\\.js$': '<rootDir>/../shared-lib/src/$1',
-		'^@sofie-automation/shared-lib/dist/(.+)$': '<rootDir>/../shared-lib/src/$1',
 		'sha.js': 'sha.js',
 		'meteor/(.*)': '<rootDir>/src/meteor/$1',
 		'(.+)\\.js$': '$1',

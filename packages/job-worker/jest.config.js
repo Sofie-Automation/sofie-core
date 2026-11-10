@@ -25,8 +25,6 @@ module.exports = {
 		'^.+\\.(js|jsx|mjs)$': path.resolve('./scripts/babel-jest.mjs'),
 	},
 	moduleNameMapper: {
-		'^@sofie-automation/shared-lib/dist/(.+)\\.js$': '<rootDir>/../shared-lib/src/$1',
-		'^@sofie-automation/shared-lib/dist/(.+)$': '<rootDir>/../shared-lib/src/$1',
 		'(.+)\\.js$': '$1',
 	},
 	transformIgnorePatterns: ['node_modules/(?!(debounce-fn|p-queue|p-timeout)/)', '\\.pnp\\.[^\\/]+$'],
