@@ -27,6 +27,7 @@ import {
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { setIntervalForSignal } from './lib/observerLifetime'
 
 const lowPrioFcn = (fcn: () => any) => {
 	// Do it at a random time in the future:
@@ -238,7 +239,7 @@ async function storeSnapshots(systemSettings: ICoreSystemSettings | undefined) {
 	}
 }
 
-export function startCronjobs(): void {
+export function startCronjobs(signal: AbortSignal): void {
 	function nightlyCronjob() {
 		const timeSinceLast = getCurrentTime() - lastNightlyCronjob
 		if (
@@ -251,7 +252,7 @@ export function startCronjobs(): void {
 		}
 	}
 
-	setInterval(nightlyCronjob, 5 * 60 * 1000) // check every 5 minutes
+	setIntervalForSignal(nightlyCronjob, 5 * 60 * 1000, signal) // check every 5 minutes
 	nightlyCronjob()
 
 	function anyTimeCronjob(force?: boolean) {
@@ -274,6 +275,6 @@ export function startCronjobs(): void {
 			)
 		}
 	}
-	setInterval(anyTimeCronjob, 30 * 60 * 1000) // every 30 minutes
+	setIntervalForSignal(anyTimeCronjob, 30 * 60 * 1000, signal) // every 30 minutes
 	anyTimeCronjob(true)
 }

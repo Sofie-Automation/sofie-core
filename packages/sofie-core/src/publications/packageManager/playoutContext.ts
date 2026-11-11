@@ -8,7 +8,7 @@ import { PackageManagerPlayoutContext } from '@sofie-automation/shared-lib/dist/
 import { check } from '../../lib/check'
 import { ReadonlyDeep } from 'type-fest'
 import { RundownPlaylists, Rundowns } from '../../collections'
-import { SetupObserversResult, setUpOptimizedObserverArray, TriggerUpdate } from '../../lib/customPublication'
+import { setUpOptimizedObserverArray, TriggerUpdate } from '../../lib/customPublication'
 import type { PublicationRegistry } from '../../publicationRegistry'
 import { logger } from '../../logging'
 import {
@@ -36,10 +36,11 @@ type PackageManagerPlayoutContextState = Record<string, never>
 
 async function setupExpectedPackagesPublicationObservers(
 	args: ReadonlyDeep<PackageManagerPlayoutContextArgs>,
-	triggerUpdate: TriggerUpdate<PackageManagerPlayoutContextUpdateProps>
-): Promise<SetupObserversResult> {
+	triggerUpdate: TriggerUpdate<PackageManagerPlayoutContextUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
 	// Set up observers:
-	return [
+	await Promise.all([
 		RundownPlaylists.observeChanges(
 			{
 				studioId: args.studioId,
@@ -51,9 +52,10 @@ async function setupExpectedPackagesPublicationObservers(
 			},
 			{
 				projection: rundownPlaylistFieldSpecifier,
+				signal,
 			}
 		),
-	]
+	])
 }
 
 async function manipulateExpectedPackagesPublicationData(

@@ -27,7 +27,6 @@ export type {
 	FindOneOptions,
 	FindOptions,
 	IndexSpecifier,
-	MongoLiveQueryHandle,
 	UpdateOptions,
 	UpsertOptions,
 } from '@sofie-automation/meteor-lib/dist/collections/lib'

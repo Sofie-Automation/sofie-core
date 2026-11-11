@@ -29,7 +29,6 @@ import {
 import { ChangeStreamCursor } from '../changeStream/changeStreamCursor'
 import { subscribeToCollectionChangeFeed } from '../changeStream/collectionChangeFeed'
 import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
-import type { LiveQueryHandleSync } from '../../lib/lib'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 /**
@@ -194,8 +193,8 @@ export class WrappedAsyncMongoCollection<
 	async observeChanges(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
-		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<LiveQueryHandleSync> {
+		options: FindObserveChangesOptions<DBInterface>
+	): Promise<void> {
 		// Note: this span only covers the observer setup (initial snapshot + diff), not the lifetime of the observer
 		const span = profiler.startSpan(`MongoCollection.${this.name}.observeChanges`)
 		if (span) {
@@ -205,7 +204,7 @@ export class WrappedAsyncMongoCollection<
 			})
 		}
 		const sel = this.mongoSelector(selector)
-		const abort = new AbortController()
+
 		try {
 			await observeChangesViaChangeStream(
 				this.name,
@@ -213,18 +212,12 @@ export class WrappedAsyncMongoCollection<
 				this.projectionOf(options),
 				this.shapeOf(options),
 				callbacks,
-				abort.signal,
+				options.signal,
 				!!options?.nonMutatingCallbacks,
 				() => this.observeDeps(sel)
 			)
 			if (span) span.end()
-			return {
-				stop: () => {
-					abort.abort()
-				},
-			}
 		} catch (e) {
-			abort.abort() // Ensure everything on the signal gets terminated
 			if (span) span.end()
 			this.wrapMongoError(e)
 		}
@@ -233,8 +226,8 @@ export class WrappedAsyncMongoCollection<
 	async observe(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
-		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<LiveQueryHandleSync> {
+		options: FindObserveChangesOptions<DBInterface>
+	): Promise<void> {
 		// Note: this span only covers the observer setup (initial snapshot + diff), not the lifetime of the observer
 		const span = profiler.startSpan(`MongoCollection.${this.name}.observe`)
 		if (span) {
@@ -244,7 +237,7 @@ export class WrappedAsyncMongoCollection<
 			})
 		}
 		const sel = this.mongoSelector(selector)
-		const abort = new AbortController()
+
 		try {
 			await observeViaChangeStream(
 				this.name,
@@ -252,18 +245,12 @@ export class WrappedAsyncMongoCollection<
 				this.projectionOf(options),
 				this.shapeOf(options),
 				callbacks,
-				abort.signal,
+				options.signal,
 				!!options?.nonMutatingCallbacks,
 				() => this.observeDeps(sel)
 			)
 			if (span) span.end()
-			return {
-				stop: () => {
-					abort.abort()
-				},
-			}
 		} catch (e) {
-			abort.abort() // Ensure everything on the signal gets terminated
 			if (span) span.end()
 			this.wrapMongoError(e)
 		}

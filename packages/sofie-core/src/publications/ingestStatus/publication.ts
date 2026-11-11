@@ -5,7 +5,6 @@ import {
 	CustomPublish,
 	CustomPublishCollection,
 	setUpCollectionOptimizedObserver,
-	SetupObserversResult,
 	TriggerUpdate,
 } from '../../lib/customPublication'
 import { logger } from '../../logging'
@@ -42,9 +41,10 @@ interface IngestRundownStatusUpdateProps {
 
 async function setupIngestRundownStatusPublicationObservers(
 	args: ReadonlyDeep<IngestRundownStatusArgs>,
-	triggerUpdate: TriggerUpdate<IngestRundownStatusUpdateProps>
-): Promise<SetupObserversResult> {
-	const rundownsObserver = await RundownsObserver.createForPeripheralDevice(args.deviceId, async (rundownIds) => {
+	triggerUpdate: TriggerUpdate<IngestRundownStatusUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
+	await RundownsObserver.createForPeripheralDevice(args.deviceId, signal, async (rundownIds, invocationSignal) => {
 		logger.silly(`Creating new RundownContentObserver`, rundownIds)
 
 		// TODO - can this be done cheaper?
@@ -53,62 +53,63 @@ async function setupIngestRundownStatusPublicationObservers(
 		// Push update
 		triggerUpdate({ newCache: cache })
 
-		const contentObserver = await RundownContentObserver.create(rundownIds, cache)
+		const contentObserver = await RundownContentObserver.create(rundownIds, cache, invocationSignal)
 
-		const innerQueries = [
-			cache.Playlists.observeChanges(
-				{
-					added: (docId) => triggerUpdate({ invalidatePlaylistIds: [docId] }),
-					changed: (docId) => triggerUpdate({ invalidatePlaylistIds: [docId] }),
-					removed: (docId) => triggerUpdate({ invalidatePlaylistIds: [docId] }),
+		cache.Playlists.observeChanges(
+			{
+				added: (docId) => triggerUpdate({ invalidatePlaylistIds: [docId] }),
+				changed: (docId) => triggerUpdate({ invalidatePlaylistIds: [docId] }),
+				removed: (docId) => triggerUpdate({ invalidatePlaylistIds: [docId] }),
+			},
+			undefined,
+			{ nonMutatingCallbacks: true, signal: invocationSignal }
+		)
+		cache.Rundowns.observeChanges(
+			{
+				added: (docId) => {
+					triggerUpdate({ invalidateRundownIds: [docId] })
+					contentObserver.checkPlaylistIds()
 				},
-				{ nonMutatingCallbacks: true }
-			),
-			cache.Rundowns.observeChanges(
-				{
-					added: (docId) => {
-						triggerUpdate({ invalidateRundownIds: [docId] })
-						contentObserver.checkPlaylistIds()
-					},
-					changed: (docId) => {
-						triggerUpdate({ invalidateRundownIds: [docId] })
-						contentObserver.checkPlaylistIds()
-					},
-					removed: (docId) => {
-						triggerUpdate({ invalidateRundownIds: [docId] })
-						contentObserver.checkPlaylistIds()
-					},
+				changed: (docId) => {
+					triggerUpdate({ invalidateRundownIds: [docId] })
+					contentObserver.checkPlaylistIds()
 				},
-				{ nonMutatingCallbacks: true }
-			),
-			cache.Parts.observe({
+				removed: (docId) => {
+					triggerUpdate({ invalidateRundownIds: [docId] })
+					contentObserver.checkPlaylistIds()
+				},
+			},
+			undefined,
+			{ nonMutatingCallbacks: true, signal: invocationSignal }
+		)
+		cache.Parts.observe(
+			{
 				added: (doc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId] }),
 				changed: (doc, oldDoc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId, oldDoc.rundownId] }),
 				removed: (doc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId] }),
-			}),
-			cache.PartInstances.observe({
+			},
+			undefined,
+			{ signal: invocationSignal }
+		)
+		cache.PartInstances.observe(
+			{
 				added: (doc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId] }),
 				changed: (doc, oldDoc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId, oldDoc.rundownId] }),
 				removed: (doc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId] }),
-			}),
-			cache.NrcsIngestData.observe({
+			},
+			undefined,
+			{ signal: invocationSignal }
+		)
+		cache.NrcsIngestData.observe(
+			{
 				added: (doc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId] }),
 				changed: (doc, oldDoc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId, oldDoc.rundownId] }),
 				removed: (doc) => triggerUpdate({ invalidateRundownIds: [doc.rundownId] }),
-			}),
-		]
-
-		return () => {
-			contentObserver.dispose()
-
-			for (const query of innerQueries) {
-				query.stop()
-			}
-		}
+			},
+			undefined,
+			{ signal: invocationSignal }
+		)
 	})
-
-	// Set up observers:
-	return [rundownsObserver]
 }
 
 async function manipulateIngestRundownStatusPublicationData(

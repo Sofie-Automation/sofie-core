@@ -6,6 +6,8 @@ import {
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
 	FindObserveChangesOptions,
+	ObserveChangesOptions,
+	ObserveOptions,
 } from '@sofie-automation/corelib/dist/mongo'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import type { CreateIndexesOptions, IndexDescriptionInfo } from 'mongodb'
@@ -13,7 +15,6 @@ import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCo
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { UpdateOptions, IndexSpecifier } from '@sofie-automation/meteor-lib/dist/collections/lib'
 import { AsyncOnlyMongoCollection, MinimalMongoCursor } from '../collection'
-import type { LiveQueryHandleSync } from '../../lib/lib'
 
 /**
  * Captured at module load, which is always before a test body can install `jest.useFakeTimers()`.
@@ -91,13 +92,17 @@ export class WrappedMockCollection<
 		await this.#sleep(0)
 		return {
 			collectionName: this.#core.name,
-			observeAsync: async (callbacks) => {
+			observeAsync: async (callbacks: ObserveCallbacks<DBInterface>, cursorOptions: ObserveOptions) => {
 				await this.#sleep(0)
-				return this.#core.observe(callbacks, selector, options)
+				// The in-memory core registers nothing if the signal has aborted in the meantime
+				this.#core.observe(callbacks, selector, { ...options, signal: cursorOptions.signal })
 			},
-			observeChangesAsync: async (callbacks, callbackOptions) => {
+			observeChangesAsync: async (
+				callbacks: ObserveChangesCallbacks<DBInterface>,
+				callbackOptions: ObserveChangesOptions
+			) => {
 				await this.#sleep(0)
-				return this.#core.observeChanges(callbacks, selector, { ...options, ...callbackOptions })
+				this.#core.observeChanges(callbacks, selector, { ...options, ...callbackOptions })
 			},
 		}
 	}
@@ -105,19 +110,20 @@ export class WrappedMockCollection<
 	async observe(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveCallbacks<DBInterface>>,
-		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<LiveQueryHandleSync> {
+		options: FindObserveChangesOptions<DBInterface>
+	): Promise<void> {
 		await this.#sleep(0)
-		return this.#core.observe(callbacks, selector, options)
+		// The in-memory core registers nothing if the signal has aborted in the meantime
+		this.#core.observe(callbacks, selector, options)
 	}
 
 	async observeChanges(
 		selector: MongoQuery<DBInterface> | DBInterface['_id'],
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<DBInterface>>,
-		options?: FindObserveChangesOptions<DBInterface>
-	): Promise<LiveQueryHandleSync> {
+		options: FindObserveChangesOptions<DBInterface>
+	): Promise<void> {
 		await this.#sleep(0)
-		return this.#core.observeChanges(callbacks, selector, options)
+		this.#core.observeChanges(callbacks, selector, options)
 	}
 
 	async countDocuments(selector?: MongoQuery<DBInterface>, options?: FindOptions<DBInterface>): Promise<number> {

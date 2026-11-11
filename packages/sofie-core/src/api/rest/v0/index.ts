@@ -28,7 +28,6 @@ const LEGACY_API_VERSION = 0
  */
 const legacyRestPublicationContext: Omit<PublicationContext, 'signal'> = {
 	connection: null,
-	onStop: () => undefined,
 	ready: () => undefined,
 	added: () => undefined,
 	changed: () => undefined,

@@ -31,6 +31,7 @@ import { ObserveChangesForHash } from './lib'
 import { logger } from '../logging'
 import { allowOnlyFields, rejectFields } from '../security/allowDeny'
 import { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
+import { setIntervalForSignal } from '../lib/observerLifetime'
 
 export * from './bucket'
 export * from './packages-media'
@@ -233,21 +234,24 @@ const removeOldCommands = () => {
 	})
 }
 
-export async function startRundownVersionHashObservers(): Promise<void> {
-	setInterval(() => removeOldCommands(), 5 * 60 * 1000)
+export async function startRundownVersionHashObservers(signal: AbortSignal): Promise<void> {
+	setIntervalForSignal(() => removeOldCommands(), 5 * 60 * 1000, signal)
 
 	await Promise.allSettled([
-		ObserveChangesForHash(ShowStyleBases, '_rundownVersionHash', [
-			'blueprintConfigWithOverrides',
-			'blueprintId',
-			'branding',
-		]),
+		ObserveChangesForHash(
+			ShowStyleBases,
+			'_rundownVersionHash',
+			['blueprintConfigWithOverrides', 'blueprintId', 'branding'],
+			signal
+		),
 
-		ObserveChangesForHash(ShowStyleVariants, '_rundownVersionHash', [
-			'blueprintConfigWithOverrides',
-			'showStyleBaseId',
-		]),
+		ObserveChangesForHash(
+			ShowStyleVariants,
+			'_rundownVersionHash',
+			['blueprintConfigWithOverrides', 'showStyleBaseId'],
+			signal
+		),
 
-		ObserveChangesForHash(Studios, '_rundownVersionHash', ['blueprintConfigWithOverrides']),
+		ObserveChangesForHash(Studios, '_rundownVersionHash', ['blueprintConfigWithOverrides'], signal),
 	])
 }

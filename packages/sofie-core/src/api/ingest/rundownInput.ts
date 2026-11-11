@@ -359,7 +359,7 @@ async function listIngestRundowns(peripheralDevice: PeripheralDevice): Promise<s
 	return rundowns.map((r) => r.externalId)
 }
 
-export async function startMediaObjectDurationMonitor(): Promise<void> {
+export async function startMediaObjectDurationMonitor(signal: AbortSignal): Promise<void> {
 	// hackGetMediaObjectDuration stuff
 	await MediaObjects.observe(
 		{},
@@ -367,7 +367,7 @@ export async function startMediaObjectDurationMonitor(): Promise<void> {
 			added: onMediaObjectChanged,
 			changed: onMediaObjectChanged,
 		},
-		{ projection: { _id: 1, mediaId: 1, mediainfo: 1, studioId: 1 } }
+		{ projection: { _id: 1, mediaId: 1, mediainfo: 1, studioId: 1 }, signal }
 	)
 }
 

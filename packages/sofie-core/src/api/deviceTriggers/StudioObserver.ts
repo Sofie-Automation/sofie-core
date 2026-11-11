@@ -8,7 +8,6 @@ import {
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import EventEmitter from 'events'
-import _ from 'underscore'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
@@ -22,10 +21,18 @@ import { RundownPlaylists, Rundowns, ShowStyleBases } from '../../collections'
 import { PromiseDebounce } from '../../publications/lib/PromiseDebounce'
 import { PieceInstancesObserver } from './PieceInstancesObserver'
 import { MinimalMongoCursor } from '../../collections/collection'
-import type { LiveQueryHandleSync } from '../../lib/lib'
+import { AbortScope, createChildAbort, runOnAbort } from '../../lib/observerLifetime'
+import { createDebounce, type Debounced } from '../../lib/debounce'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
-type RundownContentChangeHandler = (showStyleBaseId: ShowStyleBaseId, cache: ContentCache) => () => void
-type PieceInstancesChangeHandler = (showStyleBaseId: ShowStyleBaseId, cache: PieceInstancesContentCache) => () => void
+export interface StudioObserverHandlers {
+	/** The rundown content for `showStyleBaseId` has changed */
+	onRundownContentChanged: (showStyleBaseId: ShowStyleBaseId, cache: ContentCache) => void
+	/** The rundown content observed above has gone away, and whatever was derived from it is now stale */
+	onRundownContentGone: () => void
+	/** The piece instances for `showStyleBaseId` have changed */
+	onPieceInstancesChanged: (showStyleBaseId: ShowStyleBaseId, cache: PieceInstancesContentCache) => void
+}
 
 const REACTIVITY_DEBOUNCE = 20
 
@@ -55,6 +62,15 @@ const showStyleBaseFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<D
 	hotkeyLegend: 1,
 })
 
+type ActivePlaylistState = {
+	activePlaylist: Pick<DBRundownPlaylist, RundownPlaylistFields>
+} | null
+
+type ShowStyleState = {
+	currentRundown: Pick<DBRundown, RundownFields>
+	showStyleBase: Pick<DBShowStyleBase, ShowStyleBaseFields>
+} | null
+
 interface StudioObserverProps {
 	activePlaylistId: RundownPlaylistId
 	activationId: RundownPlaylistActivationId
@@ -62,30 +78,44 @@ interface StudioObserverProps {
 }
 
 export class StudioObserver extends EventEmitter {
-	#playlistInStudioLiveQuery: LiveQueryHandleSync
-	#showStyleOfRundownLiveQuery: LiveQueryHandleSync | undefined
-	#rundownsLiveQuery: LiveQueryHandleSync | undefined
-	#pieceInstancesLiveQuery: LiveQueryHandleSync | undefined
+	/** The lifetime of this observer as a whole */
+	readonly #signal: AbortSignal
+	/** The lifetime of the observers for the current showStyle; superseded on each change */
+	#showStyleScope: AbortScope | undefined
+	/** The lifetime of the chain watching which showStyle the current rundown uses */
+	#showStyleOfRundownScope: AbortScope | undefined
 
 	showStyleBaseId: ShowStyleBaseId | undefined
 
 	currentProps: StudioObserverProps | undefined = undefined
 	nextProps: StudioObserverProps | undefined = undefined
 
-	#rundownContentChanged: RundownContentChangeHandler
-	#pieceInstancesChanged: PieceInstancesChangeHandler
+	readonly #handlers: StudioObserverHandlers
 
-	#disposed = false
+	private readonly updatePlaylistInStudio: Debounced<[ActivePlaylistState]>
+	private readonly updateShowStyle: PromiseDebounce<void, [ShowStyleState]>
 
-	constructor(
-		studioId: StudioId,
-		onRundownContentChanged: RundownContentChangeHandler,
-		pieceInstancesChanged: PieceInstancesChangeHandler
-	) {
+	/**
+	 * @param signal The lifetime of the observer: aborting it releases everything started under it
+	 */
+	constructor(studioId: StudioId, signal: AbortSignal, handlers: StudioObserverHandlers) {
 		super()
-		this.#rundownContentChanged = onRundownContentChanged
-		this.#pieceInstancesChanged = pieceInstancesChanged
-		this.#playlistInStudioLiveQuery = observerChain()
+		this.#signal = signal
+		this.#handlers = handlers
+
+		// These are created here rather than as field initializers, as those run before `signal` is available
+		this.updatePlaylistInStudio = createDebounce(
+			(state) => this.#onPlaylistInStudioChanged(state),
+			REACTIVITY_DEBOUNCE,
+			signal
+		)
+		this.updateShowStyle = new PromiseDebounce(
+			async (state) => this.#onShowStyleChanged(state),
+			REACTIVITY_DEBOUNCE,
+			signal
+		)
+
+		observerChain(signal)
 			.next(
 				'activePlaylist',
 				async () =>
@@ -102,48 +132,42 @@ export class StudioObserver extends EventEmitter {
 			.end(this.updatePlaylistInStudio)
 	}
 
-	private updatePlaylistInStudio = _.debounce(
-		(
-			state: {
-				activePlaylist: Pick<DBRundownPlaylist, RundownPlaylistFields>
-			} | null
-		): void => {
-			if (this.#disposed) return
+	#onPlaylistInStudioChanged(state: ActivePlaylistState): void {
+		const activePlaylistId = state?.activePlaylist?._id
+		const activationId = state?.activePlaylist?.activationId
+		const currentRundownId =
+			state?.activePlaylist?.currentPartInfo?.rundownId ?? state?.activePlaylist?.nextPartInfo?.rundownId
 
-			const activePlaylistId = state?.activePlaylist?._id
-			const activationId = state?.activePlaylist?.activationId
-			const currentRundownId =
-				state?.activePlaylist?.currentPartInfo?.rundownId ?? state?.activePlaylist?.nextPartInfo?.rundownId
+		if (!activePlaylistId || !activationId || !currentRundownId) {
+			this.#showStyleOfRundownScope?.abort()
+			this.currentProps = undefined
+			return
+		}
 
-			if (!activePlaylistId || !activationId || !currentRundownId) {
-				this.#showStyleOfRundownLiveQuery?.stop()
-				this.currentProps = undefined
-				return
-			}
+		if (
+			currentRundownId === this.currentProps?.currentRundownId &&
+			activePlaylistId === this.currentProps?.activePlaylistId &&
+			activationId === this.currentProps?.activationId
+		)
+			return
 
-			if (
-				currentRundownId === this.currentProps?.currentRundownId &&
-				activePlaylistId === this.currentProps?.activePlaylistId &&
-				activationId === this.currentProps?.activationId
-			)
-				return
+		this.#showStyleOfRundownScope?.abort()
+		this.#showStyleOfRundownScope = undefined
 
-			this.#showStyleOfRundownLiveQuery?.stop()
-			this.#showStyleOfRundownLiveQuery = undefined
+		this.nextProps = {
+			activePlaylistId,
+			activationId,
+			currentRundownId,
+		}
 
-			this.nextProps = {
-				activePlaylistId,
-				activationId,
-				currentRundownId,
-			}
+		this.setupShowStyleOfRundownObserver(currentRundownId)
+	}
 
-			this.#showStyleOfRundownLiveQuery = this.setupShowStyleOfRundownObserver(currentRundownId)
-		},
-		REACTIVITY_DEBOUNCE
-	)
+	private setupShowStyleOfRundownObserver = (rundownId: RundownId): void => {
+		const scope = createChildAbort(this.#signal)
+		this.#showStyleOfRundownScope = scope
 
-	private setupShowStyleOfRundownObserver = (rundownId: RundownId): LiveQueryHandleSync => {
-		return observerChain()
+		observerChain(scope.signal)
 			.next(
 				'currentRundown',
 				async () =>
@@ -163,30 +187,17 @@ export class StudioObserver extends EventEmitter {
 						) as Promise<MinimalMongoCursor<Pick<DBShowStyleBase, ShowStyleBaseFields>>>)
 					: null
 			)
-			.end(this.updateShowStyle.call)
+			.end(this.updateShowStyle.trigger)
 	}
 
-	private readonly updateShowStyle = new PromiseDebounce<
-		void,
-		[
-			{
-				currentRundown: Pick<DBRundown, RundownFields>
-				showStyleBase: Pick<DBShowStyleBase, ShowStyleBaseFields>
-			} | null,
-		]
-	>(async (state): Promise<void> => {
-		if (this.#disposed) return
-
+	async #onShowStyleChanged(state: ShowStyleState): Promise<void> {
 		const showStyleBaseId = state?.showStyleBase._id
 
 		if (showStyleBaseId === undefined || !this.nextProps?.activePlaylistId || !this.nextProps?.activationId) {
 			this.currentProps = undefined
-			this.#rundownsLiveQuery?.stop()
-			this.#rundownsLiveQuery = undefined
+			this.#showStyleScope?.abort()
+			this.#showStyleScope = undefined
 			this.showStyleBaseId = showStyleBaseId
-
-			this.#pieceInstancesLiveQuery?.stop()
-			this.#pieceInstancesLiveQuery = undefined
 			return
 		}
 
@@ -198,11 +209,12 @@ export class StudioObserver extends EventEmitter {
 		)
 			return
 
-		this.#rundownsLiveQuery?.stop()
-		this.#rundownsLiveQuery = undefined
-
-		this.#pieceInstancesLiveQuery?.stop()
-		this.#pieceInstancesLiveQuery = undefined
+		// Supersede the previous showStyle's observers. The scope is created synchronously, before any
+		// await, so a later invocation always ends the right one - and if creating the observers below
+		// fails partway, aborting this scope releases whatever did start.
+		this.#showStyleScope?.abort()
+		const scope = createChildAbort(this.#signal)
+		this.#showStyleScope = scope
 
 		this.showStyleBaseId = showStyleBaseId
 
@@ -210,43 +222,35 @@ export class StudioObserver extends EventEmitter {
 		this.nextProps = undefined
 
 		const { activePlaylistId, activationId } = this.currentProps
-		const rundownContentChanged = this.#rundownContentChanged
-		const pieceInstancesChanged = this.#pieceInstancesChanged
+		const handlers = this.#handlers
 
-		this.showStyleBaseId = showStyleBaseId
+		try {
+			await RundownsObserver.create(activePlaylistId, scope.signal, async (rundownIds, invocationSignal) => {
+				logger.silly(`Creating new RundownContentObserver`)
 
-		this.#rundownsLiveQuery = await RundownsObserver.create(activePlaylistId, async (rundownIds) => {
-			logger.silly(`Creating new RundownContentObserver`)
+				await RundownContentObserver.create(
+					activePlaylistId,
+					showStyleBaseId,
+					rundownIds,
+					(cache) => handlers.onRundownContentChanged(showStyleBaseId, cache),
+					invocationSignal
+				)
 
-			const obs1 = await RundownContentObserver.create(activePlaylistId, showStyleBaseId, rundownIds, (cache) => {
-				return rundownContentChanged(showStyleBaseId, cache)
+				// This content is stale once the rundowns change, or the observer stops
+				runOnAbort(invocationSignal, () => handlers.onRundownContentGone())
 			})
 
-			return () => {
-				obs1.stop()
-			}
-		})
-
-		this.#pieceInstancesLiveQuery = await PieceInstancesObserver.create(activationId, showStyleBaseId, (cache) => {
-			const cleanupChanges = pieceInstancesChanged(showStyleBaseId, cache)
-
-			return () => cleanupChanges?.()
-		})
-
-		if (this.#disposed) {
-			// If we were disposed of while waiting for the observer to be created, stop it immediately
-			this.#rundownsLiveQuery.stop()
-			this.#pieceInstancesLiveQuery.stop()
+			await PieceInstancesObserver.create(
+				activationId,
+				showStyleBaseId,
+				(cache) => handlers.onPieceInstancesChanged(showStyleBaseId, cache),
+				scope.signal
+			)
+		} catch (e) {
+			// PromiseDebounce swallows rejections, so log this rather than let it vanish. Aborting the
+			// scope releases anything that did start before the failure.
+			scope.abort()
+			logger.error(`Error in StudioObserver updateShowStyle: ${stringifyError(e)}`)
 		}
-	}, REACTIVITY_DEBOUNCE)
-
-	public stop = (): void => {
-		this.#disposed = true
-
-		this.updateShowStyle.cancelWaiting()
-		this.#playlistInStudioLiveQuery.stop()
-		this.updatePlaylistInStudio.cancel()
-		this.#rundownsLiveQuery?.stop()
-		this.#pieceInstancesLiveQuery?.stop()
 	}
 }

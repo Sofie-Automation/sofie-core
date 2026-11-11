@@ -19,7 +19,6 @@ import {
 	CustomPublishCollection,
 	setUpCollectionOptimizedObserver,
 	TriggerUpdate,
-	SetupObserversResult,
 } from '../../../lib/customPublication'
 import type { PublicationRegistry } from '../../../publicationRegistry'
 import { BucketContentCache, createReactiveContentCache } from './bucketContentCache'
@@ -72,8 +71,9 @@ const bucketFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<Bucket, 
 
 async function setupUIBucketContentStatusesPublicationObservers(
 	args: ReadonlyDeep<UIBucketContentStatusesArgs>,
-	triggerUpdate: TriggerUpdate<UIBucketContentStatusesUpdateProps>
-): Promise<SetupObserversResult> {
+	triggerUpdate: TriggerUpdate<UIBucketContentStatusesUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
 	const trackMediaObjectChange = (mediaId: string): Partial<UIBucketContentStatusesUpdateProps> => ({
 		invalidateMediaObjectMediaId: [mediaId],
 	})
@@ -103,29 +103,45 @@ async function setupUIBucketContentStatusesPublicationObservers(
 	triggerUpdate({ newCache: contentCache })
 
 	// Set up observers:
-	return [
-		BucketContentObserver.create(args.bucketId, contentCache),
-
-		contentCache.BucketAdLibs.observeChanges({
+	contentCache.BucketAdLibs.observeChanges(
+		{
 			added: (id) => triggerUpdate(trackAdlibChange(id)),
 			changed: (id) => triggerUpdate(trackAdlibChange(id)),
 			removed: (id) => triggerUpdate(trackAdlibChange(id)),
-		}),
-		contentCache.BucketAdLibActions.observeChanges({
+		},
+		undefined,
+		{ signal }
+	)
+	contentCache.BucketAdLibActions.observeChanges(
+		{
 			added: (id) => triggerUpdate(trackActionChange(id)),
 			changed: (id) => triggerUpdate(trackActionChange(id)),
 			removed: (id) => triggerUpdate(trackActionChange(id)),
-		}),
-		contentCache.Blueprints.observeChanges({
+		},
+		undefined,
+		{ signal }
+	)
+	contentCache.Blueprints.observeChanges(
+		{
 			added: () => triggerUpdate({ invalidateAll: true }),
 			changed: () => triggerUpdate({ invalidateAll: true }),
 			removed: () => triggerUpdate({ invalidateAll: true }),
-		}),
-		contentCache.ShowStyleSourceLayers.observeChanges({
+		},
+		undefined,
+		{ signal }
+	)
+	contentCache.ShowStyleSourceLayers.observeChanges(
+		{
 			added: () => triggerUpdate({ invalidateAll: true }),
 			changed: () => triggerUpdate({ invalidateAll: true }),
 			removed: () => triggerUpdate({ invalidateAll: true }),
-		}),
+		},
+		undefined,
+		{ signal }
+	)
+
+	await Promise.all([
+		BucketContentObserver.create(args.bucketId, contentCache, signal),
 
 		Studios.observeChanges(
 			{ _id: bucket.studioId },
@@ -134,7 +150,7 @@ async function setupUIBucketContentStatusesPublicationObservers(
 				changed: (id) => triggerUpdate({ invalidateStudio: id }),
 				removed: (id) => triggerUpdate({ invalidateStudio: id }),
 			},
-			{ projection: studioFieldSpecifier }
+			{ projection: studioFieldSpecifier, signal }
 		),
 
 		// Watch for affecting objects
@@ -145,7 +161,7 @@ async function setupUIBucketContentStatusesPublicationObservers(
 				changed: (obj) => triggerUpdate(trackMediaObjectChange(obj.mediaId)),
 				removed: (obj) => triggerUpdate(trackMediaObjectChange(obj.mediaId)),
 			},
-			{ projection: mediaObjectFieldSpecifier }
+			{ projection: mediaObjectFieldSpecifier, signal }
 		),
 		PackageInfos.observe(
 			{
@@ -159,7 +175,7 @@ async function setupUIBucketContentStatusesPublicationObservers(
 				changed: (obj) => triggerUpdate(trackPackageInfoChange(obj.packageId)),
 				removed: (obj) => triggerUpdate(trackPackageInfoChange(obj.packageId)),
 			},
-			{ projection: packageInfoFieldSpecifier }
+			{ projection: packageInfoFieldSpecifier, signal }
 		),
 		PackageContainerPackageStatuses.observeChanges(
 			{ studioId: bucket.studioId },
@@ -168,9 +184,9 @@ async function setupUIBucketContentStatusesPublicationObservers(
 				changed: (id) => triggerUpdate(trackPackageContainerPackageStatusChange(id)),
 				removed: (id) => triggerUpdate(trackPackageContainerPackageStatusChange(id)),
 			},
-			{ projection: packageContainerPackageStatusesFieldSpecifier }
+			{ projection: packageContainerPackageStatusesFieldSpecifier, signal }
 		),
-	]
+	])
 }
 
 async function manipulateUIBucketContentStatusesPublicationData(

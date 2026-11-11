@@ -4,11 +4,18 @@ import { CustomPublish, CustomPublishChanges } from '../../lib/customPublication
 import { createBlueprintUpgradeStatusSubscriptionHandle } from './publication'
 import { isInTestMode } from '../../lib'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
+import { logger } from '../../logging'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 
 class CustomPublishToMap<DBObj extends { _id: ProtectedString<any> }> implements CustomPublish<DBObj> {
 	#isReady = false
 	#documents = new Map<DBObj['_id'], DBObj>()
 	#readyPromise = Promise.withResolvers<void>()
+	readonly #signal: AbortSignal
+
+	constructor(signal: AbortSignal) {
+		this.#signal = signal
+	}
 
 	get isReady(): boolean {
 		return this.#isReady
@@ -22,11 +29,8 @@ class CustomPublishToMap<DBObj extends { _id: ProtectedString<any> }> implements
 		return this.#readyPromise.promise
 	}
 
-	/**
-	 * Register a function to be called when the subscriber unsubscribes
-	 */
-	onStop(_callback: () => void): void {
-		// Ignore, this publication never stops
+	get signal(): AbortSignal {
+		return this.#signal
 	}
 
 	/**
@@ -69,18 +73,36 @@ class CustomPublishToMap<DBObj extends { _id: ProtectedString<any> }> implements
 	}
 }
 
-const cachedPublisher = new CustomPublishToMap<UIBlueprintUpgradeStatus>()
-let existingPublicationSubscription: Promise<void> | undefined
+let serverPublication:
+	| {
+			publisher: CustomPublishToMap<UIBlueprintUpgradeStatus>
+			subscription: Promise<void>
+	  }
+	| undefined
+
+/**
+ * Start observing the blueprint upgrade statuses for use by the server itself (the system status), for the
+ * lifetime of `signal`
+ */
+export function startServerBlueprintUpgradeStatuses(signal: AbortSignal): void {
+	if (serverPublication) throw new SofieError(500, 'Server blueprint upgrade statuses have already been started')
+
+	const publisher = new CustomPublishToMap<UIBlueprintUpgradeStatus>(signal)
+	const subscription = createBlueprintUpgradeStatusSubscriptionHandle(publisher)
+	// Log a failure now, as nothing awaits this until the system status is first requested
+	subscription.catch((e) => {
+		logger.error(`Failed to start the server blueprint upgrade statuses: ${stringifyError(e)}`)
+	})
+
+	serverPublication = { publisher, subscription }
+}
 
 export async function getServerBlueprintUpgradeStatuses(): Promise<UIBlueprintUpgradeStatus[]> {
 	if (isInTestMode()) throw new SofieError(500, 'getServerBlueprintUpgradeStatuses is not allowed during tests')
+	if (!serverPublication) throw new SofieError(500, 'Server blueprint upgrade statuses have not been started')
 
-	if (!existingPublicationSubscription) {
-		existingPublicationSubscription = createBlueprintUpgradeStatusSubscriptionHandle(cachedPublisher)
-	}
-	await existingPublicationSubscription
+	await serverPublication.subscription
+	await serverPublication.publisher.waitForReady()
 
-	await cachedPublisher.waitForReady()
-
-	return cachedPublisher.documents
+	return serverPublication.publisher.documents
 }

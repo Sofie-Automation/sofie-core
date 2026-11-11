@@ -7,44 +7,40 @@ import {
 	studioFieldSpecifier,
 } from './reactiveContentCache'
 import { Blueprints, CoreSystem, ShowStyleBases, Studios } from '../../collections'
-import { waitForAllObserversReady } from '../lib/lib'
-import type { LiveQueryHandleSync } from '../../lib/lib'
 
 export class UpgradesContentObserver {
 	readonly #cache: ContentCache
-	readonly #observers: LiveQueryHandleSync[]
 
-	constructor(cache: ContentCache, observers: LiveQueryHandleSync[]) {
+	private constructor(cache: ContentCache) {
 		this.#cache = cache
-		this.#observers = observers
 	}
 
-	static async create(cache: ContentCache): Promise<UpgradesContentObserver> {
+	static async create(cache: ContentCache, signal: AbortSignal): Promise<UpgradesContentObserver> {
 		logger.silly(`Creating UpgradesContentObserver`)
 
-		const observers = await waitForAllObserversReady([
+		await Promise.all([
 			CoreSystem.observeChanges({}, cache.CoreSystem.link(), {
 				projection: coreSystemFieldsSpecifier,
+				signal,
 			}),
 			Studios.observeChanges({}, cache.Studios.link(), {
 				projection: studioFieldSpecifier,
+				signal,
 			}),
 			ShowStyleBases.observeChanges({}, cache.ShowStyleBases.link(), {
 				projection: showStyleFieldSpecifier,
+				signal,
 			}),
 			Blueprints.observeChanges({}, cache.Blueprints.link(), {
 				projection: blueprintFieldSpecifier,
+				signal,
 			}),
 		])
 
-		return new UpgradesContentObserver(cache, observers)
+		return new UpgradesContentObserver(cache)
 	}
 
 	public get cache(): ContentCache {
 		return this.#cache
-	}
-
-	public stop = (): void => {
-		this.#observers.forEach((observer) => observer.stop())
 	}
 }

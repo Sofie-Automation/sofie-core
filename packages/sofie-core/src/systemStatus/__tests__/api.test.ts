@@ -11,6 +11,8 @@ import { callKoaRoute } from '../../__mocks__/koa-util'
 import { healthRouter, ServerSystemStatusAPI } from '../api'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
 import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
+import { testWithAbort } from '../../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../../lib/observerLifetime'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../api/deviceTriggers/observer')
@@ -28,6 +30,14 @@ jest.spyOn(getServerBlueprintUpgradeStatuses, 'getServerBlueprintUpgradeStatuses
 describe('systemStatus API', () => {
 	let env: DefaultEnvironment
 
+	/** Observers started by a test, released once it finishes */
+	const afterEachAbort: AbortController[] = []
+	afterEach(() => {
+		for (const abort of afterEachAbort.splice(0)) {
+			abort.abort()
+		}
+	})
+
 	describe('General health endpoint', () => {
 		async function callRoute() {
 			const ctx = await callKoaRoute(healthRouter, {
@@ -39,9 +49,11 @@ describe('systemStatus API', () => {
 			return ctx
 		}
 
-		test('REST /health with state BAD', async () => {
+		testWithAbort('REST /health with state BAD', async ({ signal }) => {
 			env = await setupDefaultStudioEnvironment()
-			await setupSystemStatusObservers()
+			const observersAbort = createChildAbort(signal)
+			afterEachAbort.push(observersAbort)
+			await setupSystemStatusObservers(observersAbort.signal)
 			await sleepNoFakeTimers(200)
 
 			// The system is uninitialized, the status will be BAD
@@ -74,9 +86,11 @@ describe('systemStatus API', () => {
 			return ctx
 		}
 
-		test('REST /health with state GOOD', async () => {
+		testWithAbort('REST /health with state GOOD', async ({ signal }) => {
 			env = await setupDefaultStudioEnvironment()
-			await setupSystemStatusObservers()
+			const observersAbort = createChildAbort(signal)
+			afterEachAbort.push(observersAbort)
+			await setupSystemStatusObservers(observersAbort.signal)
 			await sleepNoFakeTimers(200)
 
 			// simulate initialized system

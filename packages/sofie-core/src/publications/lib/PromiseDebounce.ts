@@ -4,6 +4,8 @@
  * - `cancelWaiting` method
  * - ensures only one execution in progress at a time
  */
+import { runOnAbort } from '../../lib/observerLifetime'
+
 export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 	readonly #fn: (...args: TArgs) => Promise<TResult>
 	readonly #wait: number
@@ -15,9 +17,22 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 	#isExecuting = false
 	#waitingListeners: Listener<TResult>[] = []
 
-	constructor(fn: (...args: TArgs) => Promise<TResult>, wait: number) {
+	/** Set once `signal` aborts, after which nothing more is scheduled or executed */
+	#aborted = false
+
+	/**
+	 * @param signal The lifetime of this debounce. Once it aborts, any waiting execution is cancelled
+	 * and further calls are ignored, so callers do not have to guard or cancel by hand.
+	 */
+	constructor(fn: (...args: TArgs) => Promise<TResult>, wait: number, signal: AbortSignal) {
 		this.#fn = fn
 		this.#wait = wait
+
+		runOnAbort(signal, () => {
+			this.#aborted = true
+			// Reject waiters with why the lifetime ended, rather than a bare 'Cancelled'
+			this.cancelWaiting(signal.reason)
+		})
 	}
 
 	/**
@@ -39,6 +54,8 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 	 * Warning: If the function throws an error, that will not be logged or reported to the caller
 	 */
 	trigger = (...args: TArgs): void => {
+		if (this.#aborted) return
+
 		// If an execution is 'imminent', don't do anything
 		if (this.#pendingArgs) {
 			this.#pendingArgs = args
@@ -57,6 +74,8 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 	}
 
 	private executeFn(args: TArgs): void {
+		if (this.#aborted) return
+
 		// If an execution is still in progress, mark as pending and stop
 		if (this.#isExecuting) {
 			this.#pendingArgs = args
@@ -95,9 +114,10 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 	}
 
 	/**
-	 * Cancel any waiting execution
+	 * Cancel any waiting execution, rejecting anyone awaiting it
+	 * @param reason Why it was cancelled; defaults to a generic 'Cancelled' error
 	 */
-	cancelWaiting = (error?: Error): void => {
+	cancelWaiting = (reason?: unknown): void => {
 		this.#pendingArgs = null
 
 		if (this.#timeout) {
@@ -110,12 +130,12 @@ export class PromiseDebounce<TResult = void, TArgs extends unknown[] = []> {
 			const listeners = this.#waitingListeners
 			this.#waitingListeners = []
 
-			error = error ?? new Error('Cancelled')
+			const rejectWith = reason ?? new Error('Cancelled')
 
 			// Inform the listeners in the next tick
 			setImmediate(() => {
 				for (const listener of listeners) {
-					listener.reject(error)
+					listener.reject(rejectWith)
 				}
 			})
 		}

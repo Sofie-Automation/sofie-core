@@ -13,11 +13,11 @@ const ObserveChangeBufferTimeout = 100
  * Future: It would be nice to not do this through observers, but due to how data updates are done currently, it will be hard to reliably intercept the calls and perform this
  */
 
-export async function startBlueprintConfigPresetObservers(): Promise<void> {
+export async function startBlueprintConfigPresetObservers(signal: AbortSignal): Promise<void> {
 	await Promise.all([
-		startStudioBlueprintConfigPresetObserver(),
-		startShowStyleBaseBlueprintConfigPresetObserver(),
-		startShowStyleVariantBlueprintConfigPresetObserver(),
+		startStudioBlueprintConfigPresetObserver(signal),
+		startShowStyleBaseBlueprintConfigPresetObserver(signal),
+		startShowStyleVariantBlueprintConfigPresetObserver(signal),
 	])
 }
 
@@ -25,7 +25,7 @@ export async function startBlueprintConfigPresetObservers(): Promise<void> {
  * Whenever the Studio changes the blueprint or config preset, ensure the config is synced across
  * We want it synced across, so that if the config-preset is removed, then there is some config that can be used
  */
-async function startStudioBlueprintConfigPresetObserver(): Promise<void> {
+async function startStudioBlueprintConfigPresetObserver(signal: AbortSignal): Promise<void> {
 	const doUpdate = async (doc: DBStudio): Promise<void> => {
 		const markUnlinked = async () => {
 			await Studios.updateAsync(doc._id, {
@@ -68,7 +68,8 @@ async function startStudioBlueprintConfigPresetObserver(): Promise<void> {
 		Studios,
 		['blueprintConfigPresetId', 'blueprintId'],
 		doUpdate,
-		ObserveChangeBufferTimeout
+		ObserveChangeBufferTimeout,
+		signal
 	)
 }
 
@@ -76,7 +77,7 @@ async function startStudioBlueprintConfigPresetObserver(): Promise<void> {
  * Whenever the ShowStyleBase changes the blueprint or config preset, ensure the config is synced across
  * We want it synced across, so that if the config-preset is removed, then there is some config that can be used
  */
-async function startShowStyleBaseBlueprintConfigPresetObserver(): Promise<void> {
+async function startShowStyleBaseBlueprintConfigPresetObserver(signal: AbortSignal): Promise<void> {
 	const doUpdate = async (doc: DBShowStyleBase): Promise<void> => {
 		const markUnlinked = async () => {
 			await Promise.all([
@@ -167,7 +168,8 @@ async function startShowStyleBaseBlueprintConfigPresetObserver(): Promise<void> 
 		ShowStyleBases,
 		['blueprintConfigPresetId', 'blueprintId'],
 		doUpdate,
-		ObserveChangeBufferTimeout
+		ObserveChangeBufferTimeout,
+		signal
 	)
 }
 
@@ -175,7 +177,7 @@ async function startShowStyleBaseBlueprintConfigPresetObserver(): Promise<void> 
  * Whenever the ShowStyleVariant changes the config preset, ensure the config is synced across
  * We want it synced across, so that if the config-preset is removed, then there is some config that can be used
  */
-async function startShowStyleVariantBlueprintConfigPresetObserver(): Promise<void> {
+async function startShowStyleVariantBlueprintConfigPresetObserver(signal: AbortSignal): Promise<void> {
 	const doUpdate = async (doc: DBShowStyleVariant): Promise<void> => {
 		const markUnlinked = async () => {
 			await ShowStyleVariants.updateAsync(doc._id, {
@@ -224,6 +226,7 @@ async function startShowStyleVariantBlueprintConfigPresetObserver(): Promise<voi
 		ShowStyleVariants,
 		['blueprintConfigPresetId', 'showStyleBaseId'],
 		doUpdate,
-		ObserveChangeBufferTimeout
+		ObserveChangeBufferTimeout,
+		signal
 	)
 }

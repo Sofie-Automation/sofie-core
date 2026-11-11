@@ -28,7 +28,6 @@ import { literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	CustomPublishCollection,
 	setUpCollectionOptimizedObserver,
-	SetupObserversResult,
 	TriggerUpdate,
 } from '../../../lib/customPublication'
 import type { PublicationRegistry } from '../../../publicationRegistry'
@@ -107,8 +106,9 @@ const rundownPlaylistFieldSpecifier = literal<
 
 async function setupUIPieceContentStatusesPublicationObservers(
 	args: ReadonlyDeep<UIPieceContentStatusesArgs>,
-	triggerUpdate: TriggerUpdate<UIPieceContentStatusesUpdateProps>
-): Promise<SetupObserversResult> {
+	triggerUpdate: TriggerUpdate<UIPieceContentStatusesUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
 	const trackMediaObjectChange = (mediaId: string): Partial<UIPieceContentStatusesUpdateProps> => ({
 		invalidateMediaObjectMediaId: [mediaId],
 	})
@@ -126,95 +126,132 @@ async function setupUIPieceContentStatusesPublicationObservers(
 	})) as Pick<DBRundownPlaylist, RundownPlaylistFields> | undefined
 	if (!playlist) throw new Error(`RundownPlaylist "${args.rundownPlaylistId}" not found!`)
 
-	const rundownsObserver = await RundownsObserver.createForPlaylist(
+	await RundownsObserver.createForPlaylist(
 		playlist.studioId,
 		playlist._id,
-		async (rundownIds) => {
+		signal,
+		async (rundownIds, invocationSignal) => {
 			logger.silly(`Creating new RundownContentObserver`)
 
 			// TODO - can this be done cheaper?
 			const contentCache = createReactiveContentCache()
 			triggerUpdate({ newCache: contentCache })
 
-			const obs1 = await RundownContentObserver.create(rundownIds, contentCache)
+			await RundownContentObserver.create(rundownIds, contentCache, invocationSignal)
 
-			const innerQueries = [
-				contentCache.Segments.observeChanges({
+			contentCache.Segments.observeChanges(
+				{
 					added: (id) => triggerUpdate({ updatedSegmentIds: [id] }),
 					changed: (id) => triggerUpdate({ updatedSegmentIds: [id] }),
 					removed: (id) => triggerUpdate({ updatedSegmentIds: [id] }),
-				}),
-				contentCache.Parts.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			contentCache.Parts.observeChanges(
+				{
 					added: (id) => triggerUpdate({ updatedPartIds: [id] }),
 					changed: (id) => triggerUpdate({ updatedPartIds: [id] }),
 					removed: (id) => triggerUpdate({ updatedPartIds: [id] }),
-				}),
-				contentCache.Pieces.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			contentCache.Pieces.observeChanges(
+				{
 					added: (id) => triggerUpdate({ updatedPieceIds: [id] }),
 					changed: (id) => triggerUpdate({ updatedPieceIds: [id] }),
 					removed: (id) => triggerUpdate({ updatedPieceIds: [id] }),
-				}),
-				contentCache.PartInstances.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			contentCache.PartInstances.observeChanges(
+				{
 					added: (id) => triggerUpdate({ updatedPartInstanceIds: [id] }),
 					changed: (id) => triggerUpdate({ updatedPartInstanceIds: [id] }),
 					removed: (id) => triggerUpdate({ updatedPartInstanceIds: [id] }),
-				}),
-				contentCache.PieceInstances.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			contentCache.PieceInstances.observeChanges(
+				{
 					added: (id) => triggerUpdate({ updatedPieceInstanceIds: [id] }),
 					changed: (id) => triggerUpdate({ updatedPieceInstanceIds: [id] }),
 					removed: (id) => triggerUpdate({ updatedPieceInstanceIds: [id] }),
-				}),
-				contentCache.AdLibPieces.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			contentCache.AdLibPieces.observeChanges(
+				{
 					added: (id) => triggerUpdate({ updatedAdlibPieceIds: [id] }),
 					changed: (id) => triggerUpdate({ updatedAdlibPieceIds: [id] }),
 					removed: (id) => triggerUpdate({ updatedAdlibPieceIds: [id] }),
-				}),
-				contentCache.AdLibActions.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			contentCache.AdLibActions.observeChanges(
+				{
 					added: (id) => triggerUpdate({ updatedAdlibActionIds: [id] }),
 					changed: (id) => triggerUpdate({ updatedAdlibActionIds: [id] }),
 					removed: (id) => triggerUpdate({ updatedAdlibActionIds: [id] }),
-				}),
-				contentCache.BaselineAdLibPieces.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			contentCache.BaselineAdLibPieces.observeChanges(
+				{
 					added: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [id] }),
 					changed: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [id] }),
 					removed: (id) => triggerUpdate({ updatedBaselineAdlibPieceIds: [id] }),
-				}),
-				contentCache.BaselineAdLibActions.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			contentCache.BaselineAdLibActions.observeChanges(
+				{
 					added: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [id] }),
 					changed: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [id] }),
 					removed: (id) => triggerUpdate({ updatedBaselineAdlibActionIds: [id] }),
-				}),
-				contentCache.Rundowns.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			contentCache.Rundowns.observeChanges(
+				{
 					added: () => triggerUpdate({ invalidateAll: true }),
 					changed: () => triggerUpdate({ invalidateAll: true }),
 					removed: () => triggerUpdate({ invalidateAll: true }),
-				}),
-				contentCache.Blueprints.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			contentCache.Blueprints.observeChanges(
+				{
 					added: () => triggerUpdate({ invalidateAll: true }),
 					changed: () => triggerUpdate({ invalidateAll: true }),
 					removed: () => triggerUpdate({ invalidateAll: true }),
-				}),
-				contentCache.ShowStyleSourceLayers.observeChanges({
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
+			contentCache.ShowStyleSourceLayers.observeChanges(
+				{
 					added: () => triggerUpdate({ invalidateAll: true }),
 					changed: () => triggerUpdate({ invalidateAll: true }),
 					removed: () => triggerUpdate({ invalidateAll: true }),
-				}),
-			]
-
-			return () => {
-				obs1.dispose()
-
-				for (const query of innerQueries) {
-					query.stop()
-				}
-			}
+				},
+				undefined,
+				{ signal: invocationSignal }
+			)
 		}
 	)
 
 	// Set up observers:
-	return [
-		rundownsObserver,
-
+	await Promise.all([
 		Studios.observeChanges(
 			{ _id: playlist.studioId },
 			{
@@ -222,7 +259,7 @@ async function setupUIPieceContentStatusesPublicationObservers(
 				changed: (id) => triggerUpdate({ invalidateStudio: id }),
 				removed: (id) => triggerUpdate({ invalidateStudio: id }),
 			},
-			{ projection: studioFieldSpecifier }
+			{ projection: studioFieldSpecifier, signal }
 		),
 
 		// Watch for affecting objects
@@ -233,7 +270,7 @@ async function setupUIPieceContentStatusesPublicationObservers(
 				changed: (obj) => triggerUpdate(trackMediaObjectChange(obj.mediaId)),
 				removed: (obj) => triggerUpdate(trackMediaObjectChange(obj.mediaId)),
 			},
-			{ projection: mediaObjectFieldSpecifier }
+			{ projection: mediaObjectFieldSpecifier, signal }
 		),
 		PackageInfos.observe(
 			{
@@ -247,7 +284,7 @@ async function setupUIPieceContentStatusesPublicationObservers(
 				changed: (obj) => triggerUpdate(trackPackageInfoChange(obj.packageId)),
 				removed: (obj) => triggerUpdate(trackPackageInfoChange(obj.packageId)),
 			},
-			{ projection: packageInfoFieldSpecifier }
+			{ projection: packageInfoFieldSpecifier, signal }
 		),
 		PackageContainerPackageStatuses.observeChanges(
 			{ studioId: playlist.studioId },
@@ -256,9 +293,9 @@ async function setupUIPieceContentStatusesPublicationObservers(
 				changed: (id) => triggerUpdate(trackPackageContainerPackageStatusChange(id)),
 				removed: (id) => triggerUpdate(trackPackageContainerPackageStatusChange(id)),
 			},
-			{ projection: packageContainerPackageStatusesFieldSpecifier }
+			{ projection: packageContainerPackageStatusesFieldSpecifier, signal }
 		),
-	]
+	])
 }
 
 async function manipulateUIPieceContentStatusesPublicationData(

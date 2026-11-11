@@ -3,14 +3,14 @@ import {
 	MongoQuery,
 	MongoFieldSpecifier,
 	ObserveChangesOptions,
+	ObserveOptions,
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
 } from '@sofie-automation/corelib/dist/mongo'
 import { PromisifyCallbacks } from '@sofie-automation/shared-lib/dist/lib/types'
 import { observeChangesViaChangeStream, observeViaChangeStream, ObserveMultiplexerDeps } from './observeMultiplexer'
 import type { ObserveViewShape } from '@sofie-automation/corelib/dist/memoryCollection/observeView'
-import type { MinimalMongoCursor } from '../collection'
-import type { LiveQueryHandleSync } from '../../lib/lib'
+import { type MinimalMongoCursor } from '../collection'
 
 export interface ChangeStreamCursorConfig<TDoc extends { _id: ProtectedString<any> }> {
 	collectionName: string
@@ -39,56 +39,30 @@ export class ChangeStreamCursor<TDoc extends { _id: ProtectedString<any> }> impl
 
 	async observeChangesAsync(
 		callbacks: PromisifyCallbacks<ObserveChangesCallbacks<TDoc>>,
-		options?: ObserveChangesOptions
-	): Promise<LiveQueryHandleSync> {
-		const abort = new AbortController()
-
-		try {
-			await observeChangesViaChangeStream(
-				this.#config.collectionName,
-				this.#config.selector,
-				this.#config.projection,
-				this.#config.shape,
-				callbacks,
-				abort.signal,
-				!!options?.nonMutatingCallbacks,
-				this.#config.makeDeps
-			)
-		} catch (e) {
-			abort.abort() // Ensure everything on the signal gets terminated
-			throw e
-		}
-
-		return {
-			stop: () => {
-				abort.abort()
-			},
-		}
+		options: ObserveChangesOptions
+	): Promise<void> {
+		return observeChangesViaChangeStream(
+			this.#config.collectionName,
+			this.#config.selector,
+			this.#config.projection,
+			this.#config.shape,
+			callbacks,
+			options.signal,
+			!!options.nonMutatingCallbacks,
+			this.#config.makeDeps
+		)
 	}
 
-	async observeAsync(callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>): Promise<LiveQueryHandleSync> {
-		const abort = new AbortController()
-
-		try {
-			await observeViaChangeStream(
-				this.#config.collectionName,
-				this.#config.selector,
-				this.#config.projection,
-				this.#config.shape,
-				callbacks,
-				abort.signal,
-				false,
-				this.#config.makeDeps
-			)
-		} catch (e) {
-			abort.abort() // Ensure everything on the signal gets terminated
-			throw e
-		}
-
-		return {
-			stop: () => {
-				abort.abort()
-			},
-		}
+	async observeAsync(callbacks: PromisifyCallbacks<ObserveCallbacks<TDoc>>, options: ObserveOptions): Promise<void> {
+		return observeViaChangeStream(
+			this.#config.collectionName,
+			this.#config.selector,
+			this.#config.projection,
+			this.#config.shape,
+			callbacks,
+			options.signal,
+			false,
+			this.#config.makeDeps
+		)
 	}
 }

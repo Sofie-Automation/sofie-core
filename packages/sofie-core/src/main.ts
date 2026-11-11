@@ -21,6 +21,7 @@ import { startDeviceTriggersObserver } from './api/deviceTriggers/observer'
 import { bindLogoRouter } from './logo'
 import { setupPrometheusMetrics } from '@sofie-automation/corelib/dist/prometheus'
 import { startCronjobs } from './cronjobs'
+import { startServerBlueprintUpgradeStatuses } from './publications/blueprintUpgradeStatus/systemStatus'
 import { startTimeJumpDetector } from './systemTime'
 import { bindWebManifestRouter } from './webmanifest'
 import { startPerformanceMonitor } from './performanceMonitor'
@@ -63,6 +64,13 @@ registerAllPublications(publicationRegistry)
 
 // The registry of live DDP sessions, shared between the DDP server and the performance monitor
 const ddpConnectionRegistry = createDdpConnectionRegistry()
+
+/**
+ * The lifetime of this process. Long-lived observers started below are bound to this signal, so
+ * aborting it releases them all; a graceful-shutdown path can do that rather than relying on the
+ * process exiting.
+ */
+const processLifetime = new AbortController()
 
 ;(async () => {
 	console.log('process started') // This is a message all Sofie processes log upon startup
@@ -136,17 +144,21 @@ const ddpConnectionRegistry = createDdpConnectionRegistry()
 		},
 		unblock: () => undefined,
 	}))
-	await startDeviceTriggersObserver((getCache) => createMeteorTriggersContext(meteorCallForTriggers, getCache))
+	await startDeviceTriggersObserver(
+		(getCache) => createMeteorTriggersContext(meteorCallForTriggers, getCache),
+		processLifetime.signal
+	)
 	await Promise.all([
-		setupSystemStatusObservers(),
-		startMediaObjectDurationMonitor(),
-		startStudioMappingsHashObserver(),
-		startRundownVersionHashObservers(),
-		startBlueprintConfigPresetObservers(),
-		startExternalMessageQueueStatusMonitor(),
+		setupSystemStatusObservers(processLifetime.signal),
+		startMediaObjectDurationMonitor(processLifetime.signal),
+		startStudioMappingsHashObserver(processLifetime.signal),
+		startRundownVersionHashObservers(processLifetime.signal),
+		startBlueprintConfigPresetObservers(processLifetime.signal),
+		startExternalMessageQueueStatusMonitor(processLifetime.signal),
 	])
 
-	startCronjobs()
+	startServerBlueprintUpgradeStatuses(processLifetime.signal)
+	startCronjobs(processLifetime.signal)
 	startPerformanceMonitor(ddpConnectionRegistry)
 
 	// Build the http server and everything mounted on it, then start listening once it is all attached
@@ -157,9 +169,11 @@ const ddpConnectionRegistry = createDdpConnectionRegistry()
 	// Ensure all the publications were registered at startup
 	if (isInDevelopmentMode()) publicationRegistry.verifyAllPublicationsRegistered()
 
-	startTimeJumpDetector()
+	startTimeJumpDetector(processLifetime.signal)
 })().catch((e) => {
 	logger.error(`Startup failed: ${stringifyError(e)}`)
+
+	processLifetime.abort(new Error('Startup failed'))
 
 	// eslint-disable-next-line n/no-process-exit
 	process.exit(1)

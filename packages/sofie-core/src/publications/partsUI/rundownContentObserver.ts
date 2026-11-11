@@ -10,11 +10,9 @@ import {
 	StudioSettingsDoc,
 } from './reactiveContentCache'
 import { Parts, RundownPlaylists, Segments, Studios } from '../../collections'
-import { waitForAllObserversReady } from '../lib/lib'
 import { observeSelectedPartInstancesBranding } from '../lib/branding'
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import type { LiveQueryHandleSync } from '../../lib/lib'
 
 function convertStudioSettingsDoc(doc: Pick<DBStudio, StudioFields>): StudioSettingsDoc {
 	return {
@@ -25,22 +23,21 @@ function convertStudioSettingsDoc(doc: Pick<DBStudio, StudioFields>): StudioSett
 
 export class RundownContentObserver {
 	readonly #cache: ContentCache
-	readonly #observers: LiveQueryHandleSync[]
 
-	private constructor(cache: ContentCache, observers: LiveQueryHandleSync[]) {
+	private constructor(cache: ContentCache) {
 		this.#cache = cache
-		this.#observers = observers
 	}
 
 	static async create(
 		studioId: StudioId,
 		playlistId: RundownPlaylistId,
 		rundownIds: RundownId[],
-		cache: ContentCache
+		cache: ContentCache,
+		signal: AbortSignal
 	): Promise<RundownContentObserver> {
 		logger.silly(`Creating RundownContentObserver for rundowns "${rundownIds.join(',')}"`)
 
-		const observers = await waitForAllObserversReady([
+		await Promise.all([
 			Studios.observe(
 				{
 					_id: studioId,
@@ -60,6 +57,7 @@ export class RundownContentObserver {
 				},
 				{
 					projection: studioFieldSpecifier,
+					signal,
 				}
 			),
 			RundownPlaylists.observeChanges(
@@ -69,6 +67,7 @@ export class RundownContentObserver {
 				cache.RundownPlaylists.link(),
 				{
 					projection: rundownPlaylistFieldSpecifier,
+					signal,
 				}
 			),
 			Segments.observeChanges(
@@ -80,6 +79,7 @@ export class RundownContentObserver {
 				cache.Segments.link(),
 				{
 					projection: segmentFieldSpecifier,
+					signal,
 				}
 			),
 			Parts.observeChanges(
@@ -91,20 +91,17 @@ export class RundownContentObserver {
 				cache.Parts.link(),
 				{
 					projection: partFieldSpecifier,
+					signal,
 				}
 			),
 			// Only the Branding is needed from these, to know how to resolve the Parts
-			observeSelectedPartInstancesBranding(cache),
+			observeSelectedPartInstancesBranding(cache, signal),
 		])
 
-		return new RundownContentObserver(cache, observers)
+		return new RundownContentObserver(cache)
 	}
 
 	public get cache(): ContentCache {
 		return this.#cache
-	}
-
-	public dispose = (): void => {
-		this.#observers.forEach((observer) => observer.stop())
 	}
 }

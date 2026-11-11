@@ -11,8 +11,6 @@ import {
 	pieceInstanceSimpleFieldSpecifier,
 } from './reactiveContentCache'
 import { PartInstances, PieceInstances } from '../../collections'
-import { waitForAllObserversReady } from '../lib/lib'
-import type { LiveQueryHandleSync } from '../../lib/lib'
 
 export interface UIPieceInstancesArgs {
 	readonly rundownIds: RundownId[]
@@ -88,38 +86,34 @@ function createPartInstancesSelector(args: ReadonlyDeep<UIPieceInstancesArgs>): 
 
 export class RundownContentObserver {
 	readonly #cache: ContentCache
-	readonly #observers: LiveQueryHandleSync[]
 
-	private constructor(cache: ContentCache, observers: LiveQueryHandleSync[]) {
+	private constructor(cache: ContentCache) {
 		this.#cache = cache
-
-		this.#observers = observers
 	}
 
 	static async create(
 		args: ReadonlyDeep<UIPieceInstancesArgs>,
-		cache: ContentCache
+		cache: ContentCache,
+		signal: AbortSignal
 	): Promise<RundownContentObserver> {
 		logger.silly(`Creating RundownContentObserver for rundowns "${args.rundownIds.join(',')}"`)
 
-		const observers = await waitForAllObserversReady([
+		await Promise.all([
 			PieceInstances.observeChanges(createPieceInstancesSelector(args), cache.PieceInstances.link(), {
 				projection: args.omitTimings ? pieceInstanceSimpleFieldSpecifier : pieceInstanceFieldSpecifier,
+				signal,
 			}),
 			// Only the Branding is needed from these, to know how to resolve the PieceInstances
 			PartInstances.observeChanges(createPartInstancesSelector(args), cache.PartInstances.link(), {
 				projection: partInstanceBrandingFieldSpecifier,
+				signal,
 			}),
 		])
 
-		return new RundownContentObserver(cache, observers)
+		return new RundownContentObserver(cache)
 	}
 
 	public get cache(): ContentCache {
 		return this.#cache
-	}
-
-	public dispose = (): void => {
-		this.#observers.forEach((observer) => observer.stop())
 	}
 }

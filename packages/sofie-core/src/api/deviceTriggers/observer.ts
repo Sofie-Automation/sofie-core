@@ -22,19 +22,19 @@ import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyE
 import { TriggersContextFactory } from './triggersContext'
 import { TagsService } from './TagsService'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
-
-type ObserverAndManager = {
-	observer: StudioObserver
-	manager: StudioDeviceTriggerManager
-}
+import { AbortScope, createChildAbort, runOnAbort } from '../../lib/observerLifetime'
 
 /**
  * Start observing studios and maintaining a device-trigger manager per studio. `createTriggersContext` is
  * injected (rather than importing a global) so the compiled actions dispatch through the process's
  * `MethodRegistry`. It is a factory because each studio needs a context bound to its own `ContentCache`.
  */
-export async function startDeviceTriggersObserver(createTriggersContext: TriggersContextFactory): Promise<void> {
-	const studioObserversAndManagers = new Map<StudioId, ObserverAndManager>()
+export async function startDeviceTriggersObserver(
+	createTriggersContext: TriggersContextFactory,
+	signal: AbortSignal
+): Promise<void> {
+	/** The lifetime of the observer and manager of each studio */
+	const studioScopes = new Map<StudioId, AbortScope>()
 	const jobQueue = new JobQueueWithClasses({
 		autoStart: true,
 	})
@@ -52,40 +52,37 @@ export async function startDeviceTriggersObserver(createTriggersContext: Trigger
 
 	function createObserverAndManager(studioId: StudioId) {
 		logger.debug(`Creating observer for studio "${studioId}"`)
+		const scope = createChildAbort(signal)
 		const manager = new StudioDeviceTriggerManager(studioId, new TagsService(), createTriggersContext)
-		const observer = new StudioObserver(
-			studioId,
-			(showStyleBaseId, cache) => {
+		new StudioObserver(studioId, scope.signal, {
+			onRundownContentChanged: (showStyleBaseId, cache) => {
 				logger.silly(`Studio observer updating triggers for "${studioId}":"${showStyleBaseId}"`)
 				workInQueue(async () => manager.updateTriggers(cache, showStyleBaseId))
-
-				return () => {
-					workInQueue(async () => manager.clearTriggers())
-				}
 			},
-			(showStyleBaseId, cache) => {
+			onRundownContentGone: () => {
+				workInQueue(async () => manager.clearTriggers())
+			},
+			onPieceInstancesChanged: (showStyleBaseId, cache) => {
 				workInQueue(async () => manager.updatePieceInstances(cache, showStyleBaseId))
+			},
+		})
 
-				return () => {
-					return
-				}
-			}
-		)
+		// The manager goes with the observer, whether the studio is removed or the whole process ends. This is
+		// queued, so that it runs after any update the observer queued before it was aborted.
+		runOnAbort(scope.signal, () => workInQueue(async () => manager.stop()))
 
-		studioObserversAndManagers.set(studioId, { manager, observer })
+		studioScopes.set(studioId, scope)
 	}
 
 	function destroyObserverAndManager(studioId: StudioId) {
-		workInQueue(async () => {
-			const toRemove = studioObserversAndManagers.get(studioId)
-			if (toRemove) {
-				toRemove.observer.stop()
-				await toRemove.manager.stop()
-				studioObserversAndManagers.delete(studioId)
-			} else {
-				logger.error(`Observer for studio "${studioId}" not found`)
-			}
-		})
+		const scope = studioScopes.get(studioId)
+		if (!scope) {
+			logger.error(`Observer for studio "${studioId}" not found`)
+			return
+		}
+
+		studioScopes.delete(studioId)
+		scope.abort()
 	}
 
 	await Studios.observeChanges(
@@ -98,7 +95,7 @@ export async function startDeviceTriggersObserver(createTriggersContext: Trigger
 				destroyObserverAndManager(studioId)
 			},
 		},
-		{ projection: { _id: 1 } }
+		{ projection: { _id: 1 }, signal }
 	)
 }
 

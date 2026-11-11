@@ -2,12 +2,7 @@ import { resolveAdLibActionForBranding } from '@sofie-automation/corelib/dist/pl
 import { BrandingState, updateProjectedBrandingId } from '../lib/branding'
 import { RundownBaselineAdLibActionId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check, zAnyArray } from '../../lib/check'
-import {
-	CustomPublishCollection,
-	SetupObserversResult,
-	TriggerUpdate,
-	setUpCollectionOptimizedObserver,
-} from '../../lib/customPublication'
+import { CustomPublishCollection, TriggerUpdate, setUpCollectionOptimizedObserver } from '../../lib/customPublication'
 import { normaliseIds } from '../lib/lib'
 import { logger } from '../../logging'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
@@ -40,8 +35,9 @@ interface UIRundownBaselineAdLibActionsUpdateProps {
 
 async function setupUIRundownBaselineAdLibActionsPublicationObservers(
 	args: ReadonlyDeep<UIRundownBaselineAdLibActionsArgs>,
-	triggerUpdate: TriggerUpdate<UIRundownBaselineAdLibActionsUpdateProps>
-): Promise<SetupObserversResult> {
+	triggerUpdate: TriggerUpdate<UIRundownBaselineAdLibActionsUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
 	logger.silly(`Creating new RundownContentObserver`)
 
 	const cache = createReactiveContentCache()
@@ -49,41 +45,38 @@ async function setupUIRundownBaselineAdLibActionsPublicationObservers(
 	// Push update
 	triggerUpdate({ newCache: cache })
 
-	const contentObserver = await RundownContentObserver.create(args, cache)
+	await RundownContentObserver.create(args, cache, signal)
 
 	// Note: this is attached after the content observer has been populated, so it will be told about
 	// every document already in the cache
-	const innerQueries = [
-		// Any change to these means the Branding may have changed
-		cache.RundownPlaylists.observeChanges({
+	// Any change to these means the Branding may have changed
+	cache.RundownPlaylists.observeChanges(
+		{
 			added: () => triggerUpdate({ invalidateBranding: true }),
 			changed: () => triggerUpdate({ invalidateBranding: true }),
 			removed: () => triggerUpdate({ invalidateBranding: true }),
-		}),
-		cache.PartInstances.observeChanges({
+		},
+		undefined,
+		{ signal }
+	)
+	cache.PartInstances.observeChanges(
+		{
 			added: () => triggerUpdate({ invalidateBranding: true }),
 			changed: () => triggerUpdate({ invalidateBranding: true }),
 			removed: () => triggerUpdate({ invalidateBranding: true }),
-		}),
-		cache.RundownBaselineAdLibActions.observeChanges({
+		},
+		undefined,
+		{ signal }
+	)
+	cache.RundownBaselineAdLibActions.observeChanges(
+		{
 			added: (id) => triggerUpdate({ invalidateAdLibActionIds: [id] }),
 			changed: (id) => triggerUpdate({ invalidateAdLibActionIds: [id] }),
 			removed: (id) => triggerUpdate({ invalidateAdLibActionIds: [id] }),
-		}),
-	]
-
-	// Set up observers:
-	return [
-		{
-			stop: () => {
-				contentObserver.dispose()
-
-				for (const query of innerQueries) {
-					query.stop()
-				}
-			},
 		},
-	]
+		undefined,
+		{ signal }
+	)
 }
 
 export async function manipulateUIRundownBaselineAdLibActionsPublicationData(

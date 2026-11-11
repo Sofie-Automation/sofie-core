@@ -258,7 +258,7 @@ describe('DdpSession', () => {
 			const { publications, socket } = setup()
 			publications.publishUnsafe('test.cursorNull', async () => ({
 				collectionName: null,
-				observeChangesAsync: () => Promise.resolve({ stop: () => undefined }),
+				observeChangesAsync: () => Promise.resolve(),
 			}))
 			socket.receive({ msg: 'connect', version: '1' })
 			socket.sent.length = 0
@@ -271,14 +271,16 @@ describe('DdpSession', () => {
 			const { publications, socket } = setup()
 			// Mimic `feat/replace-meteor-mongo`'s cursor: a `collectionName` plus an `observeChangesAsync`
 			// that emits the initial set synchronously and lets the test drive later changes.
+			// The observer's lifetime is the signal passed in the options.
 			let emit: any
 			let stopped = false
 			publications.publishUnsafe('test.cursorLive', async () => ({
 				collectionName: 'TestCollection',
-				observeChangesAsync: (callbacks: any) => {
+				observeChangesAsync: (callbacks: any, options: any) => {
 					emit = callbacks
 					callbacks.added('doc1', { a: 1 })
-					return Promise.resolve({ stop: () => (stopped = true) })
+					options.signal.addEventListener('abort', () => (stopped = true), { once: true })
+					return Promise.resolve()
 				},
 			}))
 			socket.receive({ msg: 'connect', version: '1' })
