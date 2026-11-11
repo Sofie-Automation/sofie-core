@@ -52,7 +52,7 @@
 		"@babel/core": "^7.29.7",
 		"@babel/plugin-transform-export-namespace-from": "^7.29.7",
 		"@babel/plugin-transform-modules-commonjs": "^7.29.7",
-		"@sofie-automation/code-standard-preset": "^3.2.2",
+		"@sofie-automation/code-standard-preset": "^4.0.3",
 		"@types/amqplib": "0.10.6",
 		"@types/debug": "^4.1.13",
 		"@types/ejson": "^2.2.2",
@@ -63,7 +63,7 @@
 		"babel-jest": "^30.5.2",
 		"commit-and-tag-version": "^13.3.0",
 		"concurrently": "^10.0.6",
-		"eslint": "^9.39.5",
+		"eslint": "^10.14.0",
 		"eslint-plugin-react": "^7.37.5",
 		"eslint-plugin-yml": "^3.9.0",
 		"husky": "^9.1.7",
@@ -83,8 +83,8 @@
 		"snyk-nodejs-lockfile-parser": "^2.10.5",
 		"ts-jest": "29.4.9",
 		"ts-node": "^10.9.2",
-		"typedoc": "^0.27.9",
-		"typescript": "~5.9.3"
+		"typedoc": "^0.28.20",
+		"typescript": "~6.0.3"
 	},
 	"packageManager": "yarn@4.17.0",
 	"resolutions": {
