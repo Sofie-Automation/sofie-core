@@ -1,20 +1,18 @@
 import React from 'react'
 import _ from 'underscore'
-import { withTranslation, type WithTranslation } from 'react-i18next'
+import { withTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import ClassNames from 'classnames'
 import type { RundownViewPlaylist } from '../../../lib/rundownPlaylistProjection.js'
 import type { SegmentUi, PartUi, IOutputLayerUi } from '../SegmentTimelineContainer.js'
+import { TimingTickResolution } from '../../RundownView/RundownTiming/RundownTiming.js'
 import {
-	TimingDataResolution,
-	TimingTickResolution,
-	type WithTiming,
-	withTiming,
-} from '../../RundownView/RundownTiming/withTiming.js'
-import type { RundownTiming } from '../../RundownView/RundownTiming/RundownTiming.js'
+	useSegmentPartTimings,
+	useTimingNow,
+	type SegmentPartTiming,
+} from '../../RundownView/RundownTiming/usePlaylistTimingValue.js'
 
 import { RundownUtils } from '../../../lib/rundown.js'
-import { getCurrentTime } from '../../../lib/systemTime.js'
 
 import { DEBUG_MODE } from '../SegmentTimelineDebugMode.js'
 import type { Translated } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
@@ -29,11 +27,7 @@ import { LoopingIcon } from '../../../lib/ui/icons/looping.js'
 import { SegmentEnd } from '../../../lib/ui/icons/segment.js'
 import { getShowHiddenSourceLayers } from '../../../lib/localStorage.js'
 import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import {
-	getPartInstanceTimingId,
-	getPartInstanceTimingValue,
-	type RundownTimingContext,
-} from '../../../lib/rundownTiming.js'
+import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { OutputGroup } from './OutputGroup.js'
 import { InvalidPartCover } from './InvalidPartCover.js'
 import {
@@ -103,6 +97,20 @@ interface IProps {
 	budgetDuration: number | undefined
 }
 
+export type SegmentPartTimings = Map<PartId, SegmentPartTiming>
+
+/**
+ * The published timing values this component renders from, supplied by the wrapper at the bottom of
+ * this file. Nothing here comes from a client-side timing calculation.
+ */
+export interface WithSegmentPartTimings {
+	segmentPartTimings: SegmentPartTimings
+	/** The instant to evaluate the published TimerStates at */
+	timingNow: number
+}
+
+type TimedProps = IProps & WithSegmentPartTimings
+
 interface IState {
 	isLive: boolean
 	isNext: boolean
@@ -118,16 +126,15 @@ interface IState {
 
 	dropActive: boolean
 }
-export class SegmentTimelinePartClass extends React.Component<Translated<WithTiming<IProps>>, IState> {
-	constructor(props: Readonly<Translated<WithTiming<IProps>>>) {
+export class SegmentTimelinePartClass extends React.Component<Translated<TimedProps>, IState> {
+	constructor(props: Readonly<Translated<TimedProps>>) {
 		super(props)
 
 		const partInstance = this.props.part.instance
 
 		const isLive = this.props.playlist.currentPartInfo?.partInstanceId === partInstance._id
 		const isNext = this.props.playlist.nextPartInfo?.partInstanceId === partInstance._id
-		const isInQuickLoop =
-			this.props.timingDurations.partsInQuickLoop?.[getPartInstanceTimingId(this.props.part.instance)] ?? false
+		const isInQuickLoop = props.segmentPartTimings.get(partInstance.part._id)?.isInQuickLoop ?? false
 		const startedPlayback = partInstance.timings?.plannedStartedPlayback
 
 		this.state = {
@@ -143,32 +150,22 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 			liveDuration: isLive
 				? Math.max(
 						(startedPlayback &&
-							props.timingDurations.partDurations &&
-							SegmentTimelinePartClass.getCurrentLiveLinePosition(
-								props.part,
-								props.timingDurations.currentTime || getCurrentTime()
-							) + SegmentTimelinePartClass.getLiveLineTimePadding(props.timeToPixelRatio)) ||
+							SegmentTimelinePartClass.getCurrentLiveLinePosition(props.part, props.timingNow) +
+								SegmentTimelinePartClass.getLiveLineTimePadding(props.timeToPixelRatio)) ||
 							0,
-						props.timingDurations.partDurations
-							? partInstance.part.displayDuration ||
-									props.timingDurations.partDurations[getPartInstanceTimingId(partInstance)]
-							: 0
+						partInstance.part.displayDuration || props.segmentPartTimings.get(partInstance.part._id)?.duration || 0
 					)
 				: 0,
 			dropActive: false,
 		}
 	}
 
-	static getDerivedStateFromProps(
-		nextProps: Readonly<IProps & RundownTiming.InjectedROTimingProps>,
-		state: Readonly<IState>
-	): Partial<IState> {
+	static getDerivedStateFromProps(nextProps: Readonly<TimedProps>, state: Readonly<IState>): Partial<IState> {
 		const isPrevious = nextProps.playlist.previousPartsInfo?.[0]?.partInstanceId === nextProps.part.instance._id
 		const isLive = nextProps.playlist.currentPartInfo?.partInstanceId === nextProps.part.instance._id
 		const isNext = nextProps.playlist.nextPartInfo?.partInstanceId === nextProps.part.instance._id
 
-		const isInQuickLoop =
-			nextProps.timingDurations.partsInQuickLoop?.[getPartInstanceTimingId(nextProps.part.instance)] ?? false
+		const isInQuickLoop = nextProps.segmentPartTimings.get(nextProps.part.instance.part._id)?.isInQuickLoop ?? false
 
 		const nextPartInstance = nextProps.part.instance
 
@@ -185,7 +182,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 		if (!state.isDurationSettling && isDurationSettling) {
 			durationSettlingStartsAt = SegmentTimelinePartClass.getCurrentLiveLinePosition(
 				nextProps.part,
-				nextProps.timingDurations.currentTime || getCurrentTime()
+				nextProps.timingNow
 			)
 			//console.log('Start Duration Settling in Part : ', nextState.partId)
 		}
@@ -196,16 +193,12 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 			if (isLive && !nextProps.autoNextPart && !nextPartInstance.part.autoNext) {
 				liveDuration = Math.max(
 					(startedPlayback &&
-						nextProps.timingDurations.partDurations &&
-						SegmentTimelinePartClass.getCurrentLiveLinePosition(
-							nextProps.part,
-							nextProps.timingDurations.currentTime || getCurrentTime()
-						) + SegmentTimelinePartClass.getLiveLineTimePadding(nextProps.timeToPixelRatio)) ||
+						SegmentTimelinePartClass.getCurrentLiveLinePosition(nextProps.part, nextProps.timingNow) +
+							SegmentTimelinePartClass.getLiveLineTimePadding(nextProps.timeToPixelRatio)) ||
 						0,
-					nextProps.timingDurations.partDurations
-						? nextPartInstance.part.displayDuration ||
-								nextProps.timingDurations.partDurations[getPartInstanceTimingId(nextPartInstance)]
-						: 0
+					nextPartInstance.part.displayDuration ||
+						nextProps.segmentPartTimings.get(nextPartInstance.part._id)?.duration ||
+						0
 				)
 			}
 			durationSettlingStartsAt = 0
@@ -297,7 +290,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 					this.state.isDurationSettling,
 					this.state.durationSettlingStartsAt
 				),
-				SegmentTimelinePartClass.getPartActualDuration(this.props.part, this.props.timingDurations)
+				SegmentTimelinePartClass.getPartActualDuration(this.props.part, this.props.segmentPartTimings)
 			)
 		}
 	}
@@ -312,7 +305,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 		if (this.highlightTimeout) clearTimeout(this.highlightTimeout)
 	}
 
-	shouldComponentUpdate(nextProps: Readonly<WithTiming<IProps>>, nextState: Readonly<IState>): boolean {
+	shouldComponentUpdate(nextProps: Readonly<TimedProps>, nextState: Readonly<IState>): boolean {
 		if (!_.isMatch(this.props, nextProps) || !_.isMatch(this.state, nextState)) {
 			return true
 		} else {
@@ -320,7 +313,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 		}
 	}
 
-	componentDidUpdate(prevProps: Readonly<Translated<WithTiming<IProps>>>, prevState: IState, snapshot?: unknown): void {
+	componentDidUpdate(prevProps: Readonly<Translated<TimedProps>>, prevState: IState, snapshot?: unknown): void {
 		super.componentDidUpdate?.(prevProps, prevState, snapshot)
 		const tooSmallState = this.state.isTooSmallForDisplay || this.state.isTooSmallForText
 		const prevTooSmallState = prevState.isTooSmallForDisplay || prevState.isTooSmallForText
@@ -335,7 +328,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 							this.state.durationSettlingStartsAt
 						)
 					: false,
-				SegmentTimelinePartClass.getPartActualDuration(this.props.part, this.props.timingDurations)
+				SegmentTimelinePartClass.getPartActualDuration(this.props.part, this.props.segmentPartTimings)
 			)
 		}
 	}
@@ -347,7 +340,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 		} else {
 			const partDisplayDuration = SegmentTimelinePartClass.getPartDisplayDuration(
 				this.props.part,
-				this.props.timingDurations
+				this.props.segmentPartTimings
 			)
 			partDuration = this.props.cropDuration
 				? Math.min(this.props.cropDuration, partDisplayDuration)
@@ -387,7 +380,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 	}
 
 	static getPartDuration(
-		props: WithTiming<IProps>,
+		props: TimedProps,
 		liveDuration: number,
 		isDurationSettling: boolean,
 		durationSettlingStartsAt: number
@@ -397,50 +390,40 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 		}
 		return Math.max(
 			!props.isPreview ? liveDuration : 0,
-			SegmentTimelinePartClass.getPartDisplayDuration(props.part, props.timingDurations)
+			SegmentTimelinePartClass.getPartDisplayDuration(props.part, props.segmentPartTimings)
 		)
 	}
 
-	static getPartDisplayDuration(part: PartUi, timingDurations: RundownTimingContext): number {
-		return (
-			(timingDurations.partDisplayDurations &&
-				timingDurations.partDisplayDurations[getPartInstanceTimingId(part.instance)]) ||
-			part.renderedDuration ||
-			0
-		)
+	static getPartDisplayDuration(part: PartUi, segmentPartTimings: SegmentPartTimings): number {
+		return segmentPartTimings.get(part.instance.part._id)?.displayDuration || part.renderedDuration || 0
 	}
 
-	static getPartActualDuration(part: PartUi, timingDurations: RundownTimingContext): number {
-		return timingDurations?.partDurations?.[getPartInstanceTimingId(part.instance)] ?? part.renderedDuration
+	static getPartActualDuration(part: PartUi, segmentPartTimings: SegmentPartTimings): number {
+		return segmentPartTimings.get(part.instance.part._id)?.duration ?? part.renderedDuration
 	}
 
-	static getPartStartsAt(props: WithTiming<IProps>): number {
+	static getPartStartsAt(props: TimedProps): number {
+		// the published offsets are relative to the start of the segment, so the subtraction below is
+		// only still here for the case where `firstPartInSegment` is not actually the segment's first
+		const startsAt = (part: PartUi | undefined) =>
+			part ? (props.segmentPartTimings.get(part.instance.part._id)?.displayStartsAt ?? 0) : 0
+
 		if (props.isBudgetGap) {
 			return Math.max(
 				0,
 				(props.lastPartInSegment &&
 					props.firstPartInSegment &&
-					(getPartInstanceTimingValue(props.timingDurations.partDisplayStartsAt, props.lastPartInSegment.instance) ??
-						0) -
-						(getPartInstanceTimingValue(props.timingDurations.partDisplayStartsAt, props.firstPartInSegment.instance) ??
-							0) +
-						(getPartInstanceTimingValue(props.timingDurations.partDisplayDurations, props.lastPartInSegment.instance) ??
-							0)) ||
+					startsAt(props.lastPartInSegment) -
+						startsAt(props.firstPartInSegment) +
+						(props.segmentPartTimings.get(props.lastPartInSegment.instance.part._id)?.displayDuration ?? 0)) ||
 					0
 			)
 		}
-		return Math.max(
-			0,
-			(props.firstPartInSegment &&
-				(getPartInstanceTimingValue(props.timingDurations.partDisplayStartsAt, props.part.instance) ?? 0) -
-					(getPartInstanceTimingValue(props.timingDurations.partDisplayStartsAt, props.firstPartInSegment.instance) ??
-						0)) ||
-				0
-		)
+		return Math.max(0, (props.firstPartInSegment && startsAt(props.part) - startsAt(props.firstPartInSegment)) || 0)
 	}
 
 	static getPartEndsAt(
-		props: WithTiming<IProps>,
+		props: TimedProps,
 		liveDuration: number,
 		isDurationSettling: boolean,
 		durationSettlingStartsAt: number
@@ -517,7 +500,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 								}
 								displayDuration={SegmentTimelinePartClass.getPartDisplayDuration(
 									this.props.part,
-									this.props.timingDurations
+									this.props.segmentPartTimings
 								)}
 								isLiveLine={this.props.playlist.currentPartInfo?.partInstanceId === part.instance._id}
 								isNextLine={this.props.playlist.nextPartInfo?.partInstanceId === part.instance._id}
@@ -579,7 +562,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 			this.state.isLive &&
 			((!this.props.isLastSegment && !this.props.isLastInSegment) || !!this.props.playlist.nextPartInfo) &&
 			!isInvalid
-		let timeOffset = SegmentTimelinePartClass.getPartDisplayDuration(this.props.part, this.props.timingDurations)
+		let timeOffset = SegmentTimelinePartClass.getPartDisplayDuration(this.props.part, this.props.segmentPartTimings)
 
 		if (this.state.isLive) {
 			timeOffset += this.getFutureShadePaddingTime()
@@ -748,11 +731,7 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 					{DEBUG_MODE && (
 						<div className="segment-timeline__debug-info">
 							{this.props.livePosition} / {this.props.part.startsAt} /{' '}
-							{
-								((this.props.timingDurations || { partStartsAt: {} }).partStartsAt || {})[
-									getPartInstanceTimingId(this.props.part.instance)
-								]
-							}
+							{SegmentTimelinePartClass.getPartStartsAt(this.props)}
 						</div>
 					)}
 					{this.renderTimelineOutputGroups(this.props.part)}
@@ -886,27 +865,27 @@ export class SegmentTimelinePartClass extends React.Component<Translated<WithTim
 	}
 }
 
-export const SegmentTimelinePart: React.ComponentType<IProps> = withTranslation()(
-	withTiming<IProps & WithTranslation, IState>((props: IProps) => {
-		return {
-			tickResolution: TimingTickResolution.Synced,
-			dataResolution: TimingDataResolution.High,
-			filter: (durations: RundownTimingContext) => {
-				durations = durations || {}
+const SegmentTimelinePartTranslated = withTranslation()(SegmentTimelinePartClass)
 
-				const timingId = getPartInstanceTimingId(props.part.instance)
-				const firstPartInSegmentId = props.firstPartInSegment
-					? getPartInstanceTimingId(props.firstPartInSegment.instance)
-					: undefined
-				return [
-					(durations.partDurations || {})[timingId],
-					(durations.partDisplayStartsAt || {})[timingId],
-					(durations.partDisplayDurations || {})[timingId],
-					(durations.partsInQuickLoop || {})[timingId],
-					firstPartInSegmentId ? (durations.partDisplayStartsAt || {})[firstPartInSegmentId] : undefined,
-					firstPartInSegmentId ? (durations.partDisplayDurations || {})[firstPartInSegmentId] : undefined,
-				]
-			},
-		}
-	})(SegmentTimelinePartClass)
-)
+/**
+ * Supplies the segment's published part timings. Callers that already hold them (because they render
+ * many parts of the same segment) should pass them in rather than have every part fetch its own.
+ */
+export const SegmentTimelinePart: React.ComponentType<IProps & Partial<WithSegmentPartTimings>> =
+	function SegmentTimelinePart(props) {
+		const ownTimings = useSegmentPartTimings(props.segmentPartTimings ? undefined : props.segment._id)
+
+		// Only the on-air part reads the clock itself, for its live line and the room kept ahead of it.
+		// Every other part is placed by its segment's timings alone, which only follow the clock in the
+		// segment holding the on-air part, so a part anywhere else is not redrawn by the clock at all.
+		const isOnAir = props.playlist.currentPartInfo?.partInstanceId === props.part.instance._id
+		const ownNow = useTimingNow(isOnAir ? TimingTickResolution.High : TimingTickResolution.None)
+
+		return (
+			<SegmentTimelinePartTranslated
+				{...props}
+				segmentPartTimings={props.segmentPartTimings ?? ownTimings}
+				timingNow={props.timingNow ?? ownNow}
+			/>
+		)
+	}

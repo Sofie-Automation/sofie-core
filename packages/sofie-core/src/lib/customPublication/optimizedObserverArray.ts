@@ -1,5 +1,5 @@
 import { ReadonlyDeep } from 'type-fest'
-import { clone } from '@sofie-automation/corelib/dist/lib'
+import { clone, deleteAllUndefinedProperties } from '@sofie-automation/corelib/dist/lib'
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { SetupObserversResult, TriggerUpdate, setUpOptimizedObserverInner } from './optimizedObserverBase'
 import { CustomPublish, CustomPublishChanges } from './publish'
@@ -48,7 +48,7 @@ export async function setUpOptimizedObserverArray<
 			if (newDocs) {
 				// observer gave updated docs
 				const changes = converter.updatedDocs(newDocs)
-				return [newDocs, changes]
+				return [converter.getDocs(), changes]
 			} else {
 				// observer reports that nothing changed
 				const changes: CustomPublishChanges<PublicationDoc> = {
@@ -64,7 +64,14 @@ export async function setUpOptimizedObserverArray<
 	)
 }
 
-class OptimisedObserverGenericArray<DBObj extends { _id: ProtectedString<any> }> {
+/**
+ * Works out what changed between one result of manipulateData and the next. Exported for testing.
+ *
+ * Each document is kept, and compared, without its undefined fields: that is how a subscriber
+ * receives it, and how a copy of it reads. So a field that is undefined reads the same as a field
+ * that is left out, and manipulateData can return either.
+ */
+export class OptimisedObserverGenericArray<DBObj extends { _id: ProtectedString<any> }> {
 	readonly #docs = new Map<DBObj['_id'], DBObj>()
 
 	getDocs(): DBObj[] {
@@ -90,16 +97,17 @@ class OptimisedObserverGenericArray<DBObj extends { _id: ProtectedString<any> }>
 			}
 			newIds.add(id)
 
+			const newDoc = clone(newDoc0)
+			deleteAllUndefinedProperties(newDoc)
+
 			const oldDoc = this.#docs.get(id)
 			if (!oldDoc) {
-				const newDoc = clone(newDoc0)
-
 				// added
 				this.#docs.set(id, newDoc)
 				changes.added.push(newDoc)
 			} else {
 				// Do a shallow diff, to figure out the minimal change
-				const partial = diffObject(oldDoc, newDoc0)
+				const partial = diffObject(oldDoc, newDoc)
 
 				if (partial) {
 					// changed
@@ -109,7 +117,7 @@ class OptimisedObserverGenericArray<DBObj extends { _id: ProtectedString<any> }>
 						_id: id,
 					})
 
-					this.#docs.set(id, clone(newDoc0))
+					this.#docs.set(id, newDoc)
 				}
 			}
 		}

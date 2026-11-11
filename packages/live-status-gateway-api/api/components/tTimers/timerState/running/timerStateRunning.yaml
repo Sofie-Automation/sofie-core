@@ -17,8 +17,19 @@ $defs:
           Client calculates current value relative to this timestamp.
       pauseTime:
         description: >-
-          Optional timestamp when the timer should automatically pause
-          (e.g., when current part ends and overrun begins).
+          Optional timestamp at which the timer pauses automatically, for example when the on-air part
+          ends and its overrun starts. After that time, its value holds at `zeroTime - pauseTime`.
+        oneOf:
+          - type: number
+          - type: 'null'
+      resumesAt:
+        description: >-
+          Not applicable while the timer runs, because a running timer has no scheduled start. Always
+          null when present.
+        # TODO: this should be `type: 'null'`, which is what is actually produced and is what
+        # consumers should rely on. It is widened here only because the type generator (modelina)
+        # renders a null-only property as `any`, which is worse for consumers of the generated
+        # types than a slightly loose schema. Tighten once the generator can express it.
         oneOf:
           - type: number
           - type: 'null'

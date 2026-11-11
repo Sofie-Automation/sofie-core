@@ -8,9 +8,8 @@ import { onElementResize } from '../../lib/resizeObserver.js'
 import type { PartUi } from './SegmentTimelineContainer.js'
 import { getCurrentTime } from '../../lib/systemTime.js'
 import { RundownTiming } from '../RundownView/RundownTiming/RundownTiming.js'
-import { SegmentTimelinePartClass } from './Parts/SegmentTimelinePart.js'
 import type { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { RundownTimingProviderContext } from '../RundownView/RundownTiming/withTiming.js'
+import { SegmentTimelinePartClass, type SegmentPartTimings } from './Parts/SegmentTimelinePart.js'
 
 // We're cheating a little: Fontface
 declare class FontFace {
@@ -44,6 +43,8 @@ interface ITimelineGridProps {
 	partInstances: PartUi[]
 	currentPartInstanceId: PartInstanceId | null
 	defaultDisplayDuration: number
+	/** This segment's published part timings, from the SegmentTimeline above */
+	segmentPartTimings: SegmentPartTimings
 	onResize: (size: number[]) => void
 }
 
@@ -51,9 +52,6 @@ let gridFont: any | undefined = undefined
 let gridFontAvailable = false
 
 export class TimelineGrid extends React.Component<ITimelineGridProps> {
-	static contextType = RundownTimingProviderContext
-	declare context: React.ContextType<typeof RundownTimingProviderContext>
-
 	canvasElement: HTMLCanvasElement | null = null
 	parentElement: HTMLDivElement | null = null
 	ctx: CanvasRenderingContext2D | null = null
@@ -313,14 +311,13 @@ export class TimelineGrid extends React.Component<ITimelineGridProps> {
 
 	private calculateSegmentDisplayDuration(): number {
 		let total = 0
-		if (this.context?.durations) {
-			const durations = this.context.durations
+		if (this.props.segmentPartTimings.size > 0) {
 			this.props.partInstances.forEach((partInstance) => {
-				const currentTime = durations.currentTime || getCurrentTime()
+				const currentTime = getCurrentTime()
 				const duration =
 					partInstance.instance.timings?.duration ??
 					Math.max(
-						SegmentTimelinePartClass.getPartDisplayDuration(partInstance, durations),
+						SegmentTimelinePartClass.getPartDisplayDuration(partInstance, this.props.segmentPartTimings),
 						partInstance.instance._id === this.props.currentPartInstanceId && !partInstance.instance.part.autoNext
 							? SegmentTimelinePartClass.getCurrentLiveLinePosition(partInstance, currentTime) +
 									SegmentTimelinePartClass.getLiveLineTimePadding(this.props.timeScale)

@@ -7,16 +7,13 @@ import type { PartUi, SegmentUi } from '../SegmentTimelineContainer.js'
 import type { RundownViewPlaylist } from '../../../lib/rundownPlaylistProjection.js'
 import { SegmentTimelinePartHoverPreview } from './SegmentTimelinePartHoverPreview.js'
 import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import { TimingDataResolution, TimingTickResolution, useTiming } from '../../RundownView/RundownTiming/withTiming.js'
+import { useSegmentPartTimings } from '../../RundownView/RundownTiming/usePlaylistTimingValue.js'
 import { SegmentTimelinePartClass } from '../Parts/SegmentTimelinePart.js'
-import { getPartInstanceTimingId } from '../../../lib/rundownTiming.js'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
-import type { PartExtended } from '@sofie-automation/corelib/src/dataModel/Part.js'
 
 interface ISegmentTimelineSmallPartFlagProps {
 	parts: [PartUi, number, number][]
 	followingPart: PartUi | undefined
-	firstPartInSegment: PartExtended
 	sourceLayers: {
 		[key: string]: ISourceLayer
 	}
@@ -46,7 +43,6 @@ export const SegmentTimelineSmallPartFlag = ({
 	followingPart,
 	sourceLayers,
 	timeToPixelRatio,
-	firstPartInSegment,
 
 	segment,
 	playlist,
@@ -64,10 +60,7 @@ export const SegmentTimelineSmallPartFlag = ({
 	livePartStartsAt,
 	livePartDisplayDuration,
 }: ISegmentTimelineSmallPartFlagProps): JSX.Element => {
-	const timingDurations = useTiming(TimingTickResolution.High, TimingDataResolution.High, (timings) => [
-		timings?.partDisplayStartsAt?.[getPartInstanceTimingId(firstPartInSegment.instance)],
-		timings?.partDisplayStartsAt?.[getPartInstanceTimingId(parts[0][0].instance)],
-	])
+	const segmentPartTimings = useSegmentPartTimings(segment._id)
 
 	const flagRef = useRef<HTMLDivElement>(null)
 
@@ -103,9 +96,8 @@ export const SegmentTimelineSmallPartFlag = ({
 		livePartDisplayDuration,
 	])
 
-	const firstPartDisplayStartsAt =
-		(timingDurations.partDisplayStartsAt?.[getPartInstanceTimingId(parts[0][0].instance)] ?? 0) -
-		(timingDurations.partDisplayStartsAt?.[getPartInstanceTimingId(firstPartInSegment.instance)] ?? 0)
+	// already relative to the start of the segment, which is what this offset is measured from
+	const firstPartDisplayStartsAt = segmentPartTimings.get(parts[0][0].instance.part._id)?.displayStartsAt ?? 0
 
 	const pixelOffsetPosition = (firstPartDisplayStartsAt + futureShadePaddingTime) * timeToPixelRatio
 

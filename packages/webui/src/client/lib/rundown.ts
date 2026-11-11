@@ -281,6 +281,14 @@ export namespace RundownUtils {
 	}
 
 	/**
+	 * Format the time since something started (ms), as a positive number with no prefix. It rounds down,
+	 * so it shows 00:00 for the first second, as a stopwatch does.
+	 */
+	export function formatDiffToTimecodeElapsed(milliseconds: number): string {
+		return formatDiffToTimecode(milliseconds, false, false, true, false, true, '+', true)
+	}
+
+	/**
 	 * Format a budget/remaining duration (ms) with a "+" prefix for positive values (time remaining)
 	 * and an en-dash for negative values (over budget).
 	 */

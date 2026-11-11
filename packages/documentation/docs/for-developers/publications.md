@@ -41,3 +41,12 @@ This makes it more suitable for a custom publication, where we can more easily a
 ## Live Status Gateway
 
 The Live Status Gateway was introduced to Sofie in version 1.50. This gateway serves as a way for an external system to subscribe to publications which are designed to be simpler than the ones we publish over DDP. These publications are intended to be used by external systems which need a 'stable' API and to not have too much knowledge about the inner workings of Sofie. See [Api Stability](./api-stability.md) for more details.
+
+## Rundown Timing
+
+The `playlistTimingState` publication is a custom publication with an unusual property. It does
+not publish values. Instead, it publishes *descriptions of how values move*, and the subscriber
+evaluates them against its own clock. Thus the number of updates depends on playout events, not on
+the clock, and the values are still accurate to the millisecond. An external subscriber can also
+show exactly the numbers that the Sofie UI shows, and it does not have to implement Sofie's timing
+logic again. See [Rundown Timing](./rundown-timing.md).

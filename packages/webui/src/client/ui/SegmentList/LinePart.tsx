@@ -13,8 +13,7 @@ import { LinePartIdentifier } from './LinePartIdentifier.js'
 import { LinePartPieceIndicators } from './LinePartPieceIndicators.js'
 import { LinePartTimeline } from './LinePartTimeline.js'
 import { LinePartTitle } from './LinePartTitle.js'
-import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownView/RundownTiming/withTiming.js'
-import { type RundownTimingContext, getPartInstanceTimingId } from '../../lib/rundownTiming.js'
+import { usePartTimingField } from '../RundownView/RundownTiming/usePlaylistTimingValue.js'
 import { LoopingIcon } from '../../lib/ui/icons/looping.js'
 import type { ISourceLayerExtended } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
 import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
@@ -66,23 +65,11 @@ export function LinePart({
 	onPieceClick,
 	onPieceDoubleClick,
 }: IProps): JSX.Element {
-	const timingDurations = useTiming(
-		TimingTickResolution.Synced,
-		TimingDataResolution.High,
-		(durations: RundownTimingContext) => {
-			durations = durations || {}
-
-			const timingId = getPartInstanceTimingId(part.instance)
-			return [(durations.partsInQuickLoop || {})[timingId]]
-		}
-	)
-
 	const isFinished =
 		(part.instance.timings?.reportedStoppedPlayback ?? part.instance.timings?.plannedStoppedPlayback) !== undefined
 	const [highlight] = useState(false)
 
-	const timingId = getPartInstanceTimingId(part.instance)
-	const isInsideQuickLoop = (timingDurations.partsInQuickLoop || {})[timingId]
+	const isInsideQuickLoop = usePartTimingField(part.instance.part._id, 'isInQuickLoop') ?? false
 	const isOutsideActiveQuickLoop =
 		isPlaylistLooping && !isInsideQuickLoop && !isEntirePlaylistLooping && !isNextPart && !hasAlreadyPlayed
 

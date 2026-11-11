@@ -4,5 +4,15 @@ $defs:
     title: CurrentSegmentPartTiming
     properties:
       expectedDurationMs:
-        description: Expected duration of the part (milliseconds)
+        description: >-
+          Expected duration of the part (milliseconds). For the on-air part in `currentPart.timing`, it
+          is the duration as Sofie resolves it, and it is never the default duration of the Studio. For
+          a part with an expected duration of its own, this is that expected duration with its
+          transition. For a part with no expected duration of its own, it is its recorded duration after
+          it has played. If it has not played, it is its share of its display-duration group: the time
+          that the parts before it in the group leave. It is 0 for a part with none of these values, and
+          until Sofie has published the timing for the playlist.
+
+          For each part in `currentSegment.parts`, it is the expected duration as set on the part,
+          without its transition. It is absent when the part has no expected duration.
         type: number

@@ -1,9 +1,6 @@
 import { PlannedEndComponent, TimeToFromPlannedEndComponent } from '../../../lib/Components/CounterComponents'
-import { useTiming } from '../../RundownView/RundownTiming/withTiming.js'
-import { getPlaylistTimingDiff } from '../../../lib/rundownTiming.js'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
+import { TimerValueMode, usePlaylistTimingValue } from '../../RundownView/RundownTiming/usePlaylistTimingValue.js'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { getCurrentTime } from '../../../lib/systemTime.js'
 import { useTranslation } from 'react-i18next'
 import { OverUnderChip } from '../../../lib/Components/OverUnderChip.js'
 
@@ -12,28 +9,18 @@ export interface DirectorScreenTopProps {
 }
 
 export function DirectorScreenTop({ playlist }: Readonly<DirectorScreenTopProps>): JSX.Element {
-	const timingDurations = useTiming()
 	const { t } = useTranslation()
 
-	const now = timingDurations.currentTime ?? getCurrentTime()
-	const overUnderClock = getPlaylistTimingDiff(playlist, timingDurations) ?? 0
+	const timeInHand = usePlaylistTimingValue(playlist._id, 'overUnder', TimerValueMode.Duration)
+	// the published value is the time in hand; this display is over-positive
+	const overUnderClock = timeInHand === null ? 0 : 0 - timeInHand
 	const rehearsalInProgress = Boolean(playlist.rehearsal && playlist.startedPlayback)
 
-	const startedPlayback = playlist.activationId ? playlist.startedPlayback : undefined
+	const estimatedEndValue = usePlaylistTimingValue(playlist._id, 'estimatedEnd', TimerValueMode.Timestamp)
+	const remainingDurationValue = usePlaylistTimingValue(playlist._id, 'remainingDuration', TimerValueMode.Duration)
 
-	const estimatedEnd = PlaylistTiming.getEstimatedEnd(
-		playlist.timing,
-		now,
-		timingDurations.remainingPlaylistDuration,
-		startedPlayback
-	)
-
-	const remainingDuration = PlaylistTiming.getRemainingDuration(
-		playlist.timing,
-		now,
-		timingDurations.remainingPlaylistDuration,
-		startedPlayback
-	)
+	const estimatedEnd = estimatedEndValue ?? undefined
+	const remainingDuration = remainingDurationValue ?? undefined
 
 	return (
 		<>

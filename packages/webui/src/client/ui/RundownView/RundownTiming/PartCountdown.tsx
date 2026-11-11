@@ -1,11 +1,9 @@
-import type { ReactNode } from 'react'
+import { memo, type ReactNode } from 'react'
 import Moment from 'react-moment'
-import { useTiming } from './withTiming.js'
-import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { RundownUtils } from '../../../lib/rundown.js'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { TimerValueMode, usePartCountdownValue, usePlaylistTimingValue } from './usePlaylistTimingValue.js'
 
 interface IPartCountdownProps {
 	partId?: PartId
@@ -17,43 +15,40 @@ interface IPartCountdownProps {
 
 /**
  * A presentational component that will render a countdown to a given Part
+ *
+ * It draws itself again when its second changes, so it is memoised: a parent that is drawn on each
+ * frame, as the camera screen's parts are, does not draw it again with it.
  */
-export function PartCountdown(props: IPartCountdownProps): JSX.Element | null {
-	const timingDurations = useTiming()
+export const PartCountdown = memo(function PartCountdown(props: IPartCountdownProps): JSX.Element | null {
+	// absent when the Part will probably not be played out, if played in order
+	const thisPartCountdown = usePartCountdownValue(props.partId, TimerValueMode.Duration)
+	// the countdown read as the time of day it reaches zero, at the same moment as the countdown itself
+	const thisPartStartTime = usePartCountdownValue(props.partId, TimerValueMode.Timestamp)
+	const plannedStart = usePlaylistTimingValue(props.playlist._id, 'plannedStart', TimerValueMode.Timestamp)
 
-	if (!props.partId || !timingDurations?.partCountdown) return null
-	const thisPartCountdown: number | undefined =
-		timingDurations.partCountdown[unprotectString(props.partId)] ?? undefined
-
-	if (thisPartCountdown !== undefined && (props.hideOnZero !== true || thisPartCountdown > 0)) {
-		return (
-			<>
-				{props.label}
-				<span role="timer">
-					{props.useWallClock ? (
-						<Moment
-							interval={0}
-							format="HH:mm:ss"
-							date={
-								(props.playlist.activationId
-									? // if show is activated, use currentTime as base
-										(timingDurations.currentTime ?? 0)
-									: // if show is not activated, use expectedStart or currentTime, whichever is later
-										Math.max(
-											PlaylistTiming.getExpectedStart(props.playlist.timing) ?? 0,
-											timingDurations.currentTime ?? 0
-										)) + (thisPartCountdown || 0)
-							}
-						/>
-					) : (
-						RundownUtils.formatTimeToShortTime(
-							thisPartCountdown // shouldShow will be false if thisPartCountdown is undefined
-						)
-					)}
-				</span>
-			</>
-		)
-	} else {
+	if (thisPartCountdown === null || thisPartStartTime === null || (props.hideOnZero === true && thisPartCountdown <= 0))
 		return null
-	}
-}
+
+	return (
+		<>
+			{props.label}
+			<span role="timer">
+				{props.useWallClock ? (
+					<Moment
+						interval={0}
+						format="HH:mm:ss"
+						date={
+							props.playlist.activationId
+								? // if show is activated, count from the current time
+									thisPartStartTime
+								: // if show is not activated, count from the planned start or the current time, whichever is later
+									Math.max((plannedStart ?? 0) + thisPartCountdown, thisPartStartTime)
+						}
+					/>
+				) : (
+					RundownUtils.formatTimeToShortTime(thisPartCountdown)
+				)}
+			</span>
+		</>
+	)
+})

@@ -285,15 +285,17 @@ interface AbSessionAssignment {
  */
 interface CurrentPartTiming {
 	/**
-	 * Expected duration of the part (milliseconds)
+	 * Expected duration of the part (milliseconds). For the on-air part in `currentPart.timing`, it is the duration as Sofie resolves it, and it is never the default duration of the Studio. For a part with an expected duration of its own, this is that expected duration with its transition. For a part with no expected duration of its own, it is its recorded duration after it has played. If it has not played, it is its share of its display-duration group: the time that the parts before it in the group leave. It is 0 for a part with none of these values, and until Sofie has published the timing for the playlist.
+	 * For each part in `currentSegment.parts`, it is the expected duration as set on the part, without its transition. It is absent when the part has no expected duration.
 	 */
 	expectedDurationMs: number
 	/**
-	 * Unix timestamp of when the part started (milliseconds)
+	 * Unix timestamp (milliseconds) of the start of the on-air part: its planned start (`plannedStartedPlayback`). Sofie's own countdowns count from this start. With a single playout gateway, this is the start that the playout gateway reported. Until the playout gateway reports it, this is the send time of this message. In multi-gateway mode, it is the start that Sofie schedules at the take, a moment after the take. Thus, between the take and that start, it is in the future.
 	 */
 	startTime: number
 	/**
-	 * Unix timestamp of when the part is projected to end (milliseconds). A sum of `startTime` and `expectedDurationMs`.
+	 * Unix timestamp (milliseconds) of the expected end of the on-air part. This is the time at which the countdown of the part on Sofie's screens reaches zero. When the start of the part is known, this value is fixed: that start plus the length that the countdown runs for. In multi-gateway mode, the start is known from the take. Thus, between the take and the start of the part, this value is already the start plus that length.
+	 * With a single playout gateway, the start is known when the playout gateway reports it. Until then, this value is the send time of this message plus that length, so it moves later with each message. When there is no published countdown, for example before Sofie has published the timing for the playlist, it is `startTime` plus `expectedDurationMs`. It is a plain number, so it is accurate only at the send time of this message.
 	 */
 	projectedEndTime: number
 	additionalProperties?: Record<string, any>
@@ -317,7 +319,8 @@ interface CurrentSegment {
  */
 interface CurrentSegmentTiming {
 	/**
-	 * Expected duration of the segment (milliseconds)
+	 * Expected duration of the content of the segment (milliseconds). It is the sum of the expected durations of its parts as Sofie resolves them, as for `currentPart.timing.expectedDurationMs`. Each duration includes its transition and the effect of display-duration groups. The sum does not include untimed parts, parts that an adlib created, and parts that were removed from the rundown.
+	 * It can change during the show, for example in a display-duration group. There, the share of a part without a length of its own depends on how long the parts before it ran. The value does not include a budget. The gateway sends the budget separately, in `budgetDurationMs`. It is 0 until Sofie has published the timing for the playlist. This can occur in the first message after the activation of a playlist, and a later message has the value.
 	 */
 	expectedDurationMs: number
 	/**
@@ -325,22 +328,79 @@ interface CurrentSegmentTiming {
 	 */
 	budgetDurationMs?: number
 	/**
-	 * Countdown type within the segment. Default: `part_expected_duration`
+	 * Countdown type within the segment. Absent when the segment does not set one. Then Sofie uses `part_expected_duration`. Also absent when Sofie sends a countdown type that this version of the API does not know.
 	 */
 	countdownType?: SegmentCountdownType
 	/**
-	 * Unix timestamp of when the segment is projected to end (milliseconds). The time this segment started, offset by its budget duration, if the segment has a defined budget duration. Otherwise, the time the current part started, offset by the difference between expected durations of all parts in this segment and the as-played durations of the parts that already stopped.
+	 * The time that the segment has played, as a timer that the client evaluates against its own clock. It is the sum of the played times of the parts, without the untimed parts. It counts up, so the duration that you read is *negative*, and the elapsed time is its negation. The duration that you read from a timer can hold or decrease, but it cannot increase.
+	 * It runs while the on-air part of the segment plays, and it holds for all other segments. For a segment that counts down its budget (`countdownType` `segment_budget_duration`), it is always 0. Absent until Sofie has published the timing for the playlist.
+	 */
+	playedOut?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * The time that remains of the segment, as a timer: the remaining time in Sofie's segment header. It is the budget duration of the segment, or the sum of the expected durations set on the parts that `expectedDurationMs` counts. Each of these expected durations includes its transition. Sofie subtracts the time that has played (`playedOut`) from this value. A part with a retake counts two times.
+	 * It runs while the on-air part of the segment plays, and it holds for all other segments. For a segment that counts down its budget (`countdownType` `segment_budget_duration`), it holds at the full budget, except while the segment is on air. Then it counts down from the start of the segment, after the playout gateway has reported that start. On the last segment of the playlist, it holds at the full budget, also while the segment is on air. It becomes negative when the segment overruns. Absent until Sofie has published the timing for the playlist.
+	 */
+	remaining?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * Unix timestamp (milliseconds) of the expected end of the on-air segment. This is the time at which its `remaining` timer reaches zero. At that time, the remaining time in Sofie's segment header also reaches zero. While that timer runs, this value is fixed. While the timer is paused, this value is the send time of this message plus the time that remains. Thus it moves later with each message.
+	 * Exception: if the timer has a `resumesAt` that is still to come, this value is that moment plus the time that remains. The timer is paused from a take until the taken part starts. In multi-gateway mode, Sofie plans that start at the take, and the timer has it as its `resumesAt`. With one playout gateway, the start is known only when the playout gateway reports it. Until then, the timer has no `resumesAt`.
+	 * For a segment that counts down its budget, the timer is paused only until the playout gateway reports the start of the segment. In multi-gateway mode, the timer has the planned start of the first part of the segment as its `resumesAt`. This applies from the take of that part until that planned start. On the last segment of the playlist, the timer stays paused, with no `resumesAt`.
+	 * When there is no timing for the segment yet, this value is the send time of this message. It is a plain number, so it is accurate only at the send time of this message. Use `remaining` when the value must stay accurate.
 	 */
 	projectedEndTime: number
 	additionalProperties?: Record<string, any>
 }
 
 /**
- * Countdown type within the segment. Default: `part_expected_duration`
+ * Countdown type within the segment. Absent when the segment does not set one. Then Sofie uses `part_expected_duration`. Also absent when Sofie sends a countdown type that this version of the API does not know.
  */
 enum SegmentCountdownType {
 	PART_EXPECTED_DURATION = 'part_expected_duration',
 	SEGMENT_BUDGET_DURATION = 'segment_budget_duration',
+}
+
+/**
+ * Timer state when running (progressing with real time)
+ */
+interface TimerStateRunning {
+	/**
+	 * Whether the timer is paused
+	 */
+	paused: boolean
+	/**
+	 * Unix timestamp (ms) when the timer reaches/reached zero. For countdown timers, this is when time runs out. For free-run timers, this is when the timer started. Client calculates current value relative to this timestamp.
+	 */
+	zeroTime: number
+	/**
+	 * Optional timestamp at which the timer pauses automatically, for example when the on-air part ends and its overrun starts. After that time, its value holds at `zeroTime - pauseTime`.
+	 */
+	pauseTime?: number | null
+	/**
+	 * Not applicable while the timer runs, because a running timer has no scheduled start. Always null when present.
+	 */
+	resumesAt?: number | null
+}
+
+/**
+ * Timer state when paused: it holds at `duration`, until `resumesAt` if `resumesAt` is set
+ */
+interface TimerStatePaused {
+	/**
+	 * Whether the timer is paused
+	 */
+	paused: boolean
+	/**
+	 * The duration value in milliseconds at which the timer holds. For countdown timers, this is the remaining time. For free-run timers, this is the elapsed time. If `resumesAt` is set, this is the value until that moment. After that moment, the value counts down from here, as the value of a running timer does.
+	 */
+	duration: number
+	/**
+	 * Not applicable while the timer is paused, because a paused timer has already stopped. Always null when present.
+	 */
+	pauseTime?: number | null
+	/**
+	 * Optional timestamp at which the timer starts to run, if this time is known in advance, for example a scheduled start. After this timestamp, the timer runs, and its current value is `duration - (now - resumesAt)`. If it is null or absent, the timer holds until Sofie publishes a new state.
+	 */
+	resumesAt?: number | null
 }
 
 interface CurrentSegmentPart {
@@ -366,7 +426,8 @@ interface CurrentSegmentPart {
 
 interface CurrentSegmentPartTiming {
 	/**
-	 * Expected duration of the part (milliseconds)
+	 * Expected duration of the part (milliseconds). For the on-air part in `currentPart.timing`, it is the duration as Sofie resolves it, and it is never the default duration of the Studio. For a part with an expected duration of its own, this is that expected duration with its transition. For a part with no expected duration of its own, it is its recorded duration after it has played. If it has not played, it is its share of its display-duration group: the time that the parts before it in the group leave. It is 0 for a part with none of these values, and until Sofie has published the timing for the playlist.
+	 * For each part in `currentSegment.parts`, it is the expected duration as set on the part, without its transition. It is absent when the part has no expected duration.
 	 */
 	expectedDurationMs?: number
 	additionalProperties?: Record<string, any>
@@ -428,6 +489,23 @@ interface ActivePlaylistTiming {
 	 * Unix timestamp of when the playlist is expected to end (milliseconds) Required when the timingMode is set to back-time.
 	 */
 	expectedEnd?: number
+	/**
+	 * The time that remains to play in the playlist, as a timer that the client evaluates against its own clock. It is the remaining duration in Sofie's rundown header. It holds before the show starts. It counts down while the on-air part, or the budget of the on-air segment, is within its planned length. It holds again when the on-air part or the budget overruns.
+	 * A take in a multi-gateway studio schedules the start of its part a moment ahead, and this wait also counts. A take with a time offset plans that start in the past. In both cases, it counts down from the take. This is also true for the first take. It also counts down before the show starts while an untimed opening part plays in a segment with a budget. This is because the budget runs from the start of the segment.
+	 * In the `duration` timing mode with a planned duration, it is the planned duration instead. It then counts down from the start of playback, and it becomes negative when the show overruns. Null when no playlist is active, and until Sofie has published the timing for the active playlist.
+	 */
+	remainingDuration?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * The time at which the playlist is now expected to end, as a timer. Read its zero time for the timestamp. It is the estimated end in Sofie's rundown header. It is different from `expectedEnd`, because it includes the time that has played. It moves later in real time while the on-air part overruns.
+	 * Before the show starts, it is the planned start plus `remainingDuration`. When the planned start has passed, or when there is no planned start, it moves with the clock. Sometimes `remainingDuration` counts down before the show starts. This occurs from the first take in a multi-gateway studio or with a time offset. It also occurs while an untimed opening part plays in a segment with a budget. In these cases, the estimated end is now plus `remainingDuration`, which holds, as after the show has started.
+	 * In the `duration` timing mode with a planned duration, it is the start of playback plus the planned duration, and it does not move. Before playback, it is the same sum from the planned start, if there is a planned start. Null when no playlist is active, and until Sofie has published the timing for the active playlist.
+	 */
+	estimatedEnd?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * The time in hand of the playlist, as a timer. A positive value means ahead of schedule, and a negative value means behind schedule. The over/under on Sofie's screens is the same value with the opposite sign. Thus 10 s over on the screens is a time in hand of -10 s.
+	 * It holds while the show is on schedule. It decreases while the show moves its end later, for example while the on-air part overruns. Sometimes Sofie knows in advance when the time in hand will start to decrease. Then Sofie sends it as a paused timer, with `resumesAt` set to that moment. Null for a playlist with the `none` timing mode, no planned duration and no playback yet. Also null when no playlist is active, and until Sofie has published the timing for the active playlist.
+	 */
+	timeInHand?: TimerStateRunning | TimerStatePaused | null
 }
 
 /**
@@ -574,42 +652,6 @@ interface TimerModeTimeOfDay {
 	 * Whether timer stops at zero or continues into negative values
 	 */
 	stopAtZero: boolean
-}
-
-/**
- * Timer state when running (progressing with real time)
- */
-interface TimerStateRunning {
-	/**
-	 * Whether the timer is paused
-	 */
-	paused: boolean
-	/**
-	 * Unix timestamp (ms) when the timer reaches/reached zero. For countdown timers, this is when time runs out. For free-run timers, this is when the timer started. Client calculates current value relative to this timestamp.
-	 */
-	zeroTime: number
-	/**
-	 * Optional timestamp when the timer should automatically pause (e.g., when current part ends and overrun begins).
-	 */
-	pauseTime?: number | null
-}
-
-/**
- * Timer state when paused (frozen at a specific duration)
- */
-interface TimerStatePaused {
-	/**
-	 * Whether the timer is paused
-	 */
-	paused: boolean
-	/**
-	 * Frozen duration value in milliseconds. For countdown timers, this is remaining time. For free-run timers, this is elapsed time.
-	 */
-	duration: number
-	/**
-	 * Optional timestamp when the timer should pause. Typically null when already paused.
-	 */
-	pauseTime?: number | null
 }
 
 /**
@@ -918,6 +960,10 @@ interface ResolvedPart {
 	 */
 	timing: ResolvedPartTiming
 	/**
+	 * The rundown timing of the part, as Sofie resolves it: durations and countdowns. It is different from `timing`, which describes the position of this part in the resolved playout.
+	 */
+	rundownTiming?: PartRundownTiming
+	/**
 	 * Pieces in this part
 	 */
 	pieces: ResolvedPiece[]
@@ -991,6 +1037,44 @@ interface ResolvedPartTiming {
 	 * Unix timestamp (ms) when the part was taken
 	 */
 	take?: number
+}
+
+/**
+ * The rundown timing of the part, as Sofie resolves it: durations and countdowns. It is different from `timing`, which describes the position of this part in the resolved playout.
+ */
+interface PartRundownTiming {
+	/**
+	 * The resolved expected duration of the part (milliseconds), as for `currentPart.timing.expectedDurationMs` on the `activePlaylist` topic. For a part with an expected duration of its own, it is that expected duration with its transition. For a part with no expected duration of its own, it is its recorded duration after it has played. If it has not played, it is its share of its display-duration group. It is 0 for a part with none of these values, and until Sofie has published the timing for the playlist.
+	 */
+	expectedDurationMs: number
+	/**
+	 * The resolved space that the part uses in a rundown display, as if the part does not play (milliseconds). See `liveDisplayDuration` for the value that increases while the part is on air.
+	 */
+	displayDurationMs: number
+	/**
+	 * True when the part is in the QuickLoop
+	 */
+	isInQuickLoop: boolean
+	/**
+	 * True when the totals of the playlist and the rundown include the part. False for parts that the rundown skips when it plays in order, unless the playlist allows out-of-order timing.
+	 */
+	countsTowardsTiming: boolean
+	/**
+	 * Time until this part goes on air, as a timer that the client evaluates against its own clock. When the on-air part overruns, it holds at the remaining wait of this part. A countdown cannot decrease below the waits that must still occur. Absent when the part will probably not play out if the rundown plays in order. A display uses this to decide not to show a countdown.
+	 */
+	countdown?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * The time that the part has played, as a timer. It counts up, so the duration that you read is *negative*, and the elapsed time is its negation. The duration that you read from a timer can hold or decrease, but it cannot increase. It runs freely while the part is on air. When the part is done, it holds at the recorded duration.
+	 */
+	played?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * The duration of the part. After the part has played, it is the as-run duration. Before that, it is the as-planned duration. While the part overruns, it increases past the planned value. It counts up, so it reads *negative*. See `played`.
+	 */
+	duration?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * `displayDurationMs` while the part is on air. It increases when the part passes its planned end. Thus a part that overruns continues to use more space, and the display does not draw it as finished. It counts up, so it reads *negative*. See `played`.
+	 */
+	liveDisplayDuration?: TimerStateRunning | TimerStatePaused | null
 }
 
 /**
@@ -1121,7 +1205,8 @@ interface Segment {
 
 interface SegmentTiming {
 	/**
-	 * Expected duration of the segment (milliseconds)
+	 * Expected duration of the content of the segment (milliseconds). It is the sum of the expected durations of its parts as Sofie resolves them, as for `currentPart.timing.expectedDurationMs`. Each duration includes its transition and the effect of display-duration groups. The sum does not include untimed parts, parts that an adlib created, and parts that were removed from the rundown.
+	 * It can change during the show, for example in a display-duration group. There, the share of a part without a length of its own depends on how long the parts before it ran. The value does not include a budget. The gateway sends the budget separately, in `budgetDurationMs`. It is 0 until Sofie has published the timing for the playlist. This can occur in the first message after the activation of a playlist, and a later message has the value.
 	 */
 	expectedDurationMs: number
 	/**
@@ -1129,9 +1214,19 @@ interface SegmentTiming {
 	 */
 	budgetDurationMs?: number
 	/**
-	 * Countdown type within the segment. Default: `part_expected_duration`
+	 * Countdown type within the segment. Absent when the segment does not set one. Then Sofie uses `part_expected_duration`. Also absent when Sofie sends a countdown type that this version of the API does not know.
 	 */
 	countdownType?: SegmentCountdownType
+	/**
+	 * The time that the segment has played, as a timer that the client evaluates against its own clock. It is the sum of the played times of the parts, without the untimed parts. It counts up, so the duration that you read is *negative*, and the elapsed time is its negation. The duration that you read from a timer can hold or decrease, but it cannot increase.
+	 * It runs while the on-air part of the segment plays, and it holds for all other segments. For a segment that counts down its budget (`countdownType` `segment_budget_duration`), it is always 0. Absent until Sofie has published the timing for the playlist.
+	 */
+	playedOut?: TimerStateRunning | TimerStatePaused | null
+	/**
+	 * The time that remains of the segment, as a timer: the remaining time in Sofie's segment header. It is the budget duration of the segment, or the sum of the expected durations set on the parts that `expectedDurationMs` counts. Each of these expected durations includes its transition. Sofie subtracts the time that has played (`playedOut`) from this value. A part with a retake counts two times.
+	 * It runs while the on-air part of the segment plays, and it holds for all other segments. For a segment that counts down its budget (`countdownType` `segment_budget_duration`), it holds at the full budget, except while the segment is on air. Then it counts down from the start of the segment, after the playout gateway has reported that start. On the last segment of the playlist, it holds at the full budget, also while the segment is on air. It becomes negative when the segment overruns. Absent until Sofie has published the timing for the playlist.
+	 */
+	remaining?: TimerStateRunning | TimerStatePaused | null
 	additionalProperties?: Record<string, any>
 }
 
@@ -1524,6 +1619,8 @@ export {
 	CurrentSegment,
 	CurrentSegmentTiming,
 	SegmentCountdownType,
+	TimerStateRunning,
+	TimerStatePaused,
 	CurrentSegmentPart,
 	CurrentSegmentPartTiming,
 	PartStatus,
@@ -1537,8 +1634,6 @@ export {
 	TimerModeCountdown,
 	TimerModeFreeRun,
 	TimerModeTimeOfDay,
-	TimerStateRunning,
-	TimerStatePaused,
 	ResolvedPlaylistEvent,
 	ResolvedPlaylistTiming,
 	ResolvedPlaylistTimingType,
@@ -1552,6 +1647,7 @@ export {
 	NotificationSeverity,
 	ResolvedPartState,
 	ResolvedPartTiming,
+	PartRundownTiming,
 	ResolvedPiece,
 	ResolvedPieceTiming,
 	ActivePiecesEvent,

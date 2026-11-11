@@ -9,7 +9,28 @@ $defs:
         title: CurrentSegmentTiming
         properties:
           projectedEndTime:
-            description: Unix timestamp of when the segment is projected to end (milliseconds). The time this segment started, offset by its budget duration, if the segment has a defined budget duration. Otherwise, the time the current part started, offset by the difference between expected durations of all parts in this segment and the as-played durations of the parts that already stopped.
+            description: >-
+              Unix timestamp (milliseconds) of the expected end of the on-air segment. This is the time
+              at which its `remaining` timer reaches zero. At that time, the remaining time in Sofie's
+              segment header also reaches zero. While that timer runs, this value is fixed. While the
+              timer is paused, this value is the send time of this message plus the time that remains.
+              Thus it moves later with each message.
+
+              Exception: if the timer has a `resumesAt` that is still to come, this value is that moment
+              plus the time that remains. The timer is paused from a take until the taken part starts.
+              In multi-gateway mode, Sofie plans that start at the take, and the timer has it as its
+              `resumesAt`. With one playout gateway, the start is known only when the playout gateway
+              reports it. Until then, the timer has no `resumesAt`.
+
+              For a segment that counts down its budget, the timer is paused only until the playout
+              gateway reports the start of the segment. In multi-gateway mode, the timer has the planned
+              start of the first part of the segment as its `resumesAt`. This applies from the take of
+              that part until that planned start. On the last segment of the playlist, the timer stays
+              paused, with no `resumesAt`.
+
+              When there is no timing for the segment yet, this value is the send time of this message.
+              It is a plain number, so it is accurate only at the send time of this message. Use
+              `remaining` when the value must stay accurate.
             type: number
     required: [expectedDurationMs, projectedEndTime]
     examples:

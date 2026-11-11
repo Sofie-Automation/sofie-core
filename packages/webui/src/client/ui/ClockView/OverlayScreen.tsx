@@ -1,7 +1,11 @@
 import { useEffect } from 'react'
 import Moment from 'react-moment'
 import { useTranslation } from 'react-i18next'
-import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
+import {
+	TimerValueMode,
+	usePlaylistTimingValue,
+	useTimingNow,
+} from '../RundownView/RundownTiming/usePlaylistTimingValue.js'
 import { useTracker } from '../../lib/ReactMeteorData/ReactMeteorData.js'
 import { PieceIconContainer } from '../PieceIcons/PieceIcon.js'
 import { PieceNameContainer } from '../PieceIcons/PieceName.js'
@@ -32,7 +36,17 @@ export function OverlayScreen({ playlistId, studioId }: OverlayScreenProps): Rea
 		[studioId, playlistId]
 	)
 
-	const timing = useTiming()
+	const currentTime = useTimingNow()
+	// Only the countdown of the part on air here, as on the Director screen: for a moment after a
+	// take the published state can still describe the previous part, and the hook then returns what
+	// the server publishes for the part just taken instead
+	const forThisPart = { forPartInstanceId: presenterScreenProps?.currentPartInstance?.instance._id ?? null }
+	const remainingOnCurrentPart = usePlaylistTimingValue(
+		playlistId,
+		'remainingOnCurrentPart',
+		TimerValueMode.Duration,
+		forThisPart
+	)
 
 	useEffect(() => {
 		const bodyClassList: string[] = ['transparent']
@@ -53,22 +67,17 @@ export function OverlayScreen({ playlistId, studioId }: OverlayScreenProps): Rea
 	}
 
 	const currentPart = presenterScreenProps?.currentPartInstance
-
-	let currentPartCountdown: number | null = null
-	if (currentPart) {
-		currentPartCountdown = timing.remainingTimeOnCurrentPart || 0
-	}
+	const isPartOnAir = currentPart !== undefined
 
 	const nextPart = presenterScreenProps?.nextPartInstance
-
-	const currentTime = timing.currentTime || 0
 
 	return (
 		<div className="clocks-overlay">
 			<div className="clocks-lower-third bottom">
 				<div className="clocks-current-segment-countdown clocks-segment-countdown">
-					{currentPartCountdown !== null ? (
-						<Timediff time={currentPartCountdown} />
+					{isPartOnAir ? (
+						// empty rather than 00:00 while there is no countdown for this part
+						remainingOnCurrentPart !== null && <Timediff time={remainingOnCurrentPart} />
 					) : (
 						<span className="clock-segment-countdown-next">{t('Next')}</span>
 					)}

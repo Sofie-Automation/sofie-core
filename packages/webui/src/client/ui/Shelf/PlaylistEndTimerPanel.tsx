@@ -8,7 +8,6 @@ import { RundownLayoutsAPI } from '../../lib/rundownLayouts.js'
 import { dashboardElementStyle } from './DashboardPanel.js'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PlaylistEndTiming } from '../RundownView/RundownTiming/PlaylistEndTiming.js'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { isLoopRunning } from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 interface IPlaylistEndTimerPanelProps {
@@ -32,9 +31,6 @@ export function PlaylistEndTimerPanel({ playlist, panel, layout }: Readonly<IPla
 			<PlaylistEndTiming
 				rundownPlaylist={playlist}
 				loop={isLoopRunning(playlist)}
-				expectedStart={PlaylistTiming.getExpectedStart(playlist.timing)}
-				expectedEnd={PlaylistTiming.getExpectedEnd(playlist.timing)}
-				expectedDuration={PlaylistTiming.getExpectedDuration(playlist.timing)}
 				endLabel={panel.plannedEndText}
 				hidePlannedEndLabel={panel.hidePlannedEndLabel}
 				hideDiffLabel={panel.hideDiffLabel}

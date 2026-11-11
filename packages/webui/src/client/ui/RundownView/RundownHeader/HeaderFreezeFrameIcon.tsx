@@ -1,30 +1,28 @@
 import type { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { FreezeFrameIcon } from '../../../lib/ui/icons/freezeFrame'
-import { useTiming, TimingTickResolution, TimingDataResolution } from '../RundownTiming/withTiming'
 import { useTracker } from '../../../lib/ReactMeteorData/ReactMeteorData'
 import { PieceInstances } from '../../../collections'
 import type { VTContent } from '@sofie-automation/blueprints-integration'
 import { UIPartInstances } from '../../Collections'
+import { TimerValueMode, usePartTimingValue } from '../RundownTiming/usePlaylistTimingValue'
 
 export function HeaderFreezeFrameIcon({ partInstanceId }: { partInstanceId: PartInstanceId }): JSX.Element | null {
-	const timingDurations = useTiming(TimingTickResolution.Synced, TimingDataResolution.Synced)
+	const partId = useTracker(() => UIPartInstances.findOne(partInstanceId)?.part._id, [partInstanceId], undefined)
+
+	// The exact display duration, just like VTSourceRenderer uses
+	const publishedDisplayDuration = usePartTimingValue(partId, 'liveDisplayDuration', TimerValueMode.CountUp)
+	const publishedDuration = usePartTimingValue(partId, 'duration', TimerValueMode.CountUp)
 
 	const freezeFrameIcon = useTracker(
 		() => {
 			const partInstance = UIPartInstances.findOne(partInstanceId)
 			if (!partInstance) return null
 
-			// We use the exact display duration from the timing context just like VTSourceRenderer does.
-			// Fallback to static displayDuration or expectedDuration if timing context is unavailable.
+			// Fall back to the Part's own durations while nothing is published for it yet
 			const partDisplayDuration =
-				(timingDurations.partDisplayDurations && timingDurations.partDisplayDurations[partInstanceId as any]) ??
-				partInstance.part.displayDuration ??
-				partInstance.part.expectedDuration ??
-				0
+				publishedDisplayDuration ?? partInstance.part.displayDuration ?? partInstance.part.expectedDuration ?? 0
 
-			const partDuration = timingDurations.partDurations
-				? timingDurations.partDurations[partInstanceId as any]
-				: partDisplayDuration
+			const partDuration = publishedDuration ?? partDisplayDuration
 
 			const pieceInstances = PieceInstances.find({ partInstanceId }).fetch()
 
@@ -52,7 +50,7 @@ export function HeaderFreezeFrameIcon({ partInstanceId }: { partInstanceId: Part
 			}
 			return null
 		},
-		[partInstanceId, timingDurations.partDisplayDurations, timingDurations.partDurations],
+		[partInstanceId, publishedDisplayDuration, publishedDuration],
 		null
 	)
 

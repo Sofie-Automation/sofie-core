@@ -1,0 +1,11 @@
+expectedDurationMs: 10000
+displayDurationMs: 10000
+isInQuickLoop: false
+countsTowardsTiming: true
+countdown:
+  paused: false
+  zeroTime: 1728895760727
+  pauseTime: 1728895750727
+played:
+  paused: true
+  duration: 0

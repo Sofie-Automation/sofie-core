@@ -11,7 +11,6 @@ import { OvertimeShadow } from './OvertimeShadow.js'
 import { PartAutoNextMarker } from './PartAutoNextMarker.js'
 import StudioContext from '../RundownView/StudioContext.js'
 import { InvalidPartCover } from '../SegmentTimeline/Parts/InvalidPartCover.js'
-import { getPartInstanceTimingId } from '../../lib/rundownTiming.js'
 import { QuickLoopEnd } from './QuickLoopEnd.js'
 import { getShowHiddenSourceLayers } from '../../lib/localStorage.js'
 import type { PieceExtended, PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
@@ -153,7 +152,7 @@ export const LinePartTimeline: React.FC<IProps> = function LinePartTimeline({
 			{transitionPiece && <LinePartTransitionPiece piece={transitionPiece} />}
 			{!willAutoNextOut && !isInvalid && (
 				<OvertimeShadow
-					partInstanceTimingId={getPartInstanceTimingId(part.instance)}
+					partId={part.instance.part._id}
 					timelineBase={timelineBase}
 					maxDuration={maxDuration}
 					mainSourceEnd={mainSourceEnd ?? renderedPartDuration}

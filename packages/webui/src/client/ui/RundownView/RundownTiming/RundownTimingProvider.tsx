@@ -1,28 +1,8 @@
 import React, { type PropsWithChildren } from 'react'
 import { Meteor } from 'meteor/meteor'
-import { withTracker } from '../../../lib/ReactMeteorData/react-meteor-data.js'
-import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { RundownTiming, type TimeEventArgs } from './RundownTiming.js'
-import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import {
-	type MinimalPartInstance,
-	RundownTimingCalculator,
-	type RundownTimingContext,
-	type TimingId,
-	findPartInstancesInQuickLoop,
-} from '../../../lib/rundownTiming.js'
-import type { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-
-import { sortPartInstancesInSortedSegments } from '@sofie-automation/corelib/dist/playout/playlist'
-import { RundownPlaylistClientUtil } from '../../../lib/rundownPlaylistUtil.js'
 import { getCurrentTime } from '../../../lib/systemTime.js'
-import { type IRundownTimingProviderValues, RundownTimingProviderContext } from './withTiming.js'
-import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
-import {
-	deduplicatePartInstancesForQuickLoop,
-	wrapPartToTemporaryInstance,
-} from '@sofie-automation/corelib/src/playout/stateCacheResolver.js'
 
 const TIMING_DEFAULT_REFRESH_INTERVAL = 1000 / 60 // the interval for high-resolution events (timeupdateHR)
 const LOW_RESOLUTION_TIMING_DECIMATOR = 15
@@ -43,274 +23,121 @@ interface IRundownTimingProviderProps {
 	 * onto TIMING_DEFAULT_REFRESH_INTERVAL.
 	 */
 	refreshInterval?: number
-	/** Fallback duration for Parts that have no as-played duration of their own (the Studio's `defaultDisplayDuration`). */
-	defaultDuration: number
 }
 
 interface IRundownTimingProviderState {}
-interface IRundownTimingProviderTrackedProps {
-	partInstances: Array<MinimalPartInstance>
-	segments: DBSegment[]
-	segmentsMap: Map<SegmentId, DBSegment>
-	partsInQuickLoop: Record<TimingId, boolean>
-}
 
 /**
- * RundownTimingProvider is a container component that provides a timing context to all child elements.
- * It allows calculating a single
- * @class RundownTimingProvider
- * @extends React.Component<PropsWithChildren<IRundownTimingProviderProps>>
+ * Drives the timing clock for everything below it, and names the playlist that the published timing
+ * state should be read from.
+ *
+ * It computes nothing: the timing values themselves come from the `playlistTimingState` publication,
+ * and consumers evaluate the published TimerStates against these ticks. This is deliberate - the
+ * same documents drive external clients, so anything the UI needed but the publication did not
+ * provide would be a gap those clients could not fill.
  */
-export const RundownTimingProvider = withTracker<
+export class RundownTimingProvider extends React.Component<
 	PropsWithChildren<IRundownTimingProviderProps>,
-	IRundownTimingProviderState,
-	IRundownTimingProviderTrackedProps
->(({ playlist }) => {
-	if (!playlist) {
-		return {
-			partInstances: [],
-			segments: [],
-			segmentsMap: new Map(),
-			partsInQuickLoop: {},
-		}
+	IRundownTimingProviderState
+> {
+	private refreshTimer: number | undefined
+	private refreshTimerInterval: number
+	private refreshDecimator: number
+
+	/** last time (ms rounded down to full seconds) for which the timeupdateSynced event was dispatched */
+	private lastSyncedTime = 0
+
+	constructor(props: PropsWithChildren<IRundownTimingProviderProps>) {
+		super(props)
+
+		this.refreshTimerInterval = props.refreshInterval || TIMING_DEFAULT_REFRESH_INTERVAL
+
+		this.refreshDecimator = 0
 	}
 
-	const segments = RundownPlaylistClientUtil.getSegments(playlist)
-	const segmentsMap = new Map<SegmentId, DBSegment>(segments.map((segment) => [segment._id, segment]))
-	const unorderedParts = RundownPlaylistClientUtil.getUnorderedParts(playlist)
-	const activePartInstances = RundownPlaylistClientUtil.getActivePartInstances(playlist, undefined, {
-		projection: {
-			_id: 1,
-			rundownId: 1,
-			segmentId: 1,
-			isTemporary: 1,
-			segmentPlayoutId: 1,
-			takeCount: 1,
-			part: 1,
-			timings: 1,
-			orphaned: 1,
-		},
-	}) as Array<
-		Pick<
-			PartInstance,
-			| '_id'
-			| 'rundownId'
-			| 'segmentId'
-			| 'isTemporary'
-			| 'segmentPlayoutId'
-			| 'takeCount'
-			| 'part'
-			| 'timings'
-			| 'orphaned'
-		>
-	>
-
-	const { currentPartInstance } = findCurrentAndPreviousPartInstance(
-		activePartInstances,
-		playlist.currentPartInfo?.partInstanceId,
-		playlist.previousPartsInfo?.[0]?.partInstanceId
-	)
-
-	let partInstances: MinimalPartInstance[] = []
-
-	const allPartIds: Set<PartId> = new Set()
-
-	for (const partInstance of activePartInstances) {
-		allPartIds.add(partInstance.part._id)
+	private calmDownTiming = (time: number) => {
+		return Math.round(time / CURRENT_TIME_GRANULARITY) * CURRENT_TIME_GRANULARITY
 	}
 
-	partInstances = activePartInstances
+	private onRefreshTimer = () => {
+		const now = getCurrentTime()
+		const calmedDownNow = this.calmDownTiming(now)
+		this.dispatchHREvent(calmedDownNow)
 
-	for (const part of unorderedParts) {
-		if (allPartIds.has(part._id)) continue
-		partInstances.push(wrapPartToTemporaryInstance(playlist.activationId ?? protectString(''), part))
+		const dispatchLowResolution = this.refreshDecimator % LOW_RESOLUTION_TIMING_DECIMATOR === 0
+		if (dispatchLowResolution) {
+			this.dispatchLREvent(calmedDownNow)
+		}
+
+		const syncedEventTimeNow = Math.floor(now / 1000) * 1000
+		const dispatchSynced = Math.abs(syncedEventTimeNow - this.lastSyncedTime) >= 1000
+		if (dispatchSynced) {
+			this.lastSyncedTime = syncedEventTimeNow
+			this.dispatchSyncedEvent(syncedEventTimeNow)
+		}
+
+		this.refreshDecimator++
 	}
 
-	partInstances = sortPartInstancesInSortedSegments(partInstances, segments)
-
-	partInstances = deduplicatePartInstancesForQuickLoop(playlist, partInstances, currentPartInstance)
-
-	const partsInQuickLoop = findPartInstancesInQuickLoop(playlist, partInstances)
-
-	return {
-		partInstances,
-		segments,
-		segmentsMap,
-		partsInQuickLoop,
+	componentDidMount(): void {
+		this.refreshTimer = Meteor.setInterval(this.onRefreshTimer, this.refreshTimerInterval)
+		this.onRefreshTimer()
 	}
-})(
-	class RundownTimingProvider extends React.Component<
-		PropsWithChildren<IRundownTimingProviderProps> & IRundownTimingProviderTrackedProps,
-		IRundownTimingProviderState
-	> {
-		private durations: RundownTimingContext = {
-			isLowResolution: false,
-		}
-		private syncedDurations: RundownTimingContext = {
-			isLowResolution: true,
-		}
-		/**
-		 * This context works in an unusual way.
-		 * It contains a constant value which gets mutated in place, with the consumer expected to setup a timer to poll for changes.
-		 */
-		private childContextValue: IRundownTimingProviderValues = {
-			durations: this.durations,
-			syncedDurations: this.syncedDurations,
-		}
 
-		private refreshTimer: number | undefined
-		private refreshTimerInterval: number
-		private refreshDecimator: number
-
-		private timingCalculator: RundownTimingCalculator = new RundownTimingCalculator()
-		/** last time (ms rounded down to full seconds) for which the timeupdateSynced event was dispatched */
-		private lastSyncedTime = 0
-
-		constructor(props: IRundownTimingProviderProps & IRundownTimingProviderTrackedProps) {
-			super(props)
-
-			this.refreshTimerInterval = props.refreshInterval || TIMING_DEFAULT_REFRESH_INTERVAL
-
-			this.refreshDecimator = 0
-		}
-
-		private calmDownTiming = (time: number) => {
-			return Math.round(time / CURRENT_TIME_GRANULARITY) * CURRENT_TIME_GRANULARITY
-		}
-
-		private onRefreshTimer = () => {
-			const now = getCurrentTime()
-			const calmedDownNow = this.calmDownTiming(now)
-			this.updateDurations(calmedDownNow, false)
-			this.dispatchHREvent(calmedDownNow)
-
-			const dispatchLowResolution = this.refreshDecimator % LOW_RESOLUTION_TIMING_DECIMATOR === 0
-			if (dispatchLowResolution) {
-				this.dispatchLREvent(calmedDownNow)
-			}
-
-			const syncedEventTimeNow = Math.floor(now / 1000) * 1000
-			const dispatchSynced = Math.abs(syncedEventTimeNow - this.lastSyncedTime) >= 1000
-			if (dispatchSynced) {
-				this.lastSyncedTime = syncedEventTimeNow
-				this.updateDurations(syncedEventTimeNow, true)
-				this.dispatchSyncedEvent(syncedEventTimeNow)
-			}
-
-			this.refreshDecimator++
-		}
-
-		componentDidMount(): void {
+	componentDidUpdate(prevProps: PropsWithChildren<IRundownTimingProviderProps>): void {
+		// change refresh interval if needed
+		if (this.refreshTimerInterval !== this.props.refreshInterval && this.refreshTimer) {
+			this.refreshTimerInterval = this.props.refreshInterval || TIMING_DEFAULT_REFRESH_INTERVAL
+			Meteor.clearInterval(this.refreshTimer)
 			this.refreshTimer = Meteor.setInterval(this.onRefreshTimer, this.refreshTimerInterval)
-			this.onRefreshTimer()
-			;(window as any)['rundownTimingContext'] = this.durations
 		}
-
-		componentDidUpdate(prevProps: IRundownTimingProviderProps & IRundownTimingProviderTrackedProps) {
-			// change refresh interval if needed
-			if (this.refreshTimerInterval !== this.props.refreshInterval && this.refreshTimer) {
-				this.refreshTimerInterval = this.props.refreshInterval || TIMING_DEFAULT_REFRESH_INTERVAL
-				Meteor.clearInterval(this.refreshTimer)
-				this.refreshTimer = Meteor.setInterval(this.onRefreshTimer, this.refreshTimerInterval)
-			}
-			if (
-				prevProps.partInstances !== this.props.partInstances ||
-				prevProps.playlist?.nextPartInfo?.partInstanceId !== this.props.playlist?.nextPartInfo?.partInstanceId ||
-				prevProps.playlist?.currentPartInfo?.partInstanceId !== this.props.playlist?.currentPartInfo?.partInstanceId
-			) {
-				this.refreshDecimator = 0 // Force LR update
-				this.lastSyncedTime = 0 // Force synced update
-				this.onRefreshTimer()
-			}
-		}
-
-		componentWillUnmount(): void {
-			delete (window as any)['rundownTimingContext']
-			if (this.refreshTimer !== undefined) Meteor.clearInterval(this.refreshTimer)
-		}
-
-		private dispatchHREvent(now: number) {
-			const event = new CustomEvent<TimeEventArgs>(RundownTiming.Events.timeupdateHighResolution, {
-				detail: {
-					currentTime: now,
-				},
-				cancelable: false,
-			})
-			window.dispatchEvent(event)
-		}
-
-		private dispatchLREvent(now: number) {
-			const event = new CustomEvent<TimeEventArgs>(RundownTiming.Events.timeupdateLowResolution, {
-				detail: {
-					currentTime: now,
-				},
-				cancelable: false,
-			})
-			window.dispatchEvent(event)
-		}
-
-		private dispatchSyncedEvent(now: number) {
-			const event = new CustomEvent<TimeEventArgs>(RundownTiming.Events.timeupdateSynced, {
-				detail: {
-					currentTime: now,
-				},
-				cancelable: false,
-			})
-			window.dispatchEvent(event)
-		}
-
-		private updateDurations(now: number, isSynced: boolean) {
-			const { playlist, partInstances, segmentsMap } = this.props
-
-			const updatedDurations = this.timingCalculator.updateDurations(
-				now,
-				isSynced,
-				playlist,
-				partInstances,
-				segmentsMap,
-				this.props.defaultDuration,
-				this.props.partsInQuickLoop
-			)
-			if (!isSynced) {
-				this.durations = Object.assign(this.durations, updatedDurations)
-			} else {
-				this.syncedDurations = Object.assign(this.syncedDurations, updatedDurations)
-			}
-		}
-
-		render(): React.ReactNode {
-			return (
-				<RundownTimingProviderContext.Provider value={this.childContextValue}>
-					{this.props.children}
-				</RundownTimingProviderContext.Provider>
-			)
-		}
-	}
-)
-
-function findCurrentAndPreviousPartInstance(
-	activePartInstances: MinimalPartInstance[],
-	currentPartInstanceId: PartInstanceId | undefined,
-	previousPartInstanceId: PartInstanceId | undefined
-) {
-	let currentPartInstance: MinimalPartInstance | undefined
-	let previousPartInstance: MinimalPartInstance | undefined
-	// the activePartInstances are usually sorted ascending by takeCount, so it makes sense to start
-	// at the end of the array, since that's where the latest PartInstances generally will be
-	for (let i = activePartInstances.length - 1; i >= 0; i--) {
-		const partInstance = activePartInstances[i]
-		if (partInstance._id === currentPartInstanceId) currentPartInstance = partInstance
-		if (partInstance._id === previousPartInstanceId) previousPartInstance = partInstance
-		// we've found what we were looking for, we can stop
+		// A take changes what every countdown is measured from, so push a tick out immediately rather
+		// than letting the low-resolution consumers wait up to a quarter of a second for one
 		if (
-			(currentPartInstance || currentPartInstanceId === undefined) &&
-			(previousPartInstance || previousPartInstanceId === undefined)
-		)
-			break
+			prevProps.playlist?.nextPartInfo?.partInstanceId !== this.props.playlist?.nextPartInfo?.partInstanceId ||
+			prevProps.playlist?.currentPartInfo?.partInstanceId !== this.props.playlist?.currentPartInfo?.partInstanceId
+		) {
+			this.refreshDecimator = 0 // Force LR update
+			this.lastSyncedTime = 0 // Force synced update
+			this.onRefreshTimer()
+		}
 	}
 
-	return {
-		currentPartInstance,
-		previousPartInstance,
+	componentWillUnmount(): void {
+		if (this.refreshTimer !== undefined) Meteor.clearInterval(this.refreshTimer)
+	}
+
+	private dispatchHREvent(now: number) {
+		const event = new CustomEvent<TimeEventArgs>(RundownTiming.Events.timeupdateHighResolution, {
+			detail: {
+				currentTime: now,
+			},
+			cancelable: false,
+		})
+		window.dispatchEvent(event)
+	}
+
+	private dispatchLREvent(now: number) {
+		const event = new CustomEvent<TimeEventArgs>(RundownTiming.Events.timeupdateLowResolution, {
+			detail: {
+				currentTime: now,
+			},
+			cancelable: false,
+		})
+		window.dispatchEvent(event)
+	}
+
+	private dispatchSyncedEvent(now: number) {
+		const event = new CustomEvent<TimeEventArgs>(RundownTiming.Events.timeupdateSynced, {
+			detail: {
+				currentTime: now,
+			},
+			cancelable: false,
+		})
+		window.dispatchEvent(event)
+	}
+
+	render(): React.ReactNode {
+		return this.props.children
 	}
 }

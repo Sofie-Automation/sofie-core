@@ -13,6 +13,12 @@ jest.mock('nanoid', (...args) => require('./random').setup(args), { virtual: tru
 jest.mock('../api/integration/slack', (...args) => require('./slack').setup(args), { virtual: true })
 jest.mock('../worker/worker', (...args) => require('./worker').setup(args), { virtual: true })
 
+// The job worker's clock, as the job worker's own tests mock it, so that a test driving its jobs sets the time of each
+// job. Until a test sets a time it reads the real clock
+jest.mock('@sofie-automation/job-worker/dist/lib/time', (...args) =>
+	require('../../../job-worker/src/__mocks__/time').setup(args)
+)
+
 SupressLogMessages.init()
 
 beforeEach(() => {
