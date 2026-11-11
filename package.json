@@ -72,7 +72,7 @@
 		"jest-mock-extended": "^4.0.2",
 		"json-schema-to-typescript": "^15.0.4",
 		"legally": "^3.6.0",
-		"lerna": "^9.0.7",
+		"lerna": "^10.1.1",
 		"lint-staged": "^17.6.0",
 		"nodemon": "^3.1.14",
 		"open-cli": "^9.0.0",
