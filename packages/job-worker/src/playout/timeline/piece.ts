@@ -56,7 +56,8 @@ export function transformPieceGroupAndObjects(
 				objectType: TimelineObjType.RUNDOWN,
 				pieceInstanceId: unprotectString(pieceInstance._id),
 				infinitePieceInstanceId: pieceInstance.infinite?.infiniteInstanceId,
-				partInstanceId: partGroup.partInstanceId,
+				// The piece may be placed in the group of another PartInstance, such as an out transition piece
+				partInstanceId: pieceInstance.partInstanceId,
 			})
 		}
 

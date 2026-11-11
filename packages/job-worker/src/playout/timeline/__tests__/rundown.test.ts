@@ -17,9 +17,12 @@ import {
 	createPartCurrentTimes,
 	PieceInstanceWithTimings,
 } from '@sofie-automation/corelib/dist/playout/processAndPrune'
-import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { IBlueprintPieceType, PieceLifespan } from '@sofie-automation/blueprints-integration'
-import { getPartGroupId } from '@sofie-automation/corelib/dist/playout/ids'
+import {
+	EmptyPieceTimelineObjectsBlob,
+	serializePieceTimelineObjectsBlob,
+} from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { IBlueprintPieceType, PieceLifespan, TSR } from '@sofie-automation/blueprints-integration'
+import { getPartGroupId, getPieceControlObjectId } from '@sofie-automation/corelib/dist/playout/ids'
 
 const DEFAULT_PART_TIMINGS: PartCalculatedTimings = Object.freeze({
 	inTransitionStart: null,
@@ -28,6 +31,8 @@ const DEFAULT_PART_TIMINGS: PartCalculatedTimings = Object.freeze({
 	fromPartRemaining: 0,
 	fromPartPostroll: 0,
 	fromPartKeepalive: 0,
+	transitionSource: 'none',
+	blockTakeDuration: 0,
 })
 
 function transformTimelineIntoSimplifiedForm(res: RundownTimelineResult) {
@@ -421,6 +426,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -445,7 +452,7 @@ describe('buildTimelineObjsForRundown', () => {
 					partInstance: createMockPartInstance('part0', {
 						autoNext: true,
 						expectedDuration: 5000,
-						outTransition: { duration: 1200 },
+						outTransition: { type: 'additive', duration: 1200 },
 					}),
 					pieceInstances: [createMockPieceInstance('piece0')],
 					calculatedTimings: DEFAULT_PART_TIMINGS,
@@ -462,6 +469,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 1200,
 						fromPartPostroll: 0,
 						fromPartKeepalive: 0,
+						transitionSource: 'none',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -499,6 +508,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 1000,
 						fromPartPostroll: 0,
 						fromPartKeepalive: 0,
+						transitionSource: 'none',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -540,6 +551,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -580,6 +593,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -621,6 +636,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -667,6 +684,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -722,6 +741,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -763,6 +784,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -827,6 +850,8 @@ describe('buildTimelineObjsForRundown', () => {
 						fromPartRemaining: 500 + 400,
 						fromPartPostroll: 400,
 						fromPartKeepalive: 100,
+						transitionSource: 'inTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -843,6 +868,417 @@ describe('buildTimelineObjsForRundown', () => {
 			expect(objs.timingContext?.nextPartGroup).toBeTruthy()
 			const nextPartGroupId = getPartGroupId(selectedPartInfos.next!.partInstance)
 			expect(objs.timeline.find((obj) => obj.id === nextPartGroupId)).toBeTruthy()
+		})
+	})
+
+	describe('out transitions', () => {
+		const exclusiveOutTransition = {
+			type: 'exclusive',
+			blockTakeDuration: 0,
+			partKeepaliveDuration: 800,
+			nextPartContentDelayDuration: 0,
+		} as const
+
+		function createNextPartTimings(timings: Partial<PartCalculatedTimings>): PartCalculatedTimings {
+			return {
+				...DEFAULT_PART_TIMINGS,
+				...timings,
+			}
+		}
+
+		function buildWithCurrentAndNext(
+			currentPartProps: Partial<DBPart>,
+			currentPieces: PieceInstanceWithTimings[],
+			nextPartTimings: PartCalculatedTimings
+		) {
+			const context = setupDefaultJobEnvironment()
+
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 5678),
+					partInstance: createMockPartInstance('part0', {
+						autoNext: true,
+						expectedDuration: 5000,
+						...currentPartProps,
+					}),
+					pieceInstances: [createMockPieceInstance('piece0'), ...currentPieces],
+					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
+				},
+				next: {
+					partTimes: createPartCurrentTimes(currentTime, undefined),
+					partInstance: createMockPartInstance('part1'),
+					pieceInstances: [createMockPieceInstance('piece1')],
+					calculatedTimings: nextPartTimings,
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			const partGroupId = getPartGroupId(selectedPartInfos.current!.partInstance)
+			const nextPartGroupId = getPartGroupId(selectedPartInfos.next!.partInstance)
+			const getControlObj = (piece: PieceInstanceWithTimings) =>
+				objs.timeline.find((obj) => obj.id === getPieceControlObjectId(piece))
+
+			return { objs, partGroupId, nextPartGroupId, getControlObj }
+		}
+
+		it('additive OutTransition piece is anchored by the outTransition duration', () => {
+			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
+			const { partGroupId, getControlObj } = buildWithCurrentAndNext(
+				{ outTransition: { type: 'additive', duration: 1200 } },
+				[outPiece],
+				createNextPartTimings({ toPartDelay: 1200, fromPartRemaining: 1200, transitionSource: 'none' })
+			)
+
+			expect(getControlObj(outPiece)?.enable).toEqual({ start: `#${partGroupId}.end - 1200` })
+			expect(getControlObj(outPiece)?.inGroup).toBe(partGroupId)
+		})
+
+		it('additive OutTransition piece is not played when replaced by the autoNextOutTransition', () => {
+			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
+			const { getControlObj } = buildWithCurrentAndNext(
+				{ outTransition: { type: 'additive', duration: 1200 }, autoNextOutTransition: exclusiveOutTransition },
+				[outPiece],
+				createNextPartTimings({
+					fromPartRemaining: 800,
+					fromPartKeepalive: 800,
+					transitionSource: 'autoNextOutTransition',
+				})
+			)
+
+			expect(getControlObj(outPiece)).toBeUndefined()
+		})
+
+		it('exclusive OutTransition piece starts at the transition start, in the next part', () => {
+			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
+			const { nextPartGroupId, getControlObj } = buildWithCurrentAndNext(
+				{ outTransition: exclusiveOutTransition },
+				[outPiece],
+				createNextPartTimings({
+					toPartDelay: 200,
+					fromPartRemaining: 200 + 800 + 100,
+					fromPartKeepalive: 800,
+					fromPartPostroll: 100,
+					transitionSource: 'outTransition',
+				})
+			)
+
+			// 200 take offset, the same as where an InTransition piece would start
+			expect(getControlObj(outPiece)?.enable).toEqual({ start: 200 })
+			expect(getControlObj(outPiece)?.inGroup).toBe(nextPartGroupId)
+		})
+
+		it('exclusive OutTransition piece respects its own start and duration', () => {
+			const outPiece = createMockPieceInstance('pieceOut', {
+				pieceType: IBlueprintPieceType.OutTransition,
+				enable: { start: 300, duration: 1000 },
+			})
+			const { nextPartGroupId, getControlObj } = buildWithCurrentAndNext(
+				{ outTransition: exclusiveOutTransition },
+				[outPiece],
+				createNextPartTimings({
+					fromPartRemaining: 800,
+					fromPartKeepalive: 800,
+					transitionSource: 'outTransition',
+				})
+			)
+
+			expect(getControlObj(outPiece)?.enable).toEqual({ start: 300, duration: 1000 })
+			expect(getControlObj(outPiece)?.inGroup).toBe(nextPartGroupId)
+		})
+
+		it('exclusive OutTransition piece is not stopped by the keepalive', () => {
+			// A stinger which keeps running after the content of this part has gone
+			const outPiece = createMockPieceInstance('pieceOut', {
+				pieceType: IBlueprintPieceType.OutTransition,
+				enable: { start: 0, duration: 2000 },
+			})
+			const { objs, partGroupId, nextPartGroupId, getControlObj } = buildWithCurrentAndNext(
+				{ outTransition: exclusiveOutTransition },
+				[outPiece],
+				createNextPartTimings({
+					fromPartRemaining: 800,
+					fromPartKeepalive: 800,
+					transitionSource: 'outTransition',
+				})
+			)
+
+			// The current part ends 800ms after the next part starts
+			expect(objs.timeline.find((obj) => obj.id === nextPartGroupId)?.enable).toEqual({
+				start: `#${partGroupId}.end - 800`,
+			})
+			// But the piece is in the next part, so plays for its full duration
+			expect(getControlObj(outPiece)?.enable).toEqual({ start: 0, duration: 2000 })
+			expect(getControlObj(outPiece)?.inGroup).toBe(nextPartGroupId)
+		})
+
+		it('exclusive OutTransition piece objects keep the PartInstance of the piece', () => {
+			const outPiece = createMockPieceInstance(
+				'pieceOut',
+				{
+					pieceType: IBlueprintPieceType.OutTransition,
+					timelineObjectsString: serializePieceTimelineObjectsBlob([
+						{
+							id: 'obj0',
+							enable: { start: 0 },
+							layer: 'layer0',
+							priority: 0,
+							content: { deviceType: TSR.DeviceType.ABSTRACT },
+						},
+					]),
+				},
+				{ partInstanceId: protectString('part0') }
+			)
+			const { objs, nextPartGroupId } = buildWithCurrentAndNext(
+				{ outTransition: exclusiveOutTransition },
+				[outPiece],
+				createNextPartTimings({
+					fromPartRemaining: 800,
+					fromPartKeepalive: 800,
+					transitionSource: 'outTransition',
+				})
+			)
+
+			const pieceObjs = objs.timeline.filter((obj) => obj.pieceInstanceId === 'pieceOut')
+			expect(pieceObjs.map((obj) => obj.id)).toContain('pieceOutobj0')
+			for (const obj of pieceObjs) {
+				expect(obj.partInstanceId).toBe('part0')
+			}
+			expect(pieceObjs.find((obj) => obj.id === getPieceControlObjectId(outPiece))?.inGroup).toBe(nextPartGroupId)
+		})
+
+		it('exclusive OutTransition piece is not played before the next part is on the timeline', () => {
+			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
+			const { objs, nextPartGroupId, getControlObj } = buildWithCurrentAndNext(
+				// Not an autonext, so the next part is only added once it is taken
+				{ outTransition: exclusiveOutTransition, autoNext: false },
+				[outPiece],
+				createNextPartTimings({
+					fromPartRemaining: 800,
+					fromPartKeepalive: 800,
+					transitionSource: 'outTransition',
+				})
+			)
+
+			expect(objs.timeline.find((obj) => obj.id === nextPartGroupId)).toBeUndefined()
+			expect(getControlObj(outPiece)).toBeUndefined()
+		})
+
+		it('exclusive OutTransition piece is not played when another transition was used', () => {
+			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
+			const { getControlObj } = buildWithCurrentAndNext(
+				{ outTransition: exclusiveOutTransition },
+				[outPiece],
+				createNextPartTimings({ transitionSource: 'none' })
+			)
+
+			expect(getControlObj(outPiece)).toBeUndefined()
+		})
+
+		it('AutoNextOutTransition piece is played for the autoNextOutTransition', () => {
+			const outPiece = createMockPieceInstance('pieceOut', {
+				pieceType: IBlueprintPieceType.AutoNextOutTransition,
+			})
+			const { nextPartGroupId, getControlObj } = buildWithCurrentAndNext(
+				{ autoNextOutTransition: exclusiveOutTransition },
+				[outPiece],
+				createNextPartTimings({
+					fromPartRemaining: 800,
+					fromPartKeepalive: 800,
+					transitionSource: 'autoNextOutTransition',
+				})
+			)
+
+			expect(getControlObj(outPiece)?.enable).toEqual({ start: 0 })
+			expect(getControlObj(outPiece)?.inGroup).toBe(nextPartGroupId)
+		})
+
+		it('AutoNextOutTransition piece is not played without the autoNextOutTransition', () => {
+			const outPiece = createMockPieceInstance('pieceOut', {
+				pieceType: IBlueprintPieceType.AutoNextOutTransition,
+			})
+			const { getControlObj } = buildWithCurrentAndNext(
+				{ autoNextOutTransition: exclusiveOutTransition, outTransition: exclusiveOutTransition },
+				[outPiece],
+				createNextPartTimings({
+					fromPartRemaining: 800,
+					fromPartKeepalive: 800,
+					transitionSource: 'outTransition',
+				})
+			)
+
+			expect(getControlObj(outPiece)).toBeUndefined()
+		})
+
+		it('exclusive OutTransition piece of a previous part', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [
+					{
+						partTimes: createPartCurrentTimes(currentTime, 1234),
+						partInstance: createMockPartInstance(
+							'part9',
+							{ outTransition: exclusiveOutTransition },
+							{ timings: { plannedStartedPlayback: 1235 } }
+						),
+						pieceInstances: [createMockPieceInstance('piece9'), outPiece],
+						calculatedTimings: DEFAULT_PART_TIMINGS,
+						regenerateTimelineAt: undefined,
+					},
+				],
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 5678),
+					partInstance: createMockPartInstance('part0'),
+					pieceInstances: [createMockPieceInstance('piece0')],
+					calculatedTimings: createNextPartTimings({
+						fromPartRemaining: 800 + 100,
+						fromPartKeepalive: 800,
+						fromPartPostroll: 100,
+						transitionSource: 'outTransition',
+					}),
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			// The piece is in the current part, where an InTransition piece would be
+			const outPieceObj = objs.timeline.find((obj) => obj.id === getPieceControlObjectId(outPiece))
+			expect(outPieceObj?.enable).toEqual({ start: 0 })
+			expect(outPieceObj?.inGroup).toBe(getPartGroupId(selectedPartInfos.current!.partInstance))
+		})
+
+		it('exclusive OutTransition piece of an older previous part', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const outPiece = createMockPieceInstance('pieceOut', { pieceType: IBlueprintPieceType.OutTransition })
+			const transitionTimings = createNextPartTimings({
+				fromPartRemaining: 800,
+				fromPartKeepalive: 800,
+				transitionSource: 'outTransition',
+			})
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [
+					{
+						partTimes: createPartCurrentTimes(currentTime, 3456),
+						partInstance: createMockPartInstance(
+							'part8',
+							{},
+							{ timings: { plannedStartedPlayback: 3456 } }
+						),
+						pieceInstances: [createMockPieceInstance('piece8')],
+						calculatedTimings: transitionTimings,
+						regenerateTimelineAt: undefined,
+					},
+					{
+						partTimes: createPartCurrentTimes(currentTime, 1234),
+						partInstance: createMockPartInstance(
+							'part9',
+							{ outTransition: exclusiveOutTransition },
+							{ timings: { plannedStartedPlayback: 1235 } }
+						),
+						pieceInstances: [createMockPieceInstance('piece9'), outPiece],
+						calculatedTimings: DEFAULT_PART_TIMINGS,
+						regenerateTimelineAt: undefined,
+					},
+				],
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 5678),
+					partInstance: createMockPartInstance('part0'),
+					pieceInstances: [createMockPieceInstance('piece0')],
+					calculatedTimings: DEFAULT_PART_TIMINGS,
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			// The piece is in the part it transitioned into
+			const outPieceObj = objs.timeline.find((obj) => obj.id === getPieceControlObjectId(outPiece))
+			expect(outPieceObj?.enable).toEqual({ start: 0 })
+			expect(outPieceObj?.inGroup).toBe(getPartGroupId(selectedPartInfos.previous[0].partInstance))
+		})
+
+		it('InTransition piece is not played when replaced by an outTransition', () => {
+			const context = setupDefaultJobEnvironment()
+
+			const inPiece = createMockPieceInstance('pieceIn', { pieceType: IBlueprintPieceType.InTransition })
+			const selectedPartInfos: SelectedPartInstancesTimelineInfo = {
+				previous: [],
+				current: {
+					partTimes: createPartCurrentTimes(currentTime, 5678),
+					partInstance: createMockPartInstance('part0', {
+						inTransition: {
+							blockTakeDuration: 0,
+							previousPartKeepaliveDuration: 500,
+							partContentDelayDuration: 500,
+						},
+					}),
+					pieceInstances: [createMockPieceInstance('piece0'), inPiece],
+					calculatedTimings: createNextPartTimings({
+						inTransitionStart: null,
+						fromPartRemaining: 800,
+						fromPartKeepalive: 800,
+						transitionSource: 'outTransition',
+					}),
+					regenerateTimelineAt: undefined,
+				},
+			}
+
+			const playlist = createMockPlaylist(selectedPartInfos)
+			const objs = buildTimelineObjsForRundown(context, playlist, selectedPartInfos, true)
+
+			expect(objs.timeline.find((obj) => obj.id === getPieceControlObjectId(inPiece))).toBeUndefined()
+		})
+
+		it('autonext extension uses the additive outTransition duration', () => {
+			const { objs } = buildWithCurrentAndNext(
+				{ outTransition: { type: 'additive', duration: 1200 }, availablePostrollDuration: 5000 },
+				[],
+				createNextPartTimings({ toPartDelay: 1200, fromPartRemaining: 1200, transitionSource: 'none' })
+			)
+
+			expect(objs.timingContext?.currentPartGroup.enable).toEqual({ start: 'now', duration: 5000 + 1200 })
+		})
+
+		it('autonext extension ignores the additive outTransition duration when replaced by the autoNextOutTransition', () => {
+			const { objs } = buildWithCurrentAndNext(
+				{
+					outTransition: { type: 'additive', duration: 1200 },
+					autoNextOutTransition: exclusiveOutTransition,
+					availablePostrollDuration: 5000,
+				},
+				[],
+				createNextPartTimings({
+					fromPartRemaining: 800,
+					fromPartKeepalive: 800,
+					transitionSource: 'autoNextOutTransition',
+				})
+			)
+
+			expect(objs.timingContext?.currentPartGroup.enable).toEqual({ start: 'now', duration: 5000 + 800 })
+		})
+
+		it('autonext extension uses the keepalive of an exclusive outTransition', () => {
+			const { objs } = buildWithCurrentAndNext(
+				{ outTransition: exclusiveOutTransition, availablePostrollDuration: 5000 },
+				[],
+				createNextPartTimings({
+					fromPartRemaining: 800,
+					fromPartKeepalive: 800,
+					transitionSource: 'outTransition',
+				})
+			)
+
+			expect(objs.timingContext?.currentPartGroup.enable).toEqual({ start: 'now', duration: 5000 + 800 })
 		})
 	})
 
@@ -1059,6 +1495,8 @@ describe('buildTimelineObjsForRundown', () => {
 					calculatedTimings: {
 						...DEFAULT_PART_TIMINGS,
 						fromPartKeepalive: 100,
+						transitionSource: 'autoNextOutTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},
@@ -1110,6 +1548,8 @@ describe('buildTimelineObjsForRundown', () => {
 					calculatedTimings: {
 						...DEFAULT_PART_TIMINGS,
 						fromPartKeepalive: 100,
+						transitionSource: 'autoNextOutTransition',
+						blockTakeDuration: 0,
 					},
 					regenerateTimelineAt: undefined,
 				},

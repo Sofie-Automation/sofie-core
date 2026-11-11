@@ -79,7 +79,8 @@ export async function onPartPlaybackStarted(
 				blueprint,
 				rundown.rundown,
 				playingPartInstance,
-				currentPartInstance
+				currentPartInstance,
+				true
 			)
 
 			clearQueuedSegmentId(playoutModel, playingPartInstance.partInstance, playlist.nextPartInfo)

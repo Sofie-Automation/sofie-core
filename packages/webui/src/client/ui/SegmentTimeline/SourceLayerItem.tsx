@@ -409,7 +409,10 @@ export const SourceLayerItem = (props: Readonly<ISourceLayerItemProps>): JSX.Ele
 
 		// let liveLinePadding = this.props.autoNextPart ? 0 : (this.props.isLiveLine ? this.props.liveLinePadding : 0)
 
-		if (innerPiece.pieceType === IBlueprintPieceType.OutTransition) {
+		if (
+			innerPiece.pieceType === IBlueprintPieceType.OutTransition ||
+			innerPiece.pieceType === IBlueprintPieceType.AutoNextOutTransition
+		) {
 			return {
 				left: 'auto',
 				right: '0',
