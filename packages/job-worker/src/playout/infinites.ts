@@ -25,7 +25,7 @@ import _ from 'underscore'
 import { IngestModelReadonly } from '../ingest/model/IngestModel.js'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { sortRundownIDsInPlaylist } from '@sofie-automation/corelib/dist/playout/playlist'
-import { mongoWhere } from '@sofie-automation/corelib/dist/mongo'
+import { compileMongoSelector } from '@sofie-automation/corelib/dist/mongo'
 import { PlayoutRundownModel } from './model/PlayoutRundownModel.js'
 import { logger } from '../logging.js'
 
@@ -165,7 +165,7 @@ export async function fetchPiecesThatMayBeActiveForPart(
 	const thisPiecesQuery = buildPiecesStartingInThisPartQuery(part)
 	piecePromises.push(
 		unsavedIngestModel?.rundownId === part.rundownId
-			? Promise.resolve(unsavedIngestModel.getAllPieces().filter((p) => mongoWhere(p, thisPiecesQuery)))
+			? Promise.resolve(unsavedIngestModel.getAllPieces().filter(compileMongoSelector(thisPiecesQuery)))
 			: context.directCollections.Pieces.findFetch(thisPiecesQuery)
 	)
 
@@ -183,7 +183,7 @@ export async function fetchPiecesThatMayBeActiveForPart(
 		)
 		if (thisRundownPieceQuery) {
 			piecePromises.push(
-				Promise.resolve(unsavedIngestModel.getAllPieces().filter((p) => mongoWhere(p, thisRundownPieceQuery)))
+				Promise.resolve(unsavedIngestModel.getAllPieces().filter(compileMongoSelector(thisRundownPieceQuery)))
 			)
 		}
 

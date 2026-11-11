@@ -7,7 +7,7 @@ import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PlayoutModel } from './model/PlayoutModel.js'
 import { logger } from '../logging.js'
 import { MongoQuery } from '../db/index.js'
-import { mongoWhere } from '@sofie-automation/corelib/dist/mongo'
+import { compileMongoSelector } from '@sofie-automation/corelib/dist/mongo'
 import { setNextPart } from './setNext.js'
 import { selectNextPart } from './selectNextPart.js'
 import { StudioPlayoutModel } from '../studio/model/StudioPlayoutModel.js'
@@ -61,8 +61,9 @@ export function resetPartInstancesWithPieceInstances(
 	selector?: MongoQuery<DBPartInstance>
 ): void {
 	const partInstanceIdsToReset: PartInstanceId[] = []
+	const matchesSelector = selector ? compileMongoSelector(selector) : undefined
 	for (const partInstance of playoutModel.loadedPartInstances) {
-		if (!partInstance.partInstance.reset && (!selector || mongoWhere(partInstance.partInstance, selector))) {
+		if (!partInstance.partInstance.reset && (!matchesSelector || matchesSelector(partInstance.partInstance))) {
 			partInstance.markAsReset()
 			partInstanceIdsToReset.push(partInstance.partInstance._id)
 		}

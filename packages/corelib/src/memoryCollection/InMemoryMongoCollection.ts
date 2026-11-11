@@ -11,6 +11,7 @@ import {
 	ObserveCallbacks,
 	ObserveChangesCallbacks,
 	mongoWhere,
+	compileMongoSelector,
 	mongoFindOptions,
 	mongoModify,
 	FindObserveChangesOptions,
@@ -110,9 +111,10 @@ export class InMemoryMongoCollection<TDoc extends Doc> {
 			const doc = this.#documents.get(idVal)
 			return doc && mongoWhere(doc, selector) ? [doc] : []
 		}
+		const matches = compileMongoSelector(selector)
 		const results: TDoc[] = []
 		for (const doc of this.#documents.values()) {
-			if (mongoWhere(doc, selector)) results.push(doc)
+			if (matches(doc)) results.push(doc)
 		}
 		return results
 	}
