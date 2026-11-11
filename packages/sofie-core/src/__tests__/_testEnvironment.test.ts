@@ -29,6 +29,7 @@ import {
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { defaultStudio } from '../__mocks__/defaultCollectionObjects'
 import { createMockCollection } from '../collections/implementations/mock'
+import { StudioId } from '@sofie-automation/corelib/src/dataModel/Ids'
 
 describe('Basic test of test environment', () => {
 	test('Meteor Random mock', () => {
@@ -84,12 +85,12 @@ describe('Basic test of test environment', () => {
 
 		MongoMock.mockSetData<DBStudio>(Studios, [
 			{
-				...defaultStudio(protectString('abc')),
+				...defaultStudio(protectString<StudioId>('abc')),
 				name: 'abc',
 				_rundownVersionHash: 'abc',
 			},
 			{
-				...defaultStudio(protectString('def')),
+				...defaultStudio(protectString<StudioId>('def')),
 				name: 'def',
 				_rundownVersionHash: 'def',
 			},
@@ -99,12 +100,12 @@ describe('Basic test of test environment', () => {
 
 		expect(
 			await Studios.findOneAsync({
-				_id: protectString('def'),
+				_id: protectString<StudioId>('def'),
 			})
 		).toMatchObject({
 			_id: 'def',
 		})
-		await Studios.updateAsync(protectString('abc'), {
+		await Studios.updateAsync(protectString<StudioId>('abc'), {
 			$set: {
 				_rundownVersionHash: 'myHash',
 			},
@@ -118,15 +119,15 @@ describe('Basic test of test environment', () => {
 			_rundownVersionHash: 'myHash',
 		})
 
-		await Studios.removeAsync(protectString('def'))
+		await Studios.removeAsync(protectString<StudioId>('def'))
 		const studios = await Studios.findFetchAsync({})
 		expect(studios).toHaveLength(1)
 
-		const observer = await Studios.observeChanges({ _id: protectString('abc') }, {})
+		const observer = await Studios.observeChanges({ _id: protectString<StudioId>('abc') }, {})
 		expect(observer).toBeTruthy()
 
 		await Studios.insertAsync({
-			...defaultStudio(protectString('xyz')),
+			...defaultStudio(protectString<StudioId>('xyz')),
 			name: 'xyz',
 			_rundownVersionHash: 'xyz',
 		})

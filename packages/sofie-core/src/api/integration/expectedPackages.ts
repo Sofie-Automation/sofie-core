@@ -221,7 +221,7 @@ export namespace PackageManagerIntegration {
 			const id = getPackageContainerPackageId(
 				peripheralDevice.studioAndConfigId.studioId,
 				change.containerId,
-				protectString(change.packageId)
+				protectString<ExpectedPackageId>(change.packageId)
 			)
 
 			if (change.type === 'delete') {
@@ -298,8 +298,8 @@ export namespace PackageManagerIntegration {
 						packageContainerPackageIdPairs.length > 0
 							? {
 									$nor: packageContainerPackageIdPairs.map(({ containerId, packageId }) => ({
-										containerId: protectString(containerId),
-										packageId: protectString(packageId),
+										containerId: protectString<PackageContainerId>(containerId),
+										packageId: protectString<ExpectedPackageId>(packageId),
 									})),
 								}
 							: undefined,

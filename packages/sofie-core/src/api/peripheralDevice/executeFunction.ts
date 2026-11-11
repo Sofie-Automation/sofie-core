@@ -34,7 +34,7 @@ export async function executePeripheralDeviceFunctionWithCustomTimeout(
 ): Promise<any> {
 	const timeoutTime: number = timeoutTime0 || 3000 // also handles null
 
-	const commandId: PeripheralDeviceCommandId = getRandomId()
+	const commandId = getRandomId<PeripheralDeviceCommandId>()
 
 	const result = Promise.withResolvers<any>()
 

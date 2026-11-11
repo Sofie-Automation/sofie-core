@@ -1,6 +1,6 @@
 import { mockRO } from './mock-mos-data.js'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { RundownId, SegmentId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -82,7 +82,7 @@ describe('Test recieved mos ingest payloads', () => {
 	let context: MockJobContext
 	let device: PeripheralDevice
 	beforeAll(async () => {
-		context = setupDefaultJobEnvironment(protectString('mockStudio4'))
+		context = setupDefaultJobEnvironment(protectString<StudioId>('mockStudio4'))
 
 		const showStyleCompound = await setupMockShowStyleCompound(context)
 

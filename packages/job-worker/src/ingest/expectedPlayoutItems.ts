@@ -4,7 +4,7 @@ import {
 	ExpectedPlayoutItemRundown,
 	ExpectedPlayoutItemStudio,
 } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
-import { StudioId, RundownId, PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { StudioId, RundownId, PartId, ExpectedPlayoutItemId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 import { clone, getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
@@ -29,7 +29,7 @@ function extractExpectedPlayoutItems(
 		piece.expectedPlayoutItems.forEach((pieceItem, i) => {
 			expectedPlayoutItemsGeneric.push({
 				...clone<ExpectedPlayoutItemGeneric>(pieceItem),
-				_id: protectString(piece._id + '_' + i),
+				_id: protectString<ExpectedPlayoutItemId>(piece._id + '_' + i),
 				studioId: studioId,
 				rundownId: rundownId,
 				// pieceId: piece._id,
@@ -71,7 +71,7 @@ export async function updateExpectedPlayoutItemsForRundownBaseline(
 			baselineExpectedPlayoutItems.push(
 				literal<ExpectedPlayoutItemRundown>({
 					...item,
-					_id: getRandomId(),
+					_id: getRandomId<ExpectedPlayoutItemId>(),
 					studioId: context.studio._id,
 					rundownId: ingestModel.rundownId,
 					baseline: 'rundown',
@@ -118,7 +118,7 @@ export function updateBaselineExpectedPlayoutItemsOnStudio(
 		items.map((item): ExpectedPlayoutItemStudio => {
 			return {
 				...item,
-				_id: getRandomId(),
+				_id: getRandomId<ExpectedPlayoutItemId>(),
 				studioId: context.studio._id,
 				baseline: 'studio',
 			}

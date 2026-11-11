@@ -65,7 +65,7 @@ export function computeLookaheadObject(
 		objectType: TimelineObjType.RUNDOWN,
 		pieceInstanceId: getBestPieceInstanceId(rawPiece),
 		infinitePieceInstanceId: rawPiece.infinite?.infiniteInstanceId,
-		partInstanceId: partInstanceId ?? protectString(unprotectString(partInfo.part._id)),
+		partInstanceId: partInstanceId ?? protectString<PartInstanceId>(unprotectString(partInfo.part._id)),
 		...(lookaheadOffset !== undefined ? { lookaheadOffset } : {}),
 	})
 }

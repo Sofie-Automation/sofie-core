@@ -173,5 +173,5 @@ export function deserializeTimelineBlob(timelineBlob: TimelineBlob): TimelineObj
 	return JSON.parse(unprotectString(timelineBlob)) as Array<TimelineObjGeneric>
 }
 export function serializeTimelineBlob(timeline: TimelineObjGeneric[]): TimelineBlob {
-	return protectString(JSON.stringify(timeline))
+	return protectString<TimelineBlob>(JSON.stringify(timeline))
 }

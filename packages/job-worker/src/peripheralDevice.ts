@@ -54,7 +54,7 @@ async function executePeripheralDeviceGenericFunction(
 ): Promise<any> {
 	const timeoutTime = timeoutTime0 ?? 3000 // also handles null
 
-	const commandId: PeripheralDeviceCommandId = getRandomId()
+	const commandId = getRandomId<PeripheralDeviceCommandId>()
 
 	const result = Promise.withResolvers<any>()
 

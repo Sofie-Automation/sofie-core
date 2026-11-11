@@ -15,9 +15,12 @@ import { protectString, unprotectString } from '@sofie-automation/corelib/dist/p
 import { clone, getRandomId, literal, normalizeArrayToMapFunc, omit } from '@sofie-automation/corelib/dist/lib'
 import {
 	PartInstanceId,
+	PieceId,
+	PieceInstanceId,
 	RundownId,
 	RundownPlaylistActivationId,
 	RundownPlaylistId,
+	SegmentPlayoutId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { setupDefaultRundown, setupMockShowStyleCompound } from '../../../../__mocks__/presetCollections.js'
 import { SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
@@ -84,11 +87,11 @@ describe('Test blueprint api context', () => {
 
 			// make into a partInstance
 			await context.mockCollections.PartInstances.insertOne({
-				_id: protectString(`${part._id}_instance`),
+				_id: protectString<PartInstanceId>(`${part._id}_instance`),
 				rundownId: part.rundownId,
 				segmentId: part.segmentId,
 				playlistActivationId: activationId,
-				segmentPlayoutId: protectString(''),
+				segmentPlayoutId: protectString<SegmentPlayoutId>(''),
 				takeCount: i,
 				brandingId: null,
 				rehearsal: false,
@@ -101,9 +104,9 @@ describe('Test blueprint api context', () => {
 			})
 			for (const p of pieces) {
 				await context.mockCollections.PieceInstances.insertOne({
-					_id: protectString(`${part._id}_piece_${p._id}`),
+					_id: protectString<PieceInstanceId>(`${part._id}_piece_${p._id}`),
 					rundownId: rundownId,
-					partInstanceId: protectString(`${part._id}_instance`),
+					partInstanceId: protectString<PartInstanceId>(`${part._id}_instance`),
 					playlistActivationId: activationId,
 					piece: p,
 				})
@@ -112,12 +115,12 @@ describe('Test blueprint api context', () => {
 			const count = ((i + 2) % 4) + 1 // Some consistent randomness
 			for (let o = 0; o < count; o++) {
 				await context.mockCollections.PieceInstances.insertOne({
-					_id: protectString(`${part._id}_piece${o}`),
+					_id: protectString<PieceInstanceId>(`${part._id}_piece${o}`),
 					rundownId: rundownId,
-					partInstanceId: protectString(`${part._id}_instance`),
+					partInstanceId: protectString<PartInstanceId>(`${part._id}_instance`),
 					playlistActivationId: activationId,
 					piece: {
-						_id: protectString(`${part._id}_piece_inner${o}`),
+						_id: protectString<PieceId>(`${part._id}_piece_inner${o}`),
 						externalId: '-',
 						enable: { start: 0 },
 						name: 'mock',
@@ -190,7 +193,7 @@ describe('Test blueprint api context', () => {
 	}> {
 		const context = setupDefaultJobEnvironment()
 
-		const playlistId: RundownPlaylistId = protectString('playlist0')
+		const playlistId: RundownPlaylistId = protectString<RundownPlaylistId>('playlist0')
 		const activationId: RundownPlaylistActivationId = getRandomId()
 
 		await context.mockCollections.RundownPlaylists.insertOne({
@@ -1836,7 +1839,7 @@ describe('Test blueprint api context', () => {
 						const secondPart = await context.mockCollections.Parts.findOne({ externalId: 'MOCK_PART_0_1' })
 						if (!secondPart) throw Error('could not find mock part')
 						const piece001: Piece = {
-							_id: protectString(rundownId + '_piece012'),
+							_id: protectString<PieceId>(rundownId + '_piece012'),
 							externalId: 'MOCK_PIECE_012',
 							startRundownId: rundownId,
 							startSegmentId: secondPart.segmentId,
@@ -1974,8 +1977,9 @@ describe('Test blueprint api context', () => {
 					expect(insertSpy).toHaveBeenCalledTimes(1)
 
 					// check some properties not exposed to the blueprints
-					const newPieceInstance = playoutModel.findPieceInstance(protectString(newPieceInstanceId))
-						?.pieceInstance as PlayoutPieceInstanceModel
+					const newPieceInstance = playoutModel.findPieceInstance(
+						protectString<PieceInstanceId>(newPieceInstanceId)
+					)?.pieceInstance as PlayoutPieceInstanceModel
 					expect(newPieceInstance).toBeTruthy()
 					expect(newPieceInstance.pieceInstance.dynamicallyInserted).toBeTruthy()
 					expect(newPieceInstance.pieceInstance.partInstanceId).toEqual(partInstance.partInstance._id)
@@ -2129,12 +2133,12 @@ describe('Test blueprint api context', () => {
 
 				// Create an infinite piece instance continued from previous part
 				const pieceInstance: PieceInstance = {
-					_id: protectString('piece_infinite'),
+					_id: protectString<PieceInstanceId>('piece_infinite'),
 					rundownId: currentPartInstance.partInstance.rundownId,
 					partInstanceId: currentPartInstance.partInstance._id,
 					playlistActivationId: currentPartInstance.partInstance.playlistActivationId,
 					piece: {
-						_id: protectString('piece_infinite_p'),
+						_id: protectString<PieceId>('piece_infinite_p'),
 						externalId: '-',
 						enable: { start: 0 },
 						name: 'infinite',
@@ -2150,7 +2154,7 @@ describe('Test blueprint api context', () => {
 					infinite: {
 						infiniteInstanceId: getRandomId(),
 						infiniteInstanceIndex: 1,
-						infinitePieceId: protectString('piece_infinite_p'),
+						infinitePieceId: protectString<PieceId>('piece_infinite_p'),
 						fromPreviousPart: true,
 					},
 				}
@@ -2237,7 +2241,7 @@ describe('Test blueprint api context', () => {
 							expect(offset).toEqual(34)
 							filter = filter2
 
-							return [protectString('result1')]
+							return [protectString<PieceInstanceId>('result1')]
 						}
 					)
 
@@ -2296,7 +2300,7 @@ describe('Test blueprint api context', () => {
 							expect(offset).toEqual(34)
 							filter = filter2
 
-							return [protectString('result1')]
+							return [protectString<PieceInstanceId>('result1')]
 						}
 					)
 

@@ -938,7 +938,7 @@ export const addSteps = addMigrationSteps('1.50.0', [
 
 				await ExpectedPackages.mutableCollection.updateAsync(expectedPackage._id, {
 					$set: {
-						partId: partIdLookup.get(expectedPackage.pieceId) ?? protectString(''),
+						partId: partIdLookup.get(expectedPackage.pieceId) ?? protectString<PartId>(''),
 					},
 				})
 			}

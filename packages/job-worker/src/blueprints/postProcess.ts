@@ -16,14 +16,17 @@ import {
 	IBlueprintRundownPiece,
 } from '@sofie-automation/blueprints-integration'
 import {
+	AdLibActionId,
 	BlueprintId,
 	BucketAdLibActionId,
 	BucketAdLibId,
 	BucketId,
 	PartId,
 	PieceId,
+	RundownBaselineAdLibActionId,
 	RundownId,
 	SegmentId,
+	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { JobContext, ProcessedShowStyleCompound } from '../jobs/index.js'
 import {
@@ -110,7 +113,7 @@ export function postProcessPieces(
 			...orgPiece,
 			content: omit(orgPiece.content, 'timelineObjects'),
 
-			_id: protectString(docId),
+			_id: protectString<PieceId>(docId),
 			startRundownId: rundownId,
 			startSegmentId: segmentId,
 			startPartId: partId,
@@ -169,7 +172,7 @@ function isNow(enable: TimelineObjectCoreExt<any>['enable']): boolean {
  * @param timelineUniqueIds Optional Set of ids that are not allowed. Ids of processed objects will be added to ths set
  */
 export function postProcessTimelineObjects(
-	pieceId: PieceId | BucketAdLibId,
+	pieceId: PieceId | BucketAdLibId | StudioId,
 	blueprintId: BlueprintId,
 	timelineObjects: TimelineObjectCoreExt<TSR.TSRTimelineContent>[],
 	timelineUniqueIds: Set<string> = new Set<string>()
@@ -254,7 +257,7 @@ export function postProcessAdLibPieces(
 		const piece: AdLibPiece = {
 			...orgAdlib,
 			content: omit(orgAdlib.content, 'timelineObjects'),
-			_id: protectString(docId),
+			_id: protectString<PieceId>(docId),
 			rundownId: rundownId,
 			partId: partId,
 			timelineObjectsString: EmptyPieceTimelineObjectsBlob,
@@ -321,7 +324,7 @@ export function postProcessGlobalAdLibActions(
 		const processedAction = literal<RundownBaselineAdLibAction>({
 			...action,
 			actionId: action.actionId,
-			_id: protectString(docId),
+			_id: protectString<RundownBaselineAdLibActionId>(docId),
 			rundownId: rundownId,
 			partId: undefined,
 			display: processed.display,
@@ -370,7 +373,7 @@ export function postProcessAdLibActions(
 		const processedAction = literal<AdLibAction>({
 			...action,
 			actionId: action.actionId,
-			_id: protectString(docId),
+			_id: protectString<AdLibActionId>(docId),
 			rundownId: rundownId,
 			partId: partId,
 			display: processed.display,
@@ -423,7 +426,7 @@ export function postProcessGlobalPieces(
 			pieceType: IBlueprintPieceType.Normal,
 			lifespan: PieceLifespan.OutOnRundownChange,
 
-			_id: protectString(docId),
+			_id: protectString<PieceId>(docId),
 			startRundownId: rundownId,
 			startSegmentId: null,
 			startPartId: null,
@@ -473,9 +476,10 @@ export function postProcessGlobalPieces(
  */
 export function postProcessStudioBaselineObjects(
 	blueprintId: BlueprintId | undefined,
+	studioId: StudioId,
 	objs: TimelineObjectCoreExt<TSR.TSRTimelineContent>[]
 ): TimelineObjRundown[] {
-	return postProcessTimelineObjects(protectString('studio'), blueprintId ?? protectString(''), objs)
+	return postProcessTimelineObjects(studioId, blueprintId ?? protectString<BlueprintId>(''), objs)
 }
 
 /**
@@ -487,7 +491,7 @@ export function postProcessRundownBaselineItems(
 	blueprintId: BlueprintId,
 	baselineItems: TimelineObjectCoreExt<TSR.TSRTimelineContent>[]
 ): TimelineObjGeneric[] {
-	return postProcessTimelineObjects(protectString('baseline'), blueprintId, baselineItems)
+	return postProcessTimelineObjects(protectString<StudioId>('baseline'), blueprintId, baselineItems)
 }
 
 /**
@@ -512,7 +516,7 @@ export function postProcessBucketAdLib(
 	name: string | undefined,
 	importVersions: RundownImportVersions
 ): BucketAdLib {
-	const id: BucketAdLibId = protectString(
+	const id = protectString<BucketAdLibId>(
 		getHash(
 			`${showStyleCompound.showStyleVariantId}_${context.studioId}_${bucketId}_bucket_adlib_${ingestInfo.payload.externalId}`
 		)
@@ -564,7 +568,7 @@ export function postProcessBucketAction(
 	label: string | undefined,
 	importVersions: RundownImportVersions
 ): BucketAdLibAction {
-	const id: BucketAdLibActionId = protectString(
+	const id = protectString<BucketAdLibActionId>(
 		getHash(
 			`${showStyleCompound.showStyleVariantId}_${context.studioId}_${bucketId}_bucket_adlib_${ingestInfo.payload.externalId}`
 		)

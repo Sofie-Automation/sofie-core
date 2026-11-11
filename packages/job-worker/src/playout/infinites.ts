@@ -1,4 +1,9 @@
-import { PartInstanceId, RundownId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	PartInstanceId,
+	PieceInstanceInfiniteId,
+	RundownId,
+	ShowStyleBaseId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
@@ -433,7 +438,7 @@ export async function getBaselineInfinitesForPart(
 		// All these pieces are expected to be outOnRundownChange infinites, as that is how they are ingested
 
 		instance.infinite = {
-			infiniteInstanceId: getRandomId(),
+			infiniteInstanceId: getRandomId<PieceInstanceInfiniteId>(),
 			infiniteInstanceIndex: 0,
 			infinitePieceId: instance.piece._id,
 			fromPreviousPart: true,

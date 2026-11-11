@@ -6,6 +6,7 @@ import { setupDefaultStudioEnvironment, packageBlueprint } from '../../../__mock
 import { literal, getRandomId, getRandomString } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
+import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 import { SYSTEM_ID, ICoreSystem } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
 import { insertBlueprint, uploadBlueprint, uploadBlueprintAsset, ServerBlueprintAPI } from '../api'
@@ -85,10 +86,9 @@ describe('Test blueprint management api', () => {
 			const initialBlueprintId = await getActiveSystemBlueprintId()
 
 			SupressLogMessages.suppressLogMessage(/Blueprint not found/i)
-			await expect(MeteorCall.blueprint.assignSystemBlueprint(protectString(''))).rejects.toThrowSofieError(
-				404,
-				'Blueprint not found'
-			)
+			await expect(
+				MeteorCall.blueprint.assignSystemBlueprint(protectString<BlueprintId>(''))
+			).rejects.toThrowSofieError(404, 'Blueprint not found')
 
 			expect(await getActiveSystemBlueprintId()).toEqual(initialBlueprintId)
 		})
@@ -98,7 +98,7 @@ describe('Test blueprint management api', () => {
 
 			SupressLogMessages.suppressLogMessage(/Blueprint not found/i)
 			await expect(
-				MeteorCall.blueprint.assignSystemBlueprint(protectString(blueprint._id + '_no'))
+				MeteorCall.blueprint.assignSystemBlueprint(protectString<BlueprintId>(blueprint._id + '_no'))
 			).rejects.toThrowSofieError(404, 'Blueprint not found')
 
 			expect(await getActiveSystemBlueprintId()).toEqual(initialBlueprintId)
@@ -160,6 +160,7 @@ describe('Test blueprint management api', () => {
 				'Blueprint id "" was not found'
 			)
 		})
+		// eslint-disable-next-line jest/expect-expect
 		test('missing id', async () => {
 			// Should not error
 			await MeteorCall.blueprint.removeBlueprint(protectString('not_a_real_blueprint'))

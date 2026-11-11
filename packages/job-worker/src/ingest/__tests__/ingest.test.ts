@@ -40,7 +40,7 @@ import {
 } from '../../ingest/ingestSegmentJobs.js'
 import { handleTakeNextPart } from '../../playout/take.js'
 import { handleActivateRundownPlaylist } from '../../playout/activePlaylistJobs.js'
-import { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartId, PartInstanceId, SegmentId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getSelectedPartInstances } from '../../playout/__tests__/lib.js'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { runJobWithPlayoutModel } from '../../playout/lock.js'
@@ -1885,7 +1885,7 @@ describe('Test ingest actions for rundowns and segments', () => {
 						currentPartInstance,
 						{
 							part: {
-								_id: protectString(`after_${currentPartInstance.partInstance._id}_part`),
+								_id: protectString<PartId>(`after_${currentPartInstance.partInstance._id}_part`),
 								externalId: `after_${currentPartInstance.partInstance._id}_externalId`,
 								title: 'New part',
 								expectedDurationWithTransition: undefined,
@@ -2317,7 +2317,7 @@ describe('Test ingest actions for rundowns and segments', () => {
 
 		await context.mockCollections.Rundowns.update(rundown._id, {
 			$set: {
-				showStyleVariantId: protectString('this-is-not-a-real-id'),
+				showStyleVariantId: protectString<ShowStyleVariantId>('this-is-not-a-real-id'),
 			},
 		})
 

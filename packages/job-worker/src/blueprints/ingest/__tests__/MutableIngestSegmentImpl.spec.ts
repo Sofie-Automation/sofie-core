@@ -9,6 +9,7 @@ import {
 	SofieIngestCacheType,
 	SofieIngestDataCacheObjPart,
 } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
+import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 describe('MutableIngestSegmentImpl', () => {
 	function getBasicIngestSegment(): SofieIngestSegment<any> {
@@ -65,7 +66,7 @@ describe('MutableIngestSegmentImpl', () => {
 		}
 	}
 
-	const ingestObjectGenerator = new SofieIngestRundownDataCacheGenerator(protectString('rundownId'))
+	const ingestObjectGenerator = new SofieIngestRundownDataCacheGenerator(protectString<RundownId>('rundownId'))
 
 	function createNoChangesObject(ingestSegment: SofieIngestSegment): MutableIngestSegmentChanges {
 		return {

@@ -7,6 +7,7 @@ import { MockJobContext, setupDefaultJobEnvironment } from '../../../../__mocks_
 import { ProcessedShowStyleCompound } from '../../../../jobs/index.js'
 import { ReadonlyDeep } from 'type-fest'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { createPlayoutModelFromIngestModel, loadPlayoutModelPreInit } from '../LoadPlayoutModel.js'
 import { runWithPlaylistLock } from '../../../../playout/lock.js'
@@ -45,11 +46,11 @@ describe('LoadPlayoutModel', () => {
 			const { rundownId: rundownId00, playlistId: playlistId0 } = await setupDefaultRundownPlaylist(
 				context,
 				showStyleCompound,
-				protectString('rundown00')
+				protectString<RundownId>('rundown00')
 			)
-			const rundownId01 = protectString('rundown01')
+			const rundownId01 = protectString<RundownId>('rundown01')
 			await setupDefaultRundown(context, showStyleCompound, playlistId0, rundownId01)
-			const rundownId02 = protectString('rundown02')
+			const rundownId02 = protectString<RundownId>('rundown02')
 			await setupDefaultRundown(context, showStyleCompound, playlistId0, rundownId02)
 
 			const playlist0 = await context.mockCollections.RundownPlaylists.findOne(playlistId0)
@@ -76,11 +77,11 @@ describe('LoadPlayoutModel', () => {
 			const { rundownId: rundownId00, playlistId: playlistId0 } = await setupDefaultRundownPlaylist(
 				context,
 				showStyleCompound,
-				protectString('rundown00')
+				protectString<RundownId>('rundown00')
 			)
-			const rundownId01 = protectString('rundown01')
+			const rundownId01 = protectString<RundownId>('rundown01')
 			await setupDefaultRundown(context, showStyleCompound, playlistId0, rundownId01)
-			const rundownId02 = protectString('rundown02')
+			const rundownId02 = protectString<RundownId>('rundown02')
 			await setupDefaultRundown(context, showStyleCompound, playlistId0, rundownId02)
 
 			const playlist0 = await context.mockCollections.RundownPlaylists.findOne(playlistId0)
@@ -124,11 +125,11 @@ describe('LoadPlayoutModel', () => {
 			const { rundownId: rundownId00, playlistId: playlistId0 } = await setupDefaultRundownPlaylist(
 				context,
 				showStyleCompound,
-				protectString('rundown00')
+				protectString<RundownId>('rundown00')
 			)
-			const rundownId01 = protectString('rundown01')
+			const rundownId01 = protectString<RundownId>('rundown01')
 			await setupDefaultRundown(context, showStyleCompound, playlistId0, rundownId01)
-			const rundownId02 = protectString('rundown02')
+			const rundownId02 = protectString<RundownId>('rundown02')
 			await setupDefaultRundown(context, showStyleCompound, playlistId0, rundownId02)
 
 			const rundownIdsInOrder = [rundownId01, rundownId02, rundownId00]
@@ -167,10 +168,10 @@ describe('LoadPlayoutModel', () => {
 			const { rundownId, playlistId } = await setupDefaultRundownPlaylist(
 				context,
 				showStyleCompound,
-				protectString('rundown00')
+				protectString<RundownId>('rundown00')
 			)
 
-			const adlibTestingSegmentId = protectString('adlib_testing_segment')
+			const adlibTestingSegmentId = protectString<SegmentId>('adlib_testing_segment')
 			await context.mockCollections.Segments.insertOne({
 				_id: adlibTestingSegmentId,
 				_rank: -1,

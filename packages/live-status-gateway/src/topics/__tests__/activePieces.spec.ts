@@ -13,6 +13,11 @@ import { SelectedPieceInstances } from '../../collections/pieceInstancesHandler.
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { ActivePiecesTopic } from '../activePiecesTopic.js'
 import { ActivePiecesEvent } from '@sofie-automation/live-status-gateway-api'
+import {
+	PartInstanceId,
+	PieceInstanceId,
+	RundownPlaylistActivationId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 describe('ActivePiecesTopic', () => {
 	it('provides active pieces', async () => {
@@ -23,11 +28,11 @@ describe('ActivePiecesTopic', () => {
 		const currentPartInstanceId = 'CURRENT_PART_INSTANCE_ID'
 
 		const playlist = makeTestPlaylist()
-		playlist.activationId = protectString('somethingRandom')
+		playlist.activationId = protectString<RundownPlaylistActivationId>('somethingRandom')
 		playlist.currentPartInfo = {
 			consumesQueuedSegmentId: false,
 			manuallySelected: false,
-			partInstanceId: protectString(currentPartInstanceId),
+			partInstanceId: protectString<PartInstanceId>(currentPartInstanceId),
 			rundownId: playlist.rundownIdsInOrder[0],
 		}
 		handlers.playlistHandler.notify(playlist)
@@ -40,7 +45,7 @@ describe('ActivePiecesTopic', () => {
 			nextPartInstance: [],
 			active: [
 				literal<PartialDeep<PieceInstance>>({
-					_id: protectString('PIECE_1'),
+					_id: protectString<PieceInstanceId>('PIECE_1'),
 					piece: {
 						name: 'Piece 1',
 						outputLayerId: 'pgm',

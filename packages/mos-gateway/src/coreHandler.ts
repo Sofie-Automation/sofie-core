@@ -22,7 +22,7 @@ import { DeviceConfig } from './connector.js'
 import { MOS_DEVICE_CONFIG_MANIFEST } from './configManifest.js'
 import { getVersions } from './versions.js'
 import { CoreMosDeviceHandler, CoreMosDeviceHandlerOptions } from './CoreMosDeviceHandler.js'
-import { PeripheralDeviceCommandId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
+import { PeripheralDeviceCommandId, PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
 
 export interface CoreConfig {
 	host: string
@@ -147,7 +147,7 @@ export class CoreHandler implements ICoreHandler {
 		}
 
 		const options: CoreOptions = {
-			deviceId: protectString(this._deviceOptions.deviceId + 'MosCoreParent'),
+			deviceId: protectString<PeripheralDeviceId>(this._deviceOptions.deviceId + 'MosCoreParent'),
 			deviceToken: this._deviceOptions.deviceToken,
 
 			deviceCategory: PeripheralDeviceAPI.PeripheralDeviceCategory.INGEST,

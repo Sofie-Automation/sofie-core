@@ -28,7 +28,7 @@ export function SelectBlueprint({ studio }: Readonly<SelectBlueprintProps>): JSX
 		const options: { name: string; value: BlueprintId | null }[] = [
 			{
 				name: t('None'),
-				value: protectString(''),
+				value: protectString<BlueprintId>(''),
 			},
 		]
 

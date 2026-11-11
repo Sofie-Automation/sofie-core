@@ -8,7 +8,6 @@ import type { AdLibActionCommon } from '@sofie-automation/corelib/dist/dataModel
 import { createInMemorySyncMongoCollection } from '../../../../collections/lib.js'
 import { Spinner } from '../../../../lib/Spinner.js'
 import InspectorTitle from './InspectorTitle.js'
-import type { ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { doUserAction, UserAction } from '../../../../lib/clientUserAction.js'
 import { MeteorCall } from '../../../../lib/meteorApi.js'
 import type { BucketAdLibItem, BucketAdLibActionUi } from '../../RundownViewBuckets.js'
@@ -18,7 +17,13 @@ import RundownViewEventBus, { RundownViewEvents } from '@sofie-automation/meteor
 import type { IAdLibListItem } from '../../AdLibListItem.js'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import type { AdLibPieceUi } from '../../../../lib/shelf.js'
-import type { BucketId, PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type {
+	AdLibActionId,
+	BucketAdLibActionId,
+	BucketId,
+	PartId,
+	RundownBaselineAdLibActionId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Buckets } from '../../../../collections/index.js'
 import type { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
 import type { UIShowStyleBase } from '@sofie-automation/corelib/src/dataModel/ShowStyleBase.js'
@@ -40,7 +45,7 @@ export interface ITrackedProps {
 }
 
 export interface TransformedAdLibAction extends AdLibActionCommon {
-	_id: ProtectedString<any>
+	_id: AdLibActionId | RundownBaselineAdLibActionId | BucketAdLibActionId
 	partId?: PartId | undefined
 	transformedUserData: {
 		[key: string]: any

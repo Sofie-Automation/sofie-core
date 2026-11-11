@@ -5,6 +5,13 @@ import {
 	PieceAbSessionInfo,
 	PieceLifespan,
 } from '@sofie-automation/blueprints-integration'
+import {
+	PartId,
+	PartInstanceId,
+	PieceInstanceId,
+	RundownId,
+	RundownPlaylistActivationId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { EmptyPieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PieceInstancePiece, ResolvedPieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { ABSessionAssignments } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
@@ -44,7 +51,7 @@ function createBasicResolvedPieceInstance(
 		timelineObjectsString: EmptyPieceTimelineObjectsBlob,
 		content: {},
 		invalid: false,
-		startPartId: protectString(''),
+		startPartId: protectString<PartId>(''),
 		pieceType: IBlueprintPieceType.Normal,
 	})
 
@@ -61,10 +68,10 @@ function createBasicResolvedPieceInstance(
 
 	return literal<ResolvedPieceInstance>({
 		instance: {
-			_id: protectString(`inst_${id}`),
-			partInstanceId: protectString(''),
-			rundownId: protectString(''),
-			playlistActivationId: protectString(''),
+			_id: protectString<PieceInstanceId>(`inst_${id}`),
+			partInstanceId: protectString<PartInstanceId>(''),
+			rundownId: protectString<RundownId>(''),
+			playlistActivationId: protectString<RundownPlaylistActivationId>(''),
 			piece,
 		},
 		resolvedStart: start,

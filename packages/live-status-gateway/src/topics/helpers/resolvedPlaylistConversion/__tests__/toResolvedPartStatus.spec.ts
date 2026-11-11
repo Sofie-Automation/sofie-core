@@ -1,4 +1,5 @@
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { PartId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ResolvedPartState } from '@sofie-automation/live-status-gateway-api'
 import { NoteSeverity } from '@sofie-automation/blueprints-integration'
 import { toResolvedPartStatus } from '../parts/toResolvedPartStatus.js'
@@ -14,7 +15,7 @@ import { createResolvedPlaylistConversionContext } from '../context/conversionCo
 
 describe('toResolvedPartStatus', () => {
 	it('maps current part state and nested pieces', () => {
-		const currentPartInstanceId = protectString('current_pi')
+		const currentPartInstanceId = protectString<PartInstanceId>('current_pi')
 		const ctx = createResolvedPlaylistConversionContext({
 			playlistState: makePlaylist({
 				defaultBrandingId: null,
@@ -30,7 +31,7 @@ describe('toResolvedPartStatus', () => {
 		})
 
 		const partExtended = {
-			partId: protectString('part0'),
+			partId: protectString<PartId>('part0'),
 			instance: {
 				...makePartInstance('current_pi', 'part0', 'segment0', 'rundown0'),
 				orphaned: 'adlib-part',
@@ -77,7 +78,7 @@ describe('toResolvedPartStatus', () => {
 	})
 
 	it('maps next part state and default timing fallbacks', () => {
-		const nextPartInstanceId = protectString('next_pi')
+		const nextPartInstanceId = protectString<PartInstanceId>('next_pi')
 		const ctx = createResolvedPlaylistConversionContext({
 			playlistState: makePlaylist({
 				nextPartInfo: { partInstanceId: nextPartInstanceId },
@@ -92,7 +93,7 @@ describe('toResolvedPartStatus', () => {
 		})
 
 		const partExtended = {
-			partId: protectString('part1'),
+			partId: protectString<PartId>('part1'),
 			instance: makePartInstance('next_pi', 'part1', 'segment0', 'rundown0'),
 		} as any
 

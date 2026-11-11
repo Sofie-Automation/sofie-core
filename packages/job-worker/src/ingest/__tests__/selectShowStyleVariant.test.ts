@@ -6,6 +6,7 @@ import { selectShowStyleVariant } from '../selectShowStyleVariant.js'
 import { StudioUserContext } from '../../blueprints/context/index.js'
 import { setupMockShowStyleCompound, setupMockShowStyleVariant } from '../../__mocks__/presetCollections.js'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 describe('selectShowStyleVariant', () => {
 	function generateIngestRundown(): ExtendedIngestRundown {
@@ -85,7 +86,7 @@ describe('selectShowStyleVariant', () => {
 
 			const selectedShowStyle = await selectShowStyleVariant(context, blueprintContext, ingestRundown, {
 				type: 'testing',
-				showStyleVariantId: protectString('fakeId'),
+				showStyleVariantId: protectString<ShowStyleVariantId>('fakeId'),
 			})
 
 			expect(selectedShowStyle).toBeNull()
@@ -154,7 +155,7 @@ describe('selectShowStyleVariant', () => {
 			const context = setupDefaultJobEnvironment()
 			context.setStudio({
 				...context.rawStudio,
-				supportedShowStyleBase: [protectString('fakeId')],
+				supportedShowStyleBase: [protectString<ShowStyleBaseId>('fakeId')],
 			})
 
 			const { mockGetShowStyleId, mockGetShowStyleVariantId } = mockBlueprintMethods(context)

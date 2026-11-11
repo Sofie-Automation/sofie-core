@@ -45,6 +45,7 @@ import {
 } from '../../../lib/forms/schemaFormUtil.js'
 import { Studios } from '../../../collections/index.js'
 import type { ReadonlyDeep } from 'type-fest'
+import type { PeripheralDeviceId } from '@sofie-automation/corelib/src/dataModel/Ids.js'
 
 export interface MappingsSettingsManifest {
 	displayName: string
@@ -89,7 +90,7 @@ export function StudioMappings({
 		const newId = newLayerKeyName + iter.toString()
 		const newMapping = literal<MappingExt>({
 			device: TSR.DeviceType.CASPARCG,
-			deviceId: protectString('newDeviceId'),
+			deviceId: protectString<PeripheralDeviceId>('newDeviceId'),
 			lookahead: LookaheadMode.NONE,
 			options: {},
 		})

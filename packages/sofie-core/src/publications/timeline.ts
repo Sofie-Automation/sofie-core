@@ -209,7 +209,7 @@ async function manipulateTimelinePublicationData(
 
 	if (invalidateTimeline) {
 		// Something changed, so regenerate the timeline
-		state.timelineHash = state.timeline?.timelineHash ?? getRandomId()
+		state.timelineHash = state.timeline?.timelineHash ?? getRandomId<TimelineHash>()
 		state.timelineGenerated = state.timeline?.generated ?? 0
 		const timeline = state.timeline ? deserializeTimelineBlob(state.timeline.timelineBlob) : []
 		state.routedTimeline = serializeTimelineBlob(getRoutedTimeline(timeline, state.routes))

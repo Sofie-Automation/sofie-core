@@ -21,7 +21,7 @@ import { comparePieceStart, convertAdLibToGenericPiece, convertPieceToAdLibPiece
 import { getResolvedPiecesForCurrentPartInstance } from './resolvedPieces.js'
 import { syncPlayheadInfinitesForNextPartInstance } from './infinites.js'
 import { UserError, UserErrorMessage } from '@sofie-automation/corelib/dist/error'
-import { PieceId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { BucketAdLibId, PieceId, PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { IBlueprintDirectPlayType, IBlueprintPieceType } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
@@ -233,17 +233,17 @@ export async function handleAdLibPieceStart(context: JobContext, data: AdlibPiec
 			let adLibPiece: AdLibPiece | BucketAdLib | undefined
 			if (data.pieceType === 'baseline') {
 				adLibPiece = await context.directCollections.RundownBaselineAdLibPieces.findOne({
-					_id: data.adLibPieceId,
+					_id: data.adLibPieceId as PieceId,
 					rundownId: { $in: safeRundownIds },
 				})
 			} else if (data.pieceType === 'normal') {
 				adLibPiece = await context.directCollections.AdLibPieces.findOne({
-					_id: data.adLibPieceId,
+					_id: data.adLibPieceId as PieceId,
 					rundownId: { $in: safeRundownIds },
 				})
 			} else if (data.pieceType === 'bucket') {
 				const bucketAdlib = await context.directCollections.BucketAdLibPieces.findOne({
-					_id: data.adLibPieceId,
+					_id: data.adLibPieceId as BucketAdLibId,
 					studioId: context.studioId,
 				})
 

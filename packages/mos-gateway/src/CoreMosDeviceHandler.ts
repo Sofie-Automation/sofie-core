@@ -7,6 +7,7 @@ import {
 	stringifyError,
 	CoreConnectionChild,
 	Queue,
+	PeripheralDeviceId,
 } from '@sofie-automation/server-core-integration'
 import {
 	IMOSConnectionStatus,
@@ -111,7 +112,9 @@ export class CoreMosDeviceHandler {
 		if (!this._coreParentHandler.core) throw new Error('parent missing core')
 
 		this.core = await this._coreParentHandler.core.createChild({
-			deviceId: protectString(this._coreParentHandler.core.deviceId + this._mosDevice.idPrimary),
+			deviceId: protectString<PeripheralDeviceId>(
+				this._coreParentHandler.core.deviceId + this._mosDevice.idPrimary
+			),
 
 			deviceSubType: 'mos_connection',
 
@@ -167,8 +170,12 @@ export class CoreMosDeviceHandler {
 				} else {
 					statusCode = StatusCode.BAD
 					// Send messages for both connections
-					statusDetails.push({ message: connectionStatus.PrimaryStatus || 'Primary and hot standby are not connected' })
-					statusDetails.push({ message: connectionStatus.SecondaryStatus || 'Primary and hot standby are not connected' })
+					statusDetails.push({
+						message: connectionStatus.PrimaryStatus || 'Primary and hot standby are not connected',
+					})
+					statusDetails.push({
+						message: connectionStatus.SecondaryStatus || 'Primary and hot standby are not connected',
+					})
 				}
 			}
 		} else {

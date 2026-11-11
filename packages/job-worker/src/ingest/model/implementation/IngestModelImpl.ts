@@ -442,7 +442,7 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 			source: source,
 
 			// validated later
-			playlistId: this.#rundownImpl?.playlistId ?? protectString(''),
+			playlistId: this.#rundownImpl?.playlistId ?? protectString<RundownPlaylistId>(''),
 			playlistIdIsSetInSofie: this.#rundownImpl?.playlistIdIsSetInSofie,
 
 			// owned by elsewhere
@@ -475,7 +475,7 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 
 		// Compare and update the baseline timeline
 		const newBaselineObj: Complete<RundownBaselineObj> = {
-			_id: getRandomId(),
+			_id: getRandomId<RundownBaselineObjId>(),
 			rundownId: this.rundownId,
 			timelineObjectsString: timelineObjectsBlob,
 		}

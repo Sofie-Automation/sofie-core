@@ -1,14 +1,14 @@
 import { IBlueprintActionManifest } from '@sofie-automation/blueprints-integration'
 import { ArrayElement } from '../lib.js'
 import { ITranslatableMessage } from '../TranslatableMessage.js'
-import { ProtectedStringProperties } from '../protectedString.js'
 import { RundownId, AdLibActionId, PartId } from './Ids.js'
 import { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions.js'
 
 /** The following extended interface allows assigning namespace information to the actions as they are stored in the
  *  database after being emitted from the blueprints
  */
-export interface AdLibActionCommon extends ProtectedStringProperties<IBlueprintActionManifest, 'partId'> {
+export interface AdLibActionCommon extends Omit<IBlueprintActionManifest, 'partId'> {
+	partId?: PartId
 	rundownId: RundownId
 	display: IBlueprintActionManifest['display'] & {
 		// this property can be a string if the name is modified by the User

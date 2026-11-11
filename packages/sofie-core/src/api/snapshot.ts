@@ -158,7 +158,7 @@ type AnySnapshot = RundownPlaylistSnapshot | SystemSnapshot | DebugSnapshot
  * @param studioId (Optional) Only generate for a certain studio
  */
 async function createSystemSnapshot(options: SystemSnapshotOptions): Promise<SystemSnapshot> {
-	const snapshotId: SnapshotId = getRandomId()
+	const snapshotId = getRandomId<SnapshotId>()
 	const studioId = options.studioId ?? null
 	logger.info(`Generating System snapshot "${snapshotId}"` + (studioId ? `for studio "${studioId}"` : ''))
 
@@ -251,7 +251,7 @@ async function createSystemSnapshot(options: SystemSnapshotOptions): Promise<Sys
  * @param studioId
  */
 async function createDebugSnapshot(studioId: StudioId): Promise<DebugSnapshot> {
-	const snapshotId: SnapshotId = getRandomId()
+	const snapshotId = getRandomId<SnapshotId>()
 	logger.info(`Generating Debug snapshot "${snapshotId}" for studio "${studioId}"`)
 
 	const studio = await Studios.findOneAsync(studioId)
@@ -333,7 +333,7 @@ async function createRundownPlaylistSnapshot(
 	/** Max count of one type of items to include in the snapshot */
 	const LIMIT_COUNT = 500
 
-	const snapshotId: SnapshotId = getRandomId()
+	const snapshotId = getRandomId<SnapshotId>()
 	logger.info(
 		`Generating ${
 			options.withArchivedDocuments ? 'full ' : ''
@@ -445,7 +445,7 @@ async function storeSnaphot(snapshot: { snapshot: SnapshotBase }, comment: strin
 	}
 
 	const id = await Snapshots.insertAsync({
-		_id: protectString(fileName),
+		_id: protectString<SnapshotId>(fileName),
 		fileName: fileName,
 		type: snapshot.snapshot.type,
 		created: snapshot.snapshot.created,
@@ -897,7 +897,7 @@ snapshotPrivateApiRouter.get('/retrieve/:snapshotId', async (ctx) => {
 	return handleKoaResponse(ctx, async () => {
 		const snapshotId = ctx.params.snapshotId
 		check(snapshotId, z.string())
-		return retreiveSnapshot(protectString(snapshotId), ctx)
+		return retreiveSnapshot(protectString<SnapshotId>(snapshotId), ctx)
 	})
 })
 

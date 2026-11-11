@@ -8,7 +8,7 @@ import { withTranslation } from 'react-i18next'
 import { faBars } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { literal } from '@sofie-automation/corelib/dist/lib'
-import { unprotectString, type ProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getElementDocumentOffset } from '../../utils/positions.js'
 import { UIStateStorage } from '../../lib/UIStateStorage.js'
@@ -29,7 +29,7 @@ import RundownViewEventBus, {
 	type BucketEvent,
 	type IEventContext,
 } from '@sofie-automation/meteor-lib/dist/triggers/RundownViewEventBus'
-import type { BucketAdLibId, BucketId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { BucketAdLibId, BucketId, PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { DashboardLayoutExternalFrame } from '@sofie-automation/meteor-lib/dist/collections/RundownLayouts'
 import type {
 	BucketAdLibItem,
@@ -81,7 +81,7 @@ interface IState {
 	editedPieceName:
 		| {
 				bucketId: BucketId
-				pieceId: ProtectedString<any>
+				pieceId: PieceId | BucketAdLibId
 		  }
 		| undefined
 	localBuckets: Bucket[]
@@ -595,7 +595,7 @@ export const RundownViewBuckets: React.ComponentType<IBucketsProps> = withTransl
 													editableName={this.state.editedNameId === bucket._id}
 													editedPiece={
 														this.state.editedPieceName && this.state.editedPieceName.bucketId === bucket._id
-															? this.state.editedPieceName.pieceId
+															? (this.state.editedPieceName.pieceId as PieceId)
 															: undefined
 													}
 													onPieceNameRename={() => this.beginRenameBucketAdLib(undefined)}

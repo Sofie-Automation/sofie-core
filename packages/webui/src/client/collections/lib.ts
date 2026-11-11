@@ -1,6 +1,10 @@
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
-import { type ProtectedString, protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import {
+	type ProtectedString,
+	protectString,
+	type UnknownProtectedString,
+} from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import type { Collection as RawCollection } from 'mongodb'
 import type {
@@ -203,7 +207,7 @@ export class WrappedMongoCollection<DBInterface extends { _id: ProtectedString<a
 	insert(doc: DBInterface): DBInterface['_id'] {
 		try {
 			const resultId = this._collection.insert(doc as unknown as Mongo.OptionalId<DBInterface>)
-			return protectString(resultId)
+			return protectString<UnknownProtectedString>(resultId)
 		} catch (e) {
 			this.wrapMongoError(e)
 		}
@@ -241,7 +245,7 @@ export class WrappedMongoCollection<DBInterface extends { _id: ProtectedString<a
 			const result = this._collection.upsert(selector as any, modifier as any, options)
 			return {
 				numberAffected: result.numberAffected,
-				insertedId: protectString(result.insertedId),
+				insertedId: protectString<UnknownProtectedString>(result.insertedId),
 			}
 		} catch (e) {
 			this.wrapMongoError(e)

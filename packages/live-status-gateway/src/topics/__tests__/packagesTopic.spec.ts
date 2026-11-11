@@ -5,14 +5,15 @@ import { UIPieceContentStatus } from '@sofie-automation/corelib/dist/dataModel/P
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { PackagesEvent, PackageStatus } from '@sofie-automation/live-status-gateway-api'
+import { PartId, RundownId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 function makeTestUIPieceContentStatuses(): UIPieceContentStatus[] {
 	return [
 		{
 			pieceId: protectString('PIECE_0'),
-			rundownId: protectString('RUNDOWN_0'),
-			partId: protectString('PART_0'),
-			segmentId: protectString('SEGMENT_0'),
+			rundownId: protectString<RundownId>('RUNDOWN_0'),
+			partId: protectString<PartId>('PART_0'),
+			segmentId: protectString<SegmentId>('SEGMENT_0'),
 			status: {
 				packageName: 'Test Package',
 				status: PieceStatusCode.OK,
@@ -37,7 +38,7 @@ function makeTestUIPieceContentStatuses(): UIPieceContentStatus[] {
 
 function makeTestPlaylist(): DBRundownPlaylist {
 	return {
-		_id: protectString('PLAYLIST_0'),
+		_id: protectString<RundownPlaylistId>('PLAYLIST_0'),
 		activationId: protectString('ACTIVATION_0'),
 	} as DBRundownPlaylist
 }

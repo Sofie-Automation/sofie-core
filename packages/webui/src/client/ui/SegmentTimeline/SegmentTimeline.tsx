@@ -46,7 +46,13 @@ import {
 import { SegmentTimelineZoomButtons } from './SegmentTimelineZoomButtons.js'
 import { SegmentViewMode } from '../SegmentContainer/SegmentViewModes.js'
 import { SwitchViewModeButton } from '../SegmentContainer/SwitchViewModeButton.js'
-import type { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type {
+	PartId,
+	PartInstanceId,
+	RundownId,
+	RundownPlaylistActivationId,
+	SegmentId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { SegmentNoteCounts } from '../SegmentContainer/withResolvedSegment.js'
 import {
 	withTiming,
@@ -188,12 +194,12 @@ function SegmentTimelineZoom(props: SegmentTimelineZoomProps): JSX.Element {
 export const SEGMENT_TIMELINE_ELEMENT_ID = 'rundown__segment__'
 
 export const BUDGET_GAP_PART = {
-	partId: protectString('gap'),
-	instance: wrapPartToTemporaryInstance(protectString(''), {
-		_id: protectString('gap'),
+	partId: protectString<PartId>('gap'),
+	instance: wrapPartToTemporaryInstance(protectString<RundownPlaylistActivationId>(''), {
+		_id: protectString<PartId>('gap'),
 		_rank: 0,
-		segmentId: protectString(''),
-		rundownId: protectString(''),
+		segmentId: protectString<SegmentId>(''),
+		rundownId: protectString<RundownId>(''),
 		externalId: 'gap',
 		gap: true,
 		title: 'gap',

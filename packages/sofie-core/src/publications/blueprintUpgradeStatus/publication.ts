@@ -87,7 +87,7 @@ function getDocumentId(
 	type: 'coreSystem' | 'studio' | 'showStyle',
 	id: ProtectedString<any>
 ): UIBlueprintUpgradeStatusId {
-	return protectString(`${type}:${id}`)
+	return protectString<UIBlueprintUpgradeStatusId>(`${type}:${id}`)
 }
 
 export async function manipulateBlueprintUpgradeStatusPublicationData(

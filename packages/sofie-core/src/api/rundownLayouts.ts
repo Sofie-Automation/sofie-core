@@ -29,7 +29,7 @@ export async function createRundownLayout(
 	blueprintId: BlueprintId | undefined,
 	userId?: UserId
 ): Promise<RundownLayoutId> {
-	const id: RundownLayoutId = getRandomId()
+	const id = getRandomId<RundownLayoutId>()
 	await RundownLayouts.insertAsync(
 		literal<RundownLayoutBase>({
 			_id: id,
@@ -63,7 +63,7 @@ shelfLayoutsRouter.post(
 
 		assertConnectionHasOneOfPermissions(ctx, ...PERMISSIONS_FOR_MANAGE_RUNDOWN_LAYOUTS)
 
-		const showStyleBaseId: ShowStyleBaseId = protectString(ctx.params.showStyleBaseId)
+		const showStyleBaseId = protectString<ShowStyleBaseId>(ctx.params.showStyleBaseId)
 
 		check(showStyleBaseId, z.string())
 
@@ -84,7 +84,7 @@ shelfLayoutsRouter.post(
 			check(layout.name, z.string())
 			check(layout.type, z.string())
 
-			layout._id = layout._id || getRandomId()
+			layout._id = layout._id || getRandomId<RundownLayoutId>()
 			layout.showStyleBaseId = showStyleBase._id
 
 			await RundownLayouts.replaceAsync(layout)
@@ -100,7 +100,7 @@ shelfLayoutsRouter.post(
 )
 
 shelfLayoutsRouter.get('/download/:id', async (ctx) => {
-	const layoutId: RundownLayoutId = protectString(ctx.params.id)
+	const layoutId = protectString<RundownLayoutId>(ctx.params.id)
 
 	check(layoutId, z.string())
 

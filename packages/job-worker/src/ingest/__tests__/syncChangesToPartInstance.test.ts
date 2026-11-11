@@ -20,7 +20,7 @@ import {
 	PlaylistTimingType,
 	ShowStyleBlueprintManifest,
 } from '@sofie-automation/blueprints-integration'
-import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PieceId, RundownId, RundownPlaylistId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	DBRundownPlaylist,
 	SelectedPartInstance,
@@ -37,6 +37,12 @@ import { defaultPiece } from '../../__mocks__/defaultCollectionObjects.js'
 
 jest.mock('../../playout/adlibTesting')
 import { validateAdlibTestingPartInstanceProperties } from '../../playout/adlibTesting.js'
+import {
+	PartId,
+	PartInstanceId,
+	RundownPlaylistActivationId,
+	SegmentPlayoutId,
+} from '@sofie-automation/corelib/src/dataModel/Ids.js'
 
 const mockOptions = {
 	fallbackMockImplementation: () => {
@@ -47,11 +53,11 @@ const mockOptions = {
 
 function createMockPart(id: string): DBPart {
 	return {
-		_id: protectString(id),
+		_id: protectString<PartId>(id),
 		_rank: 1,
 		externalId: 'mockPartExternalId',
-		segmentId: protectString('mockSegmentId'),
-		rundownId: protectString('mockRundownId'),
+		segmentId: protectString<SegmentId>('mockSegmentId'),
+		rundownId: protectString<RundownId>('mockRundownId'),
 		title: 'mockPartTitle',
 		expectedDurationWithTransition: undefined,
 		userEditOperations: undefined,
@@ -139,15 +145,15 @@ describe('SyncChangesToPartInstancesWorker', () => {
 			return mock<PlayoutPartInstanceModel>(
 				{
 					partInstance: {
-						_id: protectString(id),
+						_id: protectString<PartInstanceId>(id),
 						part: createMockPart(id),
-						segmentId: protectString('mockSegmentId'),
-						rundownId: protectString('mockRundownId'),
+						segmentId: protectString<SegmentId>('mockSegmentId'),
+						rundownId: protectString<RundownId>('mockRundownId'),
 						takeCount: 0,
 						brandingId: null,
 						rehearsal: false,
-						playlistActivationId: protectString('mockPlaylistActivationId'),
-						segmentPlayoutId: protectString('mockSegmentPlayoutId'),
+						playlistActivationId: protectString<RundownPlaylistActivationId>('mockPlaylistActivationId'),
+						segmentPlayoutId: protectString<SegmentPlayoutId>('mockSegmentPlayoutId'),
 					} satisfies PlayoutPartInstanceModel['partInstance'],
 					pieceInstances: [] satisfies PlayoutPartInstanceModel['pieceInstances'],
 
@@ -319,7 +325,7 @@ describe('SyncChangesToPartInstancesWorker', () => {
 			const playlistLock = await context.lockPlaylist(playlistId)
 
 			const rundown: DBRundown = {
-				_id: protectString('mockRundownId'),
+				_id: protectString<RundownId>('mockRundownId'),
 				externalId: 'mockExternalId',
 				playlistId: playlistId,
 				showStyleBaseId: showStyleCompound._id,
@@ -342,7 +348,7 @@ describe('SyncChangesToPartInstancesWorker', () => {
 			}
 
 			const segment: DBSegment = {
-				_id: protectString('mockSegmentId'),
+				_id: protectString<SegmentId>('mockSegmentId'),
 				rundownId: rundown._id,
 				name: 'mockSegmentName',
 				externalId: 'mockSegmentExternalId',
@@ -350,7 +356,7 @@ describe('SyncChangesToPartInstancesWorker', () => {
 			}
 
 			const part0: DBPart = {
-				_id: protectString('mockPartId0'),
+				_id: protectString<PartId>('mockPartId0'),
 				segmentId: segment._id,
 				rundownId: rundown._id,
 				title: 'mockPartTitle0',
@@ -361,21 +367,21 @@ describe('SyncChangesToPartInstancesWorker', () => {
 			}
 
 			const nextPartInstance: DBPartInstance = {
-				_id: protectString('mockPartInstanceId'),
+				_id: protectString<PartInstanceId>('mockPartInstanceId'),
 				part: part0,
 				segmentId: segment._id,
 				rundownId: rundown._id,
 				takeCount: 0,
 				brandingId: null,
 				rehearsal: false,
-				playlistActivationId: protectString('mockPlaylistActivationId'),
-				segmentPlayoutId: protectString('mockSegmentPlayoutId'),
+				playlistActivationId: protectString<RundownPlaylistActivationId>('mockPlaylistActivationId'),
+				segmentPlayoutId: protectString<SegmentPlayoutId>('mockSegmentPlayoutId'),
 			}
 
 			const playlist: DBRundownPlaylist = {
 				_id: playlistId,
 				externalId: 'mockExternalId',
-				activationId: protectString('mockActivationId'),
+				activationId: protectString<RundownPlaylistActivationId>('mockActivationId'),
 				defaultBrandingId: null,
 				currentPartInfo: null,
 				nextPartInfo: {
@@ -548,7 +554,12 @@ describe('SyncChangesToPartInstancesWorker', () => {
 			const { playoutModel, part0 } = await createSimplePlayoutModel(context, showStyleCompound)
 
 			// The database still holds the Piece as it was before the ingest operation
-			const savedPiece = defaultPiece(protectString('mockPieceId0'), part0.rundownId, part0.segmentId, part0._id)
+			const savedPiece = defaultPiece(
+				protectString<PieceId>('mockPieceId0'),
+				part0.rundownId,
+				part0.segmentId,
+				part0._id
+			)
 			await context.mockCollections.Pieces.insertOne(savedPiece)
 
 			// The IngestModel holds the updated Piece, which has not been written to the database yet

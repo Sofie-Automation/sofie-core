@@ -10,7 +10,7 @@ import {
 	setupMockShowStyleCompound,
 } from '../../__mocks__/presetCollections.js'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
-import { PartInstanceId, RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartId, PartInstanceId, RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { fixSnapshot } from '../../__mocks__/helpers/snapshot.js'
 import { sortPartsInSortedSegments, sortSegmentsInRundowns } from '@sofie-automation/corelib/dist/playout/playlist'
 import { handleSetNextPart, handleMoveNextPart, handleSetNextSegment, handleQueueNextSegment } from '../setNextJobs.js'
@@ -534,7 +534,7 @@ describe('Playout API', () => {
 
 		const { rundownId: rundownId0, playlistId: playlistId0 } = await setupRundownWithAutoplayPart0(
 			context,
-			protectString('rundown0'),
+			protectString<RundownId>('rundown0'),
 			showStyle
 		)
 
@@ -581,7 +581,7 @@ describe('Playout API', () => {
 			expect(nextPartInstance?.part._id).toBe(parts[1]._id)
 
 			// simulate TSR starting playing part and pieces:
-			const currentPartInstanceId = currentPartInstance?._id || protectString('')
+			const currentPartInstanceId = currentPartInstance?._id || protectString<PartInstanceId>('')
 			const pieceInstances = await getAllPieceInstancesForPartInstance(currentPartInstanceId)
 			expect(pieceInstances).toHaveLength(2)
 			await handleOnPlayoutPlaybackChanged(context, {
@@ -730,7 +730,7 @@ describe('Playout API', () => {
 	test('moveNextPart', async () => {
 		const { rundownId: rundownId0, playlistId: playlistId0 } = await setupRundownWithAutoplayPart0(
 			context,
-			protectString('rundown0'),
+			protectString<RundownId>('rundown0'),
 			showStyle
 		)
 		expect(rundownId0).toBeTruthy()
@@ -796,7 +796,7 @@ describe('Playout API', () => {
 	test('queueNextSegment', async () => {
 		const { rundownId: rundownId0, playlistId: playlistId0 } = await setupRundownWithAutoplayPart0(
 			context,
-			protectString('rundown0'),
+			protectString<RundownId>('rundown0'),
 			showStyle
 		)
 		expect(rundownId0).toBeTruthy()
@@ -884,7 +884,7 @@ describe('Playout API', () => {
 	test('setNextSegment', async () => {
 		const { rundownId: rundownId0, playlistId: playlistId0 } = await setupRundownWithAutoplayPart0(
 			context,
-			protectString('rundown0'),
+			protectString<RundownId>('rundown0'),
 			showStyle
 		)
 		expect(rundownId0).toBeTruthy()
@@ -944,7 +944,7 @@ describe('Playout API', () => {
 	test('onSetAsNext callback', async () => {
 		const { rundownId: rundownId0, playlistId: playlistId0 } = await setupRundownWithAutoplayPart0(
 			context,
-			protectString('rundown0'),
+			protectString<RundownId>('rundown0'),
 			showStyle
 		)
 		expect(rundownId0).toBeTruthy()
@@ -979,7 +979,7 @@ describe('Playout API', () => {
 	test('onTake callback', async () => {
 		const { rundownId: rundownId0, playlistId: playlistId0 } = await setupRundownWithAutoplayPart0(
 			context,
-			protectString('rundown0'),
+			protectString<RundownId>('rundown0'),
 			showStyle
 		)
 		expect(rundownId0).toBeTruthy()
@@ -1022,7 +1022,7 @@ async function setupRundownWithAutoplayPart0(
 	const sourceLayerIds = Object.keys(showStyle.sourceLayers)
 
 	const playlistId = await context.mockCollections.RundownPlaylists.insertOne(
-		defaultRundownPlaylist(protectString(`playlist_${rundownId}`), context.studioId)
+		defaultRundownPlaylist(protectString<RundownPlaylistId>(`playlist_${rundownId}`), context.studioId)
 	)
 
 	const rundown: DBRundown = defaultRundown(
@@ -1045,7 +1045,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Segments.insertOne(segment0)
 
 	const part00: DBPart = {
-		...defaultPart(protectString(rundownId + '_part0_0'), rundown._id, segment0._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part0_0'), rundown._id, segment0._id),
 		externalId: 'MOCK_PART_0_0',
 		title: 'Part 0 0',
 
@@ -1084,7 +1084,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.AdLibPieces.insertOne(adLibPiece000)
 
 	const part01: DBPart = {
-		...defaultPart(protectString(rundownId + '_part0_1'), rundown._id, segment0._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part0_1'), rundown._id, segment0._id),
 		_rank: 1,
 		externalId: 'MOCK_PART_0_1',
 		title: 'Part 0 1',
@@ -1109,7 +1109,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Segments.insertOne(segment1)
 
 	const part10: DBPart = {
-		...defaultPart(protectString(rundownId + '_part1_0'), rundown._id, segment1._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part1_0'), rundown._id, segment1._id),
 		_rank: 0,
 		externalId: 'MOCK_PART_1_0',
 		title: 'Part 1 0',
@@ -1122,7 +1122,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Pieces.insertOne(piece100)
 
 	const part11: DBPart = {
-		...defaultPart(protectString(rundownId + '_part1_1'), rundown._id, segment1._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part1_1'), rundown._id, segment1._id),
 		_rank: 1,
 	}
 	await context.mockCollections.Parts.insertOne(part11)
@@ -1133,7 +1133,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Pieces.insertOne(piece110)
 
 	const part12: DBPart = {
-		...defaultPart(protectString(rundownId + '_part1_2'), rundown._id, segment1._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part1_2'), rundown._id, segment1._id),
 		_rank: 2,
 	}
 	await context.mockCollections.Parts.insertOne(part12)
@@ -1150,7 +1150,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Segments.insertOne(segment2)
 
 	const part20: DBPart = {
-		...defaultPart(protectString(rundownId + '_part2_0'), rundown._id, segment2._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part2_0'), rundown._id, segment2._id),
 		_rank: 0,
 	}
 	await context.mockCollections.Parts.insertOne(part20)
@@ -1161,7 +1161,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Pieces.insertOne(piece200)
 
 	const part21: DBPart = {
-		...defaultPart(protectString(rundownId + '_part2_1'), rundown._id, segment2._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part2_1'), rundown._id, segment2._id),
 		_rank: 1,
 	}
 	await context.mockCollections.Parts.insertOne(part21)
@@ -1172,7 +1172,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Pieces.insertOne(piece210)
 
 	const part22: DBPart = {
-		...defaultPart(protectString(rundownId + '_part2_2'), rundown._id, segment2._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part2_2'), rundown._id, segment2._id),
 		_rank: 2,
 	}
 	await context.mockCollections.Parts.insertOne(part22)
@@ -1184,7 +1184,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Segments.insertOne(segment3)
 
 	const part30: DBPart = {
-		...defaultPart(protectString(rundownId + '_part3_0'), rundown._id, segment2._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part3_0'), rundown._id, segment2._id),
 		_rank: 0,
 	}
 	await context.mockCollections.Parts.insertOne(part30)

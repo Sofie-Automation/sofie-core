@@ -1,5 +1,13 @@
 import { IBlueprintSegmentDB } from '@sofie-automation/blueprints-integration'
 import { PartEventContext, RundownDataChangedEventContext, RundownTimingEventContext } from '../context/index.js'
+import {
+	PartId,
+	PartInstanceId,
+	PieceId,
+	PieceInstanceId,
+	RundownPlaylistActivationId,
+	SegmentPlayoutId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
@@ -19,7 +27,7 @@ import { mock } from 'jest-mock-extended'
 
 describe('Test blueprint api context', () => {
 	async function generateSparsePieceInstances(rundown: DBRundown) {
-		const playlistActivationId = protectString('active')
+		const playlistActivationId = protectString<RundownPlaylistActivationId>('active')
 
 		const parts = await jobContext.mockCollections.Parts.findFetch({ rundownId: rundown._id })
 		for (let i = 0; i < parts.length; i++) {
@@ -27,9 +35,9 @@ describe('Test blueprint api context', () => {
 
 			// make into a partInstance
 			await jobContext.mockCollections.PartInstances.insertOne({
-				_id: protectString(`${part._id}_instance`),
+				_id: protectString<PartInstanceId>(`${part._id}_instance`),
 				playlistActivationId: playlistActivationId,
-				segmentPlayoutId: protectString(part.segmentId + '_1'),
+				segmentPlayoutId: protectString<SegmentPlayoutId>(part.segmentId + '_1'),
 				rundownId: part.rundownId,
 				segmentId: part.segmentId,
 				takeCount: i,
@@ -41,12 +49,12 @@ describe('Test blueprint api context', () => {
 			const count = ((i + 2) % 4) + 1 // Some consistent randomness
 			for (let o = 0; o < count; o++) {
 				await jobContext.mockCollections.PieceInstances.insertOne({
-					_id: protectString(`${part._id}_piece${o}`),
+					_id: protectString<PieceInstanceId>(`${part._id}_piece${o}`),
 					rundownId: rundown._id,
 					playlistActivationId: playlistActivationId,
-					partInstanceId: protectString(`${part._id}_instance`),
+					partInstanceId: protectString<PartInstanceId>(`${part._id}_instance`),
 					piece: {
-						_id: protectString(`${part._id}_piece_inner${o}`),
+						_id: protectString<PieceId>(`${part._id}_piece_inner${o}`),
 						rundownId: rundown._id,
 						partId: part._id,
 						content: {
@@ -93,10 +101,13 @@ describe('Test blueprint api context', () => {
 			})
 
 			const mockPart = {
-				_id: protectString('not-a-real-part'),
+				_id: protectString<PartId>('not-a-real-part'),
 			}
 
-			const tmpPart = wrapPartToTemporaryInstance(protectString('active'), mockPart as DBPart)
+			const tmpPart = wrapPartToTemporaryInstance(
+				protectString<RundownPlaylistActivationId>('active'),
+				mockPart as DBPart
+			)
 			const context = new PartEventContext(jobContext, playoutModel, 'fake', showStyle, rundown, tmpPart)
 			expect(context.studio).toBeTruthy()
 
@@ -190,7 +201,7 @@ describe('Test blueprint api context', () => {
 			})
 
 			// look for a different playlistActivationId
-			partInstance.playlistActivationId = protectString('something-else')
+			partInstance.playlistActivationId = protectString<RundownPlaylistActivationId>('something-else')
 
 			const context2 = await getContext(rundown, undefined, partInstance, undefined)
 			await expect(context2.getFirstPartInstanceInRundown()).rejects.toThrow('No PartInstances found for Rundown')
@@ -255,7 +266,7 @@ describe('Test blueprint api context', () => {
 			await jobContext.mockCollections.PartInstances.insertOne({
 				...partInstance,
 				_id: getRandomId(),
-				segmentPlayoutId: protectString('new segment'),
+				segmentPlayoutId: protectString<SegmentPlayoutId>('new segment'),
 			})
 
 			await expect(
@@ -289,7 +300,7 @@ describe('Test blueprint api context', () => {
 
 			// mark one of the piece as different activation
 			await jobContext.mockCollections.PieceInstances.update(pieceInstance._id, {
-				$set: { playlistActivationId: protectString('another activation') },
+				$set: { playlistActivationId: protectString<RundownPlaylistActivationId>('another activation') },
 			})
 
 			// should now be less

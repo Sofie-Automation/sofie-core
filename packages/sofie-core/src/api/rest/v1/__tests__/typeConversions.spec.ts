@@ -2,7 +2,7 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { APIPeripheralDeviceFrom, buildStudioFromResolved } from '../typeConversion'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { DBStudio, IStudioSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
-import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { IBlueprintConfig, StudioBlueprintManifest } from '@sofie-automation/blueprints-integration'
 import { APIStudio } from '../../../../lib/rest/v1'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
@@ -32,7 +32,7 @@ describe('buildStudioFromResolved', () => {
 			existingStudio,
 			blueprintManifest,
 			blueprintId: protectString('bp1'),
-			studioId: protectString('studio0'),
+			studioId: protectString<StudioId>('studio0'),
 		})
 
 		expect(studio._id).toBe('studio0')
@@ -69,7 +69,7 @@ describe('buildStudioFromResolved', () => {
 			existingStudio,
 			blueprintManifest,
 			blueprintId: protectString('bp1'),
-			studioId: protectString('studio0'),
+			studioId: protectString<StudioId>('studio0'),
 		})
 
 		expect(studio._id).toBe('studio0')
@@ -91,7 +91,7 @@ describe('buildStudioFromResolved', () => {
 describe('APIPeripheralDeviceFrom', () => {
 	function makeDevice(status: PeripheralDevice['status']): PeripheralDevice {
 		return {
-			_id: protectString('device0'),
+			_id: protectString<PeripheralDeviceId>('device0'),
 			name: 'Mock device',
 			connected: true,
 			category: PeripheralDeviceCategory.PLAYOUT,

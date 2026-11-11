@@ -9,6 +9,7 @@ import {
 	getProjectedBrandingId,
 	observeSelectedPartInstancesBranding,
 } from '../branding'
+import { PartInstanceId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 const PartInstancesMock = (PartInstances as any).mockCollection as InMemoryMongoCollection<DBPartInstance>
 
@@ -30,7 +31,7 @@ describe('observeSelectedPartInstancesBranding', () => {
 
 	function selectPartInstances(cache: BrandingContentCache, currentId: string | null, nextId: string | null) {
 		cache.RundownPlaylists.replace({
-			_id: protectString('playlist0'),
+			_id: protectString<RundownPlaylistId>('playlist0'),
 			currentPartInfo: currentId ? ({ partInstanceId: protectString(currentId) } as any) : null,
 			nextPartInfo: nextId ? ({ partInstanceId: protectString(nextId) } as any) : null,
 			defaultBrandingId: 'defaultBranding',
@@ -72,7 +73,7 @@ describe('observeSelectedPartInstancesBranding', () => {
 			}, MAX_WAIT_TIME)
 
 			// A change to the Branding of a selected PartInstance is observed
-			PartInstancesMock.update(protectString('pi1'), { $set: { brandingId: 'brandingZ' } })
+			PartInstancesMock.update(protectString<PartInstanceId>('pi1'), { $set: { brandingId: 'brandingZ' } })
 			await waitUntil(async () => {
 				await runAllTimers()
 				expect(getProjectedBrandingId(cache)).toBe('brandingZ')

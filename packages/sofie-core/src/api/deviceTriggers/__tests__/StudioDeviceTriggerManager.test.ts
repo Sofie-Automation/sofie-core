@@ -231,7 +231,7 @@ function createAndPopulateCache(
 		rundownId,
 		segmentId: segmentId0,
 		playlistActivationId: activationId,
-		segmentPlayoutId: protectString('segmentPlayout0'),
+		segmentPlayoutId: protectString<SegmentId>('segmentPlayout0'),
 		takeCount: 1,
 		rehearsal: false,
 		part: {

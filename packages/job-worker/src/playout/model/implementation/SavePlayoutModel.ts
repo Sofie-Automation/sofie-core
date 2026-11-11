@@ -4,6 +4,7 @@ import {
 	PieceInstanceId,
 	RundownId,
 	RundownPlaylistId,
+	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
@@ -40,7 +41,7 @@ export async function writeAdlibTestingSegments(
 				deleteMany: {
 					filter: {
 						rundownId: rundown.rundown._id,
-						_id: { $ne: adlibTestingSegment?._id ?? protectString('') },
+						_id: { $ne: adlibTestingSegment?._id ?? protectString<SegmentId>('') },
 						orphaned: SegmentOrphanedReason.ADLIB_TESTING,
 					},
 				},

@@ -209,7 +209,7 @@ function rundownPlaylistFilter(
 			case 'studioId':
 				selector['$and']?.push({
 					studioId: {
-						$eq: protectString(link.value),
+						$eq: protectString<StudioId>(link.value),
 					},
 				})
 				break

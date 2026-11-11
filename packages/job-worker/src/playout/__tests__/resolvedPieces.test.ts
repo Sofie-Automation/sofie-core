@@ -28,7 +28,14 @@ import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartIns
 import { setupPieceInstanceInfiniteProperties } from '../pieces.js'
 import { getPartTimingsOrDefaults } from '@sofie-automation/corelib/dist/playout/timings'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { PieceInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	PartId,
+	PartInstanceId,
+	PieceInstanceId,
+	RundownId,
+	RundownPlaylistActivationId,
+	SegmentPlayoutId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 describe('Resolved Pieces', () => {
 	let context: MockJobContext
@@ -67,14 +74,14 @@ describe('Resolved Pieces', () => {
 	): PieceInstance {
 		const piece: PieceInstance = {
 			_id: getRandomId(),
-			playlistActivationId: protectString(''),
-			rundownId: protectString(''),
-			partInstanceId: protectString(''),
+			playlistActivationId: protectString<RundownPlaylistActivationId>(''),
+			rundownId: protectString<RundownId>(''),
+			partInstanceId: protectString<PartInstanceId>(''),
 			disabled: false,
 			piece: {
 				_id: getRandomId(),
 				externalId: '',
-				startPartId: protectString(''),
+				startPartId: protectString<PartId>(''),
 				invalid: false,
 				name: '',
 				content: {},
@@ -412,10 +419,10 @@ describe('Resolved Pieces', () => {
 		): DBPartInstance {
 			return {
 				_id: getRandomId(),
-				rundownId: protectString(''),
+				rundownId: protectString<RundownId>(''),
 				segmentId: protectString(''),
-				playlistActivationId: protectString(''),
-				segmentPlayoutId: protectString(''),
+				playlistActivationId: protectString<RundownPlaylistActivationId>(''),
+				segmentPlayoutId: protectString<SegmentPlayoutId>(''),
 				rehearsal: false,
 
 				takeCount: 0,
@@ -424,7 +431,7 @@ describe('Resolved Pieces', () => {
 				part: {
 					_id: getRandomId(),
 					_rank: 0,
-					rundownId: protectString(''),
+					rundownId: protectString<RundownId>(''),
 					segmentId: protectString(''),
 					externalId: '',
 					title: '',

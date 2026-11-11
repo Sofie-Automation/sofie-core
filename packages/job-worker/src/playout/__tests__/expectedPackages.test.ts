@@ -1,7 +1,11 @@
 import {
+	BucketId,
 	ExpectedPackageId,
+	PartId,
+	PartInstanceId,
 	PieceInstanceId,
 	RundownId,
+	RundownPlaylistActivationId,
 	RundownPlaylistId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString, protectStringArray } from '@sofie-automation/corelib/dist/protectedString'
@@ -39,7 +43,7 @@ describe('handleCleanupOrphanedExpectedPackageReferences', () => {
 				blueprintPackageId: `blueprint_${id}_${i}`,
 				listenToPackageInfoUpdates: false,
 				pieceId: protectString(`piece_${id}_${i}`),
-				partId: protectString(`part_${id}_${i}`),
+				partId: protectString<PartId>(`part_${id}_${i}`),
 				segmentId: protectString(`segment_${id}_${i}`),
 			})
 		}
@@ -75,13 +79,13 @@ describe('handleCleanupOrphanedExpectedPackageReferences', () => {
 		return {
 			_id: protectString<PieceInstanceId>(id),
 			rundownId: rundownId,
-			partInstanceId: protectString('partInstance_0'),
-			playlistActivationId: protectString('activation_0'),
+			partInstanceId: protectString<PartInstanceId>('partInstance_0'),
+			playlistActivationId: protectString<RundownPlaylistActivationId>('activation_0'),
 			reset: reset,
 			neededExpectedPackageIds: protectStringArray(neededPackageIds),
 			piece: {
 				_id: protectString(`piece_${id}`),
-				startPartId: protectString('part_0'),
+				startPartId: protectString<PartId>('part_0'),
 				externalId: `MOCK_PIECE_${id}`,
 				name: `Piece ${id}`,
 				lifespan: 'WithinPart' as any,
@@ -141,12 +145,14 @@ describe('handleCleanupOrphanedExpectedPackageReferences', () => {
 		// Verify packages remain unchanged
 		const packages = await context.directCollections.ExpectedPackages.findFetch({})
 		expect(packages).toHaveLength(2)
-		expect(packages.find((p) => p._id === protectString('package1'))?.playoutSources.pieceInstanceIds).toEqual([
-			protectString('pieceInstance1'),
-		])
-		expect(packages.find((p) => p._id === protectString('package2'))?.playoutSources.pieceInstanceIds).toEqual([
-			protectString('pieceInstance2'),
-		])
+		expect(
+			packages.find((p) => p._id === protectString<ExpectedPackageId>('package1'))?.playoutSources
+				.pieceInstanceIds
+		).toEqual([protectString<PieceInstanceId>('pieceInstance1')])
+		expect(
+			packages.find((p) => p._id === protectString<ExpectedPackageId>('package2'))?.playoutSources
+				.pieceInstanceIds
+		).toEqual([protectString<PieceInstanceId>('pieceInstance2')])
 	})
 
 	test('removes orphaned package reference when piece instance no longer exists', async () => {
@@ -231,7 +237,9 @@ describe('handleCleanupOrphanedExpectedPackageReferences', () => {
 		// Verify the result - only valid reference remains
 		const packages = await context.directCollections.ExpectedPackages.findFetch({})
 		expect(packages).toHaveLength(1)
-		expect(packages[0].playoutSources.pieceInstanceIds).toEqual([protectString('validPieceInstance')])
+		expect(packages[0].playoutSources.pieceInstanceIds).toEqual([
+			protectString<PieceInstanceId>('validPieceInstance'),
+		])
 	})
 
 	test('removes reference when piece instance exists but does not reference the package', async () => {
@@ -364,10 +372,10 @@ describe('handleCleanupOrphanedExpectedPackageReferences', () => {
 		const package5 = packages.find((p) => p._id === package5Id)
 
 		// Packages with only valid references should be unchanged
-		expect(package1?.playoutSources.pieceInstanceIds).toEqual([protectString('pieceInstance1')])
-		expect(package2?.playoutSources.pieceInstanceIds).toEqual([protectString('pieceInstance2')])
+		expect(package1?.playoutSources.pieceInstanceIds).toEqual([protectString<PieceInstanceId>('pieceInstance1')])
+		expect(package2?.playoutSources.pieceInstanceIds).toEqual([protectString<PieceInstanceId>('pieceInstance2')])
 		// Package3 should have orphaned reference removed, valid one kept
-		expect(package3?.playoutSources.pieceInstanceIds).toEqual([protectString('pieceInstance1')])
+		expect(package3?.playoutSources.pieceInstanceIds).toEqual([protectString<PieceInstanceId>('pieceInstance1')])
 		// Package4 should be deleted
 		expect(package4).toBeUndefined()
 		// Package5 should have pieceInstanceIds cleared
@@ -411,7 +419,9 @@ describe('handleCleanupOrphanedExpectedPackageReferences', () => {
 		const packageCurrent = packages.find((p) => p._id === protectString<ExpectedPackageId>('packageCurrent'))
 
 		// packageOther should be untouched (has different rundownId)
-		expect(packageOther?.playoutSources.pieceInstanceIds).toEqual([protectString('orphanedPieceInstance')])
+		expect(packageOther?.playoutSources.pieceInstanceIds).toEqual([
+			protectString<PieceInstanceId>('orphanedPieceInstance'),
+		])
 		// packageCurrent should be deleted
 		expect(packageCurrent).toBeUndefined()
 	})
@@ -420,7 +430,7 @@ describe('handleCleanupOrphanedExpectedPackageReferences', () => {
 		// Create a bucket package (should not be affected since it has bucketId set)
 		const bucketPackage = createMockExpectedPackage('bucketPackage', ['orphanedPieceInstance'])
 		bucketPackage.rundownId = null
-		bucketPackage.bucketId = protectString('bucket1')
+		bucketPackage.bucketId = protectString<BucketId>('bucket1')
 		await context.mockCollections.ExpectedPackages.insertOne(bucketPackage)
 
 		// Create expected package for current rundown with orphaned reference
@@ -452,7 +462,9 @@ describe('handleCleanupOrphanedExpectedPackageReferences', () => {
 		const rundownPkg = packages.find((p) => p._id === protectString<ExpectedPackageId>('rundownPackage'))
 
 		// bucketPackage should be untouched (has different bucketId, not matched by query)
-		expect(bucketPkg?.playoutSources.pieceInstanceIds).toEqual([protectString('orphanedPieceInstance')])
+		expect(bucketPkg?.playoutSources.pieceInstanceIds).toEqual([
+			protectString<PieceInstanceId>('orphanedPieceInstance'),
+		])
 		// rundownPackage should be deleted
 		expect(rundownPkg).toBeUndefined()
 	})

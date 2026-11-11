@@ -39,7 +39,7 @@ import { MediaObjects } from '../../../collections'
 import { PieceDependencies } from '../common'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
 import { PieceContentStatusMessageFactory } from '../messageFactory'
-import { RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { MediaObjId, RundownId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 const mockMediaObjectsCollection = MongoMock.getInnerMockCollection<MediaObject>(MediaObjects)
 
@@ -264,7 +264,7 @@ describe('lib/mediaObjects', () => {
 			shelfAdlibButtonSize: ShelfButtonSize.LARGE,
 		}
 
-		const mockDefaultStudio = defaultStudio(protectString('studio0'))
+		const mockDefaultStudio = defaultStudio(protectString<StudioId>('studio0'))
 		const mockStudio: Complete<PieceContentStatusStudio> = {
 			_id: mockDefaultStudio._id,
 			settings: mockStudioSettings,
@@ -279,7 +279,7 @@ describe('lib/mediaObjects', () => {
 
 		mockMediaObjectsCollection.insert(
 			literal<MediaObject>({
-				_id: protectString(''),
+				_id: protectString<MediaObjId>(''),
 				_attachments: {},
 				_rev: '',
 				cinf: '',
@@ -334,7 +334,7 @@ describe('lib/mediaObjects', () => {
 				previewPath: '',
 				previewSize: 0,
 				previewTime: 0,
-				studioId: protectString('studio0'),
+				studioId: protectString<StudioId>('studio0'),
 				thumbSize: 0,
 				thumbTime: 0,
 				tinf: '',
@@ -343,7 +343,7 @@ describe('lib/mediaObjects', () => {
 
 		mockMediaObjectsCollection.insert(
 			literal<MediaObject>({
-				_id: protectString(''),
+				_id: protectString<MediaObjId>(''),
 				_attachments: {},
 				_rev: '',
 				cinf: '',
@@ -398,7 +398,7 @@ describe('lib/mediaObjects', () => {
 				previewPath: '',
 				previewSize: 0,
 				previewTime: 0,
-				studioId: protectString('studio0'),
+				studioId: protectString<StudioId>('studio0'),
 				thumbSize: 0,
 				thumbTime: 0,
 				tinf: '',
@@ -499,7 +499,7 @@ describe('lib/mediaObjects', () => {
 			shelfAdlibButtonSize: ShelfButtonSize.LARGE,
 		}
 
-		const mockDefaultStudio = defaultStudio(protectString('studio0'))
+		const mockDefaultStudio = defaultStudio(protectString<StudioId>('studio0'))
 		const mockStudio: Complete<PieceContentStatusStudio> = {
 			_id: mockDefaultStudio._id,
 			settings: mockStudioSettings,
@@ -563,7 +563,7 @@ describe('lib/mediaObjects', () => {
 			shelfAdlibButtonSize: ShelfButtonSize.LARGE,
 		}
 
-		const mockDefaultStudio = defaultStudio(protectString('studio0'))
+		const mockDefaultStudio = defaultStudio(protectString<StudioId>('studio0'))
 		const mockStudio: Complete<PieceContentStatusStudio> = {
 			_id: mockDefaultStudio._id,
 			settings: mockStudioSettings,
@@ -578,7 +578,7 @@ describe('lib/mediaObjects', () => {
 
 		mockMediaObjectsCollection.insert(
 			literal<MediaObject>({
-				_id: protectString(''),
+				_id: protectString<MediaObjId>(''),
 				_attachments: {},
 				_rev: '',
 				cinf: '',
@@ -633,7 +633,7 @@ describe('lib/mediaObjects', () => {
 				previewPath: '',
 				previewSize: 0,
 				previewTime: 0,
-				studioId: protectString('studio0'),
+				studioId: protectString<StudioId>('studio0'),
 				thumbSize: 0,
 				thumbTime: 0,
 				tinf: '',
@@ -665,7 +665,7 @@ describe('lib/mediaObjects', () => {
 
 		mockMediaObjectsCollection.insert(
 			literal<MediaObject>({
-				_id: protectString(''),
+				_id: protectString<MediaObjId>(''),
 				_attachments: {},
 				_rev: '',
 				cinf: '',
@@ -720,7 +720,7 @@ describe('lib/mediaObjects', () => {
 				previewPath: '',
 				previewSize: 0,
 				previewTime: 0,
-				studioId: protectString('studio0'),
+				studioId: protectString<StudioId>('studio0'),
 				thumbSize: 0,
 				thumbTime: 0,
 				tinf: '',
@@ -835,7 +835,7 @@ describe('lib/mediaObjects', () => {
 			shelfAdlibButtonSize: ShelfButtonSize.LARGE,
 		}
 
-		const mockDefaultStudio = defaultStudio(protectString('studio0'))
+		const mockDefaultStudio = defaultStudio(protectString<StudioId>('studio0'))
 		const mockStudio: Complete<PieceContentStatusStudio> = {
 			_id: mockDefaultStudio._id,
 			settings: mockStudioSettings,
@@ -861,7 +861,7 @@ describe('lib/mediaObjects', () => {
 		async function insertMediaObject(mediaId: string): Promise<void> {
 			mockMediaObjectsCollection.insert(
 				literal<MediaObject>({
-					_id: protectString(''),
+					_id: protectString<MediaObjId>(''),
 					_attachments: {},
 					_rev: '',
 					cinf: '',
@@ -888,7 +888,7 @@ describe('lib/mediaObjects', () => {
 					previewPath: 'previews',
 					previewSize: 0,
 					previewTime: 0,
-					studioId: protectString('studio0'),
+					studioId: protectString<StudioId>('studio0'),
 					thumbSize: 0,
 					thumbTime: 0,
 					tinf: '',

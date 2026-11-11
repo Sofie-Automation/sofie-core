@@ -42,7 +42,7 @@ export async function setTimelineDatastoreValue(
 	mode: DatastorePersistenceMode
 ): Promise<void> {
 	const studioId = context.studioId
-	const id = protectString(`${studioId}_${key}`)
+	const id = protectString<TimelineDatastoreEntryId>(`${studioId}_${key}`)
 	const collection = context.directCollections.TimelineDatastores
 
 	await collection.replace({

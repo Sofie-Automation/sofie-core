@@ -13,6 +13,8 @@ import {
 	PackageInfos,
 } from '../../collections'
 import { PackageManagerIntegration } from '../integration/expectedPackages'
+import { ExpectedPackageId } from '@sofie-automation/corelib/src/dataModel/Ids'
+import { ExpectedPackageWorkStatusId } from '@sofie-automation/corelib/src/dataModel/Ids'
 
 describe('PackageManagerIntegration', () => {
 	let env: Awaited<ReturnType<typeof setupDefaultStudioEnvironment>>
@@ -23,7 +25,7 @@ describe('PackageManagerIntegration', () => {
 	})
 
 	test('updates and cleans expected package work statuses for a device', async () => {
-		const packageId = protectString('expectedPackage_1')
+		const packageId = protectString<ExpectedPackageId>('expectedPackage_1')
 		await ExpectedPackages.mutableCollection.insertAsync({
 			_id: packageId,
 			studioId: env.studio._id,
@@ -37,8 +39,8 @@ describe('PackageManagerIntegration', () => {
 			},
 		})
 
-		const workStatusId1 = protectString('work_status_1')
-		const workStatusId2 = protectString('work_status_2')
+		const workStatusId1 = protectString<ExpectedPackageWorkStatusId>('work_status_1')
+		const workStatusId2 = protectString<ExpectedPackageWorkStatusId>('work_status_2')
 
 		const baseStatus = {
 			label: 'Copy package',
@@ -110,7 +112,7 @@ describe('PackageManagerIntegration', () => {
 	})
 
 	test('updates package container statuses and metadata', async () => {
-		const packageId = protectString('expectedPackage_2')
+		const packageId = protectString<ExpectedPackageId>('expectedPackage_2')
 		const containerId = 'container-a'
 		const packageInfoType = PackageInfo.Type.JSON
 		const packageContainerPackageId = getPackageContainerPackageId(env.studio._id, containerId, packageId)

@@ -30,5 +30,5 @@ export interface PackageContainerStatusDB {
 }
 
 export function getPackageContainerId(studioId: StudioId, containerId: string): PackageContainerId {
-	return protectString(`${studioId}_${containerId}`)
+	return protectString<PackageContainerId>(`${studioId}_${containerId}`)
 }

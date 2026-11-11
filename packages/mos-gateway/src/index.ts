@@ -1,7 +1,7 @@
 import { Connector, Config } from './connector.js'
 import * as Winston from 'winston'
 import _ from 'underscore'
-import { protectString, stringifyError } from '@sofie-automation/server-core-integration'
+import { PeripheralDeviceId, protectString, stringifyError } from '@sofie-automation/server-core-integration'
 
 console.log('process started') // This is a message all Sofie processes log upon startup
 
@@ -202,7 +202,7 @@ const config: Config = {
 		certificates: _.compact(certs),
 	},
 	device: {
-		deviceId: protectString(deviceId),
+		deviceId: protectString<PeripheralDeviceId>(deviceId),
 		deviceToken: deviceToken,
 	},
 	core: {

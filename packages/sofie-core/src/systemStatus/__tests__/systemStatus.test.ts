@@ -3,6 +3,7 @@ import { setupDefaultStudioEnvironment, DefaultEnvironment } from '../../__mocks
 import { generateTranslation, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { sleepNoFakeTimers } from '../../__mocks__/time'
+import { ShowStyleBaseId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { status2ExternalStatus, setSystemStatus } from '../systemStatus'
 import { StatusResponse } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import { stripVersion } from '../semverUtils'
@@ -261,7 +262,7 @@ describe('systemStatus', () => {
 					{
 						_id: protectString('studio-studio0'),
 						documentType: 'studio',
-						documentId: protectString('studio0'),
+						documentId: protectString<StudioId>('studio0'),
 						name: 'Test Studio #0',
 						pendingRunOfFixupFunction: false,
 						changes: [generateTranslation('something changed')],
@@ -269,7 +270,7 @@ describe('systemStatus', () => {
 					{
 						_id: protectString('studio-studio1'),
 						documentType: 'studio',
-						documentId: protectString('studio1'),
+						documentId: protectString<StudioId>('studio1'),
 						name: 'Test Studio #1',
 						invalidReason: generateTranslation('some invalid reason'),
 						pendingRunOfFixupFunction: false,
@@ -297,7 +298,7 @@ describe('systemStatus', () => {
 					{
 						_id: protectString('studio-studio0'),
 						documentType: 'studio',
-						documentId: protectString('studio0'),
+						documentId: protectString<StudioId>('studio0'),
 						name: 'Test Studio #0',
 						pendingRunOfFixupFunction: false,
 						changes: [generateTranslation('something changed')],
@@ -305,7 +306,7 @@ describe('systemStatus', () => {
 					{
 						_id: protectString('studio-studio1'),
 						documentType: 'studio',
-						documentId: protectString('studio1'),
+						documentId: protectString<StudioId>('studio1'),
 						name: 'Test Studio #1',
 						pendingRunOfFixupFunction: false,
 						changes: [],
@@ -332,7 +333,7 @@ describe('systemStatus', () => {
 					{
 						_id: protectString('studio-studio0'),
 						documentType: 'studio',
-						documentId: protectString('studio0'),
+						documentId: protectString<StudioId>('studio0'),
 						name: 'Test Studio #0',
 						pendingRunOfFixupFunction: false,
 						changes: [],
@@ -340,7 +341,7 @@ describe('systemStatus', () => {
 					{
 						_id: protectString('studio-studio1'),
 						documentType: 'studio',
-						documentId: protectString('studio1'),
+						documentId: protectString<StudioId>('studio1'),
 						name: 'Test Studio #1',
 						pendingRunOfFixupFunction: false,
 						changes: [],
@@ -367,7 +368,7 @@ describe('systemStatus', () => {
 					{
 						_id: protectString('showStyle-showStyleBase0'),
 						documentType: 'showStyle',
-						documentId: protectString('showStyleBase0'),
+						documentId: protectString<ShowStyleBaseId>('showStyleBase0'),
 						name: 'Test Show Style Base #0',
 						pendingRunOfFixupFunction: false,
 						changes: [generateTranslation('something changed')],
@@ -375,7 +376,7 @@ describe('systemStatus', () => {
 					{
 						_id: protectString('showStyle-showStyleBase1'),
 						documentType: 'showStyle',
-						documentId: protectString('showStyleBase1'),
+						documentId: protectString<ShowStyleBaseId>('showStyleBase1'),
 						name: 'Test Show Style Base #1',
 						invalidReason: generateTranslation('some invalid reason'),
 						pendingRunOfFixupFunction: false,
@@ -403,7 +404,7 @@ describe('systemStatus', () => {
 					{
 						_id: protectString('showStyle-showStyleBase0'),
 						documentType: 'showStyle',
-						documentId: protectString('showStyleBase0'),
+						documentId: protectString<ShowStyleBaseId>('showStyleBase0'),
 						name: 'Test Show Style Base #0',
 						pendingRunOfFixupFunction: false,
 						changes: [generateTranslation('something changed')],
@@ -411,7 +412,7 @@ describe('systemStatus', () => {
 					{
 						_id: protectString('showStyle-showStyleBase1'),
 						documentType: 'showStyle',
-						documentId: protectString('showStyleBase1'),
+						documentId: protectString<ShowStyleBaseId>('showStyleBase1'),
 						name: 'Test Show Style Base #1',
 						pendingRunOfFixupFunction: false,
 						changes: [],
@@ -438,7 +439,7 @@ describe('systemStatus', () => {
 					{
 						_id: protectString('showStyle-showStyleBase0'),
 						documentType: 'showStyle',
-						documentId: protectString('showStyleBase0'),
+						documentId: protectString<ShowStyleBaseId>('showStyleBase0'),
 						name: 'Test Show Style Base #0',
 						pendingRunOfFixupFunction: false,
 						changes: [],
@@ -446,7 +447,7 @@ describe('systemStatus', () => {
 					{
 						_id: protectString('showStyle-showStyleBase1'),
 						documentType: 'showStyle',
-						documentId: protectString('showStyleBase1'),
+						documentId: protectString<ShowStyleBaseId>('showStyleBase1'),
 						name: 'Test Show Style Base #1',
 						pendingRunOfFixupFunction: false,
 						changes: [],

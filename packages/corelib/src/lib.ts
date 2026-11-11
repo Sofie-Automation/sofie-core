@@ -1,7 +1,6 @@
 import _ from 'underscore'
 import { ReadonlyDeep } from 'type-fest'
 import fastClone from 'fast-clone'
-import { ProtectedString, protectString } from './protectedString.js'
 import * as objectPath from 'object-path'
 import { Timecode } from './timecode.js'
 import { iterateDeeply, iterateDeeplyEnum, Time } from '@sofie-automation/blueprints-integration'
@@ -9,6 +8,7 @@ import { IStudioSettings } from './dataModel/Studio.js'
 import { customAlphabet as createNanoid } from 'nanoid'
 import type { ITranslatableMessage } from './TranslatableMessage.js'
 import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
+import { UnknownProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 
 /**
  * Limited character set to use for id generation
@@ -101,8 +101,8 @@ export function getRandomString(numberOfChars?: number): string {
 	return nanoid(numberOfChars)
 }
 
-export function getRandomId<T extends ProtectedString<any>>(numberOfChars?: number): T {
-	return protectString(getRandomString(numberOfChars))
+export function getRandomId<T extends UnknownProtectedString>(numberOfChars?: number): T {
+	return getRandomString(numberOfChars) as any
 }
 
 /**

@@ -317,7 +317,7 @@ export async function runMigrationFromTrusted(
 	}
 
 	const warningMessages: Array<string> = []
-	let snapshotId: SnapshotId = protectString('')
+	let snapshotId = protectString<SnapshotId>('')
 	if (isFirstOfPartialMigrations) {
 		// First, take a system snapshot:
 		const storePath = getSystemStorePath()

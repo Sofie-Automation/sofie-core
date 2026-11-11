@@ -12,6 +12,7 @@ import {
 	resolvePieceInstancesForBranding,
 } from '../branding.js'
 import { PlayoutPartInstanceModel } from '../model/PlayoutPartInstanceModel.js'
+import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 function createPieceInstance(
 	piecePartial?: Partial<Pick<PieceInstancePiece, 'name' | 'sourceLayerId' | 'onlyValidForBranding' | 'branding'>>
@@ -25,7 +26,7 @@ function createPieceInstance(
 		piece: {
 			_id: getRandomId(),
 			externalId: '',
-			startPartId: protectString(''),
+			startPartId: protectString<PartId>(''),
 			invalid: false,
 			name: piecePartial?.name ?? 'unbranded-name',
 			content: {},

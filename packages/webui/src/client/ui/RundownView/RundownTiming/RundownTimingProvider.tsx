@@ -12,7 +12,12 @@ import {
 	type TimingId,
 	findPartInstancesInQuickLoop,
 } from '../../../lib/rundownTiming.js'
-import type { PartId, PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type {
+	PartId,
+	PartInstanceId,
+	RundownPlaylistActivationId,
+	SegmentId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 import { sortPartInstancesInSortedSegments } from '@sofie-automation/corelib/dist/playout/playlist'
 import { RundownPlaylistClientUtil } from '../../../lib/rundownPlaylistUtil.js'
@@ -123,7 +128,9 @@ export const RundownTimingProvider = withTracker<
 
 	for (const part of unorderedParts) {
 		if (allPartIds.has(part._id)) continue
-		partInstances.push(wrapPartToTemporaryInstance(playlist.activationId ?? protectString(''), part))
+		partInstances.push(
+			wrapPartToTemporaryInstance(playlist.activationId ?? protectString<RundownPlaylistActivationId>(''), part)
+		)
 	}
 
 	partInstances = sortPartInstancesInSortedSegments(partInstances, segments)

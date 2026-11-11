@@ -113,7 +113,7 @@ export class SyncIngestUpdateToPartInstanceContext
 		pieceInstanceId: string,
 		modifiedPiece?: Omit<IBlueprintPiece, 'lifespan'>
 	): IBlueprintPieceInstance {
-		const proposedPieceInstance = this.#proposedPieceInstances.get(protectString(pieceInstanceId))
+		const proposedPieceInstance = this.#proposedPieceInstances.get(protectString<PieceInstanceId>(pieceInstanceId))
 		if (!proposedPieceInstance) {
 			throw new Error(`PieceInstance "${pieceInstanceId}" could not be found`)
 		}
@@ -181,7 +181,7 @@ export class SyncIngestUpdateToPartInstanceContext
 
 		if (!this.#partInstance) throw new Error(`PartInstance has been removed`)
 
-		const pieceInstance = this.#partInstance.getPieceInstance(protectString(pieceInstanceId))
+		const pieceInstance = this.#partInstance.getPieceInstance(protectString<PieceInstanceId>(pieceInstanceId))
 		if (!pieceInstance) {
 			throw new Error(`PieceInstance "${pieceInstanceId}" could not be found`)
 		}

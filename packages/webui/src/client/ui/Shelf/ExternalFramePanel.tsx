@@ -34,6 +34,7 @@ import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown.j
 import { Buckets, Rundowns, Segments } from '../../collections/index.js'
 import type {
 	BucketId,
+	PartId,
 	PartInstanceId,
 	RundownId,
 	RundownPlaylistId,
@@ -217,7 +218,7 @@ export const ExternalFramePanel: React.ComponentType<IProps> = withTranslation()
 			}
 
 			if (el) {
-				return protectString(el.dataset.bucketId)
+				return protectString<BucketId>(el.dataset.bucketId)
 			}
 
 			return undefined
@@ -234,7 +235,7 @@ export const ExternalFramePanel: React.ComponentType<IProps> = withTranslation()
 			const partId = el?.dataset.partId
 
 			if (partId) {
-				const part = UIParts.findOne(protectString(partId))
+				const part = UIParts.findOne(protectString<PartId>(partId))
 				const supportsOp = part?.userEditOperations?.find(
 					(op) => op.type === UserEditingType.SOFIE && op.id === DefaultUserOperationsTypes.IMPORT_MOS_ITEM
 				)
@@ -349,7 +350,7 @@ export const ExternalFramePanel: React.ComponentType<IProps> = withTranslation()
 				MeteorCall.userAction.bucketAdlibImport(
 					e,
 					ts,
-					targetBucket ? targetBucket._id : protectString(''),
+					targetBucket ? targetBucket._id : protectString<BucketId>(''),
 					showStyleBaseId,
 					literal<IngestAdlib>({
 						externalId: mosItem.ObjectID ? mosTypes.mosString128.stringify(mosItem.ObjectID) : '',
@@ -672,7 +673,7 @@ export const ExternalFramePanel: React.ComponentType<IProps> = withTranslation()
 					return MeteorCall.userAction.bucketAdlibImport(
 						e,
 						ts,
-						targetBucket ? targetBucket._id : protectString(''),
+						targetBucket ? targetBucket._id : protectString<BucketId>(''),
 						showStyleBaseId,
 						literal<IngestAdlib>({
 							externalId: mosItem.ObjectID ? mosTypes.mosString128.stringify(mosItem.ObjectID) : '',

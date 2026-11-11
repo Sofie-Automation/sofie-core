@@ -328,7 +328,7 @@ export function removeSystemStatus(type: string): void {
 	delete systemStatuses[type]
 }
 /** Random id for this running instance of core */
-const instanceId: SystemInstanceId = getRandomId()
+const instanceId = getRandomId<SystemInstanceId>()
 /** Map of surrent system statuses */
 const systemStatuses: { [key: string]: StatusObjectInternal } = {}
 function setStatus(statusObj: StatusResponse | Component): StatusCode {

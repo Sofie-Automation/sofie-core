@@ -1,6 +1,7 @@
 import { PlaylistTimingType } from '@sofie-automation/blueprints-integration'
 import { PlaylistActivationStatus, ResolvedPlaylistTimingType } from '@sofie-automation/live-status-gateway-api'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { PartInstanceId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { toResolvedPlaylistStatus } from '../events/toResolvedPlaylistStatus.js'
 import {
 	makePart,
@@ -52,8 +53,8 @@ describe('toResolvedPlaylistStatus', () => {
 			rehearsal: true,
 			quickLoop: makeQuickLoop(),
 			defaultBrandingId: null,
-			currentPartInfo: { partInstanceId: protectString('current_pi') },
-			nextPartInfo: { partInstanceId: protectString('next_pi') },
+			currentPartInfo: { partInstanceId: protectString<PartInstanceId>('current_pi') },
+			nextPartInfo: { partInstanceId: protectString<PartInstanceId>('next_pi') },
 			startedPlayback: 1706371806000,
 			timing: { type: PlaylistTimingType.BackTime, expectedDuration: 15000, expectedEnd: 1706371821000 },
 		})
@@ -94,7 +95,7 @@ describe('toResolvedPlaylistStatus', () => {
 				locked: false,
 				running: true,
 				start: { type: unknownMarkerType },
-				end: { type: 'rundown', id: protectString('rundown0') },
+				end: { type: 'rundown', id: protectString<RundownId>('rundown0') },
 			} as any,
 		})
 
