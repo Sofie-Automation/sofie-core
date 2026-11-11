@@ -1,4 +1,5 @@
-import { MongoClient, Db } from 'mongodb'
+import { MongoClient, Db, type MongoClientOptions } from 'mongodb'
+import * as os from 'os'
 import { logger } from '../logging'
 
 /**
@@ -29,12 +30,18 @@ export function parseMongoConnectionString(): { uri: string; dbName: string } {
 	return { uri: rawUrl.toString(), dbName }
 }
 
+export const MONGO_CLIENT_OPTIONS: MongoClientOptions = {
+	ignoreUndefined: true,
+	// Hand the driver `os` directly. Otherwise it loads it with a dynamic `import()`, which throws inside
+	// jest's vm sandbox; the driver swallows that and sends an empty handshake `client` document, which
+	// mongod rejects ("Missing required sub-document 'driver' in the client metadata document").
+	runtimeAdapters: { os },
+}
+
 export function getMongoClient(): MongoClient {
 	if (!client) {
 		const { uri } = parseMongoConnectionString()
-		client = new MongoClient(uri, {
-			ignoreUndefined: true,
-		})
+		client = new MongoClient(uri, MONGO_CLIENT_OPTIONS)
 	}
 	return client
 }

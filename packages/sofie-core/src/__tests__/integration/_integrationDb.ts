@@ -5,6 +5,7 @@
  */
 import { MongoClient, Collection, Document } from 'mongodb'
 import { randomBytes } from 'crypto'
+import { MONGO_CLIENT_OPTIONS } from '../../collections/mongoConnection'
 
 /** Open a client against the shared replica set. Each test file should do this once in `beforeAll`. */
 export async function connectSharedMongoClient(): Promise<MongoClient> {
@@ -12,8 +13,7 @@ export async function connectSharedMongoClient(): Promise<MongoClient> {
 	if (!url) {
 		throw new Error('MONGO_URL is not set - the integration globalSetup (shared replset) did not run')
 	}
-	// Match the production driver options (see server/collections/mongoConnection.ts).
-	const client = new MongoClient(url, { ignoreUndefined: true })
+	const client = new MongoClient(url, MONGO_CLIENT_OPTIONS)
 	await client.connect()
 	return client
 }

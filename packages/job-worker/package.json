@@ -40,23 +40,23 @@
 		"@sofie-automation/corelib": "26.9.3",
 		"@sofie-automation/shared-lib": "26.9.3",
 		"amqplib": "0.10.5",
-		"chrono-node": "^2.9.1",
+		"chrono-node": "^2.10.3",
 		"deepmerge": "^4.3.1",
 		"elastic-apm-node": "^4.18.0",
-		"mongodb": "^7.1.1",
+		"mongodb": "^7.8.0",
 		"p-lazy": "^3.1.0",
 		"p-timeout": "^4.1.0",
 		"superfly-timeline": "9.2.0",
-		"threadedclass": "^1.4.0",
-		"tslib": "^2.8.1",
+		"threadedclass": "^1.4.1",
+		"tslib": "^2.9.1",
 		"type-fest": "^4.41.0",
 		"underscore": "^1.13.8"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"packageManager": "yarn@4.17.0",
 	"devDependencies": {
-		"jest": "^30.4.2",
-		"jest-mock-extended": "^4.0.1",
+		"jest": "^30.5.2",
+		"jest-mock-extended": "^4.0.2",
 		"typescript": "~5.9.3"
 	}
 }
