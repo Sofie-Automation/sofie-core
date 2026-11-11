@@ -16,6 +16,7 @@ import {
 	SomeContent,
 	Time,
 	WithTimeline,
+	BlueprintQuickLookInfo,
 } from '@sofie-automation/blueprints-integration'
 import {
 	IBlueprintPieceObjectsSampleKeys,
@@ -69,7 +70,6 @@ import _ from 'underscore'
 import { syncPlayheadInfinitesForNextPartInstance } from '../../../playout/infinites.js'
 import { validateAdlibTestingPartInstanceProperties } from '../../../playout/adlibTesting.js'
 import { DBPart, isPartPlayable } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 
 export enum ActionPartChange {
 	NONE = 0,

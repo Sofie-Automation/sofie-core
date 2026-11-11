@@ -1,5 +1,5 @@
-import { TranslationsBundleType } from '@sofie-automation/blueprints-integration'
-import { TranslationsBundleId, TranslationsBundleOriginId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { TranslationsBundleType } from '@sofie-automation/blueprints-integration'
+import type { TranslationsBundleId, TranslationsBundleOriginId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
 
 export type Translation = { original: string; translation: string }
 

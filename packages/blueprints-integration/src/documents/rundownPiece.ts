@@ -1,4 +1,4 @@
-import { IBlueprintPieceGeneric } from './pieceGeneric.js'
+import type { IBlueprintPieceGeneric } from './pieceGeneric.js'
 
 /**
  * A variant of a Piece, that is owned by the Rundown.

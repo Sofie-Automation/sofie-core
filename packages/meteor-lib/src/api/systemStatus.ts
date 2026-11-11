@@ -1,7 +1,7 @@
-import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { StatusCode } from '@sofie-automation/blueprints-integration'
-import { PeripheralDeviceId, SystemInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-export { SystemInstanceId }
+import type { ProtectedString } from '@sofie-automation/corelib/dist/protectedString.js'
+import type { StatusCode } from '@sofie-automation/blueprints-integration'
+import type { PeripheralDeviceId, SystemInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
+export type { SystemInstanceId }
 
 export type ExternalStatus = 'OK' | 'FAIL' | 'WARNING' | 'UNDEFINED'
 

@@ -19,6 +19,7 @@ import {
 	SomeContent,
 	WithTimeline,
 	Time,
+	IPlaylistTTimer,
 } from '@sofie-automation/blueprints-integration'
 import { postProcessPieces, postProcessTimelineObjects } from '../postProcess.js'
 import { sanitisePieceBrandingFromBlueprint } from '../postProcessBranding.js'
@@ -40,7 +41,6 @@ import { getCurrentTime } from '../../lib/index.js'
 import { TTimersService } from './services/TTimersService.js'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { RundownTTimer, RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
-import type { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
 
 export class SyncIngestUpdateToPartInstanceContext
 	extends RundownUserContext

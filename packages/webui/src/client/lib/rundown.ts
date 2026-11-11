@@ -1,5 +1,5 @@
 import type { PartUi } from '../ui/SegmentTimeline/SegmentTimelineContainer.js'
-import { Timecode } from '@sofie-automation/corelib/dist/index'
+import { Timecode } from '@sofie-automation/corelib/dist/timecode'
 import { DEFAULT_DISPLAY_DURATION } from '@sofie-automation/shared-lib/dist/core/constants'
 import type { TFunction } from 'i18next'
 import {

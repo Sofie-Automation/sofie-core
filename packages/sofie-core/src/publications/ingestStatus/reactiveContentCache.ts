@@ -1,5 +1,5 @@
 import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection/index'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import type { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'
 import type { NrcsIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'

@@ -1,5 +1,5 @@
 import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
-import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection/index'
 import { AsyncOnlyMongoCollection, AsyncOnlyReadOnlyMongoCollection } from '../collections/collection'
 import { Collections } from '../collections/lib'
 

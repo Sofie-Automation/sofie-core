@@ -1,6 +1,6 @@
-import { protectString, ProtectedString } from '../../protectedString.js'
-import { MongoFieldSpecifier, MongoQuery } from '../../mongo.js'
-import { ObserveView, ObserveViewShape, ObserveViewSink, fieldsFor } from '../observeView.js'
+import { protectString, type ProtectedString } from '../../protectedString.js'
+import type { MongoFieldSpecifier, MongoQuery } from '../../mongo.js'
+import { ObserveView, type ObserveViewShape, type ObserveViewSink, fieldsFor } from '../observeView.js'
 import type { ChangeStreamDocument } from 'mongodb'
 
 interface Thing {

@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import { ProtectedString } from './protectedString.js'
+import type { ProtectedString } from './protectedString.js'
 import * as objectPath from 'object-path'
 import type {
 	Condition,

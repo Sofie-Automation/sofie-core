@@ -54,7 +54,7 @@ import type { ExpectedPackage } from '../package.js'
 import type { ABResolverConfiguration } from '../abPlayback.js'
 import type { SofieIngestSegment } from '../ingest-types.js'
 import { PackageStatusMessage } from '@sofie-automation/shared-lib/dist/packageStatusMessages'
-import { BlueprintPlayoutPersistentStore } from '../context/playoutStore.js'
+import type { BlueprintPlayoutPersistentStore } from '../context/playoutStore.js'
 import type { ITranslatableMessage } from '../translations.js'
 import type { BlueprintExternalEvent, BlueprintExternalEventSubscription } from '../externalEvent.js'
 

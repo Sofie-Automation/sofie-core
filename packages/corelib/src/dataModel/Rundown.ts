@@ -1,9 +1,9 @@
-import {
+import type {
 	BlueprintExternalEventSubscription,
 	RundownPlaylistTiming,
 	Time,
 } from '@sofie-automation/blueprints-integration'
-import {
+import type {
 	RundownId,
 	StudioId,
 	ShowStyleBaseId,
@@ -11,9 +11,9 @@ import {
 	RundownPlaylistId,
 	ShowStyleVariantId,
 } from './Ids.js'
-import { RundownNote } from './Notes.js'
-import { ReadonlyDeep } from 'type-fest'
-import { CoreUserEditingDefinition } from './UserEditingDefinitions.js'
+import type { RundownNote } from './Notes.js'
+import type { ReadonlyDeep } from 'type-fest'
+import type { CoreUserEditingDefinition } from './UserEditingDefinitions.js'
 
 export enum RundownOrphanedReason {
 	/** Rundown is deleted from the source but we still need it */

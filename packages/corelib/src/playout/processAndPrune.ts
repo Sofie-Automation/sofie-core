@@ -1,11 +1,11 @@
-import { ISourceLayer, PieceLifespan } from '@sofie-automation/blueprints-integration'
+import { type ISourceLayer, PieceLifespan } from '@sofie-automation/blueprints-integration'
 import { literal } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { PieceInstance, ResolvedPieceInstance } from '../dataModel/PieceInstance.js'
-import { SourceLayers } from '../dataModel/ShowStyleBase.js'
+import type { PieceInstance, ResolvedPieceInstance } from '../dataModel/PieceInstance.js'
+import type { SourceLayers } from '../dataModel/ShowStyleBase.js'
 import { assertNever, groupByToMapFunc } from '../lib.js'
 import _ from 'underscore'
 import { isCandidateBetterToBeContinued, isCandidateMoreImportant } from './infinites.js'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 
 /**
  * Get the `enable: { start: ?? }` for the new piece in terms that can be used as an `end` for another object

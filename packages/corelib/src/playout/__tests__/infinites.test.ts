@@ -1,14 +1,14 @@
 import { IBlueprintPieceType, PieceLifespan, PlaylistTimingType } from '@sofie-automation/blueprints-integration'
-import { DBPartInstance } from '../../dataModel/PartInstance.js'
-import { PartId, PartInstanceId, RundownId, RundownPlaylistId } from '../../dataModel/Ids.js'
-import { DBPart } from '../../dataModel/Part.js'
-import { EmptyPieceTimelineObjectsBlob, Piece } from '../../dataModel/Piece.js'
-import { PieceInstance, PieceInstancePiece } from '../../dataModel/PieceInstance.js'
-import { Rundown, DBRundown } from '../../dataModel/Rundown.js'
+import type { DBPartInstance } from '../../dataModel/PartInstance.js'
+import type { PartId, PartInstanceId, RundownId, RundownPlaylistId } from '../../dataModel/Ids.js'
+import type { DBPart } from '../../dataModel/Part.js'
+import { EmptyPieceTimelineObjectsBlob, type Piece } from '../../dataModel/Piece.js'
+import type { PieceInstance, PieceInstancePiece } from '../../dataModel/PieceInstance.js'
+import type { Rundown, DBRundown } from '../../dataModel/Rundown.js'
 import { literal } from '../../lib.js'
 import { protectString } from '../../protectedString.js'
 import { getPieceInstancesForPart, getPlayheadTrackingInfinitesForPart } from '../infinites.js'
-import { DBSegment, SegmentOrphanedReason } from '../../dataModel/Segment.js'
+import { type DBSegment, SegmentOrphanedReason } from '../../dataModel/Segment.js'
 
 describe('Infinites', () => {
 	describe('getPlayheadTrackingInfinitesForPart', () => {

@@ -2,12 +2,14 @@ const path = require('path')
 
 const commonConfig = {
 	moduleNameMapper: {
-		'^@sofie-automation/shared-lib/dist/(.+)\\.js$': '<rootDir>/../shared-lib/src/$1',
-		'^@sofie-automation/shared-lib/dist/(.+)$': '<rootDir>/../shared-lib/src/$1',
 		// Ensure libraries that would match the extension rule are still resolved
 		'bignumber.js': 'bignumber.js',
 		// Drop file extensions in imports
 		'(.+)\\.js$': '$1',
+	},
+	testEnvironmentOptions: {
+		// Resolve monorepo packages to their typescript source
+		customExportConditions: ['sofie-source', 'node', 'node-addons'],
 	},
 	unmockedModulePathPatterns: ['/^imports\\/.*\\.jsx?$/', '/^node_modules/'],
 	globals: {},

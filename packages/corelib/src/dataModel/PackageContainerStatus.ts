@@ -7,9 +7,9 @@
  * One  example of this could be a Media-folder (the "package container") which contains Media-files ("packages").
  */
 
-import { ExpectedPackageStatusAPI, Time } from '@sofie-automation/blueprints-integration'
+import type { ExpectedPackageStatusAPI, Time } from '@sofie-automation/blueprints-integration'
 import { protectString } from '../protectedString.js'
-import { StudioId, PeripheralDeviceId, PackageContainerId } from './Ids.js'
+import type { StudioId, PeripheralDeviceId, PackageContainerId } from './Ids.js'
 
 export interface PackageContainerStatusDB {
 	_id: PackageContainerId // unique id, see getPackageContainerId()

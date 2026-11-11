@@ -1,6 +1,6 @@
-import { SofieIngestRundown, SofieIngestSegment, SofieIngestPart } from '@sofie-automation/blueprints-integration'
-import { SofieIngestDataCacheObjId, RundownId, SegmentId, PartId } from './Ids.js'
-import { RundownSource } from './Rundown.js'
+import type { SofieIngestRundown, SofieIngestSegment, SofieIngestPart } from '@sofie-automation/blueprints-integration'
+import type { SofieIngestDataCacheObjId, RundownId, SegmentId, PartId } from './Ids.js'
+import type { RundownSource } from './Rundown.js'
 
 /*
 	The SofieIngestDataCache collection is used to store data that comes from an NRCS and has been modified by Sofie.

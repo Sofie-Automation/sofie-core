@@ -1,6 +1,5 @@
-import { protectString, ProtectedString } from '../../protectedString.js'
-import { MongoFieldSpecifier } from '../../mongo.js'
-import { ObserveCallbacks, ObserveChangesCallbacks } from '../../mongo.js'
+import { protectString, type ProtectedString } from '../../protectedString.js'
+import type { MongoFieldSpecifier, ObserveCallbacks, ObserveChangesCallbacks } from '../../mongo.js'
 import { InMemoryMongoCollection } from '../InMemoryMongoCollection.js'
 
 interface Thing {

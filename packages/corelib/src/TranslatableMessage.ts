@@ -1,6 +1,6 @@
-import { ITranslatableMessage as IBlueprintTranslatableMessage } from '@sofie-automation/blueprints-integration'
-import { ReadonlyDeep } from 'type-fest'
-import { BlueprintId } from './dataModel/Ids.js'
+import type { ITranslatableMessage as IBlueprintTranslatableMessage } from '@sofie-automation/blueprints-integration'
+import type { ReadonlyDeep } from 'type-fest'
+import type { BlueprintId } from './dataModel/Ids.js'
 
 /**
  * @enum - A translatable message (i18next)

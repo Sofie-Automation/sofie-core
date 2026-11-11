@@ -1,3 +1,3 @@
-import { AdLibPiece } from './AdLibPiece.js'
+import type { AdLibPiece } from './AdLibPiece.js'
 
 export type RundownBaselineAdLibItem = AdLibPiece

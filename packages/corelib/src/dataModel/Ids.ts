@@ -1,4 +1,4 @@
-import { ProtectedString } from '../protectedString.js'
+import type { ProtectedString } from '../protectedString.js'
 
 /** A string, identifying an activation of a playlist */
 export type ActiveInstanceId = ProtectedString<'ActiveInstanceId'>

@@ -1,6 +1,6 @@
 export * from '@sofie-automation/shared-lib/dist/peripheralDevice/ingest'
 
 export {
-	IngestDeviceSecretSettingsStatus,
-	IngestDeviceSecretSettings,
+	type IngestDeviceSecretSettingsStatus,
+	type IngestDeviceSecretSettings,
 } from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice'

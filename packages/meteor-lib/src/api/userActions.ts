@@ -1,17 +1,16 @@
-import { ClientAPI } from './client.js'
-import { EvaluationBase } from '../collections/Evaluations.js'
-import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
-import { IngestAdlib, ActionUserData, UserOperationTarget } from '@sofie-automation/blueprints-integration'
-import { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece'
-import { AdLibActionCommon } from '@sofie-automation/corelib/dist/dataModel/AdlibAction'
-import { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction'
-import { Time } from '@sofie-automation/blueprints-integration'
-import {
+import type { ClientAPI } from './client.js'
+import type { EvaluationBase } from '../collections/Evaluations.js'
+import type { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket.js'
+import type { IngestAdlib, ActionUserData, UserOperationTarget, Time } from '@sofie-automation/blueprints-integration'
+import type { BucketAdLib } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibPiece.js'
+import type { AdLibActionCommon } from '@sofie-automation/corelib/dist/dataModel/AdlibAction.js'
+import type { BucketAdLibAction } from '@sofie-automation/corelib/dist/dataModel/BucketAdLibAction.js'
+import type {
 	ExecuteActionResult,
 	QueueNextSegmentResult,
 	TakeNextPartResult,
-} from '@sofie-automation/corelib/dist/worker/studio'
-import {
+} from '@sofie-automation/corelib/dist/worker/studio.js'
+import type {
 	AdLibActionId,
 	BucketAdLibActionId,
 	BucketAdLibId,
@@ -29,8 +28,8 @@ import {
 	ShowStyleVariantId,
 	SnapshotId,
 	StudioId,
-} from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { QuickLoopMarker } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
+} from '@sofie-automation/corelib/dist/dataModel/Ids.js'
+import type { QuickLoopMarker } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist.js'
 
 export interface NewUserActionAPI {
 	take(

@@ -39,11 +39,10 @@ import {
 	PartAndPieceInstanceActionService,
 	QueueablePartAndPieces,
 } from './services/PartAndPieceInstanceActionService.js'
-import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
+import { BlueprintQuickLookInfo, IPlaylistTTimer } from '@sofie-automation/blueprints-integration'
 import { setNextPartFromPart } from '../../playout/setNext.js'
 import { getOrderedPartsAfterPlayhead } from '../../playout/lookahead/util.js'
 import { convertPartToBlueprints, emitIngestOperation, resolveSelectedBranding } from './lib.js'
-import { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
 import { TTimersService } from './services/TTimersService.js'
 import type { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 

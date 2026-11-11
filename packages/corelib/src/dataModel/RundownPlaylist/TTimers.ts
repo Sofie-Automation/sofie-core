@@ -1,4 +1,4 @@
-import { PartId } from '../Ids.js'
+import type { PartId } from '../Ids.js'
 
 export type RundownTTimerMode = RundownTTimerModeFreeRun | RundownTTimerModeCountdown | RundownTTimerModeTimeOfDay
 

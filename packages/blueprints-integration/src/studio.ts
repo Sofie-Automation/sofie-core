@@ -1,5 +1,5 @@
 export {
 	LookaheadMode,
-	BlueprintMappings,
-	BlueprintMapping,
+	type BlueprintMappings,
+	type BlueprintMapping,
 } from '@sofie-automation/shared-lib/dist/core/model/Timeline'

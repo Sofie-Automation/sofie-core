@@ -1,5 +1,5 @@
-import { StatusCode } from '@sofie-automation/shared-lib/dist/lib/status'
-import { WorkerId, WorkerThreadId } from './Ids.js'
+import type { StatusCode } from '@sofie-automation/shared-lib/dist/lib/status'
+import type { WorkerId, WorkerThreadId } from './Ids.js'
 
 export interface WorkerThreadStatus {
 	_id: WorkerThreadId

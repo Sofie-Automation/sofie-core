@@ -1,8 +1,8 @@
 import _ from 'underscore'
-import { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
-import { SerializedUserError, UserError } from '@sofie-automation/corelib/dist/error'
-import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { TSR } from '@sofie-automation/blueprints-integration'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
+import { type SerializedUserError, UserError } from '@sofie-automation/corelib/dist/error.js'
+import type { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
+import type { TSR } from '@sofie-automation/blueprints-integration'
 
 export interface NewClientAPI {
 	clientLogger(type: string, ...args: string[]): Promise<void>

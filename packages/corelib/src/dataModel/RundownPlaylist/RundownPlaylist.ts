@@ -1,5 +1,5 @@
-import { Time, TimelinePersistentState, RundownPlaylistTiming } from '@sofie-automation/blueprints-integration'
-import {
+import type { Time, TimelinePersistentState, RundownPlaylistTiming } from '@sofie-automation/blueprints-integration'
+import type {
 	PartId,
 	PieceInstanceInfiniteId,
 	PartInstanceId,
@@ -9,9 +9,9 @@ import {
 	StudioId,
 	RundownId,
 } from '../Ids.js'
-import { RundownPlaylistNote } from '../Notes.js'
-import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
-import { RundownTTimer } from './TTimers.js'
+import type { RundownPlaylistNote } from '../Notes.js'
+import type { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import type { RundownTTimer } from './TTimers.js'
 
 /** Details of an ab-session requested by the blueprints in onTimelineGenerate */
 export interface ABSessionInfo {

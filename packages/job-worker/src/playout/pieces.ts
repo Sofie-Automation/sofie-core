@@ -1,7 +1,7 @@
 import { PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance, PieceInstancePiece } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { PieceLifespan, IBlueprintPieceType } from '@sofie-automation/blueprints-integration/dist'
+import { PieceLifespan, IBlueprintPieceType } from '@sofie-automation/blueprints-integration'
 import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
 import { JobContext } from '../jobs/index.js'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'

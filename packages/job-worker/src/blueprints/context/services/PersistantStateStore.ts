@@ -1,5 +1,4 @@
-import type { TimelinePersistentState } from '@sofie-automation/blueprints-integration'
-import type { BlueprintPlayoutPersistentStore } from '@sofie-automation/blueprints-integration/dist/context/playoutStore'
+import type { TimelinePersistentState, BlueprintPlayoutPersistentStore } from '@sofie-automation/blueprints-integration'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import type { PlayoutModel } from '../../../playout/model/PlayoutModel.js'
 

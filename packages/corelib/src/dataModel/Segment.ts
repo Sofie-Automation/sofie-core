@@ -1,9 +1,9 @@
-import { SegmentDisplayMode, SegmentTimingInfo } from '@sofie-automation/blueprints-integration'
-import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
-import { SegmentId, RundownId } from './Ids.js'
-import { SegmentNote } from './Notes.js'
-import { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions.js'
-import { IOutputLayerExtended, ISourceLayerExtended } from './ShowStyleBase.js'
+import type { SegmentDisplayMode, SegmentTimingInfo } from '@sofie-automation/blueprints-integration'
+import type { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import type { SegmentId, RundownId } from './Ids.js'
+import type { SegmentNote } from './Notes.js'
+import type { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions.js'
+import type { IOutputLayerExtended, ISourceLayerExtended } from './ShowStyleBase.js'
 
 export enum SegmentOrphanedReason {
 	/** Segment is deleted from the NRCS but we still need it */

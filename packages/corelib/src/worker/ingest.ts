@@ -1,4 +1,4 @@
-import {
+import type {
 	BucketAdLibActionId,
 	BucketAdLibId,
 	BucketId,
@@ -11,16 +11,16 @@ import {
 	StudioId,
 } from '../dataModel/Ids.js'
 import type { MOS } from '@sofie-automation/shared-lib/dist/mos'
-import {
+import type {
 	IngestAdlib,
 	IngestPart,
 	IngestRundown,
 	IngestSegment,
 	UserOperationTarget,
 } from '@sofie-automation/blueprints-integration'
-import { BucketAdLibAction } from '../dataModel/BucketAdLibAction.js'
-import { RundownSource } from '../dataModel/Rundown.js'
-import { BucketAdLib } from '../dataModel/BucketAdLibPiece.js'
+import type { BucketAdLibAction } from '../dataModel/BucketAdLibAction.js'
+import type { RundownSource } from '../dataModel/Rundown.js'
+import type { BucketAdLib } from '../dataModel/BucketAdLibPiece.js'
 
 export enum IngestJobs {
 	/**

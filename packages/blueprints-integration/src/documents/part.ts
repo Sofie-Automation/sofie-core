@@ -1,4 +1,4 @@
-import { UserEditingDefinition, UserEditingProperties } from '../userEditing.js'
+import type { UserEditingDefinition, UserEditingProperties } from '../userEditing.js'
 import type { NoteSeverity } from '../lib.js'
 import type { ITranslatableMessage } from '../translations.js'
 import type { IngestPartNotifyItemReady } from '@sofie-automation/shared-lib/dist/ingest/rundownStatus'
