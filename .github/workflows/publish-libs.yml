@@ -188,7 +188,6 @@ jobs:
             packages/*/package.json
             package.json
             yarn.lock
-            lerna.json
           retention-days: 1
           if-no-files-found: error
 
@@ -222,16 +221,10 @@ jobs:
       - name: Publish to NPM
         id: publish-npm
         run: |
-          # Commit any changes, to make lerna happy that the tree isn't dirty
-          git config --global user.email "info@superfly.tv"
-          git config --global user.name "superflytvab"
-          git add .
-          git commit -m "chore: temp commit" --no-verify --allow-empty
-
           # If an npm token is provided, use it (for simpler setup in forks)
           if [ "${{ secrets.NPM_TOKEN }}" != "" ]; then
             echo "Using provided NPM token"
-            echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+            export YARN_NPM_AUTH_TOKEN="${{ secrets.NPM_TOKEN }}"
           else
             echo "No NPM token provided, using trusted publishing"
           fi
@@ -240,21 +233,20 @@ jobs:
 
           yarn install
 
+          NEW_VERSION=$(node -p "require('./packages/shared-lib/package.json').version")
+
           NPM_TAG=nightly
           if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
             PACKAGE_NAME=$(node -p "require('./packages/shared-lib/package.json').name")
             PUBLISHED_VERSION=$(yarn npm info --json $PACKAGE_NAME | jq -c '.version' -r)
-            THIS_VERSION=$(node -p "require('./lerna.json').version")
-            NPM_TAG=$(node scripts/determine-npm-tag.js "$PUBLISHED_VERSION" "$THIS_VERSION")
+            NPM_TAG=$(node scripts/determine-npm-tag.js "$PUBLISHED_VERSION" "$NEW_VERSION")
           fi
 
-          yarn lerna publish from-package --tag-version-prefix='' --dist-tag $NPM_TAG --yes
+          # Publish every public workspace, dependencies first. Versions already on npm are skipped
+          yarn workspaces foreach --all --topological --no-private --verbose \
+            npm publish --access public --tag $NPM_TAG --provenance --tolerate-republish
 
-          LERNA_VERSION=$(node -p "require('./lerna.json').version")
-          NEW_VERSION=$(node -p "require('./packages/shared-lib/package.json').version")
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "**Published:** $LERNA_VERSION as $NPM_TAG" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** $NEW_VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "**Published:** $NEW_VERSION as $NPM_TAG" >> $GITHUB_STEP_SUMMARY
         env:
-          NPM_CONFIG_PROVENANCE: true
           CI: true
