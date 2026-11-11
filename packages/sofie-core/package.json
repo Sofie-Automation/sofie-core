@@ -4,7 +4,7 @@
 	"private": true,
 	"license": "MIT",
 	"engines": {
-		"node": ">=22.20.0"
+		"node": ">=26.13.0"
 	},
 	"scripts": {
 		"debug": "tsx --watch src/main.ts",

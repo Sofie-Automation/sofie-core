@@ -24,7 +24,7 @@ if (yarnVersion.stdout.startsWith('0.') || yarnVersion.stdout.startsWith('1.')) 
 	console.error(`--`)
 	console.error(`Tip:`)
 	console.error(`To uninstall yarn classic, you can find where it's installed by running 'which yarn' or 'where yarn'`)
-	console.error(`After you have uninstalled it, run 'corepack enable'`)
+	console.error(`After you have uninstalled it, run 'npm install --global corepack' and then 'corepack enable'`)
 
 	process.exit(1)
 }

@@ -62,6 +62,7 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/publish-docs-cache
@@ -93,7 +94,11 @@ jobs:
           - shared-lib
           # - live-status-gateway-api # no tests yet
           - openapi
-        node-version: [22.x]
+        node-version: [22.x, 26.x]
+        exclude:
+          # blueprints should be developed against the node version that core runs them in
+          - node-version: 22.x
+            package-name: blueprints-integration
 
     steps:
       - uses: actions/checkout@v7
@@ -105,6 +110,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn install
@@ -142,6 +148,7 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/lint-core-cache
@@ -236,6 +243,7 @@ jobs:
             echo "No NPM token provided, using trusted publishing"
           fi
 
+          npm install --global corepack --force
           corepack enable
 
           yarn install

@@ -2,12 +2,12 @@
 # Build context: the repository root
 
 # BUILD IMAGE
-FROM node:22
+FROM node:26
 WORKDIR /opt/core
 
 COPY . .
 
-RUN corepack enable
+RUN npm install --global corepack && corepack enable
 RUN yarn install --immutable
 RUN yarn run pinst --disable
 
@@ -24,7 +24,7 @@ RUN rm -Rf /opt/core/packages/webui/dist/dev
 RUN yarn workspaces focus --production @sofie-automation/sofie-core
 
 # DEPLOY IMAGE
-FROM node:22-alpine
+FROM node:26-alpine
 
 RUN apk add --no-cache tzdata
 

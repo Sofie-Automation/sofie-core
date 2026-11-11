@@ -2,19 +2,19 @@
 # Build context: the repository root
 
 # BUILD IMAGE
-FROM node:22
+FROM node:26
 WORKDIR /opt
 
 COPY . .
 
-RUN corepack enable
+RUN npm install --global corepack && corepack enable
 RUN yarn install --immutable
 RUN yarn run pinst --disable
 RUN yarn build:single packages/live-status-gateway/tsconfig.build.json
 RUN yarn workspaces focus live-status-gateway --production # purge dev-dependencies
 
 # DEPLOY IMAGE
-FROM node:22-alpine
+FROM node:26-alpine
 RUN apk add --no-cache tzdata
 
 ENV NODE_ENV=production
