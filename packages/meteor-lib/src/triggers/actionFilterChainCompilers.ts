@@ -49,10 +49,7 @@ type CompiledAdLibFilter<T> = {
 }
 
 type SomeAdLib =
-	| TriggersRundownBaselineAdLibItem
-	| TriggersRundownBaselineAdLibAction
-	| TriggersAdLibPiece
-	| TriggersAdLibAction
+	TriggersRundownBaselineAdLibItem | TriggersRundownBaselineAdLibAction | TriggersAdLibPiece | TriggersAdLibAction
 
 interface IWrappedAdLibType<T extends SomeAdLib, typeName extends MountedAdLibTriggerType> extends IWrappedAdLibBase {
 	_id: T['_id']

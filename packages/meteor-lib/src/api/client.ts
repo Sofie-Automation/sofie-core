@@ -31,12 +31,12 @@ export interface NewClientAPI {
 }
 
 export enum ClientAPIMethods {
-	'clientLogger' = 'client.clientLogger',
-	'clientErrorReport' = 'client.clientErrorReport',
-	'clientLogNotification' = 'client.clientLogNotification',
-	'callPeripheralDeviceFunction' = 'client.callPeripheralDeviceFunction',
-	'callPeripheralDeviceAction' = 'client.callPeripheralDeviceAction',
-	'callBackgroundPeripheralDeviceFunction' = 'client.callBackgroundPeripheralDeviceFunction',
+	clientLogger = 'client.clientLogger',
+	clientErrorReport = 'client.clientErrorReport',
+	clientLogNotification = 'client.clientLogNotification',
+	callPeripheralDeviceFunction = 'client.callPeripheralDeviceFunction',
+	callPeripheralDeviceAction = 'client.callPeripheralDeviceAction',
+	callBackgroundPeripheralDeviceFunction = 'client.callBackgroundPeripheralDeviceFunction',
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace

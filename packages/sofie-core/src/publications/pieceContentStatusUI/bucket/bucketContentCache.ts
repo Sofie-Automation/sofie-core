@@ -14,14 +14,7 @@ export interface SourceLayersDoc {
 }
 
 export type BucketAdLibFields =
-	| '_id'
-	| 'bucketId'
-	| 'studioId'
-	| 'showStyleBaseId'
-	| 'name'
-	| 'sourceLayerId'
-	| 'content'
-	| 'expectedPackages'
+	'_id' | 'bucketId' | 'studioId' | 'showStyleBaseId' | 'name' | 'sourceLayerId' | 'content' | 'expectedPackages'
 export const bucketAdlibFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<BucketAdLib, BucketAdLibFields>>>({
 	_id: 1,
 	bucketId: 1,

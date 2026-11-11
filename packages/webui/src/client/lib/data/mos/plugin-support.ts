@@ -14,11 +14,11 @@ export enum UIMetricMode {
 
 export enum Events {
 	/** Event is emitted every now-and-then, generally to be used for simple displays */
-	'dragenter' = 'sofie:dragEnter',
+	dragenter = 'sofie:dragEnter',
 	/** event is emitted with a very high frequency (60 Hz), to be used sparingly as
 	 * hooking up Components to it will cause a lot of renders
 	 */
-	'dragleave' = 'sofie:dragLeave',
+	dragleave = 'sofie:dragLeave',
 }
 
 export interface UIMetric {

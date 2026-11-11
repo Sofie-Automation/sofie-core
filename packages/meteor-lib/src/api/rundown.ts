@@ -5,5 +5,5 @@ export interface NewRundownAPI {
 }
 
 export enum RundownAPIMethods {
-	'rundownPlaylistNeedsResync' = 'rundown.rundownPlaylistNeedsResync',
+	rundownPlaylistNeedsResync = 'rundown.rundownPlaylistNeedsResync',
 }

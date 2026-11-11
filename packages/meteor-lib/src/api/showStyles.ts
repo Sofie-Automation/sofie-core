@@ -14,13 +14,13 @@ export interface NewShowStylesAPI {
 }
 
 export enum ShowStylesAPIMethods {
-	'insertShowStyleBase' = 'showstyles.insertShowStyleBase',
-	'insertShowStyleVariant' = 'showstyles.insertShowStyleVariant',
-	'importShowStyleVariant' = 'showstyles.importShowStyleVariant',
-	'importShowStyleVariantAsNew' = 'showstyles.importShowStyleVariantAsNew',
-	'removeShowStyleBase' = 'showstyles.removeShowStyleBase',
-	'removeShowStyleVariant' = 'showstyles.removeShowStyleVariant',
-	'reorderShowStyleVariant' = 'showstyles.reorderShowStyleVariant',
+	insertShowStyleBase = 'showstyles.insertShowStyleBase',
+	insertShowStyleVariant = 'showstyles.insertShowStyleVariant',
+	importShowStyleVariant = 'showstyles.importShowStyleVariant',
+	importShowStyleVariantAsNew = 'showstyles.importShowStyleVariantAsNew',
+	removeShowStyleBase = 'showstyles.removeShowStyleBase',
+	removeShowStyleVariant = 'showstyles.removeShowStyleVariant',
+	reorderShowStyleVariant = 'showstyles.reorderShowStyleVariant',
 
 	getCreateAdlibTestingRundownOptions = 'showstyles.getCreateAdlibTestingRundownOptions',
 }

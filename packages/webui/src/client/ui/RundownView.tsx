@@ -193,8 +193,7 @@ export function RundownView(props: Readonly<IProps>): JSX.Element {
 	const playlist = useTracker(
 		() =>
 			RundownPlaylists.findOne(props.playlistId, { projection: RUNDOWN_VIEW_PLAYLIST_OMITTED_FIELDS }) as
-				| RundownViewPlaylist
-				| undefined,
+				RundownViewPlaylist | undefined,
 		[props.playlistId]
 	)
 	const studio = useTracker(() => playlist && UIStudios.findOne({ _id: playlist.studioId }), [playlist?.studioId])
@@ -1173,8 +1172,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			rundownIdsBefore: RundownId[]
 		) {
 			const userSegmentViewMode = this.state.segmentViewModes[unprotectString(segment._id)] as
-				| SegmentViewMode
-				| undefined
+				SegmentViewMode | undefined
 			const userRundownSegmentViewMode = this.state.rundownDefaultSegmentViewMode
 			const displayMode =
 				userSegmentViewMode ?? userRundownSegmentViewMode ?? segment.displayAs ?? DEFAULT_SEGMENT_VIEW_MODE

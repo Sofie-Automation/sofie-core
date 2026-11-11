@@ -5,9 +5,7 @@ import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 export type UIBlueprintUpgradeStatusId = ProtectedString<'UIBlueprintUpgradeStatus'>
 
 export type UIBlueprintUpgradeStatus =
-	| UIBlueprintUpgradeStatusCoreSystem
-	| UIBlueprintUpgradeStatusStudio
-	| UIBlueprintUpgradeStatusShowStyle
+	UIBlueprintUpgradeStatusCoreSystem | UIBlueprintUpgradeStatusStudio | UIBlueprintUpgradeStatusShowStyle
 
 export interface UIBlueprintUpgradeStatusBase {
 	_id: UIBlueprintUpgradeStatusId

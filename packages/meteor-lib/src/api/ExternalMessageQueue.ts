@@ -7,7 +7,7 @@ export interface NewExternalMessageQueueAPI {
 }
 
 export enum ExternalMessageQueueAPIMethods {
-	'remove' = 'externalMessages.remove',
-	'toggleHold' = 'externalMessages.toggleHold',
-	'retry' = 'externalMessages.retry',
+	remove = 'externalMessages.remove',
+	toggleHold = 'externalMessages.toggleHold',
+	retry = 'externalMessages.retry',
 }

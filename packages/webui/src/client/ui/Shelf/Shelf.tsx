@@ -121,9 +121,7 @@ export class ShelfBase extends React.Component<Translated<IShelfProps>, IState> 
 			shelfHeight: localStorage.getItem(`${localStorageName}.shelfHeight`) ?? defaultHeight,
 			overrideHeight: undefined,
 			selectedTab: UIStateStorage.getItem(`rundownView.${props.playlist._id}`, 'shelfTab', undefined) as
-				| string
-				| ShelfTabs
-				| undefined,
+				string | ShelfTabs | undefined,
 			shouldQueue: false,
 			selectedPiece: undefined,
 			localStorageName,

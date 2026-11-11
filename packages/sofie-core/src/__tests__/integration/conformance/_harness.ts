@@ -25,9 +25,7 @@ export type SeedDoc = { _id: string } & Record<string, unknown>
  *  - `bothThrow`: both reject (e.g. a full-document update with no atomic operators, mixed projection).
  */
 export type Expectation =
-	| { status: 'match' }
-	| { status: 'inMemoryThrows'; reason: string }
-	| { status: 'bothThrow'; reason: string }
+	{ status: 'match' } | { status: 'inMemoryThrows'; reason: string } | { status: 'bothThrow'; reason: string }
 
 interface BaseCase {
 	name: string

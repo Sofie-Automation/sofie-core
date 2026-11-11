@@ -19,6 +19,6 @@ export interface CreateTriggeredActionsContent {
 }
 
 export enum TriggeredActionsAPIMethods {
-	'removeTriggeredActions' = 'triggeredActions.removeTriggeredActions',
-	'createTriggeredActions' = 'triggeredActions.createTriggeredActions',
+	removeTriggeredActions = 'triggeredActions.removeTriggeredActions',
+	createTriggeredActions = 'triggeredActions.createTriggeredActions',
 }

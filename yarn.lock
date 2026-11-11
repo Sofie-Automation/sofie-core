@@ -7589,7 +7589,7 @@ __metadata:
     "@asyncapi/modelina": "npm:^5.10.1"
     "@asyncapi/nodejs-ws-template": "npm:^0.10.0"
     "@asyncapi/parser": "npm:^3.6.0"
-    prettier: "npm:^3.8.4"
+    prettier: "npm:^3.9.10"
     tslib: "npm:^2.8.1"
     yaml: "npm:^2.9.0"
   languageName: unknown
@@ -11198,7 +11198,7 @@ asn1@evs-broadcast/node-asn1:
     nodemon: "npm:^3.1.14"
     open-cli: "npm:^9.0.0"
     pinst: "npm:^3.0.0"
-    prettier: "npm:^3.8.4"
+    prettier: "npm:^3.9.10"
     rimraf: "npm:^6.1.3"
     semver: "npm:^7.8.5"
     snyk-nodejs-lockfile-parser: "npm:^2.10.0"
@@ -26890,12 +26890,21 @@ asn1@evs-broadcast/node-asn1:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.2.5, prettier@npm:^3.8.4":
+"prettier@npm:^3.2.5":
   version: 3.8.4
   resolution: "prettier@npm:3.8.4"
   bin:
     prettier: bin/prettier.cjs
   checksum: 10/54684a3cc6689238692b29fab541c01934af7677be94c02293ba49981a1ac121c8bebe2a865f0c3b963e99d208f847c53aed354cc0ce8750e2d45791d64506c5
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^3.9.10":
+  version: 3.9.10
+  resolution: "prettier@npm:3.9.10"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: 10/5d0118add4b44eb9d50c114f5c525451cc92be9da300ad0552787472535a3f23884baed3223d9b577bb7d1152eb58aeccfcc2b4541c0cf2274c0b4d328e36834
   languageName: node
   linkType: hard
 

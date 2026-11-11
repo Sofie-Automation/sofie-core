@@ -97,11 +97,7 @@ export interface Rundown {
 
 /** A description of where a Rundown originated from */
 export type RundownSource =
-	| RundownSourceNrcs
-	| RundownSourceSnapshot
-	| RundownSourceHttp
-	| RundownSourceTesting
-	| RundownSourceRestApi
+	RundownSourceNrcs | RundownSourceSnapshot | RundownSourceHttp | RundownSourceTesting | RundownSourceRestApi
 
 /** A description of the external NRCS source of a Rundown */
 export interface RundownSourceNrcs {

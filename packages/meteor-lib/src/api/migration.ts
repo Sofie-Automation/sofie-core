@@ -80,21 +80,21 @@ export interface NewMigrationAPI {
 }
 
 export enum MigrationAPIMethods {
-	'getMigrationStatus' = 'migration.getMigrationStatus',
-	'runMigration' = 'migration.runMigration',
-	'forceMigration' = 'migration.forceMigration',
-	'resetDatabaseVersions' = 'migration.resetDatabaseVersions',
+	getMigrationStatus = 'migration.getMigrationStatus',
+	runMigration = 'migration.runMigration',
+	forceMigration = 'migration.forceMigration',
+	resetDatabaseVersions = 'migration.resetDatabaseVersions',
 
-	'getUpgradeStatus' = 'migration.getUpgradeStatus',
-	'fixupConfigForStudio' = 'migration.fixupConfigForStudio',
-	'ignoreFixupConfigForStudio' = 'migration.ignoreFixupConfigForStudio',
-	'validateConfigForStudio' = 'migration.validateConfigForStudio',
-	'runUpgradeForStudio' = 'migration.runUpgradeForStudio',
-	'fixupConfigForShowStyleBase' = 'migration.fixupConfigForShowStyleBase',
-	'ignoreFixupConfigForShowStyleBase' = 'migration.ignoreFixupConfigForShowStyleBase',
-	'validateConfigForShowStyleBase' = 'migration.validateConfigForShowStyleBase',
-	'runUpgradeForShowStyleBase' = 'migration.runUpgradeForShowStyleBase',
-	'runUpgradeForCoreSystem' = 'migration.runUpgradeForCoreSystem',
+	getUpgradeStatus = 'migration.getUpgradeStatus',
+	fixupConfigForStudio = 'migration.fixupConfigForStudio',
+	ignoreFixupConfigForStudio = 'migration.ignoreFixupConfigForStudio',
+	validateConfigForStudio = 'migration.validateConfigForStudio',
+	runUpgradeForStudio = 'migration.runUpgradeForStudio',
+	fixupConfigForShowStyleBase = 'migration.fixupConfigForShowStyleBase',
+	ignoreFixupConfigForShowStyleBase = 'migration.ignoreFixupConfigForShowStyleBase',
+	validateConfigForShowStyleBase = 'migration.validateConfigForShowStyleBase',
+	runUpgradeForShowStyleBase = 'migration.runUpgradeForShowStyleBase',
+	runUpgradeForCoreSystem = 'migration.runUpgradeForCoreSystem',
 }
 
 export interface GetMigrationStatusResult {

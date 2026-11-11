@@ -1085,10 +1085,7 @@ export type JSONSchema<
 
 export namespace JSONSchema {
 	export type TypeValue =
-		| ValueOf<TypeName>
-		| TypeName
-		| Array<ValueOf<TypeName> | TypeName>
-		| ReadonlyArray<ValueOf<TypeName> | TypeName>
+		ValueOf<TypeName> | TypeName | Array<ValueOf<TypeName> | TypeName> | ReadonlyArray<ValueOf<TypeName> | TypeName>
 
 	/**
 	 * JSON Schema interface
@@ -1172,12 +1169,7 @@ namespace KeywordByType {
 		| 'unevaluatedProperties'
 
 	export type String =
-		| 'contentEncoding'
-		| 'contentMediaType'
-		| 'contentSchema'
-		| 'maxLength'
-		| 'minLength'
-		| 'pattern'
+		'contentEncoding' | 'contentMediaType' | 'contentSchema' | 'maxLength' | 'minLength' | 'pattern'
 }
 
 // -----------------------------------------------------------------------------

@@ -67,14 +67,12 @@ export class SplitDropdown extends React.Component<IProps, IState> {
 	}
 
 	private onBlur = (event: React.FocusEvent<HTMLDivElement>) => {
-		if (
-			!(
-				event.relatedTarget &&
-				event.relatedTarget instanceof HTMLElement &&
-				this._popperRef &&
-				(this._popperRef === event.relatedTarget || this._popperRef.contains(event.relatedTarget))
-			)
-		) {
+		if (!(
+			event.relatedTarget &&
+			event.relatedTarget instanceof HTMLElement &&
+			this._popperRef &&
+			(this._popperRef === event.relatedTarget || this._popperRef.contains(event.relatedTarget))
+		)) {
 			this.setState({
 				expanded: false,
 			})

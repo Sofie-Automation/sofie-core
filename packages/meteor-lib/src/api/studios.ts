@@ -12,8 +12,8 @@ export interface NewStudiosAPI {
 }
 
 export enum StudiosAPIMethods {
-	'insertStudio' = 'studio.insertStudio',
-	'removeStudio' = 'studio.removeStudio',
+	insertStudio = 'studio.insertStudio',
+	removeStudio = 'studio.removeStudio',
 
-	'assignConfigToPeripheralDevice' = 'studio.assignConfigToPeripheralDevice',
+	assignConfigToPeripheralDevice = 'studio.assignConfigToPeripheralDevice',
 }

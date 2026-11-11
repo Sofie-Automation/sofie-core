@@ -88,8 +88,7 @@ async function manipulateUIStudioPublicationData(
 	if (args.studioId) {
 		// Operate on a single studio
 		const studio = (await Studios.findOneAsync(args.studioId, { projection: fieldSpecifier })) as
-			| Pick<DBStudio, StudioFields>
-			| undefined
+			Pick<DBStudio, StudioFields> | undefined
 
 		if (studio) {
 			collection.replace(convertDocument(studio))

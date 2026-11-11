@@ -8,12 +8,7 @@ import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceIns
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 
 export type RundownPlaylistFields =
-	| '_id'
-	| 'name'
-	| 'activationId'
-	| 'currentPartInfo'
-	| 'nextPartInfo'
-	| 'previousPartsInfo'
+	'_id' | 'name' | 'activationId' | 'currentPartInfo' | 'nextPartInfo' | 'previousPartsInfo'
 export const rundownPlaylistFieldSpecifier = literal<
 	MongoFieldSpecifierOnesStrict<Pick<DBRundownPlaylist, RundownPlaylistFields>>
 >({

@@ -65,8 +65,7 @@ async function manipulateExpectedPackagesPublicationData(
 	// Future: this may want to cache on the state, but with only a single observer there feels little point
 
 	const studio = (await Studios.findOneAsync(args.studioId, { projection: studioFieldSpecifier })) as
-		| Pick<DBStudio, StudioFields>
-		| undefined
+		Pick<DBStudio, StudioFields> | undefined
 
 	const packageContainers: { [containerId: string]: PackageContainer } = {}
 	if (studio) {

@@ -17,8 +17,7 @@ export class StudioBaselineHelper {
 	readonly #context: JobContext
 
 	#pendingExpectedPackages:
-		| Map<ExpectedPackageId, IngestExpectedPackage<ExpectedPackageIngestSourceStudioBaseline>>
-		| undefined
+		Map<ExpectedPackageId, IngestExpectedPackage<ExpectedPackageIngestSourceStudioBaseline>> | undefined
 	#pendingExpectedPlayoutItems: ExpectedPlayoutItemStudio[] | undefined
 
 	constructor(context: JobContext) {

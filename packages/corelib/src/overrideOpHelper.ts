@@ -26,8 +26,7 @@ export interface WrappedOverridableItemNormal<T extends object> {
 }
 
 export type WrappedOverridableItem<T extends object> =
-	| WrappedOverridableItemDeleted<T>
-	| WrappedOverridableItemNormal<T>
+	WrappedOverridableItemDeleted<T> | WrappedOverridableItemNormal<T>
 
 /**
  * Compile a sorted array of all the items currently in the ObjectWithOverrides, and those that have been deleted
@@ -38,8 +37,7 @@ export type WrappedOverridableItem<T extends object> =
 export function getAllCurrentAndDeletedItemsFromOverrides<T extends object>(
 	rawObject: ReadonlyDeep<ObjectWithOverrides<Record<string, T | undefined>>>,
 	comparitor:
-		| ((a: [id: string, obj: T | ReadonlyDeep<T>], b: [id: string, obj: T | ReadonlyDeep<T>]) => number)
-		| null
+		((a: [id: string, obj: T | ReadonlyDeep<T>], b: [id: string, obj: T | ReadonlyDeep<T>]) => number) | null
 ): WrappedOverridableItem<T>[] {
 	// Sort and wrap in the return type
 	const sortedItems = getAllCurrentItemsFromOverrides(rawObject, comparitor)
@@ -53,8 +51,7 @@ export function getAllCurrentAndDeletedItemsFromOverrides<T extends object>(
 export function getAllRemovedItemsFromOverrides<T extends object>(
 	rawObject: ReadonlyDeep<ObjectWithOverrides<Record<string, T | undefined>>>,
 	comparitor:
-		| ((a: [id: string, obj: T | ReadonlyDeep<T>], b: [id: string, obj: T | ReadonlyDeep<T>]) => number)
-		| null,
+		((a: [id: string, obj: T | ReadonlyDeep<T>], b: [id: string, obj: T | ReadonlyDeep<T>]) => number) | null,
 	validItemIds: Set<string> // TODO - should this be optional?
 ): WrappedOverridableItemDeleted<T>[] {
 	const removedItems: WrappedOverridableItemDeleted<T>[] = []
@@ -88,8 +85,7 @@ export function getAllRemovedItemsFromOverrides<T extends object>(
 export function getAllCurrentItemsFromOverrides<T extends object>(
 	rawObject: ReadonlyDeep<ObjectWithOverrides<Record<string, T | undefined>>>,
 	comparitor:
-		| ((a: [id: string, obj: T | ReadonlyDeep<T>], b: [id: string, obj: T | ReadonlyDeep<T>]) => number)
-		| null
+		((a: [id: string, obj: T | ReadonlyDeep<T>], b: [id: string, obj: T | ReadonlyDeep<T>]) => number) | null
 ): WrappedOverridableItemNormal<T>[] {
 	const resolvedObject = applyAndValidateOverrides(rawObject).obj
 

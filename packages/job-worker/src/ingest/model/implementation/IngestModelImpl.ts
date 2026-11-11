@@ -486,13 +486,11 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 		)
 
 		// Compare and update the adlibPieces
-		const newAdlibPieces = adlibPieces.map(
-			(piece): AdLibPiece => ({
-				...clone(piece),
-				partId: undefined,
-				rundownId: this.rundownId,
-			})
-		)
+		const newAdlibPieces = adlibPieces.map((piece): AdLibPiece => ({
+			...clone(piece),
+			partId: undefined,
+			rundownId: this.rundownId,
+		}))
 		this.#rundownBaselineAdLibPieces.setValue(
 			diffAndReturnLatestObjects(
 				this.#rundownBaselineAdLibPiecesWithChanges,
@@ -502,13 +500,11 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 		)
 
 		// Compare and update the adlibActions
-		const newAdlibActions = adlibActions.map(
-			(action): RundownBaselineAdLibAction => ({
-				...clone(action),
-				partId: undefined,
-				rundownId: this.rundownId,
-			})
-		)
+		const newAdlibActions = adlibActions.map((action): RundownBaselineAdLibAction => ({
+			...clone(action),
+			partId: undefined,
+			rundownId: this.rundownId,
+		}))
 		this.#rundownBaselineAdLibActions.setValue(
 			diffAndReturnLatestObjects(
 				this.#rundownBaselineAdLibActionsWithChanges,
@@ -518,14 +514,12 @@ export class IngestModelImpl implements IngestModel, IngestDatabasePersistedMode
 		)
 
 		// Compare and update the rundown pieces
-		const newPieces = pieces.map(
-			(piece): Piece => ({
-				...clone(piece),
-				startRundownId: this.rundownId,
-				startPartId: null,
-				startSegmentId: null,
-			})
-		)
+		const newPieces = pieces.map((piece): Piece => ({
+			...clone(piece),
+			startRundownId: this.rundownId,
+			startPartId: null,
+			startSegmentId: null,
+		}))
 		this.#piecesImpl = diffAndReturnLatestObjects(this.#piecesWithChanges, this.#piecesImpl, newPieces)
 
 		// Future: should these be here, or held as part of each adlib?

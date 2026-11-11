@@ -267,9 +267,7 @@ export function getPlayheadTrackingInfinitesForPart(
 				PieceLifespan.OutOnShowStyleEnd,
 			]) {
 				const mode = mode0 as
-					| PieceLifespan.OutOnRundownEnd
-					| PieceLifespan.OutOnSegmentEnd
-					| PieceLifespan.OutOnShowStyleEnd
+					PieceLifespan.OutOnRundownEnd | PieceLifespan.OutOnSegmentEnd | PieceLifespan.OutOnShowStyleEnd
 				const pieces = (piecesByInfiniteMode.get(mode) || []).filter(
 					(p) =>
 						p.infinite &&

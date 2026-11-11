@@ -69,9 +69,7 @@ export interface ShelfContextMenuContextAdLib extends ShelfContextMenuContextBas
 }
 
 type ShelfContextMenuContext =
-	| ShelfContextMenuContextBucket
-	| ShelfContextMenuContextBucketAdLib
-	| ShelfContextMenuContextAdLib
+	ShelfContextMenuContextBucket | ShelfContextMenuContextBucketAdLib | ShelfContextMenuContextAdLib
 
 const shelfContextMenuContext: ReactiveVar<ShelfContextMenuContext | undefined> = new ReactiveVar(undefined)
 

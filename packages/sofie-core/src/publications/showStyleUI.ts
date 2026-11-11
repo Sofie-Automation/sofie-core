@@ -23,12 +23,7 @@ interface UIShowStyleBaseUpdateProps {
 }
 
 type ShowStyleBaseFields =
-	| '_id'
-	| 'name'
-	| 'outputLayersWithOverrides'
-	| 'sourceLayersWithOverrides'
-	| 'hotkeyLegend'
-	| 'abChannelDisplay'
+	'_id' | 'name' | 'outputLayersWithOverrides' | 'sourceLayersWithOverrides' | 'hotkeyLegend' | 'abChannelDisplay'
 const fieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBShowStyleBase, ShowStyleBaseFields>>>({
 	_id: 1,
 	name: 1,
@@ -67,8 +62,7 @@ async function manipulateUIShowStyleBasePublicationData(
 	// Ignore _updateProps, as we arent caching anything so we have to rerun from scratch no matter what
 
 	const showStyleBase = (await ShowStyleBases.findOneAsync(args.showStyleBaseId, { projection: fieldSpecifier })) as
-		| Pick<DBShowStyleBase, ShowStyleBaseFields>
-		| undefined
+		Pick<DBShowStyleBase, ShowStyleBaseFields> | undefined
 	if (!showStyleBase) return []
 
 	const resolvedOutputLayers = applyAndValidateOverrides(showStyleBase.outputLayersWithOverrides).obj

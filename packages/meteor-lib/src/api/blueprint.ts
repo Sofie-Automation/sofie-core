@@ -7,7 +7,7 @@ export interface NewBlueprintAPI {
 }
 
 export enum BlueprintAPIMethods {
-	'insertBlueprint' = 'showstyles.insertBlueprint',
-	'removeBlueprint' = 'showstyles.removeBlueprint',
-	'assignSystemBlueprint' = 'blueprint.assignSystem',
+	insertBlueprint = 'showstyles.insertBlueprint',
+	removeBlueprint = 'showstyles.removeBlueprint',
+	assignSystemBlueprint = 'blueprint.assignSystem',
 }

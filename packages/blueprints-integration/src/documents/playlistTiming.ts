@@ -72,7 +72,4 @@ export interface PlaylistTimingDuration extends PlaylistTimingBase {
 }
 
 export type RundownPlaylistTiming =
-	| PlaylistTimingNone
-	| PlaylistTimingForwardTime
-	| PlaylistTimingBackTime
-	| PlaylistTimingDuration
+	PlaylistTimingNone | PlaylistTimingForwardTime | PlaylistTimingBackTime | PlaylistTimingDuration

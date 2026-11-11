@@ -77,10 +77,7 @@ interface QuickLoopPlaylistMarker {
 }
 
 export type QuickLoopMarker =
-	| QuickLoopPartMarker
-	| QuickLoopSegmentMarker
-	| QuickLoopRundownMarker
-	| QuickLoopPlaylistMarker
+	QuickLoopPartMarker | QuickLoopSegmentMarker | QuickLoopRundownMarker | QuickLoopPlaylistMarker
 
 export interface QuickLoopProps {
 	/** The Start marker */

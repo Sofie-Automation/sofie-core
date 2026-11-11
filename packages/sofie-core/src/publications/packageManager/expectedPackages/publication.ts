@@ -141,8 +141,7 @@ async function manipulateExpectedPackagesPublicationData(
 	// Reload the studio, and the layerNameToDeviceIds lookup
 	if (!updateProps || updateProps.invalidateStudio) {
 		state.studio = (await Studios.findOneAsync(args.studioId, { projection: studioFieldSpecifier })) as
-			| Pick<DBStudio, StudioFields>
-			| undefined
+			Pick<DBStudio, StudioFields> | undefined
 		if (!state.studio) {
 			logger.warn(`Pub.expectedPackagesForDevice: studio "${args.studioId}" not found!`)
 			state.layerNameToDeviceIds = new Map()

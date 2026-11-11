@@ -78,8 +78,7 @@ export async function setUpOptimizedObserverInner<
 	lazynessDuration = 3 // ms
 ): Promise<void> {
 	let thisObserverWrapper = optimizedObservers[identifier] as
-		| OptimizedObserverWrapper<PublicationDoc, Args, State>
-		| undefined
+		OptimizedObserverWrapper<PublicationDoc, Args, State> | undefined
 
 	// Once this receiver stops, this will be called to remove it from the subscriber lists
 	function removeReceiver() {

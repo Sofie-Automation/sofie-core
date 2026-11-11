@@ -56,6 +56,4 @@ export interface NrcsIngestDataCacheObjPart extends IngestDataCacheObjBase {
 	data: IngestPart
 }
 export type NrcsIngestDataCacheObj =
-	| NrcsIngestDataCacheObjRundown
-	| NrcsIngestDataCacheObjSegment
-	| NrcsIngestDataCacheObjPart
+	NrcsIngestDataCacheObjRundown | NrcsIngestDataCacheObjSegment | NrcsIngestDataCacheObjPart

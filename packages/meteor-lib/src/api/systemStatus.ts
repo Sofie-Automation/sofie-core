@@ -57,6 +57,6 @@ export interface NewSystemStatusAPI {
 	getDebugStates(peripheralDeviceId: PeripheralDeviceId): Promise<object>
 }
 export enum SystemStatusAPIMethods {
-	'getSystemStatus' = 'systemStatus.getSystemStatus',
-	'getDebugStates' = 'systemStatus.getDebugStates',
+	getSystemStatus = 'systemStatus.getSystemStatus',
+	getDebugStates = 'systemStatus.getDebugStates',
 }

@@ -203,8 +203,7 @@ async function manipulatePeripheralDevicePublicationData(
 	const studio =
 		studioId &&
 		((await Studios.findOneAsync(studioId, { projection: studioFieldsSpecifier })) as
-			| Pick<DBStudio, StudioFields>
-			| undefined)
+			Pick<DBStudio, StudioFields> | undefined)
 
 	return [convertPeripheralDeviceForGateway(peripheralDevice, studio)]
 }

@@ -145,8 +145,7 @@ export namespace BucketsAPI {
 		action: AdLibActionCommon | BucketAdLibAction
 	): Promise<BucketAdLibAction> {
 		const targetBucket = (await Buckets.findOneAsync(bucketId, { projection: { _id: 1, studioId: 1 } })) as
-			| Pick<Bucket, '_id' | 'studioId'>
-			| undefined
+			Pick<Bucket, '_id' | 'studioId'> | undefined
 		if (!targetBucket) throw new SofieError(404, `Bucket "${bucketId}" not found`)
 
 		let adLibAction: BucketAdLibAction

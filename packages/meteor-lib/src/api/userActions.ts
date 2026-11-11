@@ -357,84 +357,84 @@ export interface NewUserActionAPI {
 }
 
 export enum UserActionAPIMethods {
-	'take' = 'userAction.take',
-	'setNext' = 'userAction.setNext',
-	'setNextSegment' = 'userAction.setNextSegment',
-	'queueNextSegment' = 'userAction.queueNextSegment',
-	'moveNext' = 'userAction.moveNext',
+	take = 'userAction.take',
+	setNext = 'userAction.setNext',
+	setNextSegment = 'userAction.setNextSegment',
+	queueNextSegment = 'userAction.queueNextSegment',
+	moveNext = 'userAction.moveNext',
 
-	'prepareForBroadcast' = 'userAction.prepareForBroadcast',
-	'resetRundownPlaylist' = 'userAction.resetRundownPlaylist',
-	'resetAndActivate' = 'userAction.resetAndActivate',
-	'forceResetAndActivate' = 'userAction.forceResetAndActivate',
-	'activate' = 'userAction.activate',
-	'deactivate' = 'userAction.deactivate',
-	'unsyncRundown' = 'userAction.unsyncRundown',
+	prepareForBroadcast = 'userAction.prepareForBroadcast',
+	resetRundownPlaylist = 'userAction.resetRundownPlaylist',
+	resetAndActivate = 'userAction.resetAndActivate',
+	forceResetAndActivate = 'userAction.forceResetAndActivate',
+	activate = 'userAction.activate',
+	deactivate = 'userAction.deactivate',
+	unsyncRundown = 'userAction.unsyncRundown',
 
-	'disableNextPiece' = 'userAction.disableNextPiece',
-	'pieceTakeNow' = 'userAction.pieceTakeNow',
-	'setInOutPoints' = 'userAction.pieceSetInOutPoints',
-	'executeAction' = 'userAction.executeAction',
+	disableNextPiece = 'userAction.disableNextPiece',
+	pieceTakeNow = 'userAction.pieceTakeNow',
+	setInOutPoints = 'userAction.pieceSetInOutPoints',
+	executeAction = 'userAction.executeAction',
 
-	'bucketAdlibImport' = 'userAction.bucketAdlibImport',
-	'bucketAdlibStart' = 'userAction.bucketAdlibStart',
+	bucketAdlibImport = 'userAction.bucketAdlibImport',
+	bucketAdlibStart = 'userAction.bucketAdlibStart',
 
-	'bucketsCreateNewBucket' = 'userAction.createBucket',
-	'bucketsRemoveBucket' = 'userAction.removeBucket',
-	'bucketsEmptyBucket' = 'userAction.emptyBucket',
-	'bucketsModifyBucket' = 'userAction.modifyBucket',
-	'bucketsRemoveBucketAdLib' = 'userAction.removeBucketAdLib',
-	'bucketsRemoveBucketAdLibAction' = 'userAction.removeBucketAdLibAction',
-	'bucketsModifyBucketAdLib' = 'userAction.bucketsModifyBucketAdLib',
-	'bucketsModifyBucketAdLibAction' = 'userAction.bucketsModifyBucketAdLibAction',
-	'bucketsSaveActionIntoBucket' = 'userAction.bucketsSaveActionIntoBucket',
+	bucketsCreateNewBucket = 'userAction.createBucket',
+	bucketsRemoveBucket = 'userAction.removeBucket',
+	bucketsEmptyBucket = 'userAction.emptyBucket',
+	bucketsModifyBucket = 'userAction.modifyBucket',
+	bucketsRemoveBucketAdLib = 'userAction.removeBucketAdLib',
+	bucketsRemoveBucketAdLibAction = 'userAction.removeBucketAdLibAction',
+	bucketsModifyBucketAdLib = 'userAction.bucketsModifyBucketAdLib',
+	bucketsModifyBucketAdLibAction = 'userAction.bucketsModifyBucketAdLibAction',
+	bucketsSaveActionIntoBucket = 'userAction.bucketsSaveActionIntoBucket',
 
-	'segmentAdLibPieceStart' = 'userAction.segmentAdLibPieceStart',
-	'sourceLayerOnPartStop' = 'userAction.sourceLayerOnPartStop',
-	'baselineAdLibPieceStart' = 'userAction.baselineAdLibPieceStart',
+	segmentAdLibPieceStart = 'userAction.segmentAdLibPieceStart',
+	sourceLayerOnPartStop = 'userAction.sourceLayerOnPartStop',
+	baselineAdLibPieceStart = 'userAction.baselineAdLibPieceStart',
 
-	'sourceLayerStickyPieceStart' = 'userAction.sourceLayerStickyPieceStart',
+	sourceLayerStickyPieceStart = 'userAction.sourceLayerStickyPieceStart',
 
-	'activateHold' = 'userAction.activateHold',
+	activateHold = 'userAction.activateHold',
 
-	'saveEvaluation' = 'userAction.saveEvaluation',
+	saveEvaluation = 'userAction.saveEvaluation',
 
-	'storeRundownSnapshot' = 'userAction.storeRundownSnapshot',
+	storeRundownSnapshot = 'userAction.storeRundownSnapshot',
 
-	'removeRundownPlaylist' = 'userAction.removeRundownPlaylist',
-	'resyncRundownPlaylist' = 'userAction.resyncRundownPlaylist',
+	removeRundownPlaylist = 'userAction.removeRundownPlaylist',
+	resyncRundownPlaylist = 'userAction.resyncRundownPlaylist',
 
-	'DEBUG_crashStudioWorker' = 'userAction.DEBUG_crashStudioWorker',
+	DEBUG_crashStudioWorker = 'userAction.DEBUG_crashStudioWorker',
 
-	'removeRundown' = 'userAction.removeRundown',
-	'resyncRundown' = 'userAction.resyncRundown',
+	removeRundown = 'userAction.removeRundown',
+	resyncRundown = 'userAction.resyncRundown',
 
-	'moveRundown' = 'userAction.moveRundown',
-	'restoreRundownOrder' = 'userAction.restoreRundownOrder',
+	moveRundown = 'userAction.moveRundown',
+	restoreRundownOrder = 'userAction.restoreRundownOrder',
 
-	'packageManagerRestartExpectation' = 'userAction.packagemanager.restartExpectation',
-	'packageManagerRestartAllExpectations' = 'userAction.packagemanager.restartAllExpectations',
-	'packageManagerAbortExpectation' = 'userAction.packagemanager.abortExpectation',
-	'packageManagerRestartPackageContainer' = 'userAction.packagemanager.restartPackageContainer',
+	packageManagerRestartExpectation = 'userAction.packagemanager.restartExpectation',
+	packageManagerRestartAllExpectations = 'userAction.packagemanager.restartAllExpectations',
+	packageManagerAbortExpectation = 'userAction.packagemanager.abortExpectation',
+	packageManagerRestartPackageContainer = 'userAction.packagemanager.restartPackageContainer',
 
-	'regenerateRundownPlaylist' = 'userAction.ingest.regenerateRundownPlaylist',
-	'restartCore' = 'userAction.system.restartCore',
+	regenerateRundownPlaylist = 'userAction.ingest.regenerateRundownPlaylist',
+	restartCore = 'userAction.system.restartCore',
 
-	'guiFocused' = 'userAction.focused',
-	'guiBlurred' = 'userAction.blurred',
+	guiFocused = 'userAction.focused',
+	guiBlurred = 'userAction.blurred',
 
-	'switchRouteSet' = 'userAction.switchRouteSet',
+	switchRouteSet = 'userAction.switchRouteSet',
 
-	'disablePeripheralSubDevice' = 'userAction.system.disablePeripheralSubDevice',
+	disablePeripheralSubDevice = 'userAction.system.disablePeripheralSubDevice',
 
-	'executeUserChangeOperation' = 'userAction.executeUserChangeOperation',
-	'activateAdlibTestingMode' = 'userAction.activateAdlibTestingMode',
+	executeUserChangeOperation = 'userAction.executeUserChangeOperation',
+	activateAdlibTestingMode = 'userAction.activateAdlibTestingMode',
 
-	'createAdlibTestingRundownForShowStyleVariant' = 'userAction.createAdlibTestingRundownForShowStyleVariant',
+	createAdlibTestingRundownForShowStyleVariant = 'userAction.createAdlibTestingRundownForShowStyleVariant',
 
-	'setQuickLoopStart' = 'userAction.setQuickLoopStart',
-	'setQuickLoopEnd' = 'userAction.setQuickLoopEnd',
-	'clearQuickLoop' = 'userAction.clearQuickLoop',
+	setQuickLoopStart = 'userAction.setQuickLoopStart',
+	setQuickLoopEnd = 'userAction.setQuickLoopEnd',
+	clearQuickLoop = 'userAction.clearQuickLoop',
 }
 
 export interface ReloadRundownPlaylistResponse {

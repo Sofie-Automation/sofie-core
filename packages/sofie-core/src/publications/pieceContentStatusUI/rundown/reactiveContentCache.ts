@@ -37,13 +37,7 @@ export const partFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBP
 })
 
 export type PieceFields =
-	| '_id'
-	| 'startPartId'
-	| 'startRundownId'
-	| 'name'
-	| 'sourceLayerId'
-	| 'content'
-	| 'expectedPackages'
+	'_id' | 'startPartId' | 'startRundownId' | 'name' | 'sourceLayerId' | 'content' | 'expectedPackages'
 export const pieceFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<Piece, PieceFields>>>({
 	_id: 1,
 	startPartId: 1,
@@ -76,13 +70,7 @@ export const pieceInstanceFieldSpecifier = literal<
 })
 
 export type AdLibPieceFields =
-	| '_id'
-	| 'partId'
-	| 'rundownId'
-	| 'name'
-	| 'sourceLayerId'
-	| 'content'
-	| 'expectedPackages'
+	'_id' | 'partId' | 'rundownId' | 'name' | 'sourceLayerId' | 'content' | 'expectedPackages'
 export const adLibPieceFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<AdLibPiece, AdLibPieceFields>>>({
 	_id: 1,
 	partId: 1,

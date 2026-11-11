@@ -147,8 +147,7 @@ async function pieceTakeNowAsAdlib(
 	currentPartInstance: PlayoutPartInstanceModel,
 	pieceToCopy: PieceInstancePiece,
 	pieceInstanceToCopy:
-		| { partInstance: PlayoutPartInstanceModel; pieceInstance: PlayoutPieceInstanceModel }
-		| undefined
+		{ partInstance: PlayoutPartInstanceModel; pieceInstance: PlayoutPieceInstanceModel } | undefined
 ): Promise<void> {
 	const genericAdlibPiece = convertAdLibToGenericPiece(pieceToCopy, false)
 	/*const newPieceInstance = */ currentPartInstance.insertAdlibbedPiece(genericAdlibPiece, pieceToCopy._id)

@@ -33,9 +33,7 @@ export type MongoFieldSpecifierZeroes<T> = {
 	[P in keyof T]?: 0
 }
 export type MongoFieldSpecifier<T> =
-	| MongoFieldSpecifierOnes<T>
-	| MongoFieldSpecifierZeroes<T>
-	| MongoFieldSpecifierOnesStrict<Partial<T>>
+	MongoFieldSpecifierOnes<T> | MongoFieldSpecifierZeroes<T> | MongoFieldSpecifierOnesStrict<Partial<T>>
 
 /**
  * Type helper to construct a field specifier to include all the keys mentioned in a type union.

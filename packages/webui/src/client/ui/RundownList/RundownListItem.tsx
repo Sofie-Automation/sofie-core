@@ -41,15 +41,13 @@ export function RundownListItem({
 	const showStyleBase = useTracker(
 		() =>
 			ShowStyleBases.findOne(rundown.showStyleBaseId, { projection: { name: 1 } }) as
-				| Pick<DBShowStyleBase, 'name'>
-				| undefined,
+				Pick<DBShowStyleBase, 'name'> | undefined,
 		[rundown.showStyleBaseId]
 	)
 	const showStyleVariant = useTracker(
 		() =>
 			ShowStyleVariants.findOne(rundown.showStyleVariantId, { projection: { name: 1 } }) as
-				| Pick<DBShowStyleVariant, 'name'>
-				| undefined,
+				Pick<DBShowStyleVariant, 'name'> | undefined,
 		[rundown.showStyleVariantId]
 	)
 

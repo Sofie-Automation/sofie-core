@@ -14,8 +14,7 @@ import type { ReadonlyDeep } from 'type-fest'
  */
 export interface IngestExpectedPackage<
 	TPackageSource extends { fromPieceType: ExpectedPackageDBType } =
-		| ExpectedPackageIngestSourcePart
-		| ExpectedPackageIngestSourceRundownBaseline,
+		ExpectedPackageIngestSourcePart | ExpectedPackageIngestSourceRundownBaseline,
 > {
 	packageId: ExpectedPackageId
 

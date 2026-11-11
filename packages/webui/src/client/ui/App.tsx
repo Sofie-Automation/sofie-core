@@ -97,9 +97,8 @@ export const App: React.FC = function App() {
 				.catch(catchError('documentElement.requestFullscreen'))
 
 			// Use Keyboard API to lock the keyboard and disable all browser shortcuts
-			if (!('keyboard' in navigator))
-				return // but we check for its availability, so it should be fine.
-				// Keyboard Lock: https://wicg.github.io/keyboard-lock/
+			if (!('keyboard' in navigator)) return // but we check for its availability, so it should be fine.
+			// Keyboard Lock: https://wicg.github.io/keyboard-lock/
 			;(navigator.keyboard as any).lock().catch(catchError('keyboard.lock'))
 		}
 		document.addEventListener('mousedown', onMouseDown, {

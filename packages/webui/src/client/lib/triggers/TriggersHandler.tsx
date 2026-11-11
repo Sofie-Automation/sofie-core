@@ -116,9 +116,8 @@ function createAction(
 
 			return flatten(
 				await Promise.all(
-					executableActions.map(
-						async (action): Promise<IWrappedAdLib[]> =>
-							isPreviewableAction(action) ? action.preview(ctx, trackerComputation) : []
+					executableActions.map(async (action): Promise<IWrappedAdLib[]> =>
+						isPreviewableAction(action) ? action.preview(ctx, trackerComputation) : []
 					)
 				)
 			)

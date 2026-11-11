@@ -8,7 +8,7 @@ export interface MongoAPI {
 }
 
 export enum MongoAPIMethods {
-	'insertDocument' = 'mongo.insert',
-	'updateDocument' = 'mongo.update',
-	'removeDocument' = 'mongo.remove',
+	insertDocument = 'mongo.insert',
+	updateDocument = 'mongo.update',
+	removeDocument = 'mongo.remove',
 }

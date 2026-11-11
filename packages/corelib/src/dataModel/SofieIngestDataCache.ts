@@ -57,6 +57,4 @@ export interface SofieIngestDataCacheObjPart extends SofieIngestDataCacheBase {
 }
 
 export type SofieIngestDataCacheObj =
-	| SofieIngestDataCacheObjRundown
-	| SofieIngestDataCacheObjSegment
-	| SofieIngestDataCacheObjPart
+	SofieIngestDataCacheObjRundown | SofieIngestDataCacheObjSegment | SofieIngestDataCacheObjPart

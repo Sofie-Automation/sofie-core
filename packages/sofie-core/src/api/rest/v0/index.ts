@@ -140,9 +140,7 @@ export function createLegacyApiRouter(
 				try {
 					const convArgs = typeConvertUrlParameters(args)
 					const cursor = (await f({ ...legacyRestPublicationContext, signal: abort.signal }, ...convArgs)) as
-						| { fetch: () => unknown }
-						| null
-						| undefined
+						{ fetch: () => unknown } | null | undefined
 
 					if (cursor) return cursor.fetch()
 					return []

@@ -137,8 +137,7 @@ export async function observeSelectedPartInstancesBranding<TPlaylist extends Pla
  */
 export async function getBrandingRundownIdsForPart(partId: PartId): Promise<RundownId[]> {
 	const part = (await Parts.findOneAsync(partId, { projection: { _id: 1, rundownId: 1 } })) as
-		| Pick<DBPart, '_id' | 'rundownId'>
-		| undefined
+		Pick<DBPart, '_id' | 'rundownId'> | undefined
 
 	return part ? [part.rundownId] : []
 }

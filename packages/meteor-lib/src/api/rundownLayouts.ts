@@ -12,6 +12,6 @@ export interface NewRundownLayoutsAPI {
 }
 
 export enum RundownLayoutsAPIMethods {
-	'removeRundownLayout' = 'rundownLayout.removeRundownLayout',
-	'createRundownLayout' = 'rundownLayout.createRundownLayout',
+	removeRundownLayout = 'rundownLayout.removeRundownLayout',
+	createRundownLayout = 'rundownLayout.createRundownLayout',
 }

@@ -22,10 +22,7 @@ type PackageContainerId = string
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace ExpectedPackage {
 	export type Any =
-		| ExpectedPackageMediaFile
-		| ExpectedPackageQuantelClip
-		| ExpectedPackageJSONData
-		| ExpectedPackageHtmlTemplate
+		ExpectedPackageMediaFile | ExpectedPackageQuantelClip | ExpectedPackageJSONData | ExpectedPackageHtmlTemplate
 
 	export enum PackageType {
 		MEDIA_FILE = 'media_file',
@@ -393,15 +390,7 @@ export interface PackageContainer {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Accessor {
 	export type Any =
-		| LocalFolder
-		| FileShare
-		| HTTP
-		| HTTPProxy
-		| Quantel
-		| CorePackageCollection
-		| AtemMediaStore
-		| FTP
-		| KairosClip
+		LocalFolder | FileShare | HTTP | HTTPProxy | Quantel | CorePackageCollection | AtemMediaStore | FTP | KairosClip
 
 	export enum AccessType {
 		LOCAL_FOLDER = 'local_folder',
@@ -574,15 +563,7 @@ export namespace Accessor {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AccessorOnPackage {
 	export type Any =
-		| LocalFolder
-		| FileShare
-		| HTTP
-		| HTTPProxy
-		| Quantel
-		| CorePackageCollection
-		| AtemMediaStore
-		| FTP
-		| KairosClip
+		LocalFolder | FileShare | HTTP | HTTPProxy | Quantel | CorePackageCollection | AtemMediaStore | FTP | KairosClip
 
 	export interface LocalFolder extends Partial<Accessor.LocalFolder> {
 		/** Path to the file (starting from .folderPath). If not set, the filePath of the ExpectedPackage will be used */

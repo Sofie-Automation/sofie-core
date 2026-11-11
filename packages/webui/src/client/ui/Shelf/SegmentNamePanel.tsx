@@ -56,8 +56,7 @@ function getSegmentName(selectedSegment: 'current' | 'next', playlist: DBRundown
 	if (selectedSegment === 'current') {
 		if (currentPartInstance) {
 			const segment = RundownPlaylistClientUtil.getSegments(playlist, { _id: currentPartInstance.segmentId })[0] as
-				| DBSegment
-				| undefined
+				DBSegment | undefined
 			return segment?.name
 		}
 	} else {
@@ -67,8 +66,7 @@ function getSegmentName(selectedSegment: 'current' | 'next', playlist: DBRundown
 			})[0] as PartInstance | undefined
 			if (nextPartInstance && nextPartInstance.segmentId !== currentPartInstance.segmentId) {
 				const segment = RundownPlaylistClientUtil.getSegments(playlist, { _id: nextPartInstance.segmentId })[0] as
-					| DBSegment
-					| undefined
+					DBSegment | undefined
 				return segment?.name
 			}
 		}

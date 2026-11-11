@@ -205,8 +205,7 @@ class RundownViewNotifier extends WithManagedTracker {
 			const newNoteIds: Array<string> = []
 
 			const playlist = RundownPlaylists.findOne(playlistId, { projection: { _id: 1, notes: 1 } }) as
-				| Pick<DBRundownPlaylist, '_id' | 'notes'>
-				| undefined
+				Pick<DBRundownPlaylist, '_id' | 'notes'> | undefined
 			const rundowns = rRundowns.get()
 
 			if (playlist?.notes) {

@@ -6,6 +6,6 @@ export interface NewPlayoutAPI {
 }
 
 export enum PlayoutAPIMethods {
-	'updateStudioBaseline' = 'playout.updateStudioBaseline',
-	'shouldUpdateStudioBaseline' = 'playout.shouldUpdateStudioBaseline',
+	updateStudioBaseline = 'playout.updateStudioBaseline',
+	shouldUpdateStudioBaseline = 'playout.shouldUpdateStudioBaseline',
 }

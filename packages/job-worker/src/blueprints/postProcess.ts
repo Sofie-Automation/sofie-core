@@ -643,18 +643,16 @@ function processAdLibActionITranslatableMessages<
 		},
 		triggerModes:
 			itemOrig.triggerModes &&
-			itemOrig.triggerModes.map(
-				(triggerMode): ArrayElement<BucketAdLibAction['triggerModes']> => ({
-					...triggerMode,
-					display: {
-						...triggerMode.display,
-						label: wrapTranslatableMessageFromBlueprints(triggerMode.display.label, [blueprintId]),
-						description:
-							triggerMode.display.description &&
-							wrapTranslatableMessageFromBlueprints(triggerMode.display.description, [blueprintId]),
-					},
-				})
-			),
+			itemOrig.triggerModes.map((triggerMode): ArrayElement<BucketAdLibAction['triggerModes']> => ({
+				...triggerMode,
+				display: {
+					...triggerMode.display,
+					label: wrapTranslatableMessageFromBlueprints(triggerMode.display.label, [blueprintId]),
+					description:
+						triggerMode.display.description &&
+						wrapTranslatableMessageFromBlueprints(triggerMode.display.description, [blueprintId]),
+				},
+			})),
 		userEditOperations:
 			itemOrig.userEditOperations && translateUserEditsFromBlueprint(itemOrig.userEditOperations, [blueprintId]),
 		userEditProperties:

@@ -102,16 +102,16 @@ export enum PlayoutActions {
 }
 
 export enum ClientActions {
-	'shelf' = 'shelf',
-	'goToOnAirLine' = 'goToOnAirLine',
-	'rewindSegments' = 'rewindSegments',
-	'showEntireCurrentSegment' = 'showEntireCurrentSegment',
-	'miniShelfQueueAdLib' = 'miniShelfQueueAdLib',
-	'editMode' = 'editMode',
+	shelf = 'shelf',
+	goToOnAirLine = 'goToOnAirLine',
+	rewindSegments = 'rewindSegments',
+	showEntireCurrentSegment = 'showEntireCurrentSegment',
+	miniShelfQueueAdLib = 'miniShelfQueueAdLib',
+	editMode = 'editMode',
 }
 
 export enum DeviceActions {
-	'modifyShiftRegister' = 'modifyShiftRegister',
+	modifyShiftRegister = 'modifyShiftRegister',
 }
 
 export type SomeActionIdentifier = PlayoutActions | ClientActions | DeviceActions

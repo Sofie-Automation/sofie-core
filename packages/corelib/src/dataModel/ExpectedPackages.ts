@@ -136,8 +136,7 @@ export interface ExpectedPackageIngestSourceStudioBaseline extends ExpectedPacka
 export type ExpectedPackageIngestSourcePart = ExpectedPackageIngestSourcePiece | ExpectedPackageIngestSourceAdlibAction
 
 export type ExpectedPackageIngestSourceBucket =
-	| ExpectedPackageIngestSourceBucketAdlibPiece
-	| ExpectedPackageIngestSourceBucketAdlibAction
+	ExpectedPackageIngestSourceBucketAdlibPiece | ExpectedPackageIngestSourceBucketAdlibAction
 
 export type ExpectedPackageIngestSourceRundownBaseline =
 	| ExpectedPackageIngestSourceBaselinePiece

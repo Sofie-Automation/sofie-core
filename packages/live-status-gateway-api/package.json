@@ -50,7 +50,7 @@
 		"@asyncapi/modelina": "^5.10.1",
 		"@asyncapi/nodejs-ws-template": "^0.10.0",
 		"@asyncapi/parser": "^3.6.0",
-		"prettier": "^3.8.4",
+		"prettier": "^3.9.10",
 		"yaml": "^2.9.0"
 	},
 	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",

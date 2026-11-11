@@ -26,15 +26,13 @@ export function getCurrentSegmentParts(
 		partInstancesByPartId
 	)
 		.sort((a, b) => a.part._rank - b.part._rank)
-		.map(
-			(partInstance): CurrentSegmentPart => ({
-				id: unprotectString(partInstance.part._id),
-				name: partInstance.part.title,
-				autoNext: partInstance.part.autoNext,
-				createdByAdLib: partInstance.orphaned === 'adlib-part',
-				timing: {
-					expectedDurationMs: partInstance.part.expectedDuration,
-				},
-			})
-		)
+		.map((partInstance): CurrentSegmentPart => ({
+			id: unprotectString(partInstance.part._id),
+			name: partInstance.part.title,
+			autoNext: partInstance.part.autoNext,
+			createdByAdLib: partInstance.orphaned === 'adlib-part',
+			timing: {
+				expectedDurationMs: partInstance.part.expectedDuration,
+			},
+		}))
 }

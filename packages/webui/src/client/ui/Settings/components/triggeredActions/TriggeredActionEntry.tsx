@@ -201,9 +201,8 @@ export const TriggeredActionEntry: React.FC<IProps> = React.memo(function Trigge
 
 				return flatten(
 					await Promise.all(
-						executableActions.map(
-							async (action): Promise<IWrappedAdLib[]> =>
-								isPreviewableAction(action) ? action.preview(actionCtx, triggerComputation) : []
+						executableActions.map(async (action): Promise<IWrappedAdLib[]> =>
+							isPreviewableAction(action) ? action.preview(actionCtx, triggerComputation) : []
 						)
 					)
 				)
