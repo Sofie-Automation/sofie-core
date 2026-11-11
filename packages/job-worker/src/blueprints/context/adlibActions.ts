@@ -32,7 +32,11 @@ import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
 import { selectNewPartWithOffsets } from '../../playout/moveNextPart.js'
 import { ProcessedShowStyleConfig } from '../config.js'
 import { DatastorePersistenceMode } from '@sofie-automation/shared-lib/dist/core/model/TimelineDatastore'
-import { removeTimelineDatastoreValue, setTimelineDatastoreValue } from '../../playout/datastore.js'
+import {
+	assertValidTimelineDatastoreValue,
+	removeTimelineDatastoreValue,
+	setTimelineDatastoreValue,
+} from '../../playout/datastore.js'
 import { executePeripheralDeviceAction, listPlayoutDevices } from '../../peripheralDevice.js'
 import {
 	ActionPartChange,
@@ -331,6 +335,9 @@ export class ActionExecutionContext extends ShowStyleUserContext implements IAct
 	}
 
 	async setTimelineDatastoreValue(key: string, value: unknown, mode: DatastorePersistenceMode): Promise<void> {
+		// Check now, so that the blueprint gets the error instead of it being thrown after the save
+		assertValidTimelineDatastoreValue(key, value)
+
 		this._playoutModel.deferAfterSave(async () => {
 			await setTimelineDatastoreValue(this._context, key, value, mode)
 		})
