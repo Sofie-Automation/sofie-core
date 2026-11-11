@@ -3,6 +3,7 @@ import { Time } from './common.js'
 import { TSR, TimelineObjectCoreExt } from './timeline.js'
 import { SourceLayerType } from '@sofie-automation/shared-lib/dist/core/model/ShowStyle'
 import { PopupPreview } from './previews.js'
+import { PieceContentStatusObj } from './pieceContentStatus.js'
 
 export type WithTimeline<T extends BaseContent> = T & {
 	timelineObjects: TimelineObjectCoreExt<TSR.TSRTimelineContent>[]
@@ -16,10 +17,16 @@ export interface BaseContent {
 
 	/** Length of the source content (in milliseconds). This property is used to show "freeze-frame" icons and countdowns. Default is `undefined`, meaning the content has no specific duration */
 	sourceDuration?: number
+
+	/** When set, any media object status will be ignored for this content */
 	ignoreMediaObjectStatus?: boolean
+
 	ignoreBlackFrames?: boolean
 	ignoreFreezeFrame?: boolean
 	ignoreAudioFormat?: boolean
+
+	/** Override media status of the Piece. These overrides are applied _after_ any other media status checks. */
+	overrideMediaObjectStatus?: Partial<PieceContentStatusObj>
 
 	/**
 	 * Overwrite any default hover previews in Sofie
