@@ -59,12 +59,13 @@ You can use a dockerfile in your plugin git repository along the lines of:
 
 ```Dockerfile
 # BUILD IMAGE
-FROM node:26
+# Use the same Node.js major version as the playout-gateway image below, so that the plugin and any native dependencies are built for the Node.js that will run them
+FROM node:22
 WORKDIR /opt/tsr-plugin-example
 
 COPY . .
 
-RUN corepack enable
+RUN npm install --global corepack && corepack enable
 RUN yarn install
 RUN yarn build
 RUN yarn install --production

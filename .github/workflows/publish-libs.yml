@@ -62,6 +62,7 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/publish-docs-cache
@@ -109,6 +110,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn install
@@ -146,6 +148,7 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/lint-core-cache
@@ -240,6 +243,7 @@ jobs:
             echo "No NPM token provided, using trusted publishing"
           fi
 
+          npm install --global corepack --force
           corepack enable
 
           yarn install

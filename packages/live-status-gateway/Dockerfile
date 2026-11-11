@@ -7,7 +7,7 @@ WORKDIR /opt
 
 COPY . .
 
-RUN corepack enable
+RUN npm install --global corepack && corepack enable
 RUN yarn install --immutable
 RUN yarn run pinst --disable
 RUN yarn build:single packages/live-status-gateway/tsconfig.build.json

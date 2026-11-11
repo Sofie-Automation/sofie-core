@@ -7,7 +7,7 @@ WORKDIR /opt/core
 
 COPY . .
 
-RUN corepack enable
+RUN npm install --global corepack && corepack enable
 RUN yarn install --immutable
 RUN yarn run pinst --disable
 

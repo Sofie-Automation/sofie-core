@@ -34,6 +34,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/lint-cache
@@ -68,6 +69,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/test-core-cache
@@ -113,6 +115,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn install
@@ -269,6 +272,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Build
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn install
@@ -442,6 +446,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/test-packages-cache
@@ -480,6 +485,7 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn install
@@ -508,6 +514,7 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn install
@@ -550,6 +557,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/publish-docs-cache
@@ -590,6 +598,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/check-for-multiple-library-versions-cache
