@@ -151,17 +151,15 @@ jobs:
       - name: Bump version
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          COMMIT_TIMESTAMP=$(git log -1 --pretty=format:%ct HEAD)
-          COMMIT_DATE=$(date -d @$COMMIT_TIMESTAMP +%Y%m%d-%H%M%S)
-          GIT_HASH=$(git rev-parse --short HEAD)
-          PRERELEASE_TAG=nightly-$(echo "${{ github.ref_name }}" | sed -r 's/[^a-z0-9]+/-/gi')
-
           git config --global user.email "info@superfly.tv"
           git config --global user.name "superflytvab"
 
-          yarn set-version-and-commit prerelease --preid $PRERELEASE_TAG-$COMMIT_DATE-$GIT_HASH
+          # This appends the commit date and hash to the prerelease name.
+          # Always a patch bump, as the shallow checkout has no history to determine the bump from
+          yarn release --prerelease "nightly-$REF_NAME" --release-as patch
         env:
           CI: true
+          REF_NAME: ${{ github.ref_name }}
       - name: Build
         run: |
           yarn build
