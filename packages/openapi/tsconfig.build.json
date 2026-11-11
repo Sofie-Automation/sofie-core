@@ -4,13 +4,7 @@
 	"exclude": ["node_modules/**", "**/*spec.ts", "**/__tests__/*", "**/__mocks__/*"],
 	"compilerOptions": {
 		"outDir": "./dist",
-		"baseUrl": "./",
-		"paths": {
-			"*": ["./node_modules/*"],
-			"openapi": ["./client/ts/index.ts"]
-		},
 		"lib": ["es2020", "dom"],
-		"types": ["node"],
 		"noImplicitAny": false,
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,

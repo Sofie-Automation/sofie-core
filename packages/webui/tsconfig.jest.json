@@ -2,6 +2,7 @@
 	"extends": "./tsconfig.app.json",
 	"compilerOptions": {
 		"esModuleInterop": true,
-		"verbatimModuleSyntax": false // It breaks on imports from other packages that don't use this
+		"verbatimModuleSyntax": false, // It breaks on imports from other packages that don't use this
+		"ignoreDeprecations": "6.0" // ts-jest forces CommonJS, which uses the deprecated node10 resolution
 	}
 }

@@ -5,12 +5,6 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"rootDir": "./src",
-		"baseUrl": "./",
-		"paths": {
-			"*": ["./node_modules/*"],
-			"live-status-gateway": ["./src/index.ts"]
-		},
-		"types": ["node"],
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true,

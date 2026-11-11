@@ -25,7 +25,6 @@
 		"test": "run lint && run genclient:ts && run unit",
 		"unit:no-server": "run -T jest --detectOpenHandles --forceExit"
 	},
-	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"engines": {
 		"node": ">=22.20.0"
 	},
@@ -40,7 +39,7 @@
 	"devDependencies": {
 		"@apidevtools/json-schema-ref-parser": "^15.5.2",
 		"@openapitools/openapi-generator-cli": "^2.42.0",
-		"eslint": "^9.39.5",
+		"eslint": "^10.14.0",
 		"js-yaml": "^4.3.2",
 		"wget-improved": "^3.4.0"
 	},

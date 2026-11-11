@@ -2,6 +2,7 @@
 	"name": "automation-core",
 	"version": "26.9.3",
 	"license": "MIT",
+	"homepage": "https://github.com/Sofie-Automation/sofie-core#readme",
 	"private": true,
 	"engines": {
 		"node": ">=22.20.0"
@@ -27,19 +28,15 @@
 		"watch-for-worker-changes": "nodemon --delay 2.5 --watch packages/job-worker/dist --watch packages/corelib/dist --watch packages/shared-lib/dist --watch packages/blueprints-integration/dist --watch packages/server-core-integration/dist ./scripts/server-force-restart.js",
 		"lint": "eslint",
 		"lint:fix": "run lint --fix",
-		"unit": "lerna run --concurrency 2 --stream unit --ignore @sofie-automation/openapi -- --coverage=false",
-		"test": "lerna run --concurrency 2 --stream test -- --coverage=false",
+		"unit": "yarn workspaces foreach -A -piv -j 2 --exclude automation-core --exclude @sofie-automation/openapi run unit --coverage=false",
+		"test": "yarn workspaces foreach -A -piv -j 2 --exclude automation-core run test --coverage=false",
 		"test-all": "yarn install && run build && run lint && run test",
 		"validate:release": "yarn install && run build && run validate:versions && run validate:dependencies && run test",
 		"validate:dependencies": "yarn npm audit --environment production && run license-validate",
 		"validate:dev-dependencies": "yarn npm audit --environment development",
 		"validate:versions": "node scripts/checkForMultipleVersions.mjs",
 		"license-validate": "sofie-licensecheck --allowPackages \"foreachasync@3.0.0;jmespath@0.15.0;json-e@4.8.0;caniuse-lite@1.0.30001448;mos-gateway@$(node -p \"require('mos-gateway/package.json').version\");playout-gateway@$(node -p \"require('playout-gateway/package.json').version\");sofie-documentation@$(node -p \"require('sofie-documentation/package.json').version\");@sofie-automation/sofie-core@$(node -p \"require('@sofie-automation/sofie-core/package.json').version\");@sofie-automation/corelib@$(node -p \"require('@sofie-automation/corelib/package.json').version\");@sofie-automation/shared-lib@$(node -p \"require('@sofie-automation/shared-lib/package.json').version\");@sofie-automation/job-worker@$(node -p \"require('@sofie-automation/job-worker/package.json').version\");@sofie-automation/meteor-lib@$(node -p \"require('@sofie-automation/meteor-lib/package.json').version\");@sofie-automation/webui@$(node -p \"require('@sofie-automation/webui/package.json').version\");lunr-languages@1.10.0;live-status-gateway@$(node -p \"require('live-status-gateway/package.json').version\")\"",
-		"stage-versions": "git add -u \"packages/*/package.json\" \"packages/*/CHANGELOG.md\" lerna.json yarn.lock",
-		"set-version": "lerna version --exact --no-changelog --no-git-tag-version --no-push --yes",
-		"set-version-and-commit": "lerna version --exact --no-changelog --no-changelog --no-commit-hooks --force-publish='*' --no-push --yes",
-		"set-version-and-changelog": "lerna version --exact --force-publish --conventional-commits --no-git-tag-version --no-push --yes",
-		"release": "commit-and-tag-version --commit-all",
+		"release": "sofie-version",
 		"prepareChangelog": "run release --prerelease --release-as patch",
 		"docs:typedoc": "typedoc .",
 		"docs:serve": "yarn workspace sofie-documentation start",
@@ -52,7 +49,7 @@
 		"@babel/core": "^7.29.7",
 		"@babel/plugin-transform-export-namespace-from": "^7.29.7",
 		"@babel/plugin-transform-modules-commonjs": "^7.29.7",
-		"@sofie-automation/code-standard-preset": "^3.2.2",
+		"@sofie-automation/code-standard-preset": "^4.0.3",
 		"@types/amqplib": "0.10.6",
 		"@types/debug": "^4.1.13",
 		"@types/ejson": "^2.2.2",
@@ -61,9 +58,8 @@
 		"@types/object-path": "^0.11.4",
 		"@types/underscore": "^1.13.0",
 		"babel-jest": "^30.5.2",
-		"commit-and-tag-version": "^13.3.0",
 		"concurrently": "^10.0.6",
-		"eslint": "^9.39.5",
+		"eslint": "^10.14.0",
 		"eslint-plugin-react": "^7.37.5",
 		"eslint-plugin-yml": "^3.9.0",
 		"husky": "^9.1.7",
@@ -72,7 +68,6 @@
 		"jest-mock-extended": "^4.0.2",
 		"json-schema-to-typescript": "^15.0.4",
 		"legally": "^3.6.0",
-		"lerna": "^10.1.1",
 		"lint-staged": "^17.6.0",
 		"nodemon": "^3.1.14",
 		"open-cli": "^9.0.0",
@@ -83,8 +78,8 @@
 		"snyk-nodejs-lockfile-parser": "^2.10.5",
 		"ts-jest": "29.4.9",
 		"ts-node": "^10.9.2",
-		"typedoc": "^0.27.9",
-		"typescript": "~5.9.3"
+		"typedoc": "^0.28.20",
+		"typescript": "~6.0.3"
 	},
 	"packageManager": "yarn@4.17.0",
 	"resolutions": {
@@ -97,9 +92,6 @@
 	"dependenciesMeta": {
 		"esbuild": {
 			"built": true
-		},
-		"nx": {
-			"built": true
 		}
 	},
 	"lint-staged": {
@@ -109,10 +101,5 @@
 		"*.{ts,tsx,js,jsx}": [
 			"yarn lint"
 		]
-	},
-	"commit-and-tag-version": {
-		"scripts": {
-			"postbump": "node scripts/sync-versions.js && yarn install && git add yarn.lock"
-		}
 	}
 }

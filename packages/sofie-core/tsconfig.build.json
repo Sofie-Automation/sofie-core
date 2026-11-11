@@ -5,14 +5,9 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"rootDir": "./src",
-		"baseUrl": "./",
-		// The preset maps '*' to '../node_modules/*', which for a workspace is not a package store. Clear it so
-		// plain node resolution is used.
-		"paths": {},
 		"target": "es2024",
 		"lib": ["es2024"],
 		"resolveJsonModule": true,
-		"types": ["node"],
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"composite": true,

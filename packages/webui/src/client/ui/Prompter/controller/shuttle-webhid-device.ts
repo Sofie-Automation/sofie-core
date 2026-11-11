@@ -1,3 +1,4 @@
+/// <reference types="w3c-web-hid" />
 import { ControllerAbstract } from './lib.js'
 import type { AccessRequestCallback, PrompterViewContent } from '../PrompterView.js'
 
