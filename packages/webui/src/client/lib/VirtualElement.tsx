@@ -388,7 +388,17 @@ export function VirtualElement({
 }
 function measureElement(wrapperEl: HTMLDivElement, placeholderHeight?: number): IElementMeasurements | null {
 	if (!wrapperEl || !wrapperEl.firstElementChild) {
-		return null
+		// If the wrapped content has disappeared (eg item deleted), force collapse.
+		// This prevents stale measured heights from leaving empty gaps in the list.
+		return {
+			width: 'auto',
+			clientHeight: 0,
+			marginTop: undefined,
+			marginBottom: undefined,
+			marginLeft: undefined,
+			marginRight: undefined,
+			id: wrapperEl?.id,
+		}
 	}
 
 	const el = wrapperEl.firstElementChild as HTMLElement
