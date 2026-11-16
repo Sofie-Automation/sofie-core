@@ -9,6 +9,7 @@ import { collectWorkerPrometheusMetrics } from '../worker/worker'
 import Koa from 'koa'
 import KoaRouter from '@koa/router'
 import { bindKoaRouter } from '../api/rest/koa'
+import './prometheusHealthGauge'
 
 const apmNamespace = 'http'
 
