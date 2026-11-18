@@ -15,7 +15,13 @@ import {
 	StudiosRestAPI,
 } from '../../../lib/rest/v1'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
-import { Blueprints, PeripheralDevices, RundownPlaylists, Studios } from '../../../collections'
+import {
+	Blueprints,
+	PeripheralDevices,
+	RundownPlaylists,
+	Studios,
+	waitForStudioRundownVersionHash,
+} from '../../../collections'
 import {
 	APIBlueprintFixUpConfigMessageFrom,
 	APIStudioFrom,
@@ -141,6 +147,9 @@ class StudiosServerAPI implements StudiosRestAPI {
 
 		await runUpgradeForStudio(studioId)
 
+		// The studio hash updates with a delay, wait for it before regenerating the baseline
+		await waitForStudioRundownVersionHash(studioId)
+
 		return ClientAPI.responseSuccess(await updateStudioBaseline(studioId))
 	}
 
@@ -184,6 +193,9 @@ class StudiosServerAPI implements StudiosRestAPI {
 		await new Promise<void>((resolve) => setTimeout(() => resolve(), 200))
 
 		await runUpgradeForStudio(studioId)
+
+		// The studio hash updates with a delay, wait for it before regenerating the baseline
+		await waitForStudioRundownVersionHash(studioId)
 
 		return ClientAPI.responseSuccess(await updateStudioBaseline(studioId))
 	}
@@ -260,6 +272,9 @@ class StudiosServerAPI implements StudiosRestAPI {
 		_event: string,
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<APIStudioBaselineReloadResult>> {
+		// The studio hash updates with a delay, wait for it so recent changes are picked up
+		await waitForStudioRundownVersionHash(studioId)
+
 		const studio = await Studios.findOneAsync(studioId)
 		if (!studio)
 			throw UserError.from(
