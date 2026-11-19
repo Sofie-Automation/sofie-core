@@ -1,4 +1,4 @@
-import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
 
 export interface NewStudiosAPI {
 	insertStudio(): Promise<StudioId>

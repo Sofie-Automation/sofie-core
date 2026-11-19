@@ -8,7 +8,7 @@ import { logger } from '../../logging'
 import { LiveQueryHandle, lazyIgnore } from '../lib'
 import { CustomPublish, CustomPublishChanges } from './publish'
 import { waitForAllObserversReady } from '../../publications/lib/lib'
-import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection/index'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 
 const apmNamespace = 'optimizedObserver'

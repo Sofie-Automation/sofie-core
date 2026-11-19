@@ -1,7 +1,7 @@
-import { SourceLayerType } from './content.js'
-import { ITranslatableMessage } from './translations.js'
+import type { SourceLayerType } from './content.js'
+import type { ITranslatableMessage } from './translations.js'
 import {
-	SomeActionIdentifier,
+	type SomeActionIdentifier,
 	ClientActions,
 	PlayoutActions,
 	DeviceActions,
@@ -358,7 +358,7 @@ export interface IBlueprintTriggeredActions {
 	styleClassNames?: string
 }
 
-export { SomeActionIdentifier, ClientActions, PlayoutActions, DeviceActions }
+export { type SomeActionIdentifier, ClientActions, PlayoutActions, DeviceActions }
 
 export enum IBlueprintDefaultCoreSystemTriggersType {
 	toggleShelf = 'toggleShelf',

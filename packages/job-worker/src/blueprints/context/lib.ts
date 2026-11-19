@@ -82,9 +82,9 @@ import {
 	UserEditingDefinitionSofieDefault,
 	UserEditingType,
 	UserEditingDefinitionState,
-} from '@sofie-automation/blueprints-integration/dist/userEditing'
+	BlueprintQuickLookInfo,
+} from '@sofie-automation/blueprints-integration'
 import type { PlayoutMutatablePart } from '../../playout/model/PlayoutPartInstanceModel.js'
-import { BlueprintQuickLookInfo } from '@sofie-automation/blueprints-integration/dist/context/quickLoopInfo'
 import { IngestPartNotifyItemReady } from '@sofie-automation/shared-lib/dist/ingest/rundownStatus'
 import { PlayoutModel } from '../../playout/model/PlayoutModel.js'
 import { IngestJobs } from '@sofie-automation/corelib/dist/worker/ingest'

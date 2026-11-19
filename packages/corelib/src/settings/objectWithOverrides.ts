@@ -1,8 +1,8 @@
 import * as objectPath from 'object-path'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 import _ from 'underscore'
 import { assertNever, clone, literal } from '../lib.js'
-import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
+import type { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep.js'
 
 /**
  * This is an object which allows for overrides to be tracked and reapplied

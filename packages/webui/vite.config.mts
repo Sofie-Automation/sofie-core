@@ -1,30 +1,8 @@
-import { defineConfig } from 'vite'
+import { defineConfig, defaultClientConditions } from 'vite'
 import react from '@vitejs/plugin-react'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import path from 'path'
-import fs from 'fs/promises'
-
-const commonJsPaths: string[] = []
-
-async function findCommonJsPathsForLibrary(prefix: string, rootPath: string) {
-	const filenames = await fs.readdir(rootPath)
-	for (const name of filenames) {
-		const stat = await fs.stat(path.join(rootPath, name))
-		if (stat.isDirectory()) {
-			await findCommonJsPathsForLibrary(path.join(prefix, name), path.join(rootPath, name))
-		} else if (name.endsWith('.js')) {
-			commonJsPaths.push(path.join(prefix, name.slice(0, -3)))
-		}
-	}
-}
-
-// Hack: vite doesn't like commonjs dependencies unless the import paths are named explicitly
-await Promise.all([
-	findCommonJsPathsForLibrary('@sofie-automation/corelib/dist', '../corelib/dist'),
-	findCommonJsPathsForLibrary('@sofie-automation/shared-lib/dist', '../shared-lib/dist'),
-	findCommonJsPathsForLibrary('@sofie-automation/meteor-lib/dist', '../meteor-lib/dist'),
-])
 
 const basePath = process.env.DEV_SOFIE_BASE_PATH || ''
 
@@ -49,22 +27,23 @@ export default defineConfig(({ command }) => ({
 
 	optimizeDeps: {
 		include: [
-			// Add all sofie paths, ensuring they use unix path syntax
-			...commonJsPaths.map((p) => p.replaceAll('\\', '/')),
-
-			// Commonjs monorepo dependencies
-			'@sofie-automation/blueprints-integration',
+			// Node builtins used by the monorepo packages, which the dependency scan doesn't find up front.
+			// Without these, the first load after clearing the cache triggers a reload
+			'events',
+			'crypto',
+			'vite-plugin-node-polyfills/shims/buffer',
+			'vite-plugin-node-polyfills/shims/global',
+			'vite-plugin-node-polyfills/shims/process',
 		],
 	},
 	build: {
-		commonjsOptions: {
-			include: [/shared-lib/, /meteor-lib/, /corelib/, /blueprints-integration/, /node_modules/],
-		},
 		chunkSizeWarningLimit: 10000,
 	},
 
 	resolve: {
 		mainFields: [], // the presence of this is a weird fix for react-moment
+		// Resolve the monorepo packages to their typescript source
+		conditions: ['sofie-source', ...defaultClientConditions],
 		alias: {
 			'~bootstrap': path.resolve(__dirname, '../../node_modules/bootstrap'),
 		},
@@ -100,14 +79,4 @@ export default defineConfig(({ command }) => ({
 			},
 		},
 	},
-
-	// TODO: old meteor recompile instructions?
-	// "nodeModules": {
-	// 	"recompile": {
-	// 		"@mos-connection/helper": "legacy",
-	// 		"@mos-connection/model": "legacy",
-	// 		"@sofie-automation/corelib": "legacy",
-	// 		"@sofie-automation/shared-lib": "legacy"
-	// 	}
-	// }
 }))

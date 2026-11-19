@@ -1,5 +1,5 @@
 import { BrandingContentCache, createBrandingContentCache } from '../lib/branding'
-import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection/index'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierZeroes } from '@sofie-automation/corelib/dist/mongo'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'

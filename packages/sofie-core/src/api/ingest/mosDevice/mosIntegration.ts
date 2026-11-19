@@ -1,4 +1,4 @@
-import { MOS } from '@sofie-automation/corelib'
+import { MOS } from '@sofie-automation/shared-lib/dist/mos'
 import { logger } from '../../../logging'
 import { fetchStudioIdFromDevice, generateRundownSource, runIngestOperation } from '../lib'
 import { parseMosString } from './lib'

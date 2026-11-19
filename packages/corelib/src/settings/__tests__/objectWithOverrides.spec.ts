@@ -2,8 +2,8 @@ import { literal } from '../../lib.js'
 import clone from 'fast-clone'
 import {
 	applyAndValidateOverrides,
-	ObjectWithOverrides,
-	SomeObjectOverrideOp,
+	type ObjectWithOverrides,
+	type SomeObjectOverrideOp,
 	updateOverrides,
 } from '../objectWithOverrides.js'
 

@@ -1,6 +1,6 @@
-import { PartInstanceId, PieceInstanceId } from '../dataModel/Ids.js'
-import { DBPartInstance } from '../dataModel/PartInstance.js'
-import { PieceInstance } from '../dataModel/PieceInstance.js'
+import type { PartInstanceId, PieceInstanceId } from '../dataModel/Ids.js'
+import type { DBPartInstance } from '../dataModel/PartInstance.js'
+import type { PieceInstance } from '../dataModel/PieceInstance.js'
 import { isProtectedString } from '../protectedString.js'
 
 enum PlayoutTimelinePrefixes {

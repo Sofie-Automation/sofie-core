@@ -1,4 +1,4 @@
-import {
+import type {
 	PartId,
 	PieceId,
 	PieceInstanceId,
@@ -7,17 +7,17 @@ import {
 	SegmentId,
 	ShowStyleBaseId,
 } from '../dataModel/Ids.js'
-import { DBPart, PartExtended } from '../dataModel/Part.js'
-import { Piece } from '../dataModel/Piece.js'
-import { PieceInstance } from '../dataModel/PieceInstance.js'
-import { Rundown } from '../dataModel/Rundown.js'
-import { DBRundownPlaylist } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
-import { DBSegment, SegmentExtended } from '../dataModel/Segment.js'
-import { FindOneOptions, FindOptions, MongoQuery } from '../mongo.js'
-import { PartInstance } from '../dataModel/PartInstance.js'
-import { DBShowStyleBase, UIShowStyleBase } from '../dataModel/ShowStyleBase.js'
-import { UIStudio } from '../dataModel/Studio.js'
-import { TimeDuration } from '@sofie-automation/shared-lib/dist/lib/lib'
+import type { DBPart, PartExtended } from '../dataModel/Part.js'
+import type { Piece } from '../dataModel/Piece.js'
+import type { PieceInstance } from '../dataModel/PieceInstance.js'
+import type { Rundown } from '../dataModel/Rundown.js'
+import type { DBRundownPlaylist } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
+import type { DBSegment, SegmentExtended } from '../dataModel/Segment.js'
+import type { FindOneOptions, FindOptions, MongoQuery } from '../mongo.js'
+import type { PartInstance } from '../dataModel/PartInstance.js'
+import type { DBShowStyleBase, UIShowStyleBase } from '../dataModel/ShowStyleBase.js'
+import type { UIStudio } from '../dataModel/Studio.js'
+import type { TimeDuration } from '@sofie-automation/shared-lib/dist/lib/lib'
 
 export type SegmentsFindOne = (
 	selector: SegmentId | MongoQuery<DBSegment>,

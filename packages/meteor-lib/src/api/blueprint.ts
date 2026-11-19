@@ -1,4 +1,4 @@
-import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
 
 export interface NewBlueprintAPI {
 	insertBlueprint(): Promise<BlueprintId>

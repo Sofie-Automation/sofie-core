@@ -1,11 +1,11 @@
-import { IBlueprintPart, NoteSeverity } from '@sofie-automation/blueprints-integration'
-import { ITranslatableMessage } from '../TranslatableMessage.js'
-import { PartId, RundownId, SegmentId } from './Ids.js'
-import { PartNote } from './Notes.js'
-import { ReadonlyDeep } from 'type-fest'
-import { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions.js'
-import { PartInstanceLimited } from './PartInstance.js'
-import { PieceExtended } from './Piece.js'
+import type { IBlueprintPart, NoteSeverity } from '@sofie-automation/blueprints-integration'
+import type { ITranslatableMessage } from '../TranslatableMessage.js'
+import type { PartId, RundownId, SegmentId } from './Ids.js'
+import type { PartNote } from './Notes.js'
+import type { ReadonlyDeep } from 'type-fest'
+import type { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions.js'
+import type { PartInstanceLimited } from './PartInstance.js'
+import type { PieceExtended } from './Piece.js'
 
 export interface PartInvalidReason {
 	message: ITranslatableMessage

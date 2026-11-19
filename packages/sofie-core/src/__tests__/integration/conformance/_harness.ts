@@ -10,7 +10,7 @@
  * collection, the wrapper-parity suite (Part 2) does not need to re-run any of this matrix.
  */
 import { MongoClient } from 'mongodb'
-import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection/index'
 import { FindOptions, MongoQuery, MongoModifier, MongoBulkWriteOperation } from '@sofie-automation/corelib/dist/mongo'
 import { convertFindOptionsToNative } from '../../../collections/implementations/asyncCollection'
 import { freshCollection } from '../_integrationDb'

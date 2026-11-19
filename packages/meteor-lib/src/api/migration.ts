@@ -1,12 +1,12 @@
-import {
+import type {
 	BlueprintId,
 	CoreSystemId,
 	ShowStyleBaseId,
 	SnapshotId,
 	StudioId,
-} from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
-import { BlueprintValidateConfigForStudioResult } from '@sofie-automation/corelib/dist/worker/studio'
+} from '@sofie-automation/corelib/dist/dataModel/Ids.js'
+import type { ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage.js'
+import type { BlueprintValidateConfigForStudioResult } from '@sofie-automation/corelib/dist/worker/studio.js'
 
 export interface BlueprintFixUpConfigMessage {
 	message: ITranslatableMessage

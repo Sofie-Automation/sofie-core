@@ -21,7 +21,7 @@ import { DBRundown, RundownOrphanedReason, RundownSource } from '@sofie-automati
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { MongoQuery } from '../../../db/index.js'
 import { handleRemovedRundown } from '../../ingestRundownJobs.js'
-import { MOS } from '@sofie-automation/corelib'
+import { MOS } from '@sofie-automation/shared-lib/dist/mos'
 import { groupByToMap, literal, normalizeArrayToMap, omit } from '@sofie-automation/corelib/dist/lib'
 import { NrcsIngestCacheType } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
 import { getPartId } from '../../lib.js'

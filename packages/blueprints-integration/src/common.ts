@@ -1,4 +1,4 @@
-export { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
+export type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 export { DatastorePersistenceMode } from '@sofie-automation/shared-lib/dist/core/model/TimelineDatastore'
 
 export interface IBlueprintConfig {

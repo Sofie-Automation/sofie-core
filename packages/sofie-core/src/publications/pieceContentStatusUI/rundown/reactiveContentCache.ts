@@ -1,7 +1,7 @@
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
-import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection/index'
 import { DBShowStyleBase, SourceLayers } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { MongoFieldSpecifierOnesStrict } from '@sofie-automation/corelib/dist/mongo'

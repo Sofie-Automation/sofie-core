@@ -1,4 +1,4 @@
-import { MOS } from '@sofie-automation/corelib'
+import { MOS } from '@sofie-automation/shared-lib/dist/mos'
 import { mosTypes } from '@sofie-automation/meteor-lib/dist/mos'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
 

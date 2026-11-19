@@ -1,4 +1,4 @@
-import {
+import type {
 	IBlueprintMutatablePart,
 	IBlueprintMutatablePartInstance,
 	IBlueprintPart,
@@ -11,9 +11,9 @@ import {
 	IEventContext,
 	IShowStyleUserContext,
 } from '../index.js'
-import { ITriggerIngestChangeContext } from './executeTsrActionContext.js'
-import { BlueprintQuickLookInfo } from './quickLoopInfo.js'
-import { ReadonlyDeep } from 'type-fest'
+import type { ITriggerIngestChangeContext } from './executeTsrActionContext.js'
+import type { BlueprintQuickLookInfo } from './quickLoopInfo.js'
+import type { ReadonlyDeep } from 'type-fest'
 import type { ITTimersContext } from './tTimersContext.js'
 import type { IBrandingReadMethods } from './brandingContext.js'
 

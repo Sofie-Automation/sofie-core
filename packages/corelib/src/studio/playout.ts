@@ -1,6 +1,6 @@
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 import _ from 'underscore'
-import { PeripheralDevice } from '../dataModel/PeripheralDevice.js'
+import type { PeripheralDevice } from '../dataModel/PeripheralDevice.js'
 
 /**
  * Calculate what the expected latency is going to be for a device.
