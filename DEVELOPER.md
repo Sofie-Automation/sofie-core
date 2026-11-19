@@ -24,8 +24,8 @@ Follow these instructions to start up Sofie Core in development mode. (For produ
 
 ### Prerequisites
 
-- Install [Node.js](https://nodejs.org) 22 (using [nvm](https://github.com/nvm-sh/nvm) or [nvm-windows](https://github.com/coreybutler/nvm-windows) is the recommended way to install Node.js)
-- Enable [corepack](https://nodejs.org/api/corepack.html#corepack) (`corepack enable`) as administrator/root. If `corepack` is not found, you may need to install it first with `npm install --global corepack`
+- Install [Node.js](https://nodejs.org) 26 (using [nvm](https://github.com/nvm-sh/nvm) or [nvm-windows](https://github.com/coreybutler/nvm-windows) is the recommended way to install Node.js)
+- Install and enable [corepack](https://github.com/nodejs/corepack) as administrator/root. Node.js 26 no longer bundles it, so install it first with `npm install --global corepack`, then run `corepack enable`. If the install fails because a `yarn` or `pnpm` binary already exists (such as yarn classic), add `--force` to replace it
 
 - If on Windows, you may need to `npm install --global windows-build-tools` but this is not always necessary
 

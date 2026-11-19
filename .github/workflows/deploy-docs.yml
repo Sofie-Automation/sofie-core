@@ -37,6 +37,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/publish-docs-cache

@@ -26,7 +26,7 @@
 		"license-validate": "run -T sofie-licensecheck"
 	},
 	"engines": {
-		"node": ">=22.20.0"
+		"node": ">=26.13.0"
 	},
 	"files": [
 		"/dist",
@@ -42,5 +42,5 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"packageManager": "yarn@4.17.0"
+	"packageManager": "yarn@4.18.1"
 }
