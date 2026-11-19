@@ -29,6 +29,8 @@ import {
 import { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { defaultStudio } from '../__mocks__/defaultCollectionObjects'
 import { createMockCollection } from '../collections/implementations/mock'
+import { testWithAbort } from '../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../lib/observerLifetime'
 
 describe('Basic test of test environment', () => {
 	test('Meteor Random mock', () => {
@@ -79,7 +81,7 @@ describe('Basic test of test environment', () => {
 		// @ts-ignore
 		expect(UserActionsLog._isMock).toBeTruthy()
 	})
-	test('Mock collection data', async () => {
+	testWithAbort('Mock collection data', async ({ signal }) => {
 		expect(await Studios.findFetchAsync({})).toHaveLength(0)
 
 		MongoMock.mockSetData<DBStudio>(Studios, [
@@ -122,8 +124,8 @@ describe('Basic test of test environment', () => {
 		const studios = await Studios.findFetchAsync({})
 		expect(studios).toHaveLength(1)
 
-		const observer = await Studios.observeChanges({ _id: protectString('abc') }, {})
-		expect(observer).toBeTruthy()
+		const abort = createChildAbort(signal)
+		await Studios.observeChanges({ _id: protectString('abc') }, {}, { signal: abort.signal })
 
 		await Studios.insertAsync({
 			...defaultStudio(protectString('xyz')),
@@ -132,18 +134,19 @@ describe('Basic test of test environment', () => {
 		})
 		expect(await Studios.findFetchAsync({})).toHaveLength(2)
 
-		observer.stop()
+		abort.abort()
 
 		MongoMock.mockSetData(Studios, null)
 		expect(await Studios.findFetchAsync({})).toHaveLength(0)
 	})
-	test('Mongo mock', async () => {
+	testWithAbort('Mongo mock', async ({ signal }) => {
 		const mockAdded = jest.fn()
 		const mockChanged = jest.fn()
 		const mockRemoved = jest.fn()
 
 		const collection = createMockCollection<any>('testmock')
 
+		const abort = createChildAbort(signal)
 		await collection.observeChanges(
 			{
 				prop: 'b',
@@ -152,7 +155,8 @@ describe('Basic test of test environment', () => {
 				added: mockAdded,
 				changed: mockChanged,
 				removed: mockRemoved,
-			}
+			},
+			{ signal: abort.signal }
 		)
 
 		expect(await collection.findFetchAsync({})).toHaveLength(0)
@@ -186,6 +190,8 @@ describe('Basic test of test environment', () => {
 		expect(mockAdded).toHaveBeenCalledTimes(0)
 		expect(mockChanged).toHaveBeenCalledTimes(0)
 		expect(mockRemoved).toHaveBeenCalledTimes(1)
+
+		abort.abort()
 	})
 })
 

@@ -6,8 +6,6 @@ import { ReadonlyDeep } from 'type-fest'
 import { logger } from '../../logging'
 import { ContentCache, adLibActionFieldSpecifier } from './reactiveContentCache'
 import { AdLibActions } from '../../collections'
-import { waitForAllObserversReady } from '../lib/lib'
-import type { LiveQueryHandleSync } from '../../lib/lib'
 
 /**
  * The AdLibActions to fetch. These are two rather different queries, but they feed the same collection so
@@ -41,36 +39,34 @@ function createAdLibActionsSelector(args: ReadonlyDeep<UIAdLibActionsArgs>): Mon
 
 export class RundownContentObserver {
 	readonly #cache: ContentCache
-	readonly #observers: LiveQueryHandleSync[]
 
-	private constructor(cache: ContentCache, observers: LiveQueryHandleSync[]) {
+	private constructor(cache: ContentCache) {
 		this.#cache = cache
-
-		this.#observers = observers
 	}
 
-	static async create(args: ReadonlyDeep<UIAdLibActionsArgs>, cache: ContentCache): Promise<RundownContentObserver> {
+	static async create(
+		args: ReadonlyDeep<UIAdLibActionsArgs>,
+		cache: ContentCache,
+		signal: AbortSignal
+	): Promise<RundownContentObserver> {
 		logger.silly(`Creating RundownContentObserver for adLibActions "${args.type}"`)
 
 		// Note: this must be resolved before any observer is created, so that a failure cannot leak one
 		const brandingRundownIds =
 			args.type === 'inRundowns' ? args.rundownIds : await getBrandingRundownIdsForPart(args.partId)
 
-		const observers = await waitForAllObserversReady([
+		await Promise.all([
 			AdLibActions.observeChanges(createAdLibActionsSelector(args), cache.AdLibActions.link(), {
 				projection: adLibActionFieldSpecifier,
+				signal,
 			}),
-			...createBrandingObservers(brandingRundownIds, cache),
+			...createBrandingObservers(brandingRundownIds, cache, signal),
 		])
 
-		return new RundownContentObserver(cache, observers)
+		return new RundownContentObserver(cache)
 	}
 
 	public get cache(): ContentCache {
 		return this.#cache
-	}
-
-	public dispose = (): void => {
-		this.#observers.forEach((observer) => observer.stop())
 	}
 }

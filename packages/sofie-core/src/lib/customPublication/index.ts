@@ -1,5 +1,5 @@
 export { CustomPublishCollection } from './customPublishCollection'
 export { setUpOptimizedObserverArray } from './optimizedObserverArray'
-export { TriggerUpdate, SetupObserversResult } from './optimizedObserverBase'
+export { TriggerUpdate } from './optimizedObserverBase'
 export { setUpCollectionOptimizedObserver } from './optimizedObserverCollection'
 export { CustomPublish, CustomPublishChanges } from './publish'

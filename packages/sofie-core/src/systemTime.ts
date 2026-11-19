@@ -1,4 +1,5 @@
 import { logger } from './logging'
+import { setIntervalForSignal } from './lib/observerLifetime'
 
 /** How good time sync quality we should strive for [ms] */
 const TARGET_TIME_SYNC_QUALITY = 50 // 50 milliseconds
@@ -15,10 +16,9 @@ export class TimeJumpDetector {
 		private onJumpDetected: (syncDiff: number) => void
 	) {}
 
-	public start(): void {
-		setInterval(() => {
-			this.detectTimeJump()
-		}, this.jumpCheckInterval)
+	/** Check for jumps for the lifetime of `signal` */
+	public start(signal: AbortSignal): void {
+		setIntervalForSignal(() => this.detectTimeJump(), this.jumpCheckInterval, signal)
 	}
 
 	/** Returns the actual time of the OS, which could be influenced (jump) by an NTP sync. */
@@ -46,12 +46,12 @@ export class TimeJumpDetector {
 	}
 }
 
-export function startTimeJumpDetector(): void {
+export function startTimeJumpDetector(signal: AbortSignal): void {
 	// handled in systemTime, but we want to log jumps anyway
 	const timeJumpDetector = new TimeJumpDetector(JUMP_CHECK_INTERVAL * 6, (syncDiff) => {
 		logger.warn(`Time jump or skew of ${Math.round(syncDiff)} ms detected`)
 		// But we're not doing anything more
 		// TODO: Should we trigger peripheralDevices to resync? And clients?
 	})
-	timeJumpDetector.start()
+	timeJumpDetector.start(signal)
 }

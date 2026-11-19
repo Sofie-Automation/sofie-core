@@ -211,7 +211,7 @@ function triggerUpdateStudioMappingsHash(studioId: StudioId) {
 	)
 }
 
-export async function startStudioMappingsHashObserver(): Promise<void> {
+export async function startStudioMappingsHashObserver(signal: AbortSignal): Promise<void> {
 	await Studios.observeChanges(
 		{},
 		{
@@ -224,6 +224,7 @@ export async function startStudioMappingsHashObserver(): Promise<void> {
 				mappingsWithOverrides: 1,
 				routeSetsWithOverrides: 1,
 			},
+			signal,
 		}
 	)
 }

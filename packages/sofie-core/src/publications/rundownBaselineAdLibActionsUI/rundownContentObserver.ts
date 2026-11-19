@@ -4,8 +4,6 @@ import { ReadonlyDeep } from 'type-fest'
 import { logger } from '../../logging'
 import { ContentCache, rundownBaselineAdLibActionFieldSpecifier } from './reactiveContentCache'
 import { RundownBaselineAdLibActions } from '../../collections'
-import { waitForAllObserversReady } from '../lib/lib'
-import type { LiveQueryHandleSync } from '../../lib/lib'
 
 export interface UIRundownBaselineAdLibActionsArgs {
 	readonly rundownIds: RundownId[]
@@ -13,21 +11,19 @@ export interface UIRundownBaselineAdLibActionsArgs {
 
 export class RundownContentObserver {
 	readonly #cache: ContentCache
-	readonly #observers: LiveQueryHandleSync[]
 
-	private constructor(cache: ContentCache, observers: LiveQueryHandleSync[]) {
+	private constructor(cache: ContentCache) {
 		this.#cache = cache
-
-		this.#observers = observers
 	}
 
 	static async create(
 		args: ReadonlyDeep<UIRundownBaselineAdLibActionsArgs>,
-		cache: ContentCache
+		cache: ContentCache,
+		signal: AbortSignal
 	): Promise<RundownContentObserver> {
 		logger.silly(`Creating RundownContentObserver for rundowns "${args.rundownIds.join(',')}"`)
 
-		const observers = await waitForAllObserversReady([
+		await Promise.all([
 			RundownBaselineAdLibActions.observeChanges(
 				{
 					rundownId: { $in: args.rundownIds as RundownId[] },
@@ -35,19 +31,16 @@ export class RundownContentObserver {
 				cache.RundownBaselineAdLibActions.link(),
 				{
 					projection: rundownBaselineAdLibActionFieldSpecifier,
+					signal,
 				}
 			),
-			...createBrandingObservers(args.rundownIds, cache),
+			...createBrandingObservers(args.rundownIds, cache, signal),
 		])
 
-		return new RundownContentObserver(cache, observers)
+		return new RundownContentObserver(cache)
 	}
 
 	public get cache(): ContentCache {
 		return this.#cache
-	}
-
-	public dispose = (): void => {
-		this.#observers.forEach((observer) => observer.stop())
 	}
 }

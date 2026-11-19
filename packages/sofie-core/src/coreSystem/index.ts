@@ -162,13 +162,17 @@ export function updateLoggerLevel(coreSystem: ICoreSystem, startup: boolean): vo
 	}
 }
 
-export async function setupSystemStatusObservers(): Promise<void> {
+export async function setupSystemStatusObservers(signal: AbortSignal): Promise<void> {
 	// Monitor database changes:
-	await CoreSystem.observe(SYSTEM_ID, {
-		added: onCoreSystemChanged,
-		changed: onCoreSystemChanged,
-		removed: onCoreSystemChanged,
-	})
+	await CoreSystem.observe(
+		SYSTEM_ID,
+		{
+			added: onCoreSystemChanged,
+			changed: onCoreSystemChanged,
+			removed: onCoreSystemChanged,
+		},
+		{ signal }
+	)
 
 	const observeBlueprintChanges = () => {
 		checkDatabaseVersions()
@@ -181,7 +185,7 @@ export async function setupSystemStatusObservers(): Promise<void> {
 			changed: observeBlueprintChanges,
 			removed: observeBlueprintChanges,
 		},
-		{ projection: { code: 0 } }
+		{ projection: { code: 0 }, signal }
 	)
 
 	checkDatabaseVersions()
