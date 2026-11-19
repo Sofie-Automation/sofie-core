@@ -71,6 +71,8 @@ describe('PlayoutModelImpl', () => {
 		fromPartRemaining: 500,
 		fromPartPostroll: 0,
 		fromPartKeepalive: 0,
+		transitionSource: 'none',
+		blockTakeDuration: 0,
 	}
 
 	function makePartInstance(
@@ -667,6 +669,84 @@ describe('PlayoutModelImpl', () => {
 
 			expect(model.playlist.previousPartsInfo).toHaveLength(1)
 			expect(model.playlist.previousPartsInfo[0].partInstanceId).toEqual(protectString('prev0'))
+		})
+
+		it('keeps previous[1] while previous[0] is kept, when previous[0] was transitioned into by an outTransition', () => {
+			// prev1's lingering window has elapsed, but its outTransition pieces are placed in prev0's group,
+			// so it must stay for as long as prev0 does
+			const current = makePartInstance('current', {
+				plannedStartedPlayback: NOW - 100,
+				partPlayoutTimings: { ...DEFAULT_PART_TIMINGS, fromPartRemaining: OVERLAP },
+			})
+			const prev0 = makePartInstance('prev0', {
+				plannedStartedPlayback: NOW - 2000,
+				partPlayoutTimings: {
+					...DEFAULT_PART_TIMINGS,
+					fromPartRemaining: OVERLAP,
+					transitionSource: 'outTransition',
+				},
+			})
+			const prev1 = makePartInstance('prev1', {
+				plannedStartedPlayback: NOW - 5000,
+				partPlayoutTimings: { ...DEFAULT_PART_TIMINGS, fromPartRemaining: OVERLAP },
+			})
+			const prev2 = makePartInstance('prev2')
+			const model = createModel([current, prev0, prev1, prev2], {
+				currentPartInfo: makeSelectedPartInfo('current'),
+				previousPartsInfo: [
+					makeSelectedPartInfo('prev0'),
+					makeSelectedPartInfo('prev1'),
+					makeSelectedPartInfo('prev2'),
+				],
+			})
+
+			model.prunePreviousPartInstances(NOW)
+
+			// prev2 was not transitioned out of with an outTransition, so is dropped
+			expect(model.playlist.previousPartsInfo.map((p) => p.partInstanceId)).toEqual([
+				protectString('prev0'),
+				protectString('prev1'),
+			])
+		})
+
+		it('keeps a chain of autoNextOutTransitions while the newest of them is kept', () => {
+			const current = makePartInstance('current', {
+				plannedStartedPlayback: NOW - 100,
+				partPlayoutTimings: { ...DEFAULT_PART_TIMINGS, fromPartRemaining: OVERLAP },
+			})
+			const prev0 = makePartInstance('prev0', {
+				plannedStartedPlayback: NOW - 2000,
+				partPlayoutTimings: {
+					...DEFAULT_PART_TIMINGS,
+					fromPartRemaining: OVERLAP,
+					transitionSource: 'autoNextOutTransition',
+				},
+			})
+			const prev1 = makePartInstance('prev1', {
+				plannedStartedPlayback: NOW - 5000,
+				partPlayoutTimings: {
+					...DEFAULT_PART_TIMINGS,
+					fromPartRemaining: OVERLAP,
+					transitionSource: 'autoNextOutTransition',
+				},
+			})
+			const prev2 = makePartInstance('prev2')
+			const model = createModel([current, prev0, prev1, prev2], {
+				currentPartInfo: makeSelectedPartInfo('current'),
+				previousPartsInfo: [
+					makeSelectedPartInfo('prev0'),
+					makeSelectedPartInfo('prev1'),
+					makeSelectedPartInfo('prev2'),
+				],
+			})
+
+			model.prunePreviousPartInstances(NOW)
+
+			expect(model.playlist.previousPartsInfo.map((p) => p.partInstanceId)).toEqual([
+				protectString('prev0'),
+				protectString('prev1'),
+				protectString('prev2'),
+			])
 		})
 
 		it('always retains previous[0] even when all lingering windows have elapsed', () => {

@@ -30,6 +30,7 @@ import { getCurrentTime } from '../../lib/index.js'
 import _ from 'underscore'
 import { getPieceEnableInsidePart, transformPieceGroupAndObjects } from './piece.js'
 import { logger } from '../../logging.js'
+import { getAutoNextExpectedDurationExtension } from './lib.js'
 
 /**
  * Some additional data used by the timeline generation process
@@ -43,30 +44,14 @@ export interface RundownTimelineTimingContext {
 
 	nextPartGroup?: TimelineObjGroupPart
 	nextPartOverlap?: number
+	/** The (predicted) timings of the transition into the next PartInstance */
+	nextPartTimings?: PartCalculatedTimings
 
 	multiGatewayMode: boolean
 }
 export interface RundownTimelineResult {
 	timeline: (TimelineObjRundown & OnGenerateTimelineObjExt)[]
 	timingContext: RundownTimelineTimingContext | undefined
-}
-
-function getAutoNextExpectedDurationExtension(
-	currentPartInfo: SelectedPartInstanceTimelineInfo,
-	nextPartTimings: PartCalculatedTimings | undefined
-): number {
-	if (!nextPartTimings) return 0
-
-	// Keepalive and outTransition extend the effective expectedDuration, but preroll must stay unchanged.
-	const requiredExtension = Math.max(
-		0,
-		nextPartTimings.fromPartKeepalive,
-		currentPartInfo.partInstance.part.outTransition?.duration ?? 0
-	)
-
-	const availablePostrollDuration = currentPartInfo.partInstance.part.availablePostrollDuration ?? 0
-
-	return Math.max(0, Math.min(requiredExtension, availablePostrollDuration))
 }
 
 export function buildTimelineObjsForRundown(
@@ -174,6 +159,13 @@ export function buildTimelineObjsForRundown(
 		multiGatewayMode,
 	}
 
+	// only add the next objects into the timeline if the current partgroup has a duration, and can autoNext
+	// This is created before the current part, as the transition pieces of the current part are placed inside it
+	const nextPartGroup =
+		partInstancesInfo.next && currentPartEnable.duration
+			? createNextPartGroup(partInstancesInfo.next, timingContext)
+			: null
+
 	// Start generating objects
 	if (partInstancesInfo.previous.length > 0) {
 		timelineObjs.push(
@@ -183,6 +175,7 @@ export function buildTimelineObjsForRundown(
 				partInstancesInfo.previous,
 				currentInfinitePieceIds,
 				timingContext,
+				currentPartGroup,
 				partInstancesInfo.current.calculatedTimings
 			)
 		)
@@ -222,6 +215,7 @@ export function buildTimelineObjsForRundown(
 			currentPartGroup,
 			partInstancesInfo.current,
 			partInstancesInfo.next?.calculatedTimings ?? null,
+			nextPartGroup,
 			{
 				isRehearsal: !!activePlaylist.rehearsal,
 				isInHold: activePlaylist.holdState === RundownHoldState.ACTIVE,
@@ -229,15 +223,14 @@ export function buildTimelineObjsForRundown(
 		)
 	)
 
-	// only add the next objects into the timeline if the current partgroup has a duration, and can autoNext
-	if (partInstancesInfo.next && currentPartEnable.duration) {
+	if (partInstancesInfo.next && nextPartGroup) {
 		timelineObjs.push(
 			...generateNextPartInstanceObjects(
 				context,
 				activePlaylist,
 				partInstancesInfo.current,
 				partInstancesInfo.next,
-				timingContext
+				nextPartGroup
 			)
 		)
 	}
@@ -266,7 +259,9 @@ function createCurrentPartGroupEnable(
 		currentPartInfo.partInstance.part.autoNext &&
 		currentPartInfo.partInstance.part.expectedDuration !== undefined
 	) {
-		const expectedDurationExtension = getAutoNextExpectedDurationExtension(currentPartInfo, nextPartTimings)
+		const expectedDurationExtension = nextPartTimings
+			? getAutoNextExpectedDurationExtension(currentPartInfo.partInstance.part, nextPartTimings)
+			: 0
 
 		// If there is a valid autonext out of the current part, then calculate the duration
 		currentPartEnable.duration =
@@ -524,10 +519,11 @@ function generatePreviousPartInstancesObjects(
 	previousPartsInfo: SelectedPartInstanceTimelineInfo[],
 	currentInfinitePieceIds: Set<PieceInstanceInfiniteId>,
 	timingContext: RundownTimelineTimingContext,
+	currentPartGroup: TimelineObjGroupPart & OnGenerateTimelineObjExt,
 	currentPartInstanceTimings: PartCalculatedTimings
 ): Array<TimelineObjRundown & OnGenerateTimelineObjExt> {
 	const result: Array<TimelineObjRundown & OnGenerateTimelineObjExt> = []
-	let nextGroupId = timingContext.currentPartGroup.id
+	let nextGroup = currentPartGroup
 	let nextPartTimings: PartCalculatedTimings = currentPartInstanceTimings
 
 	for (let i = 0; i < previousPartsInfo.length; i++) {
@@ -547,7 +543,7 @@ function generatePreviousPartInstancesObjects(
 
 		const previousPartGroup = createPartGroup(previousPartInfo.partInstance, {
 			start: partStartedPlayback,
-			end: `#${nextGroupId}.start + ${prevPartOverlapDuration}`,
+			end: `#${nextGroup.id}.start + ${prevPartOverlapDuration}`,
 		})
 		previousPartGroup.priority = -1
 
@@ -573,6 +569,7 @@ function generatePreviousPartInstancesObjects(
 				previousPartGroup,
 				previousPartInfo,
 				nextPartTimings,
+				nextGroup,
 				{
 					isRehearsal: !!activePlaylist.rehearsal,
 					isInHold: activePlaylist.holdState === RundownHoldState.ACTIVE,
@@ -580,11 +577,25 @@ function generatePreviousPartInstancesObjects(
 			)
 		)
 
-		nextGroupId = getPartGroupId(previousPartInfo.partInstance)
+		nextGroup = previousPartGroup
 		nextPartTimings = previousPartInfo.calculatedTimings
 	}
 
 	return result
+}
+
+function createNextPartGroup(
+	nextPartInfo: SelectedPartInstanceTimelineInfo,
+	timingContext: RundownTimelineTimingContext
+): TimelineObjGroupPart & OnGenerateTimelineObjExt {
+	const nextPartGroup = createPartGroup(nextPartInfo.partInstance, {
+		start: `#${timingContext.currentPartGroup.id}.end - ${nextPartInfo.calculatedTimings.fromPartRemaining}`,
+	})
+	timingContext.nextPartGroup = nextPartGroup
+	timingContext.nextPartOverlap = nextPartInfo.calculatedTimings.fromPartRemaining
+	timingContext.nextPartTimings = nextPartInfo.calculatedTimings
+
+	return nextPartGroup
 }
 
 function generateNextPartInstanceObjects(
@@ -592,14 +603,8 @@ function generateNextPartInstanceObjects(
 	activePlaylist: ReadonlyDeep<DBRundownPlaylist>,
 	currentPartInfo: SelectedPartInstanceTimelineInfo,
 	nextPartInfo: SelectedPartInstanceTimelineInfo,
-	timingContext: RundownTimelineTimingContext
+	nextPartGroup: TimelineObjGroupPart & OnGenerateTimelineObjExt
 ): Array<TimelineObjRundown & OnGenerateTimelineObjExt> {
-	const nextPartGroup = createPartGroup(nextPartInfo.partInstance, {
-		start: `#${timingContext.currentPartGroup.id}.end - ${nextPartInfo.calculatedTimings.fromPartRemaining}`,
-	})
-	timingContext.nextPartGroup = nextPartGroup
-	timingContext.nextPartOverlap = nextPartInfo.calculatedTimings.fromPartRemaining
-
 	const nextPieceInstances = nextPartInfo?.pieceInstances.filter(
 		(i) => !i.infinite || i.infinite.infiniteInstanceIndex === 0
 	)
@@ -621,6 +626,7 @@ function generateNextPartInstanceObjects(
 			groupClasses,
 			nextPartGroup,
 			nextPartInfo,
+			null,
 			null,
 			{
 				isRehearsal: !!activePlaylist.rehearsal,
