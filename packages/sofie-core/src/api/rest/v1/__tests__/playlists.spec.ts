@@ -1,6 +1,7 @@
 import { registerRoutes } from '../playlists'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { PartId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PlaylistsRestAPI } from '../../../../lib/rest/v1'
 
 describe('Playlists REST API Routes', () => {
@@ -48,7 +49,7 @@ describe('Playlists REST API Routes', () => {
 		expect(mockServerAPI.tTimerStartCountdown).toHaveBeenCalledWith(
 			connection,
 			event,
-			protectString('playlist0'),
+			protectString<RundownPlaylistId>('playlist0'),
 			1,
 			60,
 			true,
@@ -106,7 +107,12 @@ describe('Playlists REST API Routes', () => {
 
 		await handler(mockServerAPI, connection, event, params, {})
 
-		expect(mockServerAPI.tTimerPause).toHaveBeenCalledWith(connection, event, protectString('playlist0'), 2)
+		expect(mockServerAPI.tTimerPause).toHaveBeenCalledWith(
+			connection,
+			event,
+			protectString<RundownPlaylistId>('playlist0'),
+			2
+		)
 	})
 
 	test('T-timer projected clear handler should accept playlist externalId', async () => {
@@ -125,7 +131,7 @@ describe('Playlists REST API Routes', () => {
 		expect(mockServerAPI.tTimerClearProjected).toHaveBeenCalledWith(
 			connection,
 			event,
-			protectString('playlistExternalId'),
+			protectString<RundownPlaylistId>('playlistExternalId'),
 			1
 		)
 	})
@@ -147,7 +153,7 @@ describe('Playlists REST API Routes', () => {
 		expect(mockServerAPI.tTimerSetProjectedAnchorPart).toHaveBeenCalledWith(
 			connection,
 			event,
-			protectString('playlistExternalId'),
+			protectString<RundownPlaylistId>('playlistExternalId'),
 			2,
 			undefined,
 			'partExternalId'
@@ -171,9 +177,9 @@ describe('Playlists REST API Routes', () => {
 		expect(mockServerAPI.tTimerSetProjectedAnchorPart).toHaveBeenCalledWith(
 			connection,
 			event,
-			protectString('playlistExternalId'),
+			protectString<RundownPlaylistId>('playlistExternalId'),
 			2,
-			protectString('partInternalId'),
+			protectString<PartId>('partInternalId'),
 			undefined
 		)
 	})
@@ -195,7 +201,7 @@ describe('Playlists REST API Routes', () => {
 		expect(mockServerAPI.tTimerSetProjectedTime).toHaveBeenCalledWith(
 			connection,
 			event,
-			protectString('playlistExternalId'),
+			protectString<RundownPlaylistId>('playlistExternalId'),
 			3,
 			1707024000000,
 			false
@@ -219,7 +225,7 @@ describe('Playlists REST API Routes', () => {
 		expect(mockServerAPI.tTimerSetProjectedDuration).toHaveBeenCalledWith(
 			connection,
 			event,
-			protectString('playlistExternalId'),
+			protectString<RundownPlaylistId>('playlistExternalId'),
 			1,
 			60000,
 			true

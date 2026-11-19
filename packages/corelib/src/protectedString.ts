@@ -1,9 +1,7 @@
 export {
 	type ProtectedString,
-	type ProtectedStringProperties,
 	protectString,
 	protectStringArray,
-	protectStringObject,
 	unpartialString,
 	unprotectString,
 	unprotectStringArray,

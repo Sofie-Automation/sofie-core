@@ -311,7 +311,7 @@ async function loadStudioBlueprintOrPlaceholder(
 	if (!studio.blueprintId) {
 		return Object.freeze({
 			blueprintDoc: undefined,
-			blueprintId: protectString('__placeholder__'),
+			blueprintId: protectString<BlueprintId>('__placeholder__'),
 			blueprint: DefaultStudioBlueprint,
 		})
 	}

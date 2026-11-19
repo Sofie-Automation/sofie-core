@@ -1,6 +1,7 @@
 import { StatusMessageResolver } from '../StatusMessageResolver.js'
 import { SystemErrorCode } from '@sofie-automation/shared-lib/dist/systemErrorMessages'
 import { protectString } from '../protectedString.js'
+import { BlueprintId } from '../dataModel/Ids.js'
 
 // Mock device status codes (these would come from TSR in production)
 const MockDeviceStatusCode = {
@@ -41,7 +42,7 @@ describe('StatusMessageResolver', () => {
 
 		it('returns blueprint custom message when provided', () => {
 			const resolver = new StatusMessageResolver(
-				protectString('studioBlueprint123'),
+				protectString<BlueprintId>('studioBlueprint123'),
 				{
 					[MockDeviceStatusCode.HTTP_TIMEOUT]: 'Graphics system {{deviceName}} not responding',
 				},
@@ -65,7 +66,7 @@ describe('StatusMessageResolver', () => {
 
 		it('returns null when blueprint provides empty string (suppression)', () => {
 			const resolver = new StatusMessageResolver(
-				protectString('studioBlueprint123'),
+				protectString<BlueprintId>('studioBlueprint123'),
 				{
 					[MockDeviceStatusCode.HTTP_TIMEOUT]: '',
 				},
@@ -85,7 +86,7 @@ describe('StatusMessageResolver', () => {
 
 		it('evaluates function-based status messages', () => {
 			const resolver = new StatusMessageResolver(
-				protectString('studioBlueprint123'),
+				protectString<BlueprintId>('studioBlueprint123'),
 				{
 					[MockDeviceStatusCode.HTTP_TIMEOUT]: (context) => {
 						const timeout = context.timeout as number
@@ -125,7 +126,7 @@ describe('StatusMessageResolver', () => {
 
 		it('suppresses message when function returns empty string', () => {
 			const resolver = new StatusMessageResolver(
-				protectString('studioBlueprint123'),
+				protectString<BlueprintId>('studioBlueprint123'),
 				{
 					[MockDeviceStatusCode.HTTP_TIMEOUT]: () => '', // Always suppress
 				},
@@ -161,7 +162,7 @@ describe('StatusMessageResolver', () => {
 
 		it('falls back to TSR default when blueprint has no customization for that status code', () => {
 			const resolver = new StatusMessageResolver(
-				protectString('studioBlueprint123'),
+				protectString<BlueprintId>('studioBlueprint123'),
 				{
 					[MockDeviceStatusCode.HTTP_TIMEOUT]: 'Custom timeout message',
 				},
@@ -196,7 +197,7 @@ describe('StatusMessageResolver', () => {
 		})
 
 		it('returns blueprint custom message', () => {
-			const resolver = new StatusMessageResolver(protectString('systemBlueprint123'), undefined, {
+			const resolver = new StatusMessageResolver(protectString<BlueprintId>('systemBlueprint123'), undefined, {
 				[SystemErrorCode.DATABASE_CONNECTION_LOST]: 'System database offline - please wait',
 			})
 
@@ -208,7 +209,7 @@ describe('StatusMessageResolver', () => {
 		})
 
 		it('suppresses message with empty string', () => {
-			const resolver = new StatusMessageResolver(protectString('systemBlueprint123'), undefined, {
+			const resolver = new StatusMessageResolver(protectString<BlueprintId>('systemBlueprint123'), undefined, {
 				[SystemErrorCode.INSUFFICIENT_RESOURCES]: '',
 			})
 
@@ -225,7 +226,7 @@ describe('StatusMessageResolver', () => {
 			// Note: In practice, device statuses use Studio blueprint ID and system errors use System blueprint ID
 			// But the resolver doesn't enforce this - it just associates the ID with any messages it generates
 			const resolver = new StatusMessageResolver(
-				protectString('blueprint123'),
+				protectString<BlueprintId>('blueprint123'),
 				{
 					[MockDeviceStatusCode.HTTP_TIMEOUT]: 'Custom device status',
 				},
@@ -250,7 +251,7 @@ describe('StatusMessageResolver', () => {
 
 		it('includes correct blueprint namespace for messages', () => {
 			const resolver = new StatusMessageResolver(
-				protectString('blueprint123'),
+				protectString<BlueprintId>('blueprint123'),
 				{
 					[MockDeviceStatusCode.HTTP_TIMEOUT]: 'Custom device status',
 				},

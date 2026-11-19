@@ -1,5 +1,5 @@
 import { IBlueprintResultRundownPlaylist, PlaylistTimingType } from '@sofie-automation/blueprints-integration'
-import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { RundownId, RundownPlaylistId, BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { protectString, protectStringArray } from '@sofie-automation/corelib/dist/protectedString'
@@ -31,16 +31,16 @@ describe('Rundown', () => {
 		const { rundownId: rundownId00, playlistId: playlistId0 } = await setupDefaultRundownPlaylist(
 			context,
 			showStyle,
-			protectString('rundown00')
+			protectString<RundownId>('rundown00')
 		)
 		let playlist0 = (await context.mockCollections.RundownPlaylists.findOne(playlistId0)) as DBRundownPlaylist
 		expect(playlist0).toBeTruthy()
 
 		// Add 2 more rundowns in it:
-		const rundownId02 = protectString('rundown02')
-		await setupDefaultRundown(context, showStyle, playlistId0, protectString('rundown02')) // intentionally not created in the right order
-		const rundownId01 = protectString('rundown01')
-		await setupDefaultRundown(context, showStyle, playlistId0, protectString('rundown01'))
+		const rundownId02 = protectString<RundownId>('rundown02')
+		await setupDefaultRundown(context, showStyle, playlistId0, protectString<RundownId>('rundown02')) // intentionally not created in the right order
+		const rundownId01 = protectString<RundownId>('rundown01')
+		await setupDefaultRundown(context, showStyle, playlistId0, protectString<RundownId>('rundown01'))
 		expect(rundownId00).toEqual('rundown00')
 		expect(rundownId01).toEqual('rundown01')
 		expect(rundownId02).toEqual('rundown02')
@@ -122,7 +122,7 @@ describe('Rundown', () => {
 		const { rundownId: rundownId10, playlistId: playlistId1 } = await setupDefaultRundownPlaylist(
 			context,
 			showStyle,
-			protectString('rundown10')
+			protectString<RundownId>('rundown10')
 		)
 		expect(rundownId10).toEqual('rundown10')
 		const playlist1 = (await context.mockCollections.RundownPlaylists.findOne(playlistId1)) as DBRundownPlaylist
@@ -192,7 +192,7 @@ describe('Rundown', () => {
 			playlistProps: Partial<IBlueprintResultRundownPlaylist>
 		): ReadonlyDeep<WrappedStudioBlueprint> {
 			return {
-				blueprintId: protectString('studioBlueprint0'),
+				blueprintId: protectString<BlueprintId>('studioBlueprint0'),
 				blueprint: {
 					getRundownPlaylistInfo: () => ({
 						playlist: {
@@ -271,7 +271,7 @@ describe('Rundown', () => {
 			expect(playlist.defaultBrandingId).toBe('branding0')
 
 			const studioBlueprint = {
-				blueprintId: protectString('studioBlueprint0'),
+				blueprintId: protectString<BlueprintId>('studioBlueprint0'),
 				blueprint: {
 					getRundownPlaylistInfo: () => null,
 				},

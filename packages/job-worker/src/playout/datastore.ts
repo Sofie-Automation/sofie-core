@@ -106,7 +106,7 @@ export async function setTimelineDatastoreValue(
 	const storedValue = assertValidTimelineDatastoreValue(key, value)
 
 	const studioId = context.studioId
-	const id = protectString(`${studioId}_${key}`)
+	const id = protectString<TimelineDatastoreEntryId>(`${studioId}_${key}`)
 	const collection = context.directCollections.TimelineDatastores
 
 	await collection.replace({

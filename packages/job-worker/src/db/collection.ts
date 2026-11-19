@@ -1,4 +1,4 @@
-import { ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { isProtectedString, ProtectedString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { EventEmitter } from 'events'
 import { AnyBulkWriteOperation, ChangeStream, Collection as MongoCollection, FindOptions, CountOptions } from 'mongodb'
 import { IChangeStreamEvents } from './index.js'
@@ -50,8 +50,8 @@ class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements I
 			})
 		}
 
-		if (typeof selector === 'string') {
-			selector = { _id: selector }
+		if (isProtectedString(selector)) {
+			selector = { _id: selector } as MongoQuery<TDoc>
 		}
 		const res = await this.#collection.findOne(selector, options)
 		if (span) span.end()
@@ -108,7 +108,7 @@ class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements I
 			})
 		}
 
-		const res = await this.#collection.replaceOne({ _id: doc._id }, doc, {
+		const res = await this.#collection.replaceOne({ _id: doc._id } as MongoQuery<TDoc>, doc, {
 			upsert: true,
 		})
 		if (span) span.end()
@@ -128,8 +128,8 @@ class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements I
 			})
 		}
 
-		if (typeof selector === 'string') {
-			selector = { _id: selector }
+		if (isProtectedString(selector)) {
+			selector = { _id: selector } as MongoQuery<TDoc>
 		}
 
 		const res = await this.#collection.updateMany(selector, modifier)
@@ -146,8 +146,8 @@ class WrappedCollection<TDoc extends { _id: ProtectedString<any> }> implements I
 			})
 		}
 
-		if (typeof selector === 'string') {
-			selector = { _id: selector }
+		if (isProtectedString(selector)) {
+			selector = { _id: selector } as MongoQuery<TDoc>
 		}
 
 		const res = await this.#collection.deleteMany(selector)

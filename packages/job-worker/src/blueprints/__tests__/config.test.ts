@@ -6,6 +6,7 @@ import { getShowStyleConfigRef, getStudioConfigRef } from '../configRefs.js'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import { StudioId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 describe('Test blueprint config', () => {
 	test('compileStudioConfig', () => {
@@ -77,10 +78,12 @@ describe('Test blueprint config', () => {
 	})
 
 	test('getStudioConfigRef', () => {
-		expect(getStudioConfigRef(protectString('st0'), 'key0')).toEqual('${studio.st0.key0}')
+		expect(getStudioConfigRef(protectString<StudioId>('st0'), 'key0')).toEqual('${studio.st0.key0}')
 	})
 	test('getShowStyleConfigRef', () => {
-		expect(getShowStyleConfigRef(protectString('var0'), 'key1')).toEqual('${showStyle.var0.key1}')
+		expect(getShowStyleConfigRef(protectString<ShowStyleVariantId>('var0'), 'key1')).toEqual(
+			'${showStyle.var0.key1}'
+		)
 	})
 
 	describe('retrieveRefs', () => {

@@ -30,7 +30,9 @@ const DeviceTriggersView: FunctionComponent = function TimelineDatastoreView() {
 				<h1>{t('Device Triggers')}</h1>
 			</header>
 			<div className="my-5">
-				{peripheralDeviceId && <DeviceTriggersControls peripheralDeviceId={protectString(peripheralDeviceId)} />}
+				{peripheralDeviceId && (
+					<DeviceTriggersControls peripheralDeviceId={protectString<PeripheralDeviceId>(peripheralDeviceId)} />
+				)}
 			</div>
 		</div>
 	)

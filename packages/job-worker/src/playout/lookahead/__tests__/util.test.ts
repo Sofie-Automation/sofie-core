@@ -1,4 +1,12 @@
-import { RundownPlaylistId, SegmentId, PartId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	RundownPlaylistId,
+	SegmentId,
+	PartId,
+	RundownId,
+	PeripheralDeviceId,
+	ShowStyleBaseId,
+	RundownPlaylistActivationId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -30,7 +38,7 @@ describe('getOrderedPartsAfterPlayhead', () => {
 		for (const [k, v] of Object.entries<LookaheadMode>(LookaheadMode as any)) {
 			mappings[k] = {
 				device: TSR.DeviceType.ABSTRACT,
-				deviceId: protectString('fake0'),
+				deviceId: protectString<PeripheralDeviceId>('fake0'),
 				lookahead: v,
 				// lookaheadDepth: 0,
 				// lookaheadMaxSearchDistance: 0,
@@ -43,16 +51,16 @@ describe('getOrderedPartsAfterPlayhead', () => {
 		})
 
 		// Create a playlist with some parts
-		rundownId = protectString(`rundown0`)
-		playlistId = protectString(`playlist0`)
+		rundownId = protectString<RundownId>(`rundown0`)
+		playlistId = protectString<RundownPlaylistId>(`playlist0`)
 
 		await context.mockCollections.RundownPlaylists.insertOne({
 			...defaultRundownPlaylist(playlistId, context.studioId),
-			activationId: protectString('active'),
+			activationId: protectString<RundownPlaylistActivationId>('active'),
 		})
 		await context.mockCollections.Rundowns.insertOne({
 			studioId: context.studioId,
-			showStyleBaseId: protectString('showStyleBase0'),
+			showStyleBaseId: protectString<ShowStyleBaseId>('showStyleBase0'),
 			showStyleVariantId: protectString('showStyleVariante0'),
 
 			playlistId: playlistId,
@@ -108,7 +116,7 @@ describe('getOrderedPartsAfterPlayhead', () => {
 
 		function createMockPart(index: number, segId: SegmentId): DBPart {
 			return {
-				_id: protectString(rundownId + '_part' + index),
+				_id: protectString<PartId>(rundownId + '_part' + index),
 				segmentId: segId,
 				rundownId: rundownId,
 				_rank: index,

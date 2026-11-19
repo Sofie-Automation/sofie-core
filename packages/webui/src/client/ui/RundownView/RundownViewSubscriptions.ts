@@ -9,7 +9,7 @@ import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { meteorSubscribe } from '../../lib/meteorApi'
-import type { PartInstanceId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { PartInstanceId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownPlaylists, Rundowns } from '../../collections'
 import { RundownPlaylistCollectionUtil } from '../../collections/rundownPlaylistUtil'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
@@ -33,10 +33,19 @@ export function useRundownViewSubscriptions(playlistId: RundownPlaylistId): bool
 	}, [playlistId])
 	// Load only when the studio is known
 	requiredSubsReady.push(
-		useSubscriptionIfEnabled(MeteorPubSub.uiStudio, !!playlistStudioId, playlistStudioId ?? protectString(''))
+		useSubscriptionIfEnabled(
+			MeteorPubSub.uiStudio,
+			!!playlistStudioId,
+			playlistStudioId ?? protectString<StudioId>('')
+		)
 	)
 	auxSubsReady.push(
-		useSubscriptionIfEnabled(CorelibPubSub.buckets, !!playlistStudioId, playlistStudioId ?? protectString(''), null)
+		useSubscriptionIfEnabled(
+			CorelibPubSub.buckets,
+			!!playlistStudioId,
+			playlistStudioId ?? protectString<StudioId>(''),
+			null
+		)
 	)
 
 	const playlistActivationId = useTracker(() => {
@@ -122,7 +131,7 @@ export function useRundownViewSubscriptions(playlistId: RundownPlaylistId): bool
 		useSubscriptionIfEnabled(
 			CorelibPubSub.notificationsForRundownPlaylist,
 			!!playlistId && !!playlistStudioId,
-			playlistStudioId || protectString(''),
+			playlistStudioId || protectString<StudioId>(''),
 			playlistId
 		)
 	)

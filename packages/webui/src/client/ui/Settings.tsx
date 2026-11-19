@@ -16,6 +16,7 @@ import { SettingsMenu } from './Settings/SettingsMenu.js'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import Container from 'react-bootstrap/esm/Container'
+import type { BlueprintId } from '@sofie-automation/corelib/src/dataModel/Ids.js'
 
 export function Settings(): JSX.Element | null {
 	useSubscription(CorelibPubSub.peripheralDevices, null)
@@ -44,7 +45,7 @@ export function Settings(): JSX.Element | null {
 									path="/settings/blueprint/:blueprintId"
 									render={(props) => (
 										<BlueprintSettings
-											blueprintId={protectString(decodeURIComponent(props.match.params.blueprintId))}
+											blueprintId={protectString<BlueprintId>(decodeURIComponent(props.match.params.blueprintId))}
 										/>
 									)}
 								/>

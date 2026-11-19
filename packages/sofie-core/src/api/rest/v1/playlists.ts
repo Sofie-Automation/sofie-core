@@ -1213,7 +1213,12 @@ export function registerRoutes(registerRoute: APIRegisterHook<PlaylistsRestAPI>)
 
 			check(rundownPlaylistId, z.string())
 			check(fromPartInstanceId, z.string().optional())
-			return await serverAPI.take(connection, event, rundownPlaylistId, protectString(fromPartInstanceId))
+			return await serverAPI.take(
+				connection,
+				event,
+				rundownPlaylistId,
+				protectString<PartInstanceId>(fromPartInstanceId)
+			)
 		}
 	)
 

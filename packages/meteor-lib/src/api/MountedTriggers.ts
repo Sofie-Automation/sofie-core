@@ -30,7 +30,7 @@ export interface MountedGenericTrigger extends MountedTriggerCommon {
 	adLibOnly: boolean
 }
 
-type MountedGenericTriggerId = ProtectedString<'mountedGenericTriggerId'>
+export type MountedGenericTriggerId = ProtectedString<'mountedGenericTriggerId'>
 
 interface MountedTriggerCommon {
 	/** Rank of the Action that is mounted under `keys` */

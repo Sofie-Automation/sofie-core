@@ -7,7 +7,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { JobContext } from '../../../jobs/index.js'
 import { PlayoutModelImpl } from './PlayoutModelImpl.js'
 import { PlayoutRundownModelImpl } from './PlayoutRundownModelImpl.js'
-import { PartInstanceId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartInstanceId, RundownBaselineObjId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { DBSegment, SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
@@ -238,7 +238,7 @@ async function loadRundowns(
 		if (baselineTimelineFromIngest) {
 			groupedBaselineObjects.set(ingestModel.rundownId, [
 				literal<Complete<RundownBaselineObj>>({
-					_id: protectString(''),
+					_id: protectString<RundownBaselineObjId>(''),
 					rundownId: ingestModel.rundownId,
 					timelineObjectsString: baselineTimelineFromIngest,
 				}),

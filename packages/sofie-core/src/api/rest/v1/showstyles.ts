@@ -9,7 +9,7 @@ import {
 } from '../../../lib/rest/v1'
 import { logger } from '../../../logging'
 import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
-import { ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { ShowStyleBaseId, ShowStyleVariantId, BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { check, zPlainObject } from '../../../lib/check'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
@@ -48,7 +48,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	): Promise<ClientAPI.ClientResponse<string>> {
 		const blueprintConfigValidation = await validateAPIBlueprintConfigForShowStyle(
 			apiShowStyleBase,
-			protectString(apiShowStyleBase.blueprintId)
+			protectString<BlueprintId>(apiShowStyleBase.blueprintId)
 		)
 		checkValidation(`addShowStyleBase`, blueprintConfigValidation)
 
@@ -79,7 +79,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 	): Promise<ClientAPI.ClientResponse<void>> {
 		const blueprintConfigValidation = await validateAPIBlueprintConfigForShowStyle(
 			apiShowStyleBase,
-			protectString(apiShowStyleBase.blueprintId)
+			protectString<BlueprintId>(apiShowStyleBase.blueprintId)
 		)
 		checkValidation(`addOrUpdateShowStyleBase ${showStyleBaseId}`, blueprintConfigValidation)
 
@@ -163,7 +163,7 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 
 		const blueprintConfigValidation = await validateAPIBlueprintConfigForShowStyle(
 			apiShowStyleBase,
-			protectString(apiShowStyleBase.blueprintId)
+			protectString<BlueprintId>(apiShowStyleBase.blueprintId)
 		)
 		checkValidation(`updateShowStyleConfig ${showStyleBaseId}`, blueprintConfigValidation)
 

@@ -722,7 +722,7 @@ export async function removeRundownFromPlaylistAndUpdatePlaylist(
 
 	await context.directCollections.Rundowns.update(rundownId, {
 		$set: {
-			playlistId: protectString('__TMP__'),
+			playlistId: protectString<RundownPlaylistId>('__TMP__'),
 			...(updatePlaylistIdIsSetInSofieTo !== undefined
 				? {
 						playlistIdIsSetInSofie: updatePlaylistIdIsSetInSofieTo,

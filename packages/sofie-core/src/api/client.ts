@@ -214,7 +214,7 @@ export namespace ServerClientAPI {
 				}
 			} else {
 				// Start the db entry, but don't wait for it
-				const actionId: UserActionsLogItemId = getRandomId()
+				const actionId = getRandomId<UserActionsLogItemId>()
 				const pInitialInsert = UserActionsLog.insertAsync(
 					literal<UserActionsLogItem>({
 						_id: actionId,
@@ -311,7 +311,7 @@ export namespace ServerClientAPI {
 		check(deviceId, z.string())
 		check(context, z.string())
 
-		const actionId: UserActionsLogItemId = getRandomId()
+		const actionId = getRandomId<UserActionsLogItemId>()
 		const startTime = Date.now()
 
 		if (!methodContext.connection) {

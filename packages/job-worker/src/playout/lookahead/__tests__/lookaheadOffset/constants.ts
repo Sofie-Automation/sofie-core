@@ -1,4 +1,5 @@
 import { IBlueprintPieceType, TSR, LookaheadMode } from '@sofie-automation/blueprints-integration'
+import { PartId, PartInstanceId, PieceId, RundownId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Piece, PieceTimelineObjectsBlob } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -24,9 +25,9 @@ export function makeSimplePiece({
 	onlyValidForBranding?: string[]
 }): Piece {
 	return literal<Partial<Piece>>({
-		_id: protectString(`piece_simple_${partId}_${layer}`),
-		startRundownId: protectString('r1'),
-		startPartId: protectString(partId),
+		_id: protectString<PieceId>(`piece_simple_${partId}_${layer}`),
+		startRundownId: protectString<RundownId>('r1'),
+		startPartId: protectString<PartId>(partId),
 		enable: { start },
 		outputLayerId: layer,
 		onlyValidForBranding,
@@ -68,9 +69,9 @@ export function makePiece({
 	objsWhile?: boolean
 }): Piece {
 	return literal<Partial<Piece>>({
-		_id: protectString(`piece_${partId}_${nameSuffix}_${layer}`),
-		startRundownId: protectString('r1'),
-		startPartId: protectString(partId),
+		_id: protectString<PieceId>(`piece_${partId}_${nameSuffix}_${layer}`),
+		startRundownId: protectString<RundownId>('r1'),
+		startPartId: protectString<PartId>(partId),
 		enable: { start, duration },
 		outputLayerId: layer,
 		pieceType: IBlueprintPieceType.Normal,
@@ -134,9 +135,9 @@ export const lookaheadOffsetTestConstants = {
 	multiLayerPart: {
 		partTimes: { nowInPart: 0 },
 		partInstance: {
-			_id: protectString('pLookahead_ml_instance'),
+			_id: protectString<PartInstanceId>('pLookahead_ml_instance'),
 			part: {
-				_id: protectString('pLookahead_ml'),
+				_id: protectString<PartId>('pLookahead_ml'),
 				_rank: 0,
 			},
 			playlistActivationId: 'pA1',
@@ -187,9 +188,9 @@ export const lookaheadOffsetTestConstants = {
 	multiLayerPartWhile: {
 		partTimes: { nowInPart: 0 },
 		partInstance: {
-			_id: protectString('pLookahead_ml_while_instance'),
+			_id: protectString<PartInstanceId>('pLookahead_ml_while_instance'),
 			part: {
-				_id: protectString('pLookahead_ml_while'),
+				_id: protectString<PartId>('pLookahead_ml_while'),
 				_rank: 0,
 			},
 			playlistActivationId: 'pA1',
@@ -243,9 +244,9 @@ export const lookaheadOffsetTestConstants = {
 	singleLayerPart: {
 		partTimes: { nowInPart: 0 },
 		partInstance: {
-			_id: protectString('pLookahead_sl_instance'),
+			_id: protectString<PartInstanceId>('pLookahead_sl_instance'),
 			part: {
-				_id: protectString('pLookahead_sl'),
+				_id: protectString<PartId>('pLookahead_sl'),
 				_rank: 0,
 			},
 			playlistActivationId: 'pA1',
@@ -297,9 +298,9 @@ export const lookaheadOffsetTestConstants = {
 	singleLayerPartWhile: {
 		partTimes: { nowInPart: 0 },
 		partInstance: {
-			_id: protectString('pLookahead_sl_while_instance'),
+			_id: protectString<PartInstanceId>('pLookahead_sl_while_instance'),
 			part: {
-				_id: protectString('pLookahead_sl_while'),
+				_id: protectString<PartId>('pLookahead_sl_while'),
 				_rank: 0,
 			},
 			playlistActivationId: 'pA1',
@@ -385,7 +386,7 @@ export const baseContext = {
 } as unknown as JobContext
 
 export const basePlayoutModel = {
-	getRundownIds: () => [protectString('r1')],
+	getRundownIds: () => [protectString<RundownId>('r1')],
 	getBrandingForNewPartInstance: () => null,
 	playlist: {
 		nextTimeOffset: 0,

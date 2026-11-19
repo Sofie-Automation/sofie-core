@@ -3,11 +3,14 @@ import { ForceQuickLoopAutoNext } from '@sofie-automation/shared-lib/dist/core/m
 import { mock } from 'jest-mock-extended'
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import {
+	PartId,
 	PartInstanceId,
 	PeripheralDeviceId,
 	RundownId,
 	RundownPlaylistActivationId,
 	RundownPlaylistId,
+	SegmentPlayoutId,
+	StudioId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
@@ -62,7 +65,7 @@ describe('PlayoutModelImpl', () => {
 
 	// --- Helpers for cycleSelectedPartInstances / prunePreviousPartInstances tests ---
 	const playlistId = protectString<RundownPlaylistId>('playlist0')
-	const studioId = protectString('studio0')
+	const studioId = protectString<StudioId>('studio0')
 
 	const DEFAULT_PART_TIMINGS: PartCalculatedTimings = {
 		inTransitionStart: null,
@@ -84,17 +87,17 @@ describe('PlayoutModelImpl', () => {
 		const { plannedStartedPlayback, partPlayoutTimings } = opts ?? {}
 		return {
 			_id: protectString<PartInstanceId>(id),
-			rundownId: protectString('rd0'),
+			rundownId: protectString<RundownId>('rd0'),
 			segmentId: protectString('seg0'),
-			playlistActivationId: protectString('act0'),
-			segmentPlayoutId: protectString('segpayout0'),
+			playlistActivationId: protectString<RundownPlaylistActivationId>('act0'),
+			segmentPlayoutId: protectString<SegmentPlayoutId>('segpayout0'),
 			rehearsal: false,
 			takeCount: 0,
 			brandingId: opts?.brandingId ?? null,
 			part: {
-				_id: protectString(id + '_part'),
+				_id: protectString<PartId>(id + '_part'),
 				_rank: 0,
-				rundownId: protectString('rd0'),
+				rundownId: protectString<RundownId>('rd0'),
 				segmentId: protectString('seg0'),
 				externalId: id,
 				title: id,
@@ -109,7 +112,7 @@ describe('PlayoutModelImpl', () => {
 	function makeSelectedPartInfo(partInstanceId: string): SelectedPartInstance {
 		return {
 			partInstanceId: protectString<PartInstanceId>(partInstanceId),
-			rundownId: protectString('rd0'),
+			rundownId: protectString<RundownId>('rd0'),
 			manuallySelected: false,
 			consumesQueuedSegmentId: false,
 		}
@@ -168,7 +171,7 @@ describe('PlayoutModelImpl', () => {
 		it('returns the current time', async () => {
 			const { playlistId: playlistId0, rundownId: rundownId0 } = await setupRundownWithAutoplayPart0(
 				context,
-				protectString('rundown00'),
+				protectString<RundownId>('rundown00'),
 				showStyleCompound
 			)
 
@@ -176,7 +179,7 @@ describe('PlayoutModelImpl', () => {
 
 			const TIME_NOW = 5000
 
-			const peripheralDevices = [setupMockPlayoutGateway(protectString('playoutGateway0'))]
+			const peripheralDevices = [setupMockPlayoutGateway(protectString<PeripheralDeviceId>('playoutGateway0'))]
 
 			const { partInstances, groupedPieceInstances, rundowns } = await getPlayoutModelImplArugments(
 				context,
@@ -210,7 +213,7 @@ describe('PlayoutModelImpl', () => {
 		it('never returns a smaller value', async () => {
 			const { playlistId: playlistId0, rundownId: rundownId0 } = await setupRundownWithAutoplayPart0(
 				context,
-				protectString('rundown00'),
+				protectString<RundownId>('rundown00'),
 				showStyleCompound
 			)
 
@@ -218,8 +221,8 @@ describe('PlayoutModelImpl', () => {
 			const TIME_NOW = 5000
 
 			const peripheralDevices = [
-				setupMockPlayoutGateway(protectString('playoutGateway0')),
-				setupMockPlayoutGateway(protectString('playoutGateway1')),
+				setupMockPlayoutGateway(protectString<PeripheralDeviceId>('playoutGateway0')),
+				setupMockPlayoutGateway(protectString<PeripheralDeviceId>('playoutGateway1')),
 			]
 
 			const { partInstances, groupedPieceInstances, rundowns } = await getPlayoutModelImplArugments(
@@ -277,9 +280,9 @@ describe('PlayoutModelImpl', () => {
 
 	describe('quickLoop for locked playlist loops', () => {
 		it('keeps the quickLoop locked state on activation/reset/deactivation', async () => {
-			const rundownId = protectString('rundown01')
+			const rundownId = protectString<RundownId>('rundown01')
 			const playlistId = await context.mockCollections.RundownPlaylists.insertOne({
-				...defaultRundownPlaylist(protectString(`playlist_${rundownId}`), context.studioId),
+				...defaultRundownPlaylist(protectString<RundownPlaylistId>(`playlist_${rundownId}`), context.studioId),
 				quickLoop: {
 					start: { type: QuickLoopMarkerType.PLAYLIST },
 					end: { type: QuickLoopMarkerType.PLAYLIST },
@@ -302,7 +305,7 @@ describe('PlayoutModelImpl', () => {
 			rundown._id = rundownId
 			await context.mockCollections.Rundowns.insertOne(rundown)
 
-			const peripheralDevices = [setupMockPlayoutGateway(protectString('playoutGateway0'))]
+			const peripheralDevices = [setupMockPlayoutGateway(protectString<PeripheralDeviceId>('playoutGateway0'))]
 
 			const { partInstances, groupedPieceInstances, rundowns } = await getPlayoutModelImplArugments(
 				context,
@@ -362,7 +365,7 @@ describe('PlayoutModelImpl', () => {
 		}
 
 		function createNewPartInstance(model: PlayoutModelImpl): ReadonlyDeep<DBPartInstance> {
-			const part = defaultPart(protectString('part0'), protectString('rd0'), protectString('seg0'))
+			const part = defaultPart(protectString<PartId>('part0'), protectString('rd0'), protectString('seg0'))
 			return model.createInstanceForPart(part, []).partInstance
 		}
 
@@ -622,8 +625,8 @@ describe('PlayoutModelImpl', () => {
 			model.prunePreviousPartInstances(NOW)
 
 			expect(model.playlist.previousPartsInfo.map((p) => p.partInstanceId)).toEqual([
-				protectString('prev0'),
-				protectString('prev1'),
+				protectString<PartInstanceId>('prev0'),
+				protectString<PartInstanceId>('prev1'),
 			])
 		})
 
@@ -643,7 +646,7 @@ describe('PlayoutModelImpl', () => {
 			model.prunePreviousPartInstances(NOW)
 
 			expect(model.playlist.previousPartsInfo).toHaveLength(1)
-			expect(model.playlist.previousPartsInfo[0].partInstanceId).toEqual(protectString('prev0'))
+			expect(model.playlist.previousPartsInfo[0].partInstanceId).toEqual(protectString<PartInstanceId>('prev0'))
 		})
 
 		it('drops previous[1] once its lingering window (reference: previous[0]) has elapsed', () => {
@@ -666,7 +669,7 @@ describe('PlayoutModelImpl', () => {
 			model.prunePreviousPartInstances(NOW)
 
 			expect(model.playlist.previousPartsInfo).toHaveLength(1)
-			expect(model.playlist.previousPartsInfo[0].partInstanceId).toEqual(protectString('prev0'))
+			expect(model.playlist.previousPartsInfo[0].partInstanceId).toEqual(protectString<PartInstanceId>('prev0'))
 		})
 
 		it('always retains previous[0] even when all lingering windows have elapsed', () => {
@@ -690,7 +693,7 @@ describe('PlayoutModelImpl', () => {
 			model.prunePreviousPartInstances(NOW)
 
 			expect(model.playlist.previousPartsInfo).toHaveLength(1)
-			expect(model.playlist.previousPartsInfo[0].partInstanceId).toEqual(protectString('prev0'))
+			expect(model.playlist.previousPartsInfo[0].partInstanceId).toEqual(protectString<PartInstanceId>('prev0'))
 		})
 
 		it('keeps all entries when the reference part has no timing data (safe default)', () => {
@@ -759,7 +762,7 @@ describe('PlayoutModelImpl', () => {
 			model.prunePreviousPartInstances(NOW)
 
 			expect(model.playlist.previousPartsInfo).toHaveLength(10)
-			expect(model.playlist.previousPartsInfo[0].partInstanceId).toEqual(protectString('prev0'))
+			expect(model.playlist.previousPartsInfo[0].partInstanceId).toEqual(protectString<PartInstanceId>('prev0'))
 		})
 
 		it('keeps previous[0] when its own window has elapsed but previous[1] is still active', () => {
@@ -786,8 +789,8 @@ describe('PlayoutModelImpl', () => {
 			model.prunePreviousPartInstances(tNow)
 
 			expect(model.playlist.previousPartsInfo.map((p) => p.partInstanceId)).toEqual([
-				protectString('prev0'),
-				protectString('prev1'),
+				protectString<PartInstanceId>('prev0'),
+				protectString<PartInstanceId>('prev1'),
 			])
 		})
 
@@ -824,9 +827,9 @@ describe('PlayoutModelImpl', () => {
 			model.prunePreviousPartInstances(tNow)
 
 			expect(model.playlist.previousPartsInfo.map((p) => p.partInstanceId)).toEqual([
-				protectString('prev0'),
-				protectString('prev1'),
-				protectString('prev2'),
+				protectString<PartInstanceId>('prev0'),
+				protectString<PartInstanceId>('prev1'),
+				protectString<PartInstanceId>('prev2'),
 			])
 		})
 
@@ -852,7 +855,7 @@ describe('PlayoutModelImpl', () => {
 			model.prunePreviousPartInstances(NOW)
 
 			expect(model.playlist.previousPartsInfo).toHaveLength(1)
-			expect(model.playlist.previousPartsInfo[0].partInstanceId).toEqual(protectString('prev0'))
+			expect(model.playlist.previousPartsInfo[0].partInstanceId).toEqual(protectString<PartInstanceId>('prev0'))
 		})
 	})
 })
@@ -936,7 +939,7 @@ async function setupRundownWithAutoplayPart0(
 	const sourceLayerIds = Object.keys(showStyle.sourceLayers)
 
 	const playlistId = await context.mockCollections.RundownPlaylists.insertOne(
-		defaultRundownPlaylist(protectString(`playlist_${rundownId}`), context.studioId)
+		defaultRundownPlaylist(protectString<RundownPlaylistId>(`playlist_${rundownId}`), context.studioId)
 	)
 
 	const rundown: DBRundown = defaultRundown(
@@ -959,7 +962,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Segments.insertOne(segment0)
 
 	const part00: DBPart = {
-		...defaultPart(protectString(rundownId + '_part0_0'), rundown._id, segment0._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part0_0'), rundown._id, segment0._id),
 		externalId: 'MOCK_PART_0_0',
 		title: 'Part 0 0',
 
@@ -998,7 +1001,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.AdLibPieces.insertOne(adLibPiece000)
 
 	const part01: DBPart = {
-		...defaultPart(protectString(rundownId + '_part0_1'), rundown._id, segment0._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part0_1'), rundown._id, segment0._id),
 		_rank: 1,
 		externalId: 'MOCK_PART_0_1',
 		title: 'Part 0 1',
@@ -1023,7 +1026,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Segments.insertOne(segment1)
 
 	const part10: DBPart = {
-		...defaultPart(protectString(rundownId + '_part1_0'), rundown._id, segment1._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part1_0'), rundown._id, segment1._id),
 		_rank: 0,
 		externalId: 'MOCK_PART_1_0',
 		title: 'Part 1 0',
@@ -1036,7 +1039,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Pieces.insertOne(piece100)
 
 	const part11: DBPart = {
-		...defaultPart(protectString(rundownId + '_part1_1'), rundown._id, segment1._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part1_1'), rundown._id, segment1._id),
 		_rank: 1,
 	}
 	await context.mockCollections.Parts.insertOne(part11)
@@ -1047,7 +1050,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Pieces.insertOne(piece110)
 
 	const part12: DBPart = {
-		...defaultPart(protectString(rundownId + '_part1_2'), rundown._id, segment1._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part1_2'), rundown._id, segment1._id),
 		_rank: 2,
 	}
 	await context.mockCollections.Parts.insertOne(part12)
@@ -1064,7 +1067,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Segments.insertOne(segment2)
 
 	const part20: DBPart = {
-		...defaultPart(protectString(rundownId + '_part2_0'), rundown._id, segment2._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part2_0'), rundown._id, segment2._id),
 		_rank: 0,
 	}
 	await context.mockCollections.Parts.insertOne(part20)
@@ -1075,7 +1078,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Pieces.insertOne(piece200)
 
 	const part21: DBPart = {
-		...defaultPart(protectString(rundownId + '_part2_1'), rundown._id, segment2._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part2_1'), rundown._id, segment2._id),
 		_rank: 1,
 	}
 	await context.mockCollections.Parts.insertOne(part21)
@@ -1086,7 +1089,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Pieces.insertOne(piece210)
 
 	const part22: DBPart = {
-		...defaultPart(protectString(rundownId + '_part2_2'), rundown._id, segment2._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part2_2'), rundown._id, segment2._id),
 		_rank: 2,
 	}
 	await context.mockCollections.Parts.insertOne(part22)
@@ -1098,7 +1101,7 @@ async function setupRundownWithAutoplayPart0(
 	await context.mockCollections.Segments.insertOne(segment3)
 
 	const part30: DBPart = {
-		...defaultPart(protectString(rundownId + '_part3_0'), rundown._id, segment2._id),
+		...defaultPart(protectString<PartId>(rundownId + '_part3_0'), rundown._id, segment2._id),
 		_rank: 0,
 	}
 	await context.mockCollections.Parts.insertOne(part30)

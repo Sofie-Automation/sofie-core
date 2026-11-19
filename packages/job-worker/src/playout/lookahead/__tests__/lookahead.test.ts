@@ -1,5 +1,13 @@
 import { LOOKAHEAD_DEFAULT_SEARCH_DISTANCE } from '@sofie-automation/shared-lib/dist/core/constants'
-import { RundownPlaylistId, PartId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	RundownPlaylistId,
+	PartId,
+	RundownId,
+	SegmentId,
+	PeripheralDeviceId,
+	ShowStyleBaseId,
+	RundownPlaylistActivationId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { DBStudio, MappingsExt } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { clone, getRandomId } from '@sofie-automation/corelib/dist/lib'
@@ -48,7 +56,7 @@ describe('Lookahead', () => {
 			if (isNaN(parseInt(k))) {
 				mappings[k] = {
 					device: TSR.DeviceType.ABSTRACT,
-					deviceId: protectString('fake0'),
+					deviceId: protectString<PeripheralDeviceId>('fake0'),
 					lookahead: v,
 					// lookaheadDepth: 0,
 					// lookaheadMaxSearchDistance: 0,
@@ -62,17 +70,17 @@ describe('Lookahead', () => {
 		})
 
 		// Create a playlist with some parts
-		rundownId = protectString(`rundown0`)
-		playlistId = protectString(`playlist0`)
+		rundownId = protectString<RundownId>(`rundown0`)
+		playlistId = protectString<RundownPlaylistId>(`playlist0`)
 
 		await context.mockCollections.RundownPlaylists.insertOne({
 			...defaultRundownPlaylist(playlistId, context.studioId),
-			activationId: protectString('active'),
+			activationId: protectString<RundownPlaylistActivationId>('active'),
 		})
 
 		await context.mockCollections.Rundowns.insertOne({
 			studioId: context.studioId,
-			showStyleBaseId: protectString('showStyleBase0'),
+			showStyleBaseId: protectString<ShowStyleBaseId>('showStyleBase0'),
 			showStyleVariantId: protectString('showStyleVariante0'),
 			playlistId: playlistId,
 			_id: rundownId,
@@ -97,7 +105,7 @@ describe('Lookahead', () => {
 
 		function createMockPart(index: number, segId: SegmentId): DBPart {
 			return {
-				_id: protectString(rundownId + '_part' + index),
+				_id: protectString<PartId>(rundownId + '_part' + index),
 				segmentId: segId,
 				rundownId: rundownId,
 				_rank: index,

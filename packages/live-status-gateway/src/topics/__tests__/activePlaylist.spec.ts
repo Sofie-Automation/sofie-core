@@ -20,6 +20,12 @@ import {
 	ActivePlaylistTimingMode,
 	SegmentCountdownType,
 } from '@sofie-automation/live-status-gateway-api'
+import {
+	PartId,
+	PartInstanceId,
+	RundownPlaylistActivationId,
+	SegmentId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 const DEFAULT_UNCONFIGURED_T_TIMERS: ActivePlaylistEvent['tTimers'] = [
 	{ index: 1, label: '', configured: false, mode: null, state: null, projected: null, anchorPartId: null },
@@ -44,7 +50,7 @@ describe('ActivePlaylistTopic', () => {
 		const mockSubscriber = makeMockSubscriber()
 
 		const playlist = makeTestPlaylist()
-		playlist.activationId = protectString('somethingRandom')
+		playlist.activationId = protectString<RundownPlaylistActivationId>('somethingRandom')
 		handlers.playlistHandler.notify(playlist)
 
 		const testShowStyleBase = makeTestShowStyleBase()
@@ -87,20 +93,20 @@ describe('ActivePlaylistTopic', () => {
 		const currentPartInstanceId = 'CURRENT_PART_INSTANCE_ID'
 
 		const playlist = makeTestPlaylist()
-		playlist.activationId = protectString('somethingRandom')
+		playlist.activationId = protectString<RundownPlaylistActivationId>('somethingRandom')
 		playlist.currentPartInfo = {
 			consumesQueuedSegmentId: false,
 			manuallySelected: false,
-			partInstanceId: protectString(currentPartInstanceId),
+			partInstanceId: protectString<PartInstanceId>(currentPartInstanceId),
 			rundownId: playlist.rundownIdsInOrder[0],
 		}
 		handlers.playlistHandler.notify(playlist)
 
 		const testShowStyleBase = makeTestShowStyleBase()
-		const segment1id = protectString('SEGMENT_1')
+		const segment1id = protectString<SegmentId>('SEGMENT_1')
 		handlers.showStyleBaseHandler.notify(testShowStyleBase as ShowStyleBaseExt)
 		const part1: Partial<DBPart> = {
-			_id: protectString('PART_1'),
+			_id: protectString<PartId>('PART_1'),
 			title: 'Test Part',
 			segmentId: segment1id,
 			expectedDurationWithTransition: 10000,
@@ -109,7 +115,7 @@ describe('ActivePlaylistTopic', () => {
 		}
 		const testPartInstances: PartialDeep<SelectedPartInstances> = {
 			current: {
-				_id: currentPartInstanceId,
+				_id: protectString<PartInstanceId>(currentPartInstanceId),
 				part: part1,
 				timings: { plannedStartedPlayback: 1600000060000 },
 				segmentId: segment1id,
@@ -117,7 +123,7 @@ describe('ActivePlaylistTopic', () => {
 			firstInSegmentPlayout: {},
 			inCurrentSegment: [
 				literal<PartialDeep<DBPartInstance>>({
-					_id: protectString(currentPartInstanceId),
+					_id: protectString<PartInstanceId>(currentPartInstanceId),
 					part: part1,
 					timings: { plannedStartedPlayback: 1600000060000 },
 				}),
@@ -192,17 +198,17 @@ describe('ActivePlaylistTopic', () => {
 		const nextPartInstanceId = 'NEXT_PART_INSTANCE_ID'
 
 		const playlist = makeTestPlaylist()
-		playlist.activationId = protectString('somethingRandom')
+		playlist.activationId = protectString<RundownPlaylistActivationId>('somethingRandom')
 		playlist.currentPartInfo = {
 			consumesQueuedSegmentId: false,
 			manuallySelected: false,
-			partInstanceId: protectString(currentPartInstanceId),
+			partInstanceId: protectString<PartInstanceId>(currentPartInstanceId),
 			rundownId: playlist.rundownIdsInOrder[0],
 		}
 		playlist.nextPartInfo = {
 			consumesQueuedSegmentId: false,
 			manuallySelected: false,
-			partInstanceId: protectString(nextPartInstanceId),
+			partInstanceId: protectString<PartInstanceId>(nextPartInstanceId),
 			rundownId: playlist.rundownIdsInOrder[0],
 		}
 		handlers.playlistHandler.notify(playlist)
@@ -210,16 +216,16 @@ describe('ActivePlaylistTopic', () => {
 		const testShowStyleBase = makeTestShowStyleBase()
 		handlers.showStyleBaseHandler.notify(testShowStyleBase as ShowStyleBaseExt)
 
-		const segment1id = protectString('SEGMENT_1')
+		const segment1id = protectString<SegmentId>('SEGMENT_1')
 		const currentPart: Partial<DBPart> = {
-			_id: protectString('PART_1'),
+			_id: protectString<PartId>('PART_1'),
 			title: 'Current AdLib Part',
 			segmentId: segment1id,
 			expectedDurationWithTransition: 10000,
 			expectedDuration: 10000,
 		}
 		const nextPart: Partial<DBPart> = {
-			_id: protectString('PART_2'),
+			_id: protectString<PartId>('PART_2'),
 			title: 'Next AdLib Part',
 			segmentId: segment1id,
 			expectedDurationWithTransition: 8000,
@@ -227,13 +233,13 @@ describe('ActivePlaylistTopic', () => {
 		}
 		const testPartInstances: PartialDeep<SelectedPartInstances> = {
 			current: {
-				_id: currentPartInstanceId,
+				_id: protectString<PartInstanceId>(currentPartInstanceId),
 				part: currentPart,
 				segmentId: segment1id,
 				orphaned: 'adlib-part',
 			},
 			next: {
-				_id: nextPartInstanceId,
+				_id: protectString<PartInstanceId>(nextPartInstanceId),
 				part: nextPart,
 				segmentId: segment1id,
 				orphaned: 'adlib-part',
@@ -241,7 +247,7 @@ describe('ActivePlaylistTopic', () => {
 			firstInSegmentPlayout: {},
 			inCurrentSegment: [
 				literal<PartialDeep<DBPartInstance>>({
-					_id: protectString(currentPartInstanceId),
+					_id: protectString<PartInstanceId>(currentPartInstanceId),
 					part: currentPart,
 					segmentId: segment1id,
 					orphaned: 'adlib-part',
@@ -270,11 +276,11 @@ describe('ActivePlaylistTopic', () => {
 		const currentPartInstanceId = 'CURRENT_PART_INSTANCE_ID'
 
 		const playlist = makeTestPlaylist()
-		playlist.activationId = protectString('somethingRandom')
+		playlist.activationId = protectString<RundownPlaylistActivationId>('somethingRandom')
 		playlist.currentPartInfo = {
 			consumesQueuedSegmentId: false,
 			manuallySelected: false,
-			partInstanceId: protectString(currentPartInstanceId),
+			partInstanceId: protectString<PartInstanceId>(currentPartInstanceId),
 			rundownId: playlist.rundownIdsInOrder[0],
 		}
 		handlers.playlistHandler.notify(playlist)
@@ -282,17 +288,17 @@ describe('ActivePlaylistTopic', () => {
 		const testShowStyleBase = makeTestShowStyleBase()
 		handlers.showStyleBaseHandler.notify(testShowStyleBase as ShowStyleBaseExt)
 
-		const segment1id = protectString('SEGMENT_1')
+		const segment1id = protectString<SegmentId>('SEGMENT_1')
 		const part1: Partial<DBPart> = {
-			_id: protectString('PART_1'),
+			_id: protectString<PartId>('PART_1'),
 			title: 'Test Part',
-			segmentId: protectString('SEGMENT_1'),
+			segmentId: protectString<SegmentId>('SEGMENT_1'),
 			expectedDurationWithTransition: 10000,
 			expectedDuration: 10000,
 			publicData: { b: 'c' },
 		}
 		const currentPartInstance = {
-			_id: currentPartInstanceId,
+			_id: protectString<PartInstanceId>(currentPartInstanceId),
 			part: part1,
 			timings: { plannedStartedPlayback: 1600000060000 },
 			segmentId: segment1id,
@@ -302,7 +308,7 @@ describe('ActivePlaylistTopic', () => {
 			firstInSegmentPlayout: currentPartInstance,
 			inCurrentSegment: [
 				literal<PartialDeep<DBPartInstance>>({
-					_id: protectString(currentPartInstanceId),
+					_id: protectString<PartInstanceId>(currentPartInstanceId),
 					part: part1,
 					timings: { plannedStartedPlayback: 1600000060000 },
 				}),
@@ -377,7 +383,7 @@ describe('ActivePlaylistTopic', () => {
 		const mockSubscriber = makeMockSubscriber()
 
 		const playlist = makeTestPlaylist()
-		playlist.activationId = protectString('somethingRandom')
+		playlist.activationId = protectString<RundownPlaylistActivationId>('somethingRandom')
 		playlist.tTimers = [
 			{
 				index: 1,

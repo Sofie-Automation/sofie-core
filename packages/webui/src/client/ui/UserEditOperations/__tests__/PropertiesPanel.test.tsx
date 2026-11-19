@@ -8,6 +8,7 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { UIParts } from '../../Collections.js'
 import { AdLibActions, Segments } from '../../../../client/collections/index.js'
 import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
+import type { SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { UserEditingType } from '@sofie-automation/blueprints-integration'
 import {
@@ -301,7 +302,7 @@ describe('PropertiesPanel', () => {
 		const mockSegment = createMockSegment('segment1')
 
 		const mockId = mockSegmentsCollection.insert(mockSegment)
-		const protectedMockId = protectString(mockId)
+		const protectedMockId = protectString<SegmentId>(mockId)
 
 		const verifySegment = mockSegmentsCollection.findOne({ _id: protectedMockId })
 		expect(verifySegment).toBeTruthy()

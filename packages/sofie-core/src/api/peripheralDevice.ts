@@ -880,7 +880,7 @@ peripheralDeviceRouter.post('/:deviceId/uploadCredentials', bodyParser(), async 
 	ctx.response.type = 'text/plain'
 
 	try {
-		const deviceId: PeripheralDeviceId = protectString(ctx.params.deviceId)
+		const deviceId = protectString<PeripheralDeviceId>(ctx.params.deviceId)
 		check(deviceId, z.string())
 
 		if (!deviceId) throw new SofieError(400, `parameter deviceId is missing`)
@@ -916,7 +916,7 @@ peripheralDeviceRouter.post('/:deviceId/uploadCredentials', bodyParser(), async 
 
 peripheralDeviceRouter.get('/:deviceId/oauthResponse', async (ctx) => {
 	try {
-		const deviceId: PeripheralDeviceId = protectString(ctx.params.deviceId)
+		const deviceId = protectString<PeripheralDeviceId>(ctx.params.deviceId)
 		check(deviceId, z.string())
 
 		if (!deviceId) throw new SofieError(400, `parameter deviceId is missing`)
@@ -960,7 +960,7 @@ peripheralDeviceRouter.post('/:deviceId/resetAuth', async (ctx) => {
 	ctx.response.type = 'text/plain'
 
 	try {
-		const deviceId: PeripheralDeviceId = protectString(ctx.params.deviceId)
+		const deviceId = protectString<PeripheralDeviceId>(ctx.params.deviceId)
 		check(deviceId, z.string())
 
 		if (!deviceId) throw new SofieError(400, `parameter deviceId is missing`)
@@ -990,7 +990,7 @@ peripheralDeviceRouter.post('/:deviceId/resetAppCredentials', async (ctx) => {
 	ctx.response.type = 'text/plain'
 
 	try {
-		const deviceId: PeripheralDeviceId = protectString(ctx.params.deviceId)
+		const deviceId = protectString<PeripheralDeviceId>(ctx.params.deviceId)
 		check(deviceId, z.string())
 
 		if (!deviceId) throw new SofieError(400, `parameter deviceId is missing`)

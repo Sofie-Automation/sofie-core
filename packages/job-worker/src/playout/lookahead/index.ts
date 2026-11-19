@@ -13,7 +13,7 @@ import {
 import { JobContext } from '../../jobs/index.js'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PieceInstance, wrapPieceToInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
-import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartId, PartInstanceId, RundownPlaylistActivationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { clone } from '@sofie-automation/corelib/dist/lib'
 import { Filter as FilterQuery } from 'mongodb'
@@ -177,7 +177,12 @@ export async function getLookeaheadObjects(
 		const resolvedPiece = resolvePieceForBranding(piece, projectedBrandingId)
 		if (!resolvedPiece) continue // Not used with this Branding
 
-		const pieceInstance = wrapPieceToInstance(resolvedPiece, protectString(''), protectString(''), true)
+		const pieceInstance = wrapPieceToInstance(
+			resolvedPiece,
+			protectString<RundownPlaylistActivationId>(''),
+			protectString<PartInstanceId>(''),
+			true
+		)
 		const existing = piecesByPart.get(piece.startPartId)
 		if (existing) {
 			existing.push(pieceInstance)

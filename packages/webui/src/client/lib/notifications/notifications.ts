@@ -9,7 +9,6 @@ import {
 	type ProtectedString,
 	unprotectString,
 	isProtectedString,
-	protectString,
 } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { isTranslatableMessage, type ITranslatableMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { PieceStatusCode } from '@sofie-automation/corelib/dist/dataModel/Piece'
@@ -572,7 +571,7 @@ Meteor.startup(() => {
 				undefined,
 				level,
 				'Notification test',
-				protectString('test'),
+				'test',
 				undefined,
 				fakePersistent,
 				undefined,

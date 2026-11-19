@@ -1,5 +1,6 @@
 import { setupEmptyEnvironment, setupMockStudio } from '../../../../__mocks__/helpers/database'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Studios } from '../../../../collections'
 import { ContainerIdsToObjectWithOverridesMigrationStep } from '../ContainerIdsToObjectWithOverridesMigrationStep'
 
@@ -10,7 +11,7 @@ describe('ContainerIdsToObjectWithOverridesMigrationStep', () => {
 
 	test('migration is needed when studio is missing packageContainerSettingsWithOverrides', async () => {
 		await setupMockStudio({
-			_id: protectString('studio0'),
+			_id: protectString<StudioId>('studio0'),
 			// @ts-expect-error
 			previewContainerIds: ['preview1'],
 			thumbnailContainerIds: ['thumb1'],
@@ -25,7 +26,7 @@ describe('ContainerIdsToObjectWithOverridesMigrationStep', () => {
 
 		await step.migrate()
 
-		const studio = await Studios.findOneAsync(protectString('studio0'))
+		const studio = await Studios.findOneAsync(protectString<StudioId>('studio0'))
 		expect(studio).toBeTruthy()
 		expect(studio?.packageContainerSettingsWithOverrides).toMatchObject({
 			defaults: {
@@ -48,7 +49,7 @@ describe('ContainerIdsToObjectWithOverridesMigrationStep', () => {
 
 	test('migration handles missing optional old fields', async () => {
 		await setupMockStudio({
-			_id: protectString('studio1'),
+			_id: protectString<StudioId>('studio1'),
 			packageContainerSettingsWithOverrides: undefined as any,
 		})
 
@@ -60,7 +61,7 @@ describe('ContainerIdsToObjectWithOverridesMigrationStep', () => {
 
 		await step.migrate()
 
-		const studio = await Studios.findOneAsync(protectString('studio1'))
+		const studio = await Studios.findOneAsync(protectString<StudioId>('studio1'))
 		expect(studio).toBeTruthy()
 		expect(studio?.packageContainerSettingsWithOverrides).toMatchObject({
 			defaults: {

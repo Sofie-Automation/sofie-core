@@ -19,6 +19,7 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import type { IStudioSettings } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import {
+	BlueprintId,
 	RundownId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
@@ -69,10 +70,10 @@ export function setupDefaultJobEnvironment(
 
 	// We don't bother 'saving' this to the db, as usually nothing will load it
 	const studio: DBStudio = {
-		...defaultStudio(studioId ?? protectString('mockStudio0')),
+		...defaultStudio(studioId ?? protectString<StudioId>('mockStudio0')),
 		name: 'mockStudio',
 		_rundownVersionHash: 'asdf',
-		blueprintId: protectString('studioBlueprint0'),
+		blueprintId: protectString<BlueprintId>('studioBlueprint0'),
 	}
 
 	if (studioSettings) {
