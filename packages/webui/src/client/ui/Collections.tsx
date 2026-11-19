@@ -43,6 +43,14 @@ export const UIPieceContentStatuses = createSyncCorelibCustomPublicationMongoCol
 )
 
 /**
+ * Server-computed timing state for everything within the subscribed RundownPlaylist(s), expressed
+ * as TimerStates to be evaluated locally. A discriminated union keyed on `type` - narrow before use.
+ */
+export const PlaylistTimingStates = createSyncCorelibCustomPublicationMongoCollection(
+	CustomCorelibCollectionName.PlaylistTimingState
+)
+
+/**
  * A playout UI version of Parts.
  */
 export const UIParts = createSyncCorelibCustomPublicationMongoCollection(CustomCorelibCollectionName.UIParts)

@@ -12,7 +12,7 @@ import { RundownHeaderPartRemaining, RundownHeaderSegmentBudget } from '../Rundo
 import { RundownHeaderTimers } from './RundownHeaderTimers'
 
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { useTiming } from '../RundownTiming/withTiming'
+import { TimerValueMode, usePlaylistTimingField, usePlaylistTimingValue } from '../RundownTiming/usePlaylistTimingValue'
 import { RundownHeaderTimingDisplay } from './RundownHeaderTimingDisplay'
 import { RundownHeaderPlannedStart } from './RundownHeaderPlannedStart'
 import { RundownHeaderDurations } from './RundownHeaderDurations'
@@ -39,7 +39,8 @@ export function RundownHeader({
 	lockView,
 }: IRundownHeaderProps): JSX.Element {
 	const { t } = useTranslation()
-	const timingDurations = useTiming()
+	const targetDuration = usePlaylistTimingField(playlist._id, 'targetDuration')
+	const remainingPlaylistDuration = usePlaylistTimingValue(playlist._id, 'remainingDuration', TimerValueMode.Duration)
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [isContextMenuOpen, setIsContextMenuOpen] = useState(false)
 	// User's explicit toggle preference; defaults to false (show advanced)
@@ -51,17 +52,10 @@ export function RundownHeader({
 
 	const hasSimple = !!(expectedStart || expectedDuration || expectedEnd)
 
-	// Fallback duration for untimed playlists
-	const fallbackDuration = PlaylistTiming.isPlaylistTimingNone(playlist.timing)
-		? Object.values<number>(timingDurations.partExpectedDurations || {}).reduce((a, b) => a + b, 0)
-		: undefined
+	// Fallback duration for untimed playlists: how long the segments are meant to take
+	const fallbackDuration = PlaylistTiming.isPlaylistTimingNone(playlist.timing) ? targetDuration : undefined
 
-	const hasAdvanced = !!(
-		playlist.startedPlayback ||
-		expectedStart ||
-		timingDurations.remainingPlaylistDuration ||
-		fallbackDuration
-	)
+	const hasAdvanced = !!(playlist.startedPlayback || expectedStart || remainingPlaylistDuration || fallbackDuration)
 
 	const canToggle = hasSimple && hasAdvanced
 

@@ -1,15 +1,19 @@
-import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import classNames from 'classnames'
 import { useContext } from 'react'
 import { AreaZoom } from './index.js'
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { getAllowSpeaking, getAllowVibrating } from '../../../lib/localStorage.js'
-import { getPartInstanceTimingValue } from '../../../lib/rundownTiming.js'
 import { AutoNextStatus } from '../../RundownView/RundownTiming/AutoNextStatus.js'
 import { CurrentPartOrSegmentRemaining } from '../../RundownView/RundownHeader/CurrentPartOrSegmentRemaining.js'
 import { PartCountdown } from '../../RundownView/RundownTiming/PartCountdown.js'
 import { PartDisplayDuration } from '../../RundownView/RundownTiming/PartDuration.js'
-import { TimingDataResolution, TimingTickResolution, useTiming } from '../../RundownView/RundownTiming/withTiming.js'
+import { TimingTickResolution } from '../../RundownView/RundownTiming/RundownTiming.js'
+import {
+	TimerValueMode,
+	usePartCountdownValue,
+	usePartTimingValue,
+	usePlaylistTimingValue,
+} from '../../RundownView/RundownTiming/usePlaylistTimingValue.js'
 import type { PartUi } from '../../SegmentContainer/withResolvedSegment.js'
 import { Piece } from './Piece.js'
 import type { PieceExtended } from '@sofie-automation/corelib/src/dataModel/Piece.js'
@@ -25,19 +29,32 @@ interface IProps {
 export function Part({ playlist, part, piece, isLive, isNext }: IProps): JSX.Element | null {
 	const areaZoom = useContext(AreaZoom)
 
-	const timingDurations = useTiming(TimingTickResolution.High, TimingDataResolution.High)
+	// Each frame while a value moves, so that the piece moves smoothly. A value that holds, as most of them do for
+	// the parts that are not on air, reads the same at any time, so it does not draw the part again
+	const highResolution = {
+		tickResolution: TimingTickResolution.High,
+		tickResolutionWhileHolding: TimingTickResolution.None,
+	}
+	// The live part is drawn from the On Air countdown alone, and the others from their own values alone, so a part
+	// reads only the values it draws from: each read is done again on each frame while the part moves
+	const ownPartId = isLive ? undefined : part.partId
+	const countdown = usePartCountdownValue(ownPartId, TimerValueMode.Duration, highResolution)
+	const played = usePartTimingValue(ownPartId, 'played', TimerValueMode.CountUp, highResolution)
+	// the live display duration, which grows past the planned one while the part overruns
+	const displayDuration = usePartTimingValue(ownPartId, 'liveDisplayDuration', TimerValueMode.CountUp, highResolution)
+	const remainingOnCurrentPart = usePlaylistTimingValue(
+		isLive ? playlist._id : undefined,
+		'remainingOnCurrentPart',
+		TimerValueMode.Duration,
+		{ ...highResolution, forPartInstanceId: part.instance._id }
+	)
 
-	let left =
-		(timingDurations.partCountdown?.[unprotectString(part.partId)] ?? 0) -
-		(getPartInstanceTimingValue(timingDurations.partPlayed, part.instance) || 0)
-	let width: number | null = getPartInstanceTimingValue(timingDurations.partDisplayDurations, part.instance) ?? null
+	let left = (countdown ?? 0) - (played ?? 0)
+	let width: number | null = displayDuration
 
 	if (isLive) {
 		left = 0
-		width =
-			timingDurations.remainingTimeOnCurrentPart !== undefined
-				? Math.max(0, timingDurations.remainingTimeOnCurrentPart)
-				: null
+		width = remainingOnCurrentPart !== null ? Math.max(0, remainingOnCurrentPart) : null
 	}
 
 	if (!part.instance.part.expectedDuration && !part.instance.part.displayDurationGroup) {

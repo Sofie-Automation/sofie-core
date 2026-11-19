@@ -3,13 +3,16 @@ import type { VTContent } from '@sofie-automation/blueprints-integration'
 import { getNoticeLevelForPieceStatus } from '../../../../lib/notifications/notifications.js'
 import { RundownUtils } from '../../../../lib/rundown.js'
 import type { IProps } from './ThumbnailRendererFactory.js'
-import { unprotectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { FreezeFrameIcon } from '../../../../lib/ui/icons/freezeFrame.js'
 import { PieceStatusIcon } from '../../../../lib/ui/PieceStatusIcon.js'
 import { FREEZE_FRAME_FLASH } from '../../../SegmentContainer/withResolvedSegment.js'
 import { LoopingPieceIcon } from '../../../../lib/ui/icons/looping.js'
 import { useContentStatusForPieceInstance } from '../../../SegmentTimeline/withMediaObjectStatus.js'
-import { useTiming } from '../../../RundownView/RundownTiming/withTiming.js'
+import {
+	TimerValueMode,
+	usePartTimingValue,
+	useTimingNow,
+} from '../../../RundownView/RundownTiming/usePlaylistTimingValue.js'
 import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
 import type { PieceContentStatusObj } from '@sofie-automation/corelib/dist/dataModel/PieceContentStatus.js'
 import type { PieceUi } from '@sofie-automation/corelib/src/dataModel/Piece.js'
@@ -35,7 +38,7 @@ export function VTThumbnailRenderer(props: Readonly<IProps>): JSX.Element {
 	)
 }
 
-function VTThumbnailRendererWithTiming({
+export function VTThumbnailRendererWithTiming({
 	partId,
 	pieceInstance,
 	partAutoNext,
@@ -51,33 +54,30 @@ function VTThumbnailRendererWithTiming({
 	isLive: boolean
 	hovering: boolean
 	contentStatus: PieceContentStatusObj | undefined
-}) {
-	const timingContext = useTiming(undefined, undefined, (timingContext) => ({
-		partPlayed: timingContext.partPlayed && timingContext.partPlayed[unprotectString(partId)],
-		partDisplayDurations:
-			timingContext.partDisplayDurations && timingContext.partDisplayDurations[unprotectString(partId)],
-		currentTime: timingContext.currentTime,
-	}))
-
+}): JSX.Element | null {
 	const vtContent = pieceInstance.instance.piece.content as VTContent
+	const contentEnd = (vtContent?.sourceDuration ?? 0) - (vtContent?.seek ?? 0) + (pieceInstance.renderedInPoint ?? 0)
+
+	// drawn again when the shown number changes its second: the content left is the clip's end minus the played
+	// time, and the clip's end is not a whole number of seconds
+	const partPlayedValue = usePartTimingValue(partId, 'played', TimerValueMode.CountUp, {
+		drawnAs: (played) => contentEnd - played,
+	})
+	const partExpectedDurationValue = usePartTimingValue(partId, 'liveDisplayDuration', TimerValueMode.CountUp)
+	const currentTime = useTimingNow()
 
 	const previewUrl: string | undefined = contentStatus?.previewUrl
 	const thumbnailUrl: string | undefined = contentStatus?.thumbnailUrl
 
-	if (!timingContext.partPlayed || !timingContext.partDisplayDurations) return null
+	if (partPlayedValue === null || partExpectedDurationValue === null) return null
 	if (pieceInstance.instance.piece.content?.loop) return null
 
-	const partPlayed = timingContext.partPlayed[unprotectString(partId)] ?? 0
-	const contentEnd = (vtContent?.sourceDuration ?? 0) - (vtContent?.seek ?? 0) + (pieceInstance.renderedInPoint ?? 0)
-
+	const partPlayed = partPlayedValue
 	const contentLeft = contentEnd - partPlayed
 
-	const partExpectedDuration = timingContext.partDisplayDurations[unprotectString(partId)]
+	const partExpectedDuration = partExpectedDurationValue
 
-	const isFinished =
-		!!partPlannedStoppedPlayback &&
-		!!timingContext.currentTime &&
-		partPlannedStoppedPlayback < timingContext.currentTime
+	const isFinished = !!partPlannedStoppedPlayback && partPlannedStoppedPlayback < currentTime
 
 	const partLeft = partExpectedDuration - partPlayed
 

@@ -1,9 +1,8 @@
 import ClassNames from 'classnames'
-import type { ReactNode } from 'react'
-import { useTiming } from './withTiming.js'
+import { memo, type ReactNode } from 'react'
 import { RundownUtils } from '../../../lib/rundown.js'
 import type { PartUi } from '../../SegmentTimeline/SegmentTimelineContainer.js'
-import { getPartInstanceTimingId } from '../../../lib/rundownTiming.js'
+import { TimerValueMode, usePartTimingField, usePartTimingValue } from './usePlaylistTimingValue.js'
 
 interface IPartDurationProps {
 	part: PartUi
@@ -17,30 +16,23 @@ interface IPartDurationProps {
 
 /**
  * A presentational component that will render a duration for a Part
- * @function PartDisplayDuration
- * @extends React.Component<WithTiming<IPartDurationProps>>
+ *
+ * It draws itself again when its second changes, so it is memoised: a parent that is drawn on each
+ * frame, as the camera screen's parts are, does not draw it again with it.
  */
-export function PartDisplayDuration(props: IPartDurationProps): JSX.Element | null {
-	const timingDurations = useTiming(undefined, undefined, (context) => {
-		return context.partExpectedDurations && context.partExpectedDurations[getPartInstanceTimingId(props.part.instance)]
+export const PartDisplayDuration = memo(function PartDisplayDuration(props: IPartDurationProps): JSX.Element | null {
+	const part = props.part
+	const expectedDuration = usePartTimingField(part.instance.part._id, 'expectedDuration')
+	const budget = part.instance.orphaned || part.instance.part.untimed ? 0 : (expectedDuration ?? 0)
+	// drawn again when the shown number changes its second: the time left is the budget minus the played time,
+	// and the budget is not always a whole number of seconds
+	const played = usePartTimingValue(part.instance.part._id, 'played', TimerValueMode.CountUp, {
+		drawnAs: props.countUp || props.fixed || part.instance.part.untimed ? undefined : (playedNow) => budget - playedNow,
 	})
 
-	let duration: number | undefined = undefined
-	let budget = 0
-	let playedOut = 0
+	const playedOut = (!part.instance.part.untimed ? played : 0) ?? 0
 
-	const part = props.part
-
-	if (timingDurations.partPlayed && timingDurations.partExpectedDurations) {
-		const { partPlayed, partExpectedDurations } = timingDurations
-		budget =
-			part.instance.orphaned || part.instance.part.untimed
-				? 0
-				: partExpectedDurations[getPartInstanceTimingId(part.instance)] || 0
-		playedOut = (!part.instance.part.untimed ? partPlayed[getPartInstanceTimingId(part.instance)] : 0) || 0
-	}
-
-	duration = budget - playedOut
+	const duration = budget - playedOut
 
 	if (duration !== undefined) {
 		return (
@@ -52,11 +44,12 @@ export function PartDisplayDuration(props: IPartDurationProps): JSX.Element | nu
 					</span>
 				) : props.countUp ? (
 					<span className={ClassNames(props.className)} role="timer">
-						{RundownUtils.formatDiffToTimecodeWithSign(playedOut)}
+						{RundownUtils.formatDiffToTimecodeElapsed(playedOut)}
 					</span>
 				) : (
 					<span className={ClassNames(props.className, duration < 0 ? 'negative' : undefined)} role="timer">
-						{RundownUtils.formatDiffToTimecodeWithSign(duration)}
+						{/* a countdown: the time left rounds up, and the overrun rounds down */}
+						{RundownUtils.formatDiffToTimecodeCountdown(0 - duration)}
 					</span>
 				)}
 			</>
@@ -64,4 +57,4 @@ export function PartDisplayDuration(props: IPartDurationProps): JSX.Element | nu
 	}
 
 	return null
-}
+})

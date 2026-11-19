@@ -1,6 +1,7 @@
 import { useTracker } from '../lib/ReactMeteorData/ReactMeteorData.js'
 import * as React from 'react'
-import { TimingDataResolution, TimingTickResolution, useTiming } from './RundownView/RundownTiming/withTiming.js'
+import { TimingTickResolution } from './RundownView/RundownTiming/RundownTiming.js'
+import { useTimingNow } from './RundownView/RundownTiming/usePlaylistTimingValue.js'
 import { useTranslation } from 'react-i18next'
 import { Meteor } from 'meteor/meteor'
 
@@ -47,17 +48,17 @@ export function ReactiveComponent(props: Readonly<ReactiveComponentProps>): JSX.
 	)
 }
 
-// withTiming ----------------------
+// timing ----------------------
 interface WithTimingComponentProps {
 	myProp0: string
 }
 export function WithTimingComponent({ myProp0 }: Readonly<WithTimingComponentProps>): JSX.Element {
-	const timingDurations = useTiming(TimingTickResolution.Synced, TimingDataResolution.Synced)
+	const now = useTimingNow(TimingTickResolution.Synced)
 
 	return (
 		<div>
 			{myProp0}
-			{timingDurations.currentTime}
+			{now}
 			{/* {this.props.asdf} invalid argument */}
 			{/* {this.state.asdf} invalid argument */}
 		</div>

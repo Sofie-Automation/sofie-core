@@ -2,25 +2,25 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
 import Moment from 'react-moment'
 import { LoopingIcon } from '../../lib/ui/icons/looping.js'
-import { useTiming } from './RundownTiming/withTiming.js'
+import type { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { TimerValueMode, useOrderedPartIds, usePartCountdownValue } from './RundownTiming/usePlaylistTimingValue.js'
 import { RundownUtils } from '../../lib/rundown.js'
 
-function NextLoopClock({ useWallClock }: { useWallClock?: boolean }) {
-	const timingDurations = useTiming()
+function NextLoopClock({ useWallClock, playlistId }: { useWallClock?: boolean; playlistId: RundownPlaylistId }) {
+	// the countdown to the first part of the rundown, which is where the loop returns to
+	const firstPartId = useOrderedPartIds(playlistId)[0]
+	const thisPartCountdown = usePartCountdownValue(firstPartId, TimerValueMode.Duration)
+	// the countdown read as the time of day it reaches zero, at the same moment as the countdown itself
+	const thisPartStartTime = usePartCountdownValue(firstPartId, TimerValueMode.Timestamp)
 
-	if (!timingDurations?.partCountdown) return null
-	const thisPartCountdown = timingDurations.partCountdown[
-		Object.keys(timingDurations.partCountdown)[0] // use the countdown to first part of rundown
-	] as number | undefined
+	if (thisPartCountdown === null || thisPartStartTime === null) return null
 
 	return (
 		<span>
 			{useWallClock ? (
-				<Moment interval={0} format="HH:mm:ss" date={(timingDurations.currentTime || 0) + (thisPartCountdown || 0)} />
+				<Moment interval={0} format="HH:mm:ss" date={thisPartStartTime} />
 			) : (
-				RundownUtils.formatTimeToShortTime(
-					thisPartCountdown! // shouldShow will be false if thisPartCountdown is undefined
-				)
+				RundownUtils.formatTimeToShortTime(thisPartCountdown)
 			)}
 		</span>
 	)
@@ -30,8 +30,14 @@ interface ILoopingHeaderProps {
 	position: 'start' | 'end'
 	multiRundown?: boolean
 	showCountdowns?: boolean
+	playlistId: RundownPlaylistId
 }
-export function PlaylistLoopingHeader({ position, multiRundown, showCountdowns }: ILoopingHeaderProps): JSX.Element {
+export function PlaylistLoopingHeader({
+	position,
+	multiRundown,
+	showCountdowns,
+	playlistId,
+}: ILoopingHeaderProps): JSX.Element {
 	const { t } = useTranslation()
 
 	return (
@@ -48,10 +54,10 @@ export function PlaylistLoopingHeader({ position, multiRundown, showCountdowns }
 			{showCountdowns ? (
 				<>
 					<div className="playlist-looping-header__countdown playlist-looping-header__countdown--time-of-day">
-						<NextLoopClock useWallClock={true} />
+						<NextLoopClock useWallClock={true} playlistId={playlistId} />
 					</div>
 					<div className="playlist-looping-header__countdown playlist-looping-header__countdown--countdown">
-						<NextLoopClock />
+						<NextLoopClock playlistId={playlistId} />
 					</div>
 				</>
 			) : null}

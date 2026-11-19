@@ -32,6 +32,7 @@ exports[`PublicationRegistry the full set of registered publication names is sta
   "peripheralDeviceForDevice",
   "peripheralDevices",
   "peripheralDevicesAndSubDevices",
+  "playlistTimingState",
   "rundownLayouts",
   "rundownPlaylistForStudio",
   "rundownPlaylists",

@@ -26,6 +26,7 @@ import { AdLibsTopic } from './topics/adLibsTopic.js'
 import { ActivePiecesTopic } from './topics/activePiecesTopic.js'
 import { SubscriptionName } from '@sofie-automation/live-status-gateway-api'
 import { PieceContentStatusesHandler } from './collections/pieceContentStatusesHandler.js'
+import { PlaylistTimingStatesHandler } from './collections/playlistTimingStatesHandler.js'
 import { PackagesTopic } from './topics/packagesTopic.js'
 import { BucketsHandler } from './collections/bucketsHandler.js'
 import { BucketAdLibsHandler } from './collections/bucketAdLibsHandler.js'
@@ -66,6 +67,7 @@ export interface CollectionHandlers {
 	rundownNotificationsHandler: RundownNotificationsHandler
 	notificationsHandler: NotificationsHandler
 	pieceContentStatusesHandler: PieceContentStatusesHandler
+	playlistTimingStatesHandler: PlaylistTimingStatesHandler
 	bucketsHandler: BucketsHandler
 	bucketAdLibsHandler: BucketAdLibsHandler
 	bucketAdLibActionsHandler: BucketAdLibActionsHandler
@@ -110,6 +112,7 @@ export class LiveStatusServer {
 		const rundownNotificationsHandler = new RundownNotificationsHandler(this._logger, this._coreHandler)
 		const notificationsHandler = new NotificationsHandler(this._logger, this._coreHandler)
 		const pieceContentStatusesHandler = new PieceContentStatusesHandler(this._logger, this._coreHandler)
+		const playlistTimingStatesHandler = new PlaylistTimingStatesHandler(this._logger, this._coreHandler)
 		const bucketsHandler = new BucketsHandler(this._logger, this._coreHandler)
 		const bucketAdLibsHandler = new BucketAdLibsHandler(this._logger, this._coreHandler)
 		const bucketAdLibActionsHandler = new BucketAdLibActionsHandler(this._logger, this._coreHandler)
@@ -139,6 +142,7 @@ export class LiveStatusServer {
 			rundownNotificationsHandler,
 			notificationsHandler,
 			pieceContentStatusesHandler,
+			playlistTimingStatesHandler,
 			bucketsHandler,
 			bucketAdLibsHandler,
 			bucketAdLibActionsHandler,

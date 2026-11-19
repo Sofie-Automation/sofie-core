@@ -21,7 +21,6 @@ import { hashSingleUseToken } from '../../../lib/lib'
 import type { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { getCurrentTime } from '../../../lib/systemTime'
 import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
-import { REHEARSAL_MARGIN } from '../WarningDisplay'
 import type { RundownPlaylistTiming } from '@sofie-automation/blueprints-integration'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio'
 
@@ -679,6 +678,9 @@ type EventLike =
 			persist(): void
 	  }
 	| {}
+
+/** How close to the planned start counts as "about to start" */
+const REHEARSAL_MARGIN = 1 * 60 * 1000
 
 export function checkRundownTimes(playlistTiming: RundownPlaylistTiming): RundownTimesInfo {
 	const currentTime = getCurrentTime()

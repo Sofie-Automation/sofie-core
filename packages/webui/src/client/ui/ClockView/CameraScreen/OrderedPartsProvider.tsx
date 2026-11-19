@@ -1,17 +1,14 @@
-import React, { type PropsWithChildren, useMemo } from 'react'
-import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { TimingDataResolution, TimingTickResolution, useTiming } from '../../RundownView/RundownTiming/withTiming.js'
-import { protectStringArray } from '@sofie-automation/corelib/dist/protectedString'
+import React, { type PropsWithChildren } from 'react'
+import type { PartId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { useOrderedPartIds } from '../../RundownView/RundownTiming/usePlaylistTimingValue.js'
 
 export const OrderedPartsContext = React.createContext<PartId[]>([])
 
-export function OrderedPartsProvider({ children }: PropsWithChildren): JSX.Element {
-	const timingDurations = useTiming(TimingTickResolution.Low, TimingDataResolution.Synced)
-
-	const orderedPartIds = useMemo(
-		() => protectStringArray<PartId>(timingDurations.partCountdown ? Object.keys(timingDurations.partCountdown) : []),
-		[Object.keys(timingDurations.partCountdown ?? {}).join(',')]
-	)
+export function OrderedPartsProvider({
+	playlistId,
+	children,
+}: PropsWithChildren<{ playlistId: RundownPlaylistId | undefined }>): JSX.Element {
+	const orderedPartIds = useOrderedPartIds(playlistId)
 
 	return <OrderedPartsContext.Provider value={orderedPartIds}>{children}</OrderedPartsContext.Provider>
 }

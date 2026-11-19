@@ -10,10 +10,27 @@ $defs:
         description: Timing information about the current part
         properties:
           startTime:
-            description: Unix timestamp of when the part started (milliseconds)
+            description: >-
+              Unix timestamp (milliseconds) of the start of the on-air part: its planned start
+              (`plannedStartedPlayback`). Sofie's own countdowns count from this start. With a single
+              playout gateway, this is the start that the playout gateway reported. Until the playout
+              gateway reports it, this is the send time of this message. In multi-gateway mode, it is
+              the start that Sofie schedules at the take, a moment after the take. Thus, between the
+              take and that start, it is in the future.
             type: number
           projectedEndTime:
-            description: Unix timestamp of when the part is projected to end (milliseconds). A sum of `startTime` and `expectedDurationMs`.
+            description: >-
+              Unix timestamp (milliseconds) of the expected end of the on-air part. This is the time at
+              which the countdown of the part on Sofie's screens reaches zero. When the start of the
+              part is known, this value is fixed: that start plus the length that the countdown runs
+              for. In multi-gateway mode, the start is known from the take. Thus, between the take and
+              the start of the part, this value is already the start plus that length.
+
+              With a single playout gateway, the start is known when the playout gateway reports it.
+              Until then, this value is the send time of this message plus that length, so it moves
+              later with each message. When there is no published countdown, for example before Sofie
+              has published the timing for the playlist, it is `startTime` plus `expectedDurationMs`. It
+              is a plain number, so it is accurate only at the send time of this message.
             type: number
     required: [startTime, expectedDurationMs, projectedEndTime]
     examples:

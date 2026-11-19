@@ -36,14 +36,28 @@ export interface RundownTTimerModeTimeOfDay {
  * Timing state for a timer, optimized for efficient client rendering.
  * When running, the client calculates current time from zeroTime.
  * When paused, the duration is frozen and sent directly.
- * pauseTime indicates when the timer should automatically pause (when current part ends and overrun begins).
+ *
+ * Each variant carries the timestamp of its transition into the *other* state, so that a transition
+ * whose time is known in advance does not depend on a new state being published at that moment
+ * (which would cost accuracy - the value would be stale until the message lands, then jump):
+ * - `pauseTime` on a running timer: when it freezes (e.g. when the current part ends and overrun begins)
+ * - `resumesAt` on a paused timer: when it starts running (e.g. a scheduled start)
+ *
+ * The other one is always null/absent, and a state therefore has at most one transition. Anything
+ * with further transitions relies on an updated state being published in between; there is a
+ * multi-second window to do so in practice, so that is safe.
  *
  * Client rendering logic:
  * ```typescript
  * if (state.paused === true) {
- *   // Manually paused by user or already pushing/overrun
- *   duration = state.duration
- * } else if (state.pauseTime && now >= state.pauseTime) {
+ *   if (state.resumesAt != null && now >= state.resumesAt) {
+ *     // Scheduled start has passed, running since then
+ *     duration = state.duration - (now - state.resumesAt)
+ *   } else {
+ *     // Manually paused by user, already pushing/overrun, or waiting for a scheduled start
+ *     duration = state.duration
+ *   }
+ * } else if (state.pauseTime != null && now >= state.pauseTime) {
  *   // Auto-pause at overrun (current part ended)
  *   duration = state.zeroTime - state.pauseTime
  * } else {
@@ -60,14 +74,18 @@ export type TimerState =
 			zeroTime: number
 			/** Optional timestamp when the timer should pause (when current part ends) */
 			pauseTime?: number | null
+			/** Not applicable while running - a running timer has no scheduled start */
+			resumesAt?: null
 	  }
 	| {
 			/** Whether the timer is paused */
 			paused: true
 			/** The frozen duration value in milliseconds */
 			duration: number
-			/** Optional timestamp when the timer should pause (null when already paused/pushing) */
-			pauseTime?: number | null
+			/** Not applicable while paused - a paused timer has already stopped */
+			pauseTime?: null
+			/** Optional timestamp when the timer should start running, if that is known in advance */
+			resumesAt?: number | null
 	  }
 
 export interface ITTimersContext {

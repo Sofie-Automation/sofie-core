@@ -1,8 +1,6 @@
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import { useTranslation } from 'react-i18next'
-import { useTiming } from '../RundownTiming/withTiming'
-import { getPlaylistTimingDiff } from '../../../lib/rundownTiming'
+import { TimerValueMode, usePlaylistTimingValue } from '../RundownTiming/usePlaylistTimingValue.js'
 import { OverUnderChip } from '../../../lib/Components/OverUnderChip'
 
 export interface IRundownHeaderTimingDisplayProps {
@@ -11,21 +9,14 @@ export interface IRundownHeaderTimingDisplayProps {
 
 export function RundownHeaderTimingDisplay({ playlist }: IRundownHeaderTimingDisplayProps): JSX.Element | null {
 	const { t } = useTranslation()
-	const timingDurations = useTiming()
+	const timeInHand = usePlaylistTimingValue(playlist._id, 'overUnder', TimerValueMode.Duration)
 
-	const overUnderClock = getPlaylistTimingDiff(playlist, timingDurations)
+	// The server omits the balance when there is no meaningful diff to show
+	// (e.g. an untimed playlist that has never been played)
+	if (timeInHand === null) return null
 
-	if (overUnderClock === undefined) return null
-
-	// Hide diff in untimed mode before first timing take
-	if (
-		PlaylistTiming.isPlaylistTimingNone(playlist.timing) &&
-		PlaylistTiming.getExpectedDuration(playlist.timing) === undefined &&
-		!playlist.startedPlayback
-	) {
-		return null
-	}
-
+	// the published value is the time in hand; this display is over-positive
+	const overUnderClock = -timeInHand
 	const isUnder = overUnderClock <= 0
 
 	return (
