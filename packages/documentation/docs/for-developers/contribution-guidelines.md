@@ -7,7 +7,7 @@ sidebar_position: 2
 
 # Contribution Guidelines
 
-_Last updated January 2026_
+_Last updated October 2026_
 
 ## About the Sofie TV Studio Automation Project
 
@@ -28,6 +28,10 @@ Three weeks before release, all PRs for that release should be merged to allow f
 Thank you for considering contributing to the Sofie project!
 
 Before you start, there are a few things you should know:
+
+### AI-assisted contributions
+
+See _[AI Contribution Policy](#ai-contribution-policy) below._
 
 ### “Discussions Before Pull Requests”
 
@@ -116,3 +120,41 @@ When logging, use one of the **log levels** described below:
 | `warn`    | Used when something unexpected happened, but not necessarily due to an application bug.<br></br>These logs don't have to be acted upon directly, but could be useful to provide context to a dev/sysadmin while troubleshooting an issue.                                    | `"PeripheralDevice X disconnected"`<br></br>`"User Error: Cannot activate Rundown (Rundown not found)" `<br></br>`"mosRoItemDelete NOT SUPPORTED"`                                                                                          |
 | `error`   | Used when something went _wrong_, preventing something from functioning.<br></br>A logged `error` should always result in a sysadmin / developer looking into the issue.<br></br>_Note: Don't use `error` for things that are out of the app's control, such as user error._ | `"Cannot read property 'length' of undefined"`<br></br>`"Failed to save Part 'X' to DB"`                                                                                                                                                    |
 | `crit`    | Fatal errors (rarely used)                                                                                                                                                                                                                                                   | -                                                                                                                                                                                                                                           |
+
+## AI Contribution Policy
+
+_(This policy is adapted from [the Human Voice policy](https://ai-policy.dev/policies/human-voice))_
+
+This project **welcomes the thoughtful use of AI tools** when contributing, yet asks all contributors to follow two core principles.
+
+### Never let an LLM speak for you
+
+When maintainers read a comment, an issue, or a pull request from you, they want to know they are hearing your words. Grammar and spelling do not matter. What matters is real connection.
+
+- All comments, issues, and pull request descriptions should be written in your own voice
+- We value clear, human communication over perfect grammar or spelling
+- Avoid copy-pasting AI-generated summaries that don't reflect your own understanding
+
+AI-generated summaries tend to be long-winded, dense, and often inaccurate. Simplicity is an art. The goal is not to sound impressive, but to communicate clearly.
+
+### Never let an LLM think for you
+
+Go ahead and use AI to explore the codebase, or to write the function or test you need. But the final step before contributing should always be understanding what it has written.
+
+- Feel free to use AI tools to generate code or explore ideas
+- Only submit contributions you fully understand and can explain
+- Contributions should reflect your own reasoning and problem-solving
+
+Use AI to point you in the right direction, but always take personal responsibility. Do not quote an LLM in an issue or pull request. Maintainers want to know what you think.
+
+Our aim is ensuring quality and maintaining the joy of collaborating and communicating with real people.
+
+### Summary
+
+- AI may be used to generate code or explore ideas
+- Comments, issues, and pull request descriptions must be written in your own voice
+- Contributions must be fully understood and explainable by the contributor
+- Contribution guidelines must still be followed
+
+This policy is based on the [Human Voice policy, version 1.0.0](https://ai-policy.dev/policies/human-voice/1.0.0) from 2026-09-23. Read more about this and other AI contribution policies on [ai-policy.dev](https://ai-policy.dev/).
+
