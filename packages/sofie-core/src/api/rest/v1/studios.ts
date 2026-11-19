@@ -243,8 +243,7 @@ class StudiosServerAPI implements StudiosRestAPI {
 		studioId: StudioId
 	): Promise<ClientAPI.ClientResponse<APIBlueprintValidateAndApplyConfigResult>> {
 		const studio = (await Studios.findOneAsync(studioId, { projection: studioFieldSpecifier })) as
-			| Pick<DBStudio, StudioFields>
-			| undefined
+			Pick<DBStudio, StudioFields> | undefined
 		if (!studio)
 			throw UserError.from(
 				new Error(`Studio ${studioId} not found`),
