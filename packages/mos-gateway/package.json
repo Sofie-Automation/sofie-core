@@ -68,6 +68,5 @@
 		"underscore": "^1.13.8",
 		"winston": "^3.19.0"
 	},
-	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"packageManager": "yarn@4.17.0"
 }

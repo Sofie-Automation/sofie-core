@@ -5,11 +5,6 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"rootDir": "./src",
-		"baseUrl": "./",
-		"paths": {
-			"*": ["./node_modules/*"]
-		},
-		"types": ["node"],
 		// TSR throws some typings issues
 		"skipLibCheck": true,
 		"resolveJsonModule": true,

@@ -5,15 +5,9 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"rootDir": "./src",
-		"baseUrl": "./",
-		"paths": {
-			"*": ["./node_modules/*"],
-			"@sofie-automation/job-worker": ["./src/index.ts"]
-		},
 		"target": "es2024",
 		"lib": ["es2024"],
 		"resolveJsonModule": true,
-		"types": ["node"],
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"composite": true,

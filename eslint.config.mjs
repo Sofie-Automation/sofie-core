@@ -2,6 +2,7 @@ import { generateEslintConfig } from '@sofie-automation/code-standard-preset/esl
 import pluginYaml from 'eslint-plugin-yml'
 import pluginReact from 'eslint-plugin-react'
 import globals from 'globals'
+import { createRequire } from 'node:module'
 
 const extendedRules = await generateEslintConfig({
 	ignores: [
@@ -63,7 +64,8 @@ extendedRules.push(
 	{
 		settings: {
 			react: {
-				version: 'detect',
+				// eslint-plugin-react's 'detect' uses context.getFilename(), which eslint 10 removed
+				version: createRequire(new URL('./packages/webui/package.json', import.meta.url))('react/package.json').version,
 			},
 		},
 	},
@@ -176,6 +178,34 @@ extendedRules.push(
 			// require('../_force_restart') only exists in dev, not in prod builds; can't use an
 			// inline eslint-disable since it'd be "unused" (and stripped by --fix) locally
 			'n/no-missing-require': 'off',
+		},
+	},
+	{
+		files: ['packages/playout-gateway/**/*'],
+		rules: {
+			// These are deliberately not dependencies, so that they always match the versions timeline-state-resolver
+			// uses, instead of risking duplicates
+			'n/no-extraneous-import': ['error', { allowModules: ['atem-connection', 'threadedclass'] }],
+		},
+	},
+	{
+		rules: {
+			// Temporary: new or stricter since eslint 10 / typescript-eslint 8.72 (code-standard-preset v4).
+			// To be re-enabled and the reported code fixed separately
+			'no-useless-assignment': 'off',
+			'preserve-caught-error': 'off',
+			'@typescript-eslint/no-unnecessary-type-assertion': 'off',
+		},
+	},
+	{
+		files: [
+			'packages/corelib/src/memoryCollection/__tests__/InMemoryMongoCollection.spec.ts',
+			'packages/live-status-gateway/src/coreHandler.ts',
+		],
+		rules: {
+			// Temporary: stricter since typescript-eslint 8.72 (code-standard-preset v4).
+			// To be re-enabled and the reported code fixed separately
+			'@typescript-eslint/unbound-method': 'off',
 		},
 	}
 )
