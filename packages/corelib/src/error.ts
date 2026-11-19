@@ -66,6 +66,12 @@ export enum UserErrorMessage {
 	SystemSingleStudio = 50,
 	TakePartInstanceInvalid = 51,
 	AdlibNotValidForBranding = 52,
+	BlueprintFixUpNotSupported = 53,
+	BlueprintFixUpNotNeeded = 54,
+	BlueprintConfigInvalid = 55,
+	BlueprintConfigFixUpRequired = 56,
+	BlueprintMethodNotSupported = 57,
+	StudioBaselineReloadWhileActive = 58,
 }
 
 const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
@@ -130,6 +136,22 @@ const UserErrorMessagesTranslations: { [key in UserErrorMessage]: string } = {
 	[UserErrorMessage.SystemSingleStudio]: t(`System must have exactly one studio`),
 	[UserErrorMessage.TakePartInstanceInvalid]: t(`Part has issues and cannot be taken`),
 	[UserErrorMessage.AdlibNotValidForBranding]: t(`AdLib is not used with the selected Branding`),
+	[UserErrorMessage.BlueprintFixUpNotSupported]: t(
+		`Blueprint "{{blueprintId}}" does not have a fixUpConfig function, the config does not need fixing up`
+	),
+	[UserErrorMessage.BlueprintFixUpNotNeeded]: t(
+		`Config has already been fixed up for the current version of blueprint "{{blueprintId}}"`
+	),
+	[UserErrorMessage.BlueprintConfigInvalid]: t(`Blueprint config is not valid: {{reason}}`),
+	[UserErrorMessage.BlueprintConfigFixUpRequired]: t(
+		`Config must be fixed up for the current version of blueprint "{{blueprintId}}" before it can be applied`
+	),
+	[UserErrorMessage.BlueprintMethodNotSupported]: t(
+		`Blueprint "{{blueprintId}}" does not have a {{method}} function`
+	),
+	[UserErrorMessage.StudioBaselineReloadWhileActive]: t(
+		`The Studio baseline cannot be reloaded while a Rundown Playlist is active`
+	),
 }
 
 export interface SerializedUserError {

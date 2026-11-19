@@ -31,7 +31,7 @@ export async function ObserveChangesForHash<DBInterface extends { _id: Protected
 	skipEnsureUpdatedOnStart?: boolean
 ): Promise<void> {
 	const doUpdate = async (obj: DBInterface): Promise<void> => {
-		const newHash = getHash(stringifyObjects(_.pick(obj, ...(hashFields as string[]))))
+		const newHash = calculateObservedHash(obj, hashFields)
 
 		if (newHash !== String(obj[hashName])) {
 			logger.debug(`Updating hash: ${obj._id} ${String(hashName)}:${newHash}`)
@@ -42,6 +42,43 @@ export async function ObserveChangesForHash<DBInterface extends { _id: Protected
 	}
 
 	await ObserveChangesHelper(collection, hashFields, doUpdate, ObserveChangeBufferTimeout, skipEnsureUpdatedOnStart)
+}
+
+function calculateObservedHash<DBInterface>(obj: DBInterface, hashFields: (keyof DBInterface)[]): string {
+	return getHash(stringifyObjects(_.pick(obj, ...(hashFields as string[]))))
+}
+
+/**
+ * Wait for `ObserveChangesForHash` to update the hash of a document.
+ * The observer doesn't catch every write (eg inserts), so if it takes too long we update the hash ourselves.
+ */
+export async function waitForObservedHash<DBInterface extends { _id: ProtectedString<any> }>(
+	collection: AsyncOnlyMongoCollection<DBInterface>,
+	id: DBInterface['_id'],
+	hashName: keyof DBInterface,
+	hashFields: (keyof DBInterface)[],
+	timeoutMs = ObserveChangeBufferTimeout + 500
+): Promise<void> {
+	const pollInterval = 100
+	const deadline = Date.now() + timeoutMs
+
+	while (true) {
+		const obj = await collection.findOneAsync(id)
+		if (!obj) return
+
+		const expectedHash = calculateObservedHash(obj, hashFields)
+		if (String(obj[hashName]) === expectedHash) return
+
+		if (Date.now() >= deadline) {
+			logger.debug(`Hash ${String(hashName)} of ${obj._id} was not updated in time, updating it directly`)
+			const update: Partial<DBInterface> = {}
+			update[hashName] = expectedHash as any
+			await collection.updateAsync(obj._id, { $set: update })
+			return
+		}
+
+		await new Promise<void>((resolve) => setTimeout(resolve, pollInterval))
+	}
 }
 
 export async function ObserveChangesHelper<DBInterface extends { _id: ProtectedString<any> }>(

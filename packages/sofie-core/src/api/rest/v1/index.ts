@@ -1,7 +1,12 @@
 import KoaRouter from '@koa/router'
 import { interpollateTranslation, translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
 import { UserError, UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
-import { IConfigMessage, NoteSeverity } from '@sofie-automation/blueprints-integration'
+import {
+	IConfigMessage,
+	NoteSeverity,
+	ShowStyleBlueprintManifest,
+	StudioBlueprintManifest,
+} from '@sofie-automation/blueprints-integration'
 import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
@@ -23,6 +28,21 @@ import { APIFactory, ServerAPIContext } from './types'
 import { getSystemStatus } from '../../../systemStatus/systemStatus'
 import { Component, ExternalStatus } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import type { DDPClientConnection } from '../../../ddp-server/types'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import type { Blueprint, BlueprintHash } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
+import type { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type { DBStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import type { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
+import type { BlueprintValidateConfigForStudioResult } from '@sofie-automation/corelib/dist/worker/studio'
+import type { UIBlueprintUpgradeStatusBase } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
+import { assertNever } from '@sofie-automation/corelib/dist/lib'
+import { evalBlueprint } from '../../blueprints/cache'
+import { BlueprintMapEntry, checkDocUpgradeStatus } from '../../../publications/blueprintUpgradeStatus/checkStatus'
+import type {
+	ShowStyleBaseFields,
+	StudioFields,
+} from '../../../publications/blueprintUpgradeStatus/reactiveContentCache'
+import type { APIBlueprintValidateConfigMessage } from '../../../lib/rest/v1'
 
 function restAPIUserEvent(ctx: Koa.ParameterizedContext<Koa.DefaultState, Koa.DefaultContext, unknown>): string {
 	// the ctx.URL.pathname will contain `/v1.0`, but will not contain `/api`
@@ -113,6 +133,131 @@ export const checkValidation = (method: string, configValidationMsgs: IConfigMes
 		)
 		logger.info(`${method} received messages from bluepring config validation: ${details}`)
 	}
+}
+
+/**
+ * Throws if running the blueprint `fixUpConfig` method is not needed for a document.
+ * Matches the logic used by the blueprint upgrade status: a fix up is only pending when the blueprint
+ * has a `fixUpConfig` method and it has not yet been run against the current version of the blueprint.
+ */
+export function assertBlueprintFixUpNeeded(
+	lastBlueprintFixUpHash: BlueprintHash | undefined,
+	blueprint: Pick<Blueprint, '_id' | 'blueprintHash' | 'hasFixUpFunction'>
+): void {
+	const args = { blueprintId: unprotectString(blueprint._id) }
+	if (!blueprint.hasFixUpFunction) {
+		throw UserError.create(UserErrorMessage.BlueprintFixUpNotSupported, args, 412)
+	}
+	if (lastBlueprintFixUpHash && lastBlueprintFixUpHash === blueprint.blueprintHash) {
+		throw UserError.create(UserErrorMessage.BlueprintFixUpNotNeeded, args, 412)
+	}
+}
+
+type BlueprintUpgradeStatus = Pick<
+	UIBlueprintUpgradeStatusBase,
+	'invalidReason' | 'changes' | 'pendingRunOfFixupFunction'
+>
+
+/**
+ * Throws if the blueprint config of a document cannot be applied.
+ * Uses the same status as the blueprint upgrade status shown in the UI.
+ * @returns The changes that applying the config will apply, translated. Empty if the config is already up to date
+ */
+export function assertBlueprintConfigCanBeApplied(
+	status: BlueprintUpgradeStatus,
+	blueprintId: BlueprintId | undefined
+): string[] {
+	if (status.invalidReason) {
+		throw UserError.create(
+			UserErrorMessage.BlueprintConfigInvalid,
+			{ reason: translateMessage(status.invalidReason, interpollateTranslation) },
+			412
+		)
+	}
+	if (status.pendingRunOfFixupFunction) {
+		throw UserError.create(
+			UserErrorMessage.BlueprintConfigFixUpRequired,
+			{ blueprintId: unprotectString(blueprintId) },
+			412
+		)
+	}
+
+	return status.changes.map((change) => translateMessage(change, interpollateTranslation))
+}
+
+/**
+ * Throws if the blueprint config of a Studio or ShowStyleBase cannot be validated and applied.
+ * @returns The changes that applying the config will apply, translated. Empty if the config is already up to date
+ */
+export function assertBlueprintConfigCanBeValidatedAndApplied(
+	doc: Pick<DBStudio, StudioFields> | Pick<DBShowStyleBase, ShowStyleBaseFields>,
+	blueprint: Blueprint | undefined,
+	blueprintMapEntry: Omit<BlueprintMapEntry, '_id' | 'blueprintHash' | 'hasFixUpFunction'>
+): string[] {
+	const blueprintMap = new Map<BlueprintId, BlueprintMapEntry>()
+	if (blueprint) {
+		blueprintMap.set(blueprint._id, {
+			...blueprintMapEntry,
+			_id: blueprint._id,
+			blueprintHash: blueprint.blueprintHash,
+			hasFixUpFunction: blueprint.hasFixUpFunction,
+		})
+	}
+
+	const changes = assertBlueprintConfigCanBeApplied(checkDocUpgradeStatus(blueprintMap, doc), doc.blueprintId)
+
+	if (!blueprint) throw UserError.create(UserErrorMessage.BlueprintNotFound, undefined, 412)
+
+	const manifest = evalBlueprint(blueprint) as StudioBlueprintManifest | ShowStyleBlueprintManifest
+	for (const method of ['validateConfig', 'applyConfig'] as const) {
+		if (typeof manifest[method] !== 'function') {
+			throw UserError.create(
+				UserErrorMessage.BlueprintMethodNotSupported,
+				{ blueprintId: unprotectString(blueprint._id), method },
+				412
+			)
+		}
+	}
+
+	return changes
+}
+
+function APINoteSeverityFrom(level: NoteSeverity): APIBlueprintValidateConfigMessage['level'] {
+	switch (level) {
+		case NoteSeverity.ERROR:
+			return 'error'
+		case NoteSeverity.WARNING:
+			return 'warning'
+		case NoteSeverity.INFO:
+			return 'info'
+		default:
+			assertNever(level)
+			return 'info'
+	}
+}
+
+/**
+ * Throws if the blueprint config validation reported any errors
+ * @returns The validation messages, translated
+ */
+export function assertBlueprintConfigValidationPassed(
+	result: BlueprintValidateConfigForStudioResult
+): APIBlueprintValidateConfigMessage[] {
+	const messages = result.messages.map((msg) => ({
+		level: APINoteSeverityFrom(msg.level),
+		message: translateMessage(msg.message, interpollateTranslation),
+	}))
+
+	const errors = messages.filter((msg) => msg.level === 'error')
+	if (errors.length > 0) {
+		throw UserError.create(
+			UserErrorMessage.ValidationFailed,
+			{ message: errors.map((msg) => msg.message).join('; ') },
+			409
+		)
+	}
+
+	return messages
 }
 
 interface APIRequestError {

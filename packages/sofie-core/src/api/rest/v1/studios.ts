@@ -5,11 +5,35 @@ import { APIFactory, APIRegisterHook, ServerAPIContext } from './types'
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { PeripheralDeviceId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check, zPlainObject } from '../../../lib/check'
-import { APIStudio, StudioAction, StudioActionType, StudiosRestAPI } from '../../../lib/rest/v1'
+import {
+	APIBlueprintFixUpConfigMessage,
+	APIBlueprintValidateAndApplyConfigResult,
+	APIStudio,
+	APIStudioBaselineReloadResult,
+	StudioAction,
+	StudioActionType,
+	StudiosRestAPI,
+} from '../../../lib/rest/v1'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
-import { PeripheralDevices, RundownPlaylists, Studios } from '../../../collections'
-import { APIStudioFrom, studioFrom, validateAPIBlueprintConfigForStudio } from './typeConversion'
-import { runUpgradeForStudio, updateStudioBaseline, validateConfigForStudio } from '../../../migration/upgrades'
+import {
+	Blueprints,
+	PeripheralDevices,
+	RundownPlaylists,
+	Studios,
+	waitForStudioRundownVersionHash,
+} from '../../../collections'
+import {
+	APIBlueprintFixUpConfigMessageFrom,
+	APIStudioFrom,
+	studioFrom,
+	validateAPIBlueprintConfigForStudio,
+} from './typeConversion'
+import {
+	fixupConfigForStudio,
+	runUpgradeForStudio,
+	updateStudioBaseline,
+	validateConfigForStudio,
+} from '../../../migration/upgrades'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { ServerClientAPI } from '../../client'
 import { assertNever, literal } from '@sofie-automation/corelib/dist/lib'
@@ -18,7 +42,15 @@ import { StudioJobs } from '@sofie-automation/corelib/dist/worker/studio'
 import { DBStudio, StudioDeviceSettings } from '@sofie-automation/corelib/dist/dataModel/Studio'
 import { PeripheralDevice } from '@sofie-automation/corelib/dist/dataModel/PeripheralDevice'
 import { ServerPlayoutAPI } from '../../playout/playout'
-import { checkValidation } from '.'
+import {
+	assertBlueprintConfigCanBeValidatedAndApplied,
+	assertBlueprintConfigValidationPassed,
+	assertBlueprintFixUpNeeded,
+	checkValidation,
+} from '.'
+import { StudioFields, studioFieldSpecifier } from '../../../publications/blueprintUpgradeStatus/reactiveContentCache'
+import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
+import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 import { assertConnectionHasOneOfPermissions } from '../../../security/auth'
 import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissions'
 import {
@@ -115,6 +147,9 @@ class StudiosServerAPI implements StudiosRestAPI {
 
 		await runUpgradeForStudio(studioId)
 
+		// The studio hash updates with a delay, wait for it before regenerating the baseline
+		await waitForStudioRundownVersionHash(studioId)
+
 		return ClientAPI.responseSuccess(await updateStudioBaseline(studioId))
 	}
 
@@ -159,7 +194,114 @@ class StudiosServerAPI implements StudiosRestAPI {
 
 		await runUpgradeForStudio(studioId)
 
+		// The studio hash updates with a delay, wait for it before regenerating the baseline
+		await waitForStudioRundownVersionHash(studioId)
+
 		return ClientAPI.responseSuccess(await updateStudioBaseline(studioId))
+	}
+
+	async fixupStudioConfig(
+		_connection: DDPClientConnection,
+		_event: string,
+		studioId: StudioId
+	): Promise<ClientAPI.ClientResponse<APIBlueprintFixUpConfigMessage[]>> {
+		const studio = (await Studios.findOneAsync(studioId, {
+			projection: { blueprintId: 1, lastBlueprintFixUpHash: 1 },
+		})) as Pick<DBStudio, 'blueprintId' | 'lastBlueprintFixUpHash'> | undefined
+		if (!studio)
+			throw UserError.from(
+				new Error(`Studio ${studioId} not found`),
+				UserErrorMessage.StudioNotFound,
+				undefined,
+				404
+			)
+
+		const blueprint = studio.blueprintId
+			? ((await Blueprints.findOneAsync(
+					{ _id: studio.blueprintId, blueprintType: BlueprintManifestType.STUDIO },
+					{ projection: { _id: 1, blueprintHash: 1, hasFixUpFunction: 1 } }
+				)) as Pick<Blueprint, '_id' | 'blueprintHash' | 'hasFixUpFunction'> | undefined)
+			: undefined
+		if (!blueprint)
+			throw UserError.from(
+				new Error(`Studio ${studioId} does not have a valid blueprint`),
+				UserErrorMessage.BlueprintNotFound,
+				undefined,
+				412
+			)
+
+		assertBlueprintFixUpNeeded(studio.lastBlueprintFixUpHash, blueprint)
+
+		const messages = await fixupConfigForStudio(studioId)
+
+		return ClientAPI.responseSuccess(messages.map(APIBlueprintFixUpConfigMessageFrom))
+	}
+
+	async applyStudioConfig(
+		_connection: DDPClientConnection,
+		_event: string,
+		studioId: StudioId
+	): Promise<ClientAPI.ClientResponse<APIBlueprintValidateAndApplyConfigResult>> {
+		const studio = (await Studios.findOneAsync(studioId, { projection: studioFieldSpecifier })) as
+			Pick<DBStudio, StudioFields> | undefined
+		if (!studio)
+			throw UserError.from(
+				new Error(`Studio ${studioId} not found`),
+				UserErrorMessage.StudioNotFound,
+				undefined,
+				404
+			)
+
+		const blueprint = studio.blueprintId
+			? await Blueprints.findOneAsync({ _id: studio.blueprintId, blueprintType: BlueprintManifestType.STUDIO })
+			: undefined
+		const changes = assertBlueprintConfigCanBeValidatedAndApplied(studio, blueprint, {
+			configPresets: blueprint?.studioConfigPresets,
+			configSchema: blueprint?.studioConfigSchema,
+		})
+
+		const messages = assertBlueprintConfigValidationPassed(await validateConfigForStudio(studioId))
+		await runUpgradeForStudio(studioId)
+
+		return ClientAPI.responseSuccess({ changes, messages })
+	}
+
+	async reloadStudioBaseline(
+		_connection: DDPClientConnection,
+		_event: string,
+		studioId: StudioId
+	): Promise<ClientAPI.ClientResponse<APIStudioBaselineReloadResult>> {
+		// The studio hash updates with a delay, wait for it so recent changes are picked up
+		await waitForStudioRundownVersionHash(studioId)
+
+		const studio = await Studios.findOneAsync(studioId)
+		if (!studio)
+			throw UserError.from(
+				new Error(`Studio ${studioId} not found`),
+				UserErrorMessage.StudioNotFound,
+				undefined,
+				404
+			)
+
+		// The baseline job silently skips the reload while a playlist is active, so refuse it here instead
+		const activePlaylist = await RundownPlaylists.findOneAsync(
+			{ studioId, activationId: { $exists: true } },
+			{ projection: { _id: 1 } }
+		)
+		if (activePlaylist) throw UserError.create(UserErrorMessage.StudioBaselineReloadWhileActive, undefined, 412)
+
+		const outdatedReason = await ServerPlayoutAPI.shouldUpdateStudioBaseline(studio)
+		await updateStudioBaseline(studioId)
+
+		// The result of the baseline job is checked before the regenerated timeline is saved, so it reports the state
+		// from before the reload. The job completes once the timeline has been saved, so check the saved state instead
+		const updatedStudio = await Studios.findOneAsync(studioId)
+		const remainingReason = updatedStudio ? await ServerPlayoutAPI.shouldUpdateStudioBaseline(updatedStudio) : false
+
+		return ClientAPI.responseSuccess({
+			outdatedReason: outdatedReason || null,
+			remainingReason: remainingReason || null,
+		})
 	}
 
 	async deleteStudio(
@@ -464,6 +606,48 @@ export function registerRoutes(registerRoute: APIRegisterHook<StudiosRestAPI>): 
 
 			check(studioId, z.string())
 			return await serverAPI.updateStudioConfig(connection, event, studioId, body)
+		}
+	)
+
+	registerRoute<{ studioId: string }, never, APIBlueprintFixUpConfigMessage[]>(
+		'post',
+		'/studios/:studioId/config/fixup',
+		new Map([[404, [UserErrorMessage.StudioNotFound]]]),
+		studiosAPIFactory,
+		async (serverAPI, connection, event, params, _) => {
+			const studioId = protectString<StudioId>(params.studioId)
+			logger.info(`API POST: Fix up studio config ${studioId}`)
+
+			check(studioId, z.string())
+			return await serverAPI.fixupStudioConfig(connection, event, studioId)
+		}
+	)
+
+	registerRoute<{ studioId: string }, never, APIBlueprintValidateAndApplyConfigResult>(
+		'post',
+		'/studios/:studioId/config/apply',
+		new Map([[404, [UserErrorMessage.StudioNotFound]]]),
+		studiosAPIFactory,
+		async (serverAPI, connection, event, params, _) => {
+			const studioId = protectString<StudioId>(params.studioId)
+			logger.info(`API POST: Validate and apply studio config ${studioId}`)
+
+			check(studioId, z.string())
+			return await serverAPI.applyStudioConfig(connection, event, studioId)
+		}
+	)
+
+	registerRoute<{ studioId: string }, never, APIStudioBaselineReloadResult>(
+		'post',
+		'/studios/:studioId/baseline/reload',
+		new Map([[404, [UserErrorMessage.StudioNotFound]]]),
+		studiosAPIFactory,
+		async (serverAPI, connection, event, params, _) => {
+			const studioId = protectString<StudioId>(params.studioId)
+			logger.info(`API POST: Reload studio baseline ${studioId}`)
+
+			check(studioId, z.string())
+			return await serverAPI.reloadStudioBaseline(connection, event, studioId)
 		}
 	)
 

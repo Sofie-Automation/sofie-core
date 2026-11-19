@@ -6,6 +6,7 @@
 
 import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ExternalMessageQueueObj } from '@sofie-automation/corelib/dist/dataModel/ExternalMessageQueue'
 import { PeripheralDeviceCommand } from '@sofie-automation/corelib/dist/dataModel/PeripheralDeviceCommand'
 import { WorkerThreadStatus } from '@sofie-automation/corelib/dist/dataModel/WorkerThreads'
@@ -27,7 +28,7 @@ import { registerIndex } from './indices'
 import { getCurrentTime } from '../lib/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { createAsyncOnlyMongoCollection, createAsyncOnlyReadOnlyMongoCollection } from './collection'
-import { ObserveChangesForHash } from './lib'
+import { ObserveChangesForHash, waitForObservedHash } from './lib'
 import { logger } from '../logging'
 import { allowOnlyFields, rejectFields } from '../security/allowDeny'
 import { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
@@ -46,16 +47,7 @@ export const Blueprints = createAsyncOnlyMongoCollection<Blueprint>(CollectionNa
 export const CoreSystem = createAsyncOnlyMongoCollection<ICoreSystem>(CollectionName.CoreSystem, {
 	requiredPermissions: ['configure'],
 	async update(_permissions, doc, fields, _modifier) {
-		return allowOnlyFields(doc, fields, [
-			'systemInfo',
-			'name',
-			'logLevel',
-			'apm',
-			'logo',
-			'blueprintId',
-			'settingsWithOverrides',
-			'enableMonitorBlockedThread',
-		])
+		return allowOnlyFields(doc, fields, ['blueprintId', 'settingsWithOverrides'])
 	},
 })
 
@@ -248,6 +240,13 @@ export async function startRundownVersionHashObservers(): Promise<void> {
 			'showStyleBaseId',
 		]),
 
-		ObserveChangesForHash(Studios, '_rundownVersionHash', ['blueprintConfigWithOverrides']),
+		ObserveChangesForHash(Studios, '_rundownVersionHash', StudioRundownVersionHashFields),
 	])
+}
+
+const StudioRundownVersionHashFields: (keyof DBStudio)[] = ['blueprintConfigWithOverrides']
+
+/** Wait for the studio's `_rundownVersionHash` to catch up with its latest changes */
+export async function waitForStudioRundownVersionHash(studioId: StudioId): Promise<void> {
+	await waitForObservedHash(Studios, studioId, '_rundownVersionHash', StudioRundownVersionHashFields)
 }

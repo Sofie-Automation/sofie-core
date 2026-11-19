@@ -1,6 +1,8 @@
-import { UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
+import { UserError, UserErrorMessage, SofieError } from '@sofie-automation/corelib/dist/error'
 import { z } from 'zod'
 import {
+	APIBlueprintFixUpConfigMessage,
+	APIBlueprintValidateAndApplyConfigResult,
 	APIShowStyleBase,
 	APIShowStyleVariant,
 	ShowStyleBaseAction,
@@ -13,9 +15,10 @@ import { ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/d
 import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import { check, zPlainObject } from '../../../lib/check'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
-import { RundownPlaylists, Rundowns, ShowStyleBases, ShowStyleVariants } from '../../../collections'
+import { Blueprints, RundownPlaylists, Rundowns, ShowStyleBases, ShowStyleVariants } from '../../../collections'
 import { DBShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import {
+	APIBlueprintFixUpConfigMessageFrom,
 	APIShowStyleBaseFrom,
 	APIShowStyleVariantFrom,
 	showStyleBaseFrom,
@@ -24,10 +27,25 @@ import {
 } from './typeConversion'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
-import { runUpgradeForShowStyleBase, validateConfigForShowStyleBase } from '../../../migration/upgrades'
+import {
+	fixupConfigForShowStyleBase,
+	runUpgradeForShowStyleBase,
+	validateConfigForShowStyleBase,
+} from '../../../migration/upgrades'
 import { DBShowStyleVariant } from '@sofie-automation/corelib/dist/dataModel/ShowStyleVariant'
 import { assertNever } from '@sofie-automation/corelib/dist/lib'
-import { checkValidation } from '.'
+import {
+	assertBlueprintConfigCanBeValidatedAndApplied,
+	assertBlueprintConfigValidationPassed,
+	assertBlueprintFixUpNeeded,
+	checkValidation,
+} from '.'
+import {
+	ShowStyleBaseFields,
+	showStyleFieldSpecifier,
+} from '../../../publications/blueprintUpgradeStatus/reactiveContentCache'
+import { Blueprint } from '@sofie-automation/corelib/dist/dataModel/Blueprint'
+import { BlueprintManifestType } from '@sofie-automation/blueprints-integration'
 import type { DDPClientConnection } from '../../../ddp-server/types'
 
 class ShowStylesServerAPI implements ShowStylesRestAPI {
@@ -179,6 +197,76 @@ class ShowStylesServerAPI implements ShowStylesRestAPI {
 		checkValidation(`updateShowStyleConfig ${showStyleBaseId}`, validation.messages)
 
 		return ClientAPI.responseSuccess(await runUpgradeForShowStyleBase(showStyleBaseId))
+	}
+
+	async fixupShowStyleConfig(
+		_connection: DDPClientConnection,
+		_event: string,
+		showStyleBaseId: ShowStyleBaseId
+	): Promise<ClientAPI.ClientResponse<APIBlueprintFixUpConfigMessage[]>> {
+		const showStyleBase = (await ShowStyleBases.findOneAsync(showStyleBaseId, {
+			projection: { blueprintId: 1, lastBlueprintFixUpHash: 1 },
+		})) as Pick<DBShowStyleBase, 'blueprintId' | 'lastBlueprintFixUpHash'> | undefined
+		if (!showStyleBase)
+			throw UserError.from(
+				new Error(`ShowStyleBase ${showStyleBaseId} not found`),
+				UserErrorMessage.ShowStyleBaseNotFound,
+				undefined,
+				404
+			)
+
+		const blueprint = showStyleBase.blueprintId
+			? ((await Blueprints.findOneAsync(
+					{ _id: showStyleBase.blueprintId, blueprintType: BlueprintManifestType.SHOWSTYLE },
+					{ projection: { _id: 1, blueprintHash: 1, hasFixUpFunction: 1 } }
+				)) as Pick<Blueprint, '_id' | 'blueprintHash' | 'hasFixUpFunction'> | undefined)
+			: undefined
+		if (!blueprint)
+			throw UserError.from(
+				new Error(`ShowStyleBase ${showStyleBaseId} does not have a valid blueprint`),
+				UserErrorMessage.BlueprintNotFound,
+				undefined,
+				412
+			)
+
+		assertBlueprintFixUpNeeded(showStyleBase.lastBlueprintFixUpHash, blueprint)
+
+		const messages = await fixupConfigForShowStyleBase(showStyleBaseId)
+
+		return ClientAPI.responseSuccess(messages.map(APIBlueprintFixUpConfigMessageFrom))
+	}
+
+	async applyShowStyleConfig(
+		_connection: DDPClientConnection,
+		_event: string,
+		showStyleBaseId: ShowStyleBaseId
+	): Promise<ClientAPI.ClientResponse<APIBlueprintValidateAndApplyConfigResult>> {
+		const showStyleBase = (await ShowStyleBases.findOneAsync(showStyleBaseId, {
+			projection: showStyleFieldSpecifier,
+		})) as Pick<DBShowStyleBase, ShowStyleBaseFields> | undefined
+		if (!showStyleBase)
+			throw UserError.from(
+				new Error(`ShowStyleBase ${showStyleBaseId} not found`),
+				UserErrorMessage.ShowStyleBaseNotFound,
+				undefined,
+				404
+			)
+
+		const blueprint = showStyleBase.blueprintId
+			? await Blueprints.findOneAsync({
+					_id: showStyleBase.blueprintId,
+					blueprintType: BlueprintManifestType.SHOWSTYLE,
+				})
+			: undefined
+		const changes = assertBlueprintConfigCanBeValidatedAndApplied(showStyleBase, blueprint, {
+			configPresets: blueprint?.showStyleConfigPresets,
+			configSchema: blueprint?.showStyleConfigSchema,
+		})
+
+		const messages = assertBlueprintConfigValidationPassed(await validateConfigForShowStyleBase(showStyleBaseId))
+		await runUpgradeForShowStyleBase(showStyleBaseId)
+
+		return ClientAPI.responseSuccess({ changes, messages })
 	}
 
 	async deleteShowStyleBase(
@@ -439,6 +527,34 @@ export function registerRoutes(registerRoute: APIRegisterHook<ShowStylesRestAPI>
 
 			check(showStyleBaseId, z.string())
 			return await serverAPI.updateShowStyleConfig(connection, event, showStyleBaseId, body)
+		}
+	)
+
+	registerRoute<{ showStyleBaseId: string }, never, APIBlueprintFixUpConfigMessage[]>(
+		'post',
+		'/showstyles/:showStyleBaseId/config/fixup',
+		new Map([[404, [UserErrorMessage.ShowStyleBaseNotFound]]]),
+		showStylesAPIFactory,
+		async (serverAPI, connection, event, params, _) => {
+			const showStyleBaseId = protectString<ShowStyleBaseId>(params.showStyleBaseId)
+			logger.info(`API POST: Fix up ShowStyleBase config ${showStyleBaseId}`)
+
+			check(showStyleBaseId, z.string())
+			return await serverAPI.fixupShowStyleConfig(connection, event, showStyleBaseId)
+		}
+	)
+
+	registerRoute<{ showStyleBaseId: string }, never, APIBlueprintValidateAndApplyConfigResult>(
+		'post',
+		'/showstyles/:showStyleBaseId/config/apply',
+		new Map([[404, [UserErrorMessage.ShowStyleBaseNotFound]]]),
+		showStylesAPIFactory,
+		async (serverAPI, connection, event, params, _) => {
+			const showStyleBaseId = protectString<ShowStyleBaseId>(params.showStyleBaseId)
+			logger.info(`API POST: Validate and apply ShowStyleBase config ${showStyleBaseId}`)
+
+			check(showStyleBaseId, z.string())
+			return await serverAPI.applyShowStyleConfig(connection, event, showStyleBaseId)
 		}
 	)
 
