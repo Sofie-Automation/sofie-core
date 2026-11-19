@@ -76,6 +76,26 @@ The data persistence mode work as follows:
 
 The above context methods may be used from the usual adlib actions context but there is also a special path where none of the usual cached data is available, as loading the caches may take some time. The `executeDataStoreAction` method is executed just before the `executeAction` method.
 
+### Restrictions on values
+
+A value can be anything that can be stored in the database: usually a string or a number, but objects and arrays are allowed too. If the value is an object or array, none of its field names, at any depth, may:
+
+- contain a `.`
+- start with a `$`
+- contain a null byte
+
+`setTimelineDatastoreValue` rejects such values with an error, and nothing is stored.
+
+```ts
+await context.setTimelineDatastoreValue('camInput', 2, DatastorePersistenceMode.Temporary) // OK
+await context.setTimelineDatastoreValue('url', 'http://example.com/a.b', DatastorePersistenceMode.Temporary) // OK: only field names are restricted
+await context.setTimelineDatastoreValue('mix', { input: 2, transition: 'cut' }, DatastorePersistenceMode.Temporary) // OK
+await context.setTimelineDatastoreValue('files', { 'clip.mp4': 1 }, DatastorePersistenceMode.Temporary) // Error
+await context.setTimelineDatastoreValue('ops', { $set: 1 }, DatastorePersistenceMode.Temporary) // Error
+```
+
+The database itself accepts these field names, but the Sofie UI does not. Datastore documents are published to the UI, and the UI's client-side database refuses documents that contain them. Worse, it also drops other data that arrived in the same batch of updates, for any collection, so parts of the UI can silently go out of date until it reconnects. If you need such names, for example a map keyed by file name or IP address, use an array of entries (`[{ name: 'clip.mp4', value: 1 }]`) instead.
+
 ## Example use case: camera cutting fast path
 
 Assuming a set of blueprints where we can cut camera's a on a vision mixer's mix effect by using adlib pieces, we want to add a fast path where the camera input is changed through the datastore first and then afterwards we add the piece for correctness.
