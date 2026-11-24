@@ -39,6 +39,7 @@ import { PackageInfoDB } from './dataModel/PackageInfos.js'
 import { UIPieceContentStatus } from './dataModel/PieceContentStatus.js'
 import { Bucket } from './dataModel/Bucket.js'
 import { DBNotificationObj } from './dataModel/Notifications.js'
+import { DBErrorLogItem } from './dataModel/ErrorLog.js'
 
 /**
  * Ids of possible DDP subscriptions for any the UI and gateways accessing the Rundown & RundownPlaylist model.
@@ -114,6 +115,11 @@ export enum CorelibPubSub {
 	 * Fetch all Timeline Datastore entries in the specified Studio
 	 */
 	timelineDatastore = 'timelineDatastore',
+
+	/**
+	 * Fetch the most recent errors from user actions and ingest operations
+	 */
+	errorLog = 'errorLog',
 
 	/**
 	 * Fetch all Expected Packages in the specified Studios
@@ -317,6 +323,7 @@ export interface CorelibPubSubTypes {
 		bucketId: BucketId | null,
 		showStyleVariantIds: ShowStyleVariantId[]
 	) => CollectionName.BucketAdLibActions
+	[CorelibPubSub.errorLog]: () => CollectionName.ErrorLog
 	[CorelibPubSub.expectedPackages]: (studioIds: StudioId[], token?: string) => CollectionName.ExpectedPackages
 	[CorelibPubSub.expectedPackageWorkStatuses]: (
 		studioIds: StudioId[],
@@ -349,6 +356,7 @@ export type CorelibPubSubCollections = {
 	[CollectionName.Buckets]: Bucket
 	[CollectionName.BucketAdLibActions]: BucketAdLibAction
 	[CollectionName.BucketAdLibPieces]: BucketAdLib
+	[CollectionName.ErrorLog]: DBErrorLogItem
 	[CollectionName.ExpectedPackages]: ExpectedPackageDB
 	[CollectionName.ExpectedPackageWorkStatuses]: ExpectedPackageWorkStatus
 	[CollectionName.ExternalMessageQueue]: ExternalMessageQueueObj

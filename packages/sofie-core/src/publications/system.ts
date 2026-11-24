@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
-import { CoreSystem, Notifications } from '../collections'
+import { CoreSystem, ErrorLog, Notifications } from '../collections'
 import { RundownId, RundownPlaylistId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check } from '../lib/check'
 import { SYSTEM_ID } from '@sofie-automation/meteor-lib/dist/collections/CoreSystem'
@@ -62,4 +62,16 @@ export function registerSystemPublications(registry: PublicationRegistry): void 
 			})
 		}
 	)
+
+	registry.publish(CorelibPubSub.errorLog, async (_context) => {
+		// Same access level as the notification publications: readable by any connected client
+		triggerWriteAccessBecauseNoCheckNecessary()
+
+		return ErrorLog.findWithCursor(
+			{},
+			{
+				sort: { timestamp: -1 },
+			}
+		)
+	})
 }
