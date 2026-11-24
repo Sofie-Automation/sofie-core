@@ -41,6 +41,7 @@ import type { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown
 import type { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import type { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
+import type { DBErrorLogItem } from '@sofie-automation/corelib/dist/dataModel/ErrorLog'
 
 /**
  * AdLibActions, as published by the `uiAdLibActions` and `uiAdLibActionsForPart` custom publications.
@@ -71,6 +72,8 @@ export const Buckets = createSyncReadOnlyMongoCollection<Bucket>(CollectionName.
 export const CoreSystem = createSyncMongoCollection<ICoreSystem>(CollectionName.CoreSystem)
 
 export const Evaluations = createSyncReadOnlyMongoCollection<Evaluation>(CollectionName.Evaluations)
+
+export const ErrorLog = createSyncReadOnlyMongoCollection<DBErrorLogItem>(CollectionName.ErrorLog)
 
 export const ExpectedPackages = createSyncReadOnlyMongoCollection<ExpectedPackageDB>(CollectionName.ExpectedPackages)
 

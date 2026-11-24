@@ -9,6 +9,7 @@ import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { getCurrentTime, systemTime } from './systemTime.js'
 import { UserAction } from '@sofie-automation/meteor-lib/dist/userAction'
 import { translateMessage } from '@sofie-automation/corelib/dist/TranslatableMessage'
+import type { ErrorLogItemId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 export { UserAction }
 
@@ -137,7 +138,12 @@ function userActionToLabel(userAction: UserAction, t: i18next.TFunction) {
  * (from this client, or shared from other clients) replace each other instead of being shown twice.
  */
 export function getErrorLogNotificationId(res: unknown): string | undefined {
-	return ClientAPI.isClientResponseError(res) && res.errorLogId ? `errorLog_${res.errorLogId}` : undefined
+	return ClientAPI.isClientResponseError(res) && res.errorLogId ? errorLogNotificationId(res.errorLogId) : undefined
+}
+
+/** The Notification id used for an ErrorLog item, so that notifications for the same error replace each other */
+export function errorLogNotificationId(errorLogId: ErrorLogItemId): string {
+	return `errorLog_${errorLogId}`
 }
 
 /**

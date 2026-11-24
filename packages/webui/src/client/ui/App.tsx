@@ -40,6 +40,7 @@ import { catchError, firstIfArray, isRunningInPWA } from '../lib/lib.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { useUserPermissions, UserPermissionsContext } from './UserPermissions.js'
 import { relativeToSiteRootUrl, ROOT_URL_PATH_PREFIX } from '../url.js'
+import { ErrorLogToaster } from '../lib/ErrorLogToaster.js'
 
 const NullComponent = () => null
 
@@ -223,6 +224,14 @@ export const App: React.FC = function App() {
 							<Route path="/countdowns/:studioId" component={NullComponent} />
 							<Route path="/prompter/:studioId" component={NullComponent} />
 							<Route path="/" component={ConnectionStatusNotification} />
+						</Switch>
+					</ErrorBoundary>
+					<ErrorBoundary>
+						<Switch>
+							{/* Same views as above, which don't have the Notification center */}
+							<Route path="/countdowns/:studioId" component={NullComponent} />
+							<Route path="/prompter/:studioId" component={NullComponent} />
+							<Route path="/" component={ErrorLogToaster} />
 						</Switch>
 					</ErrorBoundary>
 					<ErrorBoundary>
