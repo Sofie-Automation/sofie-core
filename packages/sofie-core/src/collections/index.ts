@@ -31,6 +31,7 @@ import { ObserveChangesForHash } from './lib'
 import { logger } from '../logging'
 import { allowOnlyFields, rejectFields } from '../security/allowDeny'
 import { DBNotificationObj } from '@sofie-automation/corelib/dist/dataModel/Notifications'
+import { DBErrorLogItem } from '@sofie-automation/corelib/dist/dataModel/ErrorLog'
 
 export * from './bucket'
 export * from './packages-media'
@@ -61,6 +62,11 @@ export const CoreSystem = createAsyncOnlyMongoCollection<ICoreSystem>(Collection
 
 export const Evaluations = createAsyncOnlyMongoCollection<Evaluation>(CollectionName.Evaluations, false)
 registerIndex(Evaluations, {
+	timestamp: 1,
+})
+
+export const ErrorLog = createAsyncOnlyMongoCollection<DBErrorLogItem>(CollectionName.ErrorLog, false)
+registerIndex(ErrorLog, {
 	timestamp: 1,
 })
 

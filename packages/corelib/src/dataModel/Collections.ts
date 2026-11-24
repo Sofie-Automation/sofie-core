@@ -7,6 +7,7 @@ export enum CollectionName {
 	BucketAdLibPieces = 'bucketAdlibs',
 	Buckets = 'buckets',
 	CoreSystem = 'coreSystem',
+	ErrorLog = 'errorLog',
 	Evaluations = 'evaluations',
 	ExpectedPackages = 'expectedPackages',
 	ExpectedPackageWorkStatuses = 'expectedPackageWorkStatuses',
