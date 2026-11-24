@@ -1,0 +1,18 @@
+$defs:
+  errorLogEvent:
+    type: object
+    title: ErrorLogEvent
+    description: The most recent errors in Sofie
+    properties:
+      event:
+        type: string
+        const: errorLog
+      errors:
+        description: The most recent errors, newest first
+        type: array
+        items:
+          $ref: '../errorLogEntry/errorLogEntry.yaml#/$defs/errorLogEntry'
+    required: [event, errors]
+    additionalProperties: false
+    examples:
+      - $ref: './errorLogEvent-example.yaml'

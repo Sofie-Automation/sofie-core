@@ -68,6 +68,7 @@ export function makeMockHandlers(): CollectionHandlers {
 		bucketAdLibActionsHandler: makeMockHandler(),
 		bucketAdLibsHandler: makeMockHandler(),
 		bucketsHandler: makeMockHandler(),
+		errorLogHandler: makeMockHandler(),
 		globalAdLibActionsHandler: makeMockHandler(),
 		globalAdLibsHandler: makeMockHandler(),
 		partHandler: makeMockHandler(),

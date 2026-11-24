@@ -1,0 +1,8 @@
+id: 'oZGk4aLbHt7FXRQ1cDxXqAQSzR4_'
+timestamp: 1706371920000
+studioId: 'studio0'
+operation: 'worker.takeNextPart'
+context: 'click: button#take'
+errorCode: 429
+errorKey: 29
+message: 'Ignoring TAKES that are too quick after eachother (1000 ms)'

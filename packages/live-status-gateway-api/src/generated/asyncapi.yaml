@@ -162,6 +162,7 @@ channels:
                             - notifications
                             - buckets
                             - packages
+                            - errorLog
                         status:
                           type: string
                           title: SubscriptionStatus
@@ -2344,3 +2345,91 @@ channels:
                     - *a76
             examples:
               - payload: *a77
+  errorLog:
+    description: Error log topic for websocket subscriptions.
+    subscribe:
+      operationId: receiveErrorLog
+      description: Server sends the most recent errors, whenever an error is added or
+        removed
+      message:
+        oneOf:
+          - messageId: errorLogUpdate
+            title: The most recent errors in Sofie
+            payload:
+              type: object
+              title: ErrorLogEvent
+              description: The most recent errors in Sofie
+              properties:
+                event:
+                  type: string
+                  const: errorLog
+                errors:
+                  description: The most recent errors, newest first
+                  type: array
+                  items:
+                    type: object
+                    title: ErrorLogEntry
+                    description: An error from a playout action or ingest operation, from any client
+                      (user interface, REST API or gateway)
+                    properties:
+                      id:
+                        type: string
+                        description: Unique id of the error
+                      timestamp:
+                        type: integer
+                        format: int64
+                        description: Unix timestamp (ms) of when the error occurred
+                      studioId:
+                        type: string
+                        description: Id of the Studio the error relates to, if known
+                      playlistId:
+                        type: string
+                        description: Id of the Playlist the error relates to, if known
+                      operation:
+                        type: string
+                        description: The operation that failed, eg the name of the user action or the
+                          ingest operation
+                      context:
+                        type: string
+                        description: Where the operation was triggered from, eg the user interface event
+                          or the REST API request
+                      errorCode:
+                        type: integer
+                        description: HTTP-style status code of the error
+                      errorKey:
+                        type: integer
+                        description: Identifies the type of the error. The value for a type of error
+                          never changes, so this can be used to match specific
+                          errors
+                      message:
+                        type: string
+                        description: Human-readable description of the error
+                    required:
+                      - id
+                      - timestamp
+                      - operation
+                      - errorCode
+                      - errorKey
+                      - message
+                    additionalProperties: false
+                    examples:
+                      - &a78
+                        id: oZGk4aLbHt7FXRQ1cDxXqAQSzR4_
+                        timestamp: 1706371920000
+                        studioId: studio0
+                        operation: worker.takeNextPart
+                        context: "click: button#take"
+                        errorCode: 429
+                        errorKey: 29
+                        message: Ignoring TAKES that are too quick after eachother (1000 ms)
+              required:
+                - event
+                - errors
+              additionalProperties: false
+              examples:
+                - &a79
+                  event: errorLog
+                  errors:
+                    - *a78
+            examples:
+              - payload: *a79

@@ -40,6 +40,8 @@ import { ResolvedPlaylistTopic } from './topics/resolvedPlaylistTopic.js'
 import { PartInstancesInPlaylistHandler } from './collections/partInstancesInPlaylistHandler.js'
 import { PiecesInPlaylistHandler } from './collections/piecesInPlaylistHandler.js'
 import { PieceInstancesInPlaylistHandler } from './collections/pieceInstancesInPlaylistHandler.js'
+import { ErrorLogHandler } from './collections/errorLogHandler.js'
+import { ErrorLogTopic } from './topics/errorLogTopic.js'
 
 export interface CollectionHandlers {
 	studioHandler: StudioHandler
@@ -69,6 +71,7 @@ export interface CollectionHandlers {
 	bucketsHandler: BucketsHandler
 	bucketAdLibsHandler: BucketAdLibsHandler
 	bucketAdLibActionsHandler: BucketAdLibActionsHandler
+	errorLogHandler: ErrorLogHandler
 }
 
 export class LiveStatusServer {
@@ -113,6 +116,7 @@ export class LiveStatusServer {
 		const bucketsHandler = new BucketsHandler(this._logger, this._coreHandler)
 		const bucketAdLibsHandler = new BucketAdLibsHandler(this._logger, this._coreHandler)
 		const bucketAdLibActionsHandler = new BucketAdLibActionsHandler(this._logger, this._coreHandler)
+		const errorLogHandler = new ErrorLogHandler(this._logger, this._coreHandler)
 
 		const handlers: CollectionHandlers = {
 			studioHandler,
@@ -142,6 +146,7 @@ export class LiveStatusServer {
 			bucketsHandler,
 			bucketAdLibsHandler,
 			bucketAdLibActionsHandler,
+			errorLogHandler,
 		}
 
 		for (const handlerName in handlers) {
@@ -157,6 +162,7 @@ export class LiveStatusServer {
 		const notificationsTopic = new NotificationsTopic(this._logger, handlers)
 		const packageStatusTopic = new PackagesTopic(this._logger, handlers)
 		const bucketsTopic = new BucketsTopic(this._logger, handlers)
+		const errorLogTopic = new ErrorLogTopic(this._logger, handlers)
 
 		rootChannel.addTopic(SubscriptionName.STUDIO, studioTopic)
 		rootChannel.addTopic(SubscriptionName.ACTIVE_PLAYLIST, activePlaylistTopic)
@@ -167,6 +173,7 @@ export class LiveStatusServer {
 		rootChannel.addTopic(SubscriptionName.NOTIFICATIONS, notificationsTopic)
 		rootChannel.addTopic(SubscriptionName.RESERVED_PACKAGES, packageStatusTopic)
 		rootChannel.addTopic(SubscriptionName.BUCKETS, bucketsTopic)
+		rootChannel.addTopic(SubscriptionName.ERROR_LOG, errorLogTopic)
 
 		const wss = new WebSocketServer({ port: 8080 })
 		wss.on('connection', (ws, request) => {

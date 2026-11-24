@@ -1,0 +1,38 @@
+$defs:
+  errorLogEntry:
+    type: object
+    title: ErrorLogEntry
+    description: An error from a playout action or ingest operation, from any client (user interface, REST API or gateway)
+    properties:
+      id:
+        type: string
+        description: Unique id of the error
+      timestamp:
+        type: integer
+        format: int64
+        description: Unix timestamp (ms) of when the error occurred
+      studioId:
+        type: string
+        description: Id of the Studio the error relates to, if known
+      playlistId:
+        type: string
+        description: Id of the Playlist the error relates to, if known
+      operation:
+        type: string
+        description: The operation that failed, eg the name of the user action or the ingest operation
+      context:
+        type: string
+        description: Where the operation was triggered from, eg the user interface event or the REST API request
+      errorCode:
+        type: integer
+        description: HTTP-style status code of the error
+      errorKey:
+        type: integer
+        description: Identifies the type of the error. The value for a type of error never changes, so this can be used to match specific errors
+      message:
+        type: string
+        description: Human-readable description of the error
+    required: [id, timestamp, operation, errorCode, errorKey, message]
+    additionalProperties: false
+    examples:
+      - $ref: './errorLogEntry-example.yaml'

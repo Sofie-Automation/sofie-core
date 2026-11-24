@@ -1,0 +1,7 @@
+description: Error log topic for websocket subscriptions.
+subscribe:
+  operationId: receiveErrorLog
+  description: Server sends the most recent errors, whenever an error is added or removed
+  message:
+    oneOf:
+      - $ref: '../../components/errorLog/messages/errorLogMessage.yaml#/components/messages/errorLogMessage'

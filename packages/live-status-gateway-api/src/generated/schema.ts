@@ -67,6 +67,7 @@ enum SubscriptionName {
 	NOTIFICATIONS = 'notifications',
 	BUCKETS = 'buckets',
 	RESERVED_PACKAGES = 'packages',
+	ERROR_LOG = 'errorLog',
 }
 
 interface SubscriptionStatusError {
@@ -1485,11 +1486,65 @@ interface NotificationTargetUnknown {
 	type: NotificationTargetType.UNKNOWN
 }
 
+/**
+ * The most recent errors in Sofie
+ */
+interface ErrorLogEvent {
+	event: 'errorLog'
+	/**
+	 * The most recent errors, newest first
+	 */
+	errors: ErrorLogEntry[]
+}
+
+/**
+ * An error from a playout action or ingest operation, from any client (user interface, REST API or gateway)
+ */
+interface ErrorLogEntry {
+	/**
+	 * Unique id of the error
+	 */
+	id: string
+	/**
+	 * Unix timestamp (ms) of when the error occurred
+	 */
+	timestamp: number
+	/**
+	 * Id of the Studio the error relates to, if known
+	 */
+	studioId?: string
+	/**
+	 * Id of the Playlist the error relates to, if known
+	 */
+	playlistId?: string
+	/**
+	 * The operation that failed, eg the name of the user action or the ingest operation
+	 */
+	operation: string
+	/**
+	 * Where the operation was triggered from, eg the user interface event or the REST API request
+	 */
+	context?: string
+	/**
+	 * HTTP-style status code of the error
+	 */
+	errorCode: number
+	/**
+	 * Identifies the type of the error. The value for a type of error never changes, so this can be used to match specific errors
+	 */
+	errorKey: number
+	/**
+	 * Human-readable description of the error
+	 */
+	message: string
+}
+
 export type Slash =
 	| ActivePiecesEvent
 	| ActivePlaylistEvent
 	| AdLibsEvent
 	| BucketsEvent
+	| ErrorLogEvent
 	| HeartbeatEvent
 	| NotificationsEvent
 	| PackagesEvent
@@ -1576,4 +1631,6 @@ export {
 	NotificationTargetPartInstance,
 	NotificationTargetPieceInstance,
 	NotificationTargetUnknown,
+	ErrorLogEvent,
+	ErrorLogEntry,
 }

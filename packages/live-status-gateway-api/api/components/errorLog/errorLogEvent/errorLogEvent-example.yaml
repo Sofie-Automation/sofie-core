@@ -1,0 +1,3 @@
+event: errorLog
+errors:
+  - $ref: '../errorLogEntry/errorLogEntry-example.yaml'

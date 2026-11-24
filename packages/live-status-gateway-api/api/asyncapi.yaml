@@ -51,3 +51,5 @@ channels:
     $ref: './topics/buckets/bucketsTopic.yaml'
   notifications:
     $ref: './topics/notifications/notificationsTopic.yaml'
+  errorLog:
+    $ref: './topics/errorLog/errorLogTopic.yaml'

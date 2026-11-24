@@ -1,0 +1,10 @@
+components:
+  messages:
+    errorLogMessage:
+      messageId: errorLogUpdate
+      title: The most recent errors in Sofie
+      payload:
+        $ref: '../errorLogEvent/errorLogEvent.yaml#/$defs/errorLogEvent'
+      examples:
+        - payload:
+            $ref: '../errorLogEvent/errorLogEvent-example.yaml'

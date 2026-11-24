@@ -13,3 +13,4 @@ $defs:
       - notifications
       - buckets
       - packages
+      - errorLog
