@@ -34,6 +34,7 @@ import { executePeripheralDeviceFunctionWithCustomTimeout } from './peripheralDe
 import { resolveActionResult } from './peripheralDevice'
 import { LeveledLogMethodFixed } from '@sofie-automation/corelib/dist/logging'
 import { assertConnectionHasOneOfPermissions } from '../security/auth'
+import { recordError } from './errorLog'
 
 function rewrapError(methodName: string, e: any): ClientAPI.ClientResponseError {
 	const userError = UserError.fromUnknown(e)
@@ -255,6 +256,12 @@ export namespace ServerClientAPI {
 					return ClientAPI.responseSuccess(result)
 				} catch (e) {
 					const errorTime = Date.now()
+
+					recordError(e, {
+						operation: methodName,
+						context: userEvent,
+						userActionsLogId: actionId,
+					})
 
 					const wrappedError = rewrapError(methodName, e)
 					const wrappedErrorStr = `ClientResponseError: ${translateMessage(

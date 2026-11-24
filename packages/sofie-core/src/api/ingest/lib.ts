@@ -19,6 +19,7 @@ import {
 import { PeripheralDevices } from '../../collections'
 import { getStudioIdFromDevice } from '../studio/lib'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
+import { recordError } from '../errorLog'
 
 /**
  * Run an ingest operation via the worker.
@@ -57,6 +58,7 @@ export async function runIngestOperation<T extends keyof IngestJobFunc>(
 		return res
 	} catch (e) {
 		logger.warn(`Ingest operation "${name}" failed: ${stringifyError(e)}`)
+		recordError(e, { operation: `ingest.${name}`, studioId })
 
 		throw e
 	}

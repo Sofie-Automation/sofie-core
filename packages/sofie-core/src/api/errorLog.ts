@@ -1,16 +1,17 @@
 import { DBErrorLogItem } from '@sofie-automation/corelib/dist/dataModel/ErrorLog'
 import {
-	RundownPlaylistId,
-	UserId,
-	UserActionsLogItemId,
 	ErrorLogItemId,
+	RundownPlaylistId,
+	StudioId,
+	UserActionsLogItemId,
+	UserId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { UserError } from '@sofie-automation/corelib/dist/error'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
-import { StudioId, stringifyError } from '@sofie-automation/server-core-integration'
-import { logger } from 'elastic-apm-node'
-import { ErrorLog } from 'src/collections'
-import { getCurrentTime } from 'src/lib/lib'
+import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { ErrorLog } from '../collections'
+import { getCurrentTime } from '../lib/lib'
+import { logger } from '../logging'
 
 // TODO: make the max error log items configurable
 
@@ -19,9 +20,9 @@ export const MAX_ERROR_LOG_ITEMS = 100
 
 /** Where an error came from */
 export interface ErrorLogOrigin {
-	/** Method name (UI) or "METHOD /route" (REST) */
+	/** User action method name (e.g. "worker.takeNextPart"), or "ingest.<jobName>" */
 	operation: string
-	/** UI event string, or REST origin */
+	/** UI event string or REST request description, for user actions */
 	context?: string
 	studioId?: StudioId | null
 	playlistId?: RundownPlaylistId
@@ -29,11 +30,20 @@ export interface ErrorLogOrigin {
 	userActionsLogId?: UserActionsLogItemId
 }
 
+/** Errors that have already been recorded, so nested capture points don't record them twice */
+const recordedErrors = new WeakSet<object>()
+
 /**
  * Record an error that is being returned to a client.
  * This should never throw and never block the caller: failures to record are only logged.
  */
-export function recordError(userError: UserError, origin: ErrorLogOrigin): void {
+export function recordError(err: unknown, origin: ErrorLogOrigin): void {
+	if (typeof err === 'object' && err !== null) {
+		if (recordedErrors.has(err)) return
+		recordedErrors.add(err)
+	}
+	const userError = UserError.fromUnknown(err)
+
 	const doc: DBErrorLogItem = {
 		_id: getRandomId<ErrorLogItemId>(),
 		timestamp: getCurrentTime(),
