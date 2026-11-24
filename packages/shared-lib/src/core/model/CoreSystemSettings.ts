@@ -24,6 +24,9 @@ export interface ICoreSystemSettings {
 	/** Clean up data that is older than this (in milliseconds) */
 	maximumDataAge?: number
 
+	/** How many errors to keep in the Error Log. When a new error is recorded, the oldest ones beyond this are removed */
+	errorLogMaxItems?: number
+
 	/**
 	 * Which keyboard key is used as "Confirm" in modal dialogs etc.
 	 * In some installations, the rightmost Enter key (on the numpad) is dedicated for playout,

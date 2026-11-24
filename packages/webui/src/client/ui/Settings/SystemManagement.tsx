@@ -310,6 +310,18 @@ function SystemManagementCronJobs({ coreSystem }: Readonly<WithCoreSystemProps>)
 				>
 					{(value, handleUpdate) => <IntInputControl value={value} handleUpdate={handleUpdate} />}
 				</LabelAndOverridesForInt>
+
+				<LabelAndOverridesForInt
+					label={t('Error log size')}
+					item={wrappedItem}
+					itemKey={'errorLogMaxItems'}
+					overrideHelper={overrideHelper}
+					hint={t(
+						'How many of the most recent errors to keep and show to all users. Older errors are removed when a new error is recorded'
+					)}
+				>
+					{(value, handleUpdate) => <IntInputControl value={value} handleUpdate={handleUpdate} />}
+				</LabelAndOverridesForInt>
 			</div>
 		</>
 	)

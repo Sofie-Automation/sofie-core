@@ -10,6 +10,7 @@ import {
 	DEFAULT_MAXIMUM_DATA_AGE,
 	DEFAULT_CONFIRM_KEY_CODE,
 	DEFAULT_POISON_KEY,
+	DEFAULT_ERROR_LOG_MAX_ITEMS,
 } from '@sofie-automation/shared-lib/dist/core/constants'
 import { prepareMigration, runMigrationFromTrusted } from '../migration/databaseMigration'
 import { Blueprints, CoreSystem } from '../collections'
@@ -83,6 +84,7 @@ export async function initializeCoreSystem(): Promise<ICoreSystem> {
 					message: '',
 				},
 				maximumDataAge: DEFAULT_MAXIMUM_DATA_AGE,
+				errorLogMaxItems: DEFAULT_ERROR_LOG_MAX_ITEMS,
 				confirmKeyCode: DEFAULT_CONFIRM_KEY_CODE,
 				poisonKey: DEFAULT_POISON_KEY,
 			}),

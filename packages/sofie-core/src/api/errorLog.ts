@@ -9,14 +9,25 @@ import {
 import { UserError } from '@sofie-automation/corelib/dist/error'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
+import { applyAndValidateOverrides } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
+import { DEFAULT_ERROR_LOG_MAX_ITEMS } from '@sofie-automation/shared-lib/dist/core/constants'
 import { ErrorLog } from '../collections'
+import { getCoreSystemAsync } from '../coreSystem/collection'
 import { getCurrentTime } from '../lib/lib'
 import { logger } from '../logging'
 
-// TODO: make the max error log items configurable
+/**
+ * How many errors to keep, from the system settings. Older ones are removed when a new one is recorded.
+ * Falls back to the default for a misconfigured value, so that a bad setting can't remove all errors.
+ */
+export async function getErrorLogMaxItems(): Promise<number> {
+	const coreSystem = await getCoreSystemAsync()
+	const configured = coreSystem && applyAndValidateOverrides(coreSystem.settingsWithOverrides).obj.errorLogMaxItems
 
-/** How many errors to keep. Older ones are removed when a new one is recorded */
-export const MAX_ERROR_LOG_ITEMS = 100
+	return typeof configured === 'number' && Number.isInteger(configured) && configured > 0
+		? configured
+		: DEFAULT_ERROR_LOG_MAX_ITEMS
+}
 
 /** Where an error came from */
 export interface ErrorLogOrigin {
@@ -97,7 +108,7 @@ async function insertAndTrim(doc: DBErrorLogItem): Promise<void> {
 		{},
 		{
 			sort: { timestamp: -1 },
-			skip: MAX_ERROR_LOG_ITEMS,
+			skip: await getErrorLogMaxItems(),
 			projection: { _id: 1 },
 		}
 	)

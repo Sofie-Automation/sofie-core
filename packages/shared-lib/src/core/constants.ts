@@ -31,6 +31,9 @@ export const DEFAULT_SHELF_DISPLAY_OPTIONS = 'buckets,layout,shelfLayout,inspect
 /** Clean up data that is older than this (in milliseconds) */
 export const DEFAULT_MAXIMUM_DATA_AGE = 1000 * 60 * 60 * 24 * 100 // 100 days
 
+/** How many errors to keep in the Error Log */
+export const DEFAULT_ERROR_LOG_MAX_ITEMS = 100
+
 /** Default time scale zooming for the UI */
 export const DEFAULT_TIME_SCALE = 1
 
