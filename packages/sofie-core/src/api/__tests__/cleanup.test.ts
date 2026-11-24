@@ -26,6 +26,7 @@ import {
 	Buckets,
 	BucketAdLibActions,
 	BucketAdLibs,
+	ErrorLog,
 	Evaluations,
 	ExpectedPackages,
 	ExpectedPackageWorkStatuses,
@@ -52,6 +53,7 @@ import { generateTranslationBundleOriginId } from '../translationsBundles'
 import { CollectionCleanupResult } from '@sofie-automation/meteor-lib/dist/api/system'
 import { DBNotificationTargetType } from '@sofie-automation/corelib/dist/dataModel/Notifications'
 import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
+import { UserErrorMessage } from '@sofie-automation/corelib/dist/error'
 
 describe('Cleanup', () => {
 	let env: DefaultEnvironment
@@ -432,6 +434,18 @@ async function setDefaultDatatoDB(env: DefaultEnvironment, now: number) {
 		method: '',
 		timestamp: now,
 		userId: null,
+	})
+	await ErrorLog.insertAsync({
+		_id: getRandomId(),
+		timestamp: now,
+		studioId,
+		operation: '',
+		userId: null,
+		errorCode: 500,
+		error: {
+			key: UserErrorMessage.InternalError,
+			message: { key: '' },
+		},
 	})
 
 	await TranslationsBundles.insertAsync({

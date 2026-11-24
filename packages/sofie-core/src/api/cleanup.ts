@@ -31,6 +31,7 @@ import {
 	BucketAdLibActions,
 	BucketAdLibs,
 	Buckets,
+	ErrorLog,
 	Evaluations,
 	ExpectedPackages,
 	ExpectedPackageWorkStatuses,
@@ -346,6 +347,13 @@ export async function cleanupOldDataInner(actuallyCleanup = false): Promise<Coll
 	// UserActionsLog
 	{
 		await removeByQuery(UserActionsLog, {
+			timestamp: { $lt: getCurrentTime() - maximumDataAge },
+		})
+	}
+	// ErrorLog
+	// (This is normally kept to the newest items when recording errors, this removes any that are too old)
+	{
+		await removeByQuery(ErrorLog, {
 			timestamp: { $lt: getCurrentTime() - maximumDataAge },
 		})
 	}

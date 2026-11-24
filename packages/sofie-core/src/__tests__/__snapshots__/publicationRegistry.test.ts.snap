@@ -8,6 +8,7 @@ exports[`PublicationRegistry the full set of registered publication names is sta
   "buckets",
   "coreSystem",
   "deviceTriggersPreview",
+  "errorLog",
   "evaluations",
   "expectedPackageWorkStatuses",
   "expectedPackages",
