@@ -89,6 +89,10 @@ resources:
                       - connected
         404:
           description: The requested device does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: 'errorResponse.yaml'
   deviceAction:
     post:
       operationId: deviceAction
@@ -151,11 +155,7 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 404
-              message:
-                type: string
-                example: The specified Device was not found
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 404
+            message: The specified Device was not found

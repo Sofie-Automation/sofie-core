@@ -55,17 +55,9 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 400
-                  message:
-                    type: string
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 400
         409:
           $ref: '#/components/responses/studioNotValid'
         500:
@@ -334,29 +326,9 @@ resources:
                     type: number
                     example: 200
         404:
-          description: Specified Studio or device does not exist.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 404
-                  message:
-                    type: string
+          $ref: '#/components/responses/studioOrDeviceNotFound'
         412:
-          description: The specified device is already attached to a different studio.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
+          $ref: '#/components/responses/deviceAttachedToOtherStudio'
         500:
           $ref: '#/components/responses/internalServerError'
   device:
@@ -618,83 +590,56 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 400
-              message:
-                type: string
-            required:
-              - status
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 400
     studioNotFound:
       description: The specified Studio does not exist.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 404
-              message:
-                type: string
-            required:
-              - status
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 404
     studioNotValid:
       description: The specified Studio configuration is not valid.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 409
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: string
-                  example: 'Invalid Union'
-            required:
-              - status
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 409
     studioInUse:
       description: The specified Studio is in use in an on-air Rundown.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 412
-              message:
-                type: string
-            required:
-              - status
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 412
+    # Note: The attachDevice responses are defined here rather than inline, as swagger-codegen fails to resolve
+    # the relative errorResponse.yaml refs when they are inline in that operation
+    studioOrDeviceNotFound:
+      description: Specified Studio or device does not exist.
+      content:
+        application/json:
+          schema:
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 404
+    deviceAttachedToOtherStudio:
+      description: The specified device is already attached to a different studio.
+      content:
+        application/json:
+          schema:
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 412
     internalServerError:
       description: An error unlikely to be the fault of the caller has occurred.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 500
-              message:
-                type: string
-            required:
-              - status
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 500

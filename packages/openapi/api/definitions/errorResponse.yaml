@@ -1,0 +1,29 @@
+# The body of every error response returned by the API
+description: The body of every error response returned by the API.
+type: object
+properties:
+  status:
+    type: number
+    description: The HTTP status code of the error.
+    example: 500
+  message:
+    type: string
+    description: A human-readable description of the error.
+    example: Internal Server Error
+  details:
+    type: array
+    description: Further details about the error, e.g. the validation errors of a rejected configuration.
+    items:
+      type: string
+      example: 'Invalid Union'
+  additionalInfo:
+    type: object
+    description: Additional machine-readable information about the error, e.g. includes nextAllowedTakeTime (Unix timestamp ms) for blocked takes.
+    additionalProperties: true
+  errorLogId:
+    type: string
+    description: Id of the Error Log entry that this error was recorded as. Only set for errors from playout actions and ingest operations.
+    example: 'oZGk4aLbHt7FXRQ1cDxXqAQSzR4_'
+required:
+  - status
+  - message

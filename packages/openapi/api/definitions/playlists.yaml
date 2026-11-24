@@ -59,14 +59,10 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                    example: Rundown Playlist is active, please deactivate before preparing it for broadcast
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
+                message: Rundown Playlist is active, please deactivate before preparing it for broadcast
         500:
           $ref: '#/components/responses/internalServerError'
   deactivate:
@@ -159,14 +155,10 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                    example: AdLib could not be found!
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
+                message: AdLib could not be found!
         500:
           $ref: '#/components/responses/internalServerError'
   executeBucketAdLib:
@@ -215,14 +207,10 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                    example: AdLib could not be found!
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
+                message: AdLib could not be found!
         500:
           $ref: '#/components/responses/internalServerError'
   moveNextPart:
@@ -271,14 +259,10 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                    example: The selected part does not exist
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
+                message: The selected part does not exist
         500:
           $ref: '#/components/responses/internalServerError'
   moveNextSegment:
@@ -330,14 +314,10 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                    example: The selected part does not exist
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
+                message: The selected part does not exist
         500:
           $ref: '#/components/responses/internalServerError'
   reloadPlaylist:
@@ -383,14 +363,10 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                    example: RundownPlaylist is active but not in rehearsal, please deactivate it or set in in rehearsal to be able to reset it.
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
+                message: RundownPlaylist is active but not in rehearsal, please deactivate it or set in in rehearsal to be able to reset it.
         500:
           $ref: '#/components/responses/internalServerError'
   setNextPart:
@@ -428,14 +404,10 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                    example: The selected part does not exist
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
+                message: The selected part does not exist
         500:
           $ref: '#/components/responses/internalServerError'
   setNextSegment:
@@ -485,14 +457,10 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                    example: The selected part does not exist
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
+                message: The selected part does not exist
         500:
           $ref: '#/components/responses/internalServerError'
   queueNextSegment:
@@ -554,14 +522,10 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                    example: The selected part does not exist
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
+                message: The selected part does not exist
         500:
           $ref: '#/components/responses/internalServerError'
   take:
@@ -612,48 +576,28 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                    example: No Next point found, please set a part as Next before doing a TAKE.
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
+                message: No Next point found, please set a part as Next before doing a TAKE.
         425:
           description: Take is blocked due to a transition or adlib action.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 425
-                  message:
-                    type: string
-                    example: Cannot take during a transition
-                  additionalInfo:
-                    type: object
-                    description: Additional error details, e.g. includes nextAllowedTakeTime (Unix timestamp ms) for blocked takes.
-                    additionalProperties: true
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 425
+                message: Cannot take during a transition
         429:
           description: Take rate limit exceeded - takes are happening too quickly.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 429
-                  message:
-                    type: string
-                    example: Ignoring TAKES that are too quick after eachother (1000 ms)
-                  additionalInfo:
-                    type: object
-                    description: Additional error details, e.g. includes nextAllowedTakeTime (Unix timestamp ms) for blocked takes.
-                    additionalProperties: true
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 429
+                message: Ignoring TAKES that are too quick after eachother (1000 ms)
         500:
           $ref: '#/components/responses/internalServerError'
 
@@ -697,14 +641,10 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                    example: Rundown must be active!
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
+                message: Rundown must be active!
         500:
           $ref: '#/components/responses/internalServerError'
 
@@ -740,14 +680,10 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                    example: Rundown must be active!
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
+                message: Rundown must be active!
         500:
           $ref: '#/components/responses/internalServerError'
     sticky:
@@ -779,14 +715,10 @@ resources:
             content:
               application/json:
                 schema:
-                  type: object
-                  properties:
-                    status:
-                      type: number
-                      example: 412
-                    message:
-                      type: string
-                      example: Rundown must be active!
+                  $ref: 'errorResponse.yaml'
+                example:
+                  status: 412
+                  message: Rundown must be active!
           500:
             $ref: '#/components/responses/internalServerError'
   tTimerCountdown:
@@ -1172,24 +1104,16 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 404
-              message:
-                type: string
-                example: The specified Playlist was not found
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 404
+            message: The specified Playlist was not found
     internalServerError:
       description: An error unlikely to be the fault of the caller has occurred.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 500
-              message:
-                type: string
-                example: Internal Server Error
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 500
+            message: Internal Server Error

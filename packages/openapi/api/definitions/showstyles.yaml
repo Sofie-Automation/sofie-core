@@ -57,17 +57,9 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 400
-                  message:
-                    type: string
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 400
         500:
           $ref: '#/components/responses/internalServerError'
   showStyleBase:
@@ -133,54 +125,25 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 400
-                  message:
-                    type: string
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 400
         409:
           description: The specified ShowStyleBase is not valid.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 409
-                  message:
-                    type: string
-                  details:
-                    type: array
-                    items:
-                      type: string
-                      example: 'Invalid Union'
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 409
         412:
           description: The specified ShowStyleBase is in use in an on-air Rundown.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
         500:
           $ref: '#/components/responses/internalServerError'
     delete:
@@ -211,17 +174,9 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
         500:
           $ref: '#/components/responses/internalServerError'
   config:
@@ -301,38 +256,17 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 409
-                  message:
-                    type: string
-                  details:
-                    type: array
-                    items:
-                      type: string
-                      example: 'Invalid Union'
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 409
         412:
           description: The specified ShowStyleBase is in use in an on-air Rundown.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
         500:
           $ref: '#/components/responses/internalServerError'
   showStyleVariants:
@@ -477,17 +411,9 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 400
-                  message:
-                    type: string
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 400
         404:
           $ref: '#/components/responses/showStyleBaseNotFound'
         412:
@@ -495,17 +421,9 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
         500:
           $ref: '#/components/responses/internalServerError'
     delete:
@@ -547,17 +465,9 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
         500:
           $ref: '#/components/responses/internalServerError'
   showStyleBaseAction:
@@ -607,45 +517,25 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 500
-              message:
-                type: string
-            required:
-              - status
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 500
     badRequest:
       description: Request is invalid
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 400
-              message:
-                type: string
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 400
     showStyleBaseNotFound:
       description: The specified ShowStyleBase does not exist.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 404
-              message:
-                type: string
-            required:
-              - status
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 404
   schemas:
     showStyleBaseItem:
       type: object

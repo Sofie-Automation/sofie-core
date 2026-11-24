@@ -50,49 +50,25 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 400
-                  message:
-                    type: string
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 400
         429:
           description: Rate limit exceeded
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 429
-                  message:
-                    type: string
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 429
         422:
           description: Idempotency-Key is already used
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 422
-                  message:
-                    type: string
-                required:
-                  - status
-                  - message
-                additionalProperties: false
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 422
 components:
   responses:
     internalServerError:
@@ -100,17 +76,9 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 500
-              message:
-                type: string
-            required:
-              - status
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 500
   schemas:
     storeSnapshotRequestBody:
       type: object

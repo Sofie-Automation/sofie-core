@@ -93,22 +93,14 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 404
-              message:
-                type: string
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 404
     internalServerError:
       description: An error unlikely to be the fault of the caller has occurred.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 500
-              message:
-                type: string
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 500

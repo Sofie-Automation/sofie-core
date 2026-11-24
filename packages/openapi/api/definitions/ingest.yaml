@@ -153,6 +153,10 @@ resources:
           description: Request has been accepted.
         400:
           description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: 'errorResponse.yaml'
     put:
       operationId: putRundowns
       summary: Updates Rundowns belonging to a specified Playlist.
@@ -185,6 +189,10 @@ resources:
           description: Request has been accepted.
         400:
           description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: 'errorResponse.yaml'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -237,6 +245,10 @@ resources:
           description: Request has been accepted.
         400:
           description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: 'errorResponse.yaml'
   rundown:
     get:
       operationId: getRundown
@@ -310,6 +322,10 @@ resources:
           description: Request has been accepted.
         400:
           description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: 'errorResponse.yaml'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -422,6 +438,10 @@ resources:
           description: Request accepted.
         400:
           description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: 'errorResponse.yaml'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -465,6 +485,10 @@ resources:
           description: Request accepted.
         400:
           description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: 'errorResponse.yaml'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -585,6 +609,10 @@ resources:
           description: Request accepted.
         400:
           description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: 'errorResponse.yaml'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -716,6 +744,10 @@ resources:
           description: Request accepted.
         400:
           description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: 'errorResponse.yaml'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -766,6 +798,10 @@ resources:
           description: Request accepted.
         400:
           description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: 'errorResponse.yaml'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -885,11 +921,13 @@ resources:
         - name: segmentId
           in: path
           description: Internal or external ID of the Segment the Part to update belongs to.
+          required: true
           schema:
             type: string
         - name: partId
           in: path
           description: Internal or external ID of the Part to update.
+          required: true
           schema:
             type: string
       requestBody:
@@ -904,6 +942,10 @@ resources:
           description: Request has been accepted.
         400:
           description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: 'errorResponse.yaml'
         404:
           $ref: '#/components/responses/idNotFound'
           # oneOf:
@@ -964,101 +1006,52 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                const: 404
-                example: 404
-              message:
-                type: string
-                example: The specified resource was not found.
-            required:
-              - status
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 404
+            message: The specified resource was not found.
     playlistNotFound:
       description: The specified Playlist does not exist.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                const: 404
-                example: 404
-              notFound:
-                type: string
-                const: playlist
-                example: playlist
-              message:
-                type: string
-                example: The specified Playlist was not found.
-            required:
-              - status
-              - notFound
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 404
+            message: The specified Playlist was not found.
     rundownNotFound:
       description: The specified Rundown does not exist.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                const: 404
-                example: 404
-              message:
-                type: string
-                example: The specified Rundown was not found.
-            required:
-              - status
-              - notFound
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 404
+            message: The specified Rundown was not found.
     segmentNotFound:
       description: The specified Segment does not exist.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                const: 404
-                example: 404
-              message:
-                type: string
-                example: The specified Segment was not found.
-            required:
-              - status
-              - notFound
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 404
+            message: The specified Segment was not found.
     partNotFound:
       description: The specified Part does not exist.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                const: 404
-                example: 404
-              message:
-                type: string
-                example: The specified Part was not found.
-            required:
-              - status
-              - notFound
-              - message
-            additionalProperties: false
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 404
+            message: The specified Part was not found.
     badRequest:
       description: Bad request.
+      content:
+        application/json:
+          schema:
+            $ref: 'errorResponse.yaml'
   schemas:
     playlist:
       type: object

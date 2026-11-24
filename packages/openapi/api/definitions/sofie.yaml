@@ -50,13 +50,9 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 404
-                  message:
-                    type: string
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 404
         500:
           $ref: '#/components/responses/internalServerError'
     delete:
@@ -72,13 +68,9 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 404
-                  message:
-                    type: string
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 404
         500:
           $ref: '#/components/responses/internalServerError'
   migrations:
@@ -122,13 +114,9 @@ resources:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: number
-                    example: 412
-                  message:
-                    type: string
+                $ref: 'errorResponse.yaml'
+              example:
+                status: 412
         500:
           $ref: '#/components/responses/internalServerError'
   health:
@@ -327,10 +315,6 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: number
-                example: 500
-              message:
-                type: string
+            $ref: 'errorResponse.yaml'
+          example:
+            status: 500
