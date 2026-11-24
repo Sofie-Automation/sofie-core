@@ -27,6 +27,9 @@ export type EvaluationId = ProtectedString<'EvaluationId'>
 /** A string, identifying a Rundown */
 export type ExpectedPlayoutItemId = ProtectedString<'ExpectedPlayoutItemId'>
 
+/** A string, identifying a ErrorLogItem */
+export type ErrorLogItemId = ProtectedString<'ErrorLogItemId'>
+
 /** A string, identifying a ExternalMessageQueueObj */
 export type ExternalMessageQueueObjId = ProtectedString<'ExternalMessageQueueObjId'>
 
