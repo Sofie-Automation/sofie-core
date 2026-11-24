@@ -30,22 +30,31 @@ export interface ErrorLogOrigin {
 	userActionsLogId?: UserActionsLogItemId
 }
 
-/** Errors that have already been recorded, so nested capture points don't record them twice */
-const recordedErrors = new WeakSet<object>()
+/**
+ * Errors that have already been recorded, so nested capture points don't record them twice.
+ * Maps the error object to the id of its ErrorLog item, so that every capture point returns the same id.
+ */
+const recordedErrors = new WeakMap<object, ErrorLogItemId>()
 
 /**
  * Record an error that is being returned to a client.
  * This should never throw and never block the caller: failures to record are only logged.
+ * @returns The id of the ErrorLog item. This is generated up front, so it is returned before the item is stored.
  */
-export function recordError(err: unknown, origin: ErrorLogOrigin): void {
-	if (typeof err === 'object' && err !== null) {
-		if (recordedErrors.has(err)) return
-		recordedErrors.add(err)
+export function recordError(err: unknown, origin: ErrorLogOrigin): ErrorLogItemId {
+	const isObject = typeof err === 'object' && err !== null
+	if (isObject) {
+		const existingId = recordedErrors.get(err)
+		if (existingId) return existingId
 	}
+
+	const id = getRandomId<ErrorLogItemId>()
+	if (isObject) recordedErrors.set(err, id)
+
 	const userError = UserError.fromUnknown(err)
 
 	const doc: DBErrorLogItem = {
-		_id: getRandomId<ErrorLogItemId>(),
+		_id: id,
 		timestamp: getCurrentTime(),
 
 		studioId: origin.studioId ?? null,
@@ -67,6 +76,8 @@ export function recordError(err: unknown, origin: ErrorLogOrigin): void {
 	insertAndTrim(doc).catch((e) => {
 		logger.warn(`Failed to record error in ErrorLog: ${stringifyError(e)}`)
 	})
+
+	return id
 }
 
 async function insertAndTrim(doc: DBErrorLogItem): Promise<void> {

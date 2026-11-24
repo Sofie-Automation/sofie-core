@@ -132,6 +132,15 @@ function userActionToLabel(userAction: UserAction, t: i18next.TFunction) {
 }
 
 /**
+ * Get the Notification id to use for a failed user action.
+ * This is derived from the ErrorLog id of the error, so that all notifications for the same error
+ * (from this client, or shared from other clients) replace each other instead of being shown twice.
+ */
+export function getErrorLogNotificationId(res: unknown): string | undefined {
+	return ClientAPI.isClientResponseError(res) && res.errorLogId ? `errorLog_${res.errorLogId}` : undefined
+}
+
+/**
  * Handle a the experience around a back-end method call - display a "Waiting for action" message, when the call takes
  * long to return a result/error and show an error message when the call fails.
  *
@@ -200,7 +209,7 @@ export function doUserAction<Result>(
 				if (doDefault !== false) {
 					NotificationCenter.push(
 						new Notification(
-							undefined,
+							getErrorLogNotificationId(res),
 							NoticeLevel.CRITICAL,
 							t('Action {{actionName}} failed: {{error}}', {
 								error: translateMessage(res.error.userMessage || res.error, t),

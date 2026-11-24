@@ -507,7 +507,10 @@ class RundownPlaylistOperationsService {
 						false
 					)
 				}),
-			() => {
+			(err) => {
+				// On failure, use the default error notification
+				if (err) return true
+
 				NotificationCenter.push(
 					new Notification(
 						undefined,

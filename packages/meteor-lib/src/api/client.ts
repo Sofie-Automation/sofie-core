@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 import { SerializedUserError, UserError } from '@sofie-automation/corelib/dist/error'
-import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { ErrorLogItemId, PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { TSR } from '@sofie-automation/blueprints-integration'
 
 export interface NewClientAPI {
@@ -52,6 +52,8 @@ export namespace ClientAPI {
 		error: SerializedUserError
 		/** Optional additional information about the error, forwarded from UserError args */
 		additionalInfo?: Record<string, unknown>
+		/** Id of the ErrorLog item this error was recorded as, if it was recorded */
+		errorLogId?: ErrorLogItemId
 	}
 
 	/**

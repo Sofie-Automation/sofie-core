@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { ClipTrimPanel } from './ClipTrimPanel.js'
 import type { VTContent } from '@sofie-automation/blueprints-integration'
 import { ModalDialog, type SomeEvent } from '../../lib/ModalDialog.js'
-import { doUserAction, UserAction } from '../../lib/clientUserAction.js'
+import { doUserAction, getErrorLogNotificationId, UserAction } from '../../lib/clientUserAction.js'
 import { MeteorCall } from '../../lib/meteorApi.js'
 import { NotificationCenter, Notification, NoticeLevel } from '../../lib/notifications/notifications.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
@@ -83,7 +83,7 @@ export function ClipTrimDialog({
 				) {
 					NotificationCenter.push(
 						new Notification(
-							undefined,
+							getErrorLogNotificationId(err),
 							NoticeLevel.CRITICAL,
 							<>
 								<strong>{selectedPiece.name}</strong>:&ensp;
@@ -98,7 +98,7 @@ export function ClipTrimDialog({
 				} else if (ClientAPI.isClientResponseError(err) || err) {
 					NotificationCenter.push(
 						new Notification(
-							undefined,
+							getErrorLogNotificationId(err),
 							NoticeLevel.CRITICAL,
 							<>
 								<strong>{selectedPiece.name}</strong>:&ensp;

@@ -257,13 +257,14 @@ export namespace ServerClientAPI {
 				} catch (e) {
 					const errorTime = Date.now()
 
-					recordError(e, {
+					const errorLogId = recordError(e, {
 						operation: methodName,
 						context: userEvent,
 						userActionsLogId: actionId,
 					})
 
 					const wrappedError = rewrapError(methodName, e)
+					wrappedError.errorLogId = errorLogId
 					const wrappedErrorStr = `ClientResponseError: ${translateMessage(
 						wrappedError.error.userMessage,
 						interpollateTranslation
