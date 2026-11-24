@@ -23,6 +23,9 @@ import { APIFactory, ServerAPIContext } from './types'
 import { getSystemStatus } from '../../../systemStatus/systemStatus'
 import { Component, ExternalStatus } from '@sofie-automation/meteor-lib/dist/api/systemStatus'
 import type { DDPClientConnection } from '../../../ddp-server/types'
+import type { ErrorLogItemId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { getRecordedErrorId } from '../../errorLog'
 
 function restAPIUserEvent(ctx: Koa.ParameterizedContext<Koa.DefaultState, Koa.DefaultContext, unknown>): string {
 	// the ctx.URL.pathname will contain `/v1.0`, but will not contain `/api`
@@ -120,6 +123,8 @@ interface APIRequestError {
 	message: string
 	details?: string[]
 	additionalInfo?: Record<string, unknown>
+	/** Id of the ErrorLog item this error was recorded as, if it was recorded */
+	errorLogId?: string
 }
 
 function sofieAPIRequest<API, Params, Body, Response>(
@@ -137,6 +142,7 @@ function sofieAPIRequest<API, Params, Body, Response>(
 ) {
 	koaRouter[method](route, async (ctx, next) => {
 		let responseAdditionalInfo: Record<string, unknown> | undefined
+		let responseErrorLogId: ErrorLogItemId | undefined
 		try {
 			const context = new APIContext()
 			const serverAPI = serverAPIFactory.createServerAPI(context)
@@ -149,6 +155,7 @@ function sofieAPIRequest<API, Params, Body, Response>(
 			)
 			if (ClientAPI.isClientResponseError(response)) {
 				responseAdditionalInfo = response.additionalInfo
+				responseErrorLogId = response.errorLogId
 				throw UserError.fromSerialized(response.error)
 			}
 			ctx.body = JSON.stringify({ status: response.success, result: response.result })
@@ -183,6 +190,9 @@ function sofieAPIRequest<API, Params, Body, Response>(
 			const details = extractErrorDetails(e)
 			if (details) bodyObj.details = details
 			if (responseAdditionalInfo) bodyObj.additionalInfo = responseAdditionalInfo
+			// Returned errors carry the id in the response, thrown errors (eg from ingest operations) are looked up
+			const errorLogId = responseErrorLogId ?? getRecordedErrorId(e)
+			if (errorLogId) bodyObj.errorLogId = unprotectString(errorLogId)
 			ctx.body = JSON.stringify(bodyObj)
 			ctx.status = errCode
 		}

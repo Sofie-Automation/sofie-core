@@ -80,6 +80,15 @@ export function recordError(err: unknown, origin: ErrorLogOrigin): ErrorLogItemI
 	return id
 }
 
+/**
+ * Get the id of the ErrorLog item for an error that has already been recorded.
+ * This allows a layer that sees the same error object after it has been recorded (eg the REST API) to report the id
+ */
+export function getRecordedErrorId(err: unknown): ErrorLogItemId | undefined {
+	if (typeof err !== 'object' || err === null) return undefined
+	return recordedErrors.get(err)
+}
+
 async function insertAndTrim(doc: DBErrorLogItem): Promise<void> {
 	await ErrorLog.insertAsync(doc)
 
