@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import Moment from 'react-moment'
 import { RundownUtils } from '../../lib/rundown.js'
-import { useTiming } from '../RundownView/RundownTiming/withTiming.js'
+import { useTimingNow } from '../RundownView/RundownTiming/usePlaylistTimingValue.js'
 
 interface IProps {
 	breakTime: number | undefined
@@ -10,9 +10,9 @@ interface IProps {
 export function BreakSegment({ breakTime }: IProps): JSX.Element {
 	const { t } = useTranslation()
 
-	const timingDurations = useTiming()
+	const now = useTimingNow()
 
-	const displayTimecode = breakTime && timingDurations.currentTime ? breakTime - timingDurations.currentTime : undefined
+	const displayTimecode = breakTime ? breakTime - now : undefined
 
 	return (
 		<div className="segment-timeline has-break">

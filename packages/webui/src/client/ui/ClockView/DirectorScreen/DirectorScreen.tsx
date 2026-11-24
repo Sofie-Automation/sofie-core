@@ -12,7 +12,6 @@ import {
 	useTracker,
 	withTracker,
 } from '../../../lib/ReactMeteorData/ReactMeteorData.js'
-import { getCurrentTime } from '../../../lib/systemTime.js'
 import { MeteorPubSub } from '@sofie-automation/meteor-lib/dist/api/pubsub'
 import { PieceIconContainer } from '../ClockViewPieceIcons/ClockViewPieceIcon.js'
 import { PieceNameContainer } from '../ClockViewPieceIcons/ClockViewPieceName.js'
@@ -21,7 +20,6 @@ import { RundownUtils } from '../../../lib/rundown.js'
 import { PieceLifespan, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import type { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PieceFreezeContainer } from '../ClockViewPieceIcons/ClockViewFreezeCount.js'
-import { PlaylistTiming } from '@sofie-automation/corelib/dist/playout/rundownTiming'
 import type {
 	RundownId,
 	RundownPlaylistId,
@@ -46,7 +44,11 @@ import { useTranslation } from 'react-i18next'
 import type { DBShowStyleBase, UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
 import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance.js'
 import { DirectorScreenTop } from './DirectorScreenTop.js'
-import { useTiming } from '../../RundownView/RundownTiming/withTiming.js'
+import {
+	TimerValueMode,
+	usePlaylistTimingValue,
+	useTimingNow,
+} from '../../RundownView/RundownTiming/usePlaylistTimingValue.js'
 import type { UIStudio } from '@sofie-automation/corelib/src/dataModel/Studio.js'
 import type { PartInstance } from '@sofie-automation/corelib/src/dataModel/PartInstance.js'
 import { RundownStatusBar } from '../RundownStatusBar.js'
@@ -375,6 +377,7 @@ function useDirectorScreenSubscriptions(props: DirectorScreenProps): void {
 	useSubscription(CorelibPubSub.segments, rundownIds, {})
 	useSubscription(CorelibPubSub.uiParts, playlist?._id ?? null)
 	useSubscription(CorelibPubSub.uiPartInstances, playlist?.activationId ?? null)
+	useSubscription(CorelibPubSub.playlistTimingState, props.playlistId)
 	useSubscriptions(
 		MeteorPubSub.uiShowStyleBase,
 		showStyleBaseIds.map((id) => [id])
@@ -440,7 +443,12 @@ function DirectorScreenRender({
 	useSetDocumentClass('dark', 'xdark')
 	const { t } = useTranslation()
 
-	useTiming()
+	// re-render on each tick, so the timers below stay current
+	useTimingNow()
+
+	const expectedStart = usePlaylistTimingValue(playlistId, 'plannedStart', TimerValueMode.Timestamp) ?? 0
+	// the time until the planned start, drawn again at the moment its own second changes
+	const untilPlannedStart = usePlaylistTimingValue(playlistId, 'plannedStart', TimerValueMode.Duration)
 
 	// Compute current and next clip player ids (for pieces with AB sessions)
 	const currentClipPlayer: string | undefined = useTracker(() => {
@@ -505,8 +513,6 @@ function DirectorScreenRender({
 	}, [nextPartInstance?.instance._id, nextShowStyleBaseId, playlist?.assignedAbSessions])
 
 	if (playlist && playlistId && segments) {
-		const expectedStart = PlaylistTiming.getExpectedStart(playlist.timing) || 0
-
 		// Show countdown if it is the first segment and the current part is untimed:
 		const currentSegmentIsFirst = currentSegment?._rank === 0
 		const isFirstPieceAndNoDuration =
@@ -654,10 +660,10 @@ function DirectorScreenRender({
 									</>
 								)}
 							</>
-						) : expectedStart ? (
+						) : expectedStart && untilPlannedStart !== null ? (
 							<div className="director-screen__body__part__timeto-content">
 								<div className="director-screen__body__part__timeto-countdown">
-									<Timediff time={expectedStart - getCurrentTime()} />
+									<Timediff time={untilPlannedStart} />
 								</div>
 								<div className="director-screen__body__part__timeto-name">{t('Time to planned start')}</div>
 							</div>

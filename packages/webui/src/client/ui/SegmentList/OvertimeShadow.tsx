@@ -1,12 +1,14 @@
 import { useMemo } from 'react'
-import { TimingDataResolution, TimingTickResolution, useTiming } from '../RundownView/RundownTiming/withTiming.js'
+import { TimingTickResolution } from '../RundownView/RundownTiming/RundownTiming.js'
+import { TimerValueMode, usePartTimingValue } from '../RundownView/RundownTiming/usePlaylistTimingValue.js'
+import type { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { RundownUtils } from '../../lib/rundown.js'
 import { FreezeFrameIcon } from '../../lib/ui/icons/freezeFrame.js'
 import classNames from 'classnames'
 import { FREEZE_FRAME_FLASH } from '../SegmentContainer/withResolvedSegment.js'
 
 interface IProps {
-	partInstanceTimingId: string
+	partId: PartId
 	maxDuration: number
 	timelineBase: number
 	mainSourceEnd: number
@@ -25,7 +27,7 @@ function timeToPosition(time: number, timelineBase: number, maxDuration: number)
 }
 
 export function OvertimeShadow({
-	partInstanceTimingId,
+	partId,
 	timelineBase,
 	mainSourceEnd,
 	endsInFreeze,
@@ -35,12 +37,14 @@ export function OvertimeShadow({
 	isLive,
 	hasAlreadyPlayed,
 }: IProps): JSX.Element {
-	const timingDurations = useTiming(
-		TimingTickResolution.High,
-		TimingDataResolution.High,
-		(data) => data.partPlayed?.[partInstanceTimingId]
-	)
-	const livePosition = timingDurations.partPlayed?.[partInstanceTimingId] ?? 0
+	// A TimerState, so this moves smoothly at 60Hz without the publication having to say anything. It
+	// only moves while this part is on air, so only then is the shadow redrawn on every tick; a part
+	// anywhere else holds its played time and is not redrawn by the clock at all.
+	const livePosition =
+		usePartTimingValue(partId, 'played', TimerValueMode.CountUp, {
+			tickResolution: TimingTickResolution.High,
+			tickResolutionWhileHolding: TimingTickResolution.None,
+		}) ?? 0
 
 	const contentVsPartDiff = mainSourceEnd - partRenderedDuration
 	const toFreezeFrame =
@@ -124,37 +128,17 @@ export function OvertimeShadow({
 					/>
 					{!isPartZeroBudget &&
 						shouldShowFreezeFrameTimer &&
-						((contentVsPartDiff < 0 && Math.floor(toFreezeFrame / 1000) > 0) ||
-							(contentVsPartDiff >= 0 &&
-								Math.floor(toFreezeFrame / 1000) > 0 &&
-								livePosition > partRenderedDuration)) && (
+						((contentVsPartDiff < 0 && toFreezeFrame > 0) ||
+							(contentVsPartDiff >= 0 && toFreezeFrame > 0 && livePosition > partRenderedDuration)) && (
 							<span className="segment-opl__freeze-marker-timer" role="timer">
-								{RundownUtils.formatDiffToTimecode(
-									toFreezeFrame,
-									false,
-									false,
-									true,
-									false,
-									true,
-									undefined,
-									false,
-									true
-								)}
+								{/* the time left until the freeze rounds up, as every countdown does */}
+								{RundownUtils.formatDiffToTimecode(toFreezeFrame, false, false, true, false, true)}
 							</span>
 						)}
 					{isPartZeroBudget && shouldShowFreezeFrameTimer && livePosition < mainSourceEnd && (
 						<span className="segment-opl__freeze-marker-timer" role="timer">
-							{RundownUtils.formatDiffToTimecode(
-								mainSourceEnd - livePosition,
-								true,
-								false,
-								true,
-								false,
-								true,
-								undefined,
-								false,
-								true
-							)}
+							{/* the time left until the freeze rounds up, as every countdown does */}
+							{RundownUtils.formatDiffToTimecode(mainSourceEnd - livePosition, true, false, true, false, true)}
 						</span>
 					)}
 				</div>

@@ -4,6 +4,10 @@ const commonConfig = {
 	moduleNameMapper: {
 		'^@sofie-automation/shared-lib/dist/(.+)\\.js$': '<rootDir>/../shared-lib/src/$1',
 		'^@sofie-automation/shared-lib/dist/(.+)$': '<rootDir>/../shared-lib/src/$1',
+		// The job worker is loaded from its source, so that tests can drive its real jobs through its MockJobContext,
+		// which lives in its __mocks__ and is not built, with one copy of each module
+		'^@sofie-automation/job-worker/dist/(.+)\\.js$': '<rootDir>/../job-worker/src/$1',
+		'^@sofie-automation/job-worker/dist/(.+)$': '<rootDir>/../job-worker/src/$1',
 		// Ensure libraries that would match the extension rule are still resolved
 		'bignumber.js': 'bignumber.js',
 		// Drop file extensions in imports

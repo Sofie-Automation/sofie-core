@@ -2,11 +2,15 @@ import { z } from 'zod'
 import { PartInstanceId, RundownPlaylistActivationId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { check } from '../../lib/check'
 import {
+	CustomPublish,
 	CustomPublishCollection,
 	SetupObserversResult,
 	TriggerUpdate,
+	observeCustomPublication,
 	setUpCollectionOptimizedObserver,
 } from '../../lib/customPublication'
+import type { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import type { LiveQueryHandleSync } from '../../lib/lib'
 import { logger } from '../../logging'
 import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { CustomCollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
@@ -214,6 +218,53 @@ export async function manipulateUIPartInstancesPublicationData(
 	}
 }
 
+export type UIPartInstance = Omit<DBPartInstance, PartInstanceOmitedFields>
+
+/**
+ * Subscribe the given receiver to the UI PartInstances of a playlist activation.
+ *
+ * Shared by the DDP publication and by in-process consumers (via `observeCustomPublication`), so
+ * that both join the same optimized observer and see identical documents.
+ */
+async function subscribeToUIPartInstances(
+	playlistActivationId: RundownPlaylistActivationId,
+	receiver: CustomPublish<UIPartInstance>
+): Promise<void> {
+	await setUpCollectionOptimizedObserver<
+		UIPartInstance,
+		UIPartInstancesArgs,
+		UIPartInstancesState,
+		UIPartInstancesUpdateProps
+	>(
+		`pub_${CorelibPubSub.uiPartInstances}_${playlistActivationId}`,
+		{ playlistActivationId },
+		setupUIPartInstancesPublicationObservers,
+		manipulateUIPartInstancesPublicationData,
+		receiver
+	)
+}
+
+/**
+ * Observe the UI PartInstances of a playlist activation in-process, maintaining them in the given
+ * collection.
+ *
+ * These are the PartInstances as the UI sees them, which is not the same as the PartInstances
+ * collection: a QuickLoop with forced auto-next rewrites expectedDuration and can mark Parts
+ * invalid. Note that this is keyed on the activation, so there are none when a playlist is not
+ * active - which is also what the UI sees.
+ */
+export async function observeUIPartInstances(
+	playlistActivationId: RundownPlaylistActivationId,
+	collection: InMemoryMongoCollection<UIPartInstance>,
+	onChanged?: () => void
+): Promise<LiveQueryHandleSync> {
+	return observeCustomPublication(
+		collection,
+		async (receiver) => subscribeToUIPartInstances(playlistActivationId, receiver),
+		onChanged
+	)
+}
+
 export function registerPartInstancesUIPublications(registry: PublicationRegistry): void {
 	registry.customPublish(
 		CorelibPubSub.uiPartInstances,
@@ -228,18 +279,7 @@ export function registerPartInstancesUIPublications(registry: PublicationRegistr
 				return
 			}
 
-			await setUpCollectionOptimizedObserver<
-				Omit<DBPartInstance, PartInstanceOmitedFields>,
-				UIPartInstancesArgs,
-				UIPartInstancesState,
-				UIPartInstancesUpdateProps
-			>(
-				`pub_${CorelibPubSub.uiPartInstances}_${playlistActivationId}`,
-				{ playlistActivationId },
-				setupUIPartInstancesPublicationObservers,
-				manipulateUIPartInstancesPublicationData,
-				pub
-			)
+			await subscribeToUIPartInstances(playlistActivationId, pub)
 		}
 	)
 }

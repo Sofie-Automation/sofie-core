@@ -8,9 +8,14 @@ $defs:
   timerState:
     title: TimerState
     description: >-
-      Runtime state of a timer, optimized for efficient client rendering.
-      When running, the client calculates current time from zeroTime.
-      When paused, the duration is frozen and sent directly.
+      Runtime state of a timer, optimized for efficient client rendering. The client calculates the
+      current value from its own clock. Thus the state changes only when an event occurs, not as time
+      passes. When the timer runs, the client calculates the current value from `zeroTime`, until
+      `pauseTime` if `pauseTime` is set. When the timer is paused, the value is `duration`, until
+      `resumesAt` if `resumesAt` is set.
+
+      Sofie's timing fields send the two types of transition in advance. Examples are a running timer
+      that holds when the on-air part overruns, and a paused timer that starts at the start of a part.
     oneOf:
       - $ref: '#/$defs/timerStateRunning'
       - $ref: '#/$defs/timerStatePaused'

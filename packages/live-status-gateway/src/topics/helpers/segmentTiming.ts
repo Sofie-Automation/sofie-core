@@ -1,62 +1,52 @@
-import { SegmentTimingInfo } from '@sofie-automation/blueprints-integration'
-import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
-import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
-import { SegmentCountdownType, SegmentTiming } from '@sofie-automation/live-status-gateway-api'
-import { CountdownType } from '@sofie-automation/blueprints-integration'
-import { assertNever } from '@sofie-automation/corelib/dist/lib'
-import { unprotectString } from '@sofie-automation/server-core-integration'
-import * as _ from 'underscore'
+import type { SegmentTimingStateDoc } from '@sofie-automation/corelib/dist/dataModel/TimingState'
+import { CountdownType, type SegmentTimingInfo } from '@sofie-automation/blueprints-integration'
+import {
+	SegmentCountdownType,
+	type CurrentSegmentTiming,
+	type SegmentTiming,
+} from '@sofie-automation/live-status-gateway-api'
+import { projectedZeroTime } from './timerState.js'
 
-export interface CurrentSegmentTiming extends SegmentTiming {
-	projectedEndTime: number
-}
-
-export function calculateCurrentSegmentTiming(
+/**
+ * A Segment's timing, taken from the `playlistTimingState` publication.
+ *
+ * Sofie resolves these itself: the gateway forwards the timers and evaluates only the values the public
+ * schema declares as plain numbers, so `remaining` and `playedOut` are the ones the Sofie UI shows.
+ */
+export function calculateSegmentTiming(
 	segmentTimingInfo: SegmentTimingInfo | undefined,
-	currentPartInstance: DBPartInstance,
-	firstInstanceInSegmentPlayout: DBPartInstance | undefined,
-	segmentPartInstances: DBPartInstance[],
-	segmentParts: DBPart[]
-): CurrentSegmentTiming {
-	const segmentTiming = calculateSegmentTiming(segmentTimingInfo, segmentPartInstances, segmentParts)
-	const playedDurations = segmentPartInstances.reduce((sum, partInstance) => {
-		return (partInstance.timings?.duration ?? 0) + sum
-	}, 0)
-	const currentPartInstanceStart =
-		currentPartInstance.timings?.reportedStartedPlayback ??
-		currentPartInstance.timings?.plannedStartedPlayback ??
-		Date.now()
-	const leftToPlay = segmentTiming.expectedDurationMs - playedDurations
-	const projectedEndTime = leftToPlay + currentPartInstanceStart
-	const projectedBudgetEndTime =
-		(firstInstanceInSegmentPlayout?.timings?.reportedStartedPlayback ??
-			firstInstanceInSegmentPlayout?.timings?.plannedStartedPlayback ??
-			Date.now()) + (segmentTiming.budgetDurationMs ?? 0)
+	timing: SegmentTimingStateDoc | undefined
+): SegmentTiming {
 	return {
-		...segmentTiming,
-		projectedEndTime: segmentTiming.budgetDurationMs != null ? projectedBudgetEndTime : projectedEndTime,
+		// The Segment's `expectedDuration` rather than its `targetDuration`: for a Segment with a budget
+		// duration that is the budget, whereas this field has always meant the length of the content,
+		// with the budget reported separately below.
+		expectedDurationMs: timing?.expectedDuration ?? 0,
+		budgetDurationMs: segmentTimingInfo?.budgetDuration,
+		countdownType: translateSegmentCountdownType(segmentTimingInfo?.countdownType),
+		playedOut: timing?.playedOut,
+		remaining: timing?.remaining,
 	}
 }
 
-export function calculateSegmentTiming(
+/**
+ * As {@link calculateSegmentTiming}, plus when the Segment is now projected to end.
+ *
+ * `projectedEndTime` is the zero time of the remaining-time timer, read as {@link projectedZeroTime}
+ * does. Note that it is a plain number in the public schema, so while the Segment is not counting down
+ * it is only accurate at the moment it was sent; `remaining` is the value to use for anything that has
+ * to stay accurate.
+ */
+export function calculateCurrentSegmentTiming(
 	segmentTimingInfo: SegmentTimingInfo | undefined,
-	segmentPartInstances: DBPartInstance[],
-	segmentParts: DBPart[]
-): SegmentTiming {
-	// This might be a premature optimization, at least when the number of partInstances is reasonable.
-	// Should we consider a separate path dependent on the length of the array?
-	const partInstancesByPartId: Record<string, DBPartInstance> = _.indexBy(segmentPartInstances, (partInstance) =>
-		unprotectString(partInstance.part._id)
-	)
+	timing: SegmentTimingStateDoc | undefined,
+	now: number
+): CurrentSegmentTiming {
+	const segmentTiming = calculateSegmentTiming(segmentTimingInfo, timing)
+
 	return {
-		budgetDurationMs: segmentTimingInfo?.budgetDuration,
-		expectedDurationMs: segmentParts.reduce<number>((sum, part): number => {
-			part = partInstancesByPartId[unprotectString(part._id)]?.part ?? part
-			return part.expectedDurationWithTransition != null && !part.untimed
-				? sum + part.expectedDurationWithTransition
-				: sum
-		}, 0),
-		countdownType: translateSegmentCountdownType(segmentTimingInfo?.countdownType),
+		...segmentTiming,
+		projectedEndTime: timing?.remaining ? projectedZeroTime(timing.remaining, now) : now,
 	}
 }
 
@@ -69,8 +59,6 @@ function translateSegmentCountdownType(type: CountdownType | undefined): Segment
 		case CountdownType.SEGMENT_BUDGET_DURATION:
 			return SegmentCountdownType.SEGMENT_BUDGET_DURATION
 		default:
-			assertNever(type)
-			// Cast and return the value anyway, so that the application works
-			return type as any as SegmentCountdownType
+			return undefined
 	}
 }

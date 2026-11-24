@@ -1,7 +1,13 @@
 import { SegmentsTopic } from '../segmentsTopic.js'
 import { protectString, unprotectString } from '@sofie-automation/server-core-integration'
 import { DBSegment } from '@sofie-automation/corelib/dist/dataModel/Segment'
-import { makeMockHandlers, makeMockLogger, makeMockSubscriber, makeTestPlaylist } from './utils.js'
+import {
+	makeMockHandlers,
+	makeMockLogger,
+	makeMockSubscriber,
+	makeTestPlaylist,
+	makeTestTimingStates,
+} from './utils.js'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { SegmentsEvent } from '@sofie-automation/live-status-gateway-api'
 
@@ -316,29 +322,16 @@ describe('SegmentsTopic', () => {
 			makeTestSegment(segment_1_1_id, 1, RUNDOWN_1_ID),
 		])
 		mockSubscriber.send.mockClear()
-		handlers.partsHandler.notify([
-			makeTestPart('1_2_1', 1, RUNDOWN_1_ID, segment_1_2_id, {
-				expectedDurationWithTransition: 10000,
-			}),
-			makeTestPart('2_2_1', 1, RUNDOWN_1_ID, segment_2_2_id, {
-				expectedDurationWithTransition: 40000,
-			}),
-			makeTestPart('1_2_2', 2, RUNDOWN_1_ID, segment_1_2_id, {
-				expectedDurationWithTransition: 5000,
-			}),
-			makeTestPart('1_1_2', 2, RUNDOWN_1_ID, segment_1_1_id, {
-				expectedDurationWithTransition: 1000,
-			}),
-			makeTestPart('1_1_1', 1, RUNDOWN_1_ID, segment_1_1_id, {
-				expectedDurationWithTransition: 3000,
-			}),
-			makeTestPart('2_2_2', 2, RUNDOWN_1_ID, segment_2_2_id, {
-				expectedDurationWithTransition: 11000,
-			}),
-			makeTestPart('1_1_2', 2, RUNDOWN_1_ID, segment_1_1_id, {
-				expectedDurationWithTransition: 1000,
-			}),
-		])
+		// Sofie adds up the Parts and publishes the total; the gateway does not sum parts itself
+		handlers.playlistTimingStatesHandler.notify(
+			makeTestTimingStates({
+				segments: {
+					[segment_1_1_id]: { expectedDuration: 5000 },
+					[segment_1_2_id]: { expectedDuration: 15000 },
+					[segment_2_2_id]: { expectedDuration: 51000 },
+				},
+			})
+		)
 		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
 
 		const expectedStatus: SegmentsEvent = {
@@ -371,6 +364,48 @@ describe('SegmentsTopic', () => {
 					rundownId: RUNDOWN_2_ID,
 					name: 'Segment 2_2',
 					timing: { expectedDurationMs: 51000 },
+					publicData: undefined,
+				},
+			],
+		}
+		expect(mockSubscriber.send.mock.calls).toEqual([[JSON.stringify(expectedStatus)]])
+	})
+
+	it('sends the content length rather than the budget as expectedDuration', async () => {
+		const handlers = makeMockHandlers()
+		const topic = new SegmentsTopic(makeMockLogger(), handlers)
+		const mockSubscriber = makeMockSubscriber()
+
+		const testPlaylist = makeTestPlaylist()
+		handlers.playlistHandler.notify(testPlaylist)
+
+		topic.addSubscriber(mockSubscriber)
+		mockSubscriber.send.mockClear()
+
+		const segment_1_1_id = '1_1'
+		handlers.segmentsHandler.notify([
+			makeTestSegment(segment_1_1_id, 1, RUNDOWN_1_ID, { segmentTiming: { budgetDuration: 30000 } }),
+		])
+		mockSubscriber.send.mockClear()
+		// a budgeted segment's target length is its budget
+		handlers.playlistTimingStatesHandler.notify(
+			makeTestTimingStates({
+				segments: {
+					[segment_1_1_id]: { targetDuration: 30000, expectedDuration: 8000 },
+				},
+			})
+		)
+		jest.advanceTimersByTime(THROTTLE_PERIOD_MS)
+
+		const expectedStatus: SegmentsEvent = {
+			event: 'segments',
+			rundownPlaylistId: unprotectString(testPlaylist._id),
+			segments: [
+				{
+					id: '1_1',
+					rundownId: RUNDOWN_1_ID,
+					name: 'Segment 1_1',
+					timing: { expectedDurationMs: 8000, budgetDurationMs: 30000 },
 					publicData: undefined,
 				},
 			],

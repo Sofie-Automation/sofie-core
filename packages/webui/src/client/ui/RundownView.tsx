@@ -1239,7 +1239,11 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 			return (
 				<React.Fragment>
 					{isEntirePlaylistLooping(this.props.playlist) && (
-						<PlaylistLoopingHeader position="start" multiRundown={this.props.matchedSegments.length > 1} />
+						<PlaylistLoopingHeader
+							position="start"
+							multiRundown={this.props.matchedSegments.length > 1}
+							playlistId={this.props.playlist._id}
+						/>
 					)}
 					<div className="segment-timeline-container" role="main" aria-labelledby="rundown-playlist-name">
 						{this.renderSegments()}
@@ -1249,6 +1253,7 @@ const RundownViewContent = translateWithTracker<IPropsWithReady & ITrackedProps,
 							position="end"
 							multiRundown={this.props.matchedSegments.length > 1}
 							showCountdowns={!!(this.props.playlist.activationId && this.props.playlist.currentPartInfo)}
+							playlistId={this.props.playlist._id}
 						/>
 					)}
 				</React.Fragment>

@@ -58,4 +58,5 @@ export enum CustomCollectionName {
 	UIParts = 'uiParts',
 	UIPartInstances = 'uiPartInstances',
 	UIPieceInstances = 'uiPieceInstances',
+	PlaylistTimingState = 'playlistTimingState',
 }
