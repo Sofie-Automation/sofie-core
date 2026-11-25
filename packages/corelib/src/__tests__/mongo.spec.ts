@@ -1,11 +1,11 @@
-import { protectString, ProtectedString } from '../protectedString.js'
+import { protectString, type ProtectedString } from '../protectedString.js'
 import {
-	FindOptions,
+	type FindOptions,
 	makeMongoSortComparator,
 	mongoFindOptions,
 	mongoModify,
 	mongoProjectDocument,
-	MongoQuery,
+	type MongoQuery,
 	mongoWhere,
 } from '../mongo.js'
 

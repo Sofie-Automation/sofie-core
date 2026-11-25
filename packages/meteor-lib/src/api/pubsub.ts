@@ -1,32 +1,36 @@
-import {
+import type {
 	BucketId,
 	PeripheralDeviceId,
 	RundownPlaylistId,
 	ShowStyleBaseId,
 	StudioId,
-} from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket'
-import { ICoreSystem } from '../collections/CoreSystem.js'
-import { Evaluation } from '../collections/Evaluations.js'
-import { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem'
-import { RundownLayoutBase } from '../collections/RundownLayouts.js'
-import { SnapshotItem } from '../collections/Snapshots.js'
-import { TranslationsBundle } from '../collections/TranslationsBundles.js'
-import { DBTriggeredActions, UITriggeredActionsObj } from '../collections/TriggeredActions.js'
-import { UserActionsLogItem } from '../collections/UserActionsLog.js'
-import { UIBucketContentStatus, UISegmentPartNote } from './rundownNotifications.js'
-import { UIDeviceTriggerPreview } from './MountedTriggers.js'
-import { UIBlueprintUpgradeStatus } from './upgradeStatus.js'
+} from '@sofie-automation/corelib/dist/dataModel/Ids.js'
+import type { Bucket } from '@sofie-automation/corelib/dist/dataModel/Bucket.js'
+import type { ICoreSystem } from '../collections/CoreSystem.js'
+import type { Evaluation } from '../collections/Evaluations.js'
+import type { ExpectedPlayoutItem } from '@sofie-automation/corelib/dist/dataModel/ExpectedPlayoutItem.js'
+import type { RundownLayoutBase } from '../collections/RundownLayouts.js'
+import type { SnapshotItem } from '../collections/Snapshots.js'
+import type { TranslationsBundle } from '../collections/TranslationsBundles.js'
+import type { DBTriggeredActions, UITriggeredActionsObj } from '../collections/TriggeredActions.js'
+import type { UserActionsLogItem } from '../collections/UserActionsLog.js'
+import type { UIBucketContentStatus, UISegmentPartNote } from './rundownNotifications.js'
+import type { UIDeviceTriggerPreview } from './MountedTriggers.js'
+import type { UIBlueprintUpgradeStatus } from './upgradeStatus.js'
 import {
 	PeripheralDevicePubSub,
-	PeripheralDevicePubSubTypes,
-	PeripheralDevicePubSubCollections,
-	PeripheralDevicePubSubCollectionsNames,
+	type PeripheralDevicePubSubTypes,
+	type PeripheralDevicePubSubCollections,
+	type PeripheralDevicePubSubCollectionsNames,
 } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
-import { CorelibPubSub, CorelibPubSubCollections, CorelibPubSubTypes } from '@sofie-automation/corelib/dist/pubsub'
-import { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections'
-import { UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase'
-import { UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio'
+import {
+	CorelibPubSub,
+	type CorelibPubSubCollections,
+	type CorelibPubSubTypes,
+} from '@sofie-automation/corelib/dist/pubsub.js'
+import type { CollectionName } from '@sofie-automation/corelib/dist/dataModel/Collections.js'
+import type { UIShowStyleBase } from '@sofie-automation/corelib/dist/dataModel/ShowStyleBase.js'
+import type { UIStudio } from '@sofie-automation/corelib/dist/dataModel/Studio.js'
 
 /**
  * Ids of possible DDP subscriptions for the UI only

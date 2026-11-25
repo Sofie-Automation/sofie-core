@@ -1,10 +1,10 @@
-import { IBlueprintPartInTransition, IBlueprintPieceType } from '@sofie-automation/blueprints-integration'
-import { DBPartInstance } from '../dataModel/PartInstance.js'
-import { DBPart } from '../dataModel/Part.js'
-import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
-import { Piece } from '../dataModel/Piece.js'
+import { type IBlueprintPartInTransition, IBlueprintPieceType } from '@sofie-automation/blueprints-integration'
+import type { DBPartInstance } from '../dataModel/PartInstance.js'
+import type { DBPart } from '../dataModel/Part.js'
+import type { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
+import type { Piece } from '../dataModel/Piece.js'
 import { RundownHoldState } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
-import { ReadonlyDeep } from 'type-fest'
+import type { ReadonlyDeep } from 'type-fest'
 
 /**
  * Calculate the total pre-roll duration of a PartInstance

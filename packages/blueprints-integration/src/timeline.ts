@@ -1,4 +1,4 @@
-import { TimelineObjectCoreExt } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
+import type { TimelineObjectCoreExt } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
 import { TSR } from '@sofie-automation/shared-lib/dist/tsr'
 
 export { TSR }
@@ -6,8 +6,8 @@ export { TSR }
 export {
 	TimelineObjHoldMode,
 	TimelineObjOnAirMode,
-	TimelineObjectCoreExt,
-	TimelineKeyframeCoreExt,
+	type TimelineObjectCoreExt,
+	type TimelineKeyframeCoreExt,
 } from '@sofie-automation/shared-lib/dist/core/model/Timeline'
 
 export enum TimelineObjClassesCore {

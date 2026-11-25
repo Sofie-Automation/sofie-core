@@ -1,5 +1,5 @@
 import EJSON from 'ejson'
-import { ProtectedString } from './protectedString.js'
+import type { ProtectedString } from './protectedString.js'
 
 /**
  * Perform a shallow diff of a pair of objects.

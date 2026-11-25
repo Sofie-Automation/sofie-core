@@ -8,7 +8,7 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { Rundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { Rundowns } from '../../../collections'
 import { runAllTimers, runTimersUntilNow, waitUntil } from '../../../__mocks__/helpers/jest'
-import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
+import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection/index'
 import { RundownsObserver } from '../rundownsObserver'
 
 const RundownsMock = (Rundowns as any).mockCollection as InMemoryMongoCollection<Rundown>

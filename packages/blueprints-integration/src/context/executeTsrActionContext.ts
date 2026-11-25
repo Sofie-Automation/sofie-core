@@ -1,5 +1,5 @@
-import { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
-import { IBlueprintPlayoutDevice, TSR } from '../index.js'
+import type { PeripheralDeviceId } from '@sofie-automation/shared-lib/dist/core/model/Ids'
+import type { IBlueprintPlayoutDevice, TSR } from '../index.js'
 
 export interface IExecuteTSRActionsContext {
 	/** Returns playout-gateway subdevices for the studio, or an empty list if none are configured. */

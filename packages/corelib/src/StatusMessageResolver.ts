@@ -1,6 +1,6 @@
-import { BlueprintId } from './dataModel/Ids.js'
+import type { BlueprintId } from './dataModel/Ids.js'
 import { generateTranslation } from './lib.js'
-import { ITranslatableMessage, wrapTranslatableMessageFromBlueprints } from './TranslatableMessage.js'
+import { type ITranslatableMessage, wrapTranslatableMessageFromBlueprints } from './TranslatableMessage.js'
 import { SystemErrorCode } from '@sofie-automation/shared-lib/dist/systemErrorMessages'
 import type { DeviceStatusContext, DeviceStatusMessageFunction } from '@sofie-automation/blueprints-integration'
 

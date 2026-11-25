@@ -1,4 +1,4 @@
-import { MongoFieldSpecifier, SortSpecifier } from '@sofie-automation/corelib/dist/mongo'
+import type { MongoFieldSpecifier, SortSpecifier } from '@sofie-automation/corelib/dist/mongo.js'
 
 export interface UpdateOptions {
 	/** True to modify all matching documents; false to only modify one of the matching documents (the default). */

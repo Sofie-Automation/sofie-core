@@ -6,15 +6,12 @@
 		"outDir": "./dist",
 		"rootDir": "./src",
 		"baseUrl": "./",
-		"paths": {
-			"*": ["./node_modules/*"],
-			"@sofie-automation/blueprints-integration": ["./src/index.ts"]
-		},
 		"resolveJsonModule": true,
 		"types": ["node"],
 		"composite": true,
 		"module": "node20",
-		"esModuleInterop": true
+		"esModuleInterop": true,
+		"verbatimModuleSyntax": true
 	},
 	"references": [
 		{

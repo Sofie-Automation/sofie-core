@@ -25,8 +25,6 @@ module.exports = {
 		'^.+\\.(js|jsx|mjs)$': path.resolve('./scripts/babel-jest.mjs'),
 	},
 	moduleNameMapper: {
-		'^@sofie-automation/shared-lib/dist/(.+)\\.js$': '<rootDir>/../shared-lib/src/$1',
-		'^@sofie-automation/shared-lib/dist/(.+)$': '<rootDir>/../shared-lib/src/$1',
 		'(.+)\\.js$': '$1',
 	},
 	transformIgnorePatterns: ['node_modules/(?!(debounce-fn|p-queue|p-timeout)/)', '\\.pnp\\.[^\\/]+$'],
@@ -35,6 +33,10 @@ module.exports = {
 	testMatch: ['**/__tests__/**/*.(spec|test).(ts|js)'],
 	testPathIgnorePatterns: ['integrationTests'],
 	testEnvironment: 'node',
+	testEnvironmentOptions: {
+		// Resolve monorepo packages to their typescript source
+		customExportConditions: ['sofie-source', 'node', 'node-addons'],
+	},
 	// coverageThreshold: {
 	// 	global: {
 	// 		branches: 80,

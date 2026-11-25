@@ -1,15 +1,15 @@
-import {
+import type {
 	IBlueprintPieceGeneric,
 	IBlueprintPieceDB,
 	IBlueprintPieceType,
 	TimelineObjectCoreExt,
 	SomeContent,
 } from '@sofie-automation/blueprints-integration'
-import { ProtectedString, protectString, unprotectString } from '../protectedString.js'
-import { PieceId, RundownId, SegmentId, PartId } from './Ids.js'
-import { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions.js'
-import { IOutputLayerExtended, ISourceLayerExtended } from './ShowStyleBase.js'
-import { PieceInstanceWithTimings } from '../playout/processAndPrune.js'
+import { type ProtectedString, protectString, unprotectString } from '../protectedString.js'
+import type { PieceId, RundownId, SegmentId, PartId } from './Ids.js'
+import type { CoreUserEditingDefinition, CoreUserEditingProperties } from './UserEditingDefinitions.js'
+import type { IOutputLayerExtended, ISourceLayerExtended } from './ShowStyleBase.js'
+import type { PieceInstanceWithTimings } from '../playout/processAndPrune.js'
 
 /** A generic list of playback availability statuses for a Piece */
 export enum PieceStatusCode {

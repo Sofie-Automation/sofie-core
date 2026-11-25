@@ -1,4 +1,4 @@
-import { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
+import type { Time } from '@sofie-automation/shared-lib/dist/lib/lib'
 
 /**
  * Formats the time as human-readable time "YYYY-MM-DD hh:ii:ss"

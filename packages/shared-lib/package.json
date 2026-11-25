@@ -9,11 +9,13 @@
 	"exports": {
 		"./dist/*.js": {
 			"types": "./dist/*.d.ts",
+			"sofie-source": "./src/*.ts",
 			"require": "./dist/*.js",
 			"import": "./dist/*.js"
 		},
 		"./dist/*": {
 			"types": "./dist/*.d.ts",
+			"sofie-source": "./src/*.ts",
 			"require": "./dist/*.js",
 			"import": "./dist/*.js"
 		},

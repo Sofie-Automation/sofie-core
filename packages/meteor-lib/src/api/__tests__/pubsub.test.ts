@@ -1,4 +1,4 @@
-import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
+import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub.js'
 import { MeteorPubSub } from '../pubsub.js'
 import { PeripheralDevicePubSub } from '@sofie-automation/shared-lib/dist/pubsub/peripheralDevice'
 

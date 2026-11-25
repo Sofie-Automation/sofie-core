@@ -8,7 +8,7 @@ import { convertPartInstanceToBlueprints } from './lib.js'
 import { RundownContext } from './RundownContext.js'
 import { TTimersService } from './services/TTimersService.js'
 import type { PlayoutModel } from '../../playout/model/PlayoutModel.js'
-import type { IPlaylistTTimer } from '@sofie-automation/blueprints-integration/dist/context/tTimersContext'
+import type { IPlaylistTTimer } from '@sofie-automation/blueprints-integration'
 import type { RundownTTimerIndex } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/TTimers'
 
 export class PartEventContext extends RundownContext implements IPartEventContext {

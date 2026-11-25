@@ -1,24 +1,24 @@
-import { Time } from '@sofie-automation/blueprints-integration'
-import { DeviceConfigManifest } from '../deviceConfig.js'
-import { PeripheralDeviceId, StudioId } from './Ids.js'
+import type { Time } from '@sofie-automation/blueprints-integration'
+import type { DeviceConfigManifest } from '../deviceConfig.js'
+import type { PeripheralDeviceId, StudioId } from './Ids.js'
 import type {
 	IngestDeviceSecretSettings,
 	IngestDeviceSecretSettingsStatus,
 } from '@sofie-automation/shared-lib/dist/core/model/peripheralDevice'
 
 import {
-	PeripheralDeviceStatusObject,
+	type PeripheralDeviceStatusObject,
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
-	PeripheralDeviceSubType,
+	type PeripheralDeviceSubType,
 	PERIPHERAL_SUBTYPE_PROCESS,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI'
 
 export {
-	PeripheralDeviceStatusObject,
+	type PeripheralDeviceStatusObject,
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
-	PeripheralDeviceSubType,
+	type PeripheralDeviceSubType,
 	PERIPHERAL_SUBTYPE_PROCESS,
 }
 

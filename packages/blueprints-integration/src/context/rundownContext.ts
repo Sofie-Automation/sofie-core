@@ -4,7 +4,7 @@ import type { IPackageInfoContext } from './packageInfoContext.js'
 import type { IShowStyleContext } from './showStyleContext.js'
 import type { IExecuteTSRActionsContext } from './executeTsrActionContext.js'
 import type { IDataStoreMethods } from './adlibActionContext.js'
-import { ITTimersContext } from './tTimersContext.js'
+import type { ITTimersContext } from './tTimersContext.js'
 import type { Time } from '../common.js'
 
 export interface IRundownContext extends IShowStyleContext {

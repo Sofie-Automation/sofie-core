@@ -1,6 +1,6 @@
 export {
-	TranslationsBundle,
+	type TranslationsBundle,
 	TranslationsBundleType,
-	I18NextData,
-	ITranslatableMessage,
+	type I18NextData,
+	type ITranslatableMessage,
 } from '@sofie-automation/shared-lib/dist/lib/translations'

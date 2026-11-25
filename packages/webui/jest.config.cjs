@@ -7,8 +7,6 @@ module.exports = {
 	globals: {},
 	moduleFileExtensions: ['js', 'ts', 'tsx'],
 	moduleNameMapper: {
-		'^@sofie-automation/shared-lib/dist/(.+)\\.js$': '<rootDir>/../shared-lib/src/$1',
-		'^@sofie-automation/shared-lib/dist/(.+)$': '<rootDir>/../shared-lib/src/$1',
 		'sha.js': 'sha.js',
 		'meteor/(.*)': '<rootDir>/src/meteor/$1',
 		'(.+)\\.js$': '$1',
@@ -32,6 +30,10 @@ module.exports = {
 	testMatch: ['**/__tests__/**/*.(spec|test).(ts|tsx|js)'],
 	testPathIgnorePatterns: ['integrationTests'],
 	testEnvironment: 'jsdom',
+	testEnvironmentOptions: {
+		// Resolve monorepo packages to their typescript source
+		customExportConditions: ['sofie-source', 'browser'],
+	},
 	// coverageThreshold: {
 	// 	global: {
 	// 		branches: 80,

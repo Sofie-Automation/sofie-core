@@ -1,6 +1,6 @@
-import { ITranslatableMessage, PackageInfo } from '@sofie-automation/blueprints-integration'
-import { ProtectedString } from '../protectedString.js'
-import {
+import type { ITranslatableMessage, PackageInfo } from '@sofie-automation/blueprints-integration'
+import type { ProtectedString } from '../protectedString.js'
+import type {
 	RundownId,
 	PartId,
 	SegmentId,
@@ -9,7 +9,7 @@ import {
 	RundownBaselineAdLibActionId,
 	PieceInstanceId,
 } from './Ids.js'
-import { PieceStatusCode } from './Piece.js'
+import type { PieceStatusCode } from './Piece.js'
 
 export type UIPieceContentStatusId = ProtectedString<'UIPieceContentStatus'>
 export interface UIPieceContentStatus {

@@ -1,4 +1,4 @@
-import { UserPermissions } from '../userPermissions.js'
+import type { UserPermissions } from '../userPermissions.js'
 
 export interface NewUserAPI {
 	getUserPermissions(): Promise<UserPermissions | null>

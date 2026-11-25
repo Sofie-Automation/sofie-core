@@ -1,6 +1,6 @@
-import { ITranslatableMessage } from '@sofie-automation/blueprints-integration'
-import { StudioId, ShowStyleBaseId, CoreSystemId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
+import type { ITranslatableMessage } from '@sofie-automation/blueprints-integration'
+import type { StudioId, ShowStyleBaseId, CoreSystemId } from '@sofie-automation/corelib/dist/dataModel/Ids.js'
+import type { ProtectedString } from '@sofie-automation/corelib/dist/protectedString.js'
 
 export type UIBlueprintUpgradeStatusId = ProtectedString<'UIBlueprintUpgradeStatus'>
 

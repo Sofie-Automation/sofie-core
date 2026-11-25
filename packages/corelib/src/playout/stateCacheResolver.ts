@@ -2,19 +2,19 @@ import _ from 'underscore'
 
 import {
 	PieceLifespan,
-	IBlueprintActionManifestDisplay,
-	IBlueprintActionManifestDisplayContent,
-	IOutputLayer,
-	ISourceLayer,
+	type IBlueprintActionManifestDisplay,
+	type IBlueprintActionManifestDisplayContent,
+	type IOutputLayer,
+	type ISourceLayer,
 } from '@sofie-automation/blueprints-integration'
-import { SegmentId, RundownId, PartId, PieceId, RundownPlaylistActivationId } from '../dataModel/Ids.js'
-import { DBPart, PartExtended } from '../dataModel/Part.js'
-import { Piece, PieceExtended } from '../dataModel/Piece.js'
-import { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
-import { DBRundownPlaylist, QuickLoopMarkerType } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
-import { DBSegment, SegmentExtended, SegmentOrphanedReason } from '../dataModel/Segment.js'
-import { literal, groupByToMap, Complete } from '../lib.js'
-import { FindOptions, mongoWhereFilter } from '../mongo.js'
+import type { SegmentId, RundownId, PartId, PieceId, RundownPlaylistActivationId } from '../dataModel/Ids.js'
+import type { DBPart, PartExtended } from '../dataModel/Part.js'
+import type { Piece, PieceExtended } from '../dataModel/Piece.js'
+import type { PieceInstance, PieceInstancePiece } from '../dataModel/PieceInstance.js'
+import { type DBRundownPlaylist, QuickLoopMarkerType } from '../dataModel/RundownPlaylist/RundownPlaylist.js'
+import { type DBSegment, type SegmentExtended, SegmentOrphanedReason } from '../dataModel/Segment.js'
+import { literal, groupByToMap, type Complete } from '../lib.js'
+import { type FindOptions, mongoWhereFilter } from '../mongo.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import {
 	createPartCurrentTimes,
@@ -27,16 +27,16 @@ import {
 	buildPiecesStartingInThisPartQuery,
 	getPieceInstancesForPart,
 } from './infinites.js'
-import {
+import type {
 	DBShowStyleBase,
 	IOutputLayerExtended,
 	ISourceLayerExtended,
 	UIShowStyleBase,
 } from '../dataModel/ShowStyleBase.js'
 import { applyAndValidateOverrides } from '../settings/objectWithOverrides.js'
-import { PartInstance, PartInstanceLimited } from '../dataModel/PartInstance.js'
-import { ReadonlyDeep } from 'type-fest'
-import {
+import type { PartInstance, PartInstanceLimited } from '../dataModel/PartInstance.js'
+import type { ReadonlyDeep } from 'type-fest'
+import type {
 	GetPieceInstancesForPartInstanceParams,
 	GetResolvedSegmentParams,
 	GetSegmentsWithPartInstancesParams,

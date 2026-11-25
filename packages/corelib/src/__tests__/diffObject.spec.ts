@@ -1,4 +1,4 @@
-import { protectString, ProtectedString } from '../protectedString.js'
+import { protectString, type ProtectedString } from '../protectedString.js'
 import { diffObject } from '../diffObject.js'
 
 interface Thing {
