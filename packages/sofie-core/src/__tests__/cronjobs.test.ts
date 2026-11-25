@@ -100,6 +100,8 @@ describe('cronjobs', () => {
 		)
 	}
 
+	const cronjobsLifetime = new AbortController()
+
 	beforeAll(async () => {
 		env = await setupDefaultStudioEnvironment()
 
@@ -111,7 +113,7 @@ describe('cronjobs', () => {
 		jest.useFakeTimers()
 		// set time to 2020/07/19 00:00 Local Time
 		mockCurrentTime = new Date(2020, 6, 19, 0, 0, 0).getTime()
-		startCronjobs()
+		startCronjobs(cronjobsLifetime.signal)
 		origGetCurrentTime = lib.getCurrentTime
 		//@ts-ignore Mock getCurrentTime for tests
 		// eslint-disable-next-line no-import-assign
@@ -120,6 +122,7 @@ describe('cronjobs', () => {
 		})
 	})
 	afterAll(async () => {
+		cronjobsLifetime.abort()
 		//@ts-ignore Return getCurrentTime to orig
 		// eslint-disable-next-line no-import-assign
 		lib.getCurrentTime = origGetCurrentTime

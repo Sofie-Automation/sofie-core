@@ -6,11 +6,15 @@ import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { PromiseDebounce } from '../../publications/lib/PromiseDebounce'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { logger } from '../../logging'
-import type { LiveQueryHandleSync } from '../../lib/lib'
+import { AbortScope, createChildAbort } from '../../lib/observerLifetime'
 
 const REACTIVITY_DEBOUNCE = 20
 
-type ChangedHandler = (rundownIds: RundownId[]) => Promise<() => void>
+/**
+ * Called whenever the set of rundowns changes. The signal scopes whatever it starts: it is aborted
+ * before the next invocation, and when the observer itself stops.
+ */
+type ChangedHandler = (rundownIds: RundownId[], invocationSignal: AbortSignal) => Promise<void>
 
 type RundownFields = '_id'
 const rundownFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBRundown, RundownFields>>>({
@@ -18,35 +22,44 @@ const rundownFieldSpecifier = literal<MongoFieldSpecifierOnesStrict<Pick<DBRundo
 })
 
 export class RundownsObserver {
-	#rundownsLiveQuery!: LiveQueryHandleSync
 	#rundownIds: Set<RundownId> = new Set<RundownId>()
-	#changed: ChangedHandler | undefined
-	#cleanup: (() => void) | undefined
+	readonly #changed: ChangedHandler
+	readonly #signal: AbortSignal
 
-	#disposed = false
+	/** The lifetime of whatever the last invocation of `#changed` started */
+	#invocation: AbortScope | undefined
 
-	readonly #triggerUpdateRundownContent = new PromiseDebounce(async () => {
-		try {
-			if (this.#disposed) return
+	readonly #triggerUpdateRundownContent: PromiseDebounce
 
-			if (!this.#changed) return
-			this.#cleanup?.()
-
-			const changed = this.#changed
-			this.#cleanup = await changed(this.rundownIds)
-
-			if (this.#disposed) this.#cleanup?.()
-		} catch (e) {
-			logger.error(`Error in RundownsObserver triggerUpdateRundownContent: ${stringifyError(e)}`)
-		}
-	}, REACTIVITY_DEBOUNCE)
-
-	private constructor(onChanged: ChangedHandler) {
+	private constructor(onChanged: ChangedHandler, signal: AbortSignal) {
 		this.#changed = onChanged
+		this.#signal = signal
+
+		this.#triggerUpdateRundownContent = new PromiseDebounce(
+			async () => {
+				try {
+					// End the previous invocation's scope before starting the next
+					this.#invocation?.abort()
+
+					const invocation = createChildAbort(this.#signal)
+					this.#invocation = invocation
+
+					await this.#changed(this.rundownIds, invocation.signal)
+				} catch (e) {
+					logger.error(`Error in RundownsObserver triggerUpdateRundownContent: ${stringifyError(e)}`)
+				}
+			},
+			REACTIVITY_DEBOUNCE,
+			signal
+		)
 	}
 
-	static async create(playlistId: RundownPlaylistId, onChanged: ChangedHandler): Promise<RundownsObserver> {
-		const observer = new RundownsObserver(onChanged)
+	static async create(
+		playlistId: RundownPlaylistId,
+		signal: AbortSignal,
+		onChanged: ChangedHandler
+	): Promise<RundownsObserver> {
+		const observer = new RundownsObserver(onChanged, signal)
 
 		await observer.init(playlistId)
 
@@ -54,7 +67,7 @@ export class RundownsObserver {
 	}
 
 	private async init(activePlaylistId: RundownPlaylistId) {
-		this.#rundownsLiveQuery = await Rundowns.observeChanges(
+		await Rundowns.observeChanges(
 			{
 				playlistId: activePlaylistId,
 			},
@@ -70,6 +83,7 @@ export class RundownsObserver {
 			},
 			{
 				projection: rundownFieldSpecifier,
+				signal: this.#signal,
 			}
 		)
 
@@ -78,14 +92,5 @@ export class RundownsObserver {
 
 	public get rundownIds(): RundownId[] {
 		return Array.from(this.#rundownIds)
-	}
-
-	public stop = (): void => {
-		this.#disposed = true
-
-		this.#triggerUpdateRundownContent.cancelWaiting()
-		this.#rundownsLiveQuery.stop()
-		this.#changed = undefined
-		this.#cleanup?.()
 	}
 }

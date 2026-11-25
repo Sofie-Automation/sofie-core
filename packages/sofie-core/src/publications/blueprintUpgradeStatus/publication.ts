@@ -6,7 +6,6 @@ import {
 	CustomPublish,
 	CustomPublishCollection,
 	setUpCollectionOptimizedObserver,
-	SetupObserversResult,
 	TriggerUpdate,
 } from '../../lib/customPublication'
 import type { PublicationRegistry } from '../../publicationRegistry'
@@ -46,41 +45,53 @@ interface BlueprintUpgradeStatusUpdateProps {
 
 async function setupBlueprintUpgradeStatusPublicationObservers(
 	_args: ReadonlyDeep<BlueprintUpgradeStatusArgs>,
-	triggerUpdate: TriggerUpdate<BlueprintUpgradeStatusUpdateProps>
-): Promise<SetupObserversResult> {
+	triggerUpdate: TriggerUpdate<BlueprintUpgradeStatusUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
 	// TODO - can this be done cheaper?
 	const cache = createReactiveContentCache()
 
 	// Push update
 	triggerUpdate({ newCache: cache })
 
-	const mongoObserver = await UpgradesContentObserver.create(cache)
+	await UpgradesContentObserver.create(cache, signal)
 
-	// Set up observers:
-	return [
-		mongoObserver,
-
-		cache.CoreSystem.observeChanges({
+	cache.CoreSystem.observeChanges(
+		{
 			added: () => triggerUpdate({ invalidateSystem: true }),
 			changed: () => triggerUpdate({ invalidateSystem: true }),
 			removed: () => triggerUpdate({ invalidateSystem: true }),
-		}),
-		cache.Studios.observeChanges({
+		},
+		undefined,
+		{ signal }
+	)
+	cache.Studios.observeChanges(
+		{
 			added: (id) => triggerUpdate({ invalidateStudioIds: [id] }),
 			changed: (id) => triggerUpdate({ invalidateStudioIds: [id] }),
 			removed: (id) => triggerUpdate({ invalidateStudioIds: [id] }),
-		}),
-		cache.ShowStyleBases.observeChanges({
+		},
+		undefined,
+		{ signal }
+	)
+	cache.ShowStyleBases.observeChanges(
+		{
 			added: (id) => triggerUpdate({ invalidateShowStyleBaseIds: [id] }),
 			changed: (id) => triggerUpdate({ invalidateShowStyleBaseIds: [id] }),
 			removed: (id) => triggerUpdate({ invalidateShowStyleBaseIds: [id] }),
-		}),
-		cache.Blueprints.observeChanges({
+		},
+		undefined,
+		{ signal }
+	)
+	cache.Blueprints.observeChanges(
+		{
 			added: (id) => triggerUpdate({ invalidateBlueprintIds: [id] }),
 			changed: (id) => triggerUpdate({ invalidateBlueprintIds: [id] }),
 			removed: (id) => triggerUpdate({ invalidateBlueprintIds: [id] }),
-		}),
-	]
+		},
+		undefined,
+		{ signal }
+	)
 }
 
 function getDocumentId(

@@ -14,6 +14,8 @@ import { PeripheralDeviceStatusObject } from '@sofie-automation/shared-lib/dist/
 import { PeripheralDevices } from '../../collections'
 import { UIBlueprintUpgradeStatus } from '@sofie-automation/meteor-lib/dist/api/upgradeStatus'
 import { makeMeteorCallForTest } from '../../__mocks__/helpers/methods'
+import { testWithAbort } from '../../__mocks__/helpers/testWithAbort'
+import { createChildAbort } from '../../lib/observerLifetime'
 
 // we don't want the deviceTriggers observer to start up at this time
 jest.mock('../../api/deviceTriggers/observer')
@@ -33,8 +35,14 @@ describe('systemStatus', () => {
 	beforeEach(() => {
 		getServerBlueprintUpgradeStatusesMock.mockReturnValue(Promise.resolve(literal<UIBlueprintUpgradeStatus[]>([])))
 	})
+	/** Observers started by a test, released once it finishes */
+	const afterEachAbort: AbortController[] = []
 	afterEach(() => {
 		getServerBlueprintUpgradeStatusesMock.mockReset()
+
+		for (const abort of afterEachAbort.splice(0)) {
+			abort.abort()
+		}
 	})
 
 	let env: DefaultEnvironment
@@ -48,9 +56,11 @@ describe('systemStatus', () => {
 		})
 		expect(result0.checks).toHaveLength(0)
 	})
-	test('getSystemStatus: after startup', async () => {
+	testWithAbort('getSystemStatus: after startup', async ({ signal }) => {
 		env = await setupDefaultStudioEnvironment()
-		await setupSystemStatusObservers()
+		const observersAbort = createChildAbort(signal)
+		afterEachAbort.push(observersAbort)
+		await setupSystemStatusObservers(observersAbort.signal)
 		await sleepNoFakeTimers(200)
 
 		const result0: StatusResponse = await MeteorCall.systemStatus.getSystemStatus()

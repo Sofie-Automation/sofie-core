@@ -10,6 +10,8 @@ import { Rundowns } from '../../../collections'
 import { runAllTimers, runTimersUntilNow, waitUntil } from '../../../__mocks__/helpers/jest'
 import { InMemoryMongoCollection } from '@sofie-automation/corelib/dist/memoryCollection'
 import { RundownsObserver } from '../rundownsObserver'
+import { runOnAbort, createChildAbort } from '../../../lib/observerLifetime'
+import { testWithAbort } from '../../../__mocks__/helpers/testWithAbort'
 
 const RundownsMock = (Rundowns as any).mockCollection as InMemoryMongoCollection<Rundown>
 
@@ -20,17 +22,20 @@ describe('RundownsObserver', () => {
 		jest.useFakeTimers()
 	})
 
-	test('create and destroy observer', async () => {
+	testWithAbort('create and destroy observer', async ({ signal }) => {
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
 		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn(async () => onChangedCleanup)
+		const onChanged = jest.fn(async (_ids: RundownId[], signal: AbortSignal) =>
+			runOnAbort(signal, onChangedCleanup)
+		)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, onChanged)
+		const abort = createChildAbort(signal)
+		await RundownsObserver.createForPlaylist(studioId, playlistId, abort.signal, onChanged)
 		try {
 			// should now be an observer
 			expect(RundownsMock.observers).toHaveLength(1)
@@ -64,7 +69,7 @@ describe('RundownsObserver', () => {
 			})
 		} finally {
 			// Make sure to cleanup
-			observer.stop()
+			abort.abort()
 
 			// Check it stopped
 			expect(onChanged).toHaveBeenCalledTimes(1)
@@ -73,17 +78,20 @@ describe('RundownsObserver', () => {
 		}
 	})
 
-	test('add a document', async () => {
+	testWithAbort('add a document', async ({ signal }) => {
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
 		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn<Promise<() => void>, [RundownId[]]>(async () => onChangedCleanup)
+		const onChanged = jest.fn<Promise<void>, [RundownId[], AbortSignal]>(async (_ids, signal) =>
+			runOnAbort(signal, onChangedCleanup)
+		)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, onChanged)
+		const abort = createChildAbort(signal)
+		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, abort.signal, onChanged)
 		try {
 			// ensure starts correct
 			await waitUntil(async () => {
@@ -92,7 +100,7 @@ describe('RundownsObserver', () => {
 				expect(onChanged).toHaveBeenCalledTimes(1)
 			}, MAX_WAIT_TIME)
 
-			expect(onChanged).toHaveBeenLastCalledWith([])
+			expect(onChanged).toHaveBeenLastCalledWith([], expect.any(AbortSignal))
 			expect(onChangedCleanup).toHaveBeenCalledTimes(0)
 			expect(observer.rundownIds).toEqual([])
 
@@ -120,24 +128,27 @@ describe('RundownsObserver', () => {
 				expect(onChanged).toHaveBeenCalledTimes(2)
 			}, MAX_WAIT_TIME)
 			expect(onChangedCleanup).toHaveBeenCalledTimes(1)
-			expect(onChanged).toHaveBeenLastCalledWith([mockId0])
+			expect(onChanged).toHaveBeenLastCalledWith([mockId0], expect.any(AbortSignal))
 		} finally {
 			// Make sure to cleanup
-			observer.stop()
+			abort.abort()
 		}
 	})
 
-	test('change a document', async () => {
+	testWithAbort('change a document', async ({ signal }) => {
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
 		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn<Promise<() => void>, [RundownId[]]>(async () => onChangedCleanup)
+		const onChanged = jest.fn<Promise<void>, [RundownId[], AbortSignal]>(async (_ids, signal) =>
+			runOnAbort(signal, onChangedCleanup)
+		)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, onChanged)
+		const abort = createChildAbort(signal)
+		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, abort.signal, onChanged)
 		try {
 			// ensure starts correct
 			// ensure starts correct
@@ -146,7 +157,7 @@ describe('RundownsObserver', () => {
 				await runAllTimers()
 				expect(onChanged).toHaveBeenCalledTimes(1)
 			}, MAX_WAIT_TIME)
-			expect(onChanged).toHaveBeenLastCalledWith([])
+			expect(onChanged).toHaveBeenLastCalledWith([], expect.any(AbortSignal))
 			expect(onChangedCleanup).toHaveBeenCalledTimes(0)
 			expect(observer.rundownIds).toEqual([])
 
@@ -174,24 +185,27 @@ describe('RundownsObserver', () => {
 				expect(onChanged).toHaveBeenCalledTimes(2)
 			}, MAX_WAIT_TIME)
 			expect(onChangedCleanup).toHaveBeenCalledTimes(1)
-			expect(onChanged).toHaveBeenLastCalledWith([mockId0])
+			expect(onChanged).toHaveBeenLastCalledWith([mockId0], expect.any(AbortSignal))
 		} finally {
 			// Make sure to cleanup
-			observer.stop()
+			abort.abort()
 		}
 	})
 
-	test('sequence of updates', async () => {
+	testWithAbort('sequence of updates', async ({ signal }) => {
 		const studioId = protectString<StudioId>('studio0')
 		const playlistId = protectString<RundownPlaylistId>('playlist0')
 
 		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn<Promise<() => void>, [RundownId[]]>(async () => onChangedCleanup)
+		const onChanged = jest.fn<Promise<void>, [RundownId[], AbortSignal]>(async (_ids, signal) =>
+			runOnAbort(signal, onChangedCleanup)
+		)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, onChanged)
+		const abort = createChildAbort(signal)
+		const observer = await RundownsObserver.createForPlaylist(studioId, playlistId, abort.signal, onChanged)
 		try {
 			// ensure starts correct
 			// ensure starts correct
@@ -200,7 +214,7 @@ describe('RundownsObserver', () => {
 				await runAllTimers()
 				expect(onChanged).toHaveBeenCalledTimes(1)
 			}, MAX_WAIT_TIME)
-			expect(onChanged).toHaveBeenLastCalledWith([])
+			expect(onChanged).toHaveBeenLastCalledWith([], expect.any(AbortSignal))
 			expect(onChangedCleanup).toHaveBeenCalledTimes(0)
 			expect(observer.rundownIds).toEqual([])
 
@@ -234,7 +248,7 @@ describe('RundownsObserver', () => {
 				expect(onChanged).toHaveBeenCalledTimes(2)
 			}, MAX_WAIT_TIME)
 			expect(onChangedCleanup).toHaveBeenCalledTimes(1)
-			expect(onChanged).toHaveBeenLastCalledWith([mockId0, mockId1, mockId2, mockId3])
+			expect(onChanged).toHaveBeenLastCalledWith([mockId0, mockId1, mockId2, mockId3], expect.any(AbortSignal))
 
 			// more documents changing
 			const mockId4 = protectString<RundownId>('ro4')
@@ -262,23 +276,26 @@ describe('RundownsObserver', () => {
 				expect(onChanged).toHaveBeenCalledTimes(3)
 			}, MAX_WAIT_TIME)
 			expect(onChangedCleanup).toHaveBeenCalledTimes(2)
-			expect(onChanged).toHaveBeenLastCalledWith([mockId0, mockId1, mockId3, mockId4])
+			expect(onChanged).toHaveBeenLastCalledWith([mockId0, mockId1, mockId3, mockId4], expect.any(AbortSignal))
 		} finally {
 			// Make sure to cleanup
-			observer.stop()
+			abort.abort()
 		}
 	})
 
-	test('create and destroy observer - for peripheraldevice', async () => {
+	testWithAbort('create and destroy observer - for peripheraldevice', async ({ signal }) => {
 		const deviceId = protectString<PeripheralDeviceId>('device0')
 
 		const onChangedCleanup = jest.fn()
-		const onChanged = jest.fn(async () => onChangedCleanup)
+		const onChanged = jest.fn(async (_ids: RundownId[], signal: AbortSignal) =>
+			runOnAbort(signal, onChangedCleanup)
+		)
 
 		// should not be any observers yet
 		expect(RundownsMock.observers).toHaveLength(0)
 
-		const observer = await RundownsObserver.createForPeripheralDevice(deviceId, onChanged)
+		const abort = createChildAbort(signal)
+		await RundownsObserver.createForPeripheralDevice(deviceId, abort.signal, onChanged)
 		try {
 			// should now be an observer
 			expect(RundownsMock.observers).toHaveLength(1)
@@ -312,7 +329,7 @@ describe('RundownsObserver', () => {
 			})
 		} finally {
 			// Make sure to cleanup
-			observer.stop()
+			abort.abort()
 
 			// Check it stopped
 			expect(onChanged).toHaveBeenCalledTimes(1)

@@ -8,7 +8,7 @@ import { PackageManagerPackageContainers } from '@sofie-automation/shared-lib/di
 import { check } from '../../lib/check'
 import { ReadonlyDeep } from 'type-fest'
 import { Studios } from '../../collections'
-import { SetupObserversResult, setUpOptimizedObserverArray, TriggerUpdate } from '../../lib/customPublication'
+import { setUpOptimizedObserverArray, TriggerUpdate } from '../../lib/customPublication'
 import type { PublicationRegistry } from '../../publicationRegistry'
 import { logger } from '../../logging'
 import {
@@ -35,10 +35,11 @@ type PackageManagerPackageContainersState = Record<string, never>
 
 async function setupExpectedPackagesPublicationObservers(
 	args: ReadonlyDeep<PackageManagerPackageContainersArgs>,
-	triggerUpdate: TriggerUpdate<PackageManagerPackageContainersUpdateProps>
-): Promise<SetupObserversResult> {
+	triggerUpdate: TriggerUpdate<PackageManagerPackageContainersUpdateProps>,
+	signal: AbortSignal
+): Promise<void> {
 	// Set up observers:
-	return [
+	await Promise.all([
 		Studios.observeChanges(
 			{
 				studioId: args.studioId,
@@ -50,9 +51,10 @@ async function setupExpectedPackagesPublicationObservers(
 			},
 			{
 				projection: studioFieldSpecifier,
+				signal,
 			}
 		),
-	]
+	])
 }
 
 async function manipulateExpectedPackagesPublicationData(

@@ -4,7 +4,7 @@ import { assertNever } from '@sofie-automation/corelib/dist/lib'
 import { logger } from '../../logging'
 import { stringifyError } from '@sofie-automation/shared-lib/dist/lib/stringifyError'
 import { MinimalMongoCursor } from '../../collections/collection'
-import type { LiveQueryHandleSync } from '../../lib/lib'
+import { AbortScope, createChildAbort, runOnAbort } from '../../lib/observerLifetime'
 
 /**
  * https://stackoverflow.com/a/66011942
@@ -22,61 +22,81 @@ type Link<T> = {
 		cursorChain: (state: T) => Promise<MinimalMongoCursor<K> | null>
 	) => Link<Simplify<T & { [P in StringLiteral<L>]: K }>>
 
-	end: (complete: (state: T | null) => void) => LiveQueryHandleSync
+	end: (complete: (state: T | null) => void) => void
 }
 
-export function observerChain(): Pick<Link<unknown>, 'next'> {
-	function createNextLink(baseCollectorObject: Record<string, any>, liveQueryHandle: LiveQueryHandleSync) {
+/**
+ * Chain a series of cursors, where each one is opened from the document found by the previous.
+ *
+ * Each link runs its observer on a child of `signal`, scoped to one invocation: when the upstream
+ * document changes or goes away, that scope is aborted before the next observer starts, and aborting
+ * `signal` tears down the whole chain. Nothing can be left running by a failure partway along.
+ *
+ * @param signal The lifetime of the whole chain
+ */
+export function observerChain(signal: AbortSignal): Pick<Link<unknown>, 'next'> {
+	function createNextLink(parentSignal: AbortSignal) {
 		let mode: 'next' | 'end' | undefined
 		let chainedCursor: (state: Record<string, any>) => Promise<MinimalMongoCursor<any> | null>
 		let completeFunction: (state: Record<string, any> | null) => void
 		let chainedKey: string | undefined = undefined
-		let previousObserver: LiveQueryHandleSync | null = null
+
+		/** The lifetime of the observer this link currently has running */
+		let observerScope: AbortScope | undefined
 
 		let nextChanged: (obj: Record<string, any>) => void = () => {
 			if (mode === 'end') return
-			throw new Error('nextChanged: Unfinished observer chain. This is a memory leak.')
+			throw new Error('nextChanged: Unfinished observer chain')
 		}
 		let nextStop: () => void = () => {
 			if (mode === 'end') return
-			throw new Error('nextChanged: Unfinished observer chain. This is a memory leak.')
+			throw new Error('nextChanged: Unfinished observer chain')
 		}
 
 		async function changedLink(collectorObject: Record<string, any>) {
-			if (previousObserver) {
-				previousObserver.stop()
-				previousObserver = null
-			}
+			// Supersede whatever this link had running. The scope is created synchronously, before any
+			// await, so that a later invocation always aborts the right one.
+			observerScope?.abort()
+			const scope = createChildAbort(parentSignal)
+			observerScope = scope
+
 			const cursorResult = await chainedCursor(collectorObject)
+
+			// The chain may have moved on, or been torn down, while we were awaiting
+			if (scope.signal.aborted) return
+
 			if (cursorResult === null) {
 				nextStop()
 				return
 			}
 
-			previousObserver = await cursorResult.observeAsync({
-				added: (doc) => {
-					if (!chainedKey) throw new Error('Chained key needs to be defined')
-					const newCollectorObject: Record<string, any> = {
-						...collectorObject,
-						[chainedKey]: doc,
-					}
-					nextStop()
-					nextChanged(newCollectorObject)
+			await cursorResult.observeAsync(
+				{
+					added: (doc) => {
+						if (!chainedKey) throw new Error('Chained key needs to be defined')
+						const newCollectorObject: Record<string, any> = {
+							...collectorObject,
+							[chainedKey]: doc,
+						}
+						nextStop()
+						nextChanged(newCollectorObject)
+					},
+					changed: (doc) => {
+						if (!chainedKey) throw new Error('Chained key needs to be defined')
+						const newCollectorObject = {
+							...collectorObject,
+							[chainedKey]: doc,
+						}
+						nextStop()
+						nextChanged(newCollectorObject)
+					},
+					removed: () => {
+						if (!chainedKey) throw new Error('Chained key needs to be defined')
+						nextStop()
+					},
 				},
-				changed: (doc) => {
-					if (!chainedKey) throw new Error('Chained key needs to be defined')
-					const newCollectorObject = {
-						...collectorObject,
-						[chainedKey]: doc,
-					}
-					nextStop()
-					nextChanged(newCollectorObject)
-				},
-				removed: () => {
-					if (!chainedKey) throw new Error('Chained key needs to be defined')
-					nextStop()
-				},
-			})
+				{ signal: scope.signal }
+			)
 		}
 
 		function changedEnd(obj: Record<string, any>) {
@@ -84,10 +104,8 @@ export function observerChain(): Pick<Link<unknown>, 'next'> {
 		}
 
 		function stopLink() {
-			if (previousObserver) {
-				previousObserver.stop()
-				previousObserver = null
-			}
+			observerScope?.abort()
+			observerScope = undefined
 
 			nextStop()
 		}
@@ -106,7 +124,7 @@ export function observerChain(): Pick<Link<unknown>, 'next'> {
 						changedEnd(obj)
 						break
 					case undefined:
-						throw new Error('changed: mode: undefined, Unfinished observer chain. This is a memory leak.')
+						throw new Error('changed: mode: undefined, Unfinished observer chain')
 					default:
 						assertNever(mode)
 				}
@@ -132,7 +150,7 @@ export function observerChain(): Pick<Link<unknown>, 'next'> {
 					chainedKey = key
 					chainedCursor = thisCursor
 					mode = 'next'
-					const { changed, stop, link } = createNextLink(baseCollectorObject, liveQueryHandle)
+					const { changed, stop, link } = createNextLink(parentSignal)
 					nextChanged = changed
 					nextStop = stop
 					return link
@@ -141,25 +159,21 @@ export function observerChain(): Pick<Link<unknown>, 'next'> {
 					if (mode !== undefined) throw new Error('Cannot redefine chain after setup')
 					mode = 'end'
 					completeFunction = complete
-					return liveQueryHandle
 				},
 			},
 		}
 	}
 
-	const initialStopObject = {
-		stop: () => {
-			void 0
-		},
-	}
+	const { changed, stop, link } = createNextLink(signal)
 
-	const { changed, stop, link } = createNextLink({}, initialStopObject)
-	initialStopObject.stop = stop
+	// Ending the chain's lifetime cascades down the links, so the consumer is told the state is gone
+	runOnAbort(signal, stop)
 
 	return {
 		next: (key, cursorChain) => {
 			const nextLink = link.next(key, cursorChain)
 			setImmediate(() => {
+				if (signal.aborted) return
 				changed({}).catch((e) => {
 					logger.error(`Error in observerChain: ${stringifyError(e)}`)
 				})

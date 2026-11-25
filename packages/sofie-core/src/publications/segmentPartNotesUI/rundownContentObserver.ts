@@ -8,22 +8,22 @@ import {
 	segmentFieldSpecifier,
 } from './reactiveContentCache'
 import { PartInstances, Parts, Rundowns, Segments } from '../../collections'
-import { waitForAllObserversReady } from '../lib/lib'
-import type { LiveQueryHandleSync } from '../../lib/lib'
 
 export class RundownContentObserver {
-	readonly #observers: LiveQueryHandleSync[]
 	readonly #cache: ContentCache
 
-	private constructor(cache: ContentCache, observers: LiveQueryHandleSync[]) {
+	private constructor(cache: ContentCache) {
 		this.#cache = cache
-		this.#observers = observers
 	}
 
-	static async create(rundownIds: RundownId[], cache: ContentCache): Promise<RundownContentObserver> {
+	static async create(
+		rundownIds: RundownId[],
+		cache: ContentCache,
+		signal: AbortSignal
+	): Promise<RundownContentObserver> {
 		logger.silly(`Creating RundownContentObserver for rundowns "${rundownIds.join(',')}"`)
 
-		const observers = await waitForAllObserversReady([
+		await Promise.all([
 			Rundowns.observeChanges(
 				{
 					_id: {
@@ -33,6 +33,7 @@ export class RundownContentObserver {
 				cache.Rundowns.link(),
 				{
 					projection: rundownFieldSpecifier,
+					signal,
 				}
 			),
 			Segments.observeChanges(
@@ -44,6 +45,7 @@ export class RundownContentObserver {
 				cache.Segments.link(),
 				{
 					projection: segmentFieldSpecifier,
+					signal,
 				}
 			),
 			Parts.observeChanges(
@@ -55,6 +57,7 @@ export class RundownContentObserver {
 				cache.Parts.link(),
 				{
 					projection: partFieldSpecifier,
+					signal,
 				}
 			),
 			PartInstances.observeChanges(
@@ -64,18 +67,14 @@ export class RundownContentObserver {
 					$or: [{ invalidReason: { $exists: true } }, { orphaned: 'deleted' }],
 				},
 				cache.PartInstances.link(),
-				{ projection: partInstanceFieldSpecifier }
+				{ projection: partInstanceFieldSpecifier, signal }
 			),
 		])
 
-		return new RundownContentObserver(cache, observers)
+		return new RundownContentObserver(cache)
 	}
 
 	public get cache(): ContentCache {
 		return this.#cache
-	}
-
-	public dispose = (): void => {
-		this.#observers.forEach((observer) => observer.stop())
 	}
 }
