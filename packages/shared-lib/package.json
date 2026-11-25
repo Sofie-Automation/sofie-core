@@ -55,7 +55,6 @@
 		"tslib": "^2.9.1",
 		"type-fest": "^4.41.0"
 	},
-	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
 	"publishConfig": {
 		"access": "public"
 	},

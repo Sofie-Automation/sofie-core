@@ -81,6 +81,5 @@
 		"jest-util": "^30.5.1",
 		"mongodb-memory-server": "^10.4.3",
 		"tsx": "^4.23.15"
-	},
-	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json"
+	}
 }

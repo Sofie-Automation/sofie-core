@@ -5,9 +5,7 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"rootDir": "./src",
-		"baseUrl": "./",
 		"resolveJsonModule": true,
-		"types": ["node"],
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"composite": true,
