@@ -44,6 +44,10 @@ import {
 	setupRundownWithInTransitionDisabled,
 	setupRundownWithOutTransition,
 	setupRundownWithOutTransitionAndPreroll,
+	setupRundownWithExclusiveOutTransitionAndInTransitionPiece,
+	setupRundownWithLongExclusiveOutTransition,
+	setupRundownWithLongInTransition,
+	setupRundownWithUnboundedExclusiveOutTransitionAndThreeParts,
 	setupRundownWithOutTransitionAndPreroll2,
 	setupRundownWithOutTransitionAndInTransition,
 	setupRundownWithOutTransitionEnableHold,
@@ -110,6 +114,8 @@ interface PartTimelineTimings {
 	 */
 	previousOutTransition:
 		| {
+				/** Expected group containing the control object */
+				inGroup: string | undefined
 				/** Expected offsets of the child group relative to the control object */
 				childGroup: PreAndPostRoll | PreAndPostRoll[]
 				/** Expected enable for the control object */
@@ -254,6 +260,7 @@ function checkTimingsRaw(
 				const controlObj = objs.get(getPieceControlObjectId(piece.pieceInstance))
 				previousOutTransition = controlObj
 					? {
+							inGroup: controlObj.inGroup,
 							childGroup: parsePieceGroupPrerollAndPostroll(pieceObj?.enable ?? []),
 							controlObj: controlObj.enable,
 						}
@@ -1021,9 +1028,90 @@ describe('Timeline', () => {
 						currentInfinitePieces: {},
 						// outTransitionPiece is inserted
 						previousOutTransition: {
+							inGroup: getPartGroupId(previousPartInstance),
 							controlObj: { start: `#${getPartGroupId(previousPartInstance)}.end - 1000` },
 							childGroup: { preroll: 0, postroll: 0 },
 						},
+					})
+				}
+			)
+
+			testTransitionTimings(
+				'exclusive outTransition with an inTransition piece on the same layer',
+				setupRundownWithExclusiveOutTransitionAndInTransitionPiece,
+				async (_rundownId0, _timeline, currentPartInstance, _previousPartInstance, checkTimings) => {
+					await checkTimings({
+						// old part is extended by 1000ms due to transition keepalive
+						previousPart: { end: `#${getPartGroupId(currentPartInstance)}.start + 1000` },
+						currentPieces: {
+							// pieces are not delayed
+							piece010: {
+								controlObj: { start: 0 },
+								childGroup: { preroll: 0, postroll: 0 },
+							},
+						},
+						currentInfinitePieces: {},
+						// outTransitionPiece is inserted into the new part, starting with the transition
+						previousOutTransition: {
+							inGroup: getPartGroupId(currentPartInstance),
+							controlObj: {
+								start: 0,
+								duration: 1000,
+							},
+							childGroup: { preroll: 0, postroll: 0 },
+						},
+					})
+				}
+			)
+
+			// An exclusive outTransition on the first part must be able to give the same result as an inTransition on
+			// the second part, including a transition piece which outlives the keepalive
+			testTransitionTimings(
+				'exclusive outTransition piece outlives the keepalive',
+				setupRundownWithLongExclusiveOutTransition,
+				async (_rundownId0, _timeline, currentPartInstance, _previousPartInstance, checkTimings) => {
+					await checkTimings({
+						// old part is extended by 500ms due to transition keepalive
+						previousPart: { end: `#${getPartGroupId(currentPartInstance)}.start + 500` },
+						currentPieces: {
+							// pieces are delayed by the content delay
+							piece010: {
+								controlObj: { start: 500 },
+								childGroup: { preroll: 0, postroll: 0 },
+							},
+						},
+						currentInfinitePieces: {},
+						// outTransitionPiece is inserted into the new part, so is not stopped by the keepalive
+						previousOutTransition: {
+							inGroup: getPartGroupId(currentPartInstance),
+							controlObj: { start: 0, duration: 2000 },
+							childGroup: { preroll: 0, postroll: 0 },
+						},
+					})
+				}
+			)
+
+			testTransitionTimings(
+				'inTransition matching the exclusive outTransition piece which outlives the keepalive',
+				setupRundownWithLongInTransition,
+				async (_rundownId0, _timeline, currentPartInstance, _previousPartInstance, checkTimings) => {
+					await checkTimings({
+						// old part is extended by 500ms due to transition keepalive
+						previousPart: { end: `#${getPartGroupId(currentPartInstance)}.start + 500` },
+						currentPieces: {
+							// pieces are delayed by the content delay
+							piece010: {
+								controlObj: { start: 500 },
+								childGroup: { preroll: 0, postroll: 0 },
+							},
+							// inTransitionPiece is in the new part, the same as the outTransition piece above
+							piece011: {
+								controlObj: { start: 0, duration: 2000 },
+								childGroup: { preroll: 0, postroll: 0 },
+							},
+						},
+						currentInfinitePieces: {},
+						previousOutTransition: undefined,
 					})
 				}
 			)
@@ -1046,6 +1134,7 @@ describe('Timeline', () => {
 						currentInfinitePieces: {},
 						// outTransitionPiece is inserted
 						previousOutTransition: {
+							inGroup: getPartGroupId(previousPartInstance),
 							controlObj: { start: `#${getPartGroupId(previousPartInstance)}.end - 1000` },
 							childGroup: { preroll: 0, postroll: 0 },
 						},
@@ -1071,6 +1160,7 @@ describe('Timeline', () => {
 						currentInfinitePieces: {},
 						// outTransitionPiece is inserted
 						previousOutTransition: {
+							inGroup: getPartGroupId(previousPartInstance),
 							controlObj: { start: `#${getPartGroupId(previousPartInstance)}.end - 250` },
 							childGroup: { preroll: 0, postroll: 0 },
 						},
@@ -1102,6 +1192,7 @@ describe('Timeline', () => {
 						currentInfinitePieces: {},
 						// outTransitionPiece is inserted
 						previousOutTransition: {
+							inGroup: getPartGroupId(previousPartInstance),
 							controlObj: { start: `#${getPartGroupId(previousPartInstance)}.end - 600` },
 							childGroup: { preroll: 0, postroll: 0 },
 						},
@@ -1110,7 +1201,7 @@ describe('Timeline', () => {
 			)
 
 			// eslint-disable-next-line jest/expect-expect
-			test('outTransition is disabled during hold', async () =>
+			test('additive outTransition still plays during hold', async () =>
 				runTimelineTimings(
 					setupRundownWithOutTransitionEnableHold,
 					async (playlistId, _rundownId, parts, getPartInstances, checkTimings) => {
@@ -1122,7 +1213,7 @@ describe('Timeline', () => {
 
 						await doTakePart(context, playlistId, parts[0]._id, parts[1]._id, null)
 
-						const { currentPartInstance } = await getPartInstances()
+						const { currentPartInstance, previousPartInstance } = await getPartInstances()
 						await checkTimings({
 							previousPart: { end: `#${getPartGroupId(currentPartInstance!.partInstance)}.start + 500` }, // note: this seems odd, but the pieces are delayed to compensate
 							currentPieces: {
@@ -1132,7 +1223,14 @@ describe('Timeline', () => {
 								},
 							},
 							currentInfinitePieces: {},
-							previousOutTransition: undefined,
+							// the outTransition still delays the take, and its piece is played
+							previousOutTransition: {
+								inGroup: getPartGroupId(previousPartInstance!.partInstance),
+								controlObj: {
+									start: `#${getPartGroupId(previousPartInstance!.partInstance)}.end - 500`,
+								},
+								childGroup: { preroll: 0, postroll: 0 },
+							},
 						})
 					}
 				))
@@ -1891,6 +1989,180 @@ describe('Timeline', () => {
 					})
 				}
 			)
+		})
+
+		describe('Transition piece planned timings', () => {
+			async function getPieceInstanceForPiece(partInstanceId: PartInstanceId, pieceId: string) {
+				const pieceInstance = await context.directCollections.PieceInstances.findOne({
+					partInstanceId,
+					'piece._id': protectString(pieceId),
+				})
+				expect(pieceInstance).toBeTruthy()
+				return pieceInstance!
+			}
+
+			async function checkAdditiveOutTransitionAndInTransition(
+				rundownId0: RundownId,
+				currentPartInstance: DBPartInstance,
+				previousPartInstance: DBPartInstance
+			) {
+				const takeTime = currentPartInstance.timings?.plannedStartedPlayback
+				expect(takeTime).toBeTruthy()
+
+				// takeOffset = 600 (outTransition) - 250 (keepalive)
+				const inPiece = await getPieceInstanceForPiece(currentPartInstance._id, rundownId0 + '_piece011')
+				expect(inPiece.plannedStartedPlayback).toBe(takeTime! + 350)
+				expect(inPiece.plannedStoppedPlayback).toBe(takeTime! + 350 + 500)
+
+				// Starts 600ms before the previous part ends, which is 350 + 250 after the take
+				const outPiece = await getPieceInstanceForPiece(previousPartInstance._id, rundownId0 + '_piece002')
+				expect(outPiece.plannedStartedPlayback).toBe(takeTime!)
+				expect(outPiece.plannedStoppedPlayback).toBe(takeTime! + 600)
+			}
+
+			async function checkExclusiveOutTransition(
+				rundownId0: RundownId,
+				currentPartInstance: DBPartInstance,
+				previousPartInstance: DBPartInstance
+			) {
+				const takeTime = currentPartInstance.timings?.plannedStartedPlayback
+				expect(takeTime).toBeTruthy()
+
+				// Starts with the transition, and is stopped when the previous part ends
+				const outPiece = await getPieceInstanceForPiece(previousPartInstance._id, rundownId0 + '_piece002')
+				expect(outPiece.plannedStartedPlayback).toBe(takeTime!)
+				expect(outPiece.plannedStoppedPlayback).toBe(takeTime! + 1000)
+
+				// The first part was not transitioned into, so its InTransition piece did not play
+				const inPiece = await getPieceInstanceForPiece(previousPartInstance._id, rundownId0 + '_piece003')
+				expect(inPiece.plannedStartedPlayback).toBeUndefined()
+				expect(inPiece.plannedStoppedPlayback).toBeUndefined()
+			}
+
+			/**
+			 * Check the out transition piece of the first part, which has no duration so is stopped by the end of the
+			 * second part
+			 */
+			async function checkUnboundedOutTransitionPiece(
+				rundownId0: RundownId,
+				parts: DBPart[],
+				secondPartHasEnded: boolean
+			) {
+				const partInstances = await context.directCollections.PartInstances.findFetch({ rundownId: rundownId0 })
+				const firstPartInstance = partInstances.find((p) => p.part._id === parts[0]._id)
+				const secondPartInstance = partInstances.find((p) => p.part._id === parts[1]._id)
+				expect(firstPartInstance).toBeTruthy()
+				expect(secondPartInstance).toBeTruthy()
+
+				// It starts with the transition, at the start of the second part
+				const outPiece = await getPieceInstanceForPiece(firstPartInstance!._id, rundownId0 + '_piece002')
+				expect(outPiece.plannedStartedPlayback).toBe(secondPartInstance!.timings?.plannedStartedPlayback)
+
+				if (secondPartHasEnded) {
+					// It is stopped when the second part ends, not when the first part ends at the keepalive
+					expect(secondPartInstance!.timings?.plannedStoppedPlayback).toBeTruthy()
+					expect(outPiece.plannedStoppedPlayback).toBe(secondPartInstance!.timings?.plannedStoppedPlayback)
+				} else {
+					// The end of the second part is not known yet
+					expect(outPiece.plannedStoppedPlayback).toBeUndefined()
+				}
+			}
+
+			testTransitionTimings(
+				'additive outTransition and inTransition',
+				setupRundownWithOutTransitionAndInTransition,
+				async (rundownId0, _timeline, currentPartInstance, previousPartInstance) =>
+					checkAdditiveOutTransitionAndInTransition(rundownId0, currentPartInstance, previousPartInstance)
+			)
+
+			testTransitionTimings(
+				'exclusive outTransition',
+				setupRundownWithExclusiveOutTransitionAndInTransitionPiece,
+				async (rundownId0, _timeline, currentPartInstance, previousPartInstance) =>
+					checkExclusiveOutTransition(rundownId0, currentPartInstance, previousPartInstance)
+			)
+
+			/**
+			 * Check the transition piece of the long transitions, which outlives the keepalive.
+			 * The exclusive outTransition and inTransition variants must give the same result
+			 */
+			async function checkLongTransition(
+				pieceId: string,
+				pieceInPartInstance: DBPartInstance,
+				currentPartInstance: DBPartInstance,
+				previousPartInstance: DBPartInstance
+			) {
+				const takeTime = currentPartInstance.timings?.plannedStartedPlayback
+				expect(takeTime).toBeTruthy()
+
+				// The previous part is only kept alive for 500ms
+				expect(previousPartInstance.timings?.plannedStoppedPlayback).toBe(takeTime! + 500)
+
+				// But the piece is in the new part, so plays for its full duration
+				const piece = await getPieceInstanceForPiece(pieceInPartInstance._id, pieceId)
+				expect(piece.plannedStartedPlayback).toBe(takeTime!)
+				expect(piece.plannedStoppedPlayback).toBe(takeTime! + 2000)
+			}
+
+			testTransitionTimings(
+				'exclusive outTransition piece outlives the keepalive',
+				setupRundownWithLongExclusiveOutTransition,
+				async (rundownId0, _timeline, currentPartInstance, previousPartInstance) =>
+					checkLongTransition(
+						rundownId0 + '_piece002',
+						previousPartInstance,
+						currentPartInstance,
+						previousPartInstance
+					)
+			)
+
+			testTransitionTimings(
+				'inTransition matching the exclusive outTransition piece which outlives the keepalive',
+				setupRundownWithLongInTransition,
+				async (rundownId0, _timeline, currentPartInstance, previousPartInstance) =>
+					checkLongTransition(
+						rundownId0 + '_piece011',
+						currentPartInstance,
+						currentPartInstance,
+						previousPartInstance
+					)
+			)
+
+			// eslint-disable-next-line jest/expect-expect
+			test('exclusive outTransition piece without a duration is stopped when the part it was placed in ends', async () =>
+				runTimelineTimings(
+					setupRundownWithUnboundedExclusiveOutTransitionAndThreeParts,
+					async (playlistId, rundownId, parts) => {
+						const takeAndReportPlayback = async (
+							expectedPreviousPartId: PartId | null,
+							expectedCurrentPartId: PartId,
+							expectedNextPartId: PartId | null
+						) => {
+							const { currentPartInstance } = await doTakePart(
+								context,
+								playlistId,
+								expectedPreviousPartId,
+								expectedCurrentPartId,
+								expectedNextPartId
+							)
+							await doAutoPlayoutPlaybackChangedForPart(
+								context,
+								playlistId,
+								currentPartInstance!._id,
+								getCurrentTime()
+							)
+						}
+
+						await takeAndReportPlayback(null, parts[0]._id, parts[1]._id)
+						await takeAndReportPlayback(parts[0]._id, parts[1]._id, parts[2]._id)
+
+						await checkUnboundedOutTransitionPiece(rundownId, parts, false)
+
+						await takeAndReportPlayback(parts[1]._id, parts[2]._id, null)
+
+						await checkUnboundedOutTransitionPiece(rundownId, parts, true)
+					}
+				))
 		})
 
 		describe('Infinite Pieces', () => {
