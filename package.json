@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"private": true,
 	"engines": {
-		"node": ">=22.20.0"
+		"node": ">=26.13.0"
 	},
 	"workspaces": [
 		"packages/*"
@@ -57,7 +57,7 @@
 		"@types/debug": "^4.1.13",
 		"@types/ejson": "^2.2.2",
 		"@types/jest": "^30.0.0",
-		"@types/node": "^22.20.5",
+		"@types/node": "^26.6.6",
 		"@types/object-path": "^0.11.4",
 		"@types/underscore": "^1.13.0",
 		"babel-jest": "^30.5.2",
@@ -86,7 +86,7 @@
 		"typedoc": "^0.27.9",
 		"typescript": "~5.9.3"
 	},
-	"packageManager": "yarn@4.17.0",
+	"packageManager": "yarn@4.18.1",
 	"resolutions": {
 		"timecode@0.0.4": "patch:timecode@npm%3A0.0.4#./.yarn/patches/timecode-npm-0.0.4-82bde9e6fe.patch",
 		"@hyperjump/json-schema-core@^0.28.0": "patch:@hyperjump/json-schema-core@npm%3A0.28.5#./.yarn/patches/@hyperjump-json-schema-core-npm-0.28.5-e8b590eb0d.patch",

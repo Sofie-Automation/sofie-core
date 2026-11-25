@@ -34,6 +34,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/lint-cache
@@ -68,6 +69,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/test-core-cache
@@ -113,6 +115,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn install
@@ -269,6 +272,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Build
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn install
@@ -393,31 +397,35 @@ jobs:
           - shared-lib
           # - live-status-gateway-api # no tests yet
           - openapi
-        node-version: [22.x]
+        node-version: [22.x, 26.x]
+        exclude:
+          # blueprints should be developed against the node version that core runs them in
+          - node-version: 22.x
+            package-name: blueprints-integration
         include:
           # include additional configs, to run certain packages only for a certain version of node
-          - node-version: 22.x
+          - node-version: 26.x
             package-name: corelib
             send-coverage: true
-          - node-version: 22.x
+          - node-version: 26.x
             package-name: job-worker
             send-coverage: true
           # No tests for some gateways yet
-          # - node-version: 22.x
+          # - node-version: 26.x
           #   package-name: playout-gateway
           #   send-coverage: true
-          - node-version: 22.x
+          - node-version: 26.x
             package-name: mos-gateway
             send-coverage: true
-          - node-version: 22.x
+          - node-version: 26.x
             package-name: live-status-gateway
             send-coverage: true
-          - node-version: 22.x
+          - node-version: 26.x
             package-name: webui
             send-coverage: true
             tsconfig-name: tsconfig.json
           # manual meteor-lib as it only needs a couple of versions
-          - node-version: 22.x
+          - node-version: 26.x
             package-name: meteor-lib
             send-coverage: true
 
@@ -438,6 +446,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/test-packages-cache
@@ -457,7 +466,7 @@ jobs:
         env:
           CI: true
       - name: Send coverage
-        if: (matrix.node-version == '22.x' || matrix.send-coverage == true) && (((github.event_name == 'pull_request') && (!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release'))))
+        if: (matrix.node-version == '26.x' || matrix.send-coverage == true) && (((github.event_name == 'pull_request') && (!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release'))))
         uses: codecov/codecov-action@v7
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -476,6 +485,7 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn install
@@ -486,7 +496,6 @@ jobs:
           cd packages/live-status-gateway-api
 
           yarn gendocs
-          yarn genserver
 
           yarn generate-schema-types
         env:
@@ -505,6 +514,7 @@ jobs:
           node-version-file: ".node-version"
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn install
@@ -547,6 +557,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/publish-docs-cache
@@ -587,6 +598,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - name: Prepare Environment
         run: |
+          npm install --global corepack --force
           corepack enable
 
           yarn config set cacheFolder /home/runner/check-for-multiple-library-versions-cache
