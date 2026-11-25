@@ -26,13 +26,13 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repo with all tags
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Prune tags (scheduled)
         if: github.event_name == 'schedule'
-        uses: Sofie-Automation/sofie-github-workflows/.github/actions/tag-pruner@tag-pruner-v1
+        uses: Sofie-Automation/sofie-github-workflows/.github/actions/tag-pruner@14985a26fd070e35479dfcdde49dd6eeaa669f33 # tag-pruner-v1
         with:
           older-than: 30
           ignore: v[0-9]+\.[0-9]+\.[0-9]+.*
@@ -40,7 +40,7 @@ jobs:
 
       - name: Prune tags (manual)
         if: github.event_name == 'workflow_dispatch'
-        uses: Sofie-Automation/sofie-github-workflows/.github/actions/tag-pruner@tag-pruner-v1
+        uses: Sofie-Automation/sofie-github-workflows/.github/actions/tag-pruner@14985a26fd070e35479dfcdde49dd6eeaa669f33 # tag-pruner-v1
         with:
           older-than: ${{ github.event.inputs.older-than }}
           ignore: ${{ github.event.inputs.ignore }}

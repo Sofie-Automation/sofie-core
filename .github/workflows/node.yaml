@@ -18,15 +18,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             node_modules
@@ -52,15 +52,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             node_modules
@@ -82,7 +82,7 @@ jobs:
           CI: true
       - name: Send coverage
         if: ((github.event_name == 'pull_request') && (!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release')))
-        uses: codecov/codecov-action@v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -97,15 +97,15 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             node_modules
@@ -132,7 +132,7 @@ jobs:
         run: |
           yarn workspaces focus --production @sofie-automation/sofie-core
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       # Check how the image should be built and pushed
       - name: Determine if images should be published to DockerHub
@@ -167,7 +167,7 @@ jobs:
       # No-push build if no destination
       - name: Build without push
         if: steps.check-build-and-push.outputs.enable != 'true'
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ./packages/sofie-core/Dockerfile.circle
@@ -178,7 +178,7 @@ jobs:
       - name: Get the Docker tag for GHCR
         id: ghcr-tag
         if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: |
             ghcr.io/${{ github.repository }}-server-core
@@ -189,14 +189,14 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Login to GitHub Container Registry
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true'
-        uses: docker/login-action@v4
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push to GHCR
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ./packages/sofie-core/Dockerfile.circle
@@ -210,7 +210,7 @@ jobs:
       - name: Get the Docker tag for DockerHub
         id: dockerhub-tag
         if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: |
             ${{ secrets.DOCKERHUB_IMAGE_PREFIX }}server-core
@@ -221,13 +221,13 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Login to DockerHub
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
-        uses: docker/login-action@v4
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push to DockerHub
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ./packages/sofie-core/Dockerfile.circle
@@ -252,16 +252,16 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Use Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             node_modules
@@ -276,7 +276,7 @@ jobs:
           yarn run pinst --disable
           yarn workspaces focus ${{ matrix.gateway-name }} --production
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       # Check how the image should be built and pushed
       - name: Determine if images should be published to DockerHub
@@ -311,7 +311,7 @@ jobs:
       # No-push build if no destination
       - name: Build without push
         if: steps.check-build-and-push.outputs.enable != 'true'
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ./packages/${{ matrix.gateway-name }}/Dockerfile.circle
@@ -322,7 +322,7 @@ jobs:
       - name: Get the Docker tag for GHCR
         id: ghcr-tag
         if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: |
             ghcr.io/${{ github.repository }}-${{ matrix.gateway-name }}
@@ -333,14 +333,14 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Login to GitHub Container Registry
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true'
-        uses: docker/login-action@v4
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push to GHCR
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ./packages/${{ matrix.gateway-name }}/Dockerfile.circle
@@ -353,7 +353,7 @@ jobs:
       - name: Get the Docker tag for DockerHub
         id: dockerhub-tag
         if: steps.check-build-and-push.outputs.enable == 'true'
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: |
             ${{ secrets.DOCKERHUB_IMAGE_PREFIX }}${{ matrix.gateway-name }}
@@ -364,13 +364,13 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
       - name: Login to DockerHub
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
-        uses: docker/login-action@v4
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push to DockerHub
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ./packages/${{ matrix.gateway-name }}/Dockerfile.circle
@@ -422,15 +422,15 @@ jobs:
             send-coverage: true
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.node-version }}
       - name: restore node_modules
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             node_modules
@@ -458,7 +458,7 @@ jobs:
           CI: true
       - name: Send coverage
         if: (matrix.node-version == '22.x' || matrix.send-coverage == true) && (((github.event_name == 'pull_request') && (!startsWith(github.head_ref, 'release'))) || ((github.event_name == 'push') && (!startsWith(github.ref_name, 'release'))))
-        uses: codecov/codecov-action@v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -467,11 +467,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".node-version"
       - name: Prepare Environment
@@ -491,16 +491,17 @@ jobs:
           yarn generate-schema-types
         env:
           CI: true
+
   openapi-generation:
     name: OpenAPI Generation
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".node-version"
       - name: Prepare Environment
@@ -531,15 +532,15 @@ jobs:
 
     # This is just to ensure the docs build, another job performs the build & publish
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             node_modules
@@ -571,15 +572,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Use Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ".node-version"
       - name: restore node_modules
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             node_modules

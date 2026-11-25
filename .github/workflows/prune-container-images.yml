@@ -12,7 +12,7 @@ permissions:
 jobs:
   prune-container-images:
     if: ${{ github.repository_owner == 'Sofie-Automation' }}
-    uses: Sofie-Automation/sofie-github-workflows/.github/workflows/prune-container-images.yml@main
+    uses: Sofie-Automation/sofie-github-workflows/.github/workflows/prune-container-images.yml@508f81564e6233f30ae776f63f19f7976b05669f # main (2026-10-19)
     strategy:
       max-parallel: 1
       matrix:
@@ -20,6 +20,5 @@ jobs:
     with:
       dry-run: false
       prune-untagged: true
+      keep-younger-than: 90
       package-name: sofie-core-${{ matrix.repo }}
-    secrets:
-      prune-token: ${{ secrets.GHCR_PRUNE_TOKEN }}
