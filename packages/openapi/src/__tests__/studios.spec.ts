@@ -77,6 +77,41 @@ describe('Network client', () => {
 		expect(studio.status).toBe(200)
 	})
 
+	test('can fix up a studio config', async () => {
+		const fixup = await studiosApi.fixupStudioConfig({
+			studioId: studioIds[0],
+		})
+		expect(fixup.status).toBe(200)
+		expect(fixup).toHaveProperty('result')
+		expect(Array.isArray(fixup.result)).toBe(true)
+		fixup.result.forEach((msg) => {
+			expect(typeof msg.path).toBe('string')
+			expect(typeof msg.message).toBe('string')
+		})
+	})
+
+	test('can validate and apply a studio config', async () => {
+		const apply = await studiosApi.applyStudioConfig({
+			studioId: studioIds[0],
+		})
+		expect(apply.status).toBe(200)
+		expect(Array.isArray(apply.result.changes)).toBe(true)
+		expect(Array.isArray(apply.result.messages)).toBe(true)
+		apply.result.messages.forEach((msg) => {
+			expect(['error', 'warning', 'info']).toContain(msg.level)
+			expect(typeof msg.message).toBe('string')
+		})
+	})
+
+	test('can reload a studio baseline', async () => {
+		const reload = await studiosApi.reloadStudioBaseline({
+			studioId: studioIds[0],
+		})
+		expect(reload.status).toBe(200)
+		expect(reload.result).toHaveProperty('outdatedReason')
+		expect(reload.result).toHaveProperty('remainingReason')
+	})
+
 	const studioDevices: string[] = []
 	test('can request a list of devices for a studio', async () => {
 		const devices = await studiosApi.devices({ studioId: studioIds[0] })

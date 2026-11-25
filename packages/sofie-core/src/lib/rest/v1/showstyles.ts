@@ -1,6 +1,7 @@
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { ShowStyleBaseId, ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import type { DDPClientConnection } from '../../../ddp-server/types'
+import type { APIBlueprintFixUpConfigMessage, APIBlueprintValidateAndApplyConfigResult } from './blueprints'
 
 /* *************************************************************************
 This file contains types and interfaces that are used by the REST API.
@@ -87,6 +88,40 @@ export interface ShowStylesRestAPI {
 		showStyleBaseId: ShowStyleBaseId,
 		config: object
 	): Promise<ClientAPI.ClientResponse<void>>
+	/**
+	 * Runs the blueprint `fixUpConfig` method for a ShowStyleBase, and stores the fixed-up config.
+	 *
+	 * This must be run whenever the ShowStyle blueprint has changed, before the config can be validated and applied.
+	 * Throws if the specified ShowStyleBase does not exist.
+	 * Throws if a fix up is not needed (the ShowStyle blueprint does not support `fixUpConfig`, or it has already been run for the current blueprint version).
+	 * @param connection Connection data including client and header details
+	 * @param event User event string
+	 * @param showStyleBaseId Id of the ShowStyleBase to fix up
+	 * @returns Messages produced by the blueprint while fixing up the config
+	 */
+	fixupShowStyleConfig(
+		connection: DDPClientConnection,
+		event: string,
+		showStyleBaseId: ShowStyleBaseId
+	): Promise<ClientAPI.ClientResponse<APIBlueprintFixUpConfigMessage[]>>
+	/**
+	 * Validates the blueprint config of a ShowStyleBase (`validateConfig`), and then applies it (`applyConfig`), storing the result.
+	 * This is the same as the 'Validate and Apply Config' action in the UI.
+	 *
+	 * Throws if the specified ShowStyleBase does not exist.
+	 * Throws if the blueprint config is not valid, or must be fixed up first.
+	 * Throws if the blueprint does not support `validateConfig` and `applyConfig`.
+	 * Throws if the validation reports any errors, without applying the config.
+	 * @param connection Connection data including client and header details
+	 * @param event User event string
+	 * @param showStyleBaseId Id of the ShowStyleBase to apply the config of
+	 * @returns The changes that were applied (empty if the config was already up to date), and the messages produced by the blueprint while validating the config
+	 */
+	applyShowStyleConfig(
+		connection: DDPClientConnection,
+		event: string,
+		showStyleBaseId: ShowStyleBaseId
+	): Promise<ClientAPI.ClientResponse<APIBlueprintValidateAndApplyConfigResult>>
 	/**
 	 * Removed a ShowStyleBase.
 	 *

@@ -20,7 +20,7 @@ export function SupportPopUp({ children }: Readonly<React.PropsWithChildren<IPro
 			const core = CoreSystem.findOne(SYSTEM_ID, { projection: { settingsWithOverrides: 1 } })
 			const coreSettings = core && applyAndValidateOverrides(core.settingsWithOverrides).obj
 			return {
-				supportMessage: coreSettings?.support?.message ?? '',
+				supportMessage: coreSettings?.support?.panelHtml ?? '',
 			}
 		},
 		[],

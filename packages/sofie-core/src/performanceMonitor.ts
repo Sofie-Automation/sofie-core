@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import { getCoreSystemAsync } from './coreSystem/collection'
+import { getCoreSystemSettingsAsync } from './coreSystem/collection'
 import { logger } from './logging'
 import { getRunningMethods, resetRunningMethods } from './methods'
 import type { DdpConnectionRegistry } from './ddp-server/ConnectionRegistry'
@@ -192,9 +192,9 @@ const monitorBlockedThread = (connections: DdpConnectionRegistry) => {
 }
 
 export function startPerformanceMonitor(connections: DdpConnectionRegistry): void {
-	getCoreSystemAsync()
-		.then((coreSystem) => {
-			if (coreSystem?.enableMonitorBlockedThread) {
+	getCoreSystemSettingsAsync()
+		.then((settings) => {
+			if (settings?.enableMonitorBlockedThread) {
 				setTimeout(() => {
 					monitorBlockedThread(connections)
 				}, 5000)
