@@ -1,0 +1,194 @@
+name: 'Sync with Upstream repo'
+
+# This workflow syncs the latest commits from the upstream repository to the forked repository.
+# If it is possible to git merge without conflicts, the workflow will do so automatically.
+# If there are any conflicts, the workflow will open a PR to sync the changes from upstream.
+#   If there already is an open sync-PR, it will be updated with the latest changes from upstream.
+#
+# Variables:
+# - UPSTREAM_SYNC_ENABLE: Set to 'true' to enable the workflow cron schedule.
+#     (manually triggered runs always run, regardless of this variable)
+# - UPSTREAM_SYNC_REPO: Optional, the upstream repository to sync from (default is 'Sofie-Automation/sofie-core').
+# - UPSTREAM_SYNC_UPSTREAM_BRANCH: Optional, the branch of the upstream repository to sync from (default is 'main').
+# - UPSTREAM_SYNC_BRANCH: Optional, specifies the local branch to sync into (default is 'main').
+# - UPSTREAM_SYNC_PR_BRANCH: Optional, the local branch used for the sync-PR in case of conflicts (default is 'sync-action/upstream').
+
+on:
+  schedule:
+    # Note: The scheduled workflow only does anything if UPSTREAM_SYNC_ENABLE is set to 'true'.
+    #       If false, the scheduled will still run, but do nothing.
+    #       (to disable the scheduled workflow entirely, you can also disable it in the GitHub repository settings)
+    - cron:  '0 7 * * 1,4'
+      # Scheduled at 07:00 every Monday and Thursday
+    
+
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no changes are pushed)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Prevent overlapping sync runs (e.g. a manual run during a scheduled run),
+# which could otherwise both try to push at the same time
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+env:
+  # Name of the upstream repository to sync from
+  UPSTREAM_REPO: ${{ vars.UPSTREAM_SYNC_REPO || 'Sofie-Automation/sofie-core' }}
+  # Branch of the upstream repository to sync from
+  UPSTREAM_BRANCH: ${{ vars.UPSTREAM_SYNC_UPSTREAM_BRANCH || 'main' }}
+  # Branch of the local repository to sync into
+  LOCAL_BRANCH: ${{ vars.UPSTREAM_SYNC_BRANCH || 'main' }}
+  # Branch used for the sync pull request in case of conflicts
+  SYNC_PR_BRANCH: ${{ vars.UPSTREAM_SYNC_PR_BRANCH || 'sync-action/upstream' }}
+
+jobs:
+  sync_latest_from_upstream:
+    # Never run in the upstream repository itself.
+    # For scheduled runs, the UPSTREAM_SYNC_ENABLE repository variable must be set to 'true',
+    # while manually triggered runs (workflow_dispatch) always run.
+    if: ${{ github.repository != 'Sofie-Automation/sofie-core' && (github.event_name == 'workflow_dispatch' || vars.UPSTREAM_SYNC_ENABLE == 'true') }}
+    runs-on: ubuntu-latest
+    name: Sync with upstream
+
+    steps:
+    - name: Checkout local repo
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      with:
+        ref:  ${{ env.LOCAL_BRANCH }}
+        # Full history is needed to be able to merge from upstream
+        fetch-depth: 0
+        persist-credentials: false
+
+    - name: Configure git
+      # Set the author identity used for the merge commit:
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+    - name: Fetch upstream
+      run: |
+        # Register the upstream repository as a git remote named "upstream"
+        git remote add upstream "https://github.com/${UPSTREAM_REPO}.git"
+        # Download the upstream branch history, making it available locally as "upstream/<branch>"
+        git fetch upstream "${UPSTREAM_BRANCH}"
+
+    - name: Sync upstream changes
+      id: sync
+      run: |
+        # Count how many commits exist on the upstream branch that are not yet on our branch
+        # ("HEAD..upstream/<branch>" means: commits reachable from upstream, but not from HEAD)
+        BEHIND_COUNT=$(git rev-list --count "HEAD..upstream/${UPSTREAM_BRANCH}")
+        echo "Local ${LOCAL_BRANCH} is ${BEHIND_COUNT} commit(s) behind upstream/${UPSTREAM_BRANCH}"
+
+        if [ "${BEHIND_COUNT}" -eq 0 ]; then
+          echo "Already up to date with upstream, nothing to do"
+          echo "result=up-to-date" >> "$GITHUB_OUTPUT"
+        # Try to merge the upstream branch into our checked-out branch.
+        # --no-edit keeps the auto-generated merge commit message (no editor prompt).
+        # The merge only happens locally on the runner at this point, nothing is pushed yet.
+        elif git merge --no-edit "upstream/${UPSTREAM_BRANCH}"; then
+          echo "Merged upstream/${UPSTREAM_BRANCH} without conflicts"
+          echo "result=merged" >> "$GITHUB_OUTPUT"
+        else
+          echo "Merge resulted in conflicts, a sync-PR will be opened instead"
+          # Undo the failed merge, restoring the working tree to the state before the merge attempt
+          git merge --abort
+          echo "result=conflicts" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Push merged changes
+      # If the merge was successful, push the changes to the local branch:
+      if: ${{ steps.sync.outputs.result == 'merged' && inputs.dry_run != true }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Push the local merge commit (HEAD) to the local branch of this repository.
+        # The checkout was done with persist-credentials: false, so authentication is
+        # provided inline via the token in the remote URL (masked in the logs).
+        git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:${LOCAL_BRANCH}"
+
+    - name: Open or update sync-PR
+      # If the merge resulted in conflicts, open or update a sync-PR to resolve them.
+      if: ${{ steps.sync.outputs.result == 'conflicts' && inputs.dry_run != true }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        UPSTREAM_SHA=$(git rev-parse "refs/remotes/upstream/${UPSTREAM_BRANCH}")
+        # Check what commit the sync branch in this repository currently points to (empty if the branch doesn't exist)
+        REMOTE_SYNC_SHA=$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" "refs/heads/${SYNC_PR_BRANCH}" | cut -f1)
+
+        if [ "${REMOTE_SYNC_SHA}" = "${UPSTREAM_SHA}" ]; then
+          echo "Sync branch ${SYNC_PR_BRANCH} is already up to date with upstream"
+          BRANCH_UPDATED=false
+        else
+          # Push the upstream branch (as fetched into refs/remotes/upstream/<branch>) to a
+          # dedicated sync branch in this repository, so a PR can be opened from it.
+          # --force overwrites the sync branch from any previous sync attempt with the latest upstream state.
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "refs/remotes/upstream/${UPSTREAM_BRANCH}:refs/heads/${SYNC_PR_BRANCH}"
+          BRANCH_UPDATED=true
+        fi
+
+        EXISTING_PR=$(gh pr list --repo "${GITHUB_REPOSITORY}" --head "${SYNC_PR_BRANCH}" --base "${LOCAL_BRANCH}" --state open --json number --jq '.[0].number')
+
+        if [ -z "${EXISTING_PR}" ]; then
+          gh pr create --repo "${GITHUB_REPOSITORY}" \
+            --base "${LOCAL_BRANCH}" \
+            --head "${SYNC_PR_BRANCH}" \
+            --title "Sync with upstream repo (solve merge conflicts)" \
+            --body "This PR was opened automatically by the [Upstream Sync workflow](https://github.com/${GITHUB_REPOSITORY}/blob/${LOCAL_BRANCH}/.github/workflows/sync-upstream.yml) because the latest changes from [\`${UPSTREAM_REPO}/${UPSTREAM_BRANCH}\`](https://github.com/${UPSTREAM_REPO}/tree/${UPSTREAM_BRANCH}) could not be merged into \`${LOCAL_BRANCH}\` without conflicts.
+
+        Please resolve the conflicts manually and merge this PR (do not squash, to preserve the upstream history)."
+          echo "Opened a new sync-PR"
+        elif [ "${BRANCH_UPDATED}" = "true" ]; then
+          gh pr comment "${EXISTING_PR}" --repo "${GITHUB_REPOSITORY}" \
+            --body "The sync branch has been updated with the latest changes from \`${UPSTREAM_REPO}/${UPSTREAM_BRANCH}\`."
+          echo "Updated existing sync-PR #${EXISTING_PR}"
+        else
+          echo "Existing sync-PR #${EXISTING_PR} is already up to date, nothing to do"
+        fi
+
+    - name: Close stale sync-PR
+      # If the sync succeeded (or there was nothing to sync), any sync-PR left open from an
+      # earlier conflict is no longer needed (e.g. the conflicts were resolved directly on the
+      # local branch instead), so close it and clean up the sync branch.
+      if: ${{ (steps.sync.outputs.result == 'merged' || steps.sync.outputs.result == 'up-to-date') && inputs.dry_run != true }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        EXISTING_PR=$(gh pr list --repo "${GITHUB_REPOSITORY}" --head "${SYNC_PR_BRANCH}" --base "${LOCAL_BRANCH}" --state open --json number --jq '.[0].number')
+
+        if [ -n "${EXISTING_PR}" ]; then
+          gh pr close "${EXISTING_PR}" --repo "${GITHUB_REPOSITORY}" --delete-branch \
+            --comment "Closing this sync-PR, since \`${LOCAL_BRANCH}\` is now up to date with \`${UPSTREAM_REPO}/${UPSTREAM_BRANCH}\`."
+          echo "Closed stale sync-PR #${EXISTING_PR}"
+        fi
+
+    - name: Report dry run result
+      if: ${{ inputs.dry_run == true }}
+      run: |
+        echo "Dry run: no changes have been pushed and no PR has been opened."
+        echo "Sync result would have been: ${{ steps.sync.outputs.result }}"
+
+    - name: Write summary
+      run: |
+        {
+          echo "### Upstream Sync"
+          case "${{ steps.sync.outputs.result }}" in
+            up-to-date) echo "✅ \`${LOCAL_BRANCH}\` is already up to date with \`${UPSTREAM_REPO}/${UPSTREAM_BRANCH}\`." ;;
+            merged)     echo "✅ Merged \`${UPSTREAM_REPO}/${UPSTREAM_BRANCH}\` into \`${LOCAL_BRANCH}\` without conflicts." ;;
+            conflicts)  echo "⚠️ Merge conflicts detected. A sync-PR from \`${SYNC_PR_BRANCH}\` has been opened/updated." ;;
+          esac
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo ""
+            echo "_Dry run was enabled: no changes were pushed._"
+          fi
+        } >> "$GITHUB_STEP_SUMMARY"
