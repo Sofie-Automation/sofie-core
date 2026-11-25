@@ -5,7 +5,7 @@ import {
 	MongoQuery,
 	MongoFieldSpecifier,
 	SortSpecifier,
-	mongoWhere,
+	compileMongoSelector,
 	mongoProjectDocument,
 	makeMongoSortComparator,
 	ObserveCallbacks,
@@ -51,7 +51,8 @@ export interface ObserveViewShape<TDoc extends Doc> {
  * the entire matching set and the fast per-document incremental path is used.
  */
 export class ObserveView<TDoc extends Doc> {
-	readonly #selector: MongoQuery<TDoc>
+	/** The selector, compiled once as it is tested against every changed document */
+	readonly #matchesSelector: (doc: TDoc) => boolean
 	readonly #projection: MongoFieldSpecifier<TDoc> | undefined
 	readonly #sink: ObserveViewSink<TDoc>
 
@@ -78,7 +79,7 @@ export class ObserveView<TDoc extends Doc> {
 		shape: ObserveViewShape<TDoc> | undefined,
 		sink: ObserveViewSink<TDoc>
 	) {
-		this.#selector = selector
+		this.#matchesSelector = compileMongoSelector(selector)
 		this.#projection = projection
 		this.#sink = sink
 		this.#skip = shape?.skip ?? 0
@@ -131,7 +132,7 @@ export class ObserveView<TDoc extends Doc> {
 					this.#applyDelta(id, undefined)
 					return
 				}
-				const matches = mongoWhere(fullDocument, this.#selector)
+				const matches = this.#matchesSelector(fullDocument)
 				const docId = fullDocument._id
 				if (matches) {
 					// Pass the full (unprojected) doc: the windowed path needs all fields for ordering, and the
