@@ -71,7 +71,7 @@ describe('findLookaheadObjectsForPart', () => {
 			name: '',
 			enable: { start: 0 },
 			invalid: false,
-			lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+			lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 			pieceType: IBlueprintPieceType.Normal,
 			sourceLayerId: '',
 			outputLayerId: '',

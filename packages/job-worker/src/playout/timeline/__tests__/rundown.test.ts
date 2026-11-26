@@ -144,7 +144,7 @@ describe('buildTimelineObjsForRundown', () => {
 		return createMockPieceInstance(
 			id,
 			{
-				lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+				lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				...pieceProps,
 			},
 			{

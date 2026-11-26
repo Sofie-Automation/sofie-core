@@ -2,7 +2,7 @@ import {
 	IPieceLifespan,
 	LegacyPieceLifespan,
 	PieceLifespanInfo,
-	PieceLifespanInShadow,
+	PieceLifespanWhenCovered,
 	PieceLifespanPresence,
 	PieceLifespanScope,
 } from '@sofie-automation/shared-lib/dist/core/model/Rundown'
@@ -18,26 +18,26 @@ const SCOPE_HIERARCHY: Record<PieceLifespanScope, number> = {
 export class PieceLifespan implements IPieceLifespan {
 	readonly scope: PieceLifespanScope
 	readonly presence: PieceLifespanPresence
-	readonly inShadow: PieceLifespanInShadow
+	readonly whenCovered: PieceLifespanWhenCovered
 
 	constructor(input: PieceLifespanInfo) {
 		if (input instanceof PieceLifespan) {
 			// Already a PieceLifespan instance, just copy the values
 			this.scope = input.scope
 			this.presence = input.presence
-			this.inShadow = input.inShadow
+			this.whenCovered = input.whenCovered
 		} else if (typeof input === 'object' && input !== null) {
 			// New-style definition
 			this.scope = input.scope ?? 'part'
 			this.presence = input.presence ?? 'forward-scope'
-			this.inShadow = input.inShadow ?? 'stop'
+			this.whenCovered = input.whenCovered ?? 'stop'
 			return
 		} else {
 			// Legacy presets and default finite piece
-			const { scope, presence, inShadow } = input ? PieceLifespan.normalizePreset(input) : {}
+			const { scope, presence, whenCovered } = input ? PieceLifespan.normalizePreset(input) : {}
 			this.scope = scope ?? 'part'
 			this.presence = presence ?? 'forward-scope'
-			this.inShadow = inShadow ?? 'stop'
+			this.whenCovered = whenCovered ?? 'stop'
 		}
 	}
 
@@ -50,17 +50,17 @@ export class PieceLifespan implements IPieceLifespan {
 	private static normalizePreset(preset: LegacyPieceLifespan): IPieceLifespan {
 		switch (preset) {
 			case LegacyPieceLifespan.WithinPart:
-				return { scope: 'part', presence: 'forward-scope', inShadow: 'stop' }
+				return { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' }
 			case LegacyPieceLifespan.OutOnSegmentChange:
-				return { scope: 'segment', presence: 'follow-playhead', inShadow: 'stop' }
+				return { scope: 'segment', presence: 'follow-playhead', whenCovered: 'stop' }
 			case LegacyPieceLifespan.OutOnRundownChange:
-				return { scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' }
+				return { scope: 'rundown', presence: 'follow-playhead', whenCovered: 'stop' }
 			case LegacyPieceLifespan.OutOnSegmentEnd:
-				return { scope: 'segment', presence: 'forward-scope', inShadow: 'legacy-persist' }
+				return { scope: 'segment', presence: 'forward-scope', whenCovered: 'legacy-persist' }
 			case LegacyPieceLifespan.OutOnRundownEnd:
-				return { scope: 'rundown', presence: 'forward-scope', inShadow: 'legacy-persist' }
+				return { scope: 'rundown', presence: 'forward-scope', whenCovered: 'legacy-persist' }
 			case LegacyPieceLifespan.OutOnShowStyleEnd:
-				return { scope: 'showstyle', presence: 'forward-scope', inShadow: 'legacy-persist' }
+				return { scope: 'showstyle', presence: 'forward-scope', whenCovered: 'legacy-persist' }
 			default:
 				throw new Error(`Unknown legacy piece lifespan preset: ${String(preset)}`)
 		}
@@ -68,7 +68,7 @@ export class PieceLifespan implements IPieceLifespan {
 
 	/** Resolves a new-style definition into a legacy preset if possible. Returns undefined if the behavior cannot be mapped to a legacy preset. */
 	private static resolvePreset(lifespan: IPieceLifespan): LegacyPieceLifespan | undefined {
-		switch (`${lifespan.scope}:${lifespan.presence}:${lifespan.inShadow}`) {
+		switch (`${lifespan.scope}:${lifespan.presence}:${lifespan.whenCovered}`) {
 			case 'part:forward-scope:stop':
 			case 'part:follow-playhead:stop':
 				return LegacyPieceLifespan.WithinPart
@@ -110,23 +110,23 @@ export class PieceLifespan implements IPieceLifespan {
 		return !this.tracksPlayhead
 	}
 
-	/** Returns true if the piece enters a shadow state and pauses on conflict */
-	get persistsInShadow(): boolean {
-		return this.inShadow === 'persist' || this.inShadow === 'legacy-persist'
+	/** Returns true if the piece is only hidden while a newer piece covers it, and resumes after it */
+	get persistsWhenCovered(): boolean {
+		return this.whenCovered === 'persist' || this.whenCovered === 'legacy-persist'
 	}
 
 	/** Returns true if a newer piece of the same scope ends the piece for good, instead of only covering it */
 	get isEndedByNewerOfSameScope(): boolean {
-		return this.inShadow === 'legacy-persist'
+		return this.whenCovered === 'legacy-persist'
 	}
 
 	/**
 	 * The timeline priority of the piece, relative to other pieces on the same layer.
-	 * Pieces that persist in shadow are stacked by scope (broader scope = lower priority), so that a narrower one can
+	 * Pieces that persist when covered are stacked by scope (broader scope = lower priority), so that a narrower one can
 	 * temporarily cover a broader one. Every other piece shares the highest priority.
 	 */
 	get stackingPriority(): number {
-		if (!this.persistsInShadow) return 5
+		if (!this.persistsWhenCovered) return 5
 		return 3 - SCOPE_HIERARCHY[this.scope]
 	}
 
@@ -138,7 +138,7 @@ export class PieceLifespan implements IPieceLifespan {
 	/** Equality check */
 	equals(other: PieceLifespanInfo): boolean {
 		const o = PieceLifespan.from(other)
-		return this.scope === o.scope && this.presence === o.presence && this.inShadow === o.inShadow
+		return this.scope === o.scope && this.presence === o.presence && this.whenCovered === o.whenCovered
 	}
 
 	/** Exports plain JSON definition for MongoDB / DDP serialization */
@@ -146,7 +146,7 @@ export class PieceLifespan implements IPieceLifespan {
 		return {
 			scope: this.scope,
 			presence: this.presence,
-			inShadow: this.inShadow,
+			whenCovered: this.whenCovered,
 		}
 	}
 
@@ -155,10 +155,10 @@ export class PieceLifespan implements IPieceLifespan {
 	}
 }
 
-/** Whether a piece is a virtual shadow, which only obstructs its layer while active. See `IBlueprintPiece.virtualMode` */
-export function isShadowPiece(piece: {
+/** Whether a piece only hides the pieces it covers while active, stopping none of them. See `IBlueprintPiece.persistCoveredPieces` */
+export function persistsCoveredPieces(piece: {
 	readonly virtual?: boolean
-	readonly virtualMode?: 'clear' | 'shadow'
+	readonly persistCoveredPieces?: boolean
 }): boolean {
-	return !!piece.virtual && piece.virtualMode === 'shadow'
+	return !!piece.virtual && !!piece.persistCoveredPieces
 }

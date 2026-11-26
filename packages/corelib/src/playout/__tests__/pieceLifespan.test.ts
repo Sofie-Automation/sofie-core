@@ -6,17 +6,17 @@ describe('PieceLifespan', () => {
 		[LegacyPieceLifespan.OutOnSegmentEnd, 'segment'],
 		[LegacyPieceLifespan.OutOnRundownEnd, 'rundown'],
 		[LegacyPieceLifespan.OutOnShowStyleEnd, 'showstyle'],
-	] as const)('the legacy %s preset keeps its shadow behaviour', (preset, scope) => {
+	] as const)('the legacy %s preset keeps its whenCovered behaviour', (preset, scope) => {
 		const lifespan = PieceLifespan.from(preset)
 
-		expect(lifespan.definition()).toEqual({ scope, presence: 'forward-scope', inShadow: 'legacy-persist' })
-		expect(lifespan.persistsInShadow).toBe(true)
+		expect(lifespan.definition()).toEqual({ scope, presence: 'forward-scope', whenCovered: 'legacy-persist' })
+		expect(lifespan.persistsWhenCovered).toBe(true)
 		expect(lifespan.isEndedByNewerOfSameScope).toBe(true)
 		expect(lifespan.legacyLifespan).toBe(preset)
 	})
 
 	test('persist resolves to the legacy preset of its scope', () => {
-		const lifespan = PieceLifespan.from({ scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' })
+		const lifespan = PieceLifespan.from({ scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' })
 
 		expect(lifespan.isEndedByNewerOfSameScope).toBe(false)
 		expect(lifespan.legacyLifespan).toBe(LegacyPieceLifespan.OutOnRundownEnd)

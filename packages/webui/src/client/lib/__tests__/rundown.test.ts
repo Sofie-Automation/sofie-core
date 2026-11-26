@@ -104,7 +104,7 @@ describe('client/lib/rundown', () => {
 				enable: {
 					start: 1000,
 				},
-				lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+				lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 			}
 
 			mockPiecesCollection.insert(infinitePiece)
@@ -177,7 +177,7 @@ describe('client/lib/rundown', () => {
 				enable: {
 					start: 1000,
 				},
-				lifespan: { scope: 'segment', presence: 'follow-playhead', inShadow: 'stop' },
+				lifespan: { scope: 'segment', presence: 'follow-playhead', whenCovered: 'stop' },
 			}
 			mockPiecesCollection.insert(infinitePiece)
 
@@ -191,7 +191,7 @@ describe('client/lib/rundown', () => {
 					start: 4000,
 					duration: 1000,
 				},
-				lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+				lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 			}
 			mockPiecesCollection.insert(croppingPiece)
 
@@ -273,7 +273,7 @@ describe('client/lib/rundown', () => {
 				enable: {
 					start: 1000,
 				},
-				lifespan: { scope: 'segment', presence: 'follow-playhead', inShadow: 'stop' },
+				lifespan: { scope: 'segment', presence: 'follow-playhead', whenCovered: 'stop' },
 			}
 			mockPiecesCollection.insert(infinitePiece)
 
@@ -287,7 +287,7 @@ describe('client/lib/rundown', () => {
 					start: 4000,
 					duration: 1000,
 				},
-				lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+				lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 			}
 			mockPiecesCollection.insert(followingPiece)
 

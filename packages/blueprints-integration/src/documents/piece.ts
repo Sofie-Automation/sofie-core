@@ -1,8 +1,5 @@
 import type { IBlueprintPieceGeneric } from './pieceGeneric.js'
 
-/** How a virtual piece affects the pieces on its layer, see `IBlueprintPiece.virtualMode` */
-export type VirtualPieceMode = 'clear' | 'shadow'
-
 /** Special types of pieces. Some are not always used in all circumstances */
 export enum IBlueprintPieceType {
 	Normal = 'normal',
@@ -26,13 +23,13 @@ export interface IBlueprintPiece<TPrivateData = unknown, TPublicData = unknown> 
 	/** Whether the piece is a real piece, or exists as a marker to stop an infinite piece. If virtual, it does not add any contents to the timeline */
 	virtual?: boolean
 	/**
-	 * How a virtual piece affects the pieces on its layer:
-	 * - `clear` (default): acts like any piece starting on the layer, but without content. What it ends is gone,
-	 *   following the usual lifespan rules
-	 * - `shadow`: obstructs the layer while active, without ending anything. The pieces under it are hidden and
-	 *   come back once it ends. Pieces starting after it are on top of it. A shadow piece is always virtual
+	 * Whether the pieces this piece covers on its layer all persist, whatever their `lifespan.whenCovered` is.
+	 * They are hidden while this piece is active, and come back once it ends. It stops none of them.
+	 * Pieces starting after it are on top of it.
+	 * When not set, the covered pieces follow their own `lifespan.whenCovered`.
+	 * Such a piece is always virtual
 	 */
-	virtualMode?: VirtualPieceMode
+	persistCoveredPieces?: boolean
 
 	/** Whether this piece is a special piece */
 	pieceType?: IBlueprintPieceType

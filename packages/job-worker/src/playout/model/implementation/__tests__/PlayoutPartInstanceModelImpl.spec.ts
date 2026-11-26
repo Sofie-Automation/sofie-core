@@ -42,7 +42,7 @@ describe('PlayoutPartInstanceModelImpl', () => {
 				startPartId: protectString(''),
 				enable: { start: 0 },
 				name: '',
-				lifespan: { scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' },
+				lifespan: { scope: 'rundown', presence: 'follow-playhead', whenCovered: 'stop' },
 				sourceLayerId: '',
 				outputLayerId: '',
 				invalid: false,

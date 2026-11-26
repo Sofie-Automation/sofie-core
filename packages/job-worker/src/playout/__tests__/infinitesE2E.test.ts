@@ -87,19 +87,19 @@ describe('Infinites through playout', () => {
 		await addInfinite(
 			rd,
 			'FollowStop',
-			{ scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' },
+			{ scope: 'rundown', presence: 'follow-playhead', whenCovered: 'stop' },
 			'layerA'
 		)
 		await addInfinite(
 			rd,
 			'ForwardStop',
-			{ scope: 'rundown', presence: 'forward-scope', inShadow: 'stop' },
+			{ scope: 'rundown', presence: 'forward-scope', whenCovered: 'stop' },
 			'layerB'
 		)
 		await addInfinite(
 			rd,
 			'ForwardPersist',
-			{ scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
+			{ scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' },
 			'layerC'
 		)
 
@@ -210,7 +210,7 @@ describe('Infinites through playout', () => {
 			String(rundownId),
 			'Global',
 			null,
-			{ scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' },
+			{ scope: 'rundown', presence: 'follow-playhead', whenCovered: 'stop' },
 			'layerG'
 		)
 
@@ -230,7 +230,7 @@ describe('Infinites through playout', () => {
 			rd,
 			'SegmentStop',
 			'1_0',
-			{ scope: 'segment', presence: 'forward-scope', inShadow: 'stop' },
+			{ scope: 'segment', presence: 'forward-scope', whenCovered: 'stop' },
 			'layerS'
 		)
 
@@ -243,7 +243,7 @@ describe('Infinites through playout', () => {
 		await insertOnAir(
 			playlistId,
 			'Insert',
-			{ scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+			{ scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 			'layerS'
 		)
 		expect((await getNamesOnAir(playlistId)).next).toEqual({ part: '1_2', pieces: [] })
@@ -262,7 +262,7 @@ describe('Infinites through playout', () => {
 		await insertOnAir(
 			playlistId,
 			'Adlib',
-			{ scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
+			{ scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' },
 			'layerP'
 		)
 		expect((await getNamesOnAir(playlistId)).next?.pieces).toEqual(['T:Adlib'])
@@ -277,15 +277,21 @@ describe('Infinites through playout', () => {
 		expect((await getNamesOnAir(playlistId)).current).toEqual({ part: '1_0', pieces: [] })
 	})
 
-	test('an adlib shadow ends no infinite on its layer', async () => {
+	test('an adlib with persistCoveredPieces ends no infinite on its layer', async () => {
 		const { playlistId, rundownId } = await setupDefaultRundownPlaylist(context)
 		const rd = String(rundownId)
-		await addPiece(rd, 'Stop', '1_0', { scope: 'segment', presence: 'forward-scope', inShadow: 'stop' }, 'layerS')
+		await addPiece(
+			rd,
+			'Stop',
+			'1_0',
+			{ scope: 'segment', presence: 'forward-scope', whenCovered: 'stop' },
+			'layerS'
+		)
 		await addPiece(
 			rd,
 			'Persist',
 			'1_0',
-			{ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+			{ scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 			'layerP'
 		)
 
@@ -297,19 +303,19 @@ describe('Infinites through playout', () => {
 		for (const layer of ['layerS', 'layerP']) {
 			await insertOnAir(
 				playlistId,
-				`Shadow ${layer}`,
-				{ scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+				`Cover ${layer}`,
+				{ scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 				layer,
-				{ enable: { start: 'now', duration: 1000 }, virtualMode: 'shadow' }
+				{ enable: { start: 'now', duration: 1000 }, persistCoveredPieces: true }
 			)
 		}
 
-		const shadows = (await context.mockCollections.PieceInstances.findFetch()).filter((p) =>
-			p.piece.name.startsWith('T:Shadow')
+		const covers = (await context.mockCollections.PieceInstances.findFetch()).filter((p) =>
+			p.piece.name.startsWith('T:Cover')
 		)
-		expect(shadows.map((p) => [p.piece.virtual, p.piece.virtualMode])).toEqual([
-			[true, 'shadow'],
-			[true, 'shadow'],
+		expect(covers.map((p) => [p.piece.virtual, p.piece.persistCoveredPieces])).toEqual([
+			[true, true],
+			[true, true],
 		])
 
 		expect((await getNamesOnAir(playlistId)).next).toEqual({ part: '1_2', pieces: ['T:Persist', 'T:Stop'] })
@@ -322,10 +328,10 @@ describe('Infinites through playout', () => {
 		['persist', false],
 	] as const)(
 		'a planned virtual over an adlibbed %s infinite: it continues after the virtual = %s',
-		async (inShadow, continuesAfter) => {
+		async (whenCovered, continuesAfter) => {
 			const { playlistId, rundownId } = await setupDefaultRundownPlaylist(context)
 			const rd = String(rundownId)
-			const lifespan: IPieceLifespan = { scope: 'rundown', presence: 'forward-scope', inShadow }
+			const lifespan: IPieceLifespan = { scope: 'rundown', presence: 'forward-scope', whenCovered }
 			await addPiece(rd, 'End', '1_1', lifespan, 'layerA', { virtual: true })
 
 			await handleActivateRundownPlaylist(context, { playlistId, rehearsal: false })

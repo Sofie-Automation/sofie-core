@@ -97,7 +97,7 @@ function createAndPopulateMockCache(): ContentCache {
 			tags: [tag0, tag2],
 			sourceLayerId: sourceLayerId0,
 			enable: { start: 0 },
-			lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+			lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 		},
 		partInstanceId: partInstanceId0,
 	} as PieceInstance)
@@ -107,7 +107,7 @@ function createAndPopulateMockCache(): ContentCache {
 			tags: [tag1],
 			sourceLayerId: sourceLayerId0,
 			enable: { start: 0 },
-			lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+			lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 		},
 		partInstanceId: partInstanceId1,
 	} as PieceInstance)
@@ -117,7 +117,7 @@ function createAndPopulateMockCache(): ContentCache {
 			tags: [tag2],
 			sourceLayerId: sourceLayerId1,
 			enable: { start: 0 },
-			lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+			lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 		},
 		partInstanceId: partInstanceId1,
 	} as PieceInstance)
@@ -127,7 +127,7 @@ function createAndPopulateMockCache(): ContentCache {
 			tags: [tag3],
 			sourceLayerId: sourceLayerId0,
 			enable: { start: 0 },
-			lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+			lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 		},
 		partInstanceId: partInstanceId2,
 	} as PieceInstance)

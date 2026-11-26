@@ -167,7 +167,7 @@ export function defaultPiece(_id: PieceId, rundownId: RundownId, segmentId: Segm
 		startSegmentId: segmentId,
 		startPartId: partId,
 		name: 'Default Piece',
-		lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+		lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 		pieceType: IBlueprintPieceType.Normal,
 		invalid: false,
 		enable: {
@@ -187,7 +187,7 @@ export function defaultAdLibPiece(_id: PieceId, rundownId: RundownId, partId: Pa
 		partId: partId,
 		_rank: 0,
 		name: 'Default Adlib',
-		lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+		lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 		sourceLayerId: '',
 		outputLayerId: '',
 		content: {},

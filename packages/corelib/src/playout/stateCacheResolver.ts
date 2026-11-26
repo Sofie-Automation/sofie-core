@@ -483,12 +483,12 @@ function resolveVisiblePiecesOnLayer(items: PieceExtended[]): PieceExtended[] {
 		const lastSpan = spans[spans.length - 1]
 		const lifespan = PieceLifespan.from(item.instance.piece.lifespan)
 
-		// An infinite which doesn't persist in shadow and stops being visible within this Part was ended here
-		if (item.instance.infinite && !lifespan.persistsInShadow && (!lastSpan || lastSpan.end !== Infinity)) {
+		// An infinite which doesn't persist when covered and stops being visible within this Part was ended here
+		if (item.instance.infinite && !lifespan.persistsWhenCovered && (!lastSpan || lastSpan.end !== Infinity)) {
 			;(item.instance.piece as PieceInstancePiece).lifespan = {
 				scope: 'part',
 				presence: 'forward-scope',
-				inShadow: 'stop',
+				whenCovered: 'stop',
 			}
 			delete (item.instance as PieceInstance).infinite
 		}

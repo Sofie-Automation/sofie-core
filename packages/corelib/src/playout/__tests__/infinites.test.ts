@@ -179,18 +179,18 @@ function getContinuedPieceIds(params: PieceInstancesForPartParams): string[] {
 	return getContinuedInfinitesForPart(params).map((p) => String(p.piece._id))
 }
 
-const segmentStop: IPieceLifespan = { scope: 'segment', presence: 'forward-scope', inShadow: 'stop' }
-const segmentPersist: IPieceLifespan = { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' }
-const rundownPersist: IPieceLifespan = { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' }
-const showstylePersist: IPieceLifespan = { scope: 'showstyle', presence: 'forward-scope', inShadow: 'persist' }
-const playlistPersist: IPieceLifespan = { scope: 'playlist', presence: 'forward-scope', inShadow: 'persist' }
-const partOnly: IPieceLifespan = { scope: 'part', presence: 'forward-scope', inShadow: 'stop' }
-const segmentPlayhead: IPieceLifespan = { scope: 'segment', presence: 'follow-playhead', inShadow: 'stop' }
-const rundownPlayhead: IPieceLifespan = { scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' }
+const segmentStop: IPieceLifespan = { scope: 'segment', presence: 'forward-scope', whenCovered: 'stop' }
+const segmentPersist: IPieceLifespan = { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' }
+const rundownPersist: IPieceLifespan = { scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' }
+const showstylePersist: IPieceLifespan = { scope: 'showstyle', presence: 'forward-scope', whenCovered: 'persist' }
+const playlistPersist: IPieceLifespan = { scope: 'playlist', presence: 'forward-scope', whenCovered: 'persist' }
+const partOnly: IPieceLifespan = { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' }
+const segmentPlayhead: IPieceLifespan = { scope: 'segment', presence: 'follow-playhead', whenCovered: 'stop' }
+const rundownPlayhead: IPieceLifespan = { scope: 'rundown', presence: 'follow-playhead', whenCovered: 'stop' }
 
 describe('Infinites', () => {
 	describe('planned pieces', () => {
-		test('an infinite which stops in shadow is stopped by any later piece on its layer', () => {
+		test('an infinite which stops when covered is stopped by any later piece on its layer', () => {
 			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentStop)
 			const finite = createPiece('finite', 'part1', 0, 'layer', partOnly)
 			const otherLayer = createPiece('otherLayer', 'part1', 0, 'other', partOnly)
@@ -199,21 +199,21 @@ describe('Infinites', () => {
 			expect(getContinuedPieceIds(getParams('part2', [infinite, finite]))).toEqual([])
 		})
 
-		test('an infinite which persists in shadow resumes after a later piece', () => {
+		test('an infinite which persists when covered resumes after a later piece', () => {
 			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentPersist)
 			const finite = createPiece('finite', 'part1', 0, 'layer', partOnly)
 
 			expect(getContinuedPieceIds(getParams('part2', [infinite, finite]))).toEqual(['infinite'])
 		})
 
-		test('an infinite which persists in shadow is replaced by a later one of the same scope', () => {
+		test('an infinite which persists when covered is replaced by a later one of the same scope', () => {
 			const first = createPiece('first', 'part0', 0, 'layer', segmentPersist)
 			const second = createPiece('second', 'part1', 0, 'layer', segmentPersist)
 
 			expect(getContinuedPieceIds(getParams('part2', [first, second]))).toEqual(['second'])
 		})
 
-		test('an infinite which persists in shadow is not replaced by a later one of the same scope with an end', () => {
+		test('an infinite which persists when covered is not replaced by a later one of the same scope with an end', () => {
 			const first = createPiece('first', 'part0', 0, 'layer', segmentPersist)
 			const second = {
 				...createPiece('second', 'part1', 0, 'layer', segmentPersist),
@@ -228,7 +228,7 @@ describe('Infinites', () => {
 			const legacyPersist: IPieceLifespan = {
 				scope: 'segment',
 				presence: 'forward-scope',
-				inShadow: 'legacy-persist',
+				whenCovered: 'legacy-persist',
 			}
 			const first = createPiece('first', 'part0', 0, 'layer', legacyPersist)
 			const second = {
@@ -244,7 +244,7 @@ describe('Infinites', () => {
 				...createPiece(id, 'part0', 0, id, lifespan),
 				enable: { start: 0, duration: 1000 },
 			})
-			const legacyPersist: IPieceLifespan = { ...segmentPersist, inShadow: 'legacy-persist' }
+			const legacyPersist: IPieceLifespan = { ...segmentPersist, whenCovered: 'legacy-persist' }
 
 			expect(
 				getContinuedPieceIds(
@@ -253,27 +253,27 @@ describe('Infinites', () => {
 			).toEqual(['legacy'])
 		})
 
-		test('a shadow ends no infinite, they all continue under it', () => {
+		test('a cover ends no infinite, they all continue under it', () => {
 			const stop = createPiece('stop', 'part0', 0, 'layerA', segmentStop)
 			const persist = createPiece('persist', 'part0', 0, 'layerB', rundownPersist)
-			const shadow = (layer: string) => ({
-				...createPiece(`shadow_${layer}`, 'part1', 0, layer, segmentPersist),
+			const cover = (layer: string) => ({
+				...createPiece(`cover_${layer}`, 'part1', 0, layer, segmentPersist),
 				virtual: true,
-				virtualMode: 'shadow' as const,
+				persistCoveredPieces: true,
 			})
-			const pieces = [stop, persist, shadow('layerA'), shadow('layerB')]
+			const pieces = [stop, persist, cover('layerA'), cover('layerB')]
 
-			// The shadows continue for their own scope, the infinites are still there under them
+			// The covers continue for their own scope, the infinites are still there under them
 			expect(getContinuedPieceIds(getParams('part2', pieces)).sort()).toEqual([
+				'cover_layerA',
+				'cover_layerB',
 				'persist',
-				'shadow_layerA',
-				'shadow_layerB',
 				'stop',
 			])
 			expect(getContinuedPieceIds(getParams('part3', pieces))).toEqual(['persist'])
 		})
 
-		test('infinites which persist in shadow with different scopes are stacked, broadest first', () => {
+		test('infinites which persist when covered with different scopes are stacked, broadest first', () => {
 			const segment = createPiece('segment', 'part0', 0, 'layer', segmentPersist)
 			const rundown = createPiece('rundown', 'part1', 0, 'layer', rundownPersist)
 
@@ -288,11 +288,11 @@ describe('Infinites', () => {
 			expect(getContinuedPieceIds(getParams('part1', [infinite, finite]))).toEqual(['infinite'])
 		})
 
-		test('a part scoped piece is never continued, even when it persists in shadow', () => {
+		test('a part scoped piece is never continued, even when it persists when covered', () => {
 			const piece = createPiece('piece', 'part0', 0, 'layer', {
 				scope: 'part',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			})
 
 			expect(getContinuedPieceIds(getParams('part1', [piece]))).toEqual([])
@@ -379,7 +379,7 @@ describe('Infinites', () => {
 			expect(getContinuedPieceIds(getParams('part1', [], playing))).toEqual([])
 		})
 
-		test('an adlib in the playing part stops a planned infinite which stops in shadow', () => {
+		test('an adlib in the playing part stops a planned infinite which stops when covered', () => {
 			const infinite = createPiece('infinite', 'part0', 0, 'layer', segmentStop)
 			const adlib = createPiece('adlib', 'part1', 0, 'layer', partOnly)
 
@@ -402,22 +402,22 @@ describe('Infinites', () => {
 			expect(getContinuedPieceIds(getParams('part2', [infinite], withAdlib))).toEqual([])
 		})
 
-		test('an infinite which stopped playing while hidden by a shadow is still continued', () => {
+		test('an infinite which stopped playing while hidden by a cover is still continued', () => {
 			const playhead = createPiece('playhead', 'part0', 0, 'layer', segmentPlayhead)
-			const shadow = {
-				...createPiece('shadow', 'part0', 2000, 'layer', partOnly),
+			const cover = {
+				...createPiece('cover', 'part0', 2000, 'layer', partOnly),
 				enable: { start: 2000, duration: 3000 },
 				virtual: true,
-				virtualMode: 'shadow' as const,
+				persistCoveredPieces: true,
 			}
-			// Playout reports the piece as stopped when the shadow cuts it, and the slice resuming after it is not it
+			// Playout reports the piece as stopped when the cover cuts it, and the slice resuming after it is not it
 			const stoppedPlayhead = createPieceInstance(playhead, { plannedStoppedPlayback: 2000 })
 
-			const withShadow = createPlaying('part0', [stoppedPlayhead, createPieceInstance(shadow)])
-			expect(getContinuedPieceIds(getParams('part1', [], withShadow))).toEqual(['playhead'])
+			const withCover = createPlaying('part0', [stoppedPlayhead, createPieceInstance(cover)])
+			expect(getContinuedPieceIds(getParams('part1', [], withCover))).toEqual(['playhead'])
 
-			const withoutShadow = createPlaying('part0', [stoppedPlayhead])
-			expect(getContinuedPieceIds(getParams('part1', [], withoutShadow))).toEqual([])
+			const withoutCover = createPlaying('part0', [stoppedPlayhead])
+			expect(getContinuedPieceIds(getParams('part1', [], withoutCover))).toEqual([])
 		})
 
 		test('a planned infinite which was stopped in the playing part is not continued', () => {
@@ -480,7 +480,7 @@ describe('Infinites', () => {
 			const playheadLifespan: IPieceLifespan = {
 				scope: 'segment',
 				presence: 'follow-playhead',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}
 			const playhead = createPiece('playhead', 'part0', 0, 'layer', playheadLifespan)
 			const playing = createPlaying('part0', [createPieceInstance(playhead)])
@@ -517,7 +517,7 @@ describe('Infinites', () => {
 			const virtualEnder = (id: string, lifespan: IPieceLifespan) =>
 				createPieceInstance({ ...createPiece(`${id}_end`, 'part1', 0, id, lifespan), virtual: true })
 
-			const legacyPersist: IPieceLifespan = { ...rundownPersist, inShadow: 'legacy-persist' }
+			const legacyPersist: IPieceLifespan = { ...rundownPersist, whenCovered: 'legacy-persist' }
 			const playing = createPlaying('part1', [
 				continuedAdlib('legacy', legacyPersist),
 				virtualEnder('legacy', legacyPersist),
@@ -597,7 +597,10 @@ describe('Infinites', () => {
 
 			expect(mongoWhere(createPiece('stop', 'part0', 0, 'layer', segmentStop), query)).toBe(true)
 			expect(
-				mongoWhere(createPiece('partPersist', 'part0', 0, 'layer', { ...partOnly, inShadow: 'persist' }), query)
+				mongoWhere(
+					createPiece('partPersist', 'part0', 0, 'layer', { ...partOnly, whenCovered: 'persist' }),
+					query
+				)
 			).toBe(false)
 		})
 

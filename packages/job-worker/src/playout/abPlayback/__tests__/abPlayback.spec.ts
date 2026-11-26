@@ -39,7 +39,7 @@ function createBasicResolvedPieceInstance(
 		sourceLayerId: '',
 		outputLayerId: '',
 		privateData: {},
-		lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+		lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 		timelineObjectsString: EmptyPieceTimelineObjectsBlob,
 		content: {},
 		invalid: false,

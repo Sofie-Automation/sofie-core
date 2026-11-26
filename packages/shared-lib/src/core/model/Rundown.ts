@@ -32,7 +32,7 @@ export type PieceLifespanPresence = 'follow-playhead' | 'forward-scope'
  * Note: `legacy-persist` is deprecated, it only exists to keep the behaviour of the legacy presets and will be removed.
  * Use `persist`, and end an infinite with a newer one of the same or a broader scope instead
  */
-export type PieceLifespanInShadow = 'persist' | 'stop' | 'legacy-persist'
+export type PieceLifespanWhenCovered = 'persist' | 'stop' | 'legacy-persist'
 
 export interface IPieceLifespan {
 	/** The structural hierarchy boundary past which this piece naturally expires */
@@ -42,7 +42,7 @@ export interface IPieceLifespan {
 	presence: PieceLifespanPresence
 
 	/** Behavior when occluded by a higher-priority piece on the same source layer */
-	inShadow: PieceLifespanInShadow
+	whenCovered: PieceLifespanWhenCovered
 }
 
 export type PieceLifespanInfo = LegacyPieceLifespan | IPieceLifespan

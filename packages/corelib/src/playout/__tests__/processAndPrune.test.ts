@@ -14,7 +14,7 @@ import {
 import { IPieceLifespan } from '@sofie-automation/shared-lib/dist/core/model/Rundown'
 
 describe('processAndPrunePieceInstanceTimings', () => {
-	const partOnlyLifespan = { scope: 'part', presence: 'forward-scope', inShadow: 'stop' } as const
+	const partOnlyLifespan = { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' } as const
 
 	function createPieceInstance(
 		id: string,
@@ -83,12 +83,12 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('one', { start: 0 }, 'one', {
 				scope: 'rundown',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('two', { start: 1000 }, 'two', {
 				scope: 'rundown',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 		]
 
@@ -113,16 +113,16 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('one', { start: 0 }, 'one', {
 				scope: 'rundown',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('two', { start: 1000, duration: 5000 }, 'one', {
 				scope: 'rundown',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 		]
 
-		// 'one' persists in shadow of 'two', and resumes when it ends
+		// 'one' is hidden by 'two', and resumes when it ends
 		const resolvedInstances = runAndTidyResult(pieceInstances, createPartCurrentTimes(500, 0))
 		expect(resolvedInstances).toEqual([
 			{
@@ -145,7 +145,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'incoming',
 				{ start: 0 },
 				'one',
-				{ scope: 'rundown', presence: 'forward-scope', inShadow: 'legacy-persist' },
+				{ scope: 'rundown', presence: 'forward-scope', whenCovered: 'legacy-persist' },
 				false,
 				{
 					infiniteInstanceId: protectString('incoming_inf'),
@@ -157,7 +157,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('occluder', { start: 2000, duration: 1000 }, 'one', {
 				scope: 'part',
 				presence: 'forward-scope',
-				inShadow: 'stop',
+				whenCovered: 'stop',
 			}),
 		]
 
@@ -175,7 +175,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'incoming',
 				{ start: 0 },
 				'one',
-				{ scope: 'rundown', presence: 'forward-scope', inShadow: 'legacy-persist' },
+				{ scope: 'rundown', presence: 'forward-scope', whenCovered: 'legacy-persist' },
 				false,
 				{
 					infiniteInstanceId: protectString('incoming_inf'),
@@ -200,7 +200,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 	})
 
 	test('a continued persist piece resumes after a timed piece of its scope starting with it', () => {
-		const segmentPersist = { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' } as const
+		const segmentPersist = { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' } as const
 		const pieceInstances = [
 			createPieceInstance('first', { start: 0 }, 'one', segmentPersist, false, {
 				infiniteInstanceId: protectString('first_inf'),
@@ -219,7 +219,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 		])
 	})
 
-	describe('shadow pieces', () => {
+	describe('persistCoveredPieces', () => {
 		const continuation = (id: string, lifespan: IPieceLifespan) =>
 			createPieceInstance(id, { start: 0 }, 'one', lifespan, false, {
 				infiniteInstanceId: protectString(`${id}_inf`),
@@ -227,17 +227,17 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				infinitePieceId: protectString(`${id}_p`),
 				fromPreviousPart: true,
 			})
-		const shadow = (enable: Piece['enable']): PieceInstance => {
-			const instance = createPieceInstance('shadow', enable, 'one', {
+		const cover = (enable: Piece['enable']): PieceInstance => {
+			const instance = createPieceInstance('cover', enable, 'one', {
 				scope: 'part',
 				presence: 'forward-scope',
-				inShadow: 'stop',
+				whenCovered: 'stop',
 			})
-			return { ...instance, piece: { ...instance.piece, virtual: true, virtualMode: 'shadow' } }
+			return { ...instance, piece: { ...instance.piece, virtual: true, persistCoveredPieces: true } }
 		}
-		const rundownPersist: IPieceLifespan = { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' }
+		const rundownPersist: IPieceLifespan = { scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' }
 
-		test('an adlib taken before a shadow stays under it, wherever the playhead is', () => {
+		test('an adlib taken before a cover stays under it, wherever the playhead is', () => {
 			const adlib = {
 				...createPieceInstance('adlib', { start: 'now' }, 'one', rundownPersist),
 				dynamicallyInserted: 3000,
@@ -245,109 +245,109 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			// The part started at 0, so the adlib was taken 3s in
 			for (const playhead of [4000, 6000]) {
 				const resolvedInstances = runAndTidyResult(
-					[adlib, shadow({ start: 5000 })],
+					[adlib, cover({ start: 5000 })],
 					createPartCurrentTimes(playhead, 0)
 				)
 				expect(resolvedInstances).toEqual([{ _id: 'adlib', priority: 1, start: 'now', end: 5000 }])
 			}
 		})
 
-		test('a continued shadow covers a continued piece only if its chain started later', () => {
-			const continuedShadow = (startedAt: number): PieceInstance => {
-				const instance = shadow({ start: 0 })
+		test('a continued cover covers a continued piece only if its chain started later', () => {
+			const continuedCover = (startedAt: number): PieceInstance => {
+				const instance = cover({ start: 0 })
 				return {
 					...instance,
 					plannedStartedPlayback: startedAt,
 					infinite: {
-						infiniteInstanceId: protectString('shadow_inf'),
+						infiniteInstanceId: protectString('cover_inf'),
 						infiniteInstanceIndex: 1,
-						infinitePieceId: protectString('shadow_p'),
+						infinitePieceId: protectString('cover_p'),
 						fromPreviousPart: true,
 					},
 				}
 			}
 			const incoming = { ...continuation('incoming', rundownPersist), plannedStartedPlayback: 1000 }
 
-			// The shadow started after the incoming piece, so it is on top of it
-			expect(runAndTidyResult([incoming, continuedShadow(2000)], createPartCurrentTimes(500, 0))).toEqual([])
-			// The incoming piece started on top of the shadow
-			expect(runAndTidyResult([incoming, continuedShadow(500)], createPartCurrentTimes(500, 0))).toEqual([
+			// The cover started after the incoming piece, so it is on top of it
+			expect(runAndTidyResult([incoming, continuedCover(2000)], createPartCurrentTimes(500, 0))).toEqual([])
+			// The incoming piece started on top of the cover
+			expect(runAndTidyResult([incoming, continuedCover(500)], createPartCurrentTimes(500, 0))).toEqual([
 				{ _id: 'incoming', priority: 1, start: 0, end: undefined },
 			])
 		})
 
-		test('a persisting piece is cut by a shadow, and resumes after it', () => {
+		test('a persisting piece is cut by a cover, and resumes after it', () => {
 			const resolvedInstances = runAndTidyResult(
-				[continuation('incoming', rundownPersist), shadow({ start: 2000, duration: 3000 })],
+				[continuation('incoming', rundownPersist), cover({ start: 2000, duration: 3000 })],
 				createPartCurrentTimes(500, 0)
 			)
 			expect(resolvedInstances).toEqual([
 				{ _id: 'incoming', priority: 1, start: 0, end: 2000 },
-				{ _id: 'incoming_after_shadow', priority: 1, start: 5000, end: undefined },
+				{ _id: 'incoming_after_cover', priority: 1, start: 5000, end: undefined },
 			])
 		})
 
-		test('a piece which stops in shadow is cut by a shadow, and resumes after it', () => {
+		test('a piece which stops when covered is cut by a cover, and resumes after it', () => {
 			const resolvedInstances = runAndTidyResult(
 				[
-					continuation('incoming', { scope: 'segment', presence: 'forward-scope', inShadow: 'stop' }),
-					shadow({ start: 2000, duration: 3000 }),
+					continuation('incoming', { scope: 'segment', presence: 'forward-scope', whenCovered: 'stop' }),
+					cover({ start: 2000, duration: 3000 }),
 				],
 				createPartCurrentTimes(500, 0)
 			)
 			expect(resolvedInstances).toEqual([
 				{ _id: 'incoming', priority: 5, start: 0, end: 2000 },
-				{ _id: 'incoming_after_shadow', priority: 5, start: 5000, end: undefined },
+				{ _id: 'incoming_after_cover', priority: 5, start: 5000, end: undefined },
 			])
 		})
 
-		test('a legacy-persist piece is cut by a shadow, and resumes after it', () => {
+		test('a legacy-persist piece is cut by a cover, and resumes after it', () => {
 			const resolvedInstances = runAndTidyResult(
 				[
-					continuation('incoming', { ...rundownPersist, inShadow: 'legacy-persist' }),
-					shadow({ start: 2000, duration: 3000 }),
+					continuation('incoming', { ...rundownPersist, whenCovered: 'legacy-persist' }),
+					cover({ start: 2000, duration: 3000 }),
 				],
 				createPartCurrentTimes(500, 0)
 			)
 			expect(resolvedInstances).toEqual([
 				{ _id: 'incoming', priority: 1, start: 0, end: 2000 },
-				{ _id: 'incoming_after_shadow', priority: 1, start: 5000, end: undefined },
+				{ _id: 'incoming_after_cover', priority: 1, start: 5000, end: undefined },
 			])
 		})
 
-		test('a piece starting during a shadow is on top of it', () => {
+		test('a piece starting during a cover is on top of it', () => {
 			const resolvedInstances = runAndTidyResult(
 				[
 					continuation('incoming', rundownPersist),
-					shadow({ start: 2000, duration: 3000 }),
+					cover({ start: 2000, duration: 3000 }),
 					createPieceInstance('later', { start: 3000, duration: 1000 }, 'one', {
 						scope: 'part',
 						presence: 'forward-scope',
-						inShadow: 'persist',
+						whenCovered: 'persist',
 					}),
 				],
 				createPartCurrentTimes(500, 0)
 			)
 			expect(resolvedInstances).toEqual([
 				{ _id: 'incoming', priority: 1, start: 0, end: 2000 },
-				{ _id: 'incoming_after_shadow', priority: 1, start: 5000, end: undefined },
+				{ _id: 'incoming_after_cover', priority: 1, start: 5000, end: undefined },
 				{ _id: 'later', priority: 3, start: 3000, end: undefined },
 			])
 		})
 
-		test('an open ended shadow hides the layer for the rest of the part', () => {
+		test('an open ended cover hides the layer for the rest of the part', () => {
 			const resolvedInstances = runAndTidyResult(
-				[continuation('incoming', rundownPersist), shadow({ start: 2000 })],
+				[continuation('incoming', rundownPersist), cover({ start: 2000 })],
 				createPartCurrentTimes(500, 0)
 			)
 			expect(resolvedInstances).toEqual([{ _id: 'incoming', priority: 1, start: 0, end: 2000 }])
 		})
 
-		test('a piece ending the shadowed one during the shadow means it does not resume', () => {
+		test('a piece ending the covered one during the cover means it does not resume', () => {
 			const resolvedInstances = runAndTidyResult(
 				[
 					continuation('incoming', rundownPersist),
-					shadow({ start: 2000, duration: 3000 }),
+					cover({ start: 2000, duration: 3000 }),
 					createPieceInstance('replacement', { start: 3000 }, 'one', rundownPersist),
 				],
 				createPartCurrentTimes(500, 0)
@@ -358,10 +358,14 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			])
 		})
 
-		test('a clear virtual which does not end a persisting piece obstructs it while active, as a shadow', () => {
+		test('a virtual which does not end a persisting piece hides it while active, as persistCoveredPieces does', () => {
 			const clear = createPieceInstance('clear', { start: 2000, duration: 3000 }, 'one', partOnlyLifespan, true)
-			const segmentPersist: IPieceLifespan = { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' }
-			const legacyPersist: IPieceLifespan = { ...rundownPersist, inShadow: 'legacy-persist' }
+			const segmentPersist: IPieceLifespan = {
+				scope: 'segment',
+				presence: 'forward-scope',
+				whenCovered: 'persist',
+			}
+			const legacyPersist: IPieceLifespan = { ...rundownPersist, whenCovered: 'legacy-persist' }
 
 			expect(
 				runAndTidyResult([continuation('incoming', segmentPersist), clear], createPartCurrentTimes(500, 0))
@@ -380,11 +384,11 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			])
 		})
 
-		test('a piece starting during the shadow ends a piece which stops in shadow under it', () => {
+		test('a piece starting during the cover ends a piece which stops when covered under it', () => {
 			const resolvedInstances = runAndTidyResult(
 				[
-					continuation('incoming', { scope: 'segment', presence: 'forward-scope', inShadow: 'stop' }),
-					shadow({ start: 2000, duration: 3000 }),
+					continuation('incoming', { scope: 'segment', presence: 'forward-scope', whenCovered: 'stop' }),
+					cover({ start: 2000, duration: 3000 }),
 					createPieceInstance('normal', { start: 3000, duration: 1000 }, 'one', partOnlyLifespan),
 				],
 				createPartCurrentTimes(500, 0)
@@ -397,7 +401,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 	})
 
 	test('basic collision with legacy-persist', () => {
-		const legacyPersist = { scope: 'rundown', presence: 'forward-scope', inShadow: 'legacy-persist' } as const
+		const legacyPersist = { scope: 'rundown', presence: 'forward-scope', whenCovered: 'legacy-persist' } as const
 		const pieceInstances = [
 			createPieceInstance('one', { start: 0 }, 'one', legacyPersist),
 			createPieceInstance('two', { start: 1000, duration: 5000 }, 'one', legacyPersist),
@@ -415,32 +419,32 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('zero', { start: 0 }, 'one', {
 				scope: 'showstyle',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('one', { start: 500 }, 'one', {
 				scope: 'rundown',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('two', { start: 1000, duration: 5000 }, 'one', {
 				scope: 'segment',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('four', { start: 2000, duration: 2000 }, 'one', {
 				scope: 'part',
 				presence: 'forward-scope',
-				inShadow: 'stop',
+				whenCovered: 'stop',
 			}),
 			createPieceInstance('three', { start: 3000 }, 'one', {
 				scope: 'rundown',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('five', { start: 4000 }, 'one', {
 				scope: 'showstyle',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 		]
 
@@ -489,37 +493,37 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('zero', { start: 0 }, 'one', {
 				scope: 'showstyle',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('one', { start: 500 }, 'one', {
 				scope: 'rundown',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('two', { start: 1000 }, 'one', {
 				scope: 'segment',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance(
 				'three',
 				{ start: 3000 },
 				'one',
-				{ scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' },
 				true
 			),
 			createPieceInstance(
 				'two',
 				{ start: 5000 },
 				'one',
-				{ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				true
 			),
 			createPieceInstance(
 				'zero',
 				{ start: 6000 },
 				'one',
-				{ scope: 'showstyle', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'showstyle', presence: 'forward-scope', whenCovered: 'persist' },
 				true
 			),
 		]
@@ -551,37 +555,37 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('zero', { start: 0 }, 'one', {
 				scope: 'showstyle',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('one', { start: 500 }, 'one', {
 				scope: 'rundown',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('two', { start: 1000 }, 'one', {
 				scope: 'segment',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance(
 				'three',
 				{ start: 3000 },
 				'one',
-				{ scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' },
 				true
 			),
 			createPieceInstance(
 				'four',
 				{ start: 5000 },
 				'one',
-				{ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				true
 			),
 			createPieceInstance(
 				'five',
 				{ start: 6000 },
 				'one',
-				{ scope: 'showstyle', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'showstyle', presence: 'forward-scope', whenCovered: 'persist' },
 				true
 			),
 		]
@@ -631,32 +635,32 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('zero', { start: 0 }, 'one', {
 				scope: 'showstyle',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('one', { start: 500 }, 'one', {
 				scope: 'segment',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('two', { start: 1000 }, 'one', {
 				scope: 'segment',
 				presence: 'follow-playhead',
-				inShadow: 'stop',
+				whenCovered: 'stop',
 			}),
 			createPieceInstance('three', { start: 2000 }, 'one', {
 				scope: 'rundown',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('four', { start: 5000 }, 'one', {
 				scope: 'segment',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('five', { start: 6000 }, 'one', {
 				scope: 'showstyle',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 		]
 
@@ -706,14 +710,14 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'one',
 				{ start: 1000 },
 				'one',
-				{ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				6000
 			),
 			createPieceInstance(
 				'two',
 				{ start: 1000 },
 				'one',
-				{ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				5500
 			),
 		]
@@ -734,28 +738,28 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'one',
 				{ start: 1000 },
 				'one',
-				{ scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' },
+				{ scope: 'rundown', presence: 'follow-playhead', whenCovered: 'stop' },
 				6000
 			),
 			createPieceInstance(
 				'two',
 				{ start: 1000 },
 				'one',
-				{ scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' },
+				{ scope: 'rundown', presence: 'follow-playhead', whenCovered: 'stop' },
 				5500
 			),
 			createPieceInstance(
 				'three',
 				{ start: 1000 },
 				'one',
-				{ scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' },
+				{ scope: 'rundown', presence: 'follow-playhead', whenCovered: 'stop' },
 				7000
 			),
 			createPieceInstance(
 				'four',
 				{ start: 1000 },
 				'one',
-				{ scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' },
+				{ scope: 'rundown', presence: 'follow-playhead', whenCovered: 'stop' },
 				4000
 			),
 		]
@@ -776,14 +780,14 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'one',
 				{ start: 1000 },
 				'one',
-				{ scope: 'showstyle', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'showstyle', presence: 'forward-scope', whenCovered: 'persist' },
 				6000
 			),
 			createPieceInstance(
 				'two',
 				{ start: 1000 },
 				'one',
-				{ scope: 'showstyle', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'showstyle', presence: 'forward-scope', whenCovered: 'persist' },
 				5500
 			),
 		]
@@ -804,7 +808,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'one',
 				{ start: 0 },
 				'one',
-				{ scope: 'segment', presence: 'follow-playhead', inShadow: 'stop' },
+				{ scope: 'segment', presence: 'follow-playhead', whenCovered: 'stop' },
 				6000,
 				{
 					fromPreviousPart: true,
@@ -818,7 +822,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'two',
 				{ start: 0 },
 				'one',
-				{ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				false,
 				{
 					fromPreviousPart: true,
@@ -851,7 +855,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'one',
 				{ start: 0 },
 				'one',
-				{ scope: 'segment', presence: 'follow-playhead', inShadow: 'stop' },
+				{ scope: 'segment', presence: 'follow-playhead', whenCovered: 'stop' },
 				6000,
 				{
 					fromPreviousPart: true,
@@ -865,7 +869,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'two',
 				{ start: 0 },
 				'one',
-				{ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				false,
 				{
 					fromPreviousPart: false,
@@ -892,7 +896,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'one',
 				{ start: 0 },
 				'one',
-				{ scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' },
 				false,
 				{
 					fromPreviousPart: true,
@@ -905,7 +909,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'two',
 				{ start: 0 },
 				'one',
-				{ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				false,
 				{
 					fromPreviousPart: false,
@@ -930,7 +934,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'one',
 				{ start: 0 },
 				'one',
-				{ scope: 'segment', presence: 'follow-playhead', inShadow: 'stop' },
+				{ scope: 'segment', presence: 'follow-playhead', whenCovered: 'stop' },
 				false,
 				{
 					fromPreviousPart: true,
@@ -944,7 +948,7 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				'two',
 				{ start: 0 },
 				'one',
-				{ scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				false,
 				{
 					fromPreviousPart: false,
@@ -983,17 +987,17 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				createPieceInstance('one', { start: 0 }, 'one', {
 					scope: 'rundown',
 					presence: 'follow-playhead',
-					inShadow: 'stop',
+					whenCovered: 'stop',
 				}),
 				createPieceInstance('two', { start: now + 2000, isAbsolute: true }, 'one', {
 					scope: 'rundown',
 					presence: 'follow-playhead',
-					inShadow: 'stop',
+					whenCovered: 'stop',
 				}),
 				createPieceInstance('three', { start: 6000 }, 'one', {
 					scope: 'rundown',
 					presence: 'follow-playhead',
-					inShadow: 'stop',
+					whenCovered: 'stop',
 				}),
 			]
 
@@ -1028,17 +1032,17 @@ describe('processAndPrunePieceInstanceTimings', () => {
 				createPieceInstance('one', { start: 0 }, 'one', {
 					scope: 'rundown',
 					presence: 'follow-playhead',
-					inShadow: 'stop',
+					whenCovered: 'stop',
 				}),
 				createPieceInstance('two', { start: partStart + 2000, isAbsolute: true }, 'one', {
 					scope: 'rundown',
 					presence: 'follow-playhead',
-					inShadow: 'stop',
+					whenCovered: 'stop',
 				}),
 				createPieceInstance('three', { start: 2000 }, 'one', {
 					scope: 'rundown',
 					presence: 'follow-playhead',
-					inShadow: 'stop',
+					whenCovered: 'stop',
 				}),
 			]
 
@@ -1082,14 +1086,14 @@ describe('processAndPrunePieceInstanceTimings', () => {
 		})
 	})
 
-	test('nested pieces persisting in shadow resume when the one covering them ends', () => {
-		const partPersist = { scope: 'part', presence: 'forward-scope', inShadow: 'persist' } as const
+	test('nested pieces persisting when covered resume when the one covering them ends', () => {
+		const partPersist = { scope: 'part', presence: 'forward-scope', whenCovered: 'persist' } as const
 		const pieceInstances = [
 			createPieceInstance(
 				'incoming',
 				{ start: 0 },
 				'one',
-				{ scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
+				{ scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' },
 				false,
 				{
 					infiniteInstanceId: protectString('incoming_inf'),
@@ -1113,8 +1117,8 @@ describe('processAndPrunePieceInstanceTimings', () => {
 		])
 	})
 
-	test('an open ended piece persisting in shadow stops the ones of its scope it covers', () => {
-		const partPersist = { scope: 'part', presence: 'forward-scope', inShadow: 'persist' } as const
+	test('an open ended piece persisting when covered stops the ones of its scope it covers', () => {
+		const partPersist = { scope: 'part', presence: 'forward-scope', whenCovered: 'persist' } as const
 		const pieceInstances = [
 			createPieceInstance('a', { start: 1000, duration: 5000 }, 'one', partPersist),
 			createPieceInstance('b', { start: 2000, duration: 1000 }, 'one', partPersist),
@@ -1132,21 +1136,21 @@ describe('processAndPrunePieceInstanceTimings', () => {
 	test('keeps pieces of every lifespan combination', () => {
 		const scopes = ['part', 'segment', 'rundown', 'showstyle', 'playlist'] as const
 		const presences = ['forward-scope', 'follow-playhead'] as const
-		const inShadows = ['stop', 'persist'] as const
+		const whenCovereds = ['stop', 'persist'] as const
 
 		const pieceInstances: PieceInstance[] = []
 		const expected: ReturnType<typeof runAndTidyResult> = []
 		for (const scope of scopes) {
 			for (const presence of presences) {
-				for (const inShadow of inShadows) {
-					const id = `${scope}:${presence}:${inShadow}`
-					pieceInstances.push(createPieceInstance(id, { start: 0 }, id, { scope, presence, inShadow }))
+				for (const whenCovered of whenCovereds) {
+					const id = `${scope}:${presence}:${whenCovered}`
+					pieceInstances.push(createPieceInstance(id, { start: 0 }, id, { scope, presence, whenCovered }))
 					expected.push({
 						_id: protectString(id),
 						start: 0,
 						end: undefined,
 						priority:
-							inShadow === 'persist'
+							whenCovered === 'persist'
 								? { part: 3, segment: 2, rundown: 1, showstyle: 0, playlist: -1 }[scope]
 								: 5,
 					})
@@ -1163,12 +1167,12 @@ describe('processAndPrunePieceInstanceTimings', () => {
 			createPieceInstance('rundown', { start: 0 }, 'one', {
 				scope: 'rundown',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 			createPieceInstance('part', { start: 1000, duration: 2000 }, 'one', {
 				scope: 'part',
 				presence: 'forward-scope',
-				inShadow: 'persist',
+				whenCovered: 'persist',
 			}),
 		]
 
@@ -1207,7 +1211,7 @@ describe('resolvePrunedPieceInstances', () => {
 				startPartId: protectString(''),
 				enable: enable,
 				name: '',
-				lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+				lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 				sourceLayerId: '',
 				outputLayerId: '',
 				invalid: false,

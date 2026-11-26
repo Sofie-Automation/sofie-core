@@ -75,7 +75,7 @@ describe('Resolved Pieces', () => {
 				pieceType: IBlueprintPieceType.Normal,
 				sourceLayerId,
 				outputLayerId: '',
-				lifespan: piecePartial?.lifespan ?? { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+				lifespan: piecePartial?.lifespan ?? { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 				enable,
 				virtual: piecePartial?.virtual ?? false,
 				timelineObjectsString: EmptyPieceTimelineObjectsBlob,
@@ -171,12 +171,12 @@ describe('Resolved Pieces', () => {
 			const piece0 = createPieceInstance(
 				sourceLayerId,
 				{ start: 1000 },
-				{ lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' } }
+				{ lifespan: { scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' } }
 			)
 			const piece1 = createPieceInstance(
 				sourceLayerId,
 				{ start: 4000 },
-				{ lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' } }
+				{ lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' } }
 			)
 			const piece2 = createPieceInstance(sourceLayerId, { start: 8000, duration: 2000 })
 
@@ -208,12 +208,12 @@ describe('Resolved Pieces', () => {
 			const piece0 = createPieceInstance(
 				sourceLayerId,
 				{ start: 1000 },
-				{ lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' } }
+				{ lifespan: { scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' } }
 			)
 			const piece1 = createPieceInstance(
 				sourceLayerId,
 				{ start: 4000 },
-				{ lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' }, virtual: true }
+				{ lifespan: { scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' }, virtual: true }
 			)
 
 			const resolvedPieces = getResolvedPiecesInner(sourceLayers, null, [piece0, piece1])
@@ -537,14 +537,14 @@ describe('Resolved Pieces', () => {
 				sourceLayerId,
 				{ start: 1000 },
 				{
-					lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+					lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				}
 			)
 			const infinite2 = createPieceInstance(
 				sourceLayerId,
 				{ start: 5000 },
 				{
-					lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+					lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				}
 			)
 
@@ -665,7 +665,7 @@ describe('Resolved Pieces', () => {
 				sourceLayerId,
 				{ start: 1000 },
 				{
-					lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+					lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				}
 			)
 
@@ -719,7 +719,7 @@ describe('Resolved Pieces', () => {
 				sourceLayerId,
 				{ start: 1000 },
 				{
-					lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+					lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				}
 			)
 
@@ -727,7 +727,7 @@ describe('Resolved Pieces', () => {
 				sourceLayerId,
 				{ start: 0 },
 				{
-					lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+					lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				},
 				{
 					userDuration: {
@@ -841,7 +841,7 @@ describe('Resolved Pieces', () => {
 				sourceLayerId,
 				{ start: 1000 },
 				{
-					lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+					lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				}
 			)
 
@@ -902,14 +902,14 @@ describe('Resolved Pieces', () => {
 				sourceLayerId,
 				{ start: 1000 },
 				{
-					lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+					lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				}
 			)
 			const continuingInfinitePiece = createPieceInstance(
 				sourceLayerId,
 				{ start: 0 },
 				{
-					lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+					lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				},
 				{
 					userDuration: {

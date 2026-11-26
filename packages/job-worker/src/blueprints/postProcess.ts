@@ -124,17 +124,17 @@ export function postProcessPieces(
 			userEditProperties: translateUserEditPropertiesFromBlueprint(orgPiece.userEditProperties, [blueprintId]),
 		}
 
-		if (piece.virtualMode === 'shadow') {
-			// a shadow only obstructs its layer, it can't have any contents
+		if (piece.persistCoveredPieces) {
+			// it only hides the pieces it covers, it can't have any contents
 			piece.virtual = true
 		}
 		if (piece.pieceType !== IBlueprintPieceType.Normal) {
 			// transition pieces must not be infinite, lets enforce that
-			piece.lifespan = { scope: 'part', presence: 'forward-scope', inShadow: 'stop' }
+			piece.lifespan = { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' }
 		}
 		if (piece.extendOnHold) {
 			// HOLD pieces must not be infinite, as they become that when being held
-			piece.lifespan = { scope: 'part', presence: 'forward-scope', inShadow: 'stop' }
+			piece.lifespan = { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' }
 		}
 
 		if (!allowNowForPiece && piece.enable.start === 'now')
@@ -422,7 +422,7 @@ export function postProcessGlobalPieces(
 			content: omit(orgPiece.content, 'timelineObjects'),
 
 			pieceType: IBlueprintPieceType.Normal,
-			lifespan: { scope: 'rundown', presence: 'follow-playhead', inShadow: 'stop' },
+			lifespan: { scope: 'rundown', presence: 'follow-playhead', whenCovered: 'stop' },
 
 			_id: protectString(docId),
 			startRundownId: rundownId,
@@ -436,11 +436,11 @@ export function postProcessGlobalPieces(
 
 		if (piece.pieceType !== IBlueprintPieceType.Normal) {
 			// transition pieces must not be infinite, lets enforce that
-			piece.lifespan = { scope: 'part', presence: 'forward-scope', inShadow: 'stop' }
+			piece.lifespan = { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' }
 		}
 		if (piece.extendOnHold) {
 			// HOLD pieces must not be infinite, as they become that when being held
-			piece.lifespan = { scope: 'part', presence: 'forward-scope', inShadow: 'stop' }
+			piece.lifespan = { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' }
 		}
 
 		if (piece.enable.start === 'now')

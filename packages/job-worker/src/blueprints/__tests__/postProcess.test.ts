@@ -327,7 +327,7 @@ describe('Test blueprint post-process', () => {
 					content: {
 						timelineObjects: [],
 					},
-					lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+					lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 				},
 				{
 					_rank: 1,
@@ -338,7 +338,7 @@ describe('Test blueprint post-process', () => {
 					content: {
 						timelineObjects: [],
 					},
-					lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+					lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 				},
 				{
 					_rank: 9,
@@ -349,7 +349,7 @@ describe('Test blueprint post-process', () => {
 					content: {
 						timelineObjects: [],
 					},
-					lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+					lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 				},
 			])
 
@@ -380,7 +380,7 @@ describe('Test blueprint post-process', () => {
 				rundownId: protectString(''),
 				content: {},
 				timelineObjectsString: EmptyPieceTimelineObjectsBlob,
-				lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+				lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 			})
 			ensureAllKeysDefined(tmpObj, res)
 
@@ -420,7 +420,7 @@ describe('Test blueprint post-process', () => {
 						}),
 					],
 				},
-				lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+				lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 			})
 
 			const res = postProcessAdLibPieces(jobContext, blueprintId, rundownId, undefined, [piece])
@@ -463,7 +463,7 @@ describe('Test blueprint post-process', () => {
 			expect(processedPiece.lifespan).toEqual({
 				scope: 'segment',
 				presence: 'forward-scope',
-				inShadow: 'legacy-persist',
+				whenCovered: 'legacy-persist',
 			})
 		})
 
@@ -496,7 +496,7 @@ describe('Test blueprint post-process', () => {
 					content: {
 						timelineObjects: [],
 					},
-					lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+					lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 				},
 				{
 					name: 'test2',
@@ -507,7 +507,7 @@ describe('Test blueprint post-process', () => {
 					content: {
 						timelineObjects: [],
 					},
-					lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+					lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 				},
 			])
 
@@ -545,7 +545,7 @@ describe('Test blueprint post-process', () => {
 				startPartId: protectString(''),
 				startSegmentId: protectString(''),
 				startRundownId: protectString(''),
-				lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+				lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 				pieceType: IBlueprintPieceType.Normal,
 				content: {},
 				timelineObjectsString: EmptyPieceTimelineObjectsBlob,
@@ -585,7 +585,7 @@ describe('Test blueprint post-process', () => {
 						}),
 					],
 				},
-				lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
+				lifespan: { scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' },
 			})
 
 			const res = postProcessPieces(
@@ -631,7 +631,7 @@ describe('Test blueprint post-process', () => {
 						}),
 					],
 				},
-				lifespan: { scope: 'rundown', presence: 'forward-scope', inShadow: 'persist' },
+				lifespan: { scope: 'rundown', presence: 'forward-scope', whenCovered: 'persist' },
 			})
 
 			expect(() => {

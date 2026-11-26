@@ -135,7 +135,7 @@ describe('test peripheralDevice general API methods', () => {
 			startPartId: protectString('part000'),
 			startSegmentId: segmentID,
 			startRundownId: rundownID,
-			lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+			lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 			pieceType: IBlueprintPieceType.Normal,
 			invalid: false,
 			content: {},

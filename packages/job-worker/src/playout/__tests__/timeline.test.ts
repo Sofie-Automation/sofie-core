@@ -1235,7 +1235,7 @@ describe('Timeline', () => {
 								rundownId: currentPartInstance!.partInstance.rundownId,
 								externalId: 'fake',
 								name: 'Adlibbed piece',
-								lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+								lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 								sourceLayerId: sourceLayerIds[0],
 								outputLayerId: outputLayerIds[0],
 								content: {},
@@ -1401,7 +1401,7 @@ describe('Timeline', () => {
 								rundownId: currentPartInstance!.partInstance.rundownId,
 								externalId: 'fake',
 								name: 'Adlibbed piece',
-								lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+								lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 								sourceLayerId: sourceLayerIds[0],
 								outputLayerId: outputLayerIds[0],
 								content: {},
@@ -1522,7 +1522,7 @@ describe('Timeline', () => {
 								piece1: {
 									prerollDuration: 50,
 									sourceLayerId: sourceLayerIds[3],
-									lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+									lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 								},
 							}
 						)
@@ -1916,7 +1916,7 @@ describe('Timeline', () => {
 								piece1: {
 									prerollDuration: 50,
 									sourceLayerId: sourceLayerIds[3],
-									lifespan: { scope: 'segment', presence: 'forward-scope', inShadow: 'persist' },
+									lifespan: { scope: 'segment', presence: 'forward-scope', whenCovered: 'persist' },
 								},
 							}
 						)

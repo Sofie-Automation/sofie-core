@@ -119,7 +119,7 @@ function makeTestAdLibs(): BucketAdLib[] {
 			externalId: 'BUCKET_ADLIB_0',
 			_rank: 0,
 			content: {},
-			lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+			lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 			name: 'Bucket AdLib',
 			outputLayerId: 'pgm',
 			sourceLayerId: 'layer0',

@@ -61,7 +61,7 @@ describe('Expected Playout Items', () => {
 				name: '',
 				outputLayerId: LAYER_IDS.OUTPUT_PGM,
 				sourceLayerId: LAYER_IDS.SOURCE_VT0,
-				lifespan: { scope: 'segment', presence: 'follow-playhead', inShadow: 'stop' },
+				lifespan: { scope: 'segment', presence: 'follow-playhead', whenCovered: 'stop' },
 				content: literal<VTContent>({
 					fileName: mockFileName0,
 					path: mockPath0,
@@ -80,7 +80,7 @@ describe('Expected Playout Items', () => {
 				name: '',
 				outputLayerId: LAYER_IDS.OUTPUT_PGM,
 				sourceLayerId: LAYER_IDS.SOURCE_VT0,
-				lifespan: { scope: 'segment', presence: 'follow-playhead', inShadow: 'stop' },
+				lifespan: { scope: 'segment', presence: 'follow-playhead', whenCovered: 'stop' },
 				content: literal<VTContent>({
 					fileName: mockFileName1,
 					path: mockPath1,
@@ -96,7 +96,7 @@ describe('Expected Playout Items', () => {
 				...defaultAdLibPiece(protectString('mockAdLib0'), protectString(''), protectString('mockPart0')),
 				name: '',
 				_rank: 0,
-				lifespan: { scope: 'part', presence: 'forward-scope', inShadow: 'stop' },
+				lifespan: { scope: 'part', presence: 'forward-scope', whenCovered: 'stop' },
 				outputLayerId: LAYER_IDS.OUTPUT_PGM,
 				sourceLayerId: LAYER_IDS.SOURCE_VT0,
 				content: literal<VTContent>({

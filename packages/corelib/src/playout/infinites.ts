@@ -18,15 +18,15 @@ import { protectString } from '../protectedString.js'
 import _ from 'underscore'
 import { MongoQuery } from '../mongo.js'
 import { DBSegment, SegmentOrphanedReason } from '../dataModel/Segment.js'
-import { isShadowPiece, PieceLifespan } from './pieceLifespan.js'
+import { persistsCoveredPieces, PieceLifespan } from './pieceLifespan.js'
 
 /*
  * Infinites
  *
  * An infinite is a Piece whose lifespan reaches beyond the Part it starts in. Which infinites continue into a Part is
  * found by replaying the pieces on each source layer, in playout order, up to that Part:
- *  - A piece starting on a layer stops every active infinite on it that stops in shadow (`inShadow: 'stop'`).
- *  - A piece that persists in shadow replaces an active one of the same scope, and covers broader ones until it ends.
+ *  - A piece starting on a layer stops every active infinite on it that stops when covered (`whenCovered: 'stop'`).
+ *  - A piece that persists when covered replaces an active one of the same scope, and covers broader ones until it ends.
  *  - What is still active at the end, and whose scope reaches the Part, is continued into it.
  *
  * The planned Pieces before the Part are replayed first. The PartInstance on air is replayed on top of that, as it
@@ -215,20 +215,21 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 	}
 
 	const replayPlayingPartInstance = (playing: PlayingPartInstance, isOnPath: boolean) => {
-		const layersWithShadow = new Set(
-			playing.pieceInstances.filter((p) => isShadowPiece(p.piece)).map((p) => p.piece.sourceLayerId)
+		const layersPersistingCovered = new Set(
+			playing.pieceInstances.filter((p) => persistsCoveredPieces(p.piece)).map((p) => p.piece.sourceLayerId)
 		)
 
 		for (const { instance, start } of getPieceInstancesInOrder(playing)) {
 			const layer = getLayer(instance.piece.sourceLayerId)
 			const lifespan = PieceLifespan.from(instance.piece.lifespan)
 			const isOpenEnded = !instance.userDuration && typeof instance.piece.enable.duration !== 'number'
-			// A piece also stops playing while it is hidden in shadow, by a newer piece of a narrower scope or by a
-			// shadow, so only a user stop ends it for good. Newer pieces ending it are replayed below
+			// A piece also stops playing while it is hidden, by a newer piece of a narrower scope or by a
+			// persistCoveredPieces one, so only a user stop ends it for good. Newer pieces ending it are replayed below
 			const mayBeHidden =
-				lifespan.persistsInShadow || (isOpenEnded && layersWithShadow.has(instance.piece.sourceLayerId))
+				lifespan.persistsWhenCovered ||
+				(isOpenEnded && layersPersistingCovered.has(instance.piece.sourceLayerId))
 			const isStopped = !!instance.userDuration || (!!instance.plannedStoppedPlayback && !mayBeHidden)
-			const isShadow = isShadowPiece(instance.piece)
+			const persistsCovered = persistsCoveredPieces(instance.piece)
 			const isAdlib = instance.dynamicallyInserted !== undefined
 			const isUnplanned = isAdlib || instance.dynamicallyConvertedToInfinite !== undefined
 			// Infinites following the playhead always continue from here. Adlibbed ones only when moving forwards,
@@ -249,7 +250,7 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 				continue
 			}
 
-			layer.live = stopLiveInfinites(layer.live, lifespan, isOpenEnded, isShadow, !isUnplanned)
+			layer.live = stopLiveInfinites(layer.live, lifespan, isOpenEnded, persistsCovered, !isUnplanned)
 
 			// The planned Pieces of the playing Part are replayed with the plan, but an adlib changes the plan
 			// Only the ones started before it though, the later planned pieces of this Part are newer
@@ -257,12 +258,12 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 				const isLaterInPart = (p: ReadonlyDeep<Piece>) =>
 					p.startPartId === playing.partInstance.part._id && compareStarts(p.enable.start, start) > 0
 				layer.planned = [
-					...stopShadowedInfinites(
+					...stopCoveredInfinites(
 						layer.planned.filter((p) => !isLaterInPart(p)),
 						(p) => p.lifespan,
 						lifespan,
 						isOpenEnded,
-						isShadow
+						persistsCovered
 					),
 					...layer.planned.filter(isLaterInPart),
 				]
@@ -292,10 +293,10 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 		const playheadTravelsThrough = params.isTemporary && hasReplayedPlaying
 
 		const isOpenEnded = typeof piece.enable.duration !== 'number'
-		const isShadow = isShadowPiece(piece)
-		layer.planned = stopShadowedInfinites(layer.planned, (p) => p.lifespan, lifespan, isOpenEnded, isShadow)
+		const persistsCovered = persistsCoveredPieces(piece)
+		layer.planned = stopCoveredInfinites(layer.planned, (p) => p.lifespan, lifespan, isOpenEnded, persistsCovered)
 		if (hasReplayedPlaying && playheadTravelsThrough) {
-			layer.live = stopLiveInfinites(layer.live, lifespan, isOpenEnded, isShadow, true)
+			layer.live = stopLiveInfinites(layer.live, lifespan, isOpenEnded, persistsCovered, true)
 		}
 
 		// Only forward scoped infinites continue from the plan. One following the playhead becomes an infinite once the
@@ -321,31 +322,31 @@ function resolveContinuedInfinites(params: PieceInstancesForPartParams): {
 }
 
 /**
- * A new piece on a layer stops the infinites that stop in shadow. When it persists in shadow, it also ends the ones of
- * its own scope if it has no end, or if they are `legacy-persist`. Otherwise they resume once the new piece ends.
- * A shadow ends none of them.
+ * A new piece on a layer stops the infinites that stop when covered. When it persists when covered, it also ends the
+ * ones of its own scope if it has no end, or if they are `legacy-persist`. Otherwise they resume once the new piece ends.
+ * A persistCoveredPieces one ends none of them.
  */
-function stopShadowedInfinites<T>(
+function stopCoveredInfinites<T>(
 	active: T[],
 	getLifespan: (entry: T) => ReadonlyDeep<Piece['lifespan']>,
 	newLifespan: PieceLifespan,
 	newIsOpenEnded: boolean,
-	newIsShadow: boolean
+	newPersistsCovered: boolean
 ): T[] {
-	// A shadow only obstructs the layer, every infinite keeps being continued under it
-	if (newIsShadow) return active
+	// It only hides the pieces it covers, every infinite keeps being continued under it
+	if (newPersistsCovered) return active
 
 	return active.filter((entry) => {
 		const lifespan = PieceLifespan.from(getLifespan(entry))
-		if (!lifespan.persistsInShadow) return false
+		if (!lifespan.persistsWhenCovered) return false
 
-		const isSameScope = newLifespan.persistsInShadow && newLifespan.scope === lifespan.scope
+		const isSameScope = newLifespan.persistsWhenCovered && newLifespan.scope === lifespan.scope
 		return !isSameScope || (!newIsOpenEnded && !lifespan.isEndedByNewerOfSameScope)
 	})
 }
 
 /**
- * Stop the infinites continuing from the playing PartInstance, as `stopShadowedInfinites` does.
+ * Stop the infinites continuing from the playing PartInstance, as `stopCoveredInfinites` does.
  * As before, planned pieces never end an adlibbed legacy-persist infinite: it is only covered in the Part where they
  * start, and continues after it
  */
@@ -353,10 +354,16 @@ function stopLiveInfinites(
 	live: ReadonlyDeep<PieceInstance>[],
 	newLifespan: PieceLifespan,
 	newIsOpenEnded: boolean,
-	newIsShadow: boolean,
+	newPersistsCovered: boolean,
 	newIsPlanned: boolean
 ): ReadonlyDeep<PieceInstance>[] {
-	const remaining = stopShadowedInfinites(live, (p) => p.piece.lifespan, newLifespan, newIsOpenEnded, newIsShadow)
+	const remaining = stopCoveredInfinites(
+		live,
+		(p) => p.piece.lifespan,
+		newLifespan,
+		newIsOpenEnded,
+		newPersistsCovered
+	)
 	if (!newIsPlanned) return remaining
 
 	return live.filter(
