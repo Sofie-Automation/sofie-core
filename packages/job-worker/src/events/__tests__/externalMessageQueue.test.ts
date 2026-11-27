@@ -13,7 +13,13 @@ import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/Rund
 import { getRandomId, omit } from '@sofie-automation/corelib/dist/lib'
 import { ExternalMessageQueueRunner } from '../ExternalMessageQueue.js'
 import { InvalidateWorkerDataCache, WorkerDataCacheWrapper } from '../../workers/caches.js'
-import { StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	PartInstanceId,
+	RundownId,
+	RundownPlaylistActivationId,
+	RundownPlaylistId,
+	StudioId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ReadonlyObjectDeep } from 'type-fest/source/readonly-deep'
 import { StudioCacheContext } from '../../jobs/index.js'
 import { defer, MockMongoCollection } from '../../__mocks__/collection.js'
@@ -32,31 +38,31 @@ describe('Test external message queue static methods', () => {
 
 		const now = getCurrentTime()
 		await context.mockCollections.RundownPlaylists.insertOne({
-			_id: protectString('playlist_1'),
+			_id: protectString<RundownPlaylistId>('playlist_1'),
 			externalId: 'mock_rpl',
 			name: 'Mock',
-			studioId: protectString(''),
+			studioId: protectString<StudioId>(''),
 			created: 0,
 			modified: 0,
 			defaultBrandingId: null,
 			currentPartInfo: {
-				partInstanceId: protectString('part_now'),
-				rundownId: protectString('rundown_1'),
+				partInstanceId: protectString<PartInstanceId>('part_now'),
+				rundownId: protectString<RundownId>('rundown_1'),
 				manuallySelected: false,
 				consumesQueuedSegmentId: false,
 			},
 			nextPartInfo: {
-				partInstanceId: protectString('partNext'),
-				rundownId: protectString('rundown_1'),
+				partInstanceId: protectString<PartInstanceId>('partNext'),
+				rundownId: protectString<RundownId>('rundown_1'),
 				manuallySelected: false,
 				consumesQueuedSegmentId: false,
 			},
 			previousPartsInfo: [],
-			activationId: protectString('active'),
+			activationId: protectString<RundownPlaylistActivationId>('active'),
 			timing: {
 				type: PlaylistTimingType.None,
 			},
-			rundownIdsInOrder: [protectString('rundown_1')],
+			rundownIdsInOrder: [protectString<RundownId>('rundown_1')],
 			tTimers: [
 				{ index: 1, label: '', mode: null, state: null },
 				{ index: 2, label: '', mode: null, state: null },
@@ -64,10 +70,10 @@ describe('Test external message queue static methods', () => {
 			],
 		})
 		await context.mockCollections.Rundowns.insertOne({
-			_id: protectString('rundown_1'),
+			_id: protectString<RundownId>('rundown_1'),
 			name: 'Mockito 1',
 			externalId: 'mockito',
-			playlistId: protectString('playlist_1'),
+			playlistId: protectString<RundownPlaylistId>('playlist_1'),
 
 			studioId: context.studio._id,
 			showStyleVariantId: showStyle.showStyleVariantId,
@@ -157,10 +163,10 @@ describe('Test sending messages to mocked endpoints', () => {
 		const now = getCurrentTime()
 
 		const rundownId = await context.mockCollections.Rundowns.insertOne({
-			_id: protectString('rundown_1'),
+			_id: protectString<RundownId>('rundown_1'),
 			name: 'Mockito 1',
 			externalId: 'mockito',
-			playlistId: protectString('playlist_1'),
+			playlistId: protectString<RundownPlaylistId>('playlist_1'),
 
 			studioId: context.studio._id,
 			showStyleVariantId: showStyle.showStyleVariantId,
@@ -183,31 +189,31 @@ describe('Test sending messages to mocked endpoints', () => {
 			},
 		})
 		await context.mockCollections.RundownPlaylists.insertOne({
-			_id: protectString('playlist_1'),
+			_id: protectString<RundownPlaylistId>('playlist_1'),
 			externalId: 'mock_rpl',
 			name: 'Mock',
-			studioId: protectString(''),
+			studioId: protectString<StudioId>(''),
 			created: 0,
 			modified: 0,
 			defaultBrandingId: null,
 			currentPartInfo: {
-				partInstanceId: protectString('part_now'),
+				partInstanceId: protectString<PartInstanceId>('part_now'),
 				rundownId: rundownId,
 				manuallySelected: false,
 				consumesQueuedSegmentId: false,
 			},
 			nextPartInfo: {
-				partInstanceId: protectString('partNext'),
+				partInstanceId: protectString<PartInstanceId>('partNext'),
 				rundownId: rundownId,
 				manuallySelected: false,
 				consumesQueuedSegmentId: false,
 			},
 			previousPartsInfo: [],
-			activationId: protectString('active'),
+			activationId: protectString<RundownPlaylistActivationId>('active'),
 			timing: {
 				type: PlaylistTimingType.None,
 			},
-			rundownIdsInOrder: [protectString('rundown_1')],
+			rundownIdsInOrder: [protectString<RundownId>('rundown_1')],
 			tTimers: [
 				{ index: 1, label: '', mode: null, state: null },
 				{ index: 2, label: '', mode: null, state: null },
@@ -308,7 +314,7 @@ describe('Test sending messages to mocked endpoints', () => {
 			expect(mockMessageCollection.operations.slice(1)).toStrictEqual([
 				{
 					args: [
-						msg._id,
+						{ _id: msg._id },
 						{
 							$set: {
 								lastTry: sendTime,
@@ -321,7 +327,7 @@ describe('Test sending messages to mocked endpoints', () => {
 				},
 				{
 					args: [
-						msg._id,
+						{ _id: msg._id },
 						{
 							$set: {
 								sent: replyTime,

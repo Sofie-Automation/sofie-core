@@ -32,7 +32,7 @@ import {
 	mongoModify,
 	mongoWhere,
 } from '@sofie-automation/corelib/dist/mongo'
-import { ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
+import { isProtectedString, ProtectedString } from '@sofie-automation/corelib/dist/protectedString'
 import { Collection, CountOptions, FindOptions } from 'mongodb'
 import { ReadonlyDeep } from 'type-fest'
 import {
@@ -94,8 +94,8 @@ export class MockMongoCollection<TDoc extends { _id: ProtectedString<any> }> imp
 		return this.findFetchInner(selector, options)
 	}
 
-	private async findFetchInner(selector?: MongoQuery<TDoc>, options?: FindOptions): Promise<TDoc[]> {
-		if (typeof selector === 'string') selector = { _id: selector }
+	private async findFetchInner(selector?: MongoQuery<TDoc> | TDoc['_id'], options?: FindOptions): Promise<TDoc[]> {
+		if (isProtectedString(selector)) selector = { _id: selector } as MongoQuery<TDoc>
 		selector = selector ?? {}
 
 		const unimplementedUsedOptions = _.without(_.keys(options), 'sort', 'limit', 'projection')
@@ -104,8 +104,8 @@ export class MockMongoCollection<TDoc extends { _id: ProtectedString<any> }> imp
 		}
 
 		let matchedDocs: TDoc[]
-		if (typeof selector._id === 'string') {
-			const doc = this.#documents.get(selector._id as any)
+		if (isProtectedString(selector._id)) {
+			const doc = this.#documents.get(selector._id)
 			if (doc && mongoWhere(doc, selector)) {
 				matchedDocs = [doc]
 			} else {
@@ -209,6 +209,8 @@ export class MockMongoCollection<TDoc extends { _id: ProtectedString<any> }> imp
 		modifier: MongoModifier<TDoc>,
 		single: boolean
 	) {
+		if (isProtectedString(selector)) selector = { _id: selector } as MongoQuery<TDoc>
+
 		this.#ops.push({ type: 'update', args: [selector, modifier] })
 
 		const docs = await this.findFetchInner(selector)

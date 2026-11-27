@@ -7,7 +7,7 @@ import {
 	NrcsIngestDataCacheObjPart,
 	IngestRundownWithSource,
 } from '@sofie-automation/corelib/dist/dataModel/NrcsIngestDataCache'
-import { ProtectedString, protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
+import { protectString, unprotectString } from '@sofie-automation/corelib/dist/protectedString'
 import _ from 'underscore'
 import { IngestPart, IngestSegment } from '@sofie-automation/blueprints-integration'
 import { JobContext } from '../jobs/index.js'
@@ -165,17 +165,17 @@ export class NrcsIngestRundownDataCache {
 /**
  * Convenience methods useful when interacting with the NrcsIngestRundownDataCache
  */
-class RundownIngestDataCacheGenerator<TId extends ProtectedString<any>> {
+class RundownIngestDataCacheGenerator {
 	constructor(public readonly rundownId: RundownId) {}
 
-	getPartObjectId(partExternalId: string): TId {
-		return protectString<TId>(`${this.rundownId}_part_${partExternalId}`)
+	getPartObjectId(partExternalId: string): NrcsIngestDataCacheObjId {
+		return protectString<NrcsIngestDataCacheObjId>(`${this.rundownId}_part_${partExternalId}`)
 	}
-	getSegmentObjectId(segmentExternalId: string): TId {
-		return protectString<TId>(`${this.rundownId}_segment_${segmentExternalId}`)
+	getSegmentObjectId(segmentExternalId: string): NrcsIngestDataCacheObjId {
+		return protectString<NrcsIngestDataCacheObjId>(`${this.rundownId}_segment_${segmentExternalId}`)
 	}
-	getRundownObjectId(): TId {
-		return protectString<TId>(unprotectString(this.rundownId))
+	getRundownObjectId(): NrcsIngestDataCacheObjId {
+		return protectString<NrcsIngestDataCacheObjId>(unprotectString(this.rundownId))
 	}
 
 	generatePartObject(segmentId: SegmentId, part: IngestPart): NrcsIngestDataCacheObjPart {

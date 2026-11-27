@@ -17,6 +17,7 @@ import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
 import { checkAccessToPlaylist } from '../../../security/check'
 import type { DDPClientConnection } from '../../../ddp-server/types'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
+import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 export class SnapshotsServerAPI implements SnapshotsRestAPI {
 	constructor(private context: ServerAPIContext) {}
@@ -41,7 +42,7 @@ export class SnapshotsServerAPI implements SnapshotsRestAPI {
 		_event: string,
 		options: APIPlaylistSnapshotOptions
 	): Promise<ClientAPI.ClientResponse<SnapshotId>> {
-		const playlistId = protectString(options.rundownPlaylistId)
+		const playlistId = protectString<RundownPlaylistId>(options.rundownPlaylistId)
 		check(playlistId, z.string())
 		check(options.reason, z.string())
 		const access = await checkAccessToPlaylist(connection, playlistId)

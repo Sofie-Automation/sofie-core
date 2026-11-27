@@ -69,7 +69,7 @@ export async function showStyleBaseFrom(
 	apiShowStyleBase: APIShowStyleBase,
 	existingId?: ShowStyleBaseId
 ): Promise<DBShowStyleBase | undefined> {
-	const blueprint = await Blueprints.findOneAsync(protectString(apiShowStyleBase.blueprintId))
+	const blueprint = await Blueprints.findOneAsync(protectString<BlueprintId>(apiShowStyleBase.blueprintId))
 	if (!blueprint) return undefined
 	if (blueprint.blueprintType !== BlueprintManifestType.SHOWSTYLE) return undefined
 
@@ -127,9 +127,9 @@ export async function showStyleBaseFrom(
 	}
 
 	return {
-		_id: existingId ?? getRandomId(),
+		_id: existingId ?? getRandomId<ShowStyleBaseId>(),
 		name: apiShowStyleBase.name,
-		blueprintId: protectString(apiShowStyleBase.blueprintId),
+		blueprintId: protectString<BlueprintId>(apiShowStyleBase.blueprintId),
 		blueprintConfigPresetId: apiShowStyleBase.blueprintConfigPresetId,
 		outputLayersWithOverrides: outputLayers,
 		sourceLayersWithOverrides: sourceLayers,
@@ -189,9 +189,9 @@ export function showStyleVariantFrom(
 		})
 	)
 	return {
-		_id: existingId ?? getRandomId(),
+		_id: existingId ?? getRandomId<ShowStyleVariantId>(),
 		_rank: apiShowStyleVariant.rank,
-		showStyleBaseId: protectString(apiShowStyleVariant.showStyleBaseId),
+		showStyleBaseId: protectString<ShowStyleBaseId>(apiShowStyleVariant.showStyleBaseId),
 		name: apiShowStyleVariant.name,
 		blueprintConfigWithOverrides: blueprintConfig,
 		_rundownVersionHash: '',
@@ -362,7 +362,7 @@ export function APISourceLayerFrom(sourceLayer: ISourceLayer): Complete<APISourc
 export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): Promise<DBStudio | undefined> {
 	let blueprint: Blueprint | undefined
 	if (apiStudio.blueprintId) {
-		blueprint = await Blueprints.findOneAsync(protectString(apiStudio.blueprintId))
+		blueprint = await Blueprints.findOneAsync(protectString<BlueprintId>(apiStudio.blueprintId))
 		if (blueprint?.blueprintType !== BlueprintManifestType.STUDIO) return undefined
 	}
 	if (!blueprint) return undefined
@@ -377,7 +377,7 @@ export async function studioFrom(apiStudio: APIStudio, existingId?: StudioId): P
 		existingStudio,
 		blueprintManifest,
 		blueprintId: blueprint._id,
-		studioId: existingId ?? getRandomId(),
+		studioId: existingId ?? getRandomId<StudioId>(),
 	})
 }
 
@@ -741,7 +741,10 @@ export async function validateAPIBlueprintConfigForStudio(apiStudio: APIStudio):
 		logger.warn(`Studio ${apiStudio.name} is missing config preset`)
 		return []
 	}
-	const blueprint = await getBlueprint(protectString(apiStudio.blueprintId), BlueprintManifestType.STUDIO)
+	const blueprint = await getBlueprint(
+		protectString<BlueprintId>(apiStudio.blueprintId),
+		BlueprintManifestType.STUDIO
+	)
 	const blueprintManifest = evalBlueprint(blueprint) as StudioBlueprintManifest
 
 	if (typeof blueprintManifest.validateConfigFromAPI !== 'function') {
@@ -802,8 +805,8 @@ export async function APIStudioBlueprintConfigFrom(studio: DBStudio): Promise<ob
 
 export function bucketFrom(apiBucket: APIBucket, existingId?: BucketId): Bucket {
 	return {
-		_id: existingId ?? getRandomId(),
-		studioId: protectString(apiBucket.studioId),
+		_id: existingId ?? getRandomId<BucketId>(),
+		studioId: protectString<StudioId>(apiBucket.studioId),
 		name: apiBucket.name,
 		_rank: 0,
 		width: undefined,
@@ -823,7 +826,7 @@ export function APIBucketFrom(bucket: Bucket): APIBucketComplete {
 export function systemSnapshotOptionsFrom(options: APISystemSnapshotOptions): SystemSnapshotOptions {
 	return {
 		withDeviceSnapshots: !!options.withDeviceSnapshots,
-		studioId: typeof options.studioId === 'string' ? protectString(options.studioId) : undefined,
+		studioId: typeof options.studioId === 'string' ? protectString<StudioId>(options.studioId) : undefined,
 	}
 }
 

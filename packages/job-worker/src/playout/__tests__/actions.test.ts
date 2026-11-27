@@ -1,4 +1,4 @@
-import { RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { RundownId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBRundownPlaylist } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { SegmentOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/Segment'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
@@ -35,18 +35,30 @@ describe('Playout Actions', () => {
 		executePeripheralDeviceFunctionMock.mockImplementation(async () => Promise.resolve())
 	})
 	test('activateRundown', async () => {
-		const { playlistId: playlistId0 } = await setupDefaultRundownPlaylist(context, undefined, protectString('ro0'))
+		const { playlistId: playlistId0 } = await setupDefaultRundownPlaylist(
+			context,
+			undefined,
+			protectString<RundownId>('ro0')
+		)
 		expect(playlistId0).toBeTruthy()
 
 		const getPlaylist0 = async () =>
 			(await context.directCollections.RundownPlaylists.findOne(playlistId0)) as DBRundownPlaylist
 
-		const { playlistId: playlistId1 } = await setupDefaultRundownPlaylist(context, undefined, protectString('ro1'))
+		const { playlistId: playlistId1 } = await setupDefaultRundownPlaylist(
+			context,
+			undefined,
+			protectString<RundownId>('ro1')
+		)
 		expect(playlistId1).toBeTruthy()
 
 		// const getPlaylist1 = () => RundownPlaylists.findOne(playlistId1) as RundownPlaylist
 
-		const { playlistId: playlistId2 } = await setupDefaultRundownPlaylist(context, undefined, protectString('ro2'))
+		const { playlistId: playlistId2 } = await setupDefaultRundownPlaylist(
+			context,
+			undefined,
+			protectString<RundownId>('ro2')
+		)
 		expect(playlistId2).toBeTruthy()
 
 		expect(executePeripheralDeviceFunctionMock).toHaveBeenCalledTimes(0)
@@ -93,7 +105,7 @@ describe('Playout Actions', () => {
 		const { playlistId: playlistId0, rundownId: rundownId0 } = await setupDefaultRundownPlaylist(
 			context,
 			undefined,
-			protectString('ro0')
+			protectString<RundownId>('ro0')
 		)
 		expect(playlistId0).toBeTruthy()
 
@@ -154,7 +166,7 @@ describe('Playout Actions', () => {
 		const { playlistId: playlistId0, rundownId: rundownId0 } = await setupDefaultRundownPlaylist(
 			context,
 			undefined,
-			protectString('ro0')
+			protectString<RundownId>('ro0')
 		)
 		expect(playlistId0).toBeTruthy()
 

@@ -27,5 +27,5 @@ export function getWorkerId(): WorkerId {
 	// Later on, when we support multiple workers, this will determine unique worker names using things like
 	// the studio it works on, etc.
 
-	return protectString('default')
+	return protectString<WorkerId>('default')
 }

@@ -1,3 +1,4 @@
+import { PeripheralDeviceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Config } from './connector.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 
@@ -50,7 +51,7 @@ const config: Config = {
 		certificates: certs.filter((c) => c !== undefined && c !== null && c.length !== 0),
 	},
 	device: {
-		deviceId: protectString(deviceId),
+		deviceId: protectString<PeripheralDeviceId>(deviceId),
 		deviceToken: deviceToken,
 	},
 	core: {

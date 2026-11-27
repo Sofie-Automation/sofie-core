@@ -13,6 +13,8 @@ import {
 	PieceContentStatusStudio,
 } from '../checkPieceContentStatus'
 import type { PieceContentStatusMessageFactory } from '../messageFactory'
+import { UIBucketContentStatusId } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
+import { PieceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 /**
  * Regenerating the status for the provided AdLibActionId
@@ -57,7 +59,7 @@ export async function regenerateForBucketAdLibIds(
 				dependenciesState.set(adlibId, itemDependencies)
 
 				collection.replace({
-					_id: protectString(`bucket_adlib_${adlibId}`),
+					_id: protectString<UIBucketContentStatusId>(`bucket_adlib_${adlibId}`),
 
 					bucketId: actionDoc.bucketId,
 					docId: adlibId,
@@ -110,7 +112,7 @@ export async function regenerateForBucketActionIds(
 			// Only if this piece is valid
 			if (sourceLayer) {
 				const fakedPiece = literal<PieceContentStatusPiece>({
-					_id: protectString(`${actionDoc._id}`),
+					_id: protectString<PieceId>(`${actionDoc._id}`),
 					content: 'content' in actionDoc.display ? actionDoc.display.content : {},
 					name:
 						typeof actionDoc.display.label === 'string'
@@ -130,7 +132,7 @@ export async function regenerateForBucketActionIds(
 				dependenciesState.set(actionId, itemDependencies)
 
 				collection.replace({
-					_id: protectString(`bucket_action_${actionId}`),
+					_id: protectString<UIBucketContentStatusId>(`bucket_action_${actionId}`),
 
 					bucketId: actionDoc.bucketId,
 					docId: actionId,

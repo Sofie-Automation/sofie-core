@@ -276,7 +276,7 @@ describe('AbSessionHelper', () => {
 
 		const previousPartInstance = createPartInstance('abcdef', 'aaa', 0)
 		const currentPartInstance = createPartInstance('12345', 'bbb', 1)
-		const distantPartId: PartId = protectString('future-part')
+		const distantPartId: PartId = protectString<PartId>('future-part')
 
 		const lookaheadSessions: ABSessionInfo[] = [
 			{
@@ -333,7 +333,7 @@ describe('AbSessionHelper', () => {
 
 		// Start a new infinite session
 		const sessionId0 = getSessionId(0)
-		const infinite0 = protectString('infinite0')
+		const infinite0 = protectString<PieceInstanceInfiniteId>('infinite0')
 		const piece0 = createPieceInstance(currentPartInstance._id, infinite0)
 		expect(abSessionHelper.getPieceABSessionId(piece0, testSession0)).toEqual(sessionId0)
 		expect(abSessionHelper.knownSessions).toHaveLength(1)
@@ -486,7 +486,7 @@ describe('AbSessionHelper', () => {
 		const existingSessions = generateGetTimelineObjectAbSessionIdSessions(
 			currentPartInstance,
 			createPartInstance('unknown', 'unknwon1', 9),
-			protectString('nope'),
+			protectString<PartId>('nope'),
 			protectString('infinite0'),
 			protectString('infinite1')
 		)
@@ -523,7 +523,7 @@ describe('AbSessionHelper', () => {
 		const nextPartInstance = createPartInstance('abcdef', 'aaa', 1)
 		const currentPartInstance = createPartInstance('12345', 'bbb', 10)
 
-		const distantPartId: PartId = protectString('distant0')
+		const distantPartId: PartId = protectString<PartId>('distant0')
 		const existingSessions = generateGetTimelineObjectAbSessionIdSessions(
 			currentPartInstance,
 			nextPartInstance,
@@ -590,7 +590,7 @@ describe('AbSessionHelper', () => {
 		const nextPartInstance = createPartInstance('abcdef', 'aaa', 1)
 		const currentPartInstance = createPartInstance('12345', 'bbb', 10)
 
-		const distantPartId: PartId = protectString('distant0')
+		const distantPartId: PartId = protectString<PartId>('distant0')
 		const infinite0: PieceInstanceInfiniteId = protectString('infinite0')
 		const infinite1: PieceInstanceInfiniteId = protectString('infinite1')
 		const existingSessions = generateGetTimelineObjectAbSessionIdSessions(
@@ -611,7 +611,7 @@ describe('AbSessionHelper', () => {
 		expect(abSessionHelper.getTimelineObjectAbSessionId(obj2, testSession0)).toEqual('inf1')
 		expect(abSessionHelper.knownSessions).toHaveLength(2)
 
-		const obj3 = createTimelineObject(null, protectString('fake'))
+		const obj3 = createTimelineObject(null, protectString<PieceInstanceInfiniteId>('fake'))
 		expect(abSessionHelper.getTimelineObjectAbSessionId(obj3, testSession0)).toBeUndefined()
 		expect(abSessionHelper.knownSessions).toHaveLength(2)
 

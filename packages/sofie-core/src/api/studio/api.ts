@@ -34,6 +34,7 @@ import { UserPermissions } from '@sofie-automation/meteor-lib/dist/userPermissio
 import { assertConnectionHasOneOfPermissions } from '../../security/auth'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
 import { SofieError } from '@sofie-automation/corelib/dist/error'
+import { MappingsHash } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 const PERMISSIONS_FOR_MANAGE_STUDIOS: Array<keyof UserPermissions> = ['configure']
 
@@ -52,7 +53,7 @@ export async function insertStudioInner(newId?: StudioId): Promise<StudioId> {
 
 	return Studios.insertAsync(
 		literal<DBStudio>({
-			_id: newId || getRandomId(),
+			_id: newId || getRandomId<StudioId>(),
 			name: 'New Studio',
 			// blueprintId?: BlueprintId
 			mappingsWithOverrides: wrapDefaultObject({}),
@@ -168,7 +169,7 @@ export class ServerStudiosAPI extends MethodContextAPI implements NewStudiosAPI 
 					studioId,
 					configId,
 				},
-				_id: { $ne: deviceId ?? protectString('') },
+				_id: { $ne: deviceId ?? protectString<PeripheralDeviceId>('') },
 			},
 			{
 				$unset: {
@@ -201,7 +202,7 @@ function triggerUpdateStudioMappingsHash(studioId: StudioId) {
 		() => {
 			Studios.updateAsync(studioId, {
 				$set: {
-					mappingsHash: getRandomId(),
+					mappingsHash: getRandomId<MappingsHash>(),
 				},
 			}).catch((e) => {
 				logger.error(`triggerUpdateStudioMappingsHash: ${stringifyError(e)}`)

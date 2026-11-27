@@ -6,7 +6,12 @@ import {
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
 } from '@sofie-automation/shared-lib/dist/peripheralDevice/peripheralDeviceAPI.js'
-import { CoreConnection, PeripheralDevicePubSub, PeripheralDevicePubSubCollectionsNames } from '../index.js'
+import {
+	CoreConnection,
+	type PeripheralDeviceId,
+	PeripheralDevicePubSub,
+	PeripheralDevicePubSubCollectionsNames,
+} from '../index.js'
 
 process.on('unhandledRejection', (reason) => {
 	console.log('Unhandled Promise rejection!', reason)
@@ -22,7 +27,7 @@ async function wait(time: number): Promise<void> {
 const coreHost = '127.0.0.1'
 const corePort = 3000
 
-const defaultDeviceId = protectString('JestTest')
+const defaultDeviceId = protectString<PeripheralDeviceId>('JestTest')
 
 test('Integration: Test connection and basic Core functionality', async () => {
 	// Note: This is an integration test, that require a Core to connect to
@@ -393,7 +398,7 @@ test('Integration: Parent connections', async () => {
 
 	// Set child connection:
 	const coreChild = await coreParent.createChild({
-		deviceId: protectString('JestTestChild'),
+		deviceId: protectString<PeripheralDeviceId>('JestTestChild'),
 		deviceSubType: PERIPHERAL_SUBTYPE_PROCESS,
 		deviceName: 'Jest test framework child',
 	})
@@ -431,7 +436,9 @@ test('Integration: Parent connections', async () => {
 	// Set the status now (should cause an error)
 	await expect(
 		coreChild.setStatus({
-			statusCode: StatusCode.GOOD,			statusDetails: [],		})
+			statusCode: StatusCode.GOOD,
+			statusDetails: [],
+		})
 	).rejects.toMatchObject({
 		error: 404,
 	})
@@ -465,7 +472,7 @@ test('Integration: Parent destroy', async () => {
 
 	// Set child connection:
 	const coreChild = await coreParent.createChild({
-		deviceId: protectString('JestTestChild'),
+		deviceId: protectString<PeripheralDeviceId>('JestTestChild'),
 		deviceSubType: PERIPHERAL_SUBTYPE_PROCESS,
 		deviceName: 'Jest test framework child',
 	})
@@ -516,7 +523,7 @@ test('Integration: Child destroy', async () => {
 
 	// Set child connection:
 	const coreChild = await coreParent.createChild({
-		deviceId: protectString('JestTestChild'),
+		deviceId: protectString<PeripheralDeviceId>('JestTestChild'),
 		deviceSubType: PERIPHERAL_SUBTYPE_PROCESS,
 		deviceName: 'Jest test framework child',
 	})

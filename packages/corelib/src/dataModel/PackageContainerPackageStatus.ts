@@ -37,5 +37,5 @@ export function getPackageContainerPackageId(
 	containerId: string,
 	packageId: ExpectedPackageId
 ): PackageContainerPackageId {
-	return protectString(`${studioId}_${containerId}_${packageId}`)
+	return protectString<PackageContainerPackageId>(`${studioId}_${containerId}_${packageId}`)
 }

@@ -29,7 +29,7 @@ export async function createTriggeredActions(
 	showStyleBaseId: ShowStyleBaseId | null,
 	base?: CreateTriggeredActionsContent
 ): Promise<TriggeredActionId> {
-	const id: TriggeredActionId = getRandomId()
+	const id = getRandomId<TriggeredActionId>()
 	await TriggeredActions.insertAsync(
 		literal<Complete<TriggeredActionsObj>>({
 			_id: id,
@@ -139,7 +139,7 @@ actionTriggersRouter.post(
 )
 
 actionTriggersRouter.get('/download/:showStyleBaseId', async (ctx) => {
-	const showStyleBaseId: ShowStyleBaseId | undefined = protectString(ctx.params.showStyleBaseId)
+	const showStyleBaseId = protectString<ShowStyleBaseId>(ctx.params.showStyleBaseId as string | undefined)
 
 	check(showStyleBaseId, z.string().nullish())
 

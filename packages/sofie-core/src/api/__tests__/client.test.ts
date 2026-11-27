@@ -23,7 +23,7 @@ setLogLevel(LogLevel.INFO)
 const orgSetTimeout = setTimeout
 
 describe('ClientAPI', () => {
-	let mockDeviceId: PeripheralDeviceId = protectString('not set yet')
+	let mockDeviceId: PeripheralDeviceId = protectString<PeripheralDeviceId>('not set yet')
 	beforeAll(async () => {
 		const studio = await setupMockStudio()
 		const mockDevice = await setupMockPeripheralDevice(
@@ -35,6 +35,7 @@ describe('ClientAPI', () => {
 		mockDeviceId = mockDevice._id
 	})
 	describe('clientErrorReport', () => {
+		// eslint-disable-next-line jest/expect-expect
 		test('Returns a success response to the client', async () => {
 			SupressLogMessages.suppressLogMessage(/Uncaught error happened in GUI/i)
 			// should not throw:

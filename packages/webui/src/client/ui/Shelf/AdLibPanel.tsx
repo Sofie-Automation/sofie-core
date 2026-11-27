@@ -52,7 +52,13 @@ import { sortAdlibs } from '@sofie-automation/meteor-lib/dist/adlibs'
 import { AdLibPanelToolbar } from './AdLibPanelToolbar.js'
 import { AdLibListView } from './AdLibListView.js'
 import { UIPartInstances, UIStudios } from '../Collections.js'
-import type { PartId, PartInstanceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import type {
+	PartId,
+	PartInstanceId,
+	PieceId,
+	RundownId,
+	SegmentId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	AdLibActions,
 	AdLibPieces,
@@ -106,7 +112,7 @@ function actionToAdLibPieceUi(
 	}
 
 	return literal<AdLibPieceUi>({
-		_id: protectString(`${action._id}`),
+		_id: protectString<PieceId>(`${action._id}`),
 		name: translateMessage(action.display.label, i18nTranslator),
 		isAction: true,
 		expectedDuration: 0,
@@ -479,14 +485,14 @@ export function fetchAndFilter(props: IFetchAndFilterProps): AdLibFetchAndFilter
 							.sort((a, b) => a._rank - b._rank)
 							.map((layer) =>
 								literal<AdLibPieceUi>({
-									_id: protectString(`sticky_${layer._id}`),
+									_id: protectString<PieceId>(`sticky_${layer._id}`),
 									name: t('Last {{layerName}}', { layerName: layer.abbreviation || layer.name }),
 									isSticky: true,
 									isGlobal: true,
 									expectedDuration: 0,
 									lifespan: PieceLifespan.WithinPart,
 									externalId: layer._id,
-									rundownId: protectString(''),
+									rundownId: protectString<RundownId>(''),
 									sourceLayer: layer,
 									outputLayer: undefined,
 									sourceLayerId: layer._id,
@@ -550,7 +556,7 @@ export function fetchAndFilter(props: IFetchAndFilterProps): AdLibFetchAndFilter
 						.sort((a, b) => a._rank - b._rank)
 						.map((layer) =>
 							literal<AdLibPieceUi>({
-								_id: protectString(`clear_${layer._id}`),
+								_id: protectString<PieceId>(`clear_${layer._id}`),
 								name: t('Clear {{layerName}}', { layerName: layer.abbreviation || layer.name }),
 								isSticky: false,
 								isClearSourceLayer: true,
@@ -558,7 +564,7 @@ export function fetchAndFilter(props: IFetchAndFilterProps): AdLibFetchAndFilter
 								expectedDuration: 0,
 								lifespan: PieceLifespan.WithinPart,
 								externalId: layer._id,
-								rundownId: protectString(''),
+								rundownId: protectString<RundownId>(''),
 								sourceLayer: layer,
 								outputLayer: undefined,
 								sourceLayerId: layer._id,

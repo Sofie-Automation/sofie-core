@@ -107,7 +107,7 @@ export class OnTimelineGenerateContext extends RundownContext implements ITimeli
 	 * @deprecated Use core provided AB resolving
 	 */
 	getPieceABSessionId(pieceInstance0: Pick<IBlueprintPieceInstance, '_id'>, sessionName: string): string {
-		const pieceInstanceId = protectString(pieceInstance0._id)
+		const pieceInstanceId = protectString<PieceInstanceId>(pieceInstance0._id)
 		if (!pieceInstanceId) throw new Error('Invalid PieceInstance passed to getPieceABSessionId')
 
 		// Fetch the cached PieceInstance, to ensure it hasn't been mangled by the blueprints

@@ -8,6 +8,7 @@ import { runJobWithPlayoutModel } from './lock.js'
 import { performTakeToNextedPart } from './take.js'
 import { PlayoutModel } from './model/PlayoutModel.js'
 import { PlayoutPartInstanceModel } from './model/PlayoutPartInstanceModel.js'
+import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 export async function handleActivateAdlibTesting(context: JobContext, data: ActivateAdlibTestingProps): Promise<void> {
 	if (!context.studio.settings.allowAdlibTestingSegment)
@@ -34,7 +35,7 @@ export async function handleActivateAdlibTesting(context: JobContext, data: Acti
 
 			// Create the first PartInstance for the segment
 			const newPartInstance = playoutModel.createAdlibTestingPartInstance(rundown, {
-				_id: getRandomId(),
+				_id: getRandomId<PartId>(),
 				_rank: 0,
 				externalId: '',
 				title: 'Adlib Testing',

@@ -230,7 +230,7 @@ export class PlayoutPartInstanceModelImpl implements PlayoutPartInstanceModel {
 		fromAdlibId: PieceId | undefined
 	): PlayoutPieceInstanceModel {
 		const pieceInstance: PieceInstance = {
-			_id: protectString(`${this.partInstance._id}_${piece._id}`),
+			_id: protectString<PieceInstanceId>(`${this.partInstance._id}_${piece._id}`),
 			rundownId: this.partInstance.rundownId,
 			playlistActivationId: this.partInstance.playlistActivationId,
 			partInstanceId: this.partInstance._id,
@@ -328,9 +328,9 @@ export class PlayoutPartInstanceModelImpl implements PlayoutPartInstanceModel {
 		sourceLayerId: string,
 		outputLayerId: string
 	): PlayoutPieceInstanceModel {
-		const pieceId: PieceId = getRandomId()
+		const pieceId = getRandomId<PieceId>()
 		const newPieceInstance: PieceInstance = {
-			_id: protectString(`${this.partInstance._id}_${pieceId}`),
+			_id: protectString<PieceInstanceId>(`${this.partInstance._id}_${pieceId}`),
 			rundownId: this.partInstance.rundownId,
 			playlistActivationId: this.partInstance.playlistActivationId,
 			partInstanceId: this.partInstance._id,

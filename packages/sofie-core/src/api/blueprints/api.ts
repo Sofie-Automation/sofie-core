@@ -46,7 +46,7 @@ export async function insertBlueprint(
 	assertConnectionHasOneOfPermissions(cred, ...PERMISSIONS_FOR_MANAGE_BLUEPRINTS)
 
 	return Blueprints.insertAsync({
-		_id: getRandomId(),
+		_id: getRandomId<BlueprintId>(),
 		name: name || 'New Blueprint',
 		hasCode: false,
 		code: '',

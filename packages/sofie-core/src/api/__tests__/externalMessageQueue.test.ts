@@ -5,6 +5,13 @@ import { IBlueprintExternalMessageQueueType, PlaylistTimingType } from '@sofie-a
 import { DefaultEnvironment, setupDefaultStudioEnvironment } from '../../__mocks__/helpers/database'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
+import {
+	PartInstanceId,
+	RundownId,
+	RundownPlaylistId,
+	StudioId,
+	RundownPlaylistActivationId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getCurrentTime } from '../../lib/lib'
 import { ExternalMessageQueueAPIMethods } from '@sofie-automation/meteor-lib/dist/api/ExternalMessageQueue'
 import { ServerExternalMessageQueueAPI } from '../ExternalMessageQueue'
@@ -23,38 +30,38 @@ describe('Test external message queue static methods', () => {
 		studioEnv = await setupDefaultStudioEnvironment()
 		const now = getCurrentTime()
 		await RundownPlaylists.mutableCollection.insertAsync({
-			_id: protectString('playlist_1'),
+			_id: protectString<RundownPlaylistId>('playlist_1'),
 			externalId: 'mock_rpl',
 			name: 'Mock',
-			studioId: protectString(''),
+			studioId: protectString<StudioId>(''),
 			created: 0,
 			modified: 0,
 			defaultBrandingId: null,
 			currentPartInfo: {
-				partInstanceId: protectString('part_now'),
-				rundownId: protectString('rundown_1'),
+				partInstanceId: protectString<PartInstanceId>('part_now'),
+				rundownId: protectString<RundownId>('rundown_1'),
 				manuallySelected: false,
 				consumesQueuedSegmentId: false,
 			},
 			nextPartInfo: {
-				partInstanceId: protectString('partNext'),
-				rundownId: protectString('rundown_1'),
+				partInstanceId: protectString<PartInstanceId>('partNext'),
+				rundownId: protectString<RundownId>('rundown_1'),
 				manuallySelected: false,
 				consumesQueuedSegmentId: false,
 			},
 			previousPartsInfo: [],
-			activationId: protectString('active'),
+			activationId: protectString<RundownPlaylistActivationId>('active'),
 			timing: {
 				type: PlaylistTimingType.None,
 			},
-			rundownIdsInOrder: [protectString('rundown_1')],
+			rundownIdsInOrder: [protectString<RundownId>('rundown_1')],
 			tTimers: [] as any,
 		})
 		await Rundowns.mutableCollection.insertAsync({
-			_id: protectString('rundown_1'),
+			_id: protectString<RundownId>('rundown_1'),
 			name: 'Mockito 1',
 			externalId: 'mockito',
-			playlistId: protectString('playlist_1'),
+			playlistId: protectString<RundownPlaylistId>('playlist_1'),
 
 			studioId: studioEnv.studio._id,
 			showStyleVariantId: studioEnv.showStyleVariant._id,

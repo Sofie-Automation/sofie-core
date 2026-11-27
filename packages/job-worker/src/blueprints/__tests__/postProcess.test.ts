@@ -25,6 +25,7 @@ import {
 	EmptyPieceTimelineObjectsBlob,
 	Piece,
 } from '@sofie-automation/corelib/dist/dataModel/Piece'
+import { BlueprintId, PartId, PieceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 // Setup the mocks
 import * as hashlib from '@sofie-automation/corelib/dist/hash'
@@ -55,7 +56,7 @@ describe('Test blueprint post-process', () => {
 		const context = setupDefaultJobEnvironment()
 		test('no objects', () => {
 			// Ensure that an empty array works ok
-			const res = postProcessStudioBaselineObjects(context.studio.blueprintId, [])
+			const res = postProcessStudioBaselineObjects(context.studio.blueprintId, context.studio._id, [])
 			expect(res).toHaveLength(0)
 		})
 
@@ -101,7 +102,11 @@ describe('Test blueprint post-process', () => {
 
 			// TODO - mock getHash?
 
-			const res = postProcessStudioBaselineObjects(context.studio.blueprintId, clone(rawObjects))
+			const res = postProcessStudioBaselineObjects(
+				context.studio.blueprintId,
+				context.studio._id,
+				clone(rawObjects)
+			)
 
 			// Nothing should have been overridden (yet)
 			for (const obj of rawObjects) {
@@ -161,16 +166,16 @@ describe('Test blueprint post-process', () => {
 				},
 			])
 
-			expect(() => postProcessStudioBaselineObjects(context.studio.blueprintId, clone(rawObjects))).toThrow(
-				`Error in blueprint "${blueprintId}": ids of timelineObjs must be unique! ("testObj")`
-			)
+			expect(() =>
+				postProcessStudioBaselineObjects(context.studio.blueprintId, context.studio._id, clone(rawObjects))
+			).toThrow(`Error in blueprint "${blueprintId}": ids of timelineObjs must be unique! ("testObj")`)
 		})
 	})
 
 	describe('postProcessRundownBaselineItems', () => {
 		test('no objects', async () => {
 			// Ensure that an empty array works ok
-			const res = postProcessRundownBaselineItems(protectString('some-blueprints'), [])
+			const res = postProcessRundownBaselineItems(protectString<BlueprintId>('some-blueprints'), [])
 			expect(res).toHaveLength(0)
 		})
 
@@ -219,7 +224,10 @@ describe('Test blueprint post-process', () => {
 			const expectedIds = _.compact(rawObjects.map((obj) => obj.id)).concat(mockedIds)
 			getHashMock.mockImplementation(() => mockedIds.shift() ?? '')
 
-			const res = postProcessRundownBaselineItems(protectString('some-blueprints'), clone(rawObjects))
+			const res = postProcessRundownBaselineItems(
+				protectString<BlueprintId>('some-blueprints'),
+				clone(rawObjects)
+			)
 
 			// Nothing should have been overridden (yet)
 			for (const obj of rawObjects) {
@@ -295,9 +303,9 @@ describe('Test blueprint post-process', () => {
 			])
 
 			const blueprintId = 'some-blueprints'
-			expect(() => postProcessRundownBaselineItems(protectString(blueprintId), clone(rawObjects))).toThrow(
-				`Error in blueprint "${blueprintId}": ids of timelineObjs must be unique! ("testObj")`
-			)
+			expect(() =>
+				postProcessRundownBaselineItems(protectString<BlueprintId>(blueprintId), clone(rawObjects))
+			).toThrow(`Error in blueprint "${blueprintId}": ids of timelineObjs must be unique! ("testObj")`)
 		})
 	})
 
@@ -305,8 +313,8 @@ describe('Test blueprint post-process', () => {
 		test('no pieces', () => {
 			const jobContext = setupDefaultJobEnvironment()
 
-			const blueprintId = protectString('blueprint0')
-			const rundownId = protectString('rundown1')
+			const blueprintId = protectString<BlueprintId>('blueprint0')
+			const rundownId = protectString<RundownId>('rundown1')
 
 			// Ensure that an empty array works ok
 			const res = postProcessAdLibPieces(jobContext, blueprintId, rundownId, undefined, [])
@@ -316,8 +324,8 @@ describe('Test blueprint post-process', () => {
 		test('various pieces', () => {
 			const jobContext = setupDefaultJobEnvironment()
 
-			const blueprintId = protectString('blueprint9')
-			const rundownId = protectString('rundown1')
+			const blueprintId = protectString<BlueprintId>('blueprint9')
+			const rundownId = protectString<RundownId>('rundown1')
 
 			const pieces = literal<Array<IBlueprintAdLibPiece>>([
 				{
@@ -373,13 +381,13 @@ describe('Test blueprint post-process', () => {
 
 			// Ensure all required keys are defined
 			const tmpObj = literal<AdLibPiece>({
-				_id: protectString(''),
+				_id: protectString<PieceId>(''),
 				_rank: 0,
 				name: '',
 				externalId: '',
 				sourceLayerId: '',
 				outputLayerId: '',
-				rundownId: protectString(''),
+				rundownId: protectString<RundownId>(''),
 				content: {},
 				timelineObjectsString: EmptyPieceTimelineObjectsBlob,
 				lifespan: PieceLifespan.WithinPart,
@@ -400,8 +408,8 @@ describe('Test blueprint post-process', () => {
 		test('piece with content', () => {
 			const jobContext = setupDefaultJobEnvironment()
 
-			const blueprintId = protectString('blueprint0')
-			const rundownId = protectString('rundown1')
+			const blueprintId = protectString<BlueprintId>('blueprint0')
+			const rundownId = protectString<RundownId>('rundown1')
 
 			const piece = literal<IBlueprintAdLibPiece>({
 				_rank: 9,
@@ -447,10 +455,10 @@ describe('Test blueprint post-process', () => {
 			const res = postProcessPieces(
 				jobContext,
 				[],
-				protectString('blueprint9'),
-				protectString('fakeRo'),
-				protectString('segment5'),
-				protectString('part8'),
+				protectString<BlueprintId>('blueprint9'),
+				protectString<RundownId>('fakeRo'),
+				protectString<SegmentId>('segment5'),
+				protectString<PartId>('part8'),
 				false
 			)
 			expect(res).toHaveLength(0)
@@ -492,10 +500,10 @@ describe('Test blueprint post-process', () => {
 			const res = postProcessPieces(
 				jobContext,
 				pieces,
-				protectString('blueprint9'),
-				protectString('fakeRo'),
-				protectString('segment5'),
-				protectString('part8'),
+				protectString<BlueprintId>('blueprint9'),
+				protectString<RundownId>('fakeRo'),
+				protectString<SegmentId>('segment5'),
+				protectString<PartId>('part8'),
 				false
 			)
 			expect(res).toMatchObject(
@@ -509,15 +517,15 @@ describe('Test blueprint post-process', () => {
 
 			// Ensure all required keys are defined
 			const tmpObj = literal<Piece>({
-				_id: protectString(''),
+				_id: protectString<PieceId>(''),
 				name: '',
 				externalId: '',
 				enable: { start: 0 },
 				sourceLayerId: '',
 				outputLayerId: '',
-				startPartId: protectString(''),
-				startSegmentId: protectString(''),
-				startRundownId: protectString(''),
+				startPartId: protectString<PartId>(''),
+				startSegmentId: protectString<SegmentId>(''),
+				startRundownId: protectString<RundownId>(''),
 				lifespan: PieceLifespan.WithinPart,
 				pieceType: IBlueprintPieceType.Normal,
 				content: {},
@@ -564,10 +572,10 @@ describe('Test blueprint post-process', () => {
 			const res = postProcessPieces(
 				jobContext,
 				[piece],
-				protectString('blueprint9'),
-				protectString('fakeRo'),
-				protectString('segment8'),
-				protectString('part6'),
+				protectString<BlueprintId>('blueprint9'),
+				protectString<RundownId>('fakeRo'),
+				protectString<SegmentId>('segment8'),
+				protectString<PartId>('part6'),
 				false
 			)
 			expect(res).toHaveLength(1)
@@ -611,10 +619,10 @@ describe('Test blueprint post-process', () => {
 				postProcessPieces(
 					jobContext,
 					[piece],
-					protectString('blueprint9'),
-					protectString('fakeRo'),
-					protectString('segment8'),
-					protectString('part6'),
+					protectString<BlueprintId>('blueprint9'),
+					protectString<RundownId>('fakeRo'),
+					protectString<SegmentId>('segment8'),
+					protectString<PartId>('part6'),
 					false
 				)
 				// Error in blueprint "blueprint9": Validation of timelineObjs failed:
@@ -639,9 +647,9 @@ describe('Test blueprint post-process', () => {
 			}
 
 			const res = postProcessAdLibActions(
-				protectString('blueprint9'),
-				protectString('rundown1'),
-				protectString('part8'),
+				protectString<BlueprintId>('blueprint9'),
+				protectString<RundownId>('rundown1'),
+				protectString<PartId>('part8'),
 				[action]
 			)
 

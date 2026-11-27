@@ -16,7 +16,7 @@ import {
 	omit,
 	type Complete,
 } from '@sofie-automation/corelib/dist/lib'
-import { StudioId, RundownPlaylistId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { StudioId, RundownPlaylistId, NotificationId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { isEqual } from 'underscore'
 import type { MongoBulkWriteOperation } from '../db/collections.js'
 
@@ -118,7 +118,7 @@ export class NotificationsModelHelper implements INotificationsModel {
 
 		// Clone and strip all undefined properties
 		const newNotification = clone({
-			_id: protectString(getHash(`${this.#context.studioId}:${fullCategory}:${notification.id}`)),
+			_id: protectString<NotificationId>(getHash(`${this.#context.studioId}:${fullCategory}:${notification.id}`)),
 			category: fullCategory,
 			localId: notification.id,
 			severity: notification.severity,

@@ -10,8 +10,10 @@ import {
 	PartId,
 	PartInstanceId,
 	PieceId,
+	PieceInstanceId,
 	RundownBaselineAdLibActionId,
 	RundownId,
+	RundownPlaylistId,
 	SegmentId,
 	ShowStyleBaseId,
 	ShowStyleVariantId,
@@ -38,6 +40,8 @@ import { RundownOrphanedReason } from '@sofie-automation/corelib/dist/dataModel/
 import { SofieIngestDataCacheObj } from '@sofie-automation/corelib/dist/dataModel/SofieIngestDataCache'
 import * as PackagesPreR53 from '@sofie-automation/corelib/dist/dataModel/Old/ExpectedPackagesR52'
 import { ExpectedPackage } from '@sofie-automation/blueprints-integration'
+import { UnknownProtectedString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
+import { RundownBaselineAdLibAction } from '@sofie-automation/corelib/dist/dataModel/RundownBaselineAdLibAction'
 
 class IdMapWithGenerator<V extends ProtectedString<any>> extends Map<V, V> {
 	getOrGenerate(key: V): V {
@@ -63,7 +67,7 @@ export async function handleGeneratePlaylistSnapshot(
 	props: GeneratePlaylistSnapshotProps
 ): Promise<GeneratePlaylistSnapshotResult> {
 	const lockedResult = await runWithPlaylistLock(context, props.playlistId, async () => {
-		const snapshotId: SnapshotId = props.snapshotId ?? getRandomId()
+		const snapshotId = props.snapshotId ?? getRandomId<SnapshotId>()
 		logger.info(`Generating RundownPlaylist snapshot "${snapshotId}" for RundownPlaylist "${props.playlistId}"`)
 
 		const playlist = await context.directCollections.RundownPlaylists.findOne(props.playlistId)
@@ -189,7 +193,7 @@ export async function handleRestorePlaylistSnapshot(
 	if (oldPlaylistId !== snapshot.playlist._id)
 		throw new Error(`Restore snapshot: playlistIds don't match, "${oldPlaylistId}", "${snapshot.playlist._id}!"`)
 
-	const playlistId = (snapshot.playlist._id = getRandomId())
+	const playlistId = (snapshot.playlist._id = getRandomId<RundownPlaylistId>())
 	snapshot.playlist.restoredFromSnapshotId = snapshot.playlistId
 	delete snapshot.playlist.activationId
 
@@ -264,13 +268,13 @@ export async function handleRestorePlaylistSnapshot(
 	}
 	for (const rd of snapshot.rundowns) {
 		const oldId = rd._id
-		rd._id = getRandomId()
+		rd._id = getRandomId<RundownId>()
 		rundownIdMap.set(oldId, rd._id)
 	}
 	const partIdMap = new IdMapWithGenerator<PartId>()
 	for (const part of snapshot.parts) {
 		const oldId = part._id
-		part._id = part.externalId ? getPartId(getNewRundownId(part.rundownId), part.externalId) : getRandomId()
+		part._id = part.externalId ? getPartId(getNewRundownId(part.rundownId), part.externalId) : getRandomId<PartId>()
 
 		partIdMap.set(oldId, part._id)
 	}
@@ -279,7 +283,7 @@ export async function handleRestorePlaylistSnapshot(
 	const partInstanceIdMap = new IdMapWithGenerator<PartInstanceId>()
 	for (const partInstance of snapshot.partInstances) {
 		const oldId = partInstance._id
-		partInstance._id = getRandomId()
+		partInstance._id = getRandomId<PartInstanceId>()
 		partInstanceIdMap.set(oldId, partInstance._id)
 
 		partInstance.part._id = partIdMap.getOrGenerate(partInstance.part._id)
@@ -308,7 +312,7 @@ export async function handleRestorePlaylistSnapshot(
 				`piece.startSegmentId=${piece.startSegmentId} of piece=${piece._id}`
 			)
 		}
-		piece._id = getRandomId()
+		piece._id = getRandomId<PieceId>()
 		pieceIdMap.set(oldId, piece._id)
 	}
 
@@ -319,12 +323,12 @@ export async function handleRestorePlaylistSnapshot(
 		...snapshot.baselineAdLibActions,
 	]) {
 		const oldId = adlib._id
-		adlib._id = getRandomId()
+		adlib._id = getRandomId<PieceId>()
 		pieceIdMap.set(oldId, adlib._id)
 	}
 
 	for (const pieceInstance of snapshot.pieceInstances) {
-		pieceInstance._id = getRandomId()
+		pieceInstance._id = getRandomId<PieceInstanceId>()
 
 		pieceInstance.piece._id = pieceIdMap.getOrGenerate(pieceInstance.piece._id) as PieceId // Note: don't warn if not found, as the piece may have been deleted
 		if (pieceInstance.infinite) {
@@ -421,9 +425,9 @@ export async function handleRestorePlaylistSnapshot(
 				// Define a fake source, so that it gets imported.
 				source = {
 					fromPieceType: ExpectedPackageDBType.PIECE,
-					pieceId: protectString('fakePiece'),
-					partId: protectString('fakePart'),
-					segmentId: protectString('fakeSegment'),
+					pieceId: protectString<PieceId>('fakePiece'),
+					partId: protectString<PartId>('fakePart'),
+					segmentId: protectString<SegmentId>('fakeSegment'),
 					blueprintPackageId: expectedPackage.blueprintPackageId,
 					listenToPackageInfoUpdates: expectedPackage.listenToPackageInfoUpdates,
 				}
@@ -597,7 +601,7 @@ export async function handleRestorePlaylistSnapshot(
 			}
 
 			if (updateOwnId) {
-				obj._id = getRandomId()
+				obj._id = getRandomId<UnknownProtectedString>()
 			}
 
 			if (obj.part) {
@@ -643,7 +647,8 @@ export async function handleRestorePlaylistSnapshot(
 			context,
 			context.directCollections.RundownBaselineAdLibActions,
 			{ rundownId: { $in: rundownIds } },
-			updateItemIds(snapshot.baselineAdLibActions, false)
+			updateItemIds<RundownBaselineAdLibAction>(snapshot.baselineAdLibActions, false)
+			// updateItemIds([], false)
 		),
 		saveIntoDb(
 			context,
@@ -726,7 +731,7 @@ function fixupImportedSelectedPartInstanceIds(
 		const oldId = (snapshot.playlist as any)[fullOldKey] as PartInstanceId
 		const migratedInfo = {
 			partInstanceId: oldId,
-			rundownId: partInstanceOldRundownIdMap.get(oldId) || protectString(''),
+			rundownId: partInstanceOldRundownIdMap.get(oldId) || protectString<RundownId>(''),
 			manuallySelected: false,
 			consumesQueuedSegmentId: false,
 		}

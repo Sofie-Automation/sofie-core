@@ -3,7 +3,7 @@ import { APIBucket, APIBucketComplete, APIImportAdlib, BucketsRestAPI } from '..
 import { BucketAdLibActions, BucketAdLibs, Buckets } from '../../../collections'
 import { APIBucketFrom } from './typeConversion'
 import { ClientAPI } from '@sofie-automation/meteor-lib/dist/api/client'
-import { BucketId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { BucketId, ShowStyleBaseId, StudioId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ServerClientAPI } from '../../client'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import { getCurrentTime } from '../../../lib/lib'
@@ -66,7 +66,7 @@ export class BucketsServerAPI implements BucketsRestAPI {
 
 				assertConnectionHasOneOfPermissions(connection, ...PERMISSIONS_FOR_BUCKET_MODIFICATION)
 
-				return BucketsAPI.createNewBucket(protectString(bucket.studioId), bucket.name)
+				return BucketsAPI.createNewBucket(protectString<StudioId>(bucket.studioId), bucket.name)
 			}
 		)
 		if (ClientAPI.isClientResponseSuccess(createdBucketResponse)) {
@@ -209,7 +209,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<BucketsRestAPI>): 
 		bucketsApiFactory,
 		async (serverAPI, connection, event, params, _body) => {
 			logger.info(`API GET: Bucket`)
-			const bucketId = protectString(params.bucketId)
+			const bucketId = protectString<BucketId>(params.bucketId)
 			check(bucketId, z.string())
 			return await serverAPI.getBucket(connection, event, bucketId)
 		}
@@ -233,7 +233,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<BucketsRestAPI>): 
 		bucketsApiFactory,
 		async (serverAPI, connection, event, params, _body) => {
 			logger.info(`API DELETE: Bucket`)
-			const bucketId = protectString(params.bucketId)
+			const bucketId = protectString<BucketId>(params.bucketId)
 			return await serverAPI.deleteBucket(connection, event, bucketId)
 		}
 	)
@@ -245,7 +245,7 @@ export function registerRoutes(registerRoute: APIRegisterHook<BucketsRestAPI>): 
 		bucketsApiFactory,
 		async (serverAPI, connection, event, params, _body) => {
 			logger.info(`API DELETE: Empty Bucket`)
-			const bucketId = protectString(params.bucketId)
+			const bucketId = protectString<BucketId>(params.bucketId)
 			check(bucketId, z.string())
 			return await serverAPI.emptyBucket(connection, event, bucketId)
 		}
@@ -271,13 +271,13 @@ export function registerRoutes(registerRoute: APIRegisterHook<BucketsRestAPI>): 
 		bucketsApiFactory,
 		async (serverAPI, connection, event, params, body) => {
 			logger.info(`API POST: Add AdLib to Bucket`)
-			const bucketId = protectString(params.bucketId)
+			const bucketId = protectString<BucketId>(params.bucketId)
 			check(bucketId, z.string())
 			check(body.externalId, z.string())
 			check(body.name, z.string())
 			check(body.payloadType, z.string())
 			check(body.showStyleBaseId, z.string())
-			const showStyleBaseId = protectString(body.showStyleBaseId)
+			const showStyleBaseId = protectString<ShowStyleBaseId>(body.showStyleBaseId)
 			return await serverAPI.importAdLibToBucket(connection, event, bucketId, showStyleBaseId, body)
 		}
 	)

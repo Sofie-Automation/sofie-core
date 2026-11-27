@@ -1,4 +1,12 @@
 import { CoreRundownPlaylistSnapshot } from '@sofie-automation/corelib/dist/snapshots'
+import {
+	PartInstanceId,
+	RundownPlaylistId,
+	ShowStyleBaseId,
+	ShowStyleVariantId,
+	SnapshotId,
+	StudioId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { getRandomId, literal } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { MockJobContext, setupDefaultJobEnvironment } from '../../__mocks__/context.js'
@@ -22,7 +30,7 @@ describe('Snapshot blueprint hooks', () => {
 			context.updateShowStyleBlueprint({ onPlaylistSnapshotCreated })
 
 			const { playlistId } = await setupDefaultRundownPlaylist(context)
-			const snapshotId = getRandomId()
+			const snapshotId = getRandomId<SnapshotId>()
 
 			await handleGeneratePlaylistSnapshot(context, {
 				playlistId,
@@ -66,10 +74,10 @@ describe('Snapshot blueprint hooks', () => {
 
 	describe('pickRundownForPlaylistSnapshot', () => {
 		test('prefers current part rundown over next when both are set', () => {
-			const studioId = protectString('studio0')
-			const playlistId = getRandomId()
-			const showStyleBaseId = getRandomId()
-			const showStyleVariantId = getRandomId()
+			const studioId = protectString<StudioId>('studio0')
+			const playlistId = getRandomId<RundownPlaylistId>()
+			const showStyleBaseId = getRandomId<ShowStyleBaseId>()
+			const showStyleVariantId = getRandomId<ShowStyleVariantId>()
 
 			const rundownCurrent = defaultRundown(
 				'rundown_current',
@@ -92,13 +100,13 @@ describe('Snapshot blueprint hooks', () => {
 
 			const playlist = defaultRundownPlaylist(playlistId, studioId)
 			playlist.currentPartInfo = {
-				partInstanceId: getRandomId(),
+				partInstanceId: getRandomId<PartInstanceId>(),
 				rundownId: rundownCurrent._id,
 				manuallySelected: false,
 				consumesQueuedSegmentId: false,
 			}
 			playlist.nextPartInfo = {
-				partInstanceId: getRandomId(),
+				partInstanceId: getRandomId<PartInstanceId>(),
 				rundownId: rundownNext._id,
 				manuallySelected: false,
 				consumesQueuedSegmentId: false,
@@ -134,7 +142,7 @@ describe('Snapshot blueprint hooks', () => {
 			const onSystemSnapshotCreated = jest.fn()
 			context.updateStudioBlueprint({ onSystemSnapshotCreated })
 
-			const snapshotId = getRandomId()
+			const snapshotId = getRandomId<SnapshotId>()
 			await handleOnSystemSnapshotCreated(context, {
 				snapshotId,
 				reason: 'system test',

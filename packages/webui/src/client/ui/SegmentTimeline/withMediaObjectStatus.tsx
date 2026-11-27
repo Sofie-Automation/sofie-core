@@ -13,6 +13,7 @@ import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/Pie
 import type { UIBucketContentStatus } from '@sofie-automation/meteor-lib/dist/api/rundownNotifications'
 import type { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
 import type { ReadonlyDeep } from 'type-fest'
+import type { BucketAdLibId } from '@sofie-automation/corelib/src/dataModel/Ids.js'
 
 function unwrapPieceInstance(piece: BucketAdLibUi | IAdLibListItem | AdLibPieceUi | PieceUi | BucketAdLibActionUi) {
 	if (RundownUtils.isPieceInstance(piece)) {
@@ -31,7 +32,7 @@ function getStatusDocForPiece(
 	if (RundownUtils.isBucketAdLibItem(piece)) {
 		return UIBucketContentStatuses.findOne({
 			bucketId: piece.bucketId,
-			docId: pieceUnwrapped._id,
+			docId: pieceUnwrapped._id as BucketAdLibId,
 		})
 	}
 
@@ -47,7 +48,7 @@ function getStatusDocForPiece(
 	// Fallback to using the one from the source piece
 	return UIPieceContentStatuses.findOne({
 		// Future: It would be good for this to be stricter.
-		pieceId: pieceUnwrapped._id,
+		pieceId: pieceUnwrapped._id as any,
 	})
 }
 

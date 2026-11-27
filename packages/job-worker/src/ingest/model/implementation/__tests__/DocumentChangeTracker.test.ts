@@ -17,7 +17,7 @@ describe('DocumentChangeTracker', () => {
 	function createReplaceOp(doc: { _id: ProtectedString<any> }): AnyBulkWriteOperation {
 		return {
 			replaceOne: {
-				filter: { _id: doc._id },
+				filter: { _id: doc._id as any },
 				replacement: doc,
 				upsert: true,
 			},

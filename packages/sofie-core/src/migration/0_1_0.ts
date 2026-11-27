@@ -3,10 +3,11 @@ import { logger } from '../logging'
 import { getRandomId } from '@sofie-automation/corelib/dist/lib'
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { wrapDefaultObject } from '@sofie-automation/corelib/dist/settings/objectWithOverrides'
-import { ShowStyleVariantId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { ShowStyleVariantId, StudioId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { ShowStyleBases, ShowStyleVariants, Studios } from '../collections'
 import { DEFAULT_MINIMUM_TAKE_SPAN } from '@sofie-automation/shared-lib/dist/core/constants'
 import { ShelfButtonSize } from '@sofie-automation/shared-lib/dist/core/model/StudioSettings'
+import { BlueprintId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 
 /**
  * This file contains system specific migration steps.
@@ -27,7 +28,7 @@ export const addSteps = addMigrationSteps('0.1.0', [
 			// create default studio
 			logger.info(`Migration: Add default studio`)
 			await Studios.insertAsync({
-				_id: protectString('studio0'),
+				_id: protectString<StudioId>('studio0'),
 				name: 'Default studio',
 				supportedShowStyleBase: [],
 				settingsWithOverrides: wrapDefaultObject({
@@ -78,11 +79,11 @@ export const addSteps = addMigrationSteps('0.1.0', [
 			if (studios.length === 1) {
 				const studio = studios[0]
 
-				const id = protectString('show0')
+				const id = protectString<ShowStyleBaseId>('show0')
 				await ShowStyleBases.insertAsync({
 					_id: id,
 					name: 'Default ShowStyle',
-					blueprintId: protectString(''),
+					blueprintId: protectString<BlueprintId>(''),
 					outputLayersWithOverrides: wrapDefaultObject({}),
 					sourceLayersWithOverrides: wrapDefaultObject({}),
 					hotkeyLegend: [],
@@ -93,7 +94,7 @@ export const addSteps = addMigrationSteps('0.1.0', [
 					lastBlueprintFixUpHash: undefined,
 				})
 
-				const variantId: ShowStyleVariantId = getRandomId()
+				const variantId = getRandomId<ShowStyleVariantId>()
 				await ShowStyleVariants.insertAsync({
 					_id: variantId,
 					name: 'Default Variant',
@@ -114,11 +115,11 @@ export const addSteps = addMigrationSteps('0.1.0', [
 				// create default ShowStyleBase:
 				logger.info(`Migration: Add default ShowStyleBase`)
 
-				const id = protectString('show0')
+				const id = protectString<ShowStyleBaseId>('show0')
 				await ShowStyleBases.insertAsync({
 					_id: id,
 					name: 'Default ShowStyle',
-					blueprintId: protectString(''),
+					blueprintId: protectString<BlueprintId>(''),
 					outputLayersWithOverrides: wrapDefaultObject({}),
 					sourceLayersWithOverrides: wrapDefaultObject({}),
 					blueprintConfigWithOverrides: wrapDefaultObject({}),
@@ -129,7 +130,7 @@ export const addSteps = addMigrationSteps('0.1.0', [
 				})
 
 				await ShowStyleVariants.insertAsync({
-					_id: getRandomId(),
+					_id: getRandomId<ShowStyleVariantId>(),
 					name: 'Default Variant',
 					showStyleBaseId: id,
 					blueprintConfigWithOverrides: wrapDefaultObject({}),

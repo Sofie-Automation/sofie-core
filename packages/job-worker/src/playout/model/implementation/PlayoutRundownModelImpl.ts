@@ -66,7 +66,7 @@ export class PlayoutRundownModelImpl implements PlayoutRundownModel {
 		const existingSegment = this.segments.find((s) => s.segment.orphaned === SegmentOrphanedReason.ADLIB_TESTING)
 		if (existingSegment) throw UserError.create(UserErrorMessage.AdlibTestingAlreadyActive)
 
-		const segmentId: SegmentId = getRandomId()
+		const segmentId = getRandomId<SegmentId>()
 		this.#segments.unshift(
 			new PlayoutSegmentModelImpl(
 				{

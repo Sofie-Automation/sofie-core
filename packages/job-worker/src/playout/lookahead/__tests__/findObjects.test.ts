@@ -8,7 +8,13 @@ import {
 	TSR,
 } from '@sofie-automation/blueprints-integration'
 import { sortPieceInstancesByStart } from '../../pieces.js'
-import { RundownId, PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import {
+	RundownId,
+	PartInstanceId,
+	RundownPlaylistActivationId,
+	PartId,
+	PieceInstanceId,
+} from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import { TimelineObjRundown } from '@sofie-automation/corelib/dist/dataModel/Timeline'
 import { literal } from '@sofie-automation/corelib/dist/lib'
@@ -46,7 +52,7 @@ describe('findLookaheadObjectsForPart', () => {
 	}
 	test('no pieces', () => {
 		const currentPartInstanceId: PartInstanceId | null = null
-		const rundownId: RundownId = protectString('rundown0')
+		const rundownId: RundownId = protectString<RundownId>('rundown0')
 		const layerName = 'layer0'
 		const partInfo = { part: definePart(rundownId), usesInTransition: true, pieces: [] }
 		const objects = findLookaheadObjectsForPart(
@@ -62,12 +68,12 @@ describe('findLookaheadObjectsForPart', () => {
 	})
 
 	const defaultPieceInstanceProps: Omit<PieceInstance, 'rundownId'> = {
-		_id: protectString('piece0_instance'),
-		partInstanceId: protectString('partInstance0'),
-		playlistActivationId: protectString('active'),
+		_id: protectString<PieceInstanceId>('piece0_instance'),
+		partInstanceId: protectString<PartInstanceId>('partInstance0'),
+		playlistActivationId: protectString<RundownPlaylistActivationId>('active'),
 		piece: {
 			_id: protectString('piece0'),
-			startPartId: protectString('part0'),
+			startPartId: protectString<PartId>('part0'),
 			externalId: '',
 			name: '',
 			enable: { start: 0 },
@@ -83,7 +89,7 @@ describe('findLookaheadObjectsForPart', () => {
 
 	test('layer check', () => {
 		const currentPartInstanceId: PartInstanceId | null = null
-		const rundownId: RundownId = protectString('rundown0')
+		const rundownId: RundownId = protectString<RundownId>('rundown0')
 		const layer0 = 'layer0'
 		const layer1 = 'layer1'
 
@@ -138,9 +144,9 @@ describe('findLookaheadObjectsForPart', () => {
 
 	test('single object ids', () => {
 		const currentPartInstanceId: PartInstanceId | null = null
-		const rundownId: RundownId = protectString('rundown0')
+		const rundownId: RundownId = protectString<RundownId>('rundown0')
 		const layer0 = 'layer0'
-		const partInstanceId = protectString('partInstance0')
+		const partInstanceId = protectString<PartInstanceId>('partInstance0')
 
 		const partInfo = {
 			part: definePart(rundownId),
@@ -240,9 +246,9 @@ describe('findLookaheadObjectsForPart', () => {
 	})
 
 	test('single object keyframes', () => {
-		const rundownId: RundownId = protectString('rundown0')
+		const rundownId: RundownId = protectString<RundownId>('rundown0')
 		const layer0 = 'layer0'
-		const partInstanceId = protectString('partInstance0')
+		const partInstanceId = protectString<PartInstanceId>('partInstance0')
 		const currentPartInstanceId: PartInstanceId | null = partInstanceId
 
 		const partInfo = {
@@ -325,7 +331,7 @@ describe('findLookaheadObjectsForPart', () => {
 		// Allowed transition with a transition
 		partInfo.pieces.push({
 			...defaultPieceInstanceProps,
-			_id: protectString('piece1'),
+			_id: protectString<PieceInstanceId>('piece1'),
 			rundownId: rundownId,
 			piece: {
 				...defaultPieceInstanceProps.piece,
@@ -384,9 +390,9 @@ describe('findLookaheadObjectsForPart', () => {
 
 	test('multiple object ids', () => {
 		const currentPartInstanceId: PartInstanceId | null = null
-		const rundownId: RundownId = protectString('rundown0')
+		const rundownId: RundownId = protectString<RundownId>('rundown0')
 		const layer0 = 'layer0'
-		const partInstanceId = protectString('partInstance0')
+		const partInstanceId = protectString<PartInstanceId>('partInstance0')
 
 		const partInfo = {
 			part: definePart(rundownId),
@@ -411,7 +417,7 @@ describe('findLookaheadObjectsForPart', () => {
 				},
 				{
 					...defaultPieceInstanceProps,
-					_id: protectString('piece1_instance'),
+					_id: protectString<PieceInstanceId>('piece1_instance'),
 					rundownId: rundownId,
 					piece: {
 						...defaultPieceInstanceProps.piece,
@@ -542,9 +548,9 @@ describe('findLookaheadObjectsForPart', () => {
 	})
 
 	test('multiple object keyframes', () => {
-		const rundownId: RundownId = protectString('rundown0')
+		const rundownId: RundownId = protectString<RundownId>('rundown0')
 		const layer0 = 'layer0'
-		const partInstanceId = protectString('partInstance0')
+		const partInstanceId = protectString<PartInstanceId>('partInstance0')
 		const currentPartInstanceId: PartInstanceId | null = partInstanceId
 
 		const partInfo = {
@@ -587,7 +593,7 @@ describe('findLookaheadObjectsForPart', () => {
 				},
 				{
 					...defaultPieceInstanceProps,
-					_id: protectString('piece1_instance'),
+					_id: protectString<PieceInstanceId>('piece1_instance'),
 					rundownId: rundownId,
 					piece: {
 						...defaultPieceInstanceProps.piece,
@@ -664,7 +670,7 @@ describe('findLookaheadObjectsForPart', () => {
 		// Allowed transition with a transition
 		partInfo.pieces.push({
 			...defaultPieceInstanceProps,
-			_id: protectString('piece2'),
+			_id: protectString<PieceInstanceId>('piece2'),
 			rundownId: rundownId,
 			piece: {
 				...defaultPieceInstanceProps.piece,
@@ -743,9 +749,9 @@ describe('findLookaheadObjectsForPart', () => {
 	})
 
 	test('multiple object including transition', () => {
-		const rundownId: RundownId = protectString('rundown0')
+		const rundownId: RundownId = protectString<RundownId>('rundown0')
 		const layer0 = 'layer0'
-		const partInstanceId = protectString('partInstance0')
+		const partInstanceId = protectString<PartInstanceId>('partInstance0')
 		const currentPartInstanceId: PartInstanceId | null = partInstanceId
 
 		const partInfo = {
@@ -789,7 +795,7 @@ describe('findLookaheadObjectsForPart', () => {
 					},
 					{
 						...defaultPieceInstanceProps,
-						_id: protectString('piece1_instance'),
+						_id: protectString<PieceInstanceId>('piece1_instance'),
 						rundownId: rundownId,
 						piece: {
 							...defaultPieceInstanceProps.piece,
@@ -817,7 +823,7 @@ describe('findLookaheadObjectsForPart', () => {
 					{
 						// Transition piece
 						...defaultPieceInstanceProps,
-						_id: protectString('piece2_instance'),
+						_id: protectString<PieceInstanceId>('piece2_instance'),
 						rundownId: rundownId,
 						piece: {
 							...defaultPieceInstanceProps.piece,
@@ -912,8 +918,8 @@ describe('findLookaheadObjectsForPart', () => {
 
 	test('playoutState filters objects with holdMode', () => {
 		const currentPartInstanceId: PartInstanceId | null = null
-		const rundownId: RundownId = protectString('rundown0')
-		const partInstanceId = protectString('partInstance0')
+		const rundownId: RundownId = protectString<RundownId>('rundown0')
+		const partInstanceId = protectString<PartInstanceId>('partInstance0')
 
 		function createPartInfoWithHoldMode(holdMode: TimelineObjHoldMode, layer: string): any {
 			return {
@@ -922,7 +928,7 @@ describe('findLookaheadObjectsForPart', () => {
 				pieces: literal<PieceInstance[]>([
 					{
 						...defaultPieceInstanceProps,
-						_id: protectString('piece_' + Math.random()),
+						_id: protectString<PieceInstanceId>('piece_' + Math.random()),
 						rundownId: rundownId,
 						piece: {
 							...defaultPieceInstanceProps.piece,
@@ -992,8 +998,8 @@ describe('findLookaheadObjectsForPart', () => {
 
 	test('playoutState filters objects with onAirMode', () => {
 		const currentPartInstanceId: PartInstanceId | null = null
-		const rundownId: RundownId = protectString('rundown0')
-		const partInstanceId = protectString('partInstance0')
+		const rundownId: RundownId = protectString<RundownId>('rundown0')
+		const partInstanceId = protectString<PartInstanceId>('partInstance0')
 
 		function createPartInfoWithOnAirMode(onAirMode: TimelineObjOnAirMode, layer: string): any {
 			return {
@@ -1002,7 +1008,7 @@ describe('findLookaheadObjectsForPart', () => {
 				pieces: literal<PieceInstance[]>([
 					{
 						...defaultPieceInstanceProps,
-						_id: protectString('piece_' + Math.random()),
+						_id: protectString<PieceInstanceId>('piece_' + Math.random()),
 						rundownId: rundownId,
 						piece: {
 							...defaultPieceInstanceProps.piece,
@@ -1071,9 +1077,9 @@ describe('findLookaheadObjectsForPart', () => {
 	})
 
 	describe('single piece with multiple objects on the same layer', () => {
-		const rundownId: RundownId = protectString('rundown0')
+		const rundownId: RundownId = protectString<RundownId>('rundown0')
 		const layer0 = 'layer0'
-		const partInstanceId = protectString('partInstance0')
+		const partInstanceId = protectString<PartInstanceId>('partInstance0')
 
 		test('all objects from a single piece on the same layer are returned', () => {
 			// A single piece that contributes two objects to the same layer should expose both
@@ -1168,7 +1174,7 @@ describe('findLookaheadObjectsForPart', () => {
 					{
 						// Transition piece with an object on the same layer.
 						...defaultPieceInstanceProps,
-						_id: protectString('piece1_instance'),
+						_id: protectString<PieceInstanceId>('piece1_instance'),
 						rundownId,
 						piece: {
 							...defaultPieceInstanceProps.piece,
@@ -1243,7 +1249,7 @@ describe('findLookaheadObjectsForPart', () => {
 					{
 						// Transition piece whose only object is on a *different* layer.
 						...defaultPieceInstanceProps,
-						_id: protectString('piece1_instance'),
+						_id: protectString<PieceInstanceId>('piece1_instance'),
 						rundownId,
 						piece: {
 							...defaultPieceInstanceProps.piece,
@@ -1324,7 +1330,7 @@ describe('findLookaheadObjectsForPart', () => {
 						{
 							// Normal piece at start=500 — contributes TWO objects.
 							...defaultPieceInstanceProps,
-							_id: protectString('piece1_instance'),
+							_id: protectString<PieceInstanceId>('piece1_instance'),
 							rundownId,
 							piece: {
 								...defaultPieceInstanceProps.piece,
@@ -1351,7 +1357,7 @@ describe('findLookaheadObjectsForPart', () => {
 						{
 							// Transition piece. InTransition sorts before Normal pieces at the same start.
 							...defaultPieceInstanceProps,
-							_id: protectString('piece2_instance'),
+							_id: protectString<PieceInstanceId>('piece2_instance'),
 							rundownId,
 							piece: {
 								...defaultPieceInstanceProps.piece,

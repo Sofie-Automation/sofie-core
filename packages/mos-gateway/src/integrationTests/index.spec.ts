@@ -1,4 +1,4 @@
-import { protectString } from '@sofie-automation/server-core-integration'
+import { PeripheralDeviceId, protectString } from '@sofie-automation/server-core-integration'
 import { Connector } from '../connector.js'
 import * as Winston from 'winston'
 
@@ -32,7 +32,7 @@ test('Simple test', async () => {
 			watchdog: false,
 		},
 		device: {
-			deviceId: protectString('JestTest'),
+			deviceId: protectString<PeripheralDeviceId>('JestTest'),
 			deviceToken: '1234',
 		},
 		certificates: {

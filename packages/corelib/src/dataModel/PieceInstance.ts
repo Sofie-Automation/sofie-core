@@ -131,10 +131,10 @@ export function wrapPieceToInstance(
 		playlistActivationId,
 		piece.startRundownId,
 		partInstanceId,
-		partInstanceId === protectString('') || isTemporary
+		partInstanceId === protectString<PartInstanceId>('') || isTemporary
 	)
 }
 
 export function getPieceInstanceIdForPiece(partInstanceId: PartInstanceId, pieceId: PieceId): PieceInstanceId {
-	return protectString(`${partInstanceId}_${pieceId}`)
+	return protectString<PieceInstanceId>(`${partInstanceId}_${pieceId}`)
 }

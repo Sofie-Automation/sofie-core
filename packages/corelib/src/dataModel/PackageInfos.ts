@@ -31,5 +31,5 @@ export interface PackageInfoDB extends PackageInfo.Base {
 }
 
 export function getPackageInfoId(packageId: ExpectedPackageId, type: string): PackageInfoId {
-	return protectString(`${packageId}_${type}`)
+	return protectString<PackageInfoId>(`${packageId}_${type}`)
 }

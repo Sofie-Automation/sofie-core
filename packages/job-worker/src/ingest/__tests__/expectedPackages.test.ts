@@ -1,4 +1,5 @@
 import { AdLibPiece } from '@sofie-automation/corelib/dist/dataModel/AdLibPiece'
+import { PartId, PieceId, RundownId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { literal } from '@sofie-automation/corelib/dist/lib'
@@ -45,7 +46,11 @@ describe('Expected Playout Items', () => {
 		const mockPath1 = mockBase + mockFileName1
 
 		const part: ReadonlyDeep<DBPart> = literal<DBPart>({
-			...defaultPart(protectString('mockPart0'), protectString(''), protectString('')),
+			...defaultPart(
+				protectString<PartId>('mockPart0'),
+				protectString<RundownId>(''),
+				protectString<SegmentId>('')
+			),
 			_rank: 1,
 			title: '',
 		})
@@ -53,10 +58,10 @@ describe('Expected Playout Items', () => {
 		const pieces: ReadonlyDeep<Piece>[] = [
 			literal<Piece>({
 				...defaultPiece(
-					protectString('mockPiece0'),
-					protectString(''),
-					protectString(''),
-					protectString('mockPart0')
+					protectString<PieceId>('mockPiece0'),
+					protectString<RundownId>(''),
+					protectString<SegmentId>(''),
+					protectString<PartId>('mockPart0')
 				),
 				name: '',
 				outputLayerId: LAYER_IDS.OUTPUT_PGM,
@@ -72,10 +77,10 @@ describe('Expected Playout Items', () => {
 			}),
 			literal<Piece>({
 				...defaultPiece(
-					protectString('mockPiece1'),
-					protectString(''),
-					protectString(''),
-					protectString('mockPart0')
+					protectString<PieceId>('mockPiece1'),
+					protectString<RundownId>(''),
+					protectString<SegmentId>(''),
+					protectString<PartId>('mockPart0')
 				),
 				name: '',
 				outputLayerId: LAYER_IDS.OUTPUT_PGM,
@@ -93,7 +98,11 @@ describe('Expected Playout Items', () => {
 
 		const adLibPieces: ReadonlyDeep<AdLibPiece>[] = [
 			literal<AdLibPiece>({
-				...defaultAdLibPiece(protectString('mockAdLib0'), protectString(''), protectString('mockPart0')),
+				...defaultAdLibPiece(
+					protectString<PieceId>('mockAdLib0'),
+					protectString<RundownId>(''),
+					protectString<PartId>('mockPart0')
+				),
 				name: '',
 				_rank: 0,
 				lifespan: PieceLifespan.WithinPart,

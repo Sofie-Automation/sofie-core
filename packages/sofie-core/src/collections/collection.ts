@@ -139,7 +139,7 @@ export interface AsyncOnlyMongoCollection<
 	 * @param options Options for the operation
 	 */
 	updateAsync(
-		selector: DBInterface['_id'] | ({ _id: DBInterface['_id'] } & MongoQuery<Omit<DBInterface, '_id'>>),
+		selector: DBInterface['_id'] | ({ _id: DBInterface['_id'] } & Omit<MongoQuery<DBInterface>, '_id'>),
 		modifier: MongoModifier<DBInterface>,
 		options?: UpdateOptions
 	): Promise<number>

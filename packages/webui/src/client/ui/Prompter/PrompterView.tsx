@@ -325,7 +325,7 @@ export class PrompterViewContent extends React.Component<Translated<IProps & ITr
 
 	private checkScrollToCurrent() {
 		const playlistId: RundownPlaylistId =
-			(this.props.rundownPlaylist && this.props.rundownPlaylist._id) || protectString('')
+			(this.props.rundownPlaylist && this.props.rundownPlaylist._id) || protectString<RundownPlaylistId>('')
 		const playlist = RundownPlaylists.findOne(playlistId)
 
 		if (!this.configOptions.followTake) return

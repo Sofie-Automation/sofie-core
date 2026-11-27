@@ -6,7 +6,7 @@ import {
 } from '@sofie-automation/blueprints-integration'
 import { ReadonlyDeep } from 'type-fest'
 import { protectString, protectStringArray, unDeepString } from '@sofie-automation/corelib/dist/protectedString'
-import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
+import { PartInstanceId, SegmentId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { DBPartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { DBRundown } from '@sofie-automation/corelib/dist/dataModel/Rundown'
 import { JobContext, ProcessedShowStyleCompound } from '../../jobs/index.js'
@@ -79,7 +79,7 @@ export class RundownTimingEventContext extends RundownDataChangedEventContext im
 		refPartInstance: Readonly<Pick<IBlueprintPartInstance<unknown>, '_id'>>
 	): Promise<Array<IBlueprintPartInstance<unknown>>> {
 		// Pull the PartInstance from the cached list, so that we can access 'secret' values
-		const refPartInstance2 = this.partInstanceCache.get(protectString(refPartInstance._id))
+		const refPartInstance2 = this.partInstanceCache.get(protectString<PartInstanceId>(refPartInstance._id))
 		if (!refPartInstance2?.segmentId || !refPartInstance2.segmentPlayoutId)
 			throw new Error('Missing partInstance to use a reference for the segment')
 
@@ -112,7 +112,7 @@ export class RundownTimingEventContext extends RundownDataChangedEventContext im
 		const pieceInstances = await this.context.directCollections.PieceInstances.findFetch({
 			rundownId: this._rundown._id,
 			playlistActivationId: this._currentPart.playlistActivationId,
-			partInstanceId: { $in: protectStringArray(partInstanceIds) },
+			partInstanceId: { $in: protectStringArray<PartInstanceId>(partInstanceIds) },
 		})
 
 		return pieceInstances.map(convertPieceInstanceToBlueprints)
@@ -122,7 +122,7 @@ export class RundownTimingEventContext extends RundownDataChangedEventContext im
 		if (!segmentId) return undefined
 
 		const segment = await this.context.directCollections.Segments.findOne({
-			_id: protectString(segmentId),
+			_id: protectString<SegmentId>(segmentId),
 			rundownId: this._rundown._id,
 		})
 

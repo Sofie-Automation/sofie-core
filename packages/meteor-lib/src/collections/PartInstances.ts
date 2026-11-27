@@ -3,17 +3,24 @@ import { DBPart } from '@sofie-automation/corelib/dist/dataModel/Part'
 import { PartInstance } from '@sofie-automation/corelib/dist/dataModel/PartInstance'
 import { PartId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { wrapPartToTemporaryInstance } from '@sofie-automation/corelib/dist/playout/stateCacheResolver'
+import { RundownPlaylistActivationId } from '@sofie-automation/corelib/src/dataModel/Ids'
 
 export function findPartInstanceInMapOrWrapToTemporary<T extends Partial<PartInstance>>(
 	partInstancesMap: Map<PartId, T>,
 	part: DBPart
 ): T {
-	return partInstancesMap.get(part._id) || (wrapPartToTemporaryInstance(protectString(''), part) as T)
+	return (
+		partInstancesMap.get(part._id) ||
+		(wrapPartToTemporaryInstance(protectString<RundownPlaylistActivationId>(''), part) as T)
+	)
 }
 
 export function findPartInstanceOrWrapToTemporary<T extends Partial<PartInstance>>(
 	partInstances: { [partId: string]: T | undefined },
 	part: DBPart
 ): T {
-	return partInstances[unprotectString(part._id)] || (wrapPartToTemporaryInstance(protectString(''), part) as T)
+	return (
+		partInstances[unprotectString(part._id)] ||
+		(wrapPartToTemporaryInstance(protectString<RundownPlaylistActivationId>(''), part) as T)
+	)
 }

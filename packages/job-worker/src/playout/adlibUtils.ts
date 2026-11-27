@@ -6,7 +6,6 @@ import {
 	PartInstanceId,
 	PieceId,
 	PieceInstanceId,
-	SegmentId,
 } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
@@ -37,6 +36,7 @@ import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import { compareMarkerPositions, MarkerPosition } from '@sofie-automation/corelib/dist/playout/playlist'
 import { QueueablePartAndPieces } from '../blueprints/context/services/PartAndPieceInstanceActionService.js'
+import { SegmentId } from '@sofie-automation/corelib/src/dataModel/Ids.js'
 
 export type QueuedAdlibInsertTarget = {
 	targetSegment: ReadonlyDeep<PlayoutSegmentModel>
@@ -173,7 +173,7 @@ export async function innerStartOrQueueAdLibPiece(
 	let queuedPartInstanceId: PartInstanceId | undefined
 	if (queue || adLibPiece.toBeQueued) {
 		const adlibbedPart: Omit<DBPart, 'segmentId' | 'rundownId' | '_rank'> = {
-			_id: getRandomId(),
+			_id: getRandomId<PartId>(),
 			externalId: '',
 			title: adLibPiece.name,
 			expectedDuration: adLibPiece.expectedDuration,
@@ -361,7 +361,7 @@ export async function insertQueuedPartWithPieces(
 		targetRundown,
 		newPartFull,
 		possiblePieces,
-		protectString('') // Replaced inside playoutModel.insertAdlibbedPartInstance
+		protectString<PartInstanceId>('') // Replaced inside playoutModel.insertAdlibbedPartInstance
 	)
 
 	const newPartInstance = playoutModel.createAdlibbedPartInstance(
