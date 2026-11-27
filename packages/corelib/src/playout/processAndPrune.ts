@@ -436,6 +436,54 @@ function findPieceInstancesOnInfiniteLayers(pieces: ReadonlyDeep<PieceInstance[]
 	return { best, others }
 }
 
+/** How a piece ranks against the other pieces playing on its layer */
+export interface PieceVisibilityRank {
+	/** The `priority` given by `processAndPrunePieceInstanceTimings` */
+	priority: number
+	/** When the piece started, measured the same way for all the pieces compared */
+	start: number
+}
+
+/**
+ * Whether a piece is shown over another one playing on the same layer at the same time.
+ * Pruning leaves a piece persisting while covered on the layer, below the one covering it. As the timeline resolves the
+ * layer, the piece with the highest priority is shown, or the latest started one when they are equal.
+ */
+export function isVisibleOver(piece: PieceVisibilityRank, other: PieceVisibilityRank): boolean {
+	return piece.priority > other.priority || (piece.priority === other.priority && piece.start >= other.start)
+}
+
+/** A pruned PieceInstance that is playing, with its start resolved within the PartInstance */
+export interface PlayingPieceInstance<T extends PieceInstanceWithTimings> {
+	pieceInstance: T
+	resolvedStart: number
+}
+
+/**
+ * Keep the playing PieceInstances that playout shows, being the visible one on each source layer. See `isVisibleOver`.
+ * Virtual pieces take part, as a virtual covers the pieces below it just like any other piece.
+ * @returns The visible PieceInstances, in their original order
+ */
+export function getVisiblePieceInstances<T extends PieceInstanceWithTimings>(
+	playingPieceInstances: PlayingPieceInstance<T>[]
+): T[] {
+	const rank = (item: PlayingPieceInstance<T>): PieceVisibilityRank => ({
+		priority: item.pieceInstance.priority,
+		start: item.resolvedStart,
+	})
+
+	const visibleOnLayer = new Map<string, PlayingPieceInstance<T>>()
+	for (const item of playingPieceInstances) {
+		const layerId = item.pieceInstance.piece.sourceLayerId
+		const visible = visibleOnLayer.get(layerId)
+		if (!visible || isVisibleOver(rank(item), rank(visible))) visibleOnLayer.set(layerId, item)
+	}
+
+	return playingPieceInstances
+		.filter((item) => visibleOnLayer.get(item.pieceInstance.piece.sourceLayerId) === item)
+		.map((item) => item.pieceInstance)
+}
+
 /**
  * Resolve a PieceInstanceWithTimings to approximated numbers within the PartInstance
  * @param partTimes Approximate time of the playhead within the PartInstance

@@ -17,6 +17,7 @@ import { FindOptions, MongoQuery, mongoWhereFilter } from '../mongo.js'
 import { protectString } from '@sofie-automation/shared-lib/dist/lib/protectedString'
 import {
 	createPartCurrentTimes,
+	isVisibleOver,
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
 } from './processAndPrune.js'
@@ -453,6 +454,10 @@ function resolveVisiblePiecesOnLayer(items: PieceExtended[]): PieceExtended[] {
 	)
 	const getEnd = (item: PieceExtended & { renderedInPoint: number }) =>
 		item.renderedDuration === null ? Infinity : item.renderedInPoint + item.renderedDuration
+	const rank = (item: PieceExtended & { renderedInPoint: number }) => ({
+		priority: item.instance.priority,
+		start: item.renderedInPoint,
+	})
 
 	// Step through every point where the visible piece may change
 	const points = _.uniq(timedItems.flatMap((item) => [item.renderedInPoint, getEnd(item)]))
@@ -465,7 +470,7 @@ function resolveVisiblePiecesOnLayer(items: PieceExtended[]): PieceExtended[] {
 			.filter((item) => item.renderedInPoint <= start && getEnd(item) > start)
 			.reduce<
 				(PieceExtended & { renderedInPoint: number }) | undefined
-			>((best, item) => (!best || item.instance.priority > best.instance.priority || (item.instance.priority === best.instance.priority && item.renderedInPoint >= best.renderedInPoint) ? item : best), undefined)
+			>((best, item) => (!best || isVisibleOver(rank(item), rank(best)) ? item : best), undefined)
 		if (!visible) return
 
 		const spans = visibleSpans.get(visible) ?? []

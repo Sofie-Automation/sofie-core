@@ -10,6 +10,7 @@ import { CorelibPubSub } from '@sofie-automation/corelib/dist/pubsub'
 import { PartInstanceId } from '@sofie-automation/corelib/dist/dataModel/Ids'
 import {
 	createPartCurrentTimes,
+	getVisiblePieceInstances,
 	PieceInstanceWithTimings,
 	processAndPrunePieceInstanceTimings,
 	resolvePrunedPieceInstance,
@@ -99,18 +100,19 @@ export class PieceInstancesHandler extends PublicationCollection<
 		)
 		if (!filterActive) return prunedPieceInstances
 
-		return prunedPieceInstances.filter((pieceInstance) => {
-			const resolvedPieceInstance = resolvePrunedPieceInstance(partTimes, pieceInstance)
+		const playingPieceInstances = prunedPieceInstances.flatMap((pieceInstance) => {
+			const { resolvedStart, resolvedDuration } = resolvePrunedPieceInstance(partTimes, pieceInstance)
 
-			return (
-				resolvedPieceInstance.resolvedStart <= partTimes.nowInPart &&
-				(resolvedPieceInstance.resolvedDuration == null ||
-					resolvedPieceInstance.resolvedStart + resolvedPieceInstance.resolvedDuration >
-						partTimes.nowInPart) &&
-				pieceInstance.piece.virtual !== true &&
-				pieceInstance.disabled !== true
-			)
+			const isPlaying =
+				resolvedStart <= partTimes.nowInPart &&
+				(resolvedDuration == null || resolvedStart + resolvedDuration > partTimes.nowInPart)
+			return isPlaying ? [{ pieceInstance, resolvedStart }] : []
 		})
+
+		// A piece covered by another one on its layer is not on air, even though it is still playing
+		return getVisiblePieceInstances(playingPieceInstances).filter(
+			(pieceInstance) => pieceInstance.piece.virtual !== true && pieceInstance.disabled !== true
+		)
 	}
 
 	private updateCollectionData(): boolean {
