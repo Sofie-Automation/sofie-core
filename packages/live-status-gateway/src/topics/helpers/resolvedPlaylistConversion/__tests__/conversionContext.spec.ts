@@ -1,7 +1,6 @@
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
 import { mongoWhereFilter } from '@sofie-automation/corelib/dist/mongo'
 import { buildPastInfinitePiecesForThisPartQuery } from '@sofie-automation/corelib/dist/playout/infinites'
-import { PieceLifespan } from '@sofie-automation/blueprints-integration'
 import {
 	createResolvedPlaylistConversionContext,
 	findCurrentPartInstance,
@@ -286,7 +285,7 @@ describe('conversionContext accessors', () => {
 		const segmentIdsInRundown = props.segmentsState
 			.filter((s) => s.rundownId === laterPart.rundownId)
 			.map((s) => s._id)
-		const otherLifespans = [PieceLifespan.OutOnSegmentEnd, PieceLifespan.OutOnRundownEnd]
+		const otherScopes = ['segment', 'rundown']
 		const selectors: any[] = [
 			undefined,
 			{ startPartId: part._id },
@@ -300,12 +299,12 @@ describe('conversionContext accessors', () => {
 			buildPastInfinitePiecesForThisPartQuery(laterPart, previousPartIdsInSegment, segmentIdsInRundown, [
 				playlist.rundownIdsInOrder[0],
 			]),
-			// Shaped like the infinites query, but may match WithinPart pieces too
-			{ lifespan: { $in: [PieceLifespan.WithinPart, ...otherLifespans] } },
+			// Shaped like the infinites query, but may match part pieces too
+			{ 'lifespan.scope': { $in: ['part', ...otherScopes] } },
 			{
 				$or: [
-					{ lifespan: { $in: otherLifespans } },
-					{ lifespan: { $in: [PieceLifespan.WithinPart] }, startPartId: part._id },
+					{ 'lifespan.scope': { $in: otherScopes } },
+					{ 'lifespan.scope': { $in: ['part'] }, startPartId: part._id },
 				],
 			},
 		]

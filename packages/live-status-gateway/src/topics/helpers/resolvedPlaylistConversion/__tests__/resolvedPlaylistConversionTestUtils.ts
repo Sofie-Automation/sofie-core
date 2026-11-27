@@ -1,5 +1,7 @@
 import { protectString } from '@sofie-automation/corelib/dist/protectedString'
-import { PieceLifespan, PlaylistTimingType } from '@sofie-automation/blueprints-integration'
+import { PlaylistTimingType } from '@sofie-automation/blueprints-integration'
+import { LegacyPieceLifespan } from '@sofie-automation/shared-lib/dist/core/model/Rundown'
+import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 import { ShowStyleBaseExt } from '../../../../collections/showStyleBaseHandler.js'
 import { QuickLoopMarkerType } from '@sofie-automation/corelib/dist/dataModel/RundownPlaylist/RundownPlaylist'
 import type { ToResolvedPlaylistStatusProps } from '../context/conversionContext.js'
@@ -134,11 +136,11 @@ export function makeQuickLoop(): any {
 	}
 }
 
-function pieceLifespan(segmentIndex: number, partIndex: number, pieceIndex: number): PieceLifespan {
-	if (pieceIndex === 0) return PieceLifespan.OutOnSegmentEnd
-	if (pieceIndex === 1 && partIndex === 0) return PieceLifespan.OutOnRundownEnd
-	if (pieceIndex === 2 && partIndex === 0 && segmentIndex % 10 === 0) return PieceLifespan.OutOnShowStyleEnd
-	return PieceLifespan.WithinPart
+function pieceLifespan(segmentIndex: number, partIndex: number, pieceIndex: number): LegacyPieceLifespan {
+	if (pieceIndex === 0) return LegacyPieceLifespan.OutOnSegmentEnd
+	if (pieceIndex === 1 && partIndex === 0) return LegacyPieceLifespan.OutOnRundownEnd
+	if (pieceIndex === 2 && partIndex === 0 && segmentIndex % 10 === 0) return LegacyPieceLifespan.OutOnShowStyleEnd
+	return LegacyPieceLifespan.WithinPart
 }
 
 export interface LargeActivePlaylistOptions {
@@ -209,11 +211,12 @@ export function makeLargeActivePlaylist({
 						startRundownId: protectString(rundownId),
 						startSegmentId: protectString(segmentId),
 						startPartId: protectString(partId),
-						lifespan,
+						// Stored as the ingest normalises it
+						lifespan: PieceLifespan.from(lifespan).definition(),
 						sourceLayerId: pieceIndex % 2 === 0 ? 'sl1' : 'sl2',
 						outputLayerId: pieceIndex % 2 === 0 ? 'ol1' : 'ol2',
 						enable:
-							lifespan === PieceLifespan.WithinPart
+							lifespan === LegacyPieceLifespan.WithinPart
 								? { start: pieceIndex * 100, duration: 500 }
 								: { start: 0 },
 						invalid: false,

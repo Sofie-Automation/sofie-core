@@ -10,7 +10,7 @@ import type { Piece } from '@sofie-automation/corelib/dist/dataModel/Piece'
 import type { PieceInstance } from '@sofie-automation/corelib/dist/dataModel/PieceInstance'
 import type { StateCacheResolverDataAccess } from '@sofie-automation/corelib/dist/playout/stateCacheResolverTypes'
 import { PartId, RundownId, SegmentId, ShowStyleBaseId } from '@sofie-automation/corelib/dist/dataModel/Ids'
-import { PieceLifespan } from '@sofie-automation/blueprints-integration'
+import { PieceLifespan } from '@sofie-automation/corelib/dist/playout/pieceLifespan'
 import { ShowStyleBaseExt } from '../../../../collections/showStyleBaseHandler.js'
 
 type PlaylistState = Pick<
@@ -230,27 +230,32 @@ function findByIndex<T extends Record<string, any>>(
 	return mongoWhereFilter(candidates as T[], selector as never)
 }
 
+/** The field `buildPastInfinitePiecesForThisPartQuery` filters the lifespan on */
+const LIFESPAN_SCOPE_KEY = 'lifespan.scope'
+
 /**
  * Whether the selector is the query for the infinites which may continue into a part, as built by
- * `buildPastInfinitePiecesForThisPartQuery`. That is run for every part, and can only match Pieces with a lifespan
- * other than `WithinPart`.
- * It has `lifespan: { $in: [...] }` at the top level when there is one fragment, or in every branch of a top-level
- * `$or` when there are several. If that shape changes this stops recognising it, which only loses the speedup.
+ * `buildPastInfinitePiecesForThisPartQuery`. That is run for every part, and can only match Pieces whose lifespan has a
+ * scope broader than `part`.
+ * It has `'lifespan.scope': { $in: [...] }` at the top level when there is one fragment, or in every branch of a
+ * top-level `$or` when there are several. If that shape changes this stops recognising it, which only loses the speedup.
  */
 function isInfinitesQuery(selector: unknown): boolean {
 	if (!selector || typeof selector !== 'object') return false
-	const { lifespan, $or } = selector as Record<string, unknown>
+	const { [LIFESPAN_SCOPE_KEY]: scope, $or } = selector as Record<string, unknown>
 
-	const excludesWithinPart = (lifespanSelector: unknown) => {
-		const $in = (lifespanSelector as { $in?: unknown } | undefined)?.$in
-		return Array.isArray($in) && !$in.includes(PieceLifespan.WithinPart)
+	const excludesPartScope = (scopeSelector: unknown) => {
+		const $in = (scopeSelector as { $in?: unknown } | undefined)?.$in
+		return Array.isArray($in) && !$in.includes('part')
 	}
 
-	if (lifespan !== undefined) return excludesWithinPart(lifespan)
+	if (scope !== undefined) return excludesPartScope(scope)
 	return (
 		Array.isArray($or) &&
 		$or.length > 0 &&
-		$or.every((fragment) => excludesWithinPart((fragment as Record<string, unknown> | undefined)?.lifespan))
+		$or.every((fragment) =>
+			excludesPartScope((fragment as Record<string, unknown> | undefined)?.[LIFESPAN_SCOPE_KEY])
+		)
 	)
 }
 
@@ -282,7 +287,7 @@ function createQueryAdapters({
 
 	const piecesByStartPartId = groupByToMap(piecesInPlaylistState, 'startPartId')
 	/** Pieces which may continue beyond the Part they start in. Usually a small fraction of all Pieces */
-	const infinitePieces = piecesInPlaylistState.filter((p) => p.lifespan !== PieceLifespan.WithinPart)
+	const infinitePieces = piecesInPlaylistState.filter((p) => PieceLifespan.from(p.lifespan).isInfinite)
 
 	const pieceInstancesByPartInstanceId = groupByToMap(pieceInstancesInPlaylistState, 'partInstanceId')
 
