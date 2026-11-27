@@ -10,6 +10,9 @@ import {
 	buildPastInfinitePiecesForThisPartQuery,
 	buildPastPiecesOnLayersForThisPartQuery,
 	getContinuedInfinitesForPart,
+	getPieceInstancesForPart,
+	getSourceLayersWithStoppableInfinites,
+	mergePiecesBeforePart,
 	PieceInstancesForPartParams,
 	PlayingPartInstance,
 } from '../infinites.js'
@@ -618,5 +621,141 @@ describe('Infinites', () => {
 			expect(mongoWhere(createPiece('otherLayer', 'part0', 0, 'other', partOnly), query)).toBe(false)
 			expect(buildPastPiecesOnLayersForThisPartQuery(part, [protectString('part0')], [], [], [])).toBeNull()
 		})
+	})
+})
+
+describe('Fetching the Pieces before a Part', () => {
+	/** What the Pieces collection would return for a query */
+	const find = (allPieces: Piece[], query: ReturnType<typeof buildPastInfinitePiecesForThisPartQuery>) =>
+		query ? allPieces.filter((p) => mongoWhere(p, query)) : []
+
+	/** Fetch as `fetchPiecesThatMayBeActiveForPart` does, querying the layers given for the pieces before the Part */
+	function fetchPieces(
+		allPieces: Piece[],
+		params: PieceInstancesForPartParams,
+		getLayers: (infinites: Piece[]) => string[]
+	): Piece[] {
+		const { part, position } = params
+		const partIds = Array.from(position.partIdsBefore)
+		const segmentIds = Array.from(position.segmentIdsBefore)
+		const rundownIds = [...position.rundownIdsBefore]
+
+		const starting = allPieces.filter((p) => p.startPartId === part._id)
+		const infinites = find(
+			allPieces,
+			buildPastInfinitePiecesForThisPartQuery(part, partIds, segmentIds, rundownIds)
+		)
+		const layers = getLayers(infinites)
+		const layerPieces = find(
+			allPieces,
+			buildPastPiecesOnLayersForThisPartQuery(part, partIds, segmentIds, rundownIds, layers)
+		)
+		return [...starting, ...mergePiecesBeforePart(layerPieces, infinites, layers)]
+	}
+
+	test('the layer of a playing infinite which stops when covered is queried when predicting', () => {
+		// A planned infinite persisting when covered, on the layer of an adlibbed one which stops when covered
+		const persisting = createPiece('persisting', 'part0', 0, 'layer', rundownPersist)
+		const adlib = createPiece('adlib', 'part1', 0, 'layer', { ...rundownPersist, whenCovered: 'stop' })
+		adlib.enable = { start: 'now' }
+		// The playhead travels through part2 when predicting part3, where this covers the adlib
+		const covering = createPiece('covering', 'part2', 0, 'layer', partOnly)
+		const pieces = [persisting, covering]
+		const playing = createPlaying('part1', [createPieceInstance(adlib, { dynamicallyInserted: 1000 })])
+
+		const params = getParams('part3', [], playing, undefined, true)
+		const fetched = fetchPieces(pieces, params, (infinites) =>
+			getSourceLayersWithStoppableInfinites(infinites, playing.pieceInstances as PieceInstance[])
+		)
+		expect(fetched.map((p) => String(p._id)).sort()).toEqual(['covering', 'persisting'])
+		expect(getContinuedPieceIds({ ...params, pieces: fetched })).toEqual(['persisting'])
+	})
+
+	test('only querying the layers with infinites which stop when covered gives the same PieceInstances', () => {
+		// Seeded, so that a failure can be reproduced
+		let seed = 42
+		const random = () => {
+			seed = (seed * 1103515245 + 12345) % 2147483648
+			return seed / 2147483648
+		}
+		const pick = <T>(items: readonly T[]): T => items[Math.floor(random() * items.length)]
+
+		const lifespans: IPieceLifespan[] = []
+		for (const scope of ['part', 'segment', 'rundown', 'showstyle', 'playlist'] as const) {
+			for (const presence of ['forward-scope', 'follow-playhead'] as const) {
+				for (const whenCovered of ['stop', 'persist', 'legacy-persist'] as const) {
+					lifespans.push({ scope, presence, whenCovered })
+				}
+			}
+		}
+		const partIds = Array.from(parts.keys())
+		const layers = ['layer0', 'layer1', 'layer2']
+
+		let comparisons = 0
+		let narrowedQueries = 0
+		for (let scenario = 0; scenario < 1500; scenario++) {
+			const pieces: Piece[] = []
+			const pieceCount = 2 + Math.floor(random() * 10)
+			for (let i = 0; i < pieceCount; i++) {
+				const piece = createPiece(
+					`piece${i}`,
+					pick(partIds),
+					pick([0, 0, 1000, 2000]),
+					pick(layers),
+					pick(lifespans)
+				)
+				if (random() < 0.25) piece.enable = { ...piece.enable, duration: pick([500, 1500, 5000]) }
+				if (random() < 0.15) piece.virtual = true
+				if (piece.virtual && random() < 0.5) piece.persistCoveredPieces = true
+				pieces.push(piece)
+			}
+
+			const targetIndex = 1 + Math.floor(random() * (partIds.length - 1))
+			const targetPartId = partIds[targetIndex]
+
+			// Sometimes a PartInstance is playing before the target, with an adlib or two of its own
+			let playing: PlayingPartInstance | undefined
+			if (random() < 0.6) {
+				const playingPartId = partIds[Math.floor(random() * targetIndex)]
+				const instances = pieces
+					.filter((p) => String(p.startPartId) === playingPartId)
+					.map((p) => createPieceInstance(p))
+				const adlibs = Math.floor(random() * 3)
+				for (let i = 0; i < adlibs; i++) {
+					const adlib = createPiece(`adlib${i}`, playingPartId, 0, pick(layers), pick(lifespans))
+					adlib.enable = { start: 'now' }
+					instances.push(createPieceInstance(adlib, { dynamicallyInserted: 1000 + i }))
+				}
+				playing = createPlaying(playingPartId, instances)
+			}
+
+			for (const isTemporary of [false, true]) {
+				const params = getParams(targetPartId, [], playing, undefined, isTemporary)
+				const playingInstances = playing?.pieceInstances as PieceInstance[] | undefined
+
+				// Before: every layer with an infinite
+				const everyLayer = fetchPieces(pieces, params, (infinites) =>
+					Array.from(new Set(infinites.map((p) => p.sourceLayerId)))
+				)
+				const narrowed = fetchPieces(pieces, params, (infinites) =>
+					getSourceLayersWithStoppableInfinites(infinites, playingInstances)
+				)
+				if (narrowed.length < everyLayer.length) narrowedQueries++
+
+				const describe = (fetched: Piece[]) =>
+					getPieceInstancesForPart({ ...params, pieces: fetched })
+						.map((p) => `${p.piece._id}:${p.piece.enable.start}:${p.infinite?.fromPreviousPart ?? false}`)
+						.sort()
+				expect({ scenario, isTemporary, result: describe(narrowed) }).toEqual({
+					scenario,
+					isTemporary,
+					result: describe(everyLayer),
+				})
+				comparisons++
+			}
+		}
+		expect(comparisons).toBe(3000)
+		// Make sure the narrowing was exercised
+		expect(narrowedQueries).toBeGreaterThan(300)
 	})
 })

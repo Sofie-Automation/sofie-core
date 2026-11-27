@@ -147,6 +147,54 @@ export function buildPastPiecesOnLayersForThisPartQuery(
 	return query && { ...query, sourceLayerId: { $in: sourceLayerIds } }
 }
 
+/**
+ * The source layers to query the Pieces before a Part on, to find the ones which may stop the infinites found by
+ * `buildPastInfinitePiecesForThisPartQuery`. See `stopCoveredInfinites`:
+ * - Any newer piece on its layer stops an infinite which stops when covered.
+ * - One persisting when covered is only stopped by a newer persisting piece of its own scope. That query finds those
+ *   too, as their scope reaches the Part from wherever they are between the infinite and the Part.
+ * Only planned infinites which continue from the plan count, the ones following the playhead continue from the playing
+ * PartInstance instead.
+ * @param infinitePieces The Pieces found by `buildPastInfinitePiecesForThisPartQuery`
+ * @param playingPieceInstances When predicting through the planned Parts after the playing PartInstance, its
+ *  PieceInstances, as the planned pieces may stop the infinites continuing from it
+ */
+export function getSourceLayersWithStoppableInfinites(
+	infinitePieces: ReadonlyDeep<Pick<Piece, 'sourceLayerId' | 'lifespan'>>[],
+	playingPieceInstances?: ReadonlyDeep<Pick<PieceInstance, 'piece'>>[]
+): string[] {
+	const stopsWhenCovered = (lifespan: ReadonlyDeep<Piece['lifespan']>, continuesFromPlan: boolean) => {
+		const parsed = PieceLifespan.from(lifespan)
+		return parsed.isInfinite && !parsed.persistsWhenCovered && (!continuesFromPlan || parsed.isStatic)
+	}
+
+	const layers = new Set<string>()
+	for (const piece of infinitePieces) {
+		if (stopsWhenCovered(piece.lifespan, true)) layers.add(piece.sourceLayerId)
+	}
+	for (const instance of playingPieceInstances ?? []) {
+		if (stopsWhenCovered(instance.piece.lifespan, false)) layers.add(instance.piece.sourceLayerId)
+	}
+
+	// Only the layers with a planned infinite were queried before, so keep to those
+	const layersWithInfinites = new Set(infinitePieces.map((p) => p.sourceLayerId))
+	return Array.from(layers).filter((layer) => layersWithInfinites.has(layer))
+}
+
+/**
+ * Combine the Pieces found by `buildPastPiecesOnLayersForThisPartQuery` on `queriedLayerIds` with the infinites
+ * found by `buildPastInfinitePiecesForThisPartQuery`. The first include every Piece on those layers, so only the
+ * infinites on the other layers are added
+ */
+export function mergePiecesBeforePart<T extends ReadonlyDeep<Pick<Piece, 'sourceLayerId'>>>(
+	layerPieces: T[],
+	infinitePieces: T[],
+	queriedLayerIds: string[]
+): T[] {
+	const queriedLayers = new Set(queriedLayerIds)
+	return [...layerPieces, ...infinitePieces.filter((p) => !queriedLayers.has(p.sourceLayerId))]
+}
+
 function wrapPastPiecesQuery(
 	part: ReadonlyDeep<DBPart>,
 	fragments: Array<MongoQuery<Piece> | undefined>

@@ -8,6 +8,8 @@ import {
 	buildPastInfinitePiecesForThisPartQuery,
 	buildPastPiecesOnLayersForThisPartQuery,
 	getContinuedInfinitesForPart,
+	getSourceLayersWithStoppableInfinites,
+	mergePiecesBeforePart,
 	getPieceInstancesForPart as libGetPieceInstancesForPart,
 	PartPosition,
 	PieceInstancesForPartParams,
@@ -251,14 +253,16 @@ export async function fetchPiecesThatMayBeActiveForPart(
 		),
 	])
 
-	// Any piece on the same layer as one of those infinites may stop it
-	const sourceLayerIds = _.uniq(infinitePieces.map((p) => p.sourceLayerId))
+	// Any piece on the layer of an infinite which stops when covered may stop it.
+	// Playout doesn't predict through the planned Parts (`isTemporary` is false), so they never stop the infinites of
+	// the playing PartInstance
+	const sourceLayerIds = getSourceLayersWithStoppableInfinites(infinitePieces)
 	const layerPieces = await findPiecesBeforePart((partIds, segmentIds, rundownIds) =>
 		buildPastPiecesOnLayersForThisPartQuery(part, partIds, segmentIds, rundownIds, sourceLayerIds)
 	)
 
 	if (span) span.end()
-	return [...piecesStartingInPart, ...layerPieces]
+	return [...piecesStartingInPart, ...mergePiecesBeforePart(layerPieces, infinitePieces, sourceLayerIds)]
 }
 
 /**

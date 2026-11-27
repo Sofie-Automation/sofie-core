@@ -28,6 +28,8 @@ import {
 	buildPastPiecesOnLayersForThisPartQuery,
 	buildPiecesStartingInThisPartQuery,
 	getPieceInstancesForPart,
+	getSourceLayersWithStoppableInfinites,
+	mergePiecesBeforePart,
 	PartPosition,
 	PieceInstancesForPartParams,
 } from './infinites.js'
@@ -625,7 +627,9 @@ function fetchPiecesThatMayBeActiveForPart(
 	position: PartPosition,
 	piecesFind: PiecesFind,
 	/** Map of Pieces on Parts, passed through for performance */
-	allPiecesCache?: Map<PartId | null, Piece[]>
+	allPiecesCache: Map<PartId | null, Piece[]> | undefined,
+	/** The PieceInstances of the playing PartInstance, whose infinites the planned pieces may stop when predicting */
+	playingPieceInstances: ReadonlyDeep<PieceInstance>[] | undefined
 ): Piece[] {
 	const allPieces = allPiecesCache ? Array.from(allPiecesCache.values()).flat() : undefined
 	const findPieces = (selector: MongoQuery<Piece>): Piece[] =>
@@ -646,17 +650,18 @@ function fetchPiecesThatMayBeActiveForPart(
 	)
 	const infinitePieces = infinitePieceQuery ? findPieces(infinitePieceQuery) : []
 
-	// Any piece on the same layer as one of those infinites may stop it
+	// Any piece on the layer of an infinite which stops when covered may stop it
+	const sourceLayerIds = getSourceLayersWithStoppableInfinites(infinitePieces, playingPieceInstances)
 	const layerPieceQuery = buildPastPiecesOnLayersForThisPartQuery(
 		part,
 		partIdsBefore,
 		segmentIdsBefore,
 		rundownIdsBefore,
-		_.uniq(infinitePieces.map((p) => p.sourceLayerId))
+		sourceLayerIds
 	)
 	const layerPieces = layerPieceQuery ? findPieces(layerPieceQuery) : []
 
-	return piecesStartingInPart.concat(layerPieces.length > 0 ? layerPieces : infinitePieces)
+	return piecesStartingInPart.concat(mergePiecesBeforePart(layerPieces, infinitePieces, sourceLayerIds))
 }
 
 const SIMULATION_INVALIDATION = 3000
@@ -706,7 +711,13 @@ export function getPieceInstancesForPartInstance({
 			segment,
 			part: partInstance.part,
 			position,
-			pieces: fetchPiecesThatMayBeActiveForPart(partInstance.part, position, piecesFind, allPiecesCache),
+			pieces: fetchPiecesThatMayBeActiveForPart(
+				partInstance.part,
+				position,
+				piecesFind,
+				allPiecesCache,
+				currentPartInstance && currentSegment ? (currentPartInstancePieceInstances ?? []) : undefined
+			),
 			playing:
 				currentPartInstance && currentSegment
 					? {

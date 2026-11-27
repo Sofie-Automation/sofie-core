@@ -28,6 +28,7 @@ import { clone, literal } from '@sofie-automation/corelib/dist/lib'
 import {
 	FindOptions as CacheFindOptions,
 	MongoBulkWriteOperation,
+	compileMongoSelector,
 	mongoFindOptions,
 	mongoModify,
 	mongoWhere,
@@ -112,7 +113,7 @@ export class MockMongoCollection<TDoc extends { _id: ProtectedString<any> }> imp
 				matchedDocs = []
 			}
 		} else {
-			matchedDocs = Array.from(this.#documents.values()).filter((doc) => mongoWhere(doc, selector as any))
+			matchedDocs = Array.from(this.#documents.values()).filter(compileMongoSelector(selector as any))
 		}
 
 		if (options) {

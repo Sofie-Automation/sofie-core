@@ -230,6 +230,47 @@ function findByIndex<T extends Record<string, any>>(
 	return mongoWhereFilter(candidates as T[], selector as never)
 }
 
+/**
+ * The values `selector` allows `key` to have, when it requires a single value (see `getRequiredEqualValue`) or is
+ * `{ [key]: { $in: [...] } }` with plain values. Returns `undefined` when it allows any other value.
+ */
+function getAllowedValues(selector: unknown, key: string): Array<string | number> | undefined {
+	const equalValue = getRequiredEqualValue(selector, key)
+	if (equalValue !== undefined) return [equalValue]
+
+	const value = (selector as Record<string, any> | undefined)?.[key]
+	const $in = value && typeof value === 'object' && Object.keys(value).length === 1 ? value.$in : undefined
+	const isPlainList = Array.isArray($in) && $in.every((v) => typeof v === 'string' || typeof v === 'number')
+	return isPlainList ? $in : undefined
+}
+
+/**
+ * The infinites the query for the infinites which may continue into a part could match. Each of its branches requires
+ * the Pieces to start in some Segments, or else in some Rundowns, so only the infinites starting there are needed.
+ * Gives all of them when a branch requires neither. In their original order, as a scan gives them.
+ * `startSegmentId` and `startRundownId` are never arrays, see `findByIndex`.
+ */
+function getInfiniteCandidates<T>(
+	selector: unknown,
+	infinites: readonly T[],
+	infinitesBySegmentId: ReadonlyMap<unknown, T[]>,
+	infinitesByRundownId: ReadonlyMap<unknown, T[]>
+): readonly T[] {
+	const { $or } = selector as Record<string, unknown>
+	const branches = Array.isArray($or) ? $or : [selector]
+
+	const candidates = new Set<T>()
+	for (const branch of branches) {
+		const segmentIds = getAllowedValues(branch, 'startSegmentId')
+		const ids = segmentIds ?? getAllowedValues(branch, 'startRundownId')
+		if (!ids) return infinites
+
+		const index = segmentIds ? infinitesBySegmentId : infinitesByRundownId
+		for (const id of ids) for (const piece of index.get(id) ?? []) candidates.add(piece)
+	}
+	return infinites.filter((piece) => candidates.has(piece))
+}
+
 /** The field `buildPastInfinitePiecesForThisPartQuery` filters the lifespan on */
 const LIFESPAN_SCOPE_KEY = 'lifespan.scope'
 
@@ -288,6 +329,8 @@ function createQueryAdapters({
 	const piecesByStartPartId = groupByToMap(piecesInPlaylistState, 'startPartId')
 	/** Pieces which may continue beyond the Part they start in. Usually a small fraction of all Pieces */
 	const infinitePieces = piecesInPlaylistState.filter((p) => PieceLifespan.from(p.lifespan).isInfinite)
+	const infinitePiecesBySegmentId = groupByToMap(infinitePieces, 'startSegmentId')
+	const infinitePiecesByRundownId = groupByToMap(infinitePieces, 'startRundownId')
 
 	const pieceInstancesByPartInstanceId = groupByToMap(pieceInstancesInPlaylistState, 'partInstanceId')
 
@@ -322,7 +365,15 @@ function createQueryAdapters({
 			if (!selector) return piecesInPlaylistState
 			if (typeof selector === 'string') return piecesInPlaylistState.filter((p) => p._id === selector)
 
-			if (isInfinitesQuery(selector)) return mongoWhereFilter(infinitePieces, selector)
+			if (isInfinitesQuery(selector)) {
+				const candidates = getInfiniteCandidates(
+					selector,
+					infinitePieces,
+					infinitePiecesBySegmentId,
+					infinitePiecesByRundownId
+				)
+				return mongoWhereFilter(candidates as Piece[], selector as never)
+			}
 			return findByIndex(piecesInPlaylistState, piecesByStartPartId, selector, 'startPartId')
 		},
 		pieceInstancesFind: (selector) => {

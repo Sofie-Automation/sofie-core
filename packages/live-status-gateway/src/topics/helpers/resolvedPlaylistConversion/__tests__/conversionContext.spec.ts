@@ -299,6 +299,19 @@ describe('conversionContext accessors', () => {
 			buildPastInfinitePiecesForThisPartQuery(laterPart, previousPartIdsInSegment, segmentIdsInRundown, [
 				playlist.rundownIdsInOrder[0],
 			]),
+			// Shaped like the infinites query, with a branch only requiring the Rundown, and one requiring neither
+			{
+				$or: [
+					{ 'lifespan.scope': { $in: otherScopes }, startSegmentId: laterPart.segmentId },
+					{ 'lifespan.scope': { $in: otherScopes }, startRundownId: { $in: [laterPart.rundownId] } },
+				],
+			},
+			{
+				$or: [
+					{ 'lifespan.scope': { $in: otherScopes }, startSegmentId: laterPart.segmentId },
+					{ 'lifespan.scope': { $in: ['showstyle'] } },
+				],
+			},
 			// Shaped like the infinites query, but may match part pieces too
 			{ 'lifespan.scope': { $in: ['part', ...otherScopes] } },
 			{
